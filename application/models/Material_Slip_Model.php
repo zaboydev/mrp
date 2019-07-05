@@ -41,6 +41,10 @@ class Material_Slip_Model extends MY_Model
       $selected['tb_issuance_items.issued_unit_value']  = 'Value';
       $selected['tb_issuance_items.issued_total_value'] = 'Total Value';
     }
+	
+	if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+        $selected['tb_master_items.kode_pemakaian']    = 'Biaya Pemakaian';
+    }
 
     return $selected;
   }
@@ -67,6 +71,9 @@ class Material_Slip_Model extends MY_Model
     if (config_item('auth_role') == 'SUPERVISOR'){
       $searchable[] = 'tb_stock_in_stores.stores';
       $searchable[] = 'tb_stock_in_stores.reference_document';
+    }
+	if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+		$searchable[] = 'tb_master_items.kode_pemakaian';
     }
 
     return $searchable;
@@ -102,6 +109,10 @@ class Material_Slip_Model extends MY_Model
     if (config_item('auth_role') != 'PIC STOCK'){
       $orderable[] = 'tb_issuance_items.issued_unit_value';
       $orderable[] = 'tb_issuance_items.issued_total_value';
+    }
+	
+	if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+		$orderable[] = 'tb_master_items.kode_pemakaian';
     }
 
     return $orderable;

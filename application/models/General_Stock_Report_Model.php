@@ -40,10 +40,10 @@ class General_Stock_Report_Model extends MY_Model
       // 'tb_stock_cards.warehouse'                    => 'Base',
       );
 
-      // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
       //   // $return['tb_stock_cards.unit_value']                  = 'Price';
-      //   $return[NULL ]                                        = 'Total Price';
-      // }
+        $return['tb_master_items.kode_pemakaian']    = 'Biaya Pemakaian';
+      }
       
       //'tb_stock_in_stores_reports.received_date' => 'Received Date',     
       
@@ -71,9 +71,10 @@ class General_Stock_Report_Model extends MY_Model
       'tb_master_items.id',
 	  //'tb_master_item_groups.coa'
     );
-    // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
-    //     $retur['tb_stock_cards.unit_value'];
-    // }
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      //   // $return['tb_stock_cards.unit_value']                  = 'Price';
+        $retur['tb_master_items.kode_pemakaian'];
+    }
 
     return $retur;
   }
@@ -95,7 +96,8 @@ class General_Stock_Report_Model extends MY_Model
       // 'tb_stock_cards.stores',
       // 'tb_master_items.unit',
       // 'tb_stock_cards.warehouse',
-	  //'tb_master_item_groups.coa'
+	  //'tb_master_item_groups.coa',
+	  'tb_master_items.kode_pemakaian'
     );
   }
 
@@ -773,6 +775,7 @@ class General_Stock_Report_Model extends MY_Model
       'tb_master_items.serial_number'               => 'Serial Number',
       'tb_master_items.description'                 => 'Description',
       'tb_master_items.kode_stok'                   => 'Stock Code',
+	  'tb_master_item_groups.coa'               	=> 'COA',
       'SUM(CASE WHEN tb_stock_cards.tgl < '.$tgl_awal.' AND tb_stock_cards.doc_type != 3 AND tb_stock_cards.doc_type != 4 THEN tb_stock_cards.quantity ELSE 0 END) AS qty'                                          => 'Initial Qty',
       'SUM(CASE WHEN tb_stock_cards.tgl < '.$tgl_awal.' AND tb_stock_cards.doc_type != 3 AND tb_stock_cards.doc_type != 4 THEN tb_stock_cards.total_value ELSE 0 END) AS total_value'                                          => 'Initial Value',
       'SUM(CASE WHEN tb_stock_cards.doc_type = 5 AND tb_stock_cards.tgl >= '.$tgl_awal.' AND tb_stock_cards.tgl <= '.$tgl.' THEN tb_stock_cards.quantity ELSE 0 END) AS grn_qty' => 'QTY GRN',
@@ -790,7 +793,7 @@ class General_Stock_Report_Model extends MY_Model
       'SUM(CASE WHEN tb_stock_cards.tgl <= '.$tgl.' AND tb_stock_cards.doc_type != 3 AND tb_stock_cards.doc_type != 4 THEN tb_stock_cards.quantity ELSE 0 END) AS balance_qty'         => 'Balance',
       'SUM(CASE WHEN tb_stock_cards.tgl <= '.$tgl.' AND tb_stock_cards.doc_type != 3 AND tb_stock_cards.doc_type != 4 THEN tb_stock_cards.total_value ELSE 0 END) AS balance_total_value'        => 'Balanca Value',
       // 'SUM(tb_stock_cards.quantity) as qty'         => 'Balance',
-      // 'tb_stock_cards.stores'                       => 'Stores',
+      'tb_master_items.kode_pemakaian'                       => 'Biaya Pemakaian',
       // 'tb_stock_cards.warehouse'                    => 'Base',
       );
 
@@ -822,7 +825,8 @@ class General_Stock_Report_Model extends MY_Model
       // 'tb_stock_cards.stores',
       // 'tb_master_items.unit',
       // 'tb_stock_cards.warehouse',
-      'tb_master_items.id'
+      'tb_master_items.id',
+	  'tb_master_items.kode_pemakaian'
     );
     // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
     //     $retur['tb_stock_cards.unit_value'];
@@ -848,6 +852,7 @@ class General_Stock_Report_Model extends MY_Model
       // 'tb_stock_cards.stores',
       // 'tb_master_items.unit',
       // 'tb_stock_cards.warehouse',
+	  'tb_master_items.kode_pemakaian'
     );
   }
 
@@ -868,6 +873,7 @@ class General_Stock_Report_Model extends MY_Model
       'tb_stock_cards.stores',
       // 'tb_master_items.unit',
       'tb_stock_cards.warehouse',
+	  'tb_master_items.kode_pemakaian'
     );
   }
 

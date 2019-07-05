@@ -351,6 +351,9 @@ class Material_Slip extends MY_Controller
           $unit_value[]   = $row['issued_unit_value'];
           $total_value[]  = $row['issued_total_value'];
         }
+		if (config_item('auth_role') == 'FINANCE'){
+			$col[]  = print_string($row['kode_pemakaian']);
+		}
 
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
@@ -372,17 +375,17 @@ class Material_Slip extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered($issued_to, $warehouse, $start_date, $end_date, $category),
         "data"            => $data,
         "total"           => array(
-          9 => print_number(array_sum($quantity), 2),
+          10 => print_number(array_sum($quantity), 2),
         )
       );
 
       if (config_item('auth_role') != 'PIC STOCK'){
         if (config_item('auth_role') == 'SUPERVISOR'){
-          $result['total'][21] = print_number(array_sum($unit_value), 2);
-          $result['total'][22] = print_number(array_sum($total_value), 2);
+          $result['total'][22] = print_number(array_sum($unit_value), 2);
+          $result['total'][23] = print_number(array_sum($total_value), 2);
         } else {
-          $result['total'][19] = print_number(array_sum($unit_value), 2);
-          $result['total'][20] = print_number(array_sum($total_value), 2);
+          $result['total'][20] = print_number(array_sum($unit_value), 2);
+          $result['total'][21] = print_number(array_sum($total_value), 2);
         }
       }
     }
@@ -458,15 +461,15 @@ class Material_Slip extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'.  $issued_to.'/'.$warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array( 9 );
+    $this->data['grid']['summary_columns']  = array( 10 );
 
     if (config_item('auth_role') != 'PIC STOCK'){
       if (config_item('auth_role') == 'SUPERVISOR'){
-        $this->data['grid']['summary_columns'][] = 21;
         $this->data['grid']['summary_columns'][] = 22;
+        $this->data['grid']['summary_columns'][] = 23;
       } else {
-        $this->data['grid']['summary_columns'][] = 19;
         $this->data['grid']['summary_columns'][] = 20;
+        $this->data['grid']['summary_columns'][] = 21;
       }
     }
 
