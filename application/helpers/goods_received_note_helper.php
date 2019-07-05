@@ -1,0 +1,157 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
+
+if ( ! function_exists('receipt_format_number')) {
+  function receipt_format_number()
+  {
+    $div  = config_item('document_format_divider');
+    $base = (config_item('include_base_on_document') === TRUE) ? $div . config_item('auth_warehouse') : NULL;
+    $mod  = config_item('module');
+    $year = date('Y');
+
+    $CI =& get_instance();
+
+    $CI->db->select('code');
+    $CI->db->from( 'tb_master_item_categories' );
+    $CI->db->where('category', $_SESSION['receipt']['category']);
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+
+    $return = $div . 'GRN' . $div . $row->code . $base . $div . $year;
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('receipt_last_number')) {
+  function receipt_last_number()
+  {
+    $div  = config_item('document_format_divider');
+    $base = (config_item('include_base_on_document') === TRUE) ? $div . config_item('auth_warehouse') : NULL;
+    $mod  = config_item('module');
+    $year = date('Y');
+
+    $CI =& get_instance();
+
+    $CI->db->select('code');
+    $CI->db->from( 'tb_master_item_categories' );
+    $CI->db->where('category', $_SESSION['receipt']['category']);
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $format = $div . 'GRN' . $div . $row->code . $base . $div . $year;
+
+    $CI->db->select_max('document_number', 'last_number');
+    $CI->db->from('tb_receipts');
+    $CI->db->like('document_number', $format, 'before');
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $last   = $row->last_number;
+    $number = substr($last, 0, 6);
+    $next   = $number + 1;
+    $return = sprintf('%06s', $next);
+
+    return $return;
+  }
+}
+if ( ! function_exists('kurs_dollar')) {
+  function kurs_dollar()
+  {
+
+    $CI =& get_instance();
+
+    // $CI->db->select('kurs_dollar');
+    // $CI->db->from( 'tb_master_kurs_dollar' );
+    // $CI->db->where('date', $date);
+
+    // $query  = $CI->db->get();
+    // $row    = $query->unbuffered_row();
+    // $kurs_dollar   = $row->kurs_dollar;
+
+    $CI->db->order_by('date', 'desc')->limit(1)->from('tb_master_kurs_dollar');
+    // $CI->db->from('tb_master_kurs_dollar');
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $kurs_dollar   = $row->kurs_dollar;
+    
+
+    return $kurs_dollar;
+  }
+}
+
+if ( ! function_exists('tgl_kurs')) {
+  function tgl_kurs($date)
+  {
+
+    $CI =& get_instance();
+    $kurs_dollar = 0;
+    $tanggal = $date;
+
+    while ($kurs_dollar==0) {
+        // $CI->db->select('kurs_dollar');
+        // $CI->db->from( 'tb_master_kurs_dollar' );
+        // $CI->db->where('date', $date);
+
+        // $query  = $CI->db->get();
+        // $row    = $query->unbuffered_row();
+        // $kurs_dollar   = $row->kurs_dollar;
+
+    
+        $CI->db->select('kurs_dollar');
+        $CI->db->from( 'tb_master_kurs_dollar' );
+        $CI->db->where('date', $tanggal);
+
+        $query = $CI->db->get();
+
+        if($query->num_rows() > 0 ){
+            $row    = $query->unbuffered_row();
+            $kurs_dollar   = $row->kurs_dollar;
+        }else{
+            $kurs_dollar=0;
+        }
+        $tgl=strtotime('-1 day',strtotime($tanggal));
+        $tanggal = date('Y-m-d', $tgl);
+    }
+
+    return $kurs_dollar;
+    
+  }
+}
+
+if ( ! function_exists('getGrn')) {
+  function getGrn($group,$date)
+  {
+
+    $CI =& get_instance();
+
+    // $CI->db->select('kurs_dollar');
+    $CI->db->from( 'tb_konsolidasi_ms_grn' );
+    $CI->db->where('date', $date);
+    $CI->db->where('group', $group);
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    
+
+    return $row;
+  }
+}
+
+if ( ! function_exists('isKonsolidasiDateExists')) {
+  function isKonsolidasiDateExists($group,$date)
+  {
+
+    $CI =& get_instance();
+
+    // $CI->db->select('kurs_dollar');
+    $CI->db->from( 'tb_konsolidasi_ms_grn' );
+    $CI->db->where('date', $date);
+    $CI->db->where('group', $group);
+
+    $query  = $CI->db->get();
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+}
+

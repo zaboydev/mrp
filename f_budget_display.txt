@@ -1,0 +1,89 @@
+drop function f_budget_display();
+CREATE OR REPLACE FUNCTION f_budget_display()
+ RETURNS TABLE (
+id_cot bigint, item_description text, part_number text, serial_number text, group_name text, category text, year integer, status text, current_price numeric, onhand numeric, qty_requirement numeric, jan_val numeric, jan_qty numeric, feb_val numeric, feb_qty numeric, mar_val numeric, mar_qty numeric, apr_val numeric, apr_qty numeric, mei_val numeric, mei_qty numeric, jun_val numeric, jun_qty numeric, jul_val numeric, jul_qty numeric, ags_val numeric, ags_qty numeric, sep_val numeric, sep_qty numeric, oct_val numeric, oct_qty numeric, nov_val numeric, nov_qty numeric, des_val numeric, des_qty numeric, total_val numeric, total_qty numeric, hour integer
+) 
+AS $$
+DECLARE
+	rec RECORD;
+	month INTEGER;
+	monthly_budget NUMERIC;
+    monthly_quantity NUMERIC;
+hour_budget integer;
+BEGIN
+	FOR rec IN
+    	-- search product which have budget
+        select tb_master_items.id as"item_id",tb_master_items.description,tb_master_items.serial_number,tb_master_items.part_number,tb_master_items.current_price,tb_master_item_groups.group,tb_master_item_groups.category, tb_budget_cot.id as"id_cot", tb_budget_cot.onhand,tb_budget_cot.qty_requirement,tb_budget_cot.status, tb_budget_cot.year from tb_master_items inner join tb_master_item_groups on tb_master_items.group = tb_master_item_groups.group inner join tb_budget_cot on tb_master_items.id = tb_budget_cot.id_item
+	LOOP
+id_cot = rec.id_cot;
+		item_description = rec.description;
+		part_number = rec.part_number;
+        serial_number = rec.serial_number;
+        group_name = rec.group;
+category = rec.category;
+status = rec.status;
+current_price = rec.current_price;
+onhand = rec.onhand;
+year = rec.year;
+qty_requirement = rec.qty_requirement - rec.onhand;
+
+		-- get budget
+		FOR month IN 1..12
+		LOOP
+			SELECT t_bgt.initial_budget, t_bgt.initial_quantity, t_bgt.hour
+			FROM tb_budget t_bgt
+			WHERE  t_bgt.month_number = month
+			AND t_bgt.id_cot = rec.id_cot
+			INTO monthly_budget, monthly_quantity, hour_budget;
+                        
+			IF month = 1 THEN
+            	jan_val = monthly_budget;
+                jan_qty = monthly_quantity;
+			ELSIF month = 2 THEN
+            	feb_val = monthly_budget;
+                feb_qty = monthly_quantity;
+			ELSIF month = 3 THEN 
+            	mar_val = monthly_budget;
+                mar_qty = monthly_quantity;
+			ELSIF month = 4 THEN 
+            	apr_val = monthly_budget;
+                apr_qty = monthly_quantity;
+			ELSIF month = 5 THEN 
+            	mei_val = monthly_budget;
+                mei_qty = monthly_quantity;
+			ELSIF month = 6 THEN 
+            	jun_val = monthly_budget;
+                jun_qty = monthly_quantity;
+			ELSIF month = 7 THEN 
+            	jul_val = monthly_budget;
+                jul_qty = monthly_quantity;
+			ELSIF month = 8 THEN 
+            	ags_val = monthly_budget;
+                ags_qty = monthly_quantity;
+			ELSIF month = 9 THEN 
+            	sep_val = monthly_budget;
+                sep_qty = monthly_quantity;
+			ELSIF month = 10 THEN 
+            	oct_val = monthly_budget;
+                oct_qty = monthly_quantity;
+			ELSIF month = 11 THEN 
+            	nov_val = monthly_budget;
+                nov_qty = monthly_quantity;
+			ELSE
+            	des_val = monthly_budget;
+                des_qty = monthly_quantity;
+			END IF;
+		END LOOP;
+hour = hour_budget;
+
+		total_val = jan_val + feb_val + mar_val + apr_val + mei_val + jun_val + jul_val + ags_val + sep_val + oct_val + nov_val + des_val;
+		total_qty = jan_qty + feb_qty + mar_qty + apr_qty + mei_qty + jun_qty + jul_qty + ags_qty + sep_qty + oct_qty + nov_qty + des_qty;
+                
+
+		RETURN NEXT;
+	END LOOP;
+	RETURN;
+END; 
+$$ 
+ 
+LANGUAGE 'plpgsql';

@@ -1,0 +1,62 @@
+body {
+    font-family: 'Lato', sans-serif;
+}
+
+.content-header > .breadcrumb {
+    font-size: 13px;
+    text-transform: lowercase;
+}
+
+.content-header > .breadcrumb > li + li:before {
+    content: '|\00a0';
+}
+
+.clickable:hover {
+    cursor: pointer;
+}
+
+h2.navbar-text {
+    color: #fff;
+    font-size: 18.5px;
+    text-transform: uppercase;
+}
+
+.sidebar-title {
+    font-size: 12px;
+    border-bottom: 1px solid #ddd;
+    color: #777;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    text-transform: uppercase;
+}
+.widget .widget-body {
+    padding: 0 15px;
+}
+
+.ui-autocomplete .list-group-item-heading {
+}
+.ui-autocomplete .description {
+}
+.ui-autocomplete .small {
+    display: block;
+}
+
+.info-box-icon {
+  color: rgba(0,0,0,0.25);
+}
+
+.info-box-more {
+  color: rgba(0,0,0,0.65);
+}
+
+.info-box-icon:hover,
+.info-box-more:hover {
+  color: #fff;
+  -webkit-transition: all 0.3s linear;
+  -o-transition: all 0.3s linear;
+  transition: all 0.3s linear;
+}
+
+.info-box small {
+  font-weight: normal;
+}

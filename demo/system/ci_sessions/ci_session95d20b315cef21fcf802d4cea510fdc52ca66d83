@@ -1,0 +1,9 @@
+__ci_last_regenerate|i:1461650898;auth_identifiers|s:83:"a:2:{s:7:"user_id";s:10:"2145538920";s:10:"login_time";s:19:"2016-04-26 09:42:01";}";alert|a:2:{s:4:"type";s:7:"success";s:4:"info";s:1044:"
+4 fields in line 6:
+{"user_id":213609792,"username":"nyomansukadana","fullname":"Nyoman Sukadana","passwd":"$2y$11$HfE2rNQ0AVOUxMZHz0AcXOR41z03pb0LxqEhPInv\/ovprvWc97Sn.","email":"damuhantara@yahoo.co.id","auth_level":[1],"created_at":"2016-04-26 13:08:19"}
+4 fields in line 7:
+{"user_id":1402149932,"username":"ruzarevie1","fullname":"Ruza Revie","passwd":"$2y$11$eIxtcqQ8lLlfKTocsK5E4evTfa7sq\/qZkn5saW3KWYnqeGc6p5bl.","email":"ruza.revie@baliflightacademy.com","auth_level":[1],"created_at":"2016-04-26 13:08:19"}
+4 fields in line 8:
+{"user_id":342779460,"username":"taufikhidayat","fullname":"Taufik Hidayat","passwd":"$2y$11$oG6RQz5ZGNJBrTDQ3sobP.SJbSfMAEu01Rn.JeJ.MPiJwr3yVr82e","email":"taufikhidayat@yahoo.com","auth_level":[1],"created_at":"2016-04-26 13:08:20"}
+4 fields in line 9:
+{"user_id":1808454256,"username":"wiradharmaoka","fullname":"Wiradharma B Oka","passwd":"$2y$11$XR2j.0ps9j4AW\/LVqvafAedeWtCJg\/Ns1K2LWmDjLfzq7O.Nj2GoC","email":"wiradharmaoka@baliflightacademy.com","auth_level":[1],"created_at":"2016-04-26 13:08:21"}";}__ci_vars|a:1:{s:5:"alert";s:3:"new";}

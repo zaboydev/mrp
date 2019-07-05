@@ -1,0 +1,13 @@
+﻿truncate table tb_master_stores restart identity cascade;
+truncate table tb_master_item_units restart identity cascade;
+truncate table tb_master_items restart identity cascade;
+truncate table tb_master_item_serials restart identity cascade;
+truncate table tb_stocks restart identity cascade;
+truncate table tb_stock_adjustments restart identity cascade;
+truncate table tb_stock_cards restart identity cascade;
+truncate table tb_stock_in_stores restart identity cascade;
+truncate table tb_stock_opnames restart identity cascade;
+truncate table tb_receipts restart identity cascade;
+truncate table tb_issuances restart identity cascade;
+truncate table tb_purchase_orders restart identity cascade;
+truncate table tb_purchase_order_evaluations restart identity cascade;

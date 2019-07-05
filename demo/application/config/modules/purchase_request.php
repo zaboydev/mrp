@@ -1,0 +1,19 @@
+<?php defined('BASEPATH') or exit('No direct script access allowed');
+
+$config['module']['purchase_request']['visible']        = TRUE;
+$config['module']['purchase_request']['main_warehouse'] = TRUE;
+$config['module']['purchase_request']['parent']         = 'document';
+$config['module']['purchase_request']['label']          = 'Purchase Request';
+$config['module']['purchase_request']['name']           = 'purchase_request';
+$config['module']['purchase_request']['route']          = 'purchase_request';
+$config['module']['purchase_request']['view']           = config_item('module_path') .'purchase_request/';
+$config['module']['purchase_request']['language']       = 'purchase_request_lang';
+$config['module']['purchase_request']['helper']         = 'purchase_request_helper';
+$config['module']['purchase_request']['table']          = 'tb_purchase_requests';
+$config['module']['purchase_request']['model']          = 'Purchase_Request_Model';
+$config['module']['purchase_request']['permission']     = array(
+  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER',
+  'info'      => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER',
+  'document'  => 'PIC STOCK,SUPERVISOR',
+  'print'     => 'PIC STOCK,SUPERVISOR',
+);

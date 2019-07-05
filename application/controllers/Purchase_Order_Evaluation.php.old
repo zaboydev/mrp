@@ -1,0 +1,507 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Purchase_Order_Evaluation extends MY_Controller
+{
+  protected $module;
+
+  public function __construct()
+  {
+    parent::__construct();
+
+    $this->module = $this->modules['purchase_order_evaluation'];
+    $this->load->helper($this->module['helper']);
+    $this->load->model($this->module['model'], 'model');
+    $this->data['module'] = $this->module;
+  }
+
+  public function set_doc_number()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (empty($_GET['data']))
+      $number = poe_last_number();
+    else
+      $number = $_GET['data'];
+
+    $_SESSION['poe']['document_number'] = $number;
+  }
+
+  public function set_document_date()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['document_date'] = $_GET['data'];
+  }
+
+  public function set_created_by()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['created_by'] = $_GET['data'];
+  }
+
+  public function set_document_reference()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['document_reference'] = $_GET['data'];
+  }
+
+  public function set_status()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['status'] = $_GET['data'];
+  }
+
+  public function set_approved_by()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['approved_by'] = $_GET['data'];
+  }
+
+  public function set_default_currency()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['default_currency'] = $_GET['data'];
+  }
+
+  public function set_exchange_rate()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['exchange_rate'] = $_GET['data'];
+  }
+
+  public function set_notes()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['notes'] = $_GET['data'];
+  }
+
+  public function del_item($key)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (isset($_SESSION['poe']['items']))
+      unset($_SESSION['poe']['items'][$key]);
+  }
+
+  public function search_request_item()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $category = $_SESSION['poe']['category'];
+    $entities = $this->model->searchRequestItem($category);
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['product_name'];
+      $entities[$key]['label'] .= ' || PN: ';
+      $entities[$key]['label'] .= $value['part_number'];
+      $entities[$key]['label'] .= '<small>';
+      $entities[$key]['label'] .= 'PR number: '. $value['pr_number'] .' || ';
+      $entities[$key]['label'] .= 'PR date: '. date('d/m/Y', strtotime($value['pr_date'])) .' || ';
+      $entities[$key]['label'] .= 'Required date: '. date('d/m/Y', strtotime($value['required_date'])) .' || ';
+      $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['quantity']) .'</code>';
+      $entities[$key]['label'] .= '</small>';
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function search_items_by_part_number()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $category = $_SESSION['poe']['category'];
+    $entities = $this->model->searchItemsByPartNumber($category);
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['part_number'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function index_data_source()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (is_granted($this->module, 'index') === FALSE){
+      $return['type'] = 'danger';
+      $return['info'] = "You don't have permission to access this page!";
+    } else {
+      $entities = $this->model->getIndex();
+      $data     = array();
+      $no       = $_POST['start'];
+      $quantity = array();
+
+      foreach ($entities as $row){
+        $no++;
+        $col = array();
+        $col[] = print_number($no);
+        $col[] = print_string($row['document_number']);
+        $col[] = print_date($row['document_date']);
+        $col[] = print_string($row['category']);
+        $col[] = print_string($row['description']);
+        $col[] = print_string($row['part_number']);
+        $col[] = print_string($row['alternate_part_number']);
+        $col[] = print_number($row['quantity'], 2);
+        $col[] = print_string($row['vendor']);
+        $col[] = strtoupper($row['status']);
+        $col[] = print_string($row['document_reference']);
+        $col[] = print_string($row['created_by']);
+        $col['DT_RowId'] = 'row_'. $row['id'];
+        $col['DT_RowData']['pkey']  = $row['id'];
+
+        if ($this->has_role($this->module, 'info')){
+          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          $col['DT_RowAttr']['data-target'] = '#data-modal';
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+        }
+
+        $data[] = $col;
+      }
+
+      $result = array(
+        "draw" => $_POST['draw'],
+        "recordsTotal" => $this->model->countIndex(),
+        "recordsFiltered" => $this->model->countIndexFiltered(),
+        "data" => $data,
+      );
+    }
+
+    echo json_encode($result);
+  }
+
+  public function index()
+  {
+    $this->authorized($this->module, 'index');
+
+    $this->data['page']['title']            = $this->module['label'];
+    $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
+    $this->data['grid']['fixed_columns']    = 2;
+    $this->data['grid']['summary_columns']  = NULL;
+    $this->data['grid']['order_columns']    = array(
+      0   => array( 0 => 1,  1 => 'desc' ),
+      1   => array( 0 => 2,  1 => 'desc' ),
+      2   => array( 0 => 3,  1 => 'asc' ),
+      3   => array( 0 => 4,  1 => 'asc' ),
+      4   => array( 0 => 5,  1 => 'asc' ),
+      5   => array( 0 => 6,  1 => 'asc' ),
+      6   => array( 0 => 7,  1 => 'asc' ),
+      7   => array( 0 => 8,  1 => 'asc' ),
+      8   => array( 0 => 9,  1 => 'asc' ),
+      9   => array( 0 => 10,  1 => 'asc' ),
+      10   => array( 0 => 11,  1 => 'asc' ),
+    );
+
+    $this->render_view($this->module['view'] .'/index');
+  }
+
+  public function info($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (is_granted($this->module, 'info') === FALSE){
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->findById($id);
+
+      $this->data['entity'] = $entity;
+
+      $return['type'] = 'success';
+      $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
+    }
+
+    echo json_encode($return);
+  }
+
+  public function print_pdf($id)
+  {
+    $this->authorized($this->module, 'print');
+
+    $entity = $this->model->findById($id);
+
+    $this->data['entity']           = $entity;
+    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
+
+    $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+    $pdfFilePath = str_replace('/', '-', $entity['document_number']) .".pdf";
+
+    $this->load->library('m_pdf');
+
+    $pdf = $this->m_pdf->load(null, 'A4-L');
+    $pdf->WriteHTML($html);
+    $pdf->Output($pdfFilePath, "I");
+  }
+
+  public function edit($id)
+  {
+    $this->authorized($this->module, 'document');
+
+    $entity = $this->model->findById($id);
+
+    $document_number  = sprintf('%06s', substr($entity['document_number'], 0, 6));
+
+    if (isset($_SESSION['poe']) === FALSE){
+      $_SESSION['poe']                     = $entity;
+      $_SESSION['poe']['id']               = $id;
+      $_SESSION['poe']['edit']             = $entity['document_number'];
+      $_SESSION['poe']['document_number']  = $document_number;
+    }
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function create($category = NULL)
+  {
+    $this->authorized($this->module, 'document');
+
+    if ($category !== NULL){
+      $category = urldecode($category);
+
+      $_SESSION['poe']['items']               = array();
+      $_SESSION['poe']['vendors']             = array();
+      $_SESSION['poe']['warehouse']           = config_item('main_warehouse');
+      $_SESSION['poe']['category']            = $category;
+      $_SESSION['poe']['document_number']     = poe_last_number();
+      $_SESSION['poe']['document_date']       = date('Y-m-d');
+      $_SESSION['poe']['created_by']          = config_item('auth_person_name');
+      $_SESSION['poe']['document_reference']  = NULL;
+      $_SESSION['poe']['exchange_rate']       = 1.00;
+      $_SESSION['poe']['default_currency']    = 'USD';
+      $_SESSION['poe']['status']              = 'pending';
+      $_SESSION['poe']['approved_by']         = NULL;
+      $_SESSION['poe']['total_quantity']      = NULL;
+      $_SESSION['poe']['total_price']         = NULL;
+      $_SESSION['poe']['grand_total']         = NULL;
+      $_SESSION['poe']['notes']               = NULL;
+
+      redirect($this->module['route'] .'/create');
+    }
+
+    if (!isset($_SESSION['poe']))
+      redirect($this->module['route']);
+
+    $this->data['page']['content']    = $this->module['view'] .'/create';
+
+    $this->render_view($this->module['view'] .'/create');
+  }
+
+  public function save()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE){
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (!isset($_SESSION['poe']['items']) || empty($_SESSION['poe']['items'])){
+        $data['success'] = FALSE;
+        $data['message'] = 'Please add at least 1 item!';
+      } else {
+        $document_number = $_SESSION['poe']['document_number'] . poe_format_number();
+
+        $errors = array();
+
+        if (isset($_SESSION['poe']['edit'])){
+          if ($_SESSION['poe']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)){
+            $errors[] = 'Duplicate Document Number: '. $_SESSION['poe']['document_number'] .' !';
+          }
+        } else {
+          if ($this->model->isDocumentNumberExists($document_number)){
+            $errors[] = 'Duplicate Document Number: '. $_SESSION['poe']['document_number'] .' !';
+          }
+        }
+
+        if (!empty($errors)){
+          $data['success'] = FALSE;
+          $data['message'] = implode('<br />', $errors);
+        } else {
+          if ($this->model->save()){
+            unset($_SESSION['poe']);
+
+            $data['success'] = TRUE;
+            $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
+          } else {
+            $data['success'] = FALSE;
+            $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+          }
+        }
+      }
+    }
+
+    echo json_encode($data);
+  }
+
+  public function add_vendor()
+  {
+    $this->authorized($this->module, 'document');
+
+    if (isset($_POST['vendor']) && !empty($_POST['vendor'])){
+      $_SESSION['poe']['vendors'] = array();
+      $_SESSION['poe']['vendors'] = $_POST['vendor'];
+    }
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function add_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    if (isset($_POST) && !empty($_POST)){
+      $quantity = floatval($this->input->post('quantity'));
+
+      $_SESSION['poe']['items'][] = array(
+        'description'           => trim(strtoupper($this->input->post('description'))),
+        'part_number'           => trim(strtoupper($this->input->post('part_number'))),
+        'alternate_part_number' => trim(strtoupper($this->input->post('alternate_part_number'))),
+        'additional_info'       => trim($this->input->post('additional_info')),
+        'quantity'              => $quantity,
+        'price'                 => $this->input->post('price'),
+        'total'                 => $this->input->post('total'),
+        'unit'                  => trim($this->input->post('unit')),
+        'inventory_purchase_request_detail_id' => $this->input->post('inventory_purchase_request_detail_id'),
+        'pr_number'             => trim($this->input->post('pr_number')),
+      );
+
+      end($_SESSION['poe']['items']);
+
+      $item_key = key($_SESSION['poe']['items']);
+
+      foreach ($_POST['vendor'] as $key => $value) {
+        $unit_price   = $value['unit_price'];
+        $core_charge  = $value['core_charge'];
+        $total_price  = ($unit_price * $quantity) + ($core_charge * $quantity);
+
+        $_SESSION['poe']['items'][$item_key]['vendors'][$key] = $value;
+        $_SESSION['poe']['items'][$item_key]['vendors'][$key]['selected'] = 'f';
+        $_SESSION['poe']['items'][$item_key]['vendors'][$key]['quantity'] = $quantity;
+        $_SESSION['poe']['items'][$item_key]['vendors'][$key]['total'] = $total_price;
+
+        $arr[$key] = $value['unit_price'];
+      }
+
+      $s = min(array_keys($arr, min($arr)));
+      $_SESSION['poe']['items'][$item_key]['vendors'][$s]['selected'] = 't';
+    }
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function edit_item($key)
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->data['key']    = $key;
+    $this->data['entity'] = $_SESSION['poe']['items'][$key];
+
+    $this->render_view($this->module['view'] .'/edit_item');
+  }
+
+  public function update_item($key)
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE){
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      $quantity = floatval($this->input->post('quantity'));
+
+      $_SESSION['poe']['items'][$key]['quantity'] = $quantity;
+      $_SESSION['poe']['items'][$key]['alternate_part_number'] = trim(strtoupper($this->input->post('alternate_part_number')));
+
+      foreach ($_POST['vendor'] as $v => $vendor) {
+        $unit_price   = $vendor['unit_price'];
+        $core_charge  = $vendor['core_charge'];
+        $total_price  = ($unit_price * $quantity) + ($core_charge * $quantity);
+
+        $_SESSION['poe']['items'][$key]['vendors'][$v]['unit_price'] = $unit_price;
+        $_SESSION['poe']['items'][$key]['vendors'][$v]['quantity'] = $quantity;
+        $_SESSION['poe']['items'][$key]['vendors'][$v]['core_charge'] = $core_charge;
+        $_SESSION['poe']['items'][$key]['vendors'][$v]['total'] = $total_price;
+      }
+
+      $data['success'] = TRUE;
+    }
+
+    echo json_encode($data);
+  }
+
+  public function set_selected_vendor($item_key, $vendor_key)
+  {
+    $this->authorized($this->module, 'document');
+
+    foreach ($_SESSION['poe']['items'][$item_key]['vendors'] as $v => $vendor){
+      $_SESSION['poe']['items'][$item_key]['vendors'][$v]['selected'] = 'f';
+    }
+
+    $_SESSION['poe']['items'][$item_key]['vendors'][$vendor_key]['selected'] = 't';
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function discard()
+  {
+    $this->authorized($this->module['permission']['document']);
+
+    unset($_SESSION['poe']);
+
+    redirect($this->module['route']);
+  }
+
+  public function delete_ajax()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (is_granted($this->module, 'delete') === FALSE){
+      $alert['type']  = 'danger';
+      $alert['info']  = 'You are not allowed to delete this data!';
+    } else {
+      $entity = $this->model->findById($this->input->post('id'));
+
+      if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
+        $alert['type']  = 'danger';
+        $alert['info']  = 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to delete this document. You can adjust stock to sync the quantity.';
+      } else {
+        if ($this->model->delete()){
+          $alert['type'] = 'success';
+          $alert['info'] = 'Data deleted.';
+          $alert['link'] = site_url($this->module['route']);
+        } else {
+          $alert['type'] = 'danger';
+          $alert['info'] = 'There are error while deleting data. Please try again later.';
+        }
+      }
+    }
+
+    echo json_encode($alert);
+  }
+}

@@ -1,0 +1,29 @@
+Note MRP:
+-.  User Role Finance untuk mengubah status PO terbayar
+-.  PR yang tidak ada budgetnya tetap dapat diproses di MRP
+-.  Stok Opname total value before average_value
+-.  Search date detail pick date
+-.  Search pada home/login dan dashboard dibuat popup
+-.  Report selain PIC Stock ditampilkan value/unit price
+
+ON GOING
+-.  Informasi stock pada saat add item purchase request (on hand dan minimum quantity)
+-.  Mix item
+
+FIXED
+-.  User Role Finance
+-.  CI List Detail
+-.  CI format sesuai document
+-.  MS List Detail
+-.  MS footer request by, issued by, approved by
+-.  MS dibuat portrait
+-.  Shipping Document List Detail
+-.  Shipping Document ditambah received by dan date, total value
+-.  GRN List Detail
+-.  PI List Detail
+-.  PR Price, total price, max. price tidak kelihatan di pembuatan
+-.  GRN terhubung ke Purchase Order mendapatkan nomor dan harga
+
+
+IP PUBLIC BUDGET CONTROL 2017: 119.252.163.205
+IP PUBLIC MATERIAL RESOURCE PLANNING 2017: 119.252.163.206

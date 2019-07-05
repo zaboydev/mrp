@@ -1,0 +1,64 @@
+<?php defined('BASEPATH') or exit('No direct script access allowed');
+
+$config['parent']['dashboard']['label']  = 'Dashboard';
+$config['parent']['dashboard']['icon']   = 'md md-home';
+
+$config['parent']['master']['label']  = 'Master Data';
+$config['parent']['master']['icon']   = 'md md-storage';
+
+$config['parent']['stock']['label']  = 'Inventories';
+$config['parent']['stock']['icon']   = 'md md-view-quilt';
+
+$config['parent']['document']['label']  = 'Documents';
+$config['parent']['document']['icon']   = 'md md-my-library-books';
+
+$config['parent']['report']['label']  = 'Reports';
+$config['parent']['report']['icon']   = 'md md-assessment';
+
+$config['parent']['setting']['label']  = 'Settings';
+$config['parent']['setting']['icon']   = 'md md-settings';
+
+$config['module'] = array();
+
+require('modules/secure.php');
+require('modules/ajax.php');
+require('modules/dashboard.php');
+require('modules/purchase_request.php');
+require('modules/purchase_order_evaluation.php');
+require('modules/purchase_order.php');
+require('modules/goods_received_note.php');
+require('modules/internal_delivery.php');
+require('modules/material_slip.php');
+require('modules/shipping_document.php');
+require('modules/shipping_document_receipt.php');
+require('modules/commercial_invoice.php');
+// require('modules/doc_receipt.php');
+// require('modules/doc_usage.php');
+// require('modules/doc_delivery.php');
+// require('modules/doc_return.php');
+// require('modules/doc_shipment.php');
+// require('modules/item_application.php');
+require('modules/item.php');
+require('modules/item_category.php');
+require('modules/item_group.php');
+require('modules/item_serial.php');
+require('modules/item_unit.php');
+require('modules/stock.php');
+require('modules/stock_card.php');
+require('modules/stock_general.php');
+require('modules/stock_low.php');
+require('modules/stock_opname.php');
+require('modules/stock_adjustment.php');
+require('modules/stock_mix.php');
+require('modules/stock_report.php');
+// require('modules/item_in_stores.php');
+// require('modules/item_in_use.php');
+// require('modules/item_on_delivery.php');
+// require('modules/item_on_return.php');
+// require('modules/item_on_shipping.php');
+require('modules/pdf.php');
+require('modules/setting.php');
+require('modules/stores.php');
+require('modules/user.php');
+require('modules/vendor.php');
+require('modules/warehouse.php');
