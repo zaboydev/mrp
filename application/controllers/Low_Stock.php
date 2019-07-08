@@ -22,7 +22,7 @@ class Low_Stock extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(4);
+    $this->data['grid']['summary_columns']  = array(5);
     $this->data['grid']['order_columns']    = array ();
 
     $this->render_view($this->module['view'] .'/index');
@@ -39,36 +39,42 @@ class Low_Stock extends MY_Controller
     $quantity = array();
 
     foreach ($entities as $row){
-      $no++;
-      $col = array();
-      $col[] = print_number($no);
-      $col[] = print_string($row['part_number']);
-      $col[] = print_number($row['min_qty'],2);
-      $col[] = print_string($row['description']);
-      $col[] = print_number($row['qty'],2);
-      $col['DT_RowId'] = 'row_'. $row['id'];
-      $col['DT_RowData']['pkey'] = $row['id'];
-      $quantity[] = $row['qty'];
-      // $prev_quantity[] = $row['previous_quantity'];
-      // $balance_quantity[] = $row['balance_quantity'];
+      if($row['minimum_quantity']>=$row['qty']){
+        $no++;
+        $col = array();
+        $col[] = '<input type="checkbox" id="cb_'.$no.'" data-qty="'.$row['qty'].'" data-id="'.$row['part_number'].'" name="" style="display: inline;">';
+        // $col[] = print_number($no);
+        $col[] = print_string($row['part_number']);
+        $col[] = print_string($row['description']);
+        $col[] = print_number($row['minimum_quantity'],2);
+        $col[] = print_string($row['condition']);
+        $col[] = print_number($row['qty'],2);
+        $col['DT_RowId'] = 'row_'. $row['id'];
+        $col['DT_RowData']['pkey'] = $row['id'];
+        $quantity[] = $row['qty'];
+        // $prev_quantity[] = $row['previous_quantity'];
+        // $balance_quantity[] = $row['balance_quantity'];
 
-      
+        
 
-      if ($this->has_role($this->module, 'detail')) {
-        $col['DT_RowAttr']['onClick'] = '$(this).redirect("_blank");';
-        $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/detail?part_number='. $row['part_number']);
+        // if ($this->has_role($this->module, 'detail')) {
+        //   $col['DT_RowAttr']['onClick'] = '$(this).redirect("_blank");';
+        //   $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/detail?part_number='. $row['part_number']);
+        // }
+
+        $data[] = $col;
       }
-
-      $data[] = $col;
+      
     }
 
     $result = array(
       "draw" => $_POST['draw'],
+      // "recordsTotal" => $this->model->countIndex(),
       "recordsTotal" => $this->model->countIndex(),
       "recordsFiltered" => $this->model->countIndexFiltered(),
       "data" => $data,
       "total" => array(
-        4 => print_number(array_sum($quantity), 2),
+        5 => print_number(array_sum($quantity), 2),
         // 7 => print_number(array_sum($quantity), 2),
         // 8 => print_number(array_sum($balance_quantity), 2),
       )
@@ -131,22 +137,24 @@ class Low_Stock extends MY_Controller
       $col = array();
       $col[] = print_number($no);
       $col[] = print_string($row['part_number']);
-      $col[] = print_string($row['serial_number']);
       $col[] = print_string($row['description']);
-      $col[] = print_string($row['category']);
-      $col[] = print_string($row['group']);
-      $col[] = print_number($row['total_quantity'],2);      
+      $col[] = print_string($row['serial_number']);
+      $col[] = print_string($row['condition']);
+      $col[] = print_number($row['minimum_quantity']);
+      $col[] = print_number($row['quantity'],2);      
       $col[] = print_number($row['minimum_quantity'], 2);
       $col[] = print_string($row['unit']);
+      $col[] = print_string($row['stores']);
+      $col[] = print_string($row['base']);
       $col['DT_RowId'] = 'row_'. $row['id'];
       $col['DT_RowData']['pkey'] = $row['id'];
-      $total_quantity[]=$row['total_quantity'];
+      $total_quantity[]=$row['quantity'];
 
 
-      if ($this->has_role($this->modules['stock_card'], 'info')){
-        $col['DT_RowAttr']['onClick']     = '$(this).redirect("_self");';
-        $col['DT_RowAttr']['data-href'] = site_url($this->modules['stock_card']['route'] .'/info/'. $row['id']);
-      }
+      // if ($this->has_role($this->modules['stock_card'], 'info')){
+      //   $col['DT_RowAttr']['onClick']     = '$(this).redirect("_self");';
+      //   $col['DT_RowAttr']['data-href'] = site_url($this->modules['stock_card']['route'] .'/info/'. $row['id']);
+      // }
 
       $data[] = $col;
     }

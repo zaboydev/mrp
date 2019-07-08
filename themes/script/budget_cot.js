@@ -120,15 +120,17 @@ $(document).ready(function(){
 		$.each(data,function(i,item){
 			no++;
 			var text = '<tr>'+
-                		'<td style="text-align: center;"><input type="checkbox" id="cb_'+item.id+'" data-txt="txt_'+item.id+'" data-id="'+item.id+'" name="" style="display: inline;"></td>'+
+                		// '<td style="text-align: center;"><input type="checkbox" id="cb_'+item.id+'" data-txt="txt_'+item.id+'" data-id="'+item.id+'" name="" style="display: inline;"></td>'+
+                		'<td style="text-align: center;"><input type="checkbox" id="cb_'+item.part_number+'" data-txt="txt_'+item.part_number+'" data-id="'+item.part_number+'" name="" style="display: inline;"></td>'+
                 		'<td>'+no+'</td>'+
+                		'<td>'+item.part_number+'</td>'+
                 		'<td>'+item.description+'</td>'+
-                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="txt_'+item.id+'" data-cb="cb_'+item.id+'" data-id="'+item.id+'" value="'+($("#id_kelipatan").val() === "0" ? "Other" : "0")+'" style="width: 100%"></td>'+
+                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="txt_'+item.part_number+'" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" value="'+($("#id_kelipatan").val() === "0" ? "Other" : "0")+'" style="width: 100%"></td>'+
                 	'</tr>';
             $("#listView").append(text);
-            if(itemsValue[item.id] != undefined){
-            	$("#cb_"+item.id).prop('checked',true);
-            	$("#txt_"+item.id).val(itemsValue[item.id]);
+            if(itemsValue[item.part_number] != undefined){
+            	$("#cb_"+item.part_number).prop('checked',true);
+            	$("#txt_"+item.part_number).val(itemsValue[item.part_number]);
             }
 
 		})

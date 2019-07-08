@@ -113,7 +113,23 @@ class Budget_Cot_Model extends MY_Model
   }
   public function itemCot()
   {
-    $this->db->select('tb_master_items.id, tb_master_items.description');
+    // $this->db->select('tb_master_items.id, tb_master_items.description,tb_master_items.part_number');
+    // $this->db->from('tb_master_items');
+    // $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
+    // $this->db->join('tb_master_item_categories', 'tb_master_item_groups.category = tb_master_item_categories.category');
+    // $this->db->join('tb_auth_user_categories', 'tb_master_item_categories.category = tb_auth_user_categories.category');
+    // $this->db->where('tb_auth_user_categories.username', config_item('auth_username'));
+    // $this->db->group_start();
+    //   $this->db->like('tb_master_items.description', trim(strtoupper($this->input->post('search'))), 'BOTH');
+    //   $this->db->or_like('tb_master_items.part_number', trim(strtoupper($this->input->post('search'))), 'BOTH');
+    //    $this->db->or_like('tb_master_items.serial_number', trim(strtoupper($this->input->post('search'))), 'BOTH');
+    // $this->db->group_end();
+    // if(($_POST['id_kategori'] != "all")&&($this->input->post('id_kategori')!=""))
+    //   $this->db->where('tb_master_item_categories.category', $this->input->post('id_kategori'));
+    // if ($_POST['length'] != -1)
+    //   $this->db->limit($_POST['length'], $_POST['start']);
+    // return $this->db->get()->result();
+    $this->db->select('tb_master_items.description,tb_master_items.part_number');
     $this->db->from('tb_master_items');
     $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_groups.category = tb_master_item_categories.category');
@@ -122,14 +138,16 @@ class Budget_Cot_Model extends MY_Model
     $this->db->group_start();
       $this->db->like('tb_master_items.description', trim(strtoupper($this->input->post('search'))), 'BOTH');
       $this->db->or_like('tb_master_items.part_number', trim(strtoupper($this->input->post('search'))), 'BOTH');
-       $this->db->or_like('tb_master_items.serial_number', trim(strtoupper($this->input->post('search'))), 'BOTH');
+      // $this->db->or_like('tb_master_items.serial_number', trim(strtoupper($this->input->post('search'))), 'BOTH');
     $this->db->group_end();
+    $this->db->group_by('tb_master_items.description,tb_master_items.part_number');
     if(($_POST['id_kategori'] != "all")&&($this->input->post('id_kategori')!=""))
       $this->db->where('tb_master_item_categories.category', $this->input->post('id_kategori'));
     if ($_POST['length'] != -1)
       $this->db->limit($_POST['length'], $_POST['start']);
     return $this->db->get()->result();
   }
+  
   public function countItemCot()
   {
     $this->db->select('tb_master_items.id, tb_master_items.description');
@@ -152,14 +170,21 @@ class Budget_Cot_Model extends MY_Model
     $result['insert'] = 0;
     $result['update'] = 0;
     $result['error'] = array();
-    foreach ($itemKey as $key) {
-        $id_stock =  getStockId($key,"SERVICEABLE");
+    foreach ($itemKey as $part_number) {
+        // $id_stock =  getStockId($key,"SERVICEABLE");
+      $this->db->order_by('id',"asc")
+          ->limit(1)
+          ->like('part_number', $part_number)
+          ->from('tb_master_items');
+      $query_item = $this->db->get();
+      $row_item   = $query_item->unbuffered_row('array');
+      $key = $row_item['id'];
 
         $exist = $this->checkCotItems($hour,$year,$id_kelipatan,$key,$id_stock);
-        $onhand = $this->countOnhand($id_stock)->sum;
+        $onhand = $this->countOnhand($part_number)->sum;
       if($exist['status']){
         $id = $exist['id'];
-        $qty_standar = $standardQuantity->$key;
+        $qty_standar = $standardQuantity->$part_number;//$standardQuantity->$key
         $oldData = $exist['data'];
 
          $update = $this->updateCot($id,$hour,$year,$id_kelipatan,$kelipatan,$key,$qty_standar,$onhand,$oldData);
@@ -172,10 +197,10 @@ class Budget_Cot_Model extends MY_Model
         }
       }else{
 
-        $qty_standar = $standardQuantity->$key;
+        $qty_standar = $standardQuantity->$part_number;//$standardQuantity->$key
         $oldData = $exist['data'];
 
-        $insert = $this->insertCot($hour,$year,$id_kelipatan,$kelipatan,$key,$qty_standar,$onhand,$oldData);
+        $insert = $this->insertCot($hour,$year,$id_kelipatan,$kelipatan,$key,$qty_standar,$onhand,$part_number,$oldData);
         
         if($insert['status']){
           $result['insert'] +=1;
@@ -214,8 +239,10 @@ class Budget_Cot_Model extends MY_Model
       $initial_budget = $initial_quantity * $price;
       $mtd_budget = $initial_budget;
       $mtd_quantity = $initial_quantity;        
-      $ytd_budget = $qty_requirement*$price;
-      $ytd_quantity = $qty_requirement;
+      // $ytd_budget = $qty_requirement*$price;
+      // $ytd_quantity = $qty_requirement;
+      $ytd_budget = $ytd_budget+$mtd_budget;
+      $ytd_quantity = $ytd_quantity+$mtd_quantity;
       $hourMonthly = ($i == 12) ? $desHour : $avgMonthHour;
       $isBudgetExist = $this->isBudgetExist($id_cot,$month_number);
       if(!$isBudgetExist['status']){
@@ -303,7 +330,12 @@ class Budget_Cot_Model extends MY_Model
   function countOnhand($id_stock){
     $this->db->select('sum(quantity)');
     $this->db->from('tb_stock_in_stores');
-    $this->db->where('stock_id', $id_stock);
+    //tambahan
+    $this->db->join('tb_stocks','tb_stocks.id=tb_stock_in_stores.stock_id');
+    $this->db->join('tb_master_items','tb_master_items.id=tb_stocks.item_id');
+    $this->db->group_by('tb_master_items.part_number');
+    //tambahan
+    $this->db->where('tb_master_items.part_number', $id_stock);
     return $this->db->get('')->row();
   }
   function previousCot($id_item,$year){
@@ -318,7 +350,7 @@ class Budget_Cot_Model extends MY_Model
     }
     return $result;
   }
-  function insertCot($hour,$year,$id_kelipatan,$kelipatan,$id_item,$qty_standar,$onhand,$prevData = null){
+  function insertCot($hour,$year,$id_kelipatan,$kelipatan,$id_item,$qty_standar,$onhand,$part_number,$prevData = null){
     if($prevData['data'] == null){
       $qty_requirement = ($hour/$kelipatan)*$qty_standar;  
     } else {
@@ -328,7 +360,7 @@ class Budget_Cot_Model extends MY_Model
       $qty_requirement = $prevData['data']->qty_requirement;
     }
     
-    $data = array("hours"=>$hour,"year"=>$year,"id_kelipatan"=>$id_kelipatan,"id_item"=>$id_item,"qty_standar"=>$qty_standar,"qty_requirement"=>$qty_requirement,"onhand"=>$onhand);
+    $data = array("hours"=>$hour,"year"=>$year,"id_kelipatan"=>$id_kelipatan,"id_item"=>$id_item,"qty_standar"=>$qty_standar,"qty_requirement"=>$qty_requirement,"onhand"=>$onhand,"item_part_number"=>$part_number);
     $result['status'] = $this->db->insert('tb_budget_cot', $data);
     $result['qty_requirement'] = $qty_requirement;
     return $result;

@@ -83,30 +83,70 @@ if ( ! function_exists('request_format_number')) {
 if ( ! function_exists('request_last_number')) {
   function request_last_number()
   {
-    $CI =& get_instance();
+    // $CI =& get_instance();
 
-    $connection = $CI->load->database('budgetcontrol', TRUE);
+    // $connection = $CI->load->database('budgetcontrol', TRUE);
 
-    $connection->select_max('order_number', 'last_number');
-    $connection->from('tb_inventory_purchase_requisitions');
+    // $connection->select_max('order_number', 'last_number');
+    // $connection->from('tb_inventory_purchase_requisitions');
+    // // $connection->like('tb_inventory_purchase_requisitions.pr_number', find_budget_setting('Active Year'));
+
     // $connection->like('tb_inventory_purchase_requisitions.pr_number', find_budget_setting('Active Year'));
+    // $query        = $connection->get();
+    // $request      = $query->unbuffered_row('array');
+    // $last_number  = $request['last_number'];
+    // $return       = $last_number + 1;
 
-    $connection->like('tb_inventory_purchase_requisitions.pr_number', find_budget_setting('Active Year'));
-    $query        = $connection->get();
-    $request      = $query->unbuffered_row('array');
-    $last_number  = $request['last_number'];
-    $return       = $last_number + 1;
+    // // //edit
+    // // $CI->db->select_max('document_number','last_number');
+    // // $CI->db->from('tb_purchase_requests');
 
-    // //edit
-    // $CI->db->select_max('document_number','last_number');
-    // $CI->db->from('tb_purchase_requests');
+    // // $query  = $CI->db->get();
+    // // $row    = $query->unbuffered_row();
+    // // $last   = $row->last_number;
+    // // $number = substr($last, 0, 6);
+    // // $next   = $number + 1;
+    // // $return = sprintf('%06s', $next);
+    if ($_SESSION['request']['request_to'] == 0) {
+      $CI =& get_instance();
 
-    // $query  = $CI->db->get();
-    // $row    = $query->unbuffered_row();
-    // $last   = $row->last_number;
-    // $number = substr($last, 0, 6);
-    // $next   = $number + 1;
-    // $return = sprintf('%06s', $next);
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select_max('order_number', 'last_number');
+      $connection->from('tb_inventory_purchase_requisitions');
+      // $connection->like('tb_inventory_purchase_requisitions.pr_number', find_budget_setting('Active Year'));
+
+      $connection->like('tb_inventory_purchase_requisitions.pr_number', find_budget_setting('Active Year'));
+      $query        = $connection->get();
+      $request      = $query->unbuffered_row('array');
+      $last_number  = $request['last_number'];
+      $return       = $last_number + 1;
+
+      // //edit
+      // $CI->db->select_max('document_number','last_number');
+      // $CI->db->from('tb_purchase_requests');
+
+      // $query  = $CI->db->get();
+      // $row    = $query->unbuffered_row();
+      // $last   = $row->last_number;
+      // $number = substr($last, 0, 6);
+      // $next   = $number + 1;
+      // $return = sprintf('%06s', $next);
+    }else{
+      $CI =& get_instance();
+      $CI->db->select_max('pr_number', 'last_number');
+      $CI->db->from('tb_inventory_purchase_requisitions');
+      // $CI->db->like('tb_inventory_purchase_requisitions.pr_number', $format, 'before');
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+
+      return $return;
+    }
 
 
     return $return;

@@ -59,7 +59,7 @@ class General_Stock_Report extends MY_Controller
     $this->data['selected_warehouse']       = $warehouse;
     $this->data['start_date']               = $start_date;
     $this->data['end_date']                 = $end_date;
-	$this->data['document']                 = 'index_no_shipping';
+	  $this->data['document']                 = 'index_no_shipping';
 
     $this->data['page']['title']            = $this->module['label'] .' '. $warehouse.' '. $category .' '. $condition.' / PERIODE : '.$periode;
     $this->data['page']['requirement']      = array('datatable');

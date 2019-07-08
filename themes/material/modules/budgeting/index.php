@@ -37,7 +37,7 @@
 <?php startblock('page_modals') ?>
   <?php $this->load->view('material/templates/modal_fs') ?>
 <?php endblock() ?>
-<?php if(config_item('auth_role') === "CHIEF OF MAINTANCE"):?>
+<?php if(config_item('auth_role') === "CHIEF OF MAINTANCE" || config_item('auth_role') === "SUPER ADMIN"):?>
 <?php startblock('actions_right') ?>
   <div class="section-floating-action-row">
       <div class="btn-group dropup">

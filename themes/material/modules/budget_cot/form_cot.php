@@ -7,7 +7,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="col-md-4">
-				<h4 style="text-align: center;">Target Hour : <?=$hour ?> Hours</h4>
+				<h4 style="text-align: center;">Target Hour : <?=$hour ?> hours</h4>
 			</div>
 			<div class="col-md-4">
 				<h4 style="text-align: center;">Year : <?=$year ?></h4>
@@ -42,8 +42,9 @@
                	<tr>
                		<th width="10%">#</th>
                		<th width="10%">No</th>
-               		<th width="50%">Item</th>
-               		<th width="30%">Standard Quantity</th>
+                  <th width="30%">Part Number</th>
+               		<th width="30%">Item</th>
+               		<th width="20%">Standard Quantity</th>
                	</tr>
                </thead>
                <tbody id="listView">

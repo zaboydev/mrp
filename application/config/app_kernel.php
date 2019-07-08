@@ -12,7 +12,7 @@ $config['parent']['stock']['icon']   = 'md md-assessment';
 $config['parent']['document']['label']  = 'Inventory Process';
 $config['parent']['document']['icon']   = 'md md-view-module';
 
-$config['parent']['report']['label']  = 'Inventory Reports';
+$config['parent']['report']['label']  = 'Procurement Reports';
 $config['parent']['report']['icon']   = 'md md-assessment';
 
 $config['parent']['setting']['label']  = 'Settings';
@@ -46,6 +46,10 @@ require('modules/budgeting.php');
 require('modules/purchase_request.php');
 require('modules/purchase_order_evaluation.php');
 require('modules/purchase_order.php');
+require('modules/global_report.php');
+require('modules/pr_po.php');
+require('modules/po_grn.php');
+require('modules/grn_payment.php');
 
 //INVENTORY PROCESS
 require('modules/goods_received_note.php');
