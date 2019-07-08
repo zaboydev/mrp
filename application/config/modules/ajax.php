@@ -11,5 +11,5 @@ $config['module']['ajax']['language']   = 'ajax_lang';
 $config['module']['ajax']['table']      = '';
 $config['module']['ajax']['model']      = 'Ajax_Model';
 $config['module']['ajax']['permission'] = array(
-  'index' => 'ADMIN,PIC PROCUREMENT,PIC STOCK,OTHER,SUPERVISOR,VP FINANCE',
+  'index' => 'ADMIN,PIC PROCUREMENT,PIC STOCK,OTHER,SUPERVISOR,VP FINANCE,SUPER ADMIN',
   );

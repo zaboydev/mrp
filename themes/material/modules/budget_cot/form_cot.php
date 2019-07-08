@@ -7,7 +7,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="col-md-4">
-				<h4 style="text-align: center;">Hour : <?=$hour ?></h4>
+				<h4 style="text-align: center;">Target Hour : <?=$hour ?> Hours</h4>
 			</div>
 			<div class="col-md-4">
 				<h4 style="text-align: center;">Year : <?=$year ?></h4>

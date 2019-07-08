@@ -4,7 +4,7 @@
 <div class="container-fluid">
 
   <h4 class="page-header">Update Request</h4>
-
+  
   <form id="form_update_request" class="form form-validate ui-front" role="form" method="post" action="<?=site_url($module['route'] .'/update_request');?>">
     <div class="row">
       <div class="col-sm-12">
@@ -14,11 +14,14 @@
               <tr>
                 <th class="middle-alignment" rowspan="2">PR Number</th>
                 <th class="middle-alignment" rowspan="2">Description</th>
-                <th class="middle-alignment" rowspan="2">Part Number</th>
+                <th class="middle-alignment" rowspan="2">Part Number</th>                
+                <th class="middle-alignment" rowspan="2">Alt. P/N</th>
                 <th class="middle-alignment text-right" rowspan="2">Qty</th>
+                <th class="middle-alignment text-right" rowspan="2">Unit</th>
+                <th class="middle-alignment text-right" rowspan="2">Remarks</th>
 
                 <?php foreach ($_SESSION['poe']['vendors'] as $key => $vendor):?>
-                  <th class="middle-alignment text-center" colspan="3">
+                  <th class="middle-alignment text-center" colspan="2">
                     <?=$vendor['vendor'];?>
                   </th>
                 <?php endforeach;?>
@@ -26,7 +29,6 @@
 
               <tr>
                 <?php for ($v = 0; $v < count($_SESSION['poe']['vendors']); $v++):?>
-                  <th class="middle-alignment text-center">Alt. P/N</th>
                   <th class="middle-alignment text-center">Unit Price</th>
                   <th class="middle-alignment text-center">Core Charge</th>
                 <?php endfor;?>
@@ -45,14 +47,19 @@
                     <input type="text" rel="part_number" name="request[<?=$id;?>][part_number]" value="<?=$_SESSION['poe']['request'][$id]['part_number'];?>" class="form-control">
                   </td>
                   <td>
+                    <input type="text" rel="alternate_part_number" name="request[<?=$id;?>][alternate_part_number]" value="<?=$_SESSION['poe']['request'][$id]['alternate_part_number'];?>" class="form-control">
+                  </td>
+                  <td>
                     <input type="number" rel="quantity" name="request[<?=$id;?>][quantity]" value="<?=$_SESSION['poe']['request'][$id]['sisa'];?>" class="form-control">
+                  </td>
+                  <td>
+                    <input type="text" rel="unit" name="request[<?=$id;?>][unit]" value="<?=$_SESSION['poe']['request'][$id]['unit'];?>" class="form-control">
+                  </td>
+                  <td>
+                    <input type="text" rel="remarks" name="request[<?=$id;?>][remarks]" value="<?=$_SESSION['poe']['request'][$id]['remarks'];?>" class="form-control">
                   </td>
 
                   <?php foreach ($_SESSION['poe']['vendors'] as $key => $vendor):?>
-                    <td>
-                      <input type="text" rel="alternate_part_number" name="request[<?=$id;?>][vendors][<?=$key;?>][alternate_part_number]" value="<?=$_SESSION['poe']['request'][$id]['vendors'][$key]['alternate_part_number'];?>" class="form-control">
-                    </td>
-
                     <td>
                       <input type="text" rel="unit_price" name="request[<?=$id;?>][vendors][<?=$key;?>][unit_price]" value="<?=$_SESSION['poe']['request'][$id]['vendors'][$key]['unit_price'];?>" class="form-control">
                     </td>

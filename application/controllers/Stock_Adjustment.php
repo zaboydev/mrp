@@ -76,7 +76,7 @@ class Stock_Adjustment extends MY_Controller
       $col[] = print_number($row['balance_quantity'], 2);
       $col[] = print_string($row['unit']);
       $col[] = $row['remarks'];
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
         $col[] = print_number($row['unit_value'], 2);
         $col[] = print_number($row['total_value'], 2);
         $total_price[] = $row['total_value'];
@@ -109,7 +109,7 @@ class Stock_Adjustment extends MY_Controller
         // 14 => print_number(array_sum($total_price), 2),
       )
     );
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
       $result['total'][16] = print_number(array_sum($total_price), 2);
     }
 

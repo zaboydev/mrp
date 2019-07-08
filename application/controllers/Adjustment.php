@@ -24,7 +24,7 @@ class Adjustment extends MY_Controller
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/');
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array(12 );
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
+    if (config_item('auth_role') == 'FINANCE'|| config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
       // $this->data['grid']['summary_columns'][] = 15;
       $this->data['grid']['summary_columns'][] = 17;
     }
@@ -78,7 +78,7 @@ class Adjustment extends MY_Controller
       $col[] = print_number($row['balance_quantity'], 2);
       $col[] = print_string($row['unit']);
       $col[] = $row['remarks'];
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
         $col[] = print_number($row['unit_value'], 2);
         $col[] = print_number($row['total_value'], 2);
       }
@@ -95,7 +95,7 @@ class Adjustment extends MY_Controller
         $col['DT_RowAttr']['data-href'] = site_url($this->modules['stock_card']['route'] .'/info/'. $row['id']);
       }
 
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){
         $total_price[] = $row['total_value'];
       }
 

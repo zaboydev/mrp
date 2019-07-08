@@ -11,7 +11,7 @@ $config['module']['expired_stock']['language']        = 'expired_stock_lang';
 $config['module']['expired_stock']['table']           = 'tb_master_part_number';
 $config['module']['expired_stock']['model']           = 'Expired_Stock_Model';
 $config['module']['expired_stock']['permission']      = array(
-  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'summary'   => 'VP FINANCE,SUPERVISOR',
-  'detail'    => 'VP FINANCE,SUPERVISOR',
+  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'summary'   => 'VP FINANCE,SUPERVISOR,SUPER ADMIN',
+  'detail'    => 'VP FINANCE,SUPERVISOR,SUPER ADMIN',
 );

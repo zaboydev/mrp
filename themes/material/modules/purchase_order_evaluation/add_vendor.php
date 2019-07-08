@@ -4,14 +4,14 @@
 <div class="container">
 
   <h4 class="page-header">Select Vendor</h4>
-
+  
   <form id="form_add_vendor" class="form" role="form" method="post" action="<?=site_url($module['route'] .'/add_selected_vendor');?>">
     <div class="row">
       <div class="col-sm-12">
         <div class="form-group">
           <label>Available Vendors</label>
 
-          <?php foreach (available_vendors($_SESSION['poe']['category']) as $i => $avail_vendor):?>
+          <?php foreach (available_vendors_for_poe($_SESSION['poe']['default_currency']) as $i => $avail_vendor):?>
             <?php
             $vendors = array();
             foreach ($_SESSION['poe']['vendors'] as $key => $vendor){

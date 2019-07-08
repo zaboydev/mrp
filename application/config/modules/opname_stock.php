@@ -11,10 +11,10 @@ $config['module']['opname_stock']['language']          = 'stock_opname_lang';
 $config['module']['opname_stock']['table']             = 'tb_stock_opnames';
 $config['module']['opname_stock']['model']             = 'Stock_Opname_Model';
 $config['module']['opname_stock']['permission']        = array(
-  'index'   			=> 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'create_opname'  		=> 'SUPERVISOR,PIC STOCK',
-  'index_unpublish'   	=> 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,VP FINANCE',
-  'update_unpublish'  	=> 'SUPERVISOR,PIC STOCK',
-  'save_unpublish'  	=> 'SUPERVISOR,PIC STOCK',
-  'publish'				=> 'SUPERVISOR',
+  'index'   			=> 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'create_opname'  		=> 'SUPERVISOR,PIC STOCK,SUPER ADMIN',
+  'index_unpublish'   	=> 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'update_unpublish'  	=> 'SUPERVISOR,PIC STOCK,SUPER ADMIN',
+  'save_unpublish'  	=> 'SUPERVISOR,PIC STOCK,SUPER ADMIN',
+  'publish'				=> 'SUPERVISOR,SUPER ADMIN',
 );

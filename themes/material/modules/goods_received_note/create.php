@@ -315,7 +315,7 @@
                         <label for="minimum_quantity">Minimum Quantity</label>
                       </div>
 
-                      <?php if (config_item('auth_role') == 'SUPERVISOR'):?>
+                      <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'):?>
                         <div class="form-group">
                           <div class="row">
                             <div class="col-lg-6 col-sm-6">

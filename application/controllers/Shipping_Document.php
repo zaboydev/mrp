@@ -207,7 +207,7 @@ class Shipping_Document extends MY_Controller
         $col[]  = print_string($row['issued_to']);
         $col[]  = print_string($row['issued_by']);
         $col[]  = print_date($row['received_date']);
-        if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){          
+        if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){          
           // $col[]  = print_string($row['unit_value'],2);
           // $col[]  = print_number($row['unit_value']*$row['issued_quantity'],2);
           // $total_value[]  = $row['unit_value']*$row['issued_quantity'];
@@ -238,7 +238,7 @@ class Shipping_Document extends MY_Controller
           10 => print_number(array_sum($quantity), 2),
         )
       );
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
         // $result['total'][19] = print_number(array_sum($unit_value), 2);
         $result['total'][20] = print_number(array_sum($total_value), 2);
       }
@@ -257,7 +257,7 @@ class Shipping_Document extends MY_Controller
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 10 );
 
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
       // $this->data['grid']['summary_columns'][] = 19;
       $this->data['grid']['summary_columns'][] = 20;
     }

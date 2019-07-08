@@ -64,19 +64,19 @@
                 <th class="middle-alignment">Description</th>
                 <th class="middle-alignment">Part Number</th>
                 <th class="middle-alignment">Alt. P/N</th>
-                <th class="middle-alignment">POE Number</th>
-                <th class="middle-alignment">PR Number</th>
                 <th class="middle-alignment">Remarks</th>
                 <th class="middle-alignment" colspan="2">Quantity</th>
                 <th class="middle-alignment">Unit Price <?=$entity['default_currency'];?></th>
                 <th class="middle-alignment">Core Charge <?=$entity['default_currency'];?></th>
                 <th class="middle-alignment">Total Amount <?=$entity['default_currency'];?></th>
+                <th class="middle-alignment">POE Number</th>
+                <th class="middle-alignment">PR Number</th>
               </tr>
             </thead>
             <tbody id="table_contents">
               <?php $n = 0;?>
               <?php $total_amount = array();?>
-              <?php foreach ($entity['request'] as $i => $detail):?>
+              <?php foreach ($entity['items'] as $i => $detail):?>
                 <?php $total_amount[] = $detail['total_amount'];?>
                 <?php $n++;?>
                 <tr id="row_<?=$i;?>">
@@ -92,12 +92,7 @@
                   <td class="no-space">
                     <?=print_string($detail['alternate_part_number']);?>
                   </td>
-                  <td>
-                    <?=print_string($detail['evaluation_number']);?>
-                  </td>
-                  <td>
-                    <?=print_string($detail['purchase_request_number']);?>
-                  </td>
+                  
                   <td>
                     <?=print_string($detail['remarks']);?>
                   </td>
@@ -115,6 +110,12 @@
                   </td>
                   <td>
                     <?=print_number($detail['total_amount'], 2);?>
+                  </td>
+                  <td>
+                    <?=print_string($detail['poe_number']);?>
+                  </td>
+                  <td>
+                    <?=print_string($detail['purchase_request_number']);?>
                   </td>
                 </tr>
               <?php endforeach;?>
@@ -134,11 +135,12 @@
               <th></th>
               <th></th>
               <th></th>
-              <th></th>
-              <th></th>
               <th style="background-color: #eee;">Subtotal <?=$entity['default_currency'];?></th>
               <th style="background-color: #eee;"><?=print_number($subtotal, 2);?></th>
+              <th></th>
+              <th></th>
             </tr>
+            <?php if($entity['discount']>0):?>
             <tr>
               <th></th>
               <th></th>
@@ -148,14 +150,13 @@
               <th></th>
               <th></th>
               <th></th>
-              <th></th>
-              <th></th>
-              <th style="background-color: #eee;">Discount <?=$entity['default_currency'];?></th>
+              <th style="background-color: #eee;">Discount</th>
               <th style="background-color: #eee;"><?=print_number($entity['discount'], 2);?></th>
+              <th></th>
             </tr>
+            <?php endif;?>
+            <?php if($entity['taxes']>0):?>
             <tr>
-              <th></th>
-              <th></th>
               <th></th>
               <th></th>
               <th></th>
@@ -166,10 +167,11 @@
               <th></th>
               <th style="background-color: #eee;">VAT <?=$entity['taxes'];?> %</th>
               <th style="background-color: #eee;"><?=print_number($total_taxes, 2);?></th>
+              <th></th>
             </tr>
+            <?php endif;?>
+            <?php if($entity['shipping_cost']>0):?>
             <tr>
-              <th></th>
-              <th></th>
               <th></th>
               <th></th>
               <th></th>
@@ -180,10 +182,10 @@
               <th></th>
               <th style="background-color: #eee;">Shipping Cost</th>
               <th style="background-color: #eee;"><?=print_number($entity['shipping_cost'], 2);?></th>
+              <th></th>
             </tr>
+            <?php endif;?>
             <tr>
-              <th></th>
-              <th></th>
               <th></th>
               <th></th>
               <th></th>
@@ -194,6 +196,8 @@
               <th></th>
               <th style="background-color: #eee;">Grand Total</th>
               <th style="background-color: #eee;"><?=print_number($grandtotal, 2);?></th>
+              <th></th>
+              <th></th>
             </tr>
             </tfoot>
           </table>
@@ -218,7 +222,7 @@
         </a>
       <?php endif;?>
 
-      <?php if (is_granted($module, 'print')):?>
+      <?php if (is_granted($module, 'print') && $entity['document_number']!=null):?>
         <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
           <i class="md md-print"></i>
           <small class="top right">print</small>

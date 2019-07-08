@@ -12,10 +12,10 @@ $config['module']['material_slip']['helper']           = 'material_slip_helper';
 $config['module']['material_slip']['table']            = 'tb_issuances';
 $config['module']['material_slip']['model']            = 'Material_Slip_Model';
 $config['module']['material_slip']['permission']       = array(
-  'index'     => 'PIC PROCUREMENT,PIC STOCK,FINANCE,OTHER,SUPERVISOR,VP FINANCE',
-  'info'      => 'PIC STOCK,SUPERVISOR,FINANCE,VP FINANCE',
-  'document'  => 'PIC STOCK,SUPERVISOR',
-  'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,PIC PROCUREMENT',
-  'delete'    => 'PIC STOCK,SUPERVISOR',
-  'import'    => 'SUPERVISOR,PIC STOCK'
+  'index'     => 'PIC PROCUREMENT,PIC STOCK,FINANCE,OTHER,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'info'      => 'PIC STOCK,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'document'  => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
+  'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,PIC PROCUREMENT,SUPER ADMIN',
+  'delete'    => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
+  'import'    => 'SUPERVISOR,PIC STOCK,SUPER ADMIN'
 );

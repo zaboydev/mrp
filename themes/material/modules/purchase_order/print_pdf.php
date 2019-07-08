@@ -49,7 +49,7 @@
   <tbody>
     <?php $n = 0;?>
     <?php $total_amount = array();?>
-    <?php foreach ($entity['request'] as $i => $detail):?>
+    <?php foreach ($entity['items'] as $i => $detail):?>
       <?php $total_amount[] = $detail['total_amount'];?>
       <?php $n++;?>
       <tr id="row_<?=$i;?>">

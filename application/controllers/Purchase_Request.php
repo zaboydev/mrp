@@ -13,7 +13,7 @@ class Purchase_Request extends MY_Controller
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
     if(empty($_SESSION['request']['request_to']))
-      $_SESSION['request']['request_to'] = 0;
+      $_SESSION['request']['request_to'] = 1;
   }
 
   public function set_doc_number()
@@ -117,6 +117,54 @@ class Purchase_Request extends MY_Controller
 
     echo json_encode($entities);
   }
+
+  public function search_budget_for_relocation()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $category = $_SESSION['request']['category'];
+    $entities = $this->model->searchBudgetForRelocation($category,$unit);
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['product_name'];
+      $entities[$key]['label'] .= ' || PN: ';
+      $entities[$key]['label'] .= $value['product_code'];
+      $entities[$key]['label'] .= '<small>';
+      $entities[$key]['label'] .= 'Month Plan: <code>'. $value['bulan'].'</code> || ';
+      $entities[$key]['label'] .= 'Minimum Qty: <code>'. number_format($value['minimum_quantity'], 2) .'</code> || ';
+      $entities[$key]['label'] .= 'On Hand Qty: <code>'. number_format($value['on_hand_quantity'], 2) .'</code> || ';
+      $entities[$key]['label'] .= 'Left Plan Qty: <code>'. number_format($value['maximum_quantity'], 2) .'</code> ||';
+      $entities[$key]['label'] .= 'source: <code>'.$value['source'].'</code>';
+      $entities[$key]['label'] .= '</small>';
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function search_item_unbudgeted()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $category = $_SESSION['request']['category'];
+    $entities = $this->model->searchItemUnbudgeted($category);
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['product_name'];
+      $entities[$key]['label'] .= ' || PN: ';
+      $entities[$key]['label'] .= $value['product_code'];
+      $entities[$key]['label'] .= '<small>';
+      $entities[$key]['label'] .= 'Minimum Qty: <code>'. number_format($value['minimum_quantity'], 2) .'</code> || ';
+      $entities[$key]['label'] .= 'On Hand Qty: <code>'. number_format($value['on_hand_quantity'], 2) .'</code> || ';
+      $entities[$key]['label'] .= 'Left Plan Qty: <code>'. number_format($value['maximum_quantity'], 2) .'</code> ||';
+      // $entities[$key]['label'] .= 'source: <code>'.$value['source'].'</code>';
+      $entities[$key]['label'] .= '</small>';
+    }
+
+    echo json_encode($entities);
+  }
+
   public function relocate($id){
     if (is_granted($this->module, 'info') === FALSE){
       $return['type'] = 'denied';
@@ -200,26 +248,46 @@ class Purchase_Request extends MY_Controller
       foreach ($entities as $row){
         $no++;
         $col = array();
-        $col[] = print_number($no);
+
+        if($row['status']=="budgeted" || $row['status']=="waiting" || $row['status']=="pending"){
+          if(config_item('auth_role') == 'CHIEF OF MAINTENANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+            $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
+          }else{
+            $col[] = print_number($no);
+          }          
+        } else {
+          $col[] = print_number($no);
+        }
         $col[] = print_string($row['pr_number']);
-        $col[] = print_date($row['pr_date']);
+        $col[] = print_date($row['pr_date'],'d/m/Y');
         $col[] = print_date($row['required_date']);
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name']:$row['item_category']);
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name']:$row['description']);
-        $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']);
+        $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
         $col[] = print_string($row['additional_info']);
         $col[] = print_number($row['quantity'], 2);
         $col[] = print_number($row['process_qty'], 2);
-        $col[] = print_string($row['status']);
-        $col[] = print_string($row['suggested_supplier']);
-        $col[] = print_string($row['deliver_to']);
+        $col[] = print_string(strtoupper($row['status']));
+        // $col[] = print_string($row['suggested_supplier']);
+        $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
         $col[] = print_person_name($row['created_by']);
-        $col[] = $row['notes'];
+        if($row['status']=="budgeted"){
+          if(config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
+            $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
+          }else{
+            $col[] = print_string($row['notes']);
+          }          
+        } else {
+          $col[] = print_string($row['notes']);
+        }
+        
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
 
         if ($this->has_role($this->module, 'info')){
-          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          $col['DT_RowAttr']['onClick']     = '';
+          $col['DT_RowAttr']['data-id']     = $row['id'];
           $col['DT_RowAttr']['data-target'] = '#data-modal';
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
         }
@@ -286,11 +354,31 @@ class Purchase_Request extends MY_Controller
     echo json_encode($return);
   }
 
+  public function info_item($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (is_granted($this->module, 'info') === FALSE){
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->find_item_by_id($id);
+
+      $this->data['entity'] = $entity;
+
+      $return['type'] = 'success';
+      $return['info'] = $this->load->view($this->module['view'] .'/change_item', $this->data, TRUE);
+    }
+
+    echo json_encode($return);
+  }
+
   public function print_pdf($id)
   {
     $this->authorized($this->module, 'print');
 
-    $entity = $this->model->findById($id);
+    $entity = $this->model->findPrlById($id);
 
     $this->data['entity']           = $entity;
     $this->data['page']['title']    = strtoupper($this->module['label']);
@@ -311,16 +399,18 @@ class Purchase_Request extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    $entity   = $this->model->findById($id);
+    // $entity   = $this->model->findById($id);
+    $entity   = $this->model->findPrlById($id);
 
-    if (isset($_SESSION['request']) === FALSE){
+    // if (!isset($_SESSION['request'])){
       $_SESSION['request']              = $entity;
       $_SESSION['request']['id']        = $id;
       $_SESSION['request']['edit']      = $entity['pr_number'];
       $_SESSION['request']['category']  = $entity['category_name'];
-    }
+    // }
 
     redirect($this->module['route'] .'/create');
+    // $this->render_view($this->module['view'] .'/create');
   }
 
   public function create($category = NULL)
@@ -401,6 +491,29 @@ class Purchase_Request extends MY_Controller
 
     echo json_encode($data);
   }
+
+  public function save_change_item()
+  {
+    // if ($this->input->is_ajax_request() == FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE){
+      $data['type'] = FALSE;
+      $data['info'] = 'You are not allowed to save this Document!';
+    } else {
+      if ($this->model->save_change_item()){
+        $data['type'] = 'success';
+        $data['info'] = 'Update Success';
+      } else {
+        $data['type'] = 'danger';
+        $data['info'] = 'Error while saving this document. Please ask Technical Support.';
+      }
+    }
+
+    // echo json_encode($data);
+    redirect($this->module['route']);
+  }
+
   public function cancel($id){
     // if ($this->input->is_ajax_request() === FALSE)
     //   redirect($this->modules['secure']['route'] .'/denied');
@@ -409,6 +522,7 @@ class Purchase_Request extends MY_Controller
       redirect($this->module['route']);
     }
   }
+
   public function add_item()
   {
     $this->authorized($this->module, 'document');
@@ -425,6 +539,19 @@ class Purchase_Request extends MY_Controller
         'price'                       => $this->input->post('price'),
         'total'                       => $this->input->post('total'),
         'additional_info'             => $this->input->post('additional_info'),
+        'ytd_quantity'                => $this->input->post('ytd_quantity'),
+        'ytd_used_quantity'           => $this->input->post('ytd_used_quantity'),
+        'ytd_budget'                  => $this->input->post('ytd_budget'),
+        'ytd_used_budget'             => $this->input->post('ytd_used_budget'),
+        'unbudgeted_item'             => $this->input->post('unbudgeted_item'),
+        'relocation_item'             => $this->input->post('relocation_item'),
+        'need_budget'                 => $this->input->post('need_budget'),
+        'mtd_quantity'                => $this->input->post('mtd_quantity'),
+        'mtd_used_quantity'           => $this->input->post('mtd_used_quantity'),
+        'mtd_budget'                  => $this->input->post('mtd_budget'),
+        'mtd_used_budget'             => $this->input->post('mtd_used_budget'),
+        'part_number_relocation'      => $this->input->post('origin_budget'),
+        'budget_value_relocation'      => $this->input->post('budget_value'),
       );
     }
 
@@ -467,5 +594,212 @@ class Purchase_Request extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function multi_approve(){
+    $id_purchase_order = $this->input->post('id_purchase_order');
+    $id_purchase_order = str_replace("|", "", $id_purchase_order);
+    $id_purchase_order = substr($id_purchase_order, 0,-1);
+    $id_purchase_order = explode(",", $id_purchase_order);
+    $total = 0;
+    $success = 0;
+    $failed = sizeof($id_purchase_order);
+    foreach ($id_purchase_order as $key) {
+      if ($this->model->approve($key)){
+        $total ++;
+        $success ++;
+        $failed --;
+      }
+    }
+    if($success>0){
+      $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => $success." data has been update!"
+      ));
+    }
+    if($failed>0){
+      $this->session->set_flashdata('alert', array(
+                'type' => 'danger',
+                'info' => "There are ".$failed." errors"
+      ));
+    }
+    if($total == 0 ){
+      $result['status'] = 'failed';
+    } else {
+      //$this->sendEmailHOS();
+      $result['status'] = 'success';
+    }
+    echo json_encode($result);
+  }
+
+  public function multi_reject(){
+    $str_id_purchase_order = $this->input->post('id_purchase_order');
+    $str_notes = $this->input->post('notes');
+    $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
+    $id_purchase_order = substr($id_purchase_order, 0,-1);
+    $notes = str_replace("|", "", $str_notes);
+    $notes = substr($notes, 0,-3);
+    $id_purchase_order = explode(",", $id_purchase_order);
+    $notes = explode("##,", $notes);
+    $result = $this->model->multi_reject($id_purchase_order,$notes);
+    if($result){
+      $return["status"] = "success";
+      echo json_encode($return);
+    }else{
+      $return["status"] = "failed";
+      echo json_encode($return);
+    }
+  }
+
+  public function ajax_editItem($key)
+  {
+    $this->authorized($this->module, 'document');    
+
+    $entity = $_SESSION['request']['items'][$key];
+
+    echo json_encode($entity);
+  }
+
+  public function edit_item($key)
+  {
+    $this->authorized($this->module, 'document');
+    // $key = $key;
+
+    if (isset($_POST) && !empty($_POST)){
+
+      $_SESSION['request']['items'][$key] = array(
+        'inventory_monthly_budget_id' => $this->input->post('inventory_monthly_budget_id'),
+        'group_name'                  => $this->input->post('group_name'),
+        'product_name'                => $this->input->post('product_name'),
+        'part_number'                 => $this->input->post('part_number'),
+        'unit'                        => $this->input->post('unit'),
+        'quantity'                    => $this->input->post('quantity'),
+        'price'                       => $this->input->post('price'),
+        'total'                       => $this->input->post('total'),
+        'additional_info'             => $this->input->post('additional_info'),
+        'ytd_quantity'                => $this->input->post('ytd_quantity'),
+        'ytd_used_quantity'           => $this->input->post('ytd_used_quantity'),
+        'ytd_budget'                  => $this->input->post('ytd_budget'),
+        'ytd_used_budget'             => $this->input->post('ytd_used_budget'),
+        'unbudgeted_item'             => $this->input->post('unbudgeted_item'),
+        'relocation_item'             => $this->input->post('relocation_item'),
+        'need_budget'                 => $this->input->post('need_budget'),
+        'mtd_quantity'                => $this->input->post('mtd_quantity'),
+        'mtd_used_quantity'           => $this->input->post('mtd_used_quantity'),
+        'mtd_budget'                  => $this->input->post('mtd_budget'),
+        'mtd_used_budget'             => $this->input->post('mtd_used_budget'),
+        'part_number_relocation'      => $this->input->post('origin_budget'),
+        'budget_value_relocation'      => $this->input->post('budget_value'),
+      );
+    }
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function create_item_purchase(){
+    
+    $id_purchase_order = $this->input->post('id_purchase_order');
+    $id_purchase_order = str_replace("|", "", $id_purchase_order);
+    $id_purchase_order = substr($id_purchase_order, 0,-1);
+    $id_purchase_order = explode(",", $id_purchase_order);
+    $on_hand_qty = $this->input->post('on_hand_qty');
+    $on_hand_qty = explode("|", $on_hand_qty);
+    $total = 0;
+    $success = 0;
+    $failed = sizeof($id_purchase_order);
+    $_SESSION['request']['items'] = array();
+    $i=0;
+    foreach ($id_purchase_order as $key) {
+      $items = $this->model->findItemByPartNumber($key);
+      $budget = $this->model->findItemBudget($key);
+      if($budget->num_rows() > 0 ){
+        $row_budget    = $budget->unbuffered_row('array');
+        $_SESSION['request']['items'][$i] = array(
+          'inventory_monthly_budget_id' => $row_budget['id'],
+          'ytd_quantity'                => $row_budget['ytd_quantity'],
+          'ytd_used_quantity'           => $row_budget['ytd_used_quantity'],
+          'ytd_budget'                  => $row_budget['ytd_budget'],
+          'ytd_used_budget'             => $row_budget['ytd_used_budget'],
+          // 'inventory_monthly_budget_id' => 0,
+          'group_name'                  => $items['group'],
+          'product_name'                => $items['description'],
+          'part_number'                 => $items['part_number'],
+          'unit'                        => $items['unit'],
+          'quantity'                    => 0,
+          'price'                       => $items['current_price'],
+          'total'                       => 0,
+          'additional_info'             => '',
+          'on_hand_qty'                 => $on_hand_qty[$i],
+          'unbudgeted_item'             => 0,
+          'relocation_item'             => '',
+          'need_budget'                 => '',
+          'mtd_quantity'                => $row_budget['mtd_quantity'],
+          'mtd_used_quantity'           => $row_budget['mtd_used_quantity'],
+          'mtd_budget'                  => $row_budget['mtd_budget'],
+          'mtd_used_budget'             => $row_budget['mtd_used_budget'],
+
+        );
+      }else{
+        $_SESSION['request']['items'][$i] = array(
+          'inventory_monthly_budget_id' => '',
+          'ytd_quantity'                => 0,
+          'ytd_used_quantity'           => 0,
+          'ytd_budget'                  => 0,
+          'ytd_used_budget'             => 0,
+          // 'inventory_monthly_budget_id' => 0,
+          'group_name'                  => $items['group'],
+          'product_name'                => $items['description'],
+          'part_number'                 => $items['part_number'],
+          'unit'                        => $items['unit'],
+          'quantity'                    => 0,
+          'price'                       => $items['current_price'],
+          'total'                       => 0,
+          'additional_info'             => '',
+          'on_hand_qty'                 => $on_hand_qty[$i],
+          'unbudgeted_item'             => 1,
+          'relocation_item'             => '',
+          'need_budget'                 => '',
+          'mtd_quantity'                => 0,
+          'mtd_used_quantity'           => 0,
+          'mtd_budget'                  => 0,
+          'mtd_used_budget'             => 0,
+        );
+      }
+      $i++;
+      
+    }
+    $data['success'] = TRUE;
+    echo json_encode($data);
+    
+    // $_SESSION['request']['order_number']        = request_last_number();
+    // $_SESSION['request']['pr_number']           = request_last_number() . request_format_number();
+    // $_SESSION['request']['pr_date']             = date('Y-m-d');
+    // $_SESSION['request']['required_date']       = date('Y-m-d');
+    // $_SESSION['request']['created_by']          = config_item('auth_person_name');
+    // $_SESSION['request']['suggested_supplier']  = NULL;
+    // $_SESSION['request']['deliver_to']          = NULL;
+    // $_SESSION['request']['notes']               = NULL;
+   
+    // $this->data['page']['content']    = $this->module['view'] .'/create';
+    // $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+
+    // $this->render_view($this->module['view'] .'/create');
+
+  }
+
+  function create_purchase(){
+    $_SESSION['request']['order_number']        = request_last_number();
+    $_SESSION['request']['pr_number']           = request_last_number() . request_format_number();
+    $_SESSION['request']['pr_date']             = date('Y-m-d');
+    $_SESSION['request']['required_date']       = date('Y-m-d');
+    $_SESSION['request']['created_by']          = config_item('auth_person_name');
+    $_SESSION['request']['suggested_supplier']  = NULL;
+    $_SESSION['request']['deliver_to']          = NULL;
+    $_SESSION['request']['notes']               = NULL;
+   
+    $this->data['page']['content']    = $this->module['view'] .'/create';
+    $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+
+    $this->render_view($this->module['view'] .'/create');
   }
 }

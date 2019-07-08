@@ -21,12 +21,12 @@ class Expired_Stock extends MY_Controller
       $start_date  = $_POST['start_date'];
       $date        = strtotime('+90 day',strtotime($start_date));
       $end_date    = date('Y-m-d', $date);
-      $periode=print_date($start_date,'d F Y').' - '.print_date($end_date,'d F Y');
+      $periode = print_date($end_date,'d F Y');
     } else {
       $start_date  = date('Y-m-d');
       $date        = strtotime('+90 day',strtotime($start_date));
       $end_date    = date('Y-m-d', $date);
-      $periode=print_date($start_date,'d F Y').' - '.print_date($end_date,'d F Y'); 
+      $periode = print_date($end_date,'d F Y');
 
     }
 

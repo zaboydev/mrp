@@ -5,6 +5,17 @@
 <?php endblock() ?>
 
 <?php startblock('page_body') ?>
+  <div id="modal-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-item-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!--  -->
+
+      <div class="modal-body no-padding"></div>
+
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
   <?php $this->load->view('material/templates/datatable') ?>
 <?php endblock() ?>
 
@@ -15,6 +26,18 @@
 <?php startblock('actions_right') ?>
   <?php if (is_granted($module, 'document')):?>
     <div class="section-floating-action-row">
+      <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') ||(config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')):?>
+        <button type="button" data-source = "<?=site_url($module['route'] .'/multi_reject/');?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+          <i class="md md-clear"></i>
+          <small class="top right">reject</small>
+        </button>
+      <?php endif;?>
+      <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') ||(config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')):?>
+        <button type="button" data-source = "<?=site_url($module['route'] .'/multi_approve/');?>"  class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
+          <i class="md md-spellcheck"></i>
+          <small class="top right">approve</small>
+        </button>
+      <?php endif;?>
       <div class="btn-group dropup">
         <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
           <i class="md md-add"></i>
@@ -29,6 +52,7 @@
           <?php endforeach;?>
         </ul>
       </div>
+
     </div>
   <?php endif ?>
 <?php endblock() ?>
@@ -53,20 +77,27 @@
     <div class="form-group">
       <label for="filter_status">Status</label>
       <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">
+        
+        <option value="waiting">
+          Waiting For Approval
+        </option>
         <option value="pending">
-          Pending
-        </option>
-
-        <option value="approved">
-          Approved
-        </option>
-
+          Unbudgeted
+        </option>        
         <option value="rejected">
           Rejected
         </option>
-
         <option value="canceled">
-          Cancel
+          Canceled
+        </option>
+        <option value="unused">
+          Unused
+        </option>
+        <option value="open">
+          Open
+        </option>
+        <option value="closed">
+          Close
         </option>
       </select>
     </div>
@@ -109,6 +140,8 @@
   Pace.on('done', function(){
     $('.progress-overlay').hide();
   });
+
+  var id_purchase_order = "";
 
   (function ( $ ) {
     $.fn.reset = function() {
@@ -295,6 +328,17 @@
           $(row).addClass('selected');
         }
       },
+      drawCallback: function( settings ) {
+          var api = this.api();
+          var data = api.rows( {page:'current'} ).data()
+          $.each(data,function(i,item){
+            var id = $(item[0]).attr("data-id");
+            if(id_purchase_order.indexOf("|"+id+",") !== -1){
+              $("#cb_"+id).attr('checked', true);  
+            }            
+          });
+           
+        },   
 
       columnDefs : [
         {
@@ -461,6 +505,175 @@
             window.location = doubleClickRow;
         }
       }
+    });
+
+    var buttonSubmitDocument      = $('#btn-submit-document');
+    var formDocument              = $('#form-change-item');
+    $(buttonSubmitDocument).on('click', function(e){
+      e.preventDefault();
+      $(buttonSubmitDocument).attr('disabled', true);
+
+      var url = $(this).attr('href');
+
+      $.post(url, formDocument.serialize(), function(data){
+        var obj = $.parseJSON(data);
+
+        if ( obj.success == false ){
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error(obj.message);
+        } else {
+          toastr.options.timeOut = 4500;
+          toastr.options.closeButton = false;
+          toastr.options.progressBar = true;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.success(obj.message);
+
+          window.setTimeout(function(){
+            window.location.href = '<?=site_url($module['route']);?>';
+          }, 5000);
+        }
+
+        $(buttonSubmitDocument).attr('disabled', false);
+      });
+    });
+
+    $("#modal-approve-data-button-multi").click(function(){
+      var action = $(this).data('source');
+      $(this).attr('disabled', true);
+      if(id_purchase_order !== ""){
+             $.post( action, {'id_purchase_order':id_purchase_order} ).done(function(data){
+                console.log(data);
+                $("#modal-approve-data-button-multi").attr('disabled', false);
+                var result = jQuery.parseJSON(data);
+                if(result.status == 'success'){
+                  toastr.options.timeOut = 10000;
+                  toastr.options.positionClass = 'toast-top-right';
+                  toastr.success( 'Success aprove data the page will reload' );
+                  window.location.reload();
+                } else {
+                  toastr.options.timeOut = 10000;
+                  toastr.options.positionClass = 'toast-top-right';
+                  toastr.danger( 'Failed aprove data' );
+                }
+              }).fail(function(){
+                $("#modal-approve-data-button-multi").attr('disabled', false);
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.error( 'Delete Failed! This data is still being used by another document.' );
+              });
+        } else {
+          $(this).attr('disabled', false);
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error( 'Empty selected data' );
+        }
+    });
+
+    function encodeNotes(){
+      new_id_purchase_order = id_purchase_order.replace(/\|/g,"");
+      new_id_purchase_order = new_id_purchase_order.substring(0,new_id_purchase_order.length-1);
+      arr = new_id_purchase_order.split(",");
+      notes = "";
+      y = 0; 
+      $.each(arr,function(i,x){
+        if($("#note_"+x).val()!=""){
+          notes = notes+"|"+$("#note_"+x).val()+"##,";
+          y +=1;
+        }else{
+          return false;
+        }
+      });
+      if(y == arr.length){
+        return true
+      }else {
+        return false
+      }
+
+    }
+
+    $("#modal-reject-data-button-multi").click(function(){
+      if(!encodeNotes()){
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error( 'You must filled notes for each item that you want to reject' );
+      } else {
+
+        if(id_purchase_order == ""){
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error( 'You must select item that you want to reject' );
+        }else{
+                $.ajax({
+                  type: "POST",
+                  url: 'purchase_request/multi_reject',
+                  data:{"id_purchase_order":id_purchase_order,"notes":notes},
+                  cache: false,
+                  success: function(response){
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.status == "success"){
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.success( 'Successfully reject item, the page will reload now' );
+                        window.location.reload();
+                    } else {
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.error( 'Failed rejected item' );
+                    }
+                  },
+                  error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                        console.log(thrownError);
+                    }
+                }); 
+          }
+      }
+    });
+
+    $(datatableElement).find('tbody').on( 'click', 'tr', function(e) {
+      console.log(e.target.nodeName);      
+      if(e.target.nodeName ==="INPUT"){
+        if($(e.target).attr("type")==="checkbox"){
+          if($(e.target).prop('checked')){
+            id_purchase_order +="|"+$(e.target).attr('data-id')+",";
+          }else {
+            id_purchase_order = id_purchase_order.replace("|"+$(this).attr('data-id')+",","");
+          }
+        }
+                
+      }
+      else if(e.target.nodeName ==="SPAN"){
+        var a = $(e.target).data('id');
+        console.log(e.target.nodeName);
+       ///////////////////////////////////////eventdefault
+      }
+      else{
+        $(this).popup();  
+      }
+      
+    });
+    $(datatableElement).find('tbody').on( 'click', 'a', function(e) {
+        e.preventDefault();
+        // console.log("tuliskan fungsinya disini");
+        // tulis disini
+        var a = $(this).data('id');
+        $.ajax({
+          url: "<?=site_url($module['route'] .'/info_item/');?>"+"/"+a,
+          type: 'get',
+          success: function(data) {
+            var dataModal       = $('#modal-item');
+            var obj = $.parseJSON(data);
+            $( dataModal )
+            .find('.modal-body')
+            .empty()
+            .append(obj.info);
+            $( dataModal ).modal('show');
+          }
+        });
+
     });
 
     $('.filter_numeric_text').on( 'keyup click', function () {

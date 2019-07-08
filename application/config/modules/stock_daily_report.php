@@ -11,7 +11,7 @@ $config['module']['stock_daily_report']['language']        = 'stock_daily_report
 $config['module']['stock_daily_report']['table']           = 'tb_stock_daily_reports';
 $config['module']['stock_daily_report']['model']           = 'Stock_Daily_Report_Model';
 $config['module']['stock_daily_report']['permission']      = array(
-  'index'     => 'SUPERVISOR,VP FINANCE,OTHER',
-  'summary'   => 'SUPERVISOR,VP FINANCE,OTHER',
-  'detail'    => 'SUPERVISOR,VP FINANCE,OTHER',
+  'index'     => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN',
+  'summary'   => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN',
+  'detail'    => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN',
 );

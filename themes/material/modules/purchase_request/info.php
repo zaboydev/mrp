@@ -42,7 +42,16 @@
           <dd><?=print_person_name($entity['created_by']);?></dd>
 
           <dt>Status</dt>
-          <dd><?=($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']);?></dd>
+          <dd><?=strtoupper($entity['status']);?></dd>
+
+          <dt>Approval Status</dt>
+          <?php if($entity['approved_date']!=null):?>
+          <dd> APPROVED by <?=print_person_name($entity['approved_by']);?></dd>
+          <?php elseif($entity['rejected_date']!=null):?>
+          <dd> REJECTED by <?=print_person_name($entity['rejected_by']);?></dd>
+          <?php elseif($entity['canceled_date']!=null):?>
+          <dd> CANCELED by <?=print_person_name($entity['canceled_by']);?></dd>
+          <?php endif;?>
 
           <dt>Suggested Supplier</dt>
           <dd><?=print_string($entity['suggested_supplier']);?></dd>
@@ -62,19 +71,19 @@
           <table class="table table-striped table-nowrap">
             <thead id="table_header">
               <tr>
-                <th rowspan="3" class="text-center">Act</th>
+                <!-- <th rowspan="3" class="text-center">Act</th> -->
                 <th rowspan="3" class="text-center">No</th>
                 <th rowspan="3" class="text-center">Description</th>
                 <th rowspan="3" class="text-center">Part Number</th>
-                <th rowspan="3" class="text-center">Request Budget</th>
-                <th rowspan="3" class="text-center">Available Budget</th>
+                <!-- <th rowspan="3" class="text-center">Request Budget</th> -->
+                <!-- <th rowspan="3" class="text-center">Available Budget</th> -->
                 <th rowspan="3" class="text-center">Qty</th>
                 <th rowspan="3" class="text-center">Unit</th>
                 <th rowspan="3" class="text-center">Price</th>
                 <th rowspan="3" class="text-center">Subtotal</th>
                 <th colspan="6" class="text-center">Month to Date</th>
                 <th colspan="6" class="text-center">Year to Date</th>
-                <th colspan="4" class="text-center">Full Year</th>
+                <th class="text-center">Budget Status</th>
               </tr>
               <tr>
                 <th colspan="2" class="text-center">Plan</th>
@@ -83,8 +92,8 @@
                 <th colspan="2" class="text-center">Plan</th>
                 <th colspan="2" class="text-center">Actual</th>
                 <th colspan="2" class="text-center">Balance</th>
-                <th colspan="2" class="text-center">Plan</th>
-                <th colspan="2" class="text-center">Balance</th>
+                <!-- <th colspan="2" class="text-center">Plan</th> -->
+                <!-- <th colspan="2" class="text-center">Balance</th> -->
               </tr>
               <tr>
                 <th class="text-center">Qty</th>
@@ -99,10 +108,10 @@
                 <th class="text-center">Price</th>
                 <th class="text-center">Qty</th>
                 <th class="text-center">Price</th>
-                <th class="text-center">Qty</th>
+                <!-- <th class="text-center">Qty</th>
                 <th class="text-center">Price</th>
                 <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
+                <th class="text-center">Price</th> -->
               </tr>
             </thead>
             <tbody id="table_contents">
@@ -112,7 +121,7 @@
                 <?php $n++;?>
                 <?php $grand_total[] = $detail['total'];?>
                 <tr>
-                  <td>
+                  <td class="hide">
                     <a href="<?=site_url($module['route'] .'/relocate/'. $entity['id']);?>" class="btn btn-floating-action btn-small btn-danger btn-tooltip ink-reaction" id="modal-edit-data-button">
                       <i class="md md-refresh"></i>
                       <small class="top right">Relocate</small>
@@ -125,10 +134,10 @@
                     <?=print_string($detail['product_name']);?>
                   </td>
                   <td>
-                    <?=print_string($detail['part_number']);?>
+                    <a href="#"><?=print_string($detail['part_number']);?></a>
                   </td>
-                  <td></td>
-                  <td></td>
+                  <!-- <td></td> -->
+                  <!-- <td></td> -->
                   <td>
                     <?=print_number($detail['quantity'], 2);?>
                   </td>
@@ -177,17 +186,20 @@
                   <td>
                     <?=print_number($detail['ytd_budget'] - $detail['ytd_used_budget'], 2);?>
                   </td>
-                  <td>
+                  <td class="hide">
                     <?=print_number($detail['fyp_quantity'], 2);?>
                   </td>
-                  <td>
+                  <td class="hide">
                     <?=print_number($detail['fyp_budget'], 2);?>
                   </td>
-                  <td>
+                  <td class="hide">
                     <?=print_number($detail['fyp_quantity'] - $detail['fyp_used_quantity'], 2);?>
                   </td>
-                  <td>
+                  <td class="hide">
                     <?=print_number($detail['fyp_budget'] - $detail['fyp_used_budget'], 2);?>
+                  </td>
+                  <td>
+                    <?=strtoupper($detail['budget_status']);?>
                   </td>
                 </tr>
               <?php endforeach;?>
@@ -222,18 +234,38 @@
           </table>
         </div>
       </div>
+      <div class="col-sm-12">
+        <?php if($entity['approved_date']!=null):?>
+          <dl class="dl-inline">
+            <dt>Approval Notes</dt>
+            <dd><?=$entity['approved_notes'];?></dd>
+          </dl>
+          <?php elseif($entity['rejected_date']!=null):?>
+          <dl class="dl-inline">
+            <dt>Rejected Notes</dt>
+            <dd><?=$entity['rejected_notes'];?></dd>
+          </dl>
+          <?php elseif($entity['canceled_date']!=null):?>
+          <dl class="dl-inline">
+            <dt>Canceled Notes</dt>
+            <dd><?=$entity['canceled_notes'];?></dd>
+          </dl>
+        <?php endif;?>
+
+        
+      </div>
     </div>
   </div>
 
   <div class="card-foot">
     <div class="pull-right">
-      <?php if (is_granted($module, 'document') && $entity['status'] == 'pending'):?>
+      <?php if (is_granted($module, 'document') && $entity['rejected_date']!=null):?>
         <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>
         </a>
       <?php endif;?>
-       <?php if (is_granted($module, 'document') && $entity['status'] == 'approved'):?>
+       <?php if (is_granted($module, 'document') && $entity['rejected_date']==null):?>
         <a href="<?=site_url($module['route'] .'/cancel/'. $entity['id']);?>" class="btn btn-floating-action btn-danger btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-cancel"></i>
           <small class="top right">Cancel</small>

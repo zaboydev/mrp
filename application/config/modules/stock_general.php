@@ -11,7 +11,7 @@ $config['module']['stock_general']['language']          = 'stock_general_lang';
 $config['module']['stock_general']['table']             = 'tb_stocks';
 $config['module']['stock_general']['model']             = 'Stock_General_Model';
 $config['module']['stock_general']['permission']        = array(
-  'index'       => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'show'        => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'adjustment'  => 'PIC STOCK,SUPERVISOR,VP FINANCE',
+  'index'       => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'show'        => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'adjustment'  => 'PIC STOCK,SUPERVISOR,VP FINANCE,SUPER ADMIN',
 );

@@ -11,8 +11,8 @@ $config['module']['stock_mix']['language']        = 'stock_mix_lang';
 $config['module']['stock_mix']['table']           = 'tb_stock_adjustments';
 $config['module']['stock_mix']['model']           = 'Stock_Mix_Model';
 $config['module']['stock_mix']['permission']      = array(
-  'index'         => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,OTHER,VP FINANCE',
-  'info'          => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,OTHER,VP FINANCE',
-  'create'        => 'PIC STOCK,SUPERVISOR,VP FINANCE',
-  'import'        => 'PIC STOCK,SUPERVISOR,VP FINANCE'
+  'index'         => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,OTHER,VP FINANCE,SUPER ADMIN',
+  'info'          => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,OTHER,VP FINANCE,SUPER ADMIN',
+  'create'        => 'PIC STOCK,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'import'        => 'PIC STOCK,SUPERVISOR,VP FINANCE,SUPER ADMIN'
 );

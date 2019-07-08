@@ -26,12 +26,25 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       'tb_purchase_order_items.description'         => 'Description',
       'tb_purchase_order_items.part_number'         => 'Part Number',
       'tb_purchase_order_items.quantity'            => 'Quantity',
-      'tb_purchase_orders.vendor'            => 'Vendor',
-      'tb_purchase_order_items.unit_price'         => 'Price',
+      'tb_purchase_orders.vendor'                   => 'Vendor',
+      'tb_purchase_order_items.unit_price'          => 'Price',
       'tb_purchase_orders.status'                   => 'Status',
+      'tb_attachment_poe.id_poe as attachment'      => 'Attachment',
+      // 'tb_purchase_orders.notes'                    => NULL,
+
       
     );
   }
+  public function listAttachment($id){
+    $this->db->where('id_poe', $id);
+    return $this->db->get('tb_attachment_poe')->result();
+  }
+
+  public function listAttachment_2($id){
+    $this->db->where('id_poe', $id);
+    return $this->db->get('tb_attachment_poe')->result_array();
+  }
+
   public function getNotifRecipient(){
     $this->db->select('email');
     $this->db->from('tb_auth_users');
@@ -81,11 +94,11 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
       $this->db->where('tb_purchase_orders.status', $search_status);
     } else {
-      if (config_item('auth_role') == 'PIC PROCUREMENT'){
+      // if (config_item('auth_role') == 'PIC PROCUREMENT'){
         $this->db->where('tb_purchase_orders.status', 'evaluation');
-      } else {
-        $this->db->where('tb_purchase_orders.status', 'approved');
-      }
+      // } else {
+      //   $this->db->where('tb_purchase_orders.status', 'approved');
+      // }
     }
 
     if (!empty($_POST['columns'][2]['search']['value'])){
@@ -133,9 +146,20 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         $this->db->where('id', $inventory_purchase_request_detail_id);
         $this->db->set('sisa','"sisa" + '.$key->quantity,false);
         $this->db->update('tb_inventory_purchase_requisition_details');
+
+        // $this->db->where('id', $inventory_purchase_request_detail_id);
+        // $detail_request = $this->db->get('tb_inventory_purchase_requisition_details')->row();
+        // if($detail_request->sisa == 0){
+        // $this->db->set('closing_by', config_item('auth_person_name'));
+
+        //deletetb_purchase_request_closures
+        $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+        $this->db->delete('tb_purchase_request_closures');              
+        // }
       }
       $this->db->set('status','rejected');
       $this->db->set('notes',$notes[$x]);
+      $this->db->set('approved_by', config_item('auth_person_name'));
       $this->db->where('id',$id);
       $check = $this->db->update('tb_purchase_orders');
       if($check){
@@ -151,14 +175,15 @@ class Purchase_Order_Evaluation_Model extends MY_Model
   }
   function getIndex($return = 'array')
   {
+    $this->db->distinct();
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_purchase_order_items_vendors');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    $this->db->where('tb_purchase_order_vendors.is_selected', 't');
+    $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe','left');
+    $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
-
     $this->searchIndex();
 
     $column_order = $this->getOrderableColumns();
@@ -223,11 +248,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $poe    = $query->unbuffered_row('array');
 
     $this->db->from('tb_purchase_order_vendors');
+    $this->db->order_by('id','asc');
     $this->db->where('tb_purchase_order_vendors.purchase_order_id', $id);
 
     $query = $this->db->get();
 
     foreach ($query->result_array() as $key => $vendor){
+      $poe['vendors'][$key]['id'] = $vendor['id'];
       $poe['vendors'][$key]['vendor'] = $vendor['vendor'];
       $poe['vendors'][$key]['is_selected'] = $vendor['is_selected'];
     }
@@ -238,6 +265,15 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $query = $this->db->get();
 
     foreach ($query->result_array() as $i => $item){
+      $this->db->from('tb_purchase_order_vendors');
+      $this->db->where('tb_purchase_order_vendors.purchase_order_id', $item['id']);
+
+      $query = $this->db->get();
+
+      foreach ($query->result_array() as $key => $vendor){
+        // $poe['vendors'][$key]['vendor'] = $vendor['vendor'];
+        $poe['request'][$i]['is_selected'] = $vendor['is_selected'];
+      }
       $poe['request'][$i] = $item;
       $poe['request'][$i]['vendors'] = array();
 
@@ -257,7 +293,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         $poe['request'][$i]['vendors'][$d] = $detail;
       }
     }
-
+    $this->db->where('id_poe', $id);
+    $data = $this->db->get('tb_attachment_poe')->result();
+    $attachment = array();
+    foreach ($data as $key) {
+      array_push($attachment, $key->file);
+    }
+    $poe["attachment"] = $attachment;
     return $poe;
   }
 
@@ -280,8 +322,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->set('review_status', strtoupper("waiting for purchase"));
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
+    $this->db->set('approved_by', config_item('auth_person_name'));
     $this->db->where('id', $id);
     $this->db->update('tb_purchase_orders');
+
+    $this->db->set('status_item','open');
+    $this->db->where('purchase_order_id', $id);
+    $this->db->update('tb_purchase_order_items');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
@@ -292,6 +339,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   public function save()
   {
+
+    // $this->db->trans_begin();
+
     $document_id          = (isset($_SESSION['poe']['id'])) ? $_SESSION['poe']['id'] : NULL;
     $document_edit        = (isset($_SESSION['poe']['edit'])) ? $_SESSION['poe']['edit'] : NULL;
     $document_number      = $_SESSION['poe']['document_number'] . poe_format_number();
@@ -303,6 +353,10 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $warehouse            = $_SESSION['poe']['warehouse'];
     $category             = $_SESSION['poe']['category'];
     $default_currency     = $_SESSION['poe']['default_currency'];
+    $approval             = $_SESSION['poe']['approval'];
+    if($approval=='without_approval'){
+        $status               = 'approved';
+    }
     $exchange_rate        = $_SESSION['poe']['exchange_rate'];
     $notes                = (empty($_SESSION['poe']['notes'])) ? NULL : $_SESSION['poe']['notes'];
 
@@ -323,6 +377,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('notes', $notes);
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
+
       $this->db->insert('tb_purchase_orders');
 
       $document_id = $this->db->insert_id();
@@ -361,6 +416,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       }
       $this->db->where('purchase_order_id', $document_id);
       $this->db->delete('tb_purchase_order_items');
+
+      $this->db->where('id_poe', $document_id);
+      $this->db->delete('tb_attachment_poe');
     }
 
     /**
@@ -369,28 +427,32 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     foreach ($_SESSION['poe']['vendors'] as $key => $vendor){
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('vendor', $vendor['vendor']);
-      $this->db->set('is_selected', $vendor['is_selected']);
+      $this->db->set('is_selected', false);
       $this->db->insert('tb_purchase_order_vendors');
 
-      if ($vendor['is_selected'] == 't'){
-        $this->db->from('tb_master_vendors');
-        $this->db->where('tb_master_vendors.vendor', $vendor['vendor']);
+      // if ($vendor['is_selected'] == 't'){
+      //   $this->db->from('tb_master_vendors');
+      //   $this->db->where('tb_master_vendors.vendor', $vendor['vendor']);
 
-        $query = $this->db->get();
-        $row   = $query->unbuffered_row('array');
+      //   $query = $this->db->get();
+      //   $row   = $query->unbuffered_row('array');
 
-        $this->db->set('vendor', $vendor['vendor']);
-        $this->db->set('vendor_address', $row['address']);
-        $this->db->set('vendor_country', $row['country']);
-        $this->db->set('vendor_phone', $row['phone']);
-        $this->db->set('vendor_attention', $row['email']);
-        $this->db->set('updated_at', date('Y-m-d'));
-        $this->db->set('updated_by', config_item('auth_person_name'));
-        $this->db->where('id', $document_id);
-        $this->db->update('tb_purchase_orders');
-      }
+      //   $this->db->set('vendor', $vendor['vendor']);
+      //   $this->db->set('vendor_address', $row['address']);
+      //   $this->db->set('vendor_country', $row['country']);
+      //   $this->db->set('vendor_phone', $row['phone']);
+      //   $this->db->set('vendor_attention', $row['email']);
+      //   $this->db->set('updated_at', date('Y-m-d'));
+      //   $this->db->set('updated_by', config_item('auth_person_name'));
+      //   $this->db->where('id', $document_id);
+      //   $this->db->update('tb_purchase_orders');
+      // }
     }
-
+    foreach ($_SESSION["poe"]["attachment"] as $key) {
+      $this->db->set('id_poe', $document_id);
+      $this->db->set('file', $key);
+      $this->db->insert('tb_attachment_poe');
+    }
     /**
      * PROCESSING ITEMS
      */
@@ -410,14 +472,24 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $poe_item_id = $this->db->insert_id();
 
       foreach ($item['vendors'] as $d => $detail) {
+        // if ($detail['is_selected'] == 't'){
+
+        //   $this->db->set('purchase_order_id', $document_id);
+        //   $this->db->set('vendor', $detail['vendor']);
+        //   $this->db->set('is_selected', $detail['is_selected']);
+        //   $this->db->insert('tb_purchase_order_vendors');
+        // } 
+        // $purchase_order_vendors_id = $this->db->insert_id();
+
         $this->db->from('tb_purchase_order_vendors');
         $this->db->where('tb_purchase_order_vendors.vendor', $detail['vendor']);
         $this->db->where('tb_purchase_order_vendors.purchase_order_id', $document_id);
 
         $query  = $this->db->get();
         $row    = $query->unbuffered_row('array');
+        // $poe_vendor_id  = $this->db->insert_id();
         $poe_vendor_id  = $row['id'];
-        $is_selected    = $row['is_selected'];
+        $is_selected    = $detail['is_selected'];
 
         $this->db->set('purchase_order_item_id', $poe_item_id);
         $this->db->set('purchase_order_vendor_id', $poe_vendor_id);
@@ -430,9 +502,14 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
         $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
         $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
+        $this->db->set('is_selected', $detail['is_selected']);
         $this->db->insert('tb_purchase_order_items_vendors');
 
         if ($is_selected == 't'){
+          $item_status = 'closed';
+          if($approval=='without_approval'){
+              $item_status               = 'open';
+          }
           $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
           $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
           $this->db->set('vendor', strtoupper($detail['vendor']));
@@ -443,18 +520,42 @@ class Purchase_Order_Evaluation_Model extends MY_Model
           $this->db->set('core_charge', floatval($detail['core_charge']));
           $this->db->set('total_amount', floatval($detail['total']));
           $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
+          $this->db->set('status_item', $item_status);
           $this->db->where('id', $poe_item_id);
           $this->db->update('tb_purchase_order_items');
+
           $this->db->set('sisa','"sisa" - '.$detail['quantity'],false);
           $this->db->where('id', $inventory_purchase_request_detail_id);
           $this->db->update('tb_inventory_purchase_requisition_details');
+
+          $this->db->set('is_selected','t');
+          $this->db->where('id',$poe_vendor_id);
+          $this->db->update('tb_purchase_order_vendors');
+
+          // $this->db->select('sisa');
+          // $this->db->where('id', $inventory_purchase_request_detail_id);
+          // $this->db->from('tb_inventory_purchase_requisition_details');
+          // $query = $this->db->get();
+          // $result = $query->unbuffered_row('array');
+          // if($result==0){
+          //   $this->db->set('status','closed');
+          //   $this->db->where('id', $inventory_purchase_request_detail_id);
+          //   $this->db->update('tb_inventory_purchase_requisition_details');
+          // }
+
+
         }
       }
 
       if ($document_edit === NULL){
         $this->db->where('id', $inventory_purchase_request_detail_id);
         $detail_request = $this->db->get('tb_inventory_purchase_requisition_details')->row();
-        if($detail_request->sisa == 0){
+        if($detail_request->sisa <= 0){
+
+          $this->db->set('status','closed');
+          $this->db->where('id', $item['inventory_purchase_request_detail_id']);
+          $this->db->update('tb_inventory_purchase_requisition_details');
+
           $this->db->set('closing_by', config_item('auth_person_name'));
           $this->db->set('purchase_request_detail_id', $item['inventory_purchase_request_detail_id']);
           $this->db->insert('tb_purchase_request_closures');              
@@ -508,7 +609,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('issued_by', config_item('auth_person_name'));
       $this->db->set('quantity', 0 - floatval($data['received_quantity']));
       $this->db->set('unit_value', floatval($data['received_unit_value']));
-	  $this->db->set('created_by', config_item('auth_person_name'));
+	    $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->insert('tb_stock_cards');
 
       $this->db->where('id', $data['id']);
@@ -598,9 +699,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         'tb_inventory_purchase_requisition_details.additional_info',
         'tb_inventory_purchase_requisition_details.quantity',
         'tb_inventory_purchase_requisition_details.sisa',
-        'tb_master_item_groups.category as "category_name"',
-        'tb_master_items.description as "product_name"',
-        'tb_master_items.part_number as "product_code"',
+        'tb_inventory_purchase_requisitions.item_category as "category_name"',
+        'tb_inventory_purchase_requisition_details.product_name as "product_name"',
+        'tb_inventory_purchase_requisition_details.part_number as "product_code"',
         'tb_inventory_purchase_requisitions.pr_number',
         'tb_inventory_purchase_requisitions.pr_date',
         'tb_inventory_purchase_requisitions.required_date',
@@ -617,18 +718,18 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
       $this->db->join('tb_master_items', 'tb_budget_cot.id_item = tb_master_items.id');
       $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
-      $this->db->where('tb_inventory_purchase_requisitions.status', 'approved');
+      $this->db->where('tb_inventory_purchase_requisition_details.status', 'open');
       $this->db->group_start();
         $this->db->where('tb_inventory_purchase_requisition_details.sisa >', 0);
         $this->db->where('tb_inventory_purchase_requisition_details.sisa is not null',null, false );
       $this->db->group_end();
-      if ($category === NULL){
-        $this->db->where_in('UPPER(tb_master_item_groups.category)', config_item('auth_inventory'));
-      } else {
-        $this->db->where('UPPER(tb_master_item_groups.category)', $category);
-      }
+      // if ($category === NULL){
+      //   $this->db->where_in('UPPER(tb_master_item_groups.category)', config_item('auth_inventory'));
+      // } else {
+      //   $this->db->where('UPPER(tb_master_item_groups.category)', $category);
+      // }
       $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-      $this->db->order_by('tb_inventory_purchase_requisitions.id', 'desc');
+      $this->db->order_by('tb_inventory_purchase_requisitions.id', 'asc');
       $query = $this->db->get();
     }
    
@@ -639,12 +740,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
   public function infoRequest($id)
   {
     if($_SESSION['poe']['source'] == 0){
-         $this->connection->select(array(
+      $this->connection->select(array(
         'tb_inventory_purchase_requisition_details.id',
         'tb_inventory_purchase_requisition_details.additional_info',
         'tb_inventory_purchase_requisition_details.quantity',
         'tb_inventory_purchase_requisition_details.sisa',
         'tb_inventory_purchase_requisition_details.price',
+        'tb_inventory_purchase_requisition_details.unit',
         'tb_product_categories.category_name',
         'tb_products.product_name',
         'tb_products.product_code',
@@ -671,9 +773,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         'tb_inventory_purchase_requisition_details.additional_info',
         'tb_inventory_purchase_requisition_details.quantity',
         'tb_inventory_purchase_requisition_details.sisa',
-        'tb_master_item_groups.category as "category_name"',
-        'tb_master_items.description as "product_name"',
-        'tb_master_items.part_number as "product_code"',
+        'tb_inventory_purchase_requisitions.item_category as "category_name"',
+        'tb_inventory_purchase_requisition_details.product_name as "product_name"',
+        'tb_inventory_purchase_requisition_details.part_number as "product_code"',
         'tb_inventory_purchase_requisitions.pr_number',
         'tb_inventory_purchase_requisitions.pr_date',
         'tb_inventory_purchase_requisitions.required_date',
@@ -681,15 +783,16 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         'tb_inventory_purchase_requisitions.suggested_supplier',
         'tb_inventory_purchase_requisitions.deliver_to',
         'tb_inventory_purchase_requisitions.created_by',
-        'tb_inventory_purchase_requisitions.notes'
+        'tb_inventory_purchase_requisitions.notes',        
+        'tb_inventory_purchase_requisition_details.unit',
       ));
 
       $this->db->from('tb_inventory_purchase_requisitions');
       $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
       $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
       $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
-      $this->db->join('tb_master_items', 'tb_budget_cot.id_item = tb_master_items.id');
-      $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+      // $this->db->join('tb_master_items', 'tb_budget_cot.id_item = tb_master_items.id');
+      // $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
       $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
       $query = $this->db->get();
     }
@@ -723,4 +826,32 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
     return $result;
   }
+
+  function add_attachment_to_db($id_poe,$url){
+    $this->db->trans_begin();
+
+    $this->db->set('id_poe', $id_poe);
+    $this->db->set('file', $url);
+    $this->db->insert('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function delete_attachment_in_db($id_att){
+    $this->db->trans_begin();
+
+    $this->db->where('id', $id_att);
+    $this->db->delete('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+  
 }

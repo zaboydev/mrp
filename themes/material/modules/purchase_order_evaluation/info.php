@@ -59,60 +59,59 @@
               <tr>
                 <th class="middle-alignment" rowspan="2"></th>
                 <th class="middle-alignment" rowspan="2">Description</th>
-                <th class="middle-alignment" rowspan="2">P/N</th>
+                <th class="middle-alignment" rowspan="2">P/N</th>                
+                <th class="middle-alignment" rowspan="2">Alt. P/N</th>
                 <th class="middle-alignment" rowspan="2">Remarks</th>
                 <th class="middle-alignment" rowspan="2">PR Number</th>
-                <th class="middle-alignment text-right" rowspan="2">Qty</th>
-
-                <?php foreach ($entity['vendors'] as $key => $vendor):?>
-                  <th class="middle-alignment text-center" colspan="4"><?=$vendor['vendor'];?></th>
-                <?php endforeach;?>
-              </tr>
-              <tr>
-                <?php for ($v = 0; $v < count($entity['vendors']); $v++):?>
-                  <th class="middle-alignment text-center">Alt. P/N</th>
-                  <th class="middle-alignment text-center">Unit Price</th>
-                  <th class="middle-alignment text-center">Core Charge</th>
-                  <th class="middle-alignment text-center">Total</th>
-                <?php endfor;?>
+                <th class="middle-alignment" rowspan="2">Qty</th>
+                <th class="middle-alignment text-center" rowspan="2" colspan="4">Vendor Detail</th>
               </tr>
             </thead>
             <tbody id="table_contents">
               <?php $n = 0;?>
               <?php foreach ($entity['request'] as $i => $detail):?>
-                <?php $n++;?>
+                <?php $n++; $rowspan=count($entity['vendors'])+1;?>
                 <tr id="row_<?=$i;?>">
-                  <td width="1">
+                  <td width="1" rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=$n;?>
                   </td>
-                  <td>
+                  <td rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=print_string($detail['description']);?>
                   </td>
-                  <td class="no-space">
+                  <td rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=print_string($detail['part_number']);?>
                   </td>
-                  <td>
+                  <td rowspan="<?=$rowspan;?>" class="middle-alignment">
+                    <?=print_string($detail['alternate_part_number']);?>
+                  </td>
+                  <td rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=print_string($detail['remarks']);?>
                   </td>
-                  <td>
+                  <td rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=print_string($detail['purchase_request_number']);?>
                   </td>
-                  <td>
+                  <td rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=print_number($detail['quantity'], 2);?>
                   </td>
-
-                  <?php foreach ($entity['vendors'] as $key => $vendor):?>
+                  <td style="font-weight: bold;">Vendor</td>
+                  <td style="font-weight: bold;">Price</td>
+                  <td style="font-weight: bold;">Core Charge</td>
+                  <td style="font-weight: bold;">Total</td>
+                </tr>
+                
+                <?php foreach ($entity['vendors'] as $key => $vendor):?>
+                <tr>
                     <?php
-                    if ($vendor['is_selected'] == 't'){
+                    if ($detail['vendors'][$key]['is_selected'] == 't'){
                       $style = 'background-color: green; color: white';
-                      $label = number_format($vendor['unit_price'], 2);
+                      $label = print_string($vendor['vendor']);
                     } else {
                       $style = '';
-                      $label = number_format($vendor['unit_price'], 2);
+                      $label = print_string($vendor['vendor']);
                     }
                     ?>
                     <td style="<?=$style;?>">
-                      <?=$detail['vendors'][$key]['alternate_part_number'];?>
+                      <?=print_string($vendor['vendor']);?>
                     </td>
                     <td style="<?=$style;?>">
                       <?=number_format($detail['vendors'][$key]['unit_price'], 2);?>
@@ -123,8 +122,8 @@
                     <td style="<?=$style;?>">
                       <?=number_format($detail['vendors'][$key]['total'], 2);?>
                     </td>
-                  <?php endforeach;?>
                 </tr>
+                <?php endforeach;?>
               <?php endforeach;?>
             </tbody>
           </table>

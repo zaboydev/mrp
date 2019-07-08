@@ -40,17 +40,17 @@
                 <label for="issued_by">Issued By</label>
               </div>
 
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="text" name="checked_by" id="checked_by" class="form-control" value="<?=$_SESSION['order']['checked_by'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_checked_by');?>">
                 <label for="checked_by">Checked By</label>
               </div>
 
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="text" name="known_by" id="known_by" class="form-control" value="<?=$_SESSION['order']['known_by'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_known_by');?>">
                 <label for="known_by">Approved (HOS)</label>
               </div>
 
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="text" name="approved_by" id="approved_by" class="form-control" value="<?=$_SESSION['order']['approved_by'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_approved_by');?>">
                 <label for="approved_by">Approved (CFO)</label>
               </div>
@@ -63,7 +63,7 @@
                 <label for="default_currency">Currency</label>
               </div>
 
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="number" name="exchange_rate" id="exchange_rate" class="form-control" value="<?=$_SESSION['order']['exchange_rate'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_exchange_rate');?>" required>
                 <label for="exchange_rate">Exchange Rate IDR to USD</label>
               </div>
@@ -143,6 +143,14 @@
                 <input type="text" name="deliver_attention" id="deliver_attention" class="form-control" value="<?=$_SESSION['order']['deliver_attention'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_deliver_attention');?>" required>
                 <label for="deliver_attention">Phone/Email/PIC</label>
               </div>
+
+              <div class="form-group">
+                <select name="payment_type" id="payment_type" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_payment_type');?>" required>
+                  <option value="CREDIT" <?=('CREDIT' == $_SESSION['order']['payment_type']) ? 'selected' : '';?>>CREDIT</option>
+                  <option value="CASH" <?=('CASH' == $_SESSION['order']['payment_type']) ? 'selected' : '';?>>CASH</option>
+                </select>
+                <label for="payment_type">Payment Type</label>
+              </div>
             </div>
 
             <div class="col-sm-6 col-lg-3">
@@ -221,7 +229,7 @@
                       <?=number_format($item['total_amount'], 2);?>
                     </td>
                     <td>
-                      <?=find_poe_number($item['purchase_order_evaluation_items_vendors_id']);?>
+                      <?=$item['evaluation_number'];?>
                     </td>
                     <td>
                       <?=$item['remarks'];?>
@@ -347,7 +355,8 @@
         </div>
 
         <div class="modal-footer">
-          <input type="hidden" id="purchase_order_evaluation_items_vendors_id" name="purchase_order_evaluation_items_vendors_id">
+          <input type="text" id="purchase_order_evaluation_items_vendors_id" name="purchase_order_evaluation_items_vendors_id">
+          <input type="text" id="evaluation_number" name="evaluation_number">
 
           <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
@@ -365,7 +374,7 @@
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
-      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?=site_url($module['route'] .'/save');?>">
+      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?=site_url($module['route'] .'/save_po');?>">
         <i class="md md-save"></i>
         <small class="top right">Save Document</small>
       </a>
@@ -537,10 +546,17 @@ $(function(){
     history.back();
   });
 
+  var today       = new Date();
+  var end_date    = new Date();
+  today.setDate(today.getDate() - 30);
+  end_date.setDate(today.getDate() + 30);
+
   $('[data-provide="datepicker"]').datepicker({
     autoclose: true,
     todayHighlight: true,
-    format: 'yyyy-mm-dd'
+    format: 'yyyy-mm-dd',
+    startDate: today,
+    endDate : end_date
   });
 
   $(document).on('click', '.btn-xhr-submit', function(e){
@@ -583,28 +599,31 @@ $(function(){
     $(buttonSubmitDocument).attr('disabled', true);
 
     var url = $(this).attr('href');
+    if (confirm('Are you sure want to save this request and sending email? Continue?')){
+      $.post(url, formDocument.serialize(), function(data){
+        var obj = $.parseJSON(data);
 
-    $.post(url, formDocument.serialize(), function(data){
-      var obj = $.parseJSON(data);
+        if ( obj.success == false ){
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error(obj.message);
+        } else {
+          toastr.options.timeOut = 4500;
+          toastr.options.closeButton = false;
+          toastr.options.progressBar = true;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.success(obj.message);
 
-      if ( obj.success == false ){
-        toastr.options.timeOut = 10000;
-        toastr.options.positionClass = 'toast-top-right';
-        toastr.error(obj.message);
-      } else {
-        toastr.options.timeOut = 4500;
-        toastr.options.closeButton = false;
-        toastr.options.progressBar = true;
-        toastr.options.positionClass = 'toast-top-right';
-        toastr.success(obj.message);
+          window.setTimeout(function(){
+            window.location.href = '<?=site_url($module['route']);?>';
+          }, 5000);
+        }
 
-        window.setTimeout(function(){
-          window.location.href = '<?=site_url($module['route']);?>';
-        }, 5000);
-      }
+        $(buttonSubmitDocument).attr('disabled', false);
+      });
+    }
 
-      $(buttonSubmitDocument).attr('disabled', false);
-    });
+    
   });
 
   $(buttonDeleteDocumentItem).on('click', function(e){
@@ -655,7 +674,7 @@ $(function(){
     success: function (resource) {
       $('#search_poe_item').autocomplete({
         autoFocus: true,
-        minLength: 3,
+        minLength: 1,
 
         source: function (request, response) {
           var results = $.ui.autocomplete.filter(resource, request.term);
@@ -675,6 +694,7 @@ $(function(){
           $('#total_amount').val( (ui.item.core_charge * ui.item.quantity) + (ui.item.unit_price * ui.item.quantity) );
           $('#unit').val( ui.item.unit );
           $('#purchase_order_evaluation_items_vendors_id').val( ui.item.id );
+          $('#evaluation_number').val( ui.item.evaluation_number );
 
           $('input[rel="unit_price"]').val( ui.item.unit_price );
 

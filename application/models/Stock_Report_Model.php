@@ -30,7 +30,7 @@ class Stock_Report_Model extends MY_Model
       // 'tb_stock_cards.warehouse'                    => 'Stores',
       );
 
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
         // $return['tb_stock_cards.unit_value']                  = 'Price';
         $return['SUM(tb_stock_cards.total_value) as total_value']         = 'Total Price';
         //$return[NULL]         = 'Total Price';

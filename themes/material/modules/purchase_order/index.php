@@ -6,21 +6,61 @@
 
 <?php startblock('page_body') ?>
   <?php $this->load->view('material/templates/datatable') ?>
+  <div id="import-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="import-modal-label" aria-hidden="true">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <?=form_open_multipart(site_url($module['route'] .'/import'), array('autocomplete' => 'off', 'class' => 'form form-validate form-xhr ui-front'));?>
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+
+              <h4 class="modal-title" id="import-modal-label">Import Data</h4>
+            </div>
+
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="userfile">CSV File</label>
+
+                <input type="file" name="userfile" id="userfile" required>
+              </div>
+
+              <div class="form-group">
+                <label>Value Delimiter</label>
+
+                <div class="radio">
+                  <input type="radio" name="delimiter" id="delimiter_2" value=";" checked>
+                  <label for="delimiter_2">Semicolon ( ; )</label>
+                </div>
+
+                <div class="radio">
+                  <input type="radio" name="delimiter" id="delimiter_1" value=",">
+                  <label for="delimiter_1">Comma ( , )</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-block btn-primary ink-reaction">Import Data</button>
+            </div>
+          <?=form_close();?>
+        </div>
+      </div>
+    </div>
 <?php endblock() ?>
 
 <?php startblock('page_modals') ?>
   <?php $this->load->view('material/templates/modal_fs') ?>
 <?php endblock() ?>
 
-<?php startblock('actions_right') ?>
-  <?php if (is_granted($modules['purchase_order_evaluation'], 'document')):?>
+<?php startblock('actions_right') ?>  
     <div class="section-floating-action-row">
-      <div class="btn-group dropup">
+      <?php if (is_granted($modules['purchase_order'], 'document')):?>
+      <div class="btn-group dropup">        
         <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
           <i class="md md-add"></i>
           <small class="top right">Create <?=$module['label'];?></small>
         </button>
-
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
           <?php foreach (config_item('auth_inventory') as $category):?>
             <li>
@@ -29,27 +69,60 @@
           <?php endforeach;?>
         </ul>
       </div>
-      <?php if ((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')||(config_item('auth_role') == 'FINANCE')):?>
+      <div class="btn-group dropup">
+        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-import-data" data-toggle="modal" data-target="#import-modal">
+          <i class="md md-attach-file"></i>
+          <small class="top right">Import Data</small>
+        </button>
+      </div>
+    <?php endif ?>
+
+    <?php if (is_granted($modules['purchase_order'], 'approval')):?>
+      <div class="btn-group dropup">
         <button type="button" data-source = "<?=site_url($module['route'] .'/multi_approve/');?>"  class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
           <i class="md md-spellcheck"></i>
           <small class="top right">approve</small>
         </button>
-      <?php endif;?>
-      <?php if ((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')||(config_item('auth_role') == 'FINANCE')):?>
+      </div>
+    <?php endif;?>
+    <?php if ((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')||(config_item('auth_role') == 'FINANCE')):?>
+      <div class="btn-group dropup">
         <button type="button" data-source = "<?=site_url($module['route'] .'/multi_approve/');?>"  class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
           <i class="md md-close"></i>
           <small class="top right">reject</small>
         </button>
-      <?php endif;?>
+      </div>
+    <?php endif;?>
     </div>
-  <?php endif ?>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
   <div class="form force-padding">
     <div class="form-group">
-      <label for="filter_received_date">Received Date</label>
+      <label for="filter_received_date">Date</label>
       <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
+    </div>
+
+    <div class="form-group">
+      <label for="filter_status">Status</label>
+      <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">
+        <?php if ((config_item('auth_role') != 'HEAD OF SCHOOL')&&(config_item('auth_role') != 'CHIEF OF FINANCE')&&(config_item('auth_role') != 'FINANCE')&&(config_item('auth_role') != 'VP FINANCE')):?>
+        <option>
+          All
+        </option>
+        <?php endif;?>  
+        <option value="review">
+          Review
+        </option>
+        <?php if ((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')||(config_item('auth_role') == 'FINANCE')||(config_item('auth_role') == 'VP FINANCE')):?>
+        <option value="review_approved">
+          Approved
+        </option> 
+        <?php endif;?>        
+        <option value="approved">
+          Order
+        </option>       
+      </select>
     </div>
 
     <div class="form-group">
@@ -419,6 +492,7 @@ var id_purchase_order = "";
       });
     }
     $(datatableElement).find('tbody').on( 'click', 'tr', function(e) {
+      console.log(e.target.nodeName);
       if(e.target.nodeName ==="INPUT"){
         if($(e.target).attr("type")==="checkbox"){
           if($(e.target).prop('checked')){
@@ -428,11 +502,16 @@ var id_purchase_order = "";
           }
         }
         
+      }else if(e.target.nodeName ==="SPAN"){
+        var a = $(e.target).data('id');
+        // console.log(e.target.nodeName);
+       ///////////////////////////////////////eventdefault
       }else{
         $(this).popup();  
       }
       
     });
+
     $("#modal-approve-data-button-multi").click(function(){
       var action = $(this).data('source');
       $(this).attr('disabled', true);

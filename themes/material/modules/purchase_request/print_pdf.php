@@ -23,6 +23,18 @@
     <td>Status</td>
     <th>: <?=($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']);?></th>
   </tr>
+  <tr>
+    <td></td>
+    <th></th>
+    <td>Approval Status</td>
+    <?php if($entity['approved_date']!=null):?>
+    <th>: APPROVED by <?=print_person_name($entity['approved_by']);?></th>
+    <?php elseif($entity['rejected_date']!=null):?>
+    <th>: REJECTED by <?=print_person_name($entity['rejected_by']);?></th>
+    <?php elseif($entity['canceled_date']!=null):?>
+    <th>: CANCELED by <?=print_person_name($entity['canceled_by']);?></th>
+    <?php endif;?>
+  </tr>
 </table>
 
 <div class="clear"></div>
@@ -85,6 +97,14 @@
 
 <div class="clear"></div>
 
+<?php if($entity['approved_date']!=null):?>
+  <p>Approaval Notes: <?=nl2br($entity['approved_notes']);?></p>
+  <?php elseif($entity['rejected_date']!=null):?>
+  <p>Approved Notes: <?=nl2br($entity['rejected_notes']);?></p>
+  <?php elseif($entity['canceled_date']!=null):?>
+  <p>Canceled Notes: <?=nl2br($entity['canceled_notes']);?></p>
+<?php endif;?>
+
 <?=(empty($entity['notes'])) ? '' : '<p>Note: '.nl2br($entity['notes']).'</p>';?>
 
 <div class="clear"></div>
@@ -92,13 +112,27 @@
 <table class="condensed" style="margin-top: 20px;">
   <tr>
     <td width="25%" valign="top" align="center">
-      <p>Request by:</p>
+      <p>
+        Request by:
+        <br />Inventory
+        <br />
+        <br />
+        <br /><?=$entity['created_by'];?>
+      </p>
     </td>
     <td width="25%" valign="top" align="center">
-      <p>Approved by:</p>
+      <p>
+        Approved by:
+        <br />Chief Of Maintenance
+        <br />
+        <br />
+        <br /><?=$entity['approved_by'];?>
+      </p>
     </td>
     <td width="25%" valign="top" align="center">
-      <p>Approved by:</p>
+      <p>
+        Approved by:
+      </p>
     </td>
     <td width="25%" valign="top" align="center">
       <p>Acknowledged by:</p>

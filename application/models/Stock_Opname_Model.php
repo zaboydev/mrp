@@ -1772,7 +1772,7 @@ class Stock_Opname_Model extends MY_Model
       'tb_master_stores.warehouse'                  => 'Base',
       );
 
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
         // $return['tb_stock_cards.unit_value']                  = 'Price';
         $return['SUM(tb_stock_cards.total_value) as total_value']         = 'Total Price';
       }
@@ -1802,7 +1802,7 @@ class Stock_Opname_Model extends MY_Model
       'tb_master_stores.warehouse',
       'tb_master_items.id'
     );
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
         $retur['tb_stock_cards.unit_value'];
     }
 

@@ -116,8 +116,8 @@ if ( ! function_exists('order_last_number')) {
     $format = order_format_number($category);
 
     $CI->db->select_max('document_number', 'last_number');
-    $CI->db->from('tb_purchase_orders');
-    $CI->db->like('tb_purchase_orders.document_number', $format, 'before');
+    $CI->db->from('tb_po');
+    $CI->db->like('tb_po.document_number', $format, 'before');
 
     $query  = $CI->db->get();
     $row    = $query->unbuffered_row();

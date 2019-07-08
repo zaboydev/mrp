@@ -12,9 +12,9 @@ $config['module']['shipping_document']['helper']           = 'shipping_document_
 $config['module']['shipping_document']['table']            = 'tb_issuances';
 $config['module']['shipping_document']['model']            = 'Shipping_Document_Model';
 $config['module']['shipping_document']['permission']       = array(
-  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'info'      => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'document'  => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE',
-  'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE',
-  'delete'    => 'SUPERVISOR,VP FINANCE',
+  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'info'      => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'document'  => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,SUPER ADMIN',
+  'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,SUPER ADMIN',
+  'delete'    => 'SUPERVISOR,VP FINANCE,SUPER ADMIN',
 );

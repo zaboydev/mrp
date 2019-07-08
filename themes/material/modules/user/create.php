@@ -25,12 +25,14 @@
             <label>Role as</label>
 
             <?php foreach ($this->config->item('levels_and_roles') as $key => $value):?>
+              <?php if($value!='SUPER ADMIN'):?>
               <div class="radio">
                 <input type="radio" name="auth_level" id="auth_level[<?=$key;?>]" value="<?=$key;?>">
                 <label for="auth_level[<?=$key;?>]">
                   <?=str_replace('_', ' ', strtoupper($value));?>
                 </label>
               </div>
+              <?php endif;?>
             <?php endforeach;?>
           </div>
         </div>

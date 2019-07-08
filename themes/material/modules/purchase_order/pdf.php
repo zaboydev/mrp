@@ -64,7 +64,7 @@
 			P.O. No. :
 			<strong><?=$entity['document_number'];?></strong>
 			<br /><em>Date : <?=nice_date($entity['document_date'], 'F d, Y');?></em>
-			<br />Ref. POE : <strong><?=$entity['evaluation_number'];?></strong>
+			<!-- <br />Ref. POE : <strong><?=$entity['evaluation_number'];?></strong> -->
 			<br />Ref. Quotation : <?=(empty($entity['reference_quotation'])) ? '-' : '<strong>'.$entity['reference_quotation'].'</strong>';?>
         </p>
       </div>
@@ -134,7 +134,7 @@
 	  <tbody>
 		<?php $n = 0;?>
 		<?php $total_amount = array();?>
-		<?php foreach ($entity['request'] as $i => $detail):?>
+		<?php foreach ($entity['items'] as $i => $detail):?>
 		  <?php $total_amount[] = $detail['total_amount'];?>
 		  <?php $n++;?>
 		  <tr id="row_<?=$i;?>">
@@ -189,6 +189,7 @@
 		  <th><?=print_number($subtotal, 2);?></th>
 		  <th></th>
 		</tr>
+		<?php if($entity['discount']>0):?>
 		<tr>
 		  <th></th>
 		  <th>Discount <?=$entity['default_currency'];?></th>
@@ -201,6 +202,8 @@
 		  <th><?=print_number($entity['discount'], 2);?></th>
 		  <th></th>
 		</tr>
+		<?php endif;?>
+		<?php if($entity['taxes']>0):?>
 		<tr>
 		  <th></th>
 		  <th>VAT <?=$entity['taxes'];?> %</th>
@@ -213,6 +216,8 @@
 		  <th><?=print_number($total_taxes, 2);?></th>
 		  <th></th>
 		</tr>
+		<?php endif;?>
+		<?php if($entity['shipping_cost']>0):?>
 		<tr>
 		  <th></th>
 		  <th>Shipping Cost</th>
@@ -225,6 +230,7 @@
 		  <th><?=print_number($entity['shipping_cost'], 2);?></th>
 		  <th></th>
 		</tr>
+		<?php endif;?>
 		<tr>
 		  <th></th>
 		  <th>Grand Total</th>
@@ -248,16 +254,26 @@
 
 	<table class="condensed" style="margin-top: 20px;">
 	  <tr>
-		<td width="25%" valign="top" align="center">
+		<td width="20%" valign="top" align="center">
 		  <p>
 			Issued by,
 			<br />Procurement
 			<br />
+			<img src="<?=base_url('ttd_user/'.$entity['ttd_issued_by']);?>" width="100">
 			<br />
 			<br /><?=$entity['issued_by'];?>
 		  </p>
 		</td>
-		<td width="25%" valign="top" align="center">
+		<td width="20%" valign="top" align="center">
+		  <p>
+			Checked by,
+			<br />Finance
+			<br />
+			<br />
+			<br /><?=$entity['checked_by'];?>
+		  </p>
+		</td>
+		<td width="20%" valign="top" align="center">
 		  <p>
 			Approved by,
 			<br />HOS
@@ -266,16 +282,17 @@
 			<br /><?=$entity['known_by'];?>
 		  </p>
 		</td>
-		<td width="25%" valign="top" align="center">
+		<td width="20%" valign="top" align="center">
 		  <p>
 			Checked by,
-			<br />Budget Control
+			<br />VP Finance
 			<br />
 			<br />
-			<br /><?=$entity['checked_by'];?>
+			<br /><?=$entity['check_review_by'];?>
 		  </p>
 		</td>
-		<td width="25%" valign="top" align="center">
+		</td>
+		<td width="20%" valign="top" align="center">
 		  <p>
 			Approved by,
 			<br />CFO

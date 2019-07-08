@@ -27,76 +27,72 @@
       <th class="middle-alignment" align="center" rowspan="2"></th>
       <th class="middle-alignment" align="center" rowspan="2">Description</th>
       <th class="middle-alignment" align="center" rowspan="2">Part Number</th>
+      <th class="middle-alignment" align="center" rowspan="2">Alt. Part Number</th>
       <th class="middle-alignment" align="right" rowspan="2">Qty</th>
       <th class="middle-alignment" align="center" rowspan="2">Unit</th>
-      <th class="middle-alignment" align="center" rowspan="2">Remarks</th>
-      <th class="middle-alignment" align="center" rowspan="2">PR Number</th>
-
-      <?php foreach ($entity['vendors'] as $v => $vendor):?>
-        <th class="middle-alignment" align="center" colspan="4"><?=$vendor['vendor'];?></th>
+      <!-- <th class="middle-alignment" align="center">Remarks</th>
+      <th class="middle-alignment" align="center">PR Number</th>
+      <th class="middle-alignment" align="center" colspan="4">Vendor Detail</th> -->
+      <?php foreach ($entity['vendors'] as $key => $vendor):?>      
+      <th class="middle-alignment text-center" colspan="4"><?=$vendor['vendor'];?></th>
       <?php endforeach;?>
     </tr>
     <tr>
-      <?php foreach ($entity['vendors'] as $key => $value):?>
-      <th class="middle-alignment" align="center">Alt. P/N</th>
-        <th class="middle-alignment" align="center">Unit Price</th>
-        <th class="middle-alignment" align="center">Core Charge</th>
-        <th class="middle-alignment" align="center">Total</th>
-      <?php endforeach;?>
+      <?php for ($v = 0; $v < count($entity['vendors']); $v++):?>
+        <th class="middle-alignment text-center">Unit Price</th>
+        <th class="middle-alignment text-center">Core Charge</th>
+        <th class="middle-alignment text-center">Total</th>
+      <?php endfor;?>
     </tr>
   </thead>
-  <tbody>
-    <?php $n = 0;?>
-    <?php foreach ($entity['request'] as $i => $detail):?>
-      <?php $n++;?>
-      <tr id="row_<?=$i;?>">
-        <td width="1">
-          <?=$n;?>
+  <tbody id="table_contents">
+  <?php $n = 0;?>
+  <?php foreach ($entity['request'] as $i => $detail):?>
+  <?php $n++;?>
+    <tr id="row_<?=$i;?>">
+      <td width="1">
+      <?=$n;?>
+      </td>
+      <td>
+        <?=print_string($detail['description']);?>
+      </td>
+      <td class="no-space">
+        <?=print_string($detail['part_number']);?>
+      </td>
+      <td class="no-space">
+        <?=print_string($detail['alternate_part_number']);?>
+      </td>      
+      <td>
+        <?=print_number($detail['quantity'], 2);?>
+      </td>
+      <td>
+        <?=print_string($detail['unit']);?>
+      </td>
+      <?php foreach ($entity['vendors'] as $key => $vendor):?>
+        <?php
+        if ($detail['vendors'][$key]['is_selected'] == 't'){
+          $style = 'background-color: green; color: white;text-align: right';
+          $label = number_format($vendor['unit_price'], 2);
+        } else {
+          $style = 'text-align: right';
+          $label = number_format($vendor['unit_price'], 2);
+        }
+        ?>
+        <td style="<?=$style;?>">
+          <?=number_format($detail['vendors'][$key]['unit_price'], 2);?>
         </td>
-        <td>
-          <?=print_string($detail['description']);?>
+        <td style="<?=$style;?>">
+          <?=number_format($detail['vendors'][$key]['core_charge'], 2);?>
         </td>
-        <td class="no-space">
-          <?=print_string($detail['part_number']);?>
+        <td style="<?=$style;?>">
+          <?=number_format($detail['vendors'][$key]['total'], 2);?>
         </td>
-        <td>
-          <?=print_number($detail['quantity'], 2);?>
-        </td>
-        <td>
-          <?=print_string($detail['unit']);?>
-        </td>
-        <td>
-          <?=print_string($detail['remarks']);?>
-        </td>
-        <td>
-          <?=print_string($detail['purchase_request_number']);?>
-        </td>
-
-        <?php foreach ($entity['vendors'] as $key => $vendor):?>
-          <?php
-          if ($vendor['is_selected'] == 't'){
-            $style = 'background-color: green; color: white';
-          } else {
-            $style = '';
-          }
-          ?>
-          <td style="<?=$style;?>">
-            <?=$detail['vendors'][$key]['alternate_part_number'];?>
-          </td>
-          <td style="<?=$style;?>">
-            <?=number_format($detail['vendors'][$key]['unit_price'], 2);?>
-          </td>
-          <td style="<?=$style;?>">
-            <?=number_format($detail['vendors'][$key]['core_charge'], 2);?>
-          </td>
-          <td style="<?=$style;?>">
-            <?=number_format($detail['vendors'][$key]['total'], 2);?>
-          </td>
-        <?php endforeach;?>
-      </tr>
-    <?php endforeach;?>
+      <?php endforeach;?>
+    </tr>
+  <?php endforeach;?>
   </tbody>
 </table>
+
 
 <div class="clear"></div>
 

@@ -37,22 +37,26 @@
               </div>
 
               <div class="form-group">
-                <input type="text" name="issued_by" id="issued_by" class="form-control" value="<?=$entity['issued_by'];?>" required>
+                <input type="text" name="issued_by" id="issued_by" class="form-control" value="<?=$issued_by;?>" required>
                 <label for="issued_by">Issued By</label>
               </div>
               <div class="form-group">
-                <input type="number" name="discount" id="discount" class="form-control" value="<?=$entity['discount'];?>">
-                <label for="discount">Discount</label>
+                <select name="payment_type" id="payment_type" class="form-control" data-input-type="autoset" required>
+                  <option value="CREDIT" <?=('CREDIT' == $tipe) ? 'selected' : '';?>>Credit</option>
+                  <option value="CASH" <?=('CASH' == $tipe) ? 'selected' : '';?>>Cash</option>
+                </select>
+                <input type="hidden" name="discount" id="discount" class="form-control" value="<?=$entity['discount'];?>">
+                <label for="discount">Payment Type</label>
               </div>
 
               <div class="form-group">
-                <input type="number" name="taxes" id="taxes" class="form-control" value="<?=$entity['taxes'];?>">
-                <label for="taxes">Taxes</label>
+                <input type="hidden" name="taxes" id="taxes" class="form-control" value="<?=$entity['taxes'];?>">
+                <!-- <label for="taxes">Taxes</label> -->
               </div>
 
               <div class="form-group">
-                <input type="number" name="shipping_cost" id="shipping_cost" class="form-control" value="<?=$entity['shipping_cost'];?>">
-                <label for="shipping_cost">Shipping Cost</label>
+                <input type="hidden" name="shipping_cost" id="shipping_cost" class="form-control" value="<?=$entity['shipping_cost'];?>">
+                <!-- <label for="shipping_cost">Shipping Cost</label> -->
               </div>
 
               <div class="form-group">

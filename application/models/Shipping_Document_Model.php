@@ -30,7 +30,7 @@ class Shipping_Document_Model extends MY_Model
       'tb_issuances.issued_by'                => 'Issued By',
       'tb_issuances.received_date'            => 'Received',
     );
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
       // $return['tb_stock_in_stores.unit_value']  = 'Value';
       // $return[null] = 'Total Value';
       $return['tb_issuance_items.issued_unit_value']  = 'Value';

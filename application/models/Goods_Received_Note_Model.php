@@ -36,12 +36,12 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipts.received_by'                 => 'Received By',
     );
 
-    if (config_item('auth_role') != 'PIC STOCK'){
+    if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN'){
       $return['tb_receipt_items.received_unit_value']  = 'Value';
       $return[null] = 'Total Value';
       // $return['tb_receipt_items.received_unit_value+tb_stock_cards.quantity) as balance_quantity']  => 'Balance',
     }
-    if (config_item('auth_role') == 'FINANCE'){
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
 	  $return['tb_stock_in_stores.unit_value_dollar']  = 'Price USD';
       $return['tb_stock_in_stores.kurs_dollar']  = 'Kurs';
     }
@@ -95,7 +95,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipts.received_by',
     );
 
-    if (config_item('auth_role') != 'PIC STOCK'){
+    if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN'){
       $return[] = 'tb_receipt_items.received_unit_value';
       //$return[] = 'tb_receipt_items.received_total_value';
     }
@@ -747,8 +747,8 @@ class Goods_Received_Note_Model extends MY_Model
          * INSERT INTO RECEIPT ITEMS
          */
         if (!empty($data['purchase_order_item_id'])){
-          $this->db->from('tb_purchase_order_items');
-          $this->db->where('tb_purchase_order_items.id', $data['purchase_order_item_id']);
+          $this->db->from('tb_po_item');
+          $this->db->where('tb_po_item.id', $data['purchase_order_item_id']);
 
           $query  = $this->db->get();
           $row    = $query->unbuffered_row('array');
@@ -756,7 +756,7 @@ class Goods_Received_Note_Model extends MY_Model
 
           $this->db->where('id', $data['purchase_order_item_id']);
           $this->db->set('left_received_quantity', $qty);
-          $this->db->update('tb_purchase_order_items');
+          $this->db->update('tb_po_item');
         }
 
         if (!empty($data['purchase_order_item_id'])){
@@ -930,28 +930,28 @@ class Goods_Received_Note_Model extends MY_Model
   public function searchPurchaseOrder($category, $vendor = NULL)
   {
     $this->column_select = array(
-      'tb_purchase_order_items.*',
-      'tb_purchase_orders.vendor',
-      'tb_purchase_orders.document_number',
-      'tb_purchase_orders.default_currency',
-      'tb_purchase_orders.exchange_rate',
+      'tb_po_item.*',
+      'tb_po.vendor',
+      'tb_po.document_number',
+      'tb_po.default_currency',
+      'tb_po.exchange_rate',
       'tb_master_items.group',
       'tb_master_items.kode_stok',
     );
 
     $this->db->select($this->column_select);
-    $this->db->from('tb_purchase_order_items');
-    $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_purchase_order_items.part_number', 'left');
-    $this->db->where('tb_purchase_orders.category', $category);
-    $this->db->where('tb_purchase_orders.status', 'approved');
-    $this->db->where('tb_purchase_order_items.left_received_quantity > ', 0);
+    $this->db->from('tb_po_item');
+    $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+    $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'left');
+    $this->db->where('tb_po.category', $category);
+    $this->db->where('tb_po.status', 'approved');
+    $this->db->where('tb_po_item.left_received_quantity > ', 0);
 
     if ($vendor !== NULL || !empty($vendor)){
-      $this->db->where('tb_purchase_orders.vendor', $vendor);
+      $this->db->where('tb_po.vendor', $vendor);
     }
 
-    $this->db->order_by('tb_purchase_order_items.part_number ASC, tb_purchase_order_items.description ASC');
+    $this->db->order_by('tb_po_item.part_number ASC, tb_po_item.description ASC');
     $query  = $this->db->get();
     $result = $query->result_array();
 

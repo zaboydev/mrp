@@ -20,7 +20,7 @@
 
             <div class="modal-body">
               <div class="form-group">
-                  <label for="exampleInputEmail1">Hours</label>
+                  <label for="exampleInputEmail1"> Target Hours</label>
                   <input type="text" class="form-control number" required="" id="hour" value="0" name="hour" placeholder="Ex 6000">
               </div>
               <div class="form-group">

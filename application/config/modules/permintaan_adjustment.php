@@ -11,7 +11,7 @@ $config['module']['permintaan_adjustment']['language']        = 'permintaan_adju
 $config['module']['permintaan_adjustment']['table']           = 'tb_stock_adjustment';
 $config['module']['permintaan_adjustment']['model']           = 'Permintaan_Adjustment_Model';
 $config['module']['permintaan_adjustment']['permission']      = array(
-  'index'     => 'VP FINANCE,FINANCE',
-  'summary'   => 'VP FINANCE,FINANCE',
-  'detail'    => 'VP FINANCE,FINANCE',
+  'index'     => 'VP FINANCE,SUPER ADMIN',
+  'summary'   => 'VP FINANCE,SUPER ADMIN',
+  'detail'    => 'VP FINANCE,SUPER ADMIN',
 );

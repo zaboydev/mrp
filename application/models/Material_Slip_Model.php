@@ -32,7 +32,7 @@ class Material_Slip_Model extends MY_Model
       'tb_issuances.notes'                    => 'Note/IPC Ref.',
     );
 
-    if (config_item('auth_role') == 'SUPERVISOR'){
+    if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'){
       $selected['tb_stock_in_stores.stores'] = 'Issued Stores';
       $selected['tb_stock_in_stores.reference_document'] = 'Rec. Document';
     }

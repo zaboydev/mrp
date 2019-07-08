@@ -12,10 +12,10 @@ $config['module']['stock']['helper']          = 'material_slip_helper';
 $config['module']['stock']['table']           = 'tb_stocks';
 $config['module']['stock']['model']           = 'Stock_Model';
 $config['module']['stock']['permission']      = array(
-  'index'         => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'info'          => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
+  'index'         => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'info'          => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
   // 'mix'           => 'PIC STOCK,SUPERVISOR,VP FINANCE',
   // 'adjustment'    => 'FINANCE,SUPERVISOR,VP FINANCE',
   // 'relocation'    => 'SUPERVISOR,VP FINANCE',
-  'import'        => 'SUPERVISOR,VP FINANCE',
+  'import'        => 'SUPERVISOR,VP FINANCE,SUPER ADMIN',
 );

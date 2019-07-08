@@ -11,10 +11,10 @@ $config['module']['pesawat']['language']        = 'kurs_lang';
 $config['module']['pesawat']['table']           = 'tb_master_pesawat';
 $config['module']['pesawat']['model']           = 'Pesawat_Model';
 $config['module']['pesawat']['permission']      = array(
-  'create'  => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
-  'edit'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
-  'info'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
-  'save'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
-  'delete'  => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
-  'index'  	=> 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
+  'create'  => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'edit'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'info'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'save'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'delete'  => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'index'  	=> 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
   );

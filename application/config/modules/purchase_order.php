@@ -12,9 +12,10 @@ $config['module']['purchase_order']['helper']         = 'purchase_order_helper';
 $config['module']['purchase_order']['table']          = 'tb_purchase_orders';
 $config['module']['purchase_order']['model']          = 'Purchase_Order_Model';
 $config['module']['purchase_order']['permission']     = array(
-  'index'     => 'PIC PROCUREMENT,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,PROCUREMENT,SUPERVISOR',
-  'info'      => 'PIC PROCUREMENT,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,PROCUREMENT',
-  'print'     => 'PIC PROCUREMENT,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,PROCUREMENT',
-  'document'  => 'PIC PROCUREMENT,PROCUREMENT',//tambhan supervisor
-  'payment'   => 'FINANCE',//tambhan supervisor
+  'index'     => 'PIC PROCUREMENT,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,PROCUREMENT,SUPERVISOR,SUPER ADMIN',
+  'info'      => 'PIC PROCUREMENT,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,PROCUREMENT,SUPERVISOR,SUPER ADMIN',
+  'print'     => 'PIC PROCUREMENT,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,PROCUREMENT,SUPER ADMIN',
+  'document'  => 'PIC PROCUREMENT,PROCUREMENT,SUPERVISOR,SUPER ADMIN,FINANCE',//tambhan supervisor
+  'payment'   => 'FINANCE,SUPER ADMIN',//tambhan supervisor
+  'approval'  => 'FINANCE,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,'
 );

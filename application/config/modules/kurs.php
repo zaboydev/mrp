@@ -11,10 +11,10 @@ $config['module']['kurs']['language']        = 'kurs_lang';
 $config['module']['kurs']['table']           = 'tb_master_kurs_dollar';
 $config['module']['kurs']['model']           = 'Kurs_Model';
 $config['module']['kurs']['permission']      = array(
-  'create'  => 'FINANCE,VP FINANCE',
-  'edit'    => 'FINANCE,VP FINANCE',
-  'info'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
-  'save'    => 'FINANCE,VP FINANCE',
-  'delete'  => 'FINANCE,VP FINANCE',
-  'index'  	=> 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE',
+  'create'  => 'FINANCE,VP FINANCE,SUPER ADMIN',
+  'edit'    => 'FINANCE,VP FINANCE,SUPER ADMIN',
+  'info'    => 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'save'    => 'FINANCE,VP FINANCE,SUPER ADMIN',
+  'delete'  => 'FINANCE,VP FINANCE,SUPER ADMIN',
+  'index'  	=> 'ADMIN,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
   );

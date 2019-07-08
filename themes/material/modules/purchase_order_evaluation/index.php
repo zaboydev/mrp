@@ -6,36 +6,67 @@
 
 <?php startblock('page_body') ?>
   <?php $this->load->view('material/templates/datatable') ?>
+  <div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+
+              <h4 class="modal-title" id="import-modal-label">Attachment</h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <table style="width: 100%">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody id="listView">
+                      
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
 <?php endblock() ?>
 
 <?php startblock('page_modals') ?>
   <?php $this->load->view('material/templates/modal_fs') ?>
+  
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
   <?php if (is_granted($module, 'document')):?>
     <div class="section-floating-action-row">
       <div class="btn-group dropup">
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
+        <a href="<?=site_url($module['route'] .'/create/SPARE PART');?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
           <i class="md md-add"></i>
           <small class="top right">Create <?=$module['label'];?></small>
-        </button>
+        </a>
 
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <!-- <ul class="dropdown-menu dropdown-menu-right" role="menu">
           <?php foreach (config_item('auth_inventory') as $category):?>
             <li>
               <a href="<?=site_url($module['route'] .'/create/'. $category);?>"><?=$category;?></a>
             </li>
           <?php endforeach;?>
-        </ul>
+        </ul> -->
       </div>
-       <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')||(config_item('auth_role') == 'FINANCE')):?>
+       <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')||(config_item('auth_role') == 'FINANCE')||(config_item('auth_role') == 'SUPER ADMIN')):?>
         <button type="button" data-source = "<?=site_url($module['route'] .'/multi_approve/');?>"  class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
           <i class="md md-spellcheck"></i>
           <small class="top right">approve</small>
         </button>
       <?php endif;?>
-       <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')||(config_item('auth_role') == 'FINANCE')):?>
+       <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')||(config_item('auth_role') == 'FINANCE')||(config_item('auth_role') == 'SUPER ADMIN')):?>
         <button type="button" data-source = "<?=site_url($module['route'] .'/multi_reject/');?>"  class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
           <i class="md md-close"></i>
           <small class="top right">reject</small>
@@ -56,14 +87,15 @@
     <div class="form-group">
       <label for="filter_status">Status</label>
       <select class="form-control input-sm filter_dropdown" data-column="7" id="filter_status">
-        <option value="approved">
-          Approved
-        </option>
         <option value="evaluation">
           Evaluation
         </option>
-
-        
+        <option value="approved">
+          Approved
+        </option>
+        <option value="rejected">
+          Rejected
+        </option>
       </select>
     </div>
 
@@ -521,7 +553,8 @@
         }
       }
     });
-    $(datatableElement).find('tbody').on( 'click', 'tr', function(e) {      
+    $(datatableElement).find('tbody').on( 'click', 'tr', function(e) { 
+      console.log(e.target.nodeName)     
       if(e.target.nodeName ==="INPUT"){
         if($(e.target).attr("type")==="checkbox"){
           if($(e.target).prop('checked')){
@@ -531,11 +564,38 @@
           }
         }
         
-      }else{
+      }else if (e.target.nodeName ==="I"){
+        var id = $(this).attr('data-id');
+        getAttachment(id);
+      } else{
         $(this).popup();  
       }
       
     });
+    function getAttachment(id) {
+       $.ajax({
+                  type: "GET",
+                  url: 'purchase_order_evaluation/listAttachment/'+id,
+                  cache: false,
+                  success: function(response){
+                    var data = jQuery.parseJSON(response)
+                    $("#listView").html("")
+                    $("#attachment_modal").modal("show");
+                    $.each(data,function(i,item){
+                      var text = '<tr>'+
+                                      '<td>'+(i+1)+'</td>'+
+                                      '<td><a href="<?=base_url()?>'+item.file+'" target="_blank">'+item.file+'</a></td>'+
+                                  '</tr>';
+                      $("#listView").append(text);
+                    });
+                  },
+                  error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                        console.log(thrownError);
+                    }
+                });
+    }
     $('.filter_numeric_text').on( 'keyup click', function () {
       var i = $(this).data('column');
       var v = $(this).val();

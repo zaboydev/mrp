@@ -157,7 +157,7 @@ class General_Stock_Report extends MY_Controller
       // $col[] = print_string($row['unit']);           
       // $col[] = print_string($row['stores']);
       // $col[] = print_string($row['warehouse']);
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){        
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){        
         $col[] = print_string($row['kode_pemakaian']);
       }
       // $iniatial_qty[]        = $row['qty']+$row['ship_out_qty']+$row['ship_in_qty']+$row['adj_qty']+$row['mix_qty']+$row['ms_qty']+$row['grn_qty'];

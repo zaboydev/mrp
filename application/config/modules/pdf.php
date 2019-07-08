@@ -11,5 +11,5 @@ $config['module']['pdf']['language']   = 'pdf_lang';
 $config['module']['pdf']['table']      = '';
 $config['module']['pdf']['model']      = 'Pdf_Model';
 $config['module']['pdf']['permission'] = array(
-  'index' => 'ADMIN,PIC PROCUREMENT,PIC STOCK,OTHER,SUPERVISOR,VP FINANCE',
+  'index' => 'ADMIN,PIC PROCUREMENT,PIC STOCK,OTHER,SUPERVISOR,VP FINANCE,SUPER ADMIN',
   );

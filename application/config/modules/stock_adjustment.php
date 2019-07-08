@@ -11,7 +11,7 @@ $config['module']['stock_adjustment']['language']          = 'stock_adjustment_l
 $config['module']['stock_adjustment']['table']             = 'tb_stock_adjustments';
 $config['module']['stock_adjustment']['model']             = 'Stock_Adjustment_Model';
 $config['module']['stock_adjustment']['permission']        = array(
-  'index'         => 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'show'          => 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE',
-  'adjustment'    => 'PIC STOCK,SUPERVISOR,VP FINANCE',
+  'index'         => 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'show'          => 'PIC STOCK,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'adjustment'    => 'PIC STOCK,SUPERVISOR,VP FINANCE,SUPER ADMIN',
 );

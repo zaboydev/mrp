@@ -11,10 +11,10 @@ $config['module']['vendor']['language']    = 'vendor_lang';
 $config['module']['vendor']['model']       = 'Vendor_Model';
 $config['module']['vendor']['table']       = 'tb_master_vendors';
 $config['module']['vendor']['permission']  = array(
-  'index'   => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPERVISOR,PIC STOCK',
-  'create'  => 'ADMIN,PIC PROCUREMENT,FINANCE',
-  'edit'    => 'ADMIN,PIC PROCUREMENT,FINANCE',
-  'info'    => 'ADMIN,PIC PROCUREMENT,FINANCE',
-  'save'    => 'ADMIN,PIC PROCUREMENT,FINANCE',
-  'delete'  => 'ADMIN',
+  'index'   => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPERVISOR,PIC STOCK,SUPER ADMIN',
+  'create'  => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'edit'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'info'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'save'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'delete'  => 'ADMIN,SUPER ADMIN',
   );

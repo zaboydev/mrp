@@ -336,7 +336,7 @@ class Material_Slip extends MY_Controller
         $col[]  = print_string($row['requisition_reference']);
         $col[]  = $row['notes'];
 
-        if (config_item('auth_role') == 'SUPERVISOR'){
+        if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'){
           $col[]  = print_string($row['stores'], 2);
           $col[]  = print_string($row['reference_document']);
         }
@@ -379,7 +379,7 @@ class Material_Slip extends MY_Controller
         )
       );
 
-      if (config_item('auth_role') != 'PIC STOCK'){
+      if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN'){
         if (config_item('auth_role') == 'SUPERVISOR'){
           $result['total'][22] = print_number(array_sum($unit_value), 2);
           $result['total'][23] = print_number(array_sum($total_value), 2);

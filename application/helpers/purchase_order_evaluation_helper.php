@@ -92,7 +92,8 @@ if ( ! function_exists('poe_format_number')) {
     $query    = $CI->db->get();
     $category = $query->unbuffered_row('array');
 
-    $return = '/POE/'. $category['code'] .'/'. find_budget_setting('Active Year');
+    // $return = '/POE/'. $category['code'] .'/'. find_budget_setting('Active Year');
+    $return = '/POE/'. find_budget_setting('Active Year');
     // $return = '/POE/'. $category['code'] .'/'. $year;
 
 

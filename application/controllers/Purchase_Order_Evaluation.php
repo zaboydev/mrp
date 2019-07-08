@@ -11,9 +11,13 @@ class Purchase_Order_Evaluation extends MY_Controller
     $this->module = $this->modules['purchase_order_evaluation'];
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
+    $this->load->library('upload');
+    $this->load->helper('string');
     $this->data['module'] = $this->module;
     if(empty($_SESSION['poe']['source']))
-      $_SESSION['poe']['source'] = 0;
+      $_SESSION['poe']['source'] = 1;
+    if(empty($_SESSION['poe']['attachment']))
+      $_SESSION['poe']['attachment'] = array();
   }
 
   public function set_doc_number()
@@ -75,6 +79,14 @@ class Purchase_Order_Evaluation extends MY_Controller
       redirect($this->modules['secure']['route'] .'/denied');
 
     $_SESSION['poe']['default_currency'] = $_GET['data'];
+  }
+
+  public function set_default_approval()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['approval'] = $_GET['data'];
   }
 
   public function set_exchange_rate()
@@ -303,8 +315,8 @@ class Purchase_Order_Evaluation extends MY_Controller
   }
   public function index_data_source()
   {
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
 
     if (is_granted($this->module, 'index') === FALSE){
       $return['type'] = 'danger';
@@ -318,8 +330,10 @@ class Purchase_Order_Evaluation extends MY_Controller
       foreach ($entities as $row){
         $no++;
         $col = array();
-        if(strtoupper($row['status'])=="EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))){
-          $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
+        if(strtoupper($row['status'])=="EVALUATION"){
+          if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+            $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
+          }          
         } else {
           $col[] = print_number($no);
         }
@@ -333,11 +347,17 @@ class Purchase_Order_Evaluation extends MY_Controller
         $col[] = print_string($row['vendor']);
         $col[] = print_number($row['unit_price'], 2);
         $col[] = print_string(strtoupper($row['status']));
-        
-         if(strtoupper($row['status'])=="EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))){
+        $col[] = $row['attachment'] == null ? '' : '<a href="#" data-id="'.$row["id"].'" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
+        // $col[] ='<a href="#" data-id="'.$row["id"].'" class="btn btn-icon-toggle btn-info btn-sm ">
+        //                <i class="fa fa-eye"></i>
+        //             </a>';
+         
+        if(strtoupper($row['status'])=="EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))){
           $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
         } else {
-          $col[] = "";
+          $col[] = print_string($row['notes']);;
         }
         
         $col['DT_RowId'] = 'row_'. $row['id'];
@@ -362,6 +382,10 @@ class Purchase_Order_Evaluation extends MY_Controller
     }
 
     echo json_encode($result);
+  }
+  public function listAttachment($id){
+    $data = $this->model->listAttachment($id);
+    echo json_encode($data);
   }
   public function multi_reject(){
     $str_id_purchase_order = $this->input->post('id_purchase_order');
@@ -412,7 +436,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       $this->data['entity'] = $entity;
 
       $return['type'] = 'success';
-      $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
+      $return['info'] = $this->load->view($this->module['view'] .'/info-2', $this->data, TRUE);
     }
 
     echo json_encode($return);
@@ -424,7 +448,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     if ($this->model->approve($id)){
       //$this->sendEmailHOS();
-      redirect($this->module['route'] .'/create');
+      redirect($this->module['route']);
     } else {
       die('error!');
     }
@@ -492,7 +516,6 @@ class Purchase_Order_Evaluation extends MY_Controller
     $this->authorized($this->module, 'document');
 
     $entity = $this->model->findById($id);
-
     $document_number  = sprintf('%06s', substr($entity['evaluation_number'], 0, 6));
 
     if (!isset($_SESSION['poe']['request'])){
@@ -500,8 +523,9 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['id']               = $id;
       $_SESSION['poe']['edit']             = $entity['evaluation_number'];
       $_SESSION['poe']['document_number']  = $document_number;
+      $_SESSION['poe']['attachment'] = $entity['attachment'];
     }
-    
+
     redirect($this->module['route'] .'/create');
   }
 
@@ -521,8 +545,9 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['created_by']          = config_item('auth_person_name');
       $_SESSION['poe']['document_reference']  = NULL;
       $_SESSION['poe']['exchange_rate']       = 1.00;
-      $_SESSION['poe']['default_currency']    = 'USD';
-      $_SESSION['poe']['status']              = 'pending';
+      $_SESSION['poe']['default_currency']    = 'IDR';
+      $_SESSION['poe']['approval']            = 'with_approval';
+      $_SESSION['poe']['status']              = 'evaluation';
       $_SESSION['poe']['approved_by']         = NULL;
       $_SESSION['poe']['total_quantity']      = NULL;
       $_SESSION['poe']['total_price']         = NULL;
@@ -537,7 +562,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     $this->data['page']['content']    = $this->module['view'] .'/create';
 
-    $this->render_view($this->module['view'] .'/create');
+    $this->render_view($this->module['view'] .'/create-2');
   }
 
   public function save()
@@ -556,14 +581,16 @@ class Purchase_Order_Evaluation extends MY_Controller
         $errors = array();
         $has_selected = FALSE;
 
-        foreach ($_SESSION['poe']['vendors'] as $key => $vendor) {
-          if ($vendor['is_selected'] == 't'){
-            $has_selected = TRUE;
+        foreach ($_SESSION['poe']['request'] as $key => $item) {
+          foreach ($item['vendors'] as $d => $detail) {
+            if ($detail['is_selected'] == 't'){
+              $has_selected = TRUE;
+            }
           }
         }
 
         if ($has_selected == FALSE){
-          $errors[] = 'No vendor qualified! Please approve 1 vendor.';
+          $errors[] = 'No vendor qualified For one of Item! Please approve 1 vendor for 1 Item.';
         }
 
         $document_number = $_SESSION['poe']['document_number'] . poe_format_number();
@@ -584,7 +611,7 @@ class Purchase_Order_Evaluation extends MY_Controller
         } else {
           if ($this->model->save()){
             unset($_SESSION['poe']);
-           // $this->sendEmail();
+           $this->sendEmail();
             $data['success'] = TRUE;
             $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
           } else {
@@ -619,7 +646,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     if ($this->input->is_ajax_request() == FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
-    $_POST['request_id'] = array(10);
+
     if (is_granted($this->module, 'document') == FALSE){
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
@@ -644,7 +671,7 @@ class Purchase_Order_Evaluation extends MY_Controller
             'quantity_requested'      => floatval($request['quantity']),
             'unit_price_requested'    => floatval($request['price']),
             'total_amount_requested'  => floatval($request['quantity']) * floatval($request['price']),
-            'unit'                    => trim($this->input->post('unit')),
+            'unit'                    => $request['unit'],
             'remarks'                 => $request['additional_info'],
             'purchase_request_number' => $request['pr_number'],
           );
@@ -670,6 +697,93 @@ class Purchase_Order_Evaluation extends MY_Controller
     $this->render_view($this->module['view'] .'/edit_request');
   }
 
+  public function attachment()
+  {
+    $this->authorized($this->module, 'document');
+    
+    $this->render_view($this->module['view'] .'/attachment');
+  }
+
+  public function manage_attachment($id_poe)
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->data['manage_attachment'] = $this->model->listAttachment_2($id_poe);
+    $this->data['id_poe'] = $id_poe;
+    $this->render_view($this->module['view'] .'/manage_attachment');
+  }
+
+
+  public function add_attachment()
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'attachment/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+    
+    $this->upload->initialize($config);
+    
+     if ( ! $this->upload->do_upload('attachment'))
+                {
+                        $error = array('error' => $this->upload->display_errors());
+                }
+                else
+                {
+                        
+                        $data = array('upload_data' => $this->upload->data());
+                        $url = $config['upload_path'].$data['upload_data']['orig_name'];
+                        array_push($_SESSION["poe"]["attachment"], $url);
+                        $result["status"] = 1;
+                }
+    echo json_encode($result);
+  }
+
+  public function add_attachment_to_db($id_poe)
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'attachment/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+    
+    $this->upload->initialize($config);
+    
+    if ( ! $this->upload->do_upload('attachment'))
+    {
+      $error = array('error' => $this->upload->display_errors());
+    }
+    else
+    {
+      $data = array('upload_data' => $this->upload->data());
+      $url = $config['upload_path'].$data['upload_data']['orig_name'];
+      // array_push($_SESSION["poe"]["attachment"], $url);
+      $this->model->add_attachment_to_db($id_poe,$url);
+      $result["status"] = 1;
+    }
+    echo json_encode($result);
+  }
+
+  public function delete_attachment($index)
+  {
+    $file = FCPATH.$_SESSION["poe"]["attachment"][$index];
+    if (unlink($file)){
+        unset($_SESSION["poe"]["attachment"][$index]); 
+        $_SESSION["poe"]["attachment"] = array_values($_SESSION["poe"]["attachment"]);
+        redirect($this->module['route']."/attachment",'refresh');
+    }
+  }
+
+  public function delete_attachment_in_db($id_att,$id_poe)
+  {
+    $this->model->delete_attachment_in_db($id_att);
+    
+    redirect($this->module['route']."/manage_attachment/".$id_poe,'refresh');
+    // echo json_encode($result);
+  }
+
   public function update_request()
   {
     if ($this->input->is_ajax_request() == FALSE)
@@ -685,9 +799,10 @@ class Purchase_Order_Evaluation extends MY_Controller
 
           $_SESSION['poe']['request'][$id]['part_number'] = $request['part_number'];
           $_SESSION['poe']['request'][$id]['quantity']    = $request['quantity'];
+          $_SESSION['poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
 
           foreach ($request['vendors'] as $key => $vendor) {
-            $_SESSION['poe']['request'][$id]['alternate_part_number'] = $unit_price;
+            // $_SESSION['poe']['request'][$id]['alternate_part_number'] = $unit_price;
 
             $unit_price   = $vendor['unit_price'];
             $core_charge  = $vendor['core_charge'];
@@ -701,7 +816,6 @@ class Purchase_Order_Evaluation extends MY_Controller
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_received_quantity'] = $request['quantity'];
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_quantity']     = $request['quantity'];
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_amount']       = $total_price;
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['alternate_part_number']  = $vendor['alternate_part_number'];
           }
         }
 
@@ -749,10 +863,24 @@ class Purchase_Order_Evaluation extends MY_Controller
         }
 
         foreach ($_SESSION['poe']['request'] as $id => $request) {
+          $min = 0;
+          $cheaper = 'f';
           foreach ($_POST['vendor'] as $key => $vendor) {
+            // if($min>0){
+            //   $cheaper = 't';
+            //   $min = $request['unit_price_requested'];
+            // }else{
+            //   if($min > $request['unit_price_requested']){
+            //     $cheaper = 't';
+            //     $_SESSION['poe']['request'][$id]['vendors'][$key]['is_cheaper']='f';
+            //     $min = $request['unit_price_requested'];
+            //   }else{
+            //     $cheaper = 'f';
+            //   }
+            // }
             $_SESSION['poe']['request'][$id]['vendors'][$key] = array(
               'vendor'                  => $vendor,
-              'alternate_part_number'   => $request['alternate_part_number'],
+              'is_selected'             => 'f',
               'quantity'                => $request['quantity_requested'],
               'left_received_quantity'  => $request['quantity_requested'],
               'left_paid_quantity'      => $request['quantity_requested'],
@@ -760,7 +888,8 @@ class Purchase_Order_Evaluation extends MY_Controller
               'purchase_request_number' => $request['purchase_request_number'],
               'core_charge'             => floatval(0),
               'total'                   => $request['quantity_requested'] * $request['quantity_requested'],
-              'left_paid_amount'        => $request['quantity_requested'] * $request['quantity_requested'],
+              'left_paid_amount'        => $request['quantity_requested'] * $request['quantity_requested'],              
+              'is_cheaper'              => $cheaper,
             );
           }
         }
@@ -775,15 +904,36 @@ class Purchase_Order_Evaluation extends MY_Controller
     echo json_encode($data);
   }
 
-  public function set_selected_vendor($key)
+  // public function set_selected_vendor($key)
+  // {
+  //   $this->authorized($this->module, 'document');
+
+  //   foreach ($_SESSION['poe']['vendors'] as $v => $info){
+  //     $_SESSION['poe']['vendors'][$v]['is_selected'] = 'f';
+  //   }
+
+  //   $_SESSION['poe']['vendors'][$key]['is_selected'] = 't';
+
+  //   redirect($this->module['route'] .'/create');
+  // }
+
+  //new
+  public function set_selected_vendor($item,$key_item)
   {
     $this->authorized($this->module, 'document');
 
+    // foreach ($_SESSION['poe']['request'] as $id => $request) {
+      // foreach ($_SESSION['poe']['vendor'] as $key => $vendor) {
+      //   $_SESSION['poe']['request'][$item]['vendors'][$key]['is_selected'] = 'f';
+      // }
+    // }
+
     foreach ($_SESSION['poe']['vendors'] as $v => $info){
-      $_SESSION['poe']['vendors'][$v]['is_selected'] = 'f';
+      $_SESSION['poe']['request'][$item]['vendors'][$v]['is_selected'] = 'f';
     }
 
-    $_SESSION['poe']['vendors'][$key]['is_selected'] = 't';
+    // $_SESSION['poe']['vendors'][$key]['is_selected'] = 't';
+    $_SESSION['poe']['request'][$item]['vendors'][$key_item]['is_selected'] = 't';
 
     redirect($this->module['route'] .'/create');
   }
@@ -791,7 +941,12 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function discard()
   {
     $this->authorized($this->module['permission']['document']);
-
+    foreach ($_SESSION['poe']["attachment"] as $key) {
+      $url = FCPATH.$key;
+      if (is_file($url)){
+        unlink($url);
+      }
+    }
     unset($_SESSION['poe']);
 
     redirect($this->module['route']);

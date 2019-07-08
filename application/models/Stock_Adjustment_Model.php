@@ -28,7 +28,7 @@ class Stock_Adjustment_Model extends MY_Model
       'tb_stock_adjustments.remarks'              => 'Remarks',
     );
 
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT'){   
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){   
         $return['tb_stock_adjustments.unit_value']              = 'Price';   
         $return['tb_stock_adjustments.total_value']                                           = 'Total Price';
        

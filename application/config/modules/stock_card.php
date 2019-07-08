@@ -11,7 +11,7 @@ $config['module']['stock_card']['language']       = 'stock_card_lang';
 $config['module']['stock_card']['table']          = 'tb_stock_cards';
 $config['module']['stock_card']['model']          = 'Stock_Card_Model';
 $config['module']['stock_card']['permission']     = array(
-  'index'     => 'FINANCE,VP FINANCE',
-  'info'      => 'FINANCE,VP FINANCE',
-  'detail'    => 'FINANCE,VP FINANCE',
+  'index'     => 'FINANCE,VP FINANCE,SUPERVISOR,SUPER ADMIN',
+  'info'      => 'FINANCE,VP FINANCE,SUPERVISOR,SUPER ADMIN',
+  'detail'    => 'FINANCE,VP FINANCE,SUPERVISOR,SUPER ADMIN',
 );

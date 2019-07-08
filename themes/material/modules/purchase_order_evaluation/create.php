@@ -60,7 +60,7 @@
                 <label for="default_currency">Currency</label>
               </div>
 
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="number" name="exchange_rate" id="exchange_rate" class="form-control" value="<?=$_SESSION['poe']['exchange_rate'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_exchange_rate');?>" required>
                 <label for="exchange_rate">Exchange Rate IDR to USD</label>
               </div>
@@ -68,8 +68,15 @@
 
             <div class="col-sm-12 col-lg-5">
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_notes');?>"><?=$_SESSION['poe']['notes'];?></textarea>
+                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_notes');?>"><?=$_SESSION['poe']['notes'];?></textarea>
                 <label for="notes">Notes</label>
+              </div>
+              <div class="form-group">
+                <select name="approval" id="approval" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_default_approval');?>" required>
+                  <option value="with_approval" <?=('with_approval' == $_SESSION['poe']['approval']) ? 'selected' : '';?>>With Approval</option>
+                  <option value="without_approval" <?=('without_approval' == $_SESSION['poe']['approval']) ? 'selected' : '';?>>Without Approval</option>
+                </select>
+                <label for="approval">Approval</label>
               </div>
             </div>
           </div>
@@ -82,80 +89,76 @@
                 <tr>
                   <th class="middle-alignment" rowspan="2"></th>
                   <th class="middle-alignment" rowspan="2">Description</th>
-                  <th class="middle-alignment" rowspan="2">P/N</th>
+                  <th class="middle-alignment" rowspan="2">P/N</th>                 
+                  <th class="middle-alignment" rowspan="2">Alt. P/N</th>
                   <th class="middle-alignment" rowspan="2">Remarks</th>
-                  <th class="middle-alignment" rowspan="2">PR Number</th>
+                  <th class="middle-alignment" rowspan="2">PR Number</th> 
                   <th class="middle-alignment text-right" rowspan="2">Qty</th>
-
-                  <?php foreach ($_SESSION['poe']['vendors'] as $key => $vendor):?>
-                    <th class="middle-alignment text-center" colspan="4">
-                      <?=anchor($module['route'] .'/set_selected_vendor/'. $key, $vendor['vendor'], 'style="color: blue"');?>
-                    </th>
-                  <?php endforeach;?>
-                </tr>
-
-                <tr>
-                  <?php for ($v = 0; $v < count($_SESSION['poe']['vendors']); $v++):?>
-                    <th class="middle-alignment text-center">Alt. P/N</th>
-                    <th class="middle-alignment text-center">Unit Price</th>
-                    <th class="middle-alignment text-center">Core Charge</th>
-                    <th class="middle-alignment text-center">Total Amount</th>
-                  <?php endfor;?>
+                  <th class="middle-alignment text-center" rowspan="2" colspan="4">Vendor Detail</th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($_SESSION['poe']['request'] as $id => $request):?>
                   <tr id="row_<?=$id;?>">
-                    <td width="1">
+                    <td width="1" rowspan="<?=count($_SESSION['poe']['vendors'])+1;?>">
                       <a href="<?=site_url($module['route'] .'/delete_request/'. $id);?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_request">
                         <i class="fa fa-trash"></i>
                       </a>
                     </td>
-                    <td>
+                    <td rowspan="<?=count($_SESSION['poe']['vendors'])+1;?>">
                       <?=$request['description'];?>
                     </td>
-                    <td class="no-space">
+                    <td class="no-space" rowspan="<?=count($_SESSION['poe']['vendors'])+1;?>">
                       <?=$request['part_number'];?>
                     </td>
-                    <td>
+                    <td class="no-space" rowspan="<?=count($_SESSION['poe']['vendors'])+1;?>">
+                      <?=$request['alternate_part_number'];?>
+                    </td>
+                    <td rowspan="<?=count($_SESSION['poe']['vendors'])+1;?>">
                       <?=$request['remarks'];?>
                     </td>
-                    <td>
+                    <td rowspan="<?=count($_SESSION['poe']['vendors'])+1;?>">
                       <?=$request['purchase_request_number'];?>
                     </td>
-                    <td>
+                    <td rowspan="<?=count($_SESSION['poe']['vendors'])+1;?>">
                       <?=number_format($request['quantity'], 2);?>
                     </td>
-
-                    <?php foreach ($_SESSION['poe']['vendors'] as $key => $vendor):?>
+                    <td style="font-weight: bold;">Vendor</td>
+                    <td style="font-weight: bold;">Price</td>
+                    <td style="font-weight: bold;">Core Charge</td>
+                    <td style="font-weight: bold;">Total</td>                    
+                  </tr>
+                  <?php foreach ($_SESSION['poe']['vendors'] as $key => $vendor):?>
+                    <tr>
                       <?php
-                      if ($vendor['is_selected'] == 't'){
+                      if ($_SESSION['poe']['request'][$id]['vendors'][$key]['is_selected'] == 't'){
                         $style = 'background-color: green; color: white';
                       } else {
                         $style = '';
                       }
                       ?>
-
-                      <td style="<?=$style;?>">
-                        <?=$_SESSION['poe']['request'][$id]['vendors'][$key]['alternate_part_number'];?>
+                      <td style="<?=$style;?>" >
+                        <?=anchor($module['route'] .'/set_selected_vendor/'. $id.'/'.$key,$_SESSION['poe']['request'][$id]['vendors'][$key]['vendor'], 'style="color: black"');?>                        
                       </td>
 
                       <td style="<?=$style;?>">
-                        <?=$_SESSION['poe']['request'][$id]['vendors'][$key]['unit_price'];?>
+                        <?=number_format($_SESSION['poe']['request'][$id]['vendors'][$key]['unit_price'],2);?>                        
                       </td>
 
                       <td style="<?=$style;?>">
-                        <?=$_SESSION['poe']['request'][$id]['vendors'][$key]['core_charge'];?>
+                        <?=number_format($_SESSION['poe']['request'][$id]['vendors'][$key]['core_charge'],2);?>
                       </td>
 
                       <td style="<?=$style;?>">
-                        <?=$_SESSION['poe']['request'][$id]['vendors'][$key]['total'];?>
+                        <?=number_format($_SESSION['poe']['request'][$id]['vendors'][$key]['total'],2);?>
                       </td>
-                    <?php endforeach;?>
-                  </tr>
+                    </tr>
+                      
+                  <?php endforeach;?>
                 <?php endforeach;?>
               </tbody>
             </table>
+            
           </div>
         <?php endif;?>
       </div>
@@ -173,6 +176,9 @@
 
               <a href="<?=site_url($module['route'] .'/add_vendor');?>" onClick="return popup(this, 'add_vendor')" class="btn btn-primary ink-reaction">
                 Select Vendor
+              </a>
+              <a href="<?=site_url($module['route'] .'/attachment');?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+                Attachment
               </a>
             <?php endif;?>
           </div>

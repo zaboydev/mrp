@@ -73,7 +73,7 @@ class Stock_Report extends MY_Controller
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $condition .'/'. $warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 9);
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
       $this->data['grid']['summary_columns'][] = 15;
     }
     $this->data['grid']['order_columns']    = array (
@@ -153,7 +153,7 @@ class Stock_Report extends MY_Controller
       $col[] = print_number($row['minimum_quantity'], 2);            
       $col[] = print_string($row['stores']);
       // $col[] = print_string($row['warehouse']);
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
         $col[] = print_number($row['total_value'], 2);
         
         // $col[] = print_number($row['total_value'], 2);
@@ -171,7 +171,7 @@ class Stock_Report extends MY_Controller
       // $total_issued_quantity[]      = $row['total_issued_quantity'];
       // $total_adjustment_quantity[]  = $row['total_adjustment_quantity'];
       $current_quantity[]           = $row['qty'];
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
         // $current_total_value[]        = $row['total_value'];
         $current_total_value[]        = $row['total_value'];
       }
@@ -198,7 +198,7 @@ class Stock_Report extends MY_Controller
           
         )
       );
-    if(config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+    if(config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
       $result['total'][15] = print_number(array_sum($current_total_value), 2);
     }
 

@@ -543,6 +543,30 @@ if ( ! function_exists('available_vendors')) {
   }
 }
 
+if ( ! function_exists('available_vendors_for_poe')) {
+  function available_vendors_for_poe($currency = NULL)
+  {
+    $CI =& get_instance();
+
+    $CI->db->distinct();
+    $CI->db->select('tb_master_vendors.vendor');
+    $CI->db->from('tb_master_vendors');
+    $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
+    // $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
+    $CI->db->where('tb_master_vendors.currency', $currency);
+
+    $query  = $CI->db->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['vendor'];
+    }
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('available_units')) {
   function available_units()
   {

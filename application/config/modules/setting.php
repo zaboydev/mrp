@@ -11,6 +11,6 @@ $config['module']['setting']['language']    = 'setting_lang';
 $config['module']['setting']['table']       = 'tb_settings';
 $config['module']['setting']['model']       = 'Setting_Model';
 $config['module']['setting']['permission']  = array(
-  'index'     => 'ADMIN,PIC PROCUREMENT,PIC STOCK,OTHER',
-  'warehouse' => 'ADMIN',
+  'index'     => 'ADMIN,PIC PROCUREMENT,PIC STOCK,OTHER,SUPER ADMIN',
+  'warehouse' => 'ADMIN,SUPER ADMIN',
   );

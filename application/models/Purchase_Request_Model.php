@@ -25,7 +25,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.pr_number'                => 'Document Number',
         'tb_inventory_purchase_requisitions.pr_date'                  => 'Document Date',
         'tb_inventory_purchase_requisitions.required_date'            => 'Required Date',
-        'tb_product_categories.category_name'                         => 'Category',
+        // 'tb_product_categories.category_name'                         => 'Category',
         'tb_products.product_name'                                    => 'Description',
         'tb_products.product_code'                                    => 'Part Number',
         'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
@@ -35,25 +35,26 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.suggested_supplier'       => 'Suggested Supplier',
         'tb_inventory_purchase_requisitions.deliver_to'               => 'Deliver To',
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
-        'tb_inventory_purchase_requisitions.notes'                    => 'Notes',
+        'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
     } else {
       return array(
-        'tb_inventory_purchase_requisitions.id'                       => NULL,
+        'tb_inventory_purchase_requisition_details.id'                       => NULL,
         'tb_inventory_purchase_requisitions.pr_number'                => 'Document Number',
         'tb_inventory_purchase_requisitions.pr_date'                  => 'Document Date',
         'tb_inventory_purchase_requisitions.required_date'            => 'Required Date',
         'tb_inventory_purchase_requisitions.item_category'                         => 'Category',
-        'tb_master_items.description'                                    => 'Description',
-        'tb_master_items.part_number'                                    => 'Part Number',
+        'tb_inventory_purchase_requisition_details.product_name'                                    => 'Description',
+        'tb_inventory_purchase_requisition_details.part_number'                                    => 'Part Number',
         'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
         'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity',
         '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Processed Quantity',
-        'tb_inventory_purchase_requisitions.status'                   => 'Status',
-        'tb_inventory_purchase_requisitions.suggested_supplier'       => 'Suggested Supplier',
-        'tb_inventory_purchase_requisitions.deliver_to'               => 'Deliver To',
+        'tb_inventory_purchase_requisition_details.status'                   => 'Status',
+        'tb_inventory_purchase_requisition_details.budget_status'                   => 'Budget Status',
+        // 'tb_inventory_purchase_requisitions.suggested_supplier'       => 'Suggested Supplier',
+        // 'tb_inventory_purchase_requisitions.deliver_to'               => 'Deliver To',
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
-        'tb_inventory_purchase_requisitions.notes'                    => 'Notes',
+        'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
     }
   }
@@ -63,7 +64,7 @@ class Purchase_Request_Model extends MY_Model
     if($_SESSION['request']['request_to'] == 0){
       return array(
         'tb_inventory_purchase_requisitions.pr_number',
-        'tb_product_categories.category_name',
+        // 'tb_product_categories.category_name',
         'tb_products.product_name',
         'tb_products.product_code',
         'tb_inventory_purchase_requisition_details.additional_info',
@@ -71,7 +72,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.suggested_supplier',
         'tb_inventory_purchase_requisitions.deliver_to',
         'tb_inventory_purchase_requisitions.created_by',
-        'tb_inventory_purchase_requisitions.notes',
+        'tb_inventory_purchase_requisition_details.notes',
       );
     } else {
       return array(
@@ -80,11 +81,11 @@ class Purchase_Request_Model extends MY_Model
         'tb_master_items.description',
         'tb_master_items.part_number',
         'tb_inventory_purchase_requisition_details.additional_info',
-        'tb_inventory_purchase_requisitions.status',
+        'tb_inventory_purchase_requisition_details.status',
         'tb_inventory_purchase_requisitions.suggested_supplier',
         'tb_inventory_purchase_requisitions.deliver_to',
         'tb_inventory_purchase_requisitions.created_by',
-        'tb_inventory_purchase_requisitions.notes',
+        'tb_inventory_purchase_requisition_details.notes',
       );
     }
     
@@ -98,7 +99,7 @@ class Purchase_Request_Model extends MY_Model
           'tb_inventory_purchase_requisitions.pr_number',
           'tb_inventory_purchase_requisitions.pr_date',
           'tb_inventory_purchase_requisitions.required_date',
-          'tb_product_categories.category_name',
+          // 'tb_product_categories.category_name',
           'tb_products.product_name',
           'tb_products.product_code',
           'tb_inventory_purchase_requisition_details.additional_info',
@@ -108,7 +109,7 @@ class Purchase_Request_Model extends MY_Model
           'tb_inventory_purchase_requisitions.suggested_supplier',
           'tb_inventory_purchase_requisitions.deliver_to',
           'tb_inventory_purchase_requisitions.created_by',
-          'tb_inventory_purchase_requisitions.notes',
+          'tb_inventory_purchase_requisition_details.notes',
         );
       } else {
         return array(
@@ -122,11 +123,11 @@ class Purchase_Request_Model extends MY_Model
           'tb_inventory_purchase_requisition_details.additional_info',
           'tb_inventory_purchase_requisition_details.quantity',
           '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa)',
-          'tb_inventory_purchase_requisitions.status',
+          'tb_inventory_purchase_requisition_details.status',
           'tb_inventory_purchase_requisitions.suggested_supplier',
           'tb_inventory_purchase_requisitions.deliver_to',
           'tb_inventory_purchase_requisitions.created_by',
-          'tb_inventory_purchase_requisitions.notes',
+          'tb_inventory_purchase_requisition_details.notes',
         );
        }
 
@@ -147,9 +148,9 @@ class Purchase_Request_Model extends MY_Model
     if (!empty($_POST['columns'][4]['search']['value'])){
       $search_status = $_POST['columns'][4]['search']['value'];
 
-      $db->where('tb_inventory_purchase_requisitions.status', $search_status);
+      $db->where('tb_inventory_purchase_requisition_details.status', $search_status);
     } else {
-      $db->where('tb_inventory_purchase_requisitions.status', 'pending');
+      $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
     }
 
     if (!empty($_POST['columns'][8]['search']['value'])){
@@ -213,8 +214,8 @@ class Purchase_Request_Model extends MY_Model
       $this->connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id','LEFT');
       $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
       $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
-      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
-      $this->connection->where_in('tb_product_categories.id', $this->categories);
+      // $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
+      // $this->connection->where_in('tb_product_categories.id', $this->categories);
       $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       $this->searchIndex();
@@ -236,11 +237,11 @@ class Purchase_Request_Model extends MY_Model
       $this->db->select(array_keys($this->getSelectedColumns()));
       $this->db->from('tb_inventory_purchase_requisitions');
       $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id','LEFT');
-      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
-      $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id');
-      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item');
+      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id','left');
+      $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id','left');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item','left');
       $categories = config_item('auth_inventory');
-      $this->db->where_in('tb_inventory_purchase_requisitions.item_category', $categories);
+      // $this->db->where_in('tb_inventory_purchase_requisitions.item_category', $categories);
       $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       $this->searchIndex();
@@ -360,6 +361,142 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
       }
     } else {
+
+      $this->db->select('tb_inventory_purchase_requisition_details.*');
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
+
+      $query_detail    = $this->db->get();
+      $request_detail  = $query_detail->unbuffered_row();
+
+      $this->db->select('tb_inventory_purchase_requisitions.*');
+      $this->db->from('tb_inventory_purchase_requisitions');
+      $this->db->where('tb_inventory_purchase_requisitions.id', $request_detail->inventory_purchase_requisition_id);
+
+      $query    = $this->db->get();
+      $request  = $query->unbuffered_row('array');
+
+      $select = array(
+        'tb_inventory_purchase_requisition_details.*',
+        // 'tb_master_items.description',
+        // 'tb_master_items.part_number',
+        'tb_budget.id_cot',
+        'SUM(tb_budget.mtd_quantity) AS fyp_quantity',
+        'SUM(tb_budget.mtd_budget) AS fyp_budget',
+        'SUM(tb_budget.mtd_used_quantity) AS fyp_used_quantity',
+        'SUM(tb_budget.mtd_used_budget) AS fyp_used_budget',
+      );
+
+      $group_by = array(
+        'tb_inventory_purchase_requisition_details.id',
+        // 'tb_master_items.description',
+        // 'tb_master_items.part_number',
+        'tb_budget.id_cot',
+      );
+
+      $this->db->select($select);
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id','left');
+      $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot','left');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item','left');
+      $this->db->where('tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id', $request_detail->inventory_purchase_requisition_id);
+      $this->db->group_by($group_by);
+
+      $query = $this->db->get();
+
+      foreach ($query->result_array() as $key => $value){
+        $request['items'][$key] = $value;
+
+        $this->db->from('tb_budget');
+        $this->db->where('tb_budget.id_cot', $value['id_cot']);
+        $this->db->where('tb_budget.id', $value['budget_id']);
+        // $this->db->where('tb_budget.month_number','<', $value['budget_id']);
+
+        $query = $this->db->get();
+        $row   = $query->unbuffered_row('array');
+
+        $request['items'][$key]['mtd_quantity'] = $row['mtd_quantity'];
+        $request['items'][$key]['mtd_budget'] = $row['mtd_budget'];
+        $request['items'][$key]['mtd_used_quantity'] = $row['mtd_used_quantity'];
+        $request['items'][$key]['mtd_used_budget'] = $row['mtd_used_budget'];
+        $request['items'][$key]['ytd_quantity'] = $row['ytd_quantity'];
+        $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
+        $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
+        $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
+      }      
+    }
+    
+
+    return $request;
+  }
+
+   public function findPrlById($id)
+  {
+    if($_SESSION['request']['request_to'] ==0){
+      $this->connection->select('tb_inventory_purchase_requisitions.*, tb_product_categories.category_name');
+      $this->connection->from('tb_inventory_purchase_requisitions');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
+      $this->connection->where('tb_inventory_purchase_requisitions.id', $id);
+
+      $query    = $this->connection->get();
+      $request  = $query->unbuffered_row('array');
+
+      $select = array(
+        'tb_inventory_purchase_requisition_details.*',
+        'tb_products.product_name',
+        'tb_products.product_code',
+        'tb_inventory_monthly_budgets.product_id',
+        'SUM(tb_inventory_monthly_budgets.mtd_quantity) AS fyp_quantity',
+        'SUM(tb_inventory_monthly_budgets.mtd_budget) AS fyp_budget',
+        'SUM(tb_inventory_monthly_budgets.mtd_used_quantity) AS fyp_used_quantity',
+        'SUM(tb_inventory_monthly_budgets.mtd_used_budget) AS fyp_used_budget',
+      );
+
+      $group_by = array(
+        'tb_inventory_purchase_requisition_details.id',
+        'tb_products.product_name',
+        'tb_products.product_code',
+        'tb_inventory_monthly_budgets.product_id',
+      );
+
+      $this->connection->select($select);
+      $this->connection->from('tb_inventory_purchase_requisition_details');
+      $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
+      $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
+      $this->connection->where('tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id', $id);
+      $this->connection->group_by($group_by);
+
+      $query = $this->connection->get();
+
+      foreach ($query->result_array() as $key => $value){
+        $request['items'][$key] = $value;
+
+        $this->connection->from('tb_inventory_monthly_budgets');
+        $this->connection->where('tb_inventory_monthly_budgets.product_id', $value['product_id']);
+        $this->connection->where('tb_inventory_monthly_budgets.month_number', $this->budget_month);
+        $this->connection->where('tb_inventory_monthly_budgets.year_number', $this->budget_year);
+
+        $query = $this->connection->get();
+        $row   = $query->unbuffered_row('array');
+
+        $request['items'][$key]['mtd_quantity'] = $row['mtd_quantity'];
+        $request['items'][$key]['mtd_budget'] = $row['mtd_budget'];
+        $request['items'][$key]['mtd_used_quantity'] = $row['mtd_used_quantity'];
+        $request['items'][$key]['mtd_used_budget'] = $row['mtd_used_budget'];
+        $request['items'][$key]['ytd_quantity'] = $row['ytd_quantity'];
+        $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
+        $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
+        $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
+      }
+    } else {
+
+      // $this->db->select('tb_inventory_purchase_requisition_details.*');
+      // $this->db->from('tb_inventory_purchase_requisition_details');
+      // $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
+
+      // $query_detail    = $this->db->get();
+      // $request_detail  = $query_detail->unbuffered_row();
+
       $this->db->select('tb_inventory_purchase_requisitions.*');
       $this->db->from('tb_inventory_purchase_requisitions');
       $this->db->where('tb_inventory_purchase_requisitions.id', $id);
@@ -369,7 +506,7 @@ class Purchase_Request_Model extends MY_Model
 
       $select = array(
         'tb_inventory_purchase_requisition_details.*',
-        'tb_master_items.description',
+        'tb_master_items.description as product_name',
         'tb_master_items.part_number',
         'tb_budget.id_cot',
         'SUM(tb_budget.mtd_quantity) AS fyp_quantity',
@@ -420,6 +557,23 @@ class Purchase_Request_Model extends MY_Model
     return $request;
   }
 
+  public function find_item_by_id($id)
+  {
+    if($_SESSION['request']['request_to'] ==1) {
+
+      $this->db->select('tb_inventory_purchase_requisition_details.*, tb_inventory_purchase_requisitions.pr_number, tb_inventory_purchase_requisitions.created_by');
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+      $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
+
+      $query_detail    = $this->db->get();
+      $request_detail  = $query_detail->unbuffered_row('array');
+    }
+    
+
+    return $request_detail;
+  }
+
   public function isDocumentNumberExists($pr_number)
   {
     $this->connection->where('pr_number', $pr_number);
@@ -450,6 +604,24 @@ class Purchase_Request_Model extends MY_Model
     return false;
   }
 
+  public function save_change_item()
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('description', strtoupper($this->input->post('description')));
+    $this->db->set('part_number', strtoupper($this->input->post('part_number')));
+    $this->db->where('id', $this->input->post('id'));
+    $this->db->update('tb_inventory_purchase_requisition_details');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+
+    return TRUE;
+
+  }
+
   public function save()
   {
     $document_id          = (isset($_SESSION['request']['id'])) ? $_SESSION['request']['id'] : NULL;
@@ -466,42 +638,44 @@ class Purchase_Request_Model extends MY_Model
     $notes                = (empty($_SESSION['request']['notes'])) ? NULL : $_SESSION['request']['notes'];
 
     $this->connection->trans_begin();
+    $this->db->trans_begin();
 
-    if ($document_id === NULL){
-      $this->connection->set('product_category_id', $product_category_id);
-      $this->connection->set('order_number', $order_number);
-      $this->connection->set('pr_number', $pr_number);
-      $this->connection->set('pr_date', $pr_date);
-      $this->connection->set('required_date', $required_date);
-      $this->connection->set('suggested_supplier', $suggested_supplier);
-      $this->connection->set('deliver_to', $deliver_to);
-      $this->connection->set('status', 'pending');
-      $this->connection->set('notes', $notes);
-      $this->connection->set('created_by', $created_by);
-      $this->connection->set('updated_by', config_item('auth_person_name'));
-      $this->connection->set('created_at', date('Y-m-d H:i:s'));
-      $this->connection->set('updated_at', date('Y-m-d H:i:s'));
-      $this->connection->insert('tb_inventory_purchase_requisitions');
-
-      $document_id = $this->connection->insert_id();
-    } else {
-      $this->connection->set('required_date', $required_date);
-      $this->connection->set('suggested_supplier', $suggested_supplier);
-      $this->connection->set('deliver_to', $deliver_to);
-      $this->connection->set('status', 'pending');
-      $this->connection->set('notes', $notes);
-      $this->connection->set('updated_at', date('Y-m-d'));
-      $this->connection->set('updated_by', config_item('auth_person_name'));
-      $this->connection->where('id', $document_id);
-      $this->connection->update('tb_inventory_purchase_requisitions');
-
-      $this->connection->where('inventory_purchase_requisition_id', $document_id);
-      $this->connection->delete('tb_inventory_purchase_requisition_details');
-    }
+    
     $request_to = $_SESSION['request']['request_to'];
-     if($request_to == 0){
+    if($request_to == 0){
+      if ($document_id === NULL){
+        $this->connection->set('product_category_id', $product_category_id);
+        $this->connection->set('order_number', $order_number);
+        $this->connection->set('pr_number', $pr_number);
+        $this->connection->set('pr_date', $pr_date);
+        $this->connection->set('required_date', $required_date);
+        $this->connection->set('suggested_supplier', $suggested_supplier);
+        $this->connection->set('deliver_to', $deliver_to);
+        $this->connection->set('status', 'pending');
+        $this->connection->set('notes', $notes);
+        $this->connection->set('created_by', $created_by);
+        $this->connection->set('updated_by', config_item('auth_person_name'));
+        $this->connection->set('created_at', date('Y-m-d H:i:s'));
+        $this->connection->set('updated_at', date('Y-m-d H:i:s'));
+        $this->connection->insert('tb_inventory_purchase_requisitions');
+
+        $document_id = $this->connection->insert_id();
+      } else {
+        $this->connection->set('required_date', $required_date);
+        $this->connection->set('suggested_supplier', $suggested_supplier);
+        $this->connection->set('deliver_to', $deliver_to);
+        $this->connection->set('status', 'pending');
+        $this->connection->set('notes', $notes);
+        $this->connection->set('updated_at', date('Y-m-d'));
+        $this->connection->set('updated_by', config_item('auth_person_name'));
+        $this->connection->where('id', $document_id);
+        $this->connection->update('tb_inventory_purchase_requisitions');
+
+        $this->connection->where('inventory_purchase_requisition_id', $document_id);
+        $this->connection->delete('tb_inventory_purchase_requisition_details');
+      }
       // request from budget control
-        foreach ($_SESSION['request']['items'] as $key => $data){
+      foreach ($_SESSION['request']['items'] as $key => $data){
         if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL){
           // NEW GROUP
           $this->connection->select('tb_product_groups.id');
@@ -617,104 +791,104 @@ class Purchase_Request_Model extends MY_Model
           $query  = $this->connection->get();
 
           if ($query->num_rows() == 0){
-        $this->connection->set('product_id', $product_id);
-        $this->connection->set('month_number', $this->budget_month);
-        $this->connection->set('year_number', $this->budget_year);
-        $this->connection->set('initial_quantity', floatval(0));
-        $this->connection->set('initial_budget', floatval(0));
-        $this->connection->set('mtd_quantity', floatval(0));
-        $this->connection->set('mtd_budget', floatval(0));
-        $this->connection->set('mtd_used_quantity', floatval(0));
-        $this->connection->set('mtd_used_budget', floatval(0));
-        $this->connection->set('mtd_used_quantity_import', floatval(0));
-        $this->connection->set('mtd_used_budget_import', floatval(0));
-        $this->connection->set('mtd_prev_month_quantity', floatval(0));
-        $this->connection->set('mtd_prev_month_budget', floatval(0));
-        $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
-        $this->connection->set('mtd_prev_month_used_budget', floatval(0));
-        $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
-        $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
-        $this->connection->set('ytd_quantity', floatval(0));
-        $this->connection->set('ytd_budget', floatval(0));
-        $this->connection->set('ytd_used_quantity', floatval(0));
-        $this->connection->set('ytd_used_budget', floatval(0));
-        $this->connection->set('ytd_used_quantity_import', floatval(0));
-        $this->connection->set('ytd_used_budget_import', floatval(0));
-        $this->connection->set('created_at', date('Y-m-d'));
-        $this->connection->set('created_by', config_item('auth_person_name'));
-        $this->connection->set('updated_at', date('Y-m-d'));
-        $this->connection->set('updated_by', config_item('auth_person_name'));
-        $this->connection->insert('tb_inventory_monthly_budgets');
+            $this->connection->set('product_id', $product_id);
+            $this->connection->set('month_number', $this->budget_month);
+            $this->connection->set('year_number', $this->budget_year);
+            $this->connection->set('initial_quantity', floatval(0));
+            $this->connection->set('initial_budget', floatval(0));
+            $this->connection->set('mtd_quantity', floatval(0));
+            $this->connection->set('mtd_budget', floatval(0));
+            $this->connection->set('mtd_used_quantity', floatval(0));
+            $this->connection->set('mtd_used_budget', floatval(0));
+            $this->connection->set('mtd_used_quantity_import', floatval(0));
+            $this->connection->set('mtd_used_budget_import', floatval(0));
+            $this->connection->set('mtd_prev_month_quantity', floatval(0));
+            $this->connection->set('mtd_prev_month_budget', floatval(0));
+            $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
+            $this->connection->set('mtd_prev_month_used_budget', floatval(0));
+            $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
+            $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
+            $this->connection->set('ytd_quantity', floatval(0));
+            $this->connection->set('ytd_budget', floatval(0));
+            $this->connection->set('ytd_used_quantity', floatval(0));
+            $this->connection->set('ytd_used_budget', floatval(0));
+            $this->connection->set('ytd_used_quantity_import', floatval(0));
+            $this->connection->set('ytd_used_budget_import', floatval(0));
+            $this->connection->set('created_at', date('Y-m-d'));
+            $this->connection->set('created_by', config_item('auth_person_name'));
+            $this->connection->set('updated_at', date('Y-m-d'));
+            $this->connection->set('updated_by', config_item('auth_person_name'));
+            $this->connection->insert('tb_inventory_monthly_budgets');
 
-        $inventory_monthly_budget_id = $this->connection->insert_id();
+            $inventory_monthly_budget_id = $this->connection->insert_id();
 
-        for ($m = 1; $m < $this->budget_month; $m++){
-          // PREV BUDGET
-          $this->connection->set('product_id', $product_id);
-          $this->connection->set('month_number', $m);
-          $this->connection->set('year_number', $this->budget_year);
-          $this->connection->set('initial_quantity', floatval(0));
-          $this->connection->set('initial_budget', floatval(0));
-          $this->connection->set('mtd_quantity', floatval(0));
-          $this->connection->set('mtd_budget', floatval(0));
-          $this->connection->set('mtd_used_quantity', floatval(0));
-          $this->connection->set('mtd_used_budget', floatval(0));
-          $this->connection->set('mtd_used_quantity_import', floatval(0));
-          $this->connection->set('mtd_used_budget_import', floatval(0));
-          $this->connection->set('mtd_prev_month_quantity', floatval(0));
-          $this->connection->set('mtd_prev_month_budget', floatval(0));
-          $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
-          $this->connection->set('mtd_prev_month_used_budget', floatval(0));
-          $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
-          $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
-          $this->connection->set('ytd_quantity', floatval(0));
-          $this->connection->set('ytd_budget', floatval(0));
-          $this->connection->set('ytd_used_quantity', floatval(0));
-          $this->connection->set('ytd_used_budget', floatval(0));
-          $this->connection->set('ytd_used_quantity_import', floatval(0));
-          $this->connection->set('ytd_used_budget_import', floatval(0));
-          $this->connection->set('created_at', date('Y-m-d'));
-          $this->connection->set('created_by', config_item('auth_person_name'));
-          $this->connection->set('updated_at', date('Y-m-d'));
-          $this->connection->set('updated_by', config_item('auth_person_name'));
-          $this->connection->insert('tb_inventory_monthly_budgets');
-        }
+            for ($m = 1; $m < $this->budget_month; $m++){
+              // PREV BUDGET
+              $this->connection->set('product_id', $product_id);
+              $this->connection->set('month_number', $m);
+              $this->connection->set('year_number', $this->budget_year);
+              $this->connection->set('initial_quantity', floatval(0));
+              $this->connection->set('initial_budget', floatval(0));
+              $this->connection->set('mtd_quantity', floatval(0));
+              $this->connection->set('mtd_budget', floatval(0));
+              $this->connection->set('mtd_used_quantity', floatval(0));
+              $this->connection->set('mtd_used_budget', floatval(0));
+              $this->connection->set('mtd_used_quantity_import', floatval(0));
+              $this->connection->set('mtd_used_budget_import', floatval(0));
+              $this->connection->set('mtd_prev_month_quantity', floatval(0));
+              $this->connection->set('mtd_prev_month_budget', floatval(0));
+              $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
+              $this->connection->set('mtd_prev_month_used_budget', floatval(0));
+              $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
+              $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
+              $this->connection->set('ytd_quantity', floatval(0));
+              $this->connection->set('ytd_budget', floatval(0));
+              $this->connection->set('ytd_used_quantity', floatval(0));
+              $this->connection->set('ytd_used_budget', floatval(0));
+              $this->connection->set('ytd_used_quantity_import', floatval(0));
+              $this->connection->set('ytd_used_budget_import', floatval(0));
+              $this->connection->set('created_at', date('Y-m-d'));
+              $this->connection->set('created_by', config_item('auth_person_name'));
+              $this->connection->set('updated_at', date('Y-m-d'));
+              $this->connection->set('updated_by', config_item('auth_person_name'));
+              $this->connection->insert('tb_inventory_monthly_budgets');
+            }
 
-        for ($am = 12; $am > $this->budget_month; $am--){
-          // PREV BUDGET
-          $this->connection->set('product_id', $product_id);
-          $this->connection->set('month_number', $am);
-          $this->connection->set('year_number', $this->budget_year);
-          $this->connection->set('initial_quantity', floatval(0));
-          $this->connection->set('initial_budget', floatval(0));
-          $this->connection->set('mtd_quantity', floatval(0));
-          $this->connection->set('mtd_budget', floatval(0));
-          $this->connection->set('mtd_used_quantity', floatval(0));
-          $this->connection->set('mtd_used_budget', floatval(0));
-          $this->connection->set('mtd_used_quantity_import', floatval(0));
-          $this->connection->set('mtd_used_budget_import', floatval(0));
-          $this->connection->set('mtd_prev_month_quantity', floatval(0));
-          $this->connection->set('mtd_prev_month_budget', floatval(0));
-          $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
-          $this->connection->set('mtd_prev_month_used_budget', floatval(0));
-          $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
-          $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
-          $this->connection->set('ytd_quantity', floatval(0));
-          $this->connection->set('ytd_budget', floatval(0));
-          $this->connection->set('ytd_used_quantity', floatval(0));
-          $this->connection->set('ytd_used_budget', floatval(0));
-          $this->connection->set('ytd_used_quantity_import', floatval(0));
-          $this->connection->set('ytd_used_budget_import', floatval(0));
-          $this->connection->set('created_at', date('Y-m-d'));
-          $this->connection->set('created_by', config_item('auth_person_name'));
-          $this->connection->set('updated_at', date('Y-m-d'));
-          $this->connection->set('updated_by', config_item('auth_person_name'));
-          $this->connection->insert('tb_inventory_monthly_budgets');
-        }
-      } else {
+            for ($am = 12; $am > $this->budget_month; $am--){
+              // PREV BUDGET
+              $this->connection->set('product_id', $product_id);
+              $this->connection->set('month_number', $am);
+              $this->connection->set('year_number', $this->budget_year);
+              $this->connection->set('initial_quantity', floatval(0));
+              $this->connection->set('initial_budget', floatval(0));
+              $this->connection->set('mtd_quantity', floatval(0));
+              $this->connection->set('mtd_budget', floatval(0));
+              $this->connection->set('mtd_used_quantity', floatval(0));
+              $this->connection->set('mtd_used_budget', floatval(0));
+              $this->connection->set('mtd_used_quantity_import', floatval(0));
+              $this->connection->set('mtd_used_budget_import', floatval(0));
+              $this->connection->set('mtd_prev_month_quantity', floatval(0));
+              $this->connection->set('mtd_prev_month_budget', floatval(0));
+              $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
+              $this->connection->set('mtd_prev_month_used_budget', floatval(0));
+              $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
+              $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
+              $this->connection->set('ytd_quantity', floatval(0));
+              $this->connection->set('ytd_budget', floatval(0));
+              $this->connection->set('ytd_used_quantity', floatval(0));
+              $this->connection->set('ytd_used_budget', floatval(0));
+              $this->connection->set('ytd_used_quantity_import', floatval(0));
+              $this->connection->set('ytd_used_budget_import', floatval(0));
+              $this->connection->set('created_at', date('Y-m-d'));
+              $this->connection->set('created_by', config_item('auth_person_name'));
+              $this->connection->set('updated_at', date('Y-m-d'));
+              $this->connection->set('updated_by', config_item('auth_person_name'));
+              $this->connection->insert('tb_inventory_monthly_budgets');
+            }
+          } else {
             $inventory_monthly_budget    = $query->unbuffered_row();
             $inventory_monthly_budget_id = $inventory_monthly_budget->id;
-      }
+          }
         } else {
           $inventory_monthly_budget_id = $data['inventory_monthly_budget_id'];
           $this->connection->set('status','approved');
@@ -781,113 +955,214 @@ class Purchase_Request_Model extends MY_Model
         $this->connection->set('price', floatval($data['price']));
         $this->connection->set('total', floatval($data['total']));
         $this->connection->insert('tb_inventory_purchase_requisition_details');
-       }
-     } else {
-         foreach ($_SESSION['request']['items'] as $key => $data ){
-          if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL){
-                $this->db->set('item_category', $_SESSION['request']['category']);
-                $this->db->set('order_number', $order_number);
-                $this->db->set('pr_number', $pr_number);
-                $this->db->set('pr_date', $pr_date);
-                $this->db->set('required_date', $required_date);
-                $this->db->set('suggested_supplier', $suggested_supplier);
-                $this->db->set('deliver_to', $deliver_to);
-                $this->db->set('status', 'approved');
-                $this->db->set('notes', $notes);
-                $this->db->set('created_by', $created_by);
-                $this->db->set('updated_by', config_item('auth_person_name'));
-                $this->db->set('created_at', date('Y-m-d H:i:s'));
-                $this->db->set('updated_at', date('Y-m-d H:i:s'));
-                $this->db->insert('tb_inventory_purchase_requisitions');
+      }
+    } else {
+      $this->db->select('tb_inventory_purchase_requisitions.*');
+      $this->db->from('tb_inventory_purchase_requisitions');
+      $this->db->where('order_number', $order_number);
+      $inventory = $this->db->get();
+      if ($inventory->num_rows() == 0){
+        $this->db->set('item_category', $_SESSION['request']['category']);
+        $this->db->set('order_number', $order_number);
+        $this->db->set('pr_number', $pr_number);
+        $this->db->set('pr_date', $pr_date);
+        $this->db->set('required_date', $required_date);
+        $this->db->set('suggested_supplier', $suggested_supplier);
+        $this->db->set('deliver_to', $deliver_to);
+        $this->db->set('status', 'waiting');
+        $this->db->set('notes', $notes);
+        $this->db->set('created_by', $created_by);
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('created_at', date('Y-m-d H:i:s'));
+        $this->db->set('updated_at', date('Y-m-d H:i:s'));
+        $this->db->insert('tb_inventory_purchase_requisitions');
 
-                $document_id = $this->db->insert_id();
-            return TRUE;
-          } else {
+        $document_id = $this->db->insert_id();
+      } else {
+        $document_id = $inventory->row()->id;
+        $this->db->set('required_date', $required_date);
+        $this->db->set('suggested_supplier', $suggested_supplier);
+        $this->db->set('deliver_to', $deliver_to);
+        $this->db->set('status', 'waiting');
+        $this->db->set('notes', $notes);
+        $this->db->set('updated_at', date('Y-m-d'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->where('id', $document_id);
+        $this->db->update('tb_inventory_purchase_requisitions');
+
+        $this->db->where('inventory_purchase_requisition_id', $document_id);
+        $this->db->delete('tb_inventory_purchase_requisition_details');
+      }
+      
+      
+      foreach ($_SESSION['request']['items'] as $key => $data ){
+        if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL){
+          //input ke tb_unbudgeted
+          $this->db->set('year_number', date('Y'));
+          $this->db->set('amount', floatval(0));
+          $this->db->set('quantity', floatval(0));
+          $this->db->set('previous_budget', floatval(0));
+          $this->db->set('previous_quantity', floatval(0));
+          $this->db->set('new_budget', floatval($data['total']));
+          $this->db->set('new_quantity', floatval($data['quantity']));
+          $this->db->set('notes',$data['additional_info']);
+          $this->db->set('created_at',date('Y-m-d H:i:s'));
+          $this->db->set('created_by',config_item('auth_person_name'));
+          $this->db->insert('tb_inventory_unbudgeted');
+          $budget_id_sementara = $this->db->insert_id();
+
+          $this->db->set('inventory_purchase_requisition_id', $document_id);
+          // $this->db->set('budget_id', $inventory_monthly_budget_id);
+          $this->db->set('part_number', $data['part_number']);
+          $this->db->set('product_name', $data['product_name']);
+          $this->db->set('additional_info', $data['additional_info']);
+          $this->db->set('unit', $data['unit']);
+          $this->db->set('sort_order', floatval($key));
+          $this->db->set('quantity', floatval($data['quantity']));
+          $this->db->set('sisa', floatval($data['quantity']));
+          $this->db->set('price', floatval($data['price']));
+          $this->db->set('total', floatval($data['total']));
+          $this->db->set('status', 'pending');          
+          $this->db->set('budget_status', 'unbudgeted');          
+          $this->db->set('budget_id_sementara', $budget_id_sementara);
+          $this->db->insert('tb_inventory_purchase_requisition_details');         
+
+
+          // return TRUE;
+        } else {
+          $inventory_monthly_budget_id = $data['inventory_monthly_budget_id'];
+          if(!empty($data['relocation_item']) || $data['relocation_item'] != NULL){
+            //input ke tb_relocation
+            $this->db->set('origin_budget_id', $data['relocation_item']);
+            $this->db->set('destination_budget_id', $inventory_monthly_budget_id);
+            $this->db->set('amount', floatval($data['need_budget']));
+            $this->db->set('year_number', date('Y'));
+            $this->db->set('month_number', date('m'));
+            $this->db->set('relocation_date_time', date('Y-m-d H:i:s'));
+            $this->db->set('relocation_by', config_item('auth_person_name'));
+            $this->db->insert('tb_inventory_relocation_budgets');
+            $budget_id_sementara = $this->db->insert_id();
+
+            $this->db->set('inventory_purchase_requisition_id', $document_id);
+            $this->db->set('budget_id', $inventory_monthly_budget_id);
+            $this->db->set('part_number', $data['part_number']);
+            $this->db->set('product_name', $data['product_name']);
+            $this->db->set('additional_info', $data['additional_info']);
+            $this->db->set('unit', $data['unit']);
+            $this->db->set('sort_order', floatval($key));
+            $this->db->set('quantity', floatval($data['quantity']));
+            $this->db->set('sisa', floatval($data['quantity']));
+            $this->db->set('price', floatval($data['price']));
+            $this->db->set('total', floatval($data['total']));
+            $this->db->set('status', 'waiting');          
+            $this->db->set('budget_status', 'relocation');
+            $this->db->set('budget_id_sementara', $budget_id_sementara);
+            $this->db->insert('tb_inventory_purchase_requisition_details');
+
+            $this->db->set('budget_id',$inventory_monthly_budget_id);
+            $this->db->set('inventory_purchase_requisition_id',$document_id);
+            $this->db->set('pr_number',$data['pr_number']);
+            $this->db->set('year_number',date('Y'));
+            $this->db->set('month_number',date('m'));
+            $this->db->set('product_name',$data['product_name']);
+            $this->db->set('product_group',$data['group_name']);
+            $this->db->set('product_code',$data['part_number']);
+            $this->db->set('additional_info',$data['additional_info']);
+            $this->db->set('used_budget',$data['total']);
+            $this->db->set('used_quantity',$data['quantity']);
+            $this->db->set('created_at', date('Y-m-d H:i:s'));
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('part_number', $data['part_number']);
+            $this->db->insert('tb_used_budgets');
+
+            //update budget yang direlokasi (dipindahkan)
+            $this->db->where('id', $data['relocation_item']);
+            $oldBudgetrelocation = $this->db->get('tb_budget')->row();
+            $budget_month = $oldBudgetrelocation->month_number;
+            // for ($i=$this->budget_month; $i < 13 ; $i++) { 
+            for ($i=$budget_month; $i < 13 ; $i++) {
+              // $this->db->set('mtd_used_budget', 'mtd_used_budget + '.$data['total'],FALSE);
+              // $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$data['quantity'],FALSE);
+              $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$data['need_budget'],FALSE);
+              // $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$data['quantity'],FALSE);
+              $this->db->where('id_cot', $oldBudgetrelocation->id_cot);
+              $this->db->where('month_number', $i);
+              $this->db->update('tb_budget');
+            }
+
+            $this->db->set('mtd_used_budget','"mtd_used_budget" + '.$data['need_budget'],FALSE);
+            // $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$data['quantity'],FALSE);
+            $this->db->where('id', $data['relocation_item']);
+            $this->db->update('tb_budget');
+            //update budget yang direlokasi (dipindahkan)
+            
+          }else{
             $budget_id = $data['budget_id'];
-            $this->db->select('tb_inventory_purchase_requisitions.*');
-            $this->db->from('tb_inventory_purchase_requisitions');
-            $this->db->where('order_number', $order_number);
-            $inventory = $this->db->get();
-             if ($inventory->num_rows() == 0){
-                $this->db->set('item_category', $_SESSION['request']['category']);
-                $this->db->set('order_number', $order_number);
-                $this->db->set('pr_number', $pr_number);
-                $this->db->set('pr_date', $pr_date);
-                $this->db->set('required_date', $required_date);
-                $this->db->set('suggested_supplier', $suggested_supplier);
-                $this->db->set('deliver_to', $deliver_to);
-                $this->db->set('status', 'approved');
-                $this->db->set('notes', $notes);
-                $this->db->set('created_by', $created_by);
-                $this->db->set('updated_by', config_item('auth_person_name'));
-                $this->db->set('created_at', date('Y-m-d H:i:s'));
-                $this->db->set('updated_at', date('Y-m-d H:i:s'));
-                $this->db->insert('tb_inventory_purchase_requisitions');
+            
+            
+            $this->db->set('budget_id',$inventory_monthly_budget_id);
+            $this->db->set('inventory_purchase_requisition_id',$document_id);
+            $this->db->set('pr_number',$data['pr_number']);
+            $this->db->set('year_number',date('Y'));
+            $this->db->set('month_number',date('m'));
+            $this->db->set('product_name',$data['product_name']);
+            $this->db->set('product_group',$data['group_name']);
+            $this->db->set('product_code',$data['part_number']);
+            $this->db->set('additional_info',$data['additional_info']);
+            $this->db->set('used_budget',$data['total']);
+            $this->db->set('used_quantity',$data['quantity']);
+            $this->db->set('created_at', date('Y-m-d H:i:s'));
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('part_number', $data['part_number']);
+            $this->db->insert('tb_used_budgets');
 
-                $document_id = $this->db->insert_id();
-              } else {
+            
 
-                $document_id = $this->inventory->row()->id;
-                $this->db->set('required_date', $required_date);
-                $this->db->set('suggested_supplier', $suggested_supplier);
-                $this->db->set('deliver_to', $deliver_to);
-                $this->db->set('status', 'approved');
-                $this->db->set('notes', $notes);
-                $this->db->set('updated_at', date('Y-m-d'));
-                $this->db->set('updated_by', config_item('auth_person_name'));
-                $this->db->where('id', $document_id);
-                $this->db->update('tb_inventory_purchase_requisitions');
-
-                $this->db->where('inventory_purchase_requisition_id', $document_id);
-                $this->db->delete('tb_inventory_purchase_requisition_details');
-              }
-              $inventory_monthly_budget_id = $data['inventory_monthly_budget_id'];
-              $this->db->set('budget_id',$inventory_monthly_budget_id);
-              $this->db->set('inventory_purchase_requisition_id',$document_id);
-              $this->db->set('pr_number',$data['pr_number']);
-              $this->db->set('year_number',$this->budget_year);
-              $this->db->set('month_number',$this->budget_month);
-              $this->db->set('product_name',$data['product_name']);
-              $this->db->set('product_group',$data['group_name']);
-              $this->db->set('product_code',$data['part_number']);
-              $this->db->set('additional_info',$data['additional_info']);
-              $this->db->set('used_budget',$data['total']);
-              $this->db->set('used_quantity',$data['quantity']);
-              $this->db->set('created_at', date('Y-m-d H:i:s'));
-              $this->db->set('created_by', config_item('auth_person_name'));
-              $this->db->set('part_number', $data['part_number']);
-              $this->db->insert('tb_used_budgets');
-
-              $this->db->where('id', $inventory_monthly_budget_id);
-              $oldBudget = $this->db->get('tb_budget')->row();
-              for ($i=$this->budget_month; $i < 13 ; $i++) { 
-                $this->db->set('mtd_used_budget', 'mtd_used_budget + '.$data['total'],FALSE);
-                $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$data['quantity'],FALSE);
-                $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$data['total'],FALSE);
-                $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$data['quantity'],FALSE);
-                $this->db->where('id_cot', $oldBudget->id_cot);
-                $this->db->where('month_number', $i);
-                $this->db->update('tb_budget');
-              }
-              $this->db->set('inventory_purchase_requisition_id', $document_id);
-              $this->db->set('budget_id', $inventory_monthly_budget_id);
-              $this->db->set('part_number', $data['part_number']);
-              $this->db->set('additional_info', $data['additional_info']);
-              $this->db->set('unit', $data['unit']);
-              $this->db->set('sort_order', floatval($key));
-              $this->db->set('quantity', floatval($data['quantity']));
-              $this->db->set('sisa', floatval($data['quantity']));
-              $this->db->set('price', floatval($data['price']));
-              $this->db->set('total', floatval($data['total']));
-              $this->db->insert('tb_inventory_purchase_requisition_details');
+            $this->db->set('inventory_purchase_requisition_id', $document_id);
+            $this->db->set('budget_id', $inventory_monthly_budget_id);
+            $this->db->set('part_number', $data['part_number']);
+            $this->db->set('product_name', $data['product_name']);
+            $this->db->set('additional_info', $data['additional_info']);
+            $this->db->set('unit', $data['unit']);
+            $this->db->set('sort_order', floatval($key));
+            $this->db->set('quantity', floatval($data['quantity']));
+            $this->db->set('sisa', floatval($data['quantity']));
+            $this->db->set('price', floatval($data['price']));
+            $this->db->set('total', floatval($data['total']));
+            $this->db->set('status', 'waiting');
+            $this->db->insert('tb_inventory_purchase_requisition_details');
           }
-         }
-     }
 
-    if ($this->connection->trans_status() === FALSE)
+          //update budget tujuan relokasi (dipindahkan)
+          $this->db->where('id', $inventory_monthly_budget_id);
+          $oldBudget = $this->db->get('tb_budget')->row();
+          $budget_month = date('m');
+          // for ($i=$this->budget_month; $i < 13 ; $i++) { 
+          for ($i=$budget_month; $i < 13 ; $i++) {
+            // $this->db->set('mtd_used_budget', 'mtd_used_budget + '.$data['total'],FALSE);
+            // $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$data['quantity'],FALSE);
+            $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$data['total'],FALSE);
+            $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$data['quantity'],FALSE);
+            $this->db->where('id_cot', $oldBudget->id_cot);
+            $this->db->where('month_number', $i);
+            $this->db->update('tb_budget');
+          }
+
+          $this->db->set('mtd_used_budget','"mtd_used_budget" + '.$data['total'],FALSE);
+          $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$data['quantity'],FALSE);
+          $this->db->where('id', $inventory_monthly_budget_id);
+          $this->db->update('tb_budget');
+          //update budget tujuan relokasi (dipindahkan)
+          
+        }
+      }
+    }
+
+    if (($this->connection->trans_status() === FALSE)&&($this->db->trans_status() === FALSE))
       return FALSE;
 
     $this->connection->trans_commit();
+    $this->db->trans_commit();
     return TRUE;
   }
 
@@ -979,20 +1254,26 @@ class Purchase_Request_Model extends MY_Model
       $this->db->from('tb_budget');
       $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id ');
       $this->db->join('tb_master_items', 'tb_master_items on tb_master_items.id = tb_budget_cot.id_item');
-       $this->db->join('tb_master_item_groups', 'tb_master_item_groups on tb_master_items.group = tb_master_item_groups.group');
-       $this->db->where('UPPER(tb_master_item_groups.category)', strtoupper($category));
-     $this->connection->where('tb_budget.ytd_budget - tb_budget.ytd_used_budget > ', 0, FALSE);
+      $this->db->join('tb_master_item_groups', 'tb_master_item_groups on tb_master_items.group = tb_master_item_groups.group');
+      $this->db->where('UPPER(tb_master_item_groups.category)', strtoupper($category));
+      // $this->db->where('tb_budget.ytd_budget - tb_budget.ytd_used_budget > ', 0, FALSE);
+      $this->db->where('tb_budget.mtd_budget - tb_budget.mtd_used_budget > ', 0, FALSE);
       $this->db->order_by('tb_master_items.description ASC, tb_master_items.part_number ASC');
-      $this->db->where('tb_budget_cot.year', $this->budget_year);
-      $this->db->where('tb_budget.month_number', $this->budget_month);
+      // $this->db->where('tb_budget_cot.year', $this->budget_year);
+      $this->db->where('tb_budget_cot.year', date('Y'));
+      $this->db->where('tb_budget_cot.status', 'APPROVED');
+      // $this->db->where('tb_budget.month_number', $this->budget_month);
+      $this->db->where('tb_budget.month_number', date('m'));
       
        $query  = $this->db->get();
     }
     
     $result = $query->result_array();
     foreach ($result as $key => $value) {
-      $result[$key]['maximum_quantity'] = $value['ytd_quantity'] - $value['ytd_used_quantity'];
-      $result[$key]['maximum_price'] = $value['ytd_budget'] - $value['ytd_used_budget'];
+      // $result[$key]['maximum_quantity'] = $value['ytd_quantity'] - $value['ytd_used_quantity'];
+      // $result[$key]['maximum_price'] = $value['ytd_budget'] - $value['ytd_used_budget'];
+      $result[$key]['maximum_quantity'] = $value['mtd_quantity'] - $value['mtd_used_quantity'];
+      $result[$key]['maximum_price'] = $value['mtd_budget'] - $value['mtd_used_budget'];
 
       $this->db->from('tb_master_items');
       $this->db->where('UPPER(tb_master_items.part_number)', strtoupper($value['product_code']));
@@ -1015,17 +1296,159 @@ class Purchase_Request_Model extends MY_Model
           $stock = $query->unbuffered_row('array');
 
           $result[$key]['on_hand_quantity'] = $stock['total_quantity'];
-          $result[$key]['price']            = $stock['average_value'];
+          $result[$key]['price']            = $value['current_price'];
         } else {
           $result[$key]['on_hand_quantity'] = 0;
-          $result[$key]['price']            = 0;
+          $result[$key]['price']            = $value['current_price'];
         }
       } else {
         $result[$key]['minimum_quantity'] = 0;
         $result[$key]['on_hand_quantity'] = 0;
-        $result[$key]['price']            = 0;
+        $result[$key]['price']            = $value['current_price'];
       }
     }
+    return $result;
+  }
+
+  public function searchBudgetForRelocation($category,$unit)
+  {
+    $query = "";
+    if($_SESSION['request']['request_to'] == 0){
+      $this->column_select = array(
+        'tb_inventory_monthly_budgets.*',
+        'tb_products.product_name',
+        'tb_products.product_code',
+        'tb_product_groups.group_name',
+        'tb_product_measurements.measurement_symbol',
+        'tb_product_purchase_prices.current_price',
+       );
+
+      $this->connection->select($this->column_select);
+      $this->connection->from('tb_inventory_monthly_budgets');
+      $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
+      $this->connection->join('tb_product_purchase_prices', 'tb_product_purchase_prices.product_id = tb_products.id');
+      $this->connection->join('tb_product_measurements', 'tb_product_measurements.id = tb_products.product_measurement_id');
+      $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
+      $this->connection->where('tb_inventory_monthly_budgets.year_number', $this->budget_year);
+      $this->connection->where('tb_inventory_monthly_budgets.month_number', $this->budget_month);
+      $this->connection->where('UPPER(tb_product_categories.category_name)', strtoupper($category));
+      $this->connection->where('tb_inventory_monthly_budgets.ytd_budget - tb_inventory_monthly_budgets.ytd_used_budget > ', 0, FALSE);
+      $this->connection->order_by('tb_products.product_name ASC, tb_products.product_code ASC');
+      $query  = $this->connection->get();
+    } else {
+      $this->db->select('tb_budget.*,tb_master_items.description as "product_name", tb_master_items.part_number as "product_code", tb_master_items.group as "group_name", tb_master_items.current_price,tb_master_items.unit as "measurement_symbol"');
+      $this->db->from('tb_budget');
+      $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id ');
+      $this->db->join('tb_master_items', 'tb_master_items on tb_master_items.id = tb_budget_cot.id_item');
+      $this->db->join('tb_master_item_groups', 'tb_master_item_groups on tb_master_items.group = tb_master_item_groups.group');
+      // $this->db->where('UPPER(tb_master_item_groups.category)', strtoupper($category));
+      $this->db->where('tb_budget.mtd_budget - tb_budget.mtd_used_budget > ', 0, FALSE);
+      $this->db->order_by('tb_master_items.description ASC, tb_master_items.part_number ASC');
+      // $this->db->where('tb_budget_cot.year', $this->budget_year);
+      $this->db->where('tb_budget_cot.year', date('Y'));
+      $this->db->where('tb_budget_cot.status', 'APPROVED');
+      // $this->db->where('tb_budget.month_number', $this->budget_month);
+      $this->db->where('tb_budget.month_number !=', date('m'));
+      // $this->db->or_where('tb_budget.month_number >', date('m'));
+      $this->db->order_by('tb_budget.id','asc');
+      
+       $query  = $this->db->get();
+    }
+    
+    $result = $query->result_array();
+    foreach ($result as $key => $value) {
+      // $result[$key]['maximum_quantity'] = $value['ytd_quantity'] - $value['ytd_used_quantity'];
+      // $result[$key]['maximum_price'] = $value['ytd_budget'] - $value['ytd_used_budget'];
+      $result[$key]['maximum_quantity'] = $value['mtd_quantity'] - $value['mtd_used_quantity'];
+      $result[$key]['maximum_price'] = $value['mtd_budget'] - $value['mtd_used_budget'];
+      $result[$key]['bulan'] = $this->bulan($value['month_number']);
+
+      $this->db->from('tb_master_items');
+      $this->db->where('UPPER(tb_master_items.part_number)', strtoupper($value['product_code']));
+
+      $query  = $this->db->get();
+
+      if ($query->num_rows() > 0){
+        $master_item = $query->unbuffered_row('array');
+
+        $result[$key]['minimum_quantity'] = $master_item['minimum_quantity'];
+
+        $this->db->select('tb_stocks.total_quantity, tb_stocks.average_value');
+        $this->db->from('tb_stocks');
+        $this->db->where('tb_stocks.item_id', $master_item['id']);
+        $this->db->where('tb_stocks.condition', 'SERVICEABLE');
+
+        $query  = $this->db->get();
+
+        if ($query->num_rows() > 0){
+          $stock = $query->unbuffered_row('array');
+
+          $result[$key]['on_hand_quantity'] = $stock['total_quantity'];
+          $result[$key]['price']            = $value['current_price'];
+        } else {
+          $result[$key]['on_hand_quantity'] = 0;
+          $result[$key]['price']            = $value['current_price'];
+        }
+      } else {
+        $result[$key]['minimum_quantity'] = 0;
+        $result[$key]['on_hand_quantity'] = 0;
+        $result[$key]['price']            = $value['current_price'];
+      }
+    }
+    return $result;
+  }
+
+  function bulan($bln) {
+    switch($bln) {
+      case 1: $return = 'Januari'; break;
+      case 2: $return = 'Februari'; break;
+      case 3: $return = 'Maret'; break;
+      case 4: $return = 'April'; break;
+      case 5: $return = 'Mei'; break;
+      case 6: $return = 'Juni'; break;
+      case 7: $return = 'Juli'; break;
+      case 8: $return = 'Agustus'; break;
+      case 9: $return = 'September'; break;
+      case 10: $return = 'Oktober'; break;
+      case 11: $return = 'November'; break;
+      case 12: $return = 'Desember'; break;
+      // default: $return = '';
+    }
+    return $return;
+  }
+
+  public function searchItemUnbudgeted($category)
+  {
+    $this->db->select('id_item');
+    $this->db->from('tb_budget_cot');
+    $query_cot = $this->db->get();
+    $budget_cot = $query_cot->unbuffered_row('array');
+
+    $this->column_select = array(
+      'tb_master_items.id',
+      'tb_master_items.group as group_name',
+      'tb_master_items.description as product_name',
+      'tb_master_items.part_number as product_code',
+      'tb_master_items.alternate_part_number',
+      'tb_master_items.minimum_quantity',
+      'tb_master_items.unit',
+      'tb_stocks.total_quantity AS on_hand_quantity',
+      'tb_master_items.current_price AS price'
+     );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_master_items');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->join('tb_stocks', 'tb_stocks.item_id = tb_master_items.id');
+    $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
+    $this->db->where('tb_master_item_groups.category', $category);
+    $this->db->where_not_in('tb_master_items.id', $budget_cot);
+    $this->db->order_by('tb_master_items.group ASC, tb_master_items.description ASC');
+    //echo $this->db->_compile_select();
+    $query  = $this->db->get();
+    $result = $query->result_array();
+
     return $result;
   }
 
@@ -1171,4 +1594,317 @@ class Purchase_Request_Model extends MY_Model
     }
     return true;
   }
+
+  public function approve($id)
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('status', 'open');
+    $this->db->where('id', $id);
+    $this->db->update('tb_inventory_purchase_requisition_details');
+
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->where('id',$id);
+
+    $query  = $this->db->get();
+    $row    = $query->unbuffered_row('array');
+    $inventory_purchase_requisition_id  = $row['inventory_purchase_requisition_id'];
+    $status_budget = $row['budget_status'];
+
+    $this->db->from('tb_inventory_purchase_requisitions');
+    $this->db->where('id',$inventory_purchase_requisition_id);
+
+    $query_pr  = $this->db->get();
+    $row_pr    = $query_pr->unbuffered_row('array');
+    // $inventory_purchase_requisition_id  = $row['inventory_purchase_requisition_id'];
+    // $status_budget = $row_pr['status_budget'];
+    $id_budget_sementara = $row['budget_id_sementara'];
+
+    if($status_budget=='relocation'){
+      
+      $this->db->set('status', 'approved');
+      $this->db->where('id', $id_budget_sementara);
+      $this->db->update('tb_inventory_relocation_budgets');
+
+      $this->db->from('tb_inventory_relocation_budgets');
+      $this->db->where('id',$id_budget_sementara);
+      $query_relocation_budget  = $this->db->get();
+      $row_relocation_budget    = $query_relocation_budget->unbuffered_row('array');
+      $origin_budget_id  = $row_relocation_budget['origin_budget_id'];
+      $destination_budget_id  = $row_relocation_budget['destination_budget_id'];
+
+      
+      $this->db->set('mtd_budget', 'mtd_budget + '.$row_relocation_budget['amount'],FALSE);
+      $this->db->where('id', $destination_budget_id);
+      $this->db->update('tb_budget');
+
+    }
+    if($status_budget=='unbudgeted' && $row['budget_id_sementara']=='pending'){
+
+      $this->db->set('status', 'waiting');
+      $this->db->where('id', $id);
+      $this->db->update('tb_inventory_purchase_requisition_details');
+
+      $this->db->order_by('id',"asc")
+	        ->limit(1)
+	        ->like('part_number', $row['part_number'])
+	        ->from('tb_master_items');
+	    $query_item = $this->db->get();
+	    $row_item   = $query_item->unbuffered_row('array');
+	    $id_item = $row_item['id'];
+
+      	$this->db->order_by('id',"desc")
+        ->limit(1)
+        // ->like('year', $row['part_number'])
+        ->from('tb_budget_cot');
+      	$query_cot = $this->db->get();
+      	$row_cot   = $query_cot->unbuffered_row('array');
+      	$hours     = $row_cot['hours'];
+      	$year      = date('Y');
+
+      	$this->db->from('tb_budget_cot');
+      	$this->db->where('id_item',$id_item);
+      	$this->db->where('year',$year);
+      	$budget_cot = $this->db->get();
+      	if ($budget_cot->num_rows() == 0){
+	        $this->db->set('id_item',$id_item);
+	        $this->db->set('hours',$hours);
+	        $this->db->set('year', $year);
+	        $this->db->set('id_kelipatan',1);
+	        $this->db->set('onhand',0);
+	        $this->db->set('status','APPROVED');
+	        $this->db->set('updated_by',config_item('auth_person_name'));        
+	        $this->db->set('updated_at',date('Y-m-d'));
+	        $this->db->insert('tb_budget_cot');
+	        $id_cot = $this->db->insert_id();
+      	}else{
+        	$row_budget_cot = $budget_cot->unbuffered_row('array');
+        	$id_cot = $row_budget_cot['id'];
+      	}
+
+      	$this->db->from('tb_budget');
+      	$this->db->where('id_cot',$id_cot);
+      	$this->db->where('month_number',date('m'));
+      	$tb_budget = $this->db->get();
+      	if($tb_budget->num_rows()==0){
+      		//buat budget baru
+      		// for ($i=1; $i <13 ; $i++) {
+      			$this->db->set('id_cot', $id_cot);
+		      	// $this->db->set('month_number', $i);
+		      	$this->db->set('month_number', date('m'));
+		      	// $this->db->set('year_number', $this->budget_year);
+		      	$this->db->set('initial_quantity', floatval(0));
+		      	$this->db->set('initial_budget', floatval(0));
+		      	$this->db->set('mtd_quantity', floatval(0));
+		      	$this->db->set('mtd_budget', floatval(0));
+		      	$this->db->set('mtd_used_quantity', floatval(0));
+		      	$this->db->set('mtd_used_budget', floatval(0));
+		      	$this->db->set('mtd_used_quantity_import', floatval(0));
+		      	$this->db->set('mtd_used_budget_import', floatval(0));
+		      	$this->db->set('mtd_prev_month_quantity', floatval(0));
+		      	$this->db->set('mtd_prev_month_budget', floatval(0));
+		      	$this->db->set('mtd_prev_month_used_quantity', floatval(0));
+		      	$this->db->set('mtd_prev_month_used_budget', floatval(0));
+		      	$this->db->set('mtd_prev_month_used_quantity_import', floatval(0));
+		      	$this->db->set('mtd_prev_month_used_budget_import', floatval(0));
+		      	$this->db->set('ytd_quantity', floatval(0));
+		      	$this->db->set('ytd_budget', floatval(0));
+		      	$this->db->set('ytd_used_quantity', floatval(0));
+		      	$this->db->set('ytd_used_budget', floatval(0));
+		      	$this->db->set('ytd_used_quantity_import', floatval(0));
+		      	$this->db->set('ytd_used_budget_import', floatval(0));
+		      	$this->db->set('created_at', date('Y-m-d'));
+		      	$this->db->set('created_by', config_item('auth_person_name'));
+		      	$this->db->set('updated_at', date('Y-m-d'));
+		      	$this->db->set('updated_by', config_item('auth_person_name'));
+		      	$this->db->insert('tb_budget');
+		      	$inventory_monthly_budget_id = $this->db->insert_id();
+      		// }
+      	}
+      	// $db_month = date('m')+1;
+
+      	// $this->db->from('tb_budget');
+      	// $this->db->where('id_cot',$id_cot);
+      	// $this->db->where('month_number',$db_month);
+      	// $tb_month_budget = $this->db->get();
+      	// $row_month_budget = $tb_month_budget->unbuffered_row('array');
+       // 	$inventory_monthly_budget_id = $row_month_budget['id'];
+
+       	$this->db->set('mtd_quantity', 'mtd_quantity + '.$row['quantity'],FALSE);
+		    $this->db->set('mtd_budget', 'mtd_budget + '.$row['total'],FALSE);
+       	$this->db->set('mtd_used_budget', 'mtd_used_budget + '.$row['total'],FALSE);
+        $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$row['total'],FALSE);
+        $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$row['quantity'],FALSE);
+        $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$row['quantity'],FALSE);
+        $this->db->set('ytd_quantity', 'ytd_quantity + '.$row['quantity'],FALSE);
+		    $this->db->set('ytd_budget', 'ytd_budget + '.$row['total'],FALSE);
+        // $this->db->where('month_number', $i);
+        $this->db->where('id', $inventory_monthly_budget_id);
+        $this->db->update('tb_budget');
+        //      for ($i=date('m')+2; $i <13 ; $i++) {
+        //      	$this->db->set('ytd_quantity', 'ytd_quantity + '.$row['quantity'],FALSE);
+			// $this->db->set('ytd_budget', 'ytd_budget + '.$row['total'],FALSE);
+	    //       $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$row['total'],FALSE);
+	    //       $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$row['quantity'],FALSE);
+	    //       $this->db->where('month_number', $i);
+	    //       $this->db->where('id_cot', $id_cot);
+	    //       $this->db->update('tb_budget');
+      //      }
+      	
+
+      	$this->db->set('budget_id',$inventory_monthly_budget_id);
+      	$this->db->where('id',$id);
+      	$this->db->update('tb_inventory_purchase_requisition_details');
+
+      	$this->db->set('inventory_monthly_budget_id',$inventory_monthly_budget_id);
+      	$this->db->set('status','approved');
+      	$this->db->where('id',$id_budget_sementara);
+      	$this->db->update('tb_inventory_unbudgeted');
+
+        // $budget_id = $data['budget_id'];
+            
+            
+        $this->db->set('budget_id',$inventory_monthly_budget_id);
+        $this->db->set('inventory_purchase_requisition_id',$inventory_purchase_requisition_id);
+        $this->db->set('pr_number',$row_pr['pr_number']);
+        $this->db->set('year_number',date('Y'));
+        $this->db->set('month_number',date('m'));
+        $this->db->set('product_name',$row['product_name']);
+        $this->db->set('product_group',$row['group_name']);
+        $this->db->set('product_code',$row['part_number']);
+        $this->db->set('additional_info',$row['additional_info']);
+        $this->db->set('used_budget',$row['total']);
+        $this->db->set('used_quantity',$row['quantity']);
+        $this->db->set('created_at', date('Y-m-d H:i:s'));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('part_number', $row['part_number']);
+        $this->db->insert('tb_used_budgets');
+    }
+
+    $this->db->set('approved_date',date('Y-m-d'));
+    $this->db->set('approved_by', config_item('auth_person_name'));
+    $this->db->set('approved_notes', strtoupper($rejected_note));
+    $this->db->where('id',$inventory_purchase_requisition_id);
+    $this->db->update('tb_inventory_purchase_requisitions');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function multi_reject($id_purchase_order,$notes){
+    $x = 0;
+    $return = 0;
+    $rejected_note = '';
+    foreach ($id_purchase_order as $id) {
+      $this->db->where('id', $id);
+      $tb_purchase_order_items = $this->db->get('tb_inventory_purchase_requisition_details')->result();
+      
+      $this->db->set('status','rejected');
+      $this->db->set('notes',$notes[$x]);
+      // $this->db->set('approved_by', config_item('auth_person_name'));
+      $this->db->where('id',$id);
+      $check = $this->db->update('tb_inventory_purchase_requisition_details');
+
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->where('id',$id);
+
+      $query  = $this->db->get();
+      $row    = $query->unbuffered_row('array');
+      $inventory_purchase_requisition_id  = $row['inventory_purchase_requisition_id'];
+
+
+      $rejected_note = $rejected_note.' '.$notes[$x];
+
+      $this->db->where('id', $row['budget_id']);
+      $query = $this->db->get('tb_budget');
+      $oldBudget =  $query->row();
+      $month_number = $oldBudget->month_number;
+      $id_cot = $oldBudget->id_cot;
+      for ($i=$month_number; $i < 13; $i++) { 
+        $this->db->set('mtd_used_budget', 'mtd_used_budget - '.$row['total'],FALSE);
+        $this->db->set('ytd_used_budget', 'ytd_used_budget - '.$row['total'],FALSE);
+        $this->db->set('mtd_used_quantity', 'mtd_used_quantity - '.$row['quantity'],FALSE);
+        $this->db->set('ytd_used_quantity', 'ytd_used_quantity - '.$row['quantity'],FALSE);
+        $this->db->where('month_number', $i);
+        $this->db->where('id_cot', $id_cot);
+        $this->db->update('tb_budget');
+      }
+      $this->db->where('inventory_purchase_requisition_id', $row['inventory_purchase_requisition_id']);
+      $this->db->where('budget_id',$row['budget_id']);
+      $this->db->delete('tb_used_budgets');
+
+      $this->db->set('rejected_date',date('Y-m-d'));
+      $this->db->set('rejected_by', config_item('auth_person_name'));
+      $this->db->set('rejected_notes', strtoupper($rejected_note));
+      $this->db->where('id',$inventory_purchase_requisition_id);
+      $this->db->update('tb_inventory_purchase_requisitions');
+
+      if($check){
+        $return++;
+      }
+      $x++;
+    }
+    if(($return == $x)&&($return > 0)){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  function findItemByPartNumber($part_number){
+    $query = $this->db->select('*')
+      ->from('tb_master_items')
+      ->where('part_number =', strtoupper($part_number))
+      ->limit(1)
+      ->get();
+    return $query->unbuffered_row('array');
+
+
+  }
+
+  function findItemBudget($part_number){
+    $this->column_select = array(
+      // 'tb_budget.id',
+      // 'tb_budget.ytd_quantity',
+      // 'tb_budget.ytd_used_quantity',
+      // 'tb_budget.ytd_used_budget',
+      // 'tb_budget.ytd_budget',
+      // 'tb_budget.mtd_quantity',
+      // 'tb_budget.mtd_used_quantity',
+      // 'tb_budget.mtd_used_budget',
+      // 'tb_budget.mtd_budget'
+      'tb_budget.id',
+      'ytd_quantity',
+      'ytd_used_quantity',
+      'ytd_used_budget',
+      'ytd_budget',
+      'mtd_quantity',
+      'mtd_used_quantity',
+      'mtd_used_budget',
+      'mtd_budget'
+     );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_budget');
+    $this->db->join('tb_budget_cot','tb_budget.id_cot=tb_budget_cot.id');
+    $this->db->join('tb_master_items','tb_budget_cot.id_item=tb_master_items.id');
+    $this->db->where('tb_master_items.part_number',$part_number);
+    // $this->db->where('tb_budget_cot.year', $this->budget_year);
+    $this->db->where('tb_budget_cot.year', date('Y'));
+    $this->db->where('tb_budget_cot.status', 'APPROVED');
+    // $this->db->where('tb_budget.month_number', $this->budget_month);
+    $this->db->where('tb_budget.month_number', date('m'));
+    $query  = $this->db->get();
+    // if($query->num_rows() > 0 ){
+    //   $row    = $query->unbuffered_row();
+    //   $kurs_dollar   = $row->kurs_dollar;
+    // }else{
+    //   $kurs_dollar=0;
+    // }
+    return $query;
+  }
+
 }

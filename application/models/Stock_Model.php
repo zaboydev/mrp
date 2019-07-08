@@ -42,7 +42,7 @@ class Stock_Model extends MY_Model
 
       
     );
-    if (config_item('auth_role') != 'SUPERVISOR'){
+    if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
         $return[NULL ]                                           = 'Total Price';
     }
 
