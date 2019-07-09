@@ -47,6 +47,36 @@
         </div>
       </div>
     </div>
+  <div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+
+              <h4 class="modal-title" id="import-modal-label">Attachment</h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <table style="width: 100%">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody id="listView">
+                      
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
 <?php endblock() ?>
 
 <?php startblock('page_modals') ?>
@@ -502,15 +532,46 @@ var id_purchase_order = "";
           }
         }
         
-      }else if(e.target.nodeName ==="SPAN"){
-        var a = $(e.target).data('id');
+      }else if (e.target.nodeName ==="I"){
+        var id = $(e.target).attr('data-id');
+        getAttachment(id);
+        console.log(id);
+      } 
+      else if(e.target.nodeName ==="SPAN"){
+        // var a = $(e.target).data('id');
         // console.log(e.target.nodeName);
        ///////////////////////////////////////eventdefault
-      }else{
+      }
+      else{
         $(this).popup();  
       }
       
     });
+
+    function getAttachment(id) {
+      $.ajax({
+        type: "GET",
+        url: 'purchase_order/listAttachmentpoe/'+id,
+        cache: false,
+        success: function(response){
+          var data = jQuery.parseJSON(response)
+          $("#listView").html("")
+          $("#attachment_modal").modal("show");
+          $.each(data,function(i,item){
+            var text = '<tr>'+
+              '<td>'+(i+1)+'</td>'+
+              '<td><a href="<?=base_url()?>'+item.file+'" target="_blank">'+item.file+'</a></td>'+
+              '</tr>';
+            $("#listView").append(text);
+          });
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(xhr.status);
+          console.log(xhr.responseText);
+          console.log(thrownError);
+        }
+      });
+    }
 
     $("#modal-approve-data-button-multi").click(function(){
       var action = $(this).data('source');

@@ -36,7 +36,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipts.received_by'                 => 'Received By',
     );
 
-    if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN'){
+    if (config_item('auth_role') != 'PIC STOCK'){
       $return['tb_receipt_items.received_unit_value']  = 'Value';
       $return[null] = 'Total Value';
       // $return['tb_receipt_items.received_unit_value+tb_stock_cards.quantity) as balance_quantity']  => 'Balance',
@@ -359,7 +359,7 @@ class Goods_Received_Note_Model extends MY_Model
       $old_document_number  = $row['document_number'];
       $old_warehouse        = $row['warehouse'];
 
-      $this->db->select('tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores');
+      $this->db->select('tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores,tb_receipt_items.purchase_order_item_id');
       $this->db->from('tb_receipt_items');
       $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_receipt_items.stock_in_stores_id');
       $this->db->where('tb_receipt_items.document_number', $old_document_number);
@@ -396,6 +396,13 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('tgl', date('Ymd',strtotime($row['received_date'])));    
         $this->db->set('total_value', floatval($data['received_unit_value']*(0 - floatval($data['received_quantity']))));
         $this->db->insert('tb_stock_cards');
+
+        if($data['purchase_order_item_id']!=null){
+          $this->db->where('id', $data['purchase_order_item_id']);
+          $this->db->set('left_received_quantity','left_received_quantity +'. $data['received_quantity'],FALSE);
+          $this->db->set('quantity_received','quantity_received - '. $data['received_quantity'],FALSE);
+          $this->db->update('tb_po_item');
+        }        
 
         $this->db->where('id', $data['id']);
         $this->db->delete('tb_receipt_items');
@@ -755,7 +762,8 @@ class Goods_Received_Note_Model extends MY_Model
           $qty    = floatval($row['left_received_quantity']) - floatval($data['received_quantity']);
 
           $this->db->where('id', $data['purchase_order_item_id']);
-          $this->db->set('left_received_quantity', $qty);
+          $this->db->set('left_received_quantity','left_received_quantity -'. $data['received_quantity'],FALSE);
+          $this->db->set('quantity_received','quantity_received + '. $data['received_quantity'],FALSE);
           $this->db->update('tb_po_item');
         }
 
@@ -944,7 +952,7 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'left');
     $this->db->where('tb_po.category', $category);
-    $this->db->where('tb_po.status', 'approved');
+    $this->db->where('tb_po.status', 'ORDER');
     $this->db->where('tb_po_item.left_received_quantity > ', 0);
 
     if ($vendor !== NULL || !empty($vendor)){

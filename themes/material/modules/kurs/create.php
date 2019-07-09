@@ -27,7 +27,7 @@
           </div>
 
           <!-- <div class="form-group">
-            <input type="text" name="description" id="description" class="form-control" data-validation-rule="unique" data-validation-url="<?=//site_url('ajax/warehouse_code_validation');?>" data-validation-exception="" required>
+            <input type="text" name="description" id="description" class="form-control" data-validation-rule="unique" data-validation-url="<?=site_url('ajax/warehouse_code_validation');?>" data-validation-exception="" required>
             <label for="code">Description</label>
           </div>
 

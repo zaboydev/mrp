@@ -1255,7 +1255,7 @@ class Purchase_Request_Model extends MY_Model
       $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id ');
       $this->db->join('tb_master_items', 'tb_master_items on tb_master_items.id = tb_budget_cot.id_item');
       $this->db->join('tb_master_item_groups', 'tb_master_item_groups on tb_master_items.group = tb_master_item_groups.group');
-      $this->db->where('UPPER(tb_master_item_groups.category)', strtoupper($category));
+      // $this->db->where('UPPER(tb_master_item_groups.category)', strtoupper($category));
       // $this->db->where('tb_budget.ytd_budget - tb_budget.ytd_used_budget > ', 0, FALSE);
       $this->db->where('tb_budget.mtd_budget - tb_budget.mtd_used_budget > ', 0, FALSE);
       $this->db->order_by('tb_master_items.description ASC, tb_master_items.part_number ASC');

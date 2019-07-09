@@ -1,78 +1,38 @@
 <?php include 'themes/material/page.php' ?>
 
+<!--tambahan 9/Mei/2018-->
+
+<!--tambahan 9/Mei/2018-->
+
 <?php startblock('page_head_tools') ?>
   <?php $this->load->view('material/templates/datatable_tools') ?>
 <?php endblock() ?>
 
 <?php startblock('page_body') ?>
   <?php $this->load->view('material/templates/datatable') ?>
-  <div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-
-              <h4 class="modal-title" id="import-modal-label">Attachment</h4>
-            </div>
-            <div class="modal-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <table style="width: 100%">
-                    <thead>
-                      <tr>
-                        <th>No</th>
-                        <th>Link</th>
-                      </tr>
-                    </thead>
-                    <tbody id="listView">
-                      
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-        </div>
-      </div>
-    </div>
 <?php endblock() ?>
 
 <?php startblock('page_modals') ?>
   <?php $this->load->view('material/templates/modal_fs') ?>
-  
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
   <?php if (is_granted($module, 'document')):?>
     <div class="section-floating-action-row">
       <div class="btn-group dropup">
-        <a href="<?=site_url($module['route'] .'/create/SPARE PART');?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
           <i class="md md-add"></i>
           <small class="top right">Create <?=$module['label'];?></small>
-        </a>
+        </button>
 
-        <!-- <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
           <?php foreach (config_item('auth_inventory') as $category):?>
             <li>
               <a href="<?=site_url($module['route'] .'/create/'. $category);?>"><?=$category;?></a>
             </li>
           <?php endforeach;?>
-        </ul> -->
+        </ul>
       </div>
-       <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')||(config_item('auth_role') == 'FINANCE')||(config_item('auth_role') == 'SUPER ADMIN')):?>
-        <button type="button" data-source = "<?=site_url($module['route'] .'/multi_approve/');?>"  class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
-          <i class="md md-spellcheck"></i>
-          <small class="top right">approve</small>
-        </button>
-      <?php endif;?>
-       <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')||(config_item('auth_role') == 'FINANCE')||(config_item('auth_role') == 'SUPER ADMIN')):?>
-        <button type="button" data-source = "<?=site_url($module['route'] .'/multi_reject/');?>"  class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
-          <i class="md md-close"></i>
-          <small class="top right">reject</small>
-        </button>
-      <?php endif;?>
-
     </div>
   <?php endif ?>
 <?php endblock() ?>
@@ -80,23 +40,8 @@
 <?php startblock('datafilter') ?>
   <div class="form force-padding">
     <div class="form-group">
-      <label for="filter_received_date">Date</label>
+      <label for="filter_received_date">Received Date</label>
       <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_status">Status</label>
-      <select class="form-control input-sm filter_dropdown" data-column="7" id="filter_status">
-        <option value="evaluation">
-          Evaluation
-        </option>
-        <option value="approved">
-          Approved
-        </option>
-        <option value="rejected">
-          Rejected
-        </option>
-      </select>
     </div>
 
     <div class="form-group">
@@ -113,8 +58,91 @@
         <?php endforeach;?>
       </select>
     </div>
+
+    <div class="form-group">
+      <label for="filter_warehouse">Base</label>
+      <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_warehouse">
+        <option value="">
+          Not filtered
+        </option>
+
+        <?php foreach (config_item('auth_warehouses') as $warehouse):?>
+          <option value="<?=$warehouse;?>">
+            <?=$warehouse;?>
+          </option>
+        <?php endforeach;?>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="filter_condition">Condition</label>
+      <select class="form-control input-sm filter_dropdown" data-column="9" id="filter_condition">
+        <option value="">
+          SERVICEABLE
+        </option>
+
+        <?php foreach (config_item('condition') as $condition):?>
+          <?php if ($condition !== 'SERVICEABLE'):?>
+            <option value="<?=$condition;?>">
+              <?=$condition;?>
+            </option>
+          <?php endif;?>
+        <?php endforeach;?>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="filter_description">Description</label>
+      <input type="text" class="form-control input-sm filter_numeric_text" data-column="5" id="filter_description">
+    </div>
+
+    <div class="form-group">
+      <label for="filter_part_number">Part Number</label>
+      <input type="text" class="form-control input-sm filter_numeric_text" data-column="6" id="filter_part_number">
+    </div>
+
+    <div class="form-group">
+      <label for="filter_received_from">Received From</label>
+      <input type="text" class="form-control input-sm filter_numeric_text" data-column="15" id="filter_received_from">
+    </div>
   </div>
 <?php endblock()?>
+<?php if (is_granted($module, 'import')):?>
+  <?php startblock('offcanvas_left_actions') ?>
+    <li class="tile">
+      <a class="tile-content ink-reaction" href="#offcanvas-import" data-toggle="offcanvas">
+        <div class="tile-icon">
+          <i class="fa fa-download"></i>
+        </div>
+        <div class="tile-text">
+          Import Data
+          <small>import from csv file</small>
+        </div>
+      </a>
+    </li>
+  <?php endblock() ?>
+
+  <?php startblock('offcanvas_left_list') ?>
+    <div id="offcanvas-import" class="offcanvas-pane width-8">
+      <div class="offcanvas-head style-primary-dark">
+        <header>Import</header>
+        <div class="offcanvas-tools">
+          <a class="btn btn-icon-toggle pull-right" data-dismiss="offcanvas">
+            <i class="md md-close"></i>
+          </a>
+          <a class="btn btn-icon-toggle pull-right" href="#offcanvas-datatable-filter" data-toggle="offcanvas">
+            <i class="md md-arrow-back"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="offcanvas-body no-padding">
+        <?php $this->load->view('material/modules/stores/import') ?>
+      </div>
+    </div>
+  <?php endblock() ?>
+  
+<?php endif;?>
 
 <?php startblock('scripts')?>
   <?=html_script('vendors/pace/pace.min.js') ?>
@@ -137,7 +165,7 @@
   Pace.on('done', function(){
     $('.progress-overlay').hide();
   });
-  var id_purchase_order = "";
+
   (function ( $ ) {
     $.fn.reset = function() {
       this.find('input:text, input[type="email"], input:password, select, textarea').val('');
@@ -268,7 +296,6 @@
       .attr('width', '100%');
 
     $( datatableElement ).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
-    $( datatableElement ).find('thead tr:first-child th:first-child').attr('id', 'th1');
     $( datatableElement ).find('table td:first-child').attr('align', 'right');
 
     $.fn.dataTable.ext.errMode = 'throw';
@@ -297,6 +324,7 @@
         url   : "<?=$grid['data_source'];?>",
         type  : "POST",
         error : function(xhr, ajaxOptions, thrownError){
+          console.log(xhr.responseText)
           if (xhr.status == 404){
             toastr.clear();
             toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
@@ -313,17 +341,6 @@
           $(row).addClass('selected');
         }
       },
-      drawCallback: function( settings ) {
-          var api = this.api();
-          var data = api.rows( {page:'current'} ).data()
-          $.each(data,function(i,item){
-            var id = $(item[0]).attr("data-id");
-            if(id_purchase_order.indexOf("|"+id+",") !== -1){
-              $("#cb_"+id).attr('checked', true);  
-            }            
-          });
-           
-        },           
 
       columnDefs : [
         {
@@ -426,70 +443,8 @@
         });
       });
     }
-    var notes = "";
-    $("#modal-reject-data-button-multi").click(function(){
-      if(!encodeNotes()){
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error( 'You must filled notes for each item that you want to reject' );
-      } else {
 
-        if(id_purchase_order == ""){
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error( 'You must select item that you want to reject' );
-        }else{
-                $.ajax({
-                  type: "POST",
-                  url: 'purchase_order_evaluation/multi_reject',
-                  data:{"id_purchase_order":id_purchase_order,"notes":notes},
-                  cache: false,
-                  success: function(response){
-                    console.log(response);
-                    var data = jQuery.parseJSON(response);
-                    if(data.status == "success"){
-                        toastr.options.timeOut = 10000;
-                        toastr.options.positionClass = 'toast-top-right';
-                        toastr.success( 'Successfully reject item, the page will reload now' );
-                        window.location.reload();
-                    } else {
-                        toastr.options.timeOut = 10000;
-                        toastr.options.positionClass = 'toast-top-right';
-                        toastr.error( 'Failed rejected item' );
-                    }
-                  },
-                  error: function (xhr, ajaxOptions, thrownError) {
-                        console.log(xhr.status);
-                        console.log(xhr.responseText);
-                        console.log(thrownError);
-                    }
-                }); 
-          }
-      }
-    });
-    function encodeNotes(){
-      new_id_purchase_order = id_purchase_order.replace(/\|/g,"");
-      new_id_purchase_order = new_id_purchase_order.substring(0,new_id_purchase_order.length-1);
-      arr = new_id_purchase_order.split(",");
-      notes = "";
-      y = 0; 
-      $.each(arr,function(i,x){
-        if($("#note_"+x).val()!=""){
-          notes = notes+"|"+$("#note_"+x).val()+"##,";
-          y +=1;
-        }else{
-          return false;
-        }
-      });
-      if(y == arr.length){
-        return true
-      }else {
-        return false
-      }
-
-    }
-    $(datatableElement).find('tbody').on( 'click', 'td', function(e) {
-      
+    $(datatableElement).find('tbody').on( 'click', 'td', function() {
       datatableOptions.clickCount++;
 
       var modalOpenOnClick  = datatable.row(this).data().DT_RowData.modal;
@@ -553,51 +508,8 @@
         }
       }
     });
-    $(datatableElement).find('tbody').on( 'click', 'tr', function(e) { 
-      console.log(e.target.nodeName)     
-      if(e.target.nodeName ==="INPUT"){
-        if($(e.target).attr("type")==="checkbox"){
-          if($(e.target).prop('checked')){
-            id_purchase_order +="|"+$(e.target).attr('data-id')+",";
-          }else {
-            id_purchase_order = id_purchase_order.replace("|"+$(this).attr('data-id')+",","");
-          }
-        }
-        
-      }else if (e.target.nodeName ==="I"){
-        var id = $(this).attr('data-id');
-        getAttachment(id);
-      } else{
-        $(this).popup();  
-      }
-      console.log(id);
-      
-    });
-    function getAttachment(id) {
-       $.ajax({
-                  type: "GET",
-                  url: 'purchase_order_evaluation/listAttachment/'+id,
-                  cache: false,
-                  success: function(response){
-                    var data = jQuery.parseJSON(response)
-                    $("#listView").html("")
-                    $("#attachment_modal").modal("show");
-                    $.each(data,function(i,item){
-                      var text = '<tr>'+
-                                      '<td>'+(i+1)+'</td>'+
-                                      '<td><a href="<?=base_url()?>'+item.file+'" target="_blank">'+item.file+'</a></td>'+
-                                  '</tr>';
-                      $("#listView").append(text);
-                    });
-                  },
-                  error: function (xhr, ajaxOptions, thrownError) {
-                        console.log(xhr.status);
-                        console.log(xhr.responseText);
-                        console.log(thrownError);
-                    }
-                });
-    }
-    $('.filter_numeric_text').on( 'keyup click', function () {
+
+    $('.filter_numeric_text').on( 'keyup', function () {
       var i = $(this).data('column');
       var v = $(this).val();
       datatable.columns(i).search(v).draw();
@@ -625,17 +537,7 @@
       parentEl: '#offcanvas-datatable-filter',
       locale: {
         cancelLabel: 'Clear'
-      },
-      ranges: {
-        'Today': [moment(), moment()],
-        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        'This Month': [moment().startOf('month'), moment().endOf('month')],
-        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-        'Last 3 Months': [moment().subtract(2, 'month').startOf('month'), moment().subtract('month').endOf('month')]
-      },
-      showCustomRangeLabel: false
+      }
     }).on('apply.daterangepicker', function(ev, picker) {
       $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
       var i = $(this).data('column');
@@ -675,37 +577,7 @@
         $('.progress-overlay').hide();
       }
     });
-    $("#modal-approve-data-button-multi").click(function(){
-      var action = $(this).data('source');
-      $(this).attr('disabled', true);
-      if(id_purchase_order !== ""){
-             $.post( action, {'id_purchase_order':id_purchase_order} ).done(function(data){
-                console.log(data);
-                $("#modal-approve-data-button-multi").attr('disabled', false);
-                var result = jQuery.parseJSON(data);
-                if(result.status == 'success'){
-                  toastr.options.timeOut = 10000;
-                  toastr.options.positionClass = 'toast-top-right';
-                  toastr.success( 'Success aprove data the page will reload' );
-                  window.location.reload();
-                } else {
-                  toastr.options.timeOut = 10000;
-                  toastr.options.positionClass = 'toast-top-right';
-                  toastr.danger( 'Failed aprove data' );
-                }
-              }).fail(function(){
-                $("#modal-approve-data-button-multi").attr('disabled', false);
-                toastr.options.timeOut = 10000;
-                toastr.options.positionClass = 'toast-top-right';
-                toastr.error( 'Delete Failed! This data is still being used by another document.' );
-              });
-        } else {
-          $(this).attr('disabled', false);
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error( 'Empty selected data' );
-        }
-    });
+
     $(document).on('click', '.btn-xhr-delete', function(e){
       e.preventDefault();
 
