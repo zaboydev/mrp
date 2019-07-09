@@ -40,11 +40,13 @@
              <table class="table table-bordered">
                <thead>
                	<tr>
-               		<th width="10%">#</th>
-               		<th width="10%">No</th>
-                  <th width="30%">Part Number</th>
-               		<th width="30%">Item</th>
-               		<th width="20%">Standard Quantity</th>
+               		<th width="5%">#</th>
+               		<th width="5%">No</th>
+                  <th width="25%">Part Number</th>
+               		<th width="25%">Item</th>
+               		<th width="10%">Standard Quantity</th>
+                  <th width="5%">Standard Quantity</th>
+                  <th width="5%">Standard Quantity</th>
                	</tr>
                </thead>
                <tbody id="listView">

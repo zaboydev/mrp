@@ -33,53 +33,53 @@
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">JANUARI HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_1" value="<?=$hour[0]->hour ?>" name="m_1" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_1" value="<?=$hour[0]->mtd_quantity ?>" name="m_1" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">FEBRUARI HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_2" value="<?=$hour[1]->hour ?>" name="m_2" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_2" value="<?=$hour[1]->mtd_quantity ?>" name="m_2" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">MARET HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_3" value="<?=$hour[2]->hour ?>" name="m_3" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_3" value="<?=$hour[2]->mtd_quantity ?>" name="m_3" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">APRIL HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_4" value="<?=$hour[3]->hour ?>" name="m_4" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_4" value="<?=$hour[3]->mtd_quantity ?>" name="m_4" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">MEI HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_5" value="<?=$hour[4]->hour ?>" name="m_5" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_5" value="<?=$hour[4]->mtd_quantity ?>" name="m_5" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">JUN HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_6" value="<?=$hour[5]->hour ?>" name="m_6" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_6" value="<?=$hour[5]->mtd_quantity ?>" name="m_6" placeholder="">
           </div>
        </div>
        <div class="col-md-6">
           <div class="form-group">
             <label for="exampleInputEmail1">JUL HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_7" value="<?=$hour[6]->hour ?>" name="m_7" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_7" value="<?=$hour[6]->mtd_quantity ?>" name="m_7" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">AGUSTUS HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_8" value="<?=$hour[7]->hour ?>" name="m_8" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_8" value="<?=$hour[7]->mtd_quantity ?>" name="m_8" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">SEPTEMBER HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_9" value="<?=$hour[8]->hour ?>" name="m_9" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_9" value="<?=$hour[8]->mtd_quantity ?>" name="m_9" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">OKTOBER HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_10" value="<?=$hour[9]->hour ?>" name="m_10" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_10" value="<?=$hour[9]->mtd_quantity ?>" name="m_10" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">NOVEMBER HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_11" value="<?=$hour[10]->hour ?>" name="m_11" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_11" value="<?=$hour[10]->mtd_quantity ?>" name="m_11" placeholder="">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">DESEMBER HOUR</label>
-            <input type="text" class="form-control number" required="" id="m_12" value="<?=$hour[11]->hour ?>" name="m_12" placeholder="">
+            <input type="text" class="form-control number" required="" id="m_12" value="<?=$hour[11]->mtd_quantity ?>" name="m_12" placeholder="">
           </div>
        </div>
      </div>

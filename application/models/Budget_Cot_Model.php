@@ -285,7 +285,7 @@ class Budget_Cot_Model extends MY_Model
     if($id_kelipatan === "0"){
       
       $used_qty = 0;
-      $stock_in_store_ids = $this->stock_in_store_ids($id_stock);
+      $stock_in_store_ids = $this->stock_in_store_ids($id_item);
       foreach ($stock_in_store_ids as $key) {
         $issued_total = $this->count_issued_item($key->id,$year);
         $used_qty += $issued_total->sum;
@@ -324,7 +324,8 @@ class Budget_Cot_Model extends MY_Model
     $this->db->select('sum(issued_quantity)');
     $this->db->from('tb_issuance_items ');
     $this->db->where('stock_in_stores_id', $stock_in_store_id);
-    $this->db->like('document_number', ($year-1), 'BOTH');
+    $this->db->like('document_number','MS/%/'.($year-1));
+    // $this->db->like('document_number', ($year-1));
     return $this->db->get()->row();
   }
   function countOnhand($id_stock){

@@ -478,7 +478,7 @@ class Purchase_Request extends MY_Controller
             unset($_SESSION['request']);
 
             // SEND EMAIL NOTIFICATION HERE
-            $this->sendEmail();
+            // $this->sendEmail();
             $data['success'] = TRUE;
             $data['message'] = 'Document '. $pr_number .' has been saved. You will redirected now.';
           } else {
@@ -811,18 +811,9 @@ class Purchase_Request extends MY_Controller
     //   array_push($recipient, $key->email);
     // }
     $this->load->library('email');
-    $config = Array(
-      'protocol' => 'smtp',
-      'smtp_host' => 'smtp.gmail.com',
-      'smtp_port' => 465,
-      'smtp_user' => 'bifa.team@gmail.com',
-      'smtp_pass' => 'Bifa2018',
-      'crlf' => "\r\n",
-      'newline' => "\r\n"
-    );
-    $this->email->initialize($config);
+
     $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-    $this->email->to('aidanurul99@rocketmail.com');
+    $this->email->to($recipient);
     $html = '<html><head> 
                         <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
                         <style>
@@ -869,7 +860,7 @@ class Purchase_Request extends MY_Controller
                     </tr>
                     <tr>
                         <td>
-                            <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru pada daftar Purchase Order Evaluation silakan di cek</p>
+                            <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru di Account Payable yang memerlukan pembayaran segera</p>
                         </td>
                     </tr>
                 </tbody></table>
@@ -888,5 +879,26 @@ class Purchase_Request extends MY_Controller
 
     $this->email->send();
   }
+
+  // public function send_mail() { 
+  //   $from_email = "kiddo2095@gmail.com"; 
+  //   $to_email = "aidanurul99@rocketmail.com"; 
+   
+  //   //Load email library 
+  //   $this->load->library('email'); 
+   
+  //   $this->email->from($from_email, 'Your Name'); 
+  //   $this->email->to($to_email);
+  //   $this->email->subject('Email Test'); 
+  //   $this->email->message('Testing the email class.'); 
+   
+  //   //Send mail 
+  //   if($this->email->send()) 
+  //   $this->session->set_flashdata("email_sent","Email sent successfully."); 
+  //   else 
+  //   $this->session->set_flashdata("email_sent",$this->email->ErrorInfo()); 
+  //   // $this->load->view('email_form'); 
+  //   $this->render_view($this->module['view'] .'/email_form');
+  // } 
 
 }

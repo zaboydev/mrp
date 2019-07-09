@@ -1161,6 +1161,8 @@ class Purchase_Request_Model extends MY_Model
     if (($this->connection->trans_status() === FALSE)&&($this->db->trans_status() === FALSE))
       return FALSE;
 
+    
+    // $this->send_adjustment_request();
     $this->connection->trans_commit();
     $this->db->trans_commit();
     return TRUE;
@@ -1905,6 +1907,66 @@ class Purchase_Request_Model extends MY_Model
     //   $kurs_dollar=0;
     // }
     return $query;
+  }
+
+  public function send_adjustment_request()
+  {
+    // $this->db->select(array(
+    //   'tb_stock_adjustments.id',
+    //   'tb_master_items.part_number',
+    //   'tb_master_items.description',
+    //   'tb_master_item_groups.category',
+    //   'tb_master_items.group',
+    //   'tb_stocks.condition',
+    //   'tb_stock_adjustments.created_by',
+    //   'tb_stock_adjustments.created_at',
+    //   'tb_stock_adjustments.previous_quantity',
+    //   'tb_stock_adjustments.adjustment_quantity',
+    //   'tb_stock_adjustments.balance_quantity',
+    //   'tb_master_items.unit',
+    //   'tb_stock_adjustments.remarks',
+    //   'tb_stock_adjustments.adjustment_token',
+    // ));
+    // $this->db->from('tb_stock_adjustments');
+    // $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_stock_adjustments.stock_in_stores_id');
+    // $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
+    // $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+    // $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    // $this->db->where('tb_stock_adjustments.id', $data);
+
+    // $query = $this->db->get();
+    // $row  = $query->unbuffered_row('array');
+
+    $this->load->library('My_PHPMailer');
+
+    $message = "<p>Dear VP Finance CEK EMAIL,</p>";
+    
+    $message .= "<p>Thanks and regards</p>";
+
+    $mail = new PHPMailer();
+    $mail->IsSMTP();
+    $mail->SMTPDebug = 2;
+    $mail->SMTPAuth = true;
+    $mail->SMTPSecure = "tls";
+    $mail->Host = "smtp.live.com";
+    $mail->Port = 587;
+    $mail->Username = "baliflight@hotmail.com";
+    $mail->Password = "b1f42015";
+    $mail->SetFrom('baliflight@hotmail.com', 'Material Resource Planning Software');
+    // $mail->AddReplyTo($data['b_email'], $data['b_name']);
+    $mail->Subject = "CEK ";
+    $mail->Body = $message;
+    $mail->IsHTML(true);
+    $mail->AddAddress('aidanurul99@rocketmail.com', 'Nurul Aida');
+    // $mail->AddAddress('emilia@baliflightacademy.com', 'Emilia Chang');
+    // if(!$mail->Send()) {
+    //   $this->pretty_dump($mail->ErrorInfo);
+    // } else {
+    //   return true;
+    // }
+    $mail->Send();
+
+    return true;
   }
 
 }
