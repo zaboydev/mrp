@@ -302,7 +302,7 @@ class Commercial_Invoice_Model extends MY_Model
         $this->db->set('quantity', 0 + floatval($row['quantity']));
         $this->db->set('unit_value', floatval($row['unit_value']));
         $this->db->set('remarks', 'REVISION');
-		$this->db->set('created_by', config_item('auth_person_name'));
+		    $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->insert('tb_stock_cards');
       }
 
@@ -400,6 +400,10 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('unit_value', floatval($data['issued_unit_value']));
       $this->db->set('remarks', $data['remarks']);
 	    $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->set('doc_type', 10);
+      $this->db->set('tgl', date('Ymd',strtotime($issued_date)));
+      $this->db->set('total_value', floatval($data['issued_unit_value'])*(0 - floatval($data['issued_quantity'])));
       $this->db->insert('tb_stock_cards');
     }
 
@@ -498,7 +502,7 @@ class Commercial_Invoice_Model extends MY_Model
     $this->db->where('tb_stock_in_stores.quantity > ', 0);
     $this->db->where('tb_stock_in_stores.warehouse', config_item('auth_warehouse'));
 
-    $this->db->order_by('tb_master_items.description ASC, tb_master_items.part_number ASC');
+    $this->db->order_by('tb_stock_in_stores.received_date ASC');
 
     $query  = $this->db->get();
     $result = $query->result_array();
