@@ -77,8 +77,8 @@ $db['default'] = array(
 	//'dsn'	=> 'pgsql:host=119.252.163.205;port=543;dbname=BUDGETCONTROL2;user=postgres;password=b1f42015',
 	'hostname' => 'localhost',
 	'username' => 'postgres',
-	'password' => 'kyuhyun234',
-	'database' => 'db_mrp_2019-07-07',
+	'password' => 'bifa2016',
+	'database' => 'demo_db_mrp',
 	'dbdriver' => 'postgre',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
@@ -99,12 +99,12 @@ $db['default'] = array(
 $db['budgetcontrol'] = array(
 	// 'dsn'	=> 'pgsql:host=119.252.163.205;port=5432;dbname=BUDGETCONTROL2;user=postgres;password=b1f42015',
 	'dsn'	=> '',
-	'hostname' => 'localhost', // 119.252.163.205
+	'hostname' => '119.252.163.205', // 119.252.163.205
 	'username' => 'postgres',
-	'password' => 'kyuhyun234', // b1f42015
-	'database' => 'budgetcontrol', //BUDGETCONTROL2
+	'password' => 'b1f42015', // b1f42015
+	'database' => 'BUDGETCONTROL2', //BUDGETCONTROL2
 	'dbdriver' => 'postgre',
-    'port'     => 5434,
+    //'port'     => 5433,
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => TRUE,
