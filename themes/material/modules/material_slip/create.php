@@ -813,12 +813,12 @@ $(function(){
 
           // $('input[id="issued_quantity"]').attr('data-rule-max', parseInt(ui.item.qty_konvers)).attr('data-msg-max', 'max available '+ parseInt(ui.item.qty_konvers));
 
-          $('input[id="issued_quantity"]').attr('data-rule-max', parseInt(ui.item.quantity)).attr('data-msg-max', 'max available '+ parseInt(ui.item.quantity));
+          $('input[id="issued_quantity"]').attr('data-rule-max', parseFloat(ui.item.quantity)).attr('data-msg-max', 'max available '+ parseInt(ui.item.quantity));
 
           // $('#issued_quantity').attr('max', parseInt(ui.item.qty_konvers)).focus();
-          $('#issued_quantity').attr('max', parseInt(ui.item.quantity)).focus();
+          $('#issued_quantity').attr('max', parseFloat(ui.item.quantity)).focus();
 
-          $('input[id="issued_quantity"]').attr('data-rule-min', parseInt(1)).attr('data-msg-min', 'min quantity '+ parseInt(1));
+          $('input[id="issued_quantity"]').attr('data-rule-min', parseFloat(0.1)).attr('data-msg-min', 'min quantity '+ parseFloat(0.1));o
 
           // $('#issued_quantity').attr('max', parseInt(ui.item.qty_konvers)).focus();
           $('#issued_quantity').attr('max', parseInt(1)).focus();

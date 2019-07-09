@@ -478,7 +478,7 @@ class Purchase_Request extends MY_Controller
             unset($_SESSION['request']);
 
             // SEND EMAIL NOTIFICATION HERE
-
+            $this->sendEmail();
             $data['success'] = TRUE;
             $data['message'] = 'Document '. $pr_number .' has been saved. You will redirected now.';
           } else {
@@ -802,4 +802,91 @@ class Purchase_Request extends MY_Controller
 
     $this->render_view($this->module['view'] .'/create');
   }
+
+  public function sendEmail()
+  {
+    // $recipientList = $this->model->getNotifRecipient();
+    // $recipient = array();
+    // foreach ($recipientList as $key ) {
+    //   array_push($recipient, $key->email);
+    // }
+    $this->load->library('email');
+    $config = Array(
+      'protocol' => 'smtp',
+      'smtp_host' => 'smtp.gmail.com',
+      'smtp_port' => 465,
+      'smtp_user' => 'bifa.team@gmail.com',
+      'smtp_pass' => 'Bifa2018',
+      'crlf' => "\r\n",
+      'newline' => "\r\n"
+    );
+    $this->email->initialize($config);
+    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
+    $this->email->to('aidanurul99@rocketmail.com');
+    $html = '<html><head> 
+                        <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
+                        <style>
+                            .content {
+                                max-width: 500px;
+                                margin: auto;
+                            }
+                            .title{
+                                width: 60%;
+                            }
+
+                        </style></head>
+                        
+                        <body> 
+                            <div class="content">
+<div bgcolor="#0aa89e">
+    <table align="center" bgcolor="#fff" border="0" cellpadding="0" cellspacing="0" style="background-color:#fff;margin:5% auto;width:100%;max-width:600px">
+        
+        <tbody><tr>
+            <td>
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0aa89e" style="padding:10px 15px;font-size:14px">
+                    <tbody><tr>
+                        <td width="60%" align="left" style="padding:5px 0 0">
+                            <span style="font-size:18px;font-weight:300;color:#ffffff">
+                                BIFA
+                            </span>
+                        </td>
+                        <td width="40%" align="right" style="padding:5px 0 0">
+                            <span style="font-size:18px;font-weight:300;color:#ffffff">
+                                Notification
+                            </span>
+                        </td>
+                    </tr>
+                </tbody></table>
+            </td>
+        </tr>        
+        <tr>
+            <td style="padding:25px 15px 10px">
+                <table width="100%">
+                    <tbody><tr>
+                        <td>
+                            <h1 style="margin:0;font-size:16px;font-weight:bold;line-height:24px;color:rgba(0,0,0,0.70)">Halo Team</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru pada daftar Purchase Order Evaluation silakan di cek</p>
+                        </td>
+                    </tr>
+                </tbody></table>
+            </td>
+        </tr>
+    </tbody></table>
+<p>&nbsp;<br></p>
+</div>
+
+                            </div>  
+                                    
+                        
+</body></html>';
+    $this->email->subject('Notification');
+    $this->email->message($html);
+
+    $this->email->send();
+  }
+
 }
