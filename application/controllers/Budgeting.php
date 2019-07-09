@@ -39,10 +39,18 @@ class Budgeting extends MY_Controller {
     $jan_qty     = array(); $feb_qty     = array(); $mar_qty     = array(); $apr_qty     = array(); $mei_qty     = array(); $jun_qty     = array();
     $jul_val     = array(); $ags_val     = array(); $sep_val     = array(); $okt_val     = array(); $nov_val     = array(); $des_val     = array();
     $jul_qty     = array(); $ags_qty     = array(); $sep_qty     = array(); $okt_qty     = array(); $nov_qty     = array(); $des_qty     = array();
+    $no       = $_POST['start'];
 
     foreach ($entities as $row){
+      $no++;
       $col = array();
-      $col[] = ($row->status === strtoupper("approved")||config_item('auth_role') !== 'CHIEF OF MAINTANCE') ? '' : '<input type="checkbox" id="cb_'.$row->id_cot.'"  data-id="'.$row->id_cot.'" name="" style="display: inline;">';
+      if($row->status=="ON PROCESS"){
+        if(config_item('auth_role') == 'CHIEF OF MAINTENANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+          $col[] = '<input type="checkbox" id="cb_'.$row->id_cot.'"  data-id="'.$row->id_cot.'" name="" style="display: inline;">';
+        }         
+      } else {
+        $col[] = print_number($no);
+      }
       $col[] = print_string($row->item_description);
       $col[] = print_string($row->serial_number);
       $col[] = print_string($row->part_number);

@@ -39,7 +39,7 @@
                     <label for="issued_by">Issued By</label>
                   </div>
 
-        				  <?php if (config_item('auth_role') == 'SUPERVISOR'):?>
+        				  <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'):?>
                     <div class="form-group">
                       <select name="warehouse" id="warehouse" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_warehouse');?>" required>
                         <?php foreach (available_warehouses() as $w => $warehouse):?>
@@ -322,7 +322,7 @@
           </div>
 
           <div class="modal-footer">
-            <input type="hidden" id="stock_in_stores_id" name="stock_in_stores_id">
+            <input type="text" id="stock_in_stores_id" name="stock_in_stores_id">
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
@@ -484,7 +484,7 @@
           </div>
 
           <div class="modal-footer">
-            <input type="hidden" id="edit_stock_in_stores_id" name="edit_stock_in_stores_id">
+            <input type="text" id="edit_stock_in_stores_id" name="edit_stock_in_stores_id">
             <input type="hidden" id="edit_item_id" name="edit_item_id">
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>

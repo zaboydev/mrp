@@ -207,13 +207,13 @@ class Goods_Received_Note extends MY_Controller
           $unit_value[]   = $row['received_unit_value'];
           $total_value[]  = $row['received_unit_value']*$row['received_quantity'];
         }
-        if (config_item('auth_role') == 'FINANCE'){
-			if($row['kurs_dollar']==1){
-				$col[]  = print_number(0,2);
-			}else{
-				$col[]  = print_number($row['unit_value_dollar'],2);
-			}
-			$col[]  = print_number($row['kurs_dollar'],2);
+        if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+			      if($row['kurs_dollar']==1){
+      				$col[]  = print_number(0,2);
+      			}else{
+      				$col[]  = print_number($row['unit_value_dollar'],2);
+      			}
+      			$col[]  = print_number($row['kurs_dollar'],2);
         }
 
         $quantity[] = $row['received_quantity'];

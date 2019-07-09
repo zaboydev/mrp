@@ -880,7 +880,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('issued_by', config_item('auth_person_name'));
       $this->db->set('quantity', 0 - floatval($data['received_quantity']));
       $this->db->set('unit_value', floatval($data['received_unit_value']));
-	  $this->db->set('created_by', config_item('auth_person_name'));
+	    $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->insert('tb_stock_cards');
 
       $this->db->where('id', $data['id']);
@@ -935,4 +935,17 @@ class Purchase_Order_Model extends MY_Model
 
     return $result;
   }
+
+  public function listAttachmentpoe($id){
+    // $this->db->where('id',$id);
+    // $this->db->from('tb_purchase_order_items');
+    // $query  = $this->db->get();
+    // $result = $query->unbuffered_row('array');
+    // $poe_id = $result['purchase_order_id'];
+    $poe_id = $id;
+
+    $this->db->where('id_poe', $poe_id);
+    return $this->db->get('tb_attachment_poe')->result();
+  }
+
 }

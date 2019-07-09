@@ -386,7 +386,7 @@
                   </div>
 
                   <div class="form-group">
-                    <input type="text" name="awb_number" id="awb_number" data-tag-name="awb_number" class="form-control input-sm">
+                    <input type="text" name="awb_number" id="awb_number" data-tag-name="awb_number" class="form-control input-sm" required="required">
                     <label for="awb_number">AWB Number</label>
                   </div>
 
@@ -628,7 +628,7 @@
                   </div>
 
                   <div class="form-group">
-                    <input type="text" name="awb_number" id="edit_awb_number" data-tag-name="awb_number" class="form-control input-sm">
+                    <input type="text" name="awb_number" id="edit_awb_number" data-tag-name="awb_number" class="form-control input-sm" required="required">
                     <label for="awb_number">AWB Number</label>
                   </div>
 

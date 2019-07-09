@@ -104,7 +104,11 @@ $db['budgetcontrol'] = array(
 	'password' => 'b1f42015', // b1f42015
 	'database' => 'BUDGETCONTROL2', //BUDGETCONTROL2
 	'dbdriver' => 'postgre',
+<<<<<<< HEAD
     //'port'     => 5433,
+=======
+    'port'     => 5433,
+>>>>>>> 4cb534667515525d7d55fbd00934d15caa2f67ed
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => TRUE,

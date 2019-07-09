@@ -286,6 +286,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->from('tb_purchase_order_items_vendors');
       $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
       $this->db->where('tb_purchase_order_items_vendors.purchase_order_item_id', $item['id']);
+      $this->db->order_by('purchase_order_vendor_id','asc');
 
       $query = $this->db->get();
 

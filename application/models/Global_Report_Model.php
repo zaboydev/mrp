@@ -110,7 +110,7 @@ end)',
     $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id','left');
     $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
-    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_purchase_order_items.id','left');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->join('tb_budget', 'tb_inventory_purchase_requisition_details.budget_id = tb_budget.id');
     $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
     $this->db->join('tb_master_items', 'tb_budget_cot.id_item = tb_master_items.id');
