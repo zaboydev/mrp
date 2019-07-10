@@ -97,11 +97,16 @@ class Budget_Cot extends MY_Controller {
     $itemKey = explode(",", $itemKey);
     $standardQuantity = str_replace(".", "", $this->input->post('standardQuantity'));
     $standardQuantity = json_decode($standardQuantity);
+    // $range1 = str_replace(".", "", $this->input->post('range1'));
+    // $range1 = json_decode($range1);
+    // $range2 = str_replace(".", "", $this->input->post('range2'));
+    // $range2 = json_decode($range2);
     $hour = str_replace(".", "", $this->input->post('hour'));
     $year = $this->input->post('year');
     $id_kelipatan = $this->input->post('id_kelipatan');
     $kelipatan = $this->input->post('kelipatan');
     $process = $this->model->cotProcess($hour,$year,$id_kelipatan,$kelipatan,$itemKey,$standardQuantity);
+    // $process = $this->model->cotProcess($hour,$year,$id_kelipatan,$kelipatan,$itemKey,$standardQuantity,$range1,$range2);
     if($process['insert']>0){
       $this->session->set_flashdata('alert', array(
                 'type' => 'success',

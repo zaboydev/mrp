@@ -1,0 +1,19 @@
+__ci_last_regenerate|i:1562724838;is_logged_in|b:1;user_id|s:10:"1415323081";username|s:9:"aidanurul";person_name|s:10:"Aida Nurul";email|s:26:"aidanurul99@rocketmail.com";auth_level|s:2:"13";banned|s:1:"0";warehouse|s:5:"WISNU";request|a:1:{s:10:"request_to";i:1;}email_sent|s:688:"<br /><pre>hello: </pre>The following SMTP error was encountered: <br />Unable to send email using PHP SMTP. Your server might not be configured to send mail using this method.<br /><pre>User-Agent: CodeIgniter
+Date: Wed, 10 Jul 2019 04:16:32 +0200
+From: &quot;Your Name&quot; &lt;baliflight@hotmail.com&gt;
+Return-Path: &lt;&gt;
+To: aidanurul99@rocketmail.com
+Subject: =?UTF-8?Q?Email=20Test?=
+Reply-To: &lt;baliflight@hotmail.com&gt;
+X-Sender: baliflight@hotmail.com
+X-Mailer: CodeIgniter
+X-Priority: 3 (Normal)
+Message-ID: &lt;5d254a80cebd3&gt;
+Mime-Version: 1.0
+
+
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Testing the email class.
+</pre>";__ci_vars|a:1:{s:10:"email_sent";s:3:"new";}

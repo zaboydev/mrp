@@ -1159,12 +1159,11 @@ class Purchase_Request_Model extends MY_Model
     }
 
     if (($this->connection->trans_status() === FALSE)&&($this->db->trans_status() === FALSE))
-      return FALSE;
-
+      return FALSE;    
     
-    // $this->send_adjustment_request();
     $this->connection->trans_commit();
     $this->db->trans_commit();
+    $this->send_mail($document_id);
     return TRUE;
   }
 
@@ -1909,64 +1908,58 @@ class Purchase_Request_Model extends MY_Model
     return $query;
   }
 
-  public function send_adjustment_request()
-  {
-    // $this->db->select(array(
-    //   'tb_stock_adjustments.id',
-    //   'tb_master_items.part_number',
-    //   'tb_master_items.description',
-    //   'tb_master_item_groups.category',
-    //   'tb_master_items.group',
-    //   'tb_stocks.condition',
-    //   'tb_stock_adjustments.created_by',
-    //   'tb_stock_adjustments.created_at',
-    //   'tb_stock_adjustments.previous_quantity',
-    //   'tb_stock_adjustments.adjustment_quantity',
-    //   'tb_stock_adjustments.balance_quantity',
-    //   'tb_master_items.unit',
-    //   'tb_stock_adjustments.remarks',
-    //   'tb_stock_adjustments.adjustment_token',
-    // ));
-    // $this->db->from('tb_stock_adjustments');
-    // $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_stock_adjustments.stock_in_stores_id');
-    // $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
-    // $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
-    // $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
-    // $this->db->where('tb_stock_adjustments.id', $data);
+  public function send_mail($doc_id) { 
+    $this->db->from('tb_inventory_purchase_requisitions');
+    $this->db->where('id',$doc_id);
+    $query = $this->db->get();
+    $row = $query->unbuffered_row('array');
 
-    // $query = $this->db->get();
-    // $row  = $query->unbuffered_row('array');
+    $recipientList = $this->getNotifRecipient();
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
 
-    $this->load->library('My_PHPMailer');
-
-    $message = "<p>Dear VP Finance CEK EMAIL,</p>";
-    
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'baliflight@hotmail.com';
+    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear Chief Of Maintenance,</p>";
+    $message .= "<p>Berikut permintaan Purchase Request dari Gudang :</p>";
+    $message .= "<ul>";
+    $message .= "</ul>";
+    $message .= "<p>No Purchase Request : ".$row['pr_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Your Name'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Purchase Request No : '.$row['pr_number']); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
 
-    $mail = new PHPMailer();
-    $mail->IsSMTP();
-    $mail->SMTPDebug = 2;
-    $mail->SMTPAuth = true;
-    $mail->SMTPSecure = "tls";
-    $mail->Host = "smtp.live.com";
-    $mail->Port = 587;
-    $mail->Username = "baliflight@hotmail.com";
-    $mail->Password = "b1f42015";
-    $mail->SetFrom('baliflight@hotmail.com', 'Material Resource Planning Software');
-    // $mail->AddReplyTo($data['b_email'], $data['b_name']);
-    $mail->Subject = "CEK ";
-    $mail->Body = $message;
-    $mail->IsHTML(true);
-    $mail->AddAddress('aidanurul99@rocketmail.com', 'Nurul Aida');
-    // $mail->AddAddress('emilia@baliflightacademy.com', 'Emilia Chang');
-    // if(!$mail->Send()) {
-    //   $this->pretty_dump($mail->ErrorInfo);
-    // } else {
-    //   return true;
-    // }
-    $mail->Send();
-
-    return true;
+  public function getNotifRecipient(){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',9);
+    return $this->db->get('')->result();
   }
 
 }

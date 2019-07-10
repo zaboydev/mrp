@@ -12,6 +12,7 @@ class Purchase_Request extends MY_Controller
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
+    $this->load->library('email');
     if(empty($_SESSION['request']['request_to']))
       $_SESSION['request']['request_to'] = 1;
   }
@@ -478,7 +479,7 @@ class Purchase_Request extends MY_Controller
             unset($_SESSION['request']);
 
             // SEND EMAIL NOTIFICATION HERE
-            // $this->sendEmail();
+            // $this->send_mail();
             $data['success'] = TRUE;
             $data['message'] = 'Document '. $pr_number .' has been saved. You will redirected now.';
           } else {
@@ -803,102 +804,37 @@ class Purchase_Request extends MY_Controller
     $this->render_view($this->module['view'] .'/create');
   }
 
-  public function sendEmail()
-  {
-    // $recipientList = $this->model->getNotifRecipient();
-    // $recipient = array();
-    // foreach ($recipientList as $key ) {
-    //   array_push($recipient, $key->email);
-    // }
-    $this->load->library('email');
-
-    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-    $this->email->to($recipient);
-    $html = '<html><head> 
-                        <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
-                        <style>
-                            .content {
-                                max-width: 500px;
-                                margin: auto;
-                            }
-                            .title{
-                                width: 60%;
-                            }
-
-                        </style></head>
-                        
-                        <body> 
-                            <div class="content">
-<div bgcolor="#0aa89e">
-    <table align="center" bgcolor="#fff" border="0" cellpadding="0" cellspacing="0" style="background-color:#fff;margin:5% auto;width:100%;max-width:600px">
-        
-        <tbody><tr>
-            <td>
-                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0aa89e" style="padding:10px 15px;font-size:14px">
-                    <tbody><tr>
-                        <td width="60%" align="left" style="padding:5px 0 0">
-                            <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                BIFA
-                            </span>
-                        </td>
-                        <td width="40%" align="right" style="padding:5px 0 0">
-                            <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                Notification
-                            </span>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>        
-        <tr>
-            <td style="padding:25px 15px 10px">
-                <table width="100%">
-                    <tbody><tr>
-                        <td>
-                            <h1 style="margin:0;font-size:16px;font-weight:bold;line-height:24px;color:rgba(0,0,0,0.70)">Halo Team</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru di Account Payable yang memerlukan pembayaran segera</p>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>
-    </tbody></table>
-<p>&nbsp;<br></p>
-</div>
-
-                            </div>  
-                                    
-                        
-</body></html>';
-    $this->email->subject('Notification');
-    $this->email->message($html);
-
-    $this->email->send();
+  public function send_mail() { 
+ //    $from_email = "baliflight@hotmail.com"; 
+ //    $to_email = "aidanurul99@rocketmail.com"; 
+   
+ //    //Load email library 
+ //    $this->load->library('email'); 
+ //    $config = array();
+	// $config['protocol'] = 'mail';
+	// $config['smtp_host'] = 'smtp.live.com';
+	// $config['smtp_user'] = 'baliflight@hotmail.com';
+	// $config['smtp_pass'] = 'b1f42015';
+	// $config['smtp_port'] = 587;
+	// $config['smtp_auth']        = true;
+	// $config['mailtype']         = 'html';
+	// $this->email->initialize($config);
+	// $this->email->set_newline("\r\n");
+	// $message = "<p>Dear Chief Of Maintenance,</p>";
+ //    $message .= "<p>Berikut permintaan Purchase Request  dari Gudang :</p>";
+ //    $message .= "<ul>";
+ //    $message .= "</ul>";
+ //    $message .= "<p>Silakan klik pilihan <strong style='color:blue;'>APPROVE</strong> untuk menyetujui atau <strong style='color:red;'>REJECT</strong> untuk menolak permintaan ini.</p>";
+ //    $message .= "<p>Thanks and regards</p>";
+ //    $this->email->from($from_email, 'Your Name'); 
+ //    $this->email->to($to_email);
+ //    $this->email->subject('Permintaan Approval Purchase Request'); 
+ //    $this->email->message($message); 
+   	$return = $this->model->send_mail();
+    //Send mail 
+ 
+    $this->session->set_flashdata("email_sent",$return); 
+    $this->render_view($this->module['view'] .'/email_form');
   }
-
-  // public function send_mail() { 
-  //   $from_email = "kiddo2095@gmail.com"; 
-  //   $to_email = "aidanurul99@rocketmail.com"; 
-   
-  //   //Load email library 
-  //   $this->load->library('email'); 
-   
-  //   $this->email->from($from_email, 'Your Name'); 
-  //   $this->email->to($to_email);
-  //   $this->email->subject('Email Test'); 
-  //   $this->email->message('Testing the email class.'); 
-   
-  //   //Send mail 
-  //   if($this->email->send()) 
-  //   $this->session->set_flashdata("email_sent","Email sent successfully."); 
-  //   else 
-  //   $this->session->set_flashdata("email_sent",$this->email->ErrorInfo()); 
-  //   // $this->load->view('email_form'); 
-  //   $this->render_view($this->module['view'] .'/email_form');
-  // } 
 
 }

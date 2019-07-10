@@ -10,6 +10,7 @@
       <?php 
          echo $this->session->flashdata('email_sent'); 
          echo form_open('/Email_controller/send_mail'); 
+         echo $this->email->print_debugger();
       ?> 
 		
       <input type = "email" name = "email" required /> 
