@@ -636,6 +636,7 @@ class Purchase_Request_Model extends MY_Model
     $category             = find_product_category($_SESSION['request']['category']);
     $product_category_id  = $category['id'];
     $notes                = (empty($_SESSION['request']['notes'])) ? NULL : $_SESSION['request']['notes'];
+    $unbudgeted           = 0;
 
     $this->connection->trans_begin();
     $this->db->trans_begin();
@@ -997,6 +998,7 @@ class Purchase_Request_Model extends MY_Model
       
       foreach ($_SESSION['request']['items'] as $key => $data ){
         if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL){
+          $unbudgeted++;
           //input ke tb_unbudgeted
           $this->db->set('year_number', date('Y'));
           $this->db->set('amount', floatval(0));
@@ -1159,10 +1161,14 @@ class Purchase_Request_Model extends MY_Model
     }
 
     if (($this->connection->trans_status() === FALSE)&&($this->db->trans_status() === FALSE))
-      return FALSE;
-
+      return FALSE;    
+    
     $this->connection->trans_commit();
     $this->db->trans_commit();
+    if($unbudgeted>0){
+      $this->send_mail_finance($document_id);
+    }
+    $this->send_mail($document_id);
     return TRUE;
   }
 
@@ -1639,7 +1645,7 @@ class Purchase_Request_Model extends MY_Model
       $this->db->update('tb_budget');
 
     }
-    if($status_budget=='unbudgeted' && $row['budget_id_sementara']=='pending'){
+    if($status_budget=='unbudgeted' && $row['status']=='pending'){
 
       $this->db->set('status', 'waiting');
       $this->db->where('id', $id);
@@ -1795,6 +1801,7 @@ class Purchase_Request_Model extends MY_Model
   }
 
   function multi_reject($id_purchase_order,$notes){
+    $this->db->trans_begin();
     $x = 0;
     $return = 0;
     $rejected_note = '';
@@ -1818,23 +1825,62 @@ class Purchase_Request_Model extends MY_Model
 
       $rejected_note = $rejected_note.' '.$notes[$x];
 
-      $this->db->where('id', $row['budget_id']);
-      $query = $this->db->get('tb_budget');
-      $oldBudget =  $query->row();
-      $month_number = $oldBudget->month_number;
-      $id_cot = $oldBudget->id_cot;
-      for ($i=$month_number; $i < 13; $i++) { 
-        $this->db->set('mtd_used_budget', 'mtd_used_budget - '.$row['total'],FALSE);
-        $this->db->set('ytd_used_budget', 'ytd_used_budget - '.$row['total'],FALSE);
-        $this->db->set('mtd_used_quantity', 'mtd_used_quantity - '.$row['quantity'],FALSE);
-        $this->db->set('ytd_used_quantity', 'ytd_used_quantity - '.$row['quantity'],FALSE);
-        $this->db->where('month_number', $i);
-        $this->db->where('id_cot', $id_cot);
+      if($row['budget_status']=='relocation'){
+        $this->db->where('id', $row['budget_id']);
+        $query = $this->db->get('tb_budget');
+        $oldBudget =  $query->row();
+        $month_number = $oldBudget->month_number;
+        $id_cot = $oldBudget->id_cot;
+        for ($i=$month_number; $i < 13; $i++) { 
+          $this->db->set('mtd_used_budget', 'mtd_used_budget - '.$row['total'],FALSE);
+          $this->db->set('ytd_used_budget', 'ytd_used_budget - '.$row['total'],FALSE);
+          $this->db->set('mtd_used_quantity', 'mtd_used_quantity - '.$row['quantity'],FALSE);
+          $this->db->set('ytd_used_quantity', 'ytd_used_quantity - '.$row['quantity'],FALSE);
+          $this->db->where('month_number', $i);
+          $this->db->where('id_cot', $id_cot);
+          $this->db->update('tb_budget');
+        }
+        $this->db->where('inventory_purchase_requisition_id', $row['inventory_purchase_requisition_id']);
+        $this->db->where('budget_id',$row['budget_id']);
+        $this->db->delete('tb_used_budgets');
+
+        $this->db->where('id',$row['budget_id_sementara']);
+        $query_relocation = $this->db->get('tb_inventory_relocation_budgets');
+        $relocation =  $query_relocation->row();
+        $origin_budget_id = $relocation->origin_budget_id;
+        $this->db->set('mtd_used_budget', 'mtd_used_budget - '.$relocation['total'],FALSE);
+        $this->db->set('ytd_used_budget', 'ytd_used_budget - '.$relocation['total'],FALSE);
+        // $this->db->where('month_number', $i);
+        $this->db->where('id', $origin_budget_id);
         $this->db->update('tb_budget');
-      }
-      $this->db->where('inventory_purchase_requisition_id', $row['inventory_purchase_requisition_id']);
-      $this->db->where('budget_id',$row['budget_id']);
-      $this->db->delete('tb_used_budgets');
+
+        $this->db->set('status','rejected');
+        $this->db->where('id',$row['budget_id_sementara']);
+        $this->db->update('tb_inventory_relocation_budgets');
+
+      }elseif($row['budget_status']=='unbudgeted'){
+        $this->db->set('status','rejected');
+        $this->db->where('id',$row['budget_id_sementara']);
+        $this->db->update('tb_inventory_unbudgeted');
+      }else{
+        $this->db->where('id', $row['budget_id']);
+        $query = $this->db->get('tb_budget');
+        $oldBudget =  $query->row();
+        $month_number = $oldBudget->month_number;
+        $id_cot = $oldBudget->id_cot;
+        for ($i=$month_number; $i < 13; $i++) { 
+          $this->db->set('mtd_used_budget', 'mtd_used_budget - '.$row['total'],FALSE);
+          $this->db->set('ytd_used_budget', 'ytd_used_budget - '.$row['total'],FALSE);
+          $this->db->set('mtd_used_quantity', 'mtd_used_quantity - '.$row['quantity'],FALSE);
+          $this->db->set('ytd_used_quantity', 'ytd_used_quantity - '.$row['quantity'],FALSE);
+          $this->db->where('month_number', $i);
+          $this->db->where('id_cot', $id_cot);
+          $this->db->update('tb_budget');
+        }
+        $this->db->where('inventory_purchase_requisition_id', $row['inventory_purchase_requisition_id']);
+        $this->db->where('budget_id',$row['budget_id']);
+        $this->db->delete('tb_used_budgets');
+      }      
 
       $this->db->set('rejected_date',date('Y-m-d'));
       $this->db->set('rejected_by', config_item('auth_person_name'));
@@ -1846,12 +1892,20 @@ class Purchase_Request_Model extends MY_Model
         $return++;
       }
       $x++;
+      // $this->send_mail_approved($id,'rejected');
     }
-    if(($return == $x)&&($return > 0)){
-      return true;
-    }else{
-      return false;
-    }
+
+    // if(($return == $x)&&($return > 0)){
+    //   return true;
+    // }else{
+    //   return false;
+    // }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+      return TRUE;
   }
 
   function findItemByPartNumber($part_number){
@@ -1905,6 +1959,167 @@ class Purchase_Request_Model extends MY_Model
     //   $kurs_dollar=0;
     // }
     return $query;
+  }
+
+  public function send_mail($doc_id) { 
+    $this->db->from('tb_inventory_purchase_requisitions');
+    $this->db->where('id',$doc_id);
+    $query = $this->db->get();
+    $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifRecipient(9);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'baliflight@hotmail.com';
+    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear Chief of Maintenance</p>";
+    $message .= "<p>Berikut permintaan Purchase Request dari Gudang :</p>";
+    $message .= "<ul>";
+    $message .= "</ul>";
+    $message .= "<p>No Purchase Request : ".$row['pr_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Your Name'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Purchase Request No : '.$row['pr_number']); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+
+  public function send_mail_finance($doc_id) { 
+    $this->db->from('tb_inventory_purchase_requisitions');
+    $this->db->where('id',$doc_id);
+    $query = $this->db->get();
+    $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifRecipient(2);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'baliflight@hotmail.com';
+    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear Finance</p>";
+    $message .= "<p>Berikut permintaan Purchase Request dari Gudang :</p>";
+    $message .= "<ul>";
+    $message .= "</ul>";
+    $message .= "<p>No Purchase Request : ".$row['pr_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Your Name'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Purchase Request No : '.$row['pr_number']); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+
+  public function send_mail_approved($item_id,$tipe) { 
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id=tb_inventory_purchase_requisitions.id');
+    $this->db->where('tb_inventory_purchase_requisition_details.id',$item_id);
+    $query = $this->db->get();
+    $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifApproval($row['created_by']);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'baliflight@hotmail.com';
+    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    // $message = "<p>Dear Finance</p>";
+    $message .= "<p>Item dibawah ini telah di ".ucfirst($tipe)." :</p>";
+    $message .= "<ul>";
+    $message .= "<li>No Purchase Request : <strong>".$row['pr_number']."</strong></li>";
+    $message .= "<li>Part Number: <strong>".$row['part_number']."</strong></li>";
+    $message .= "<li>Deskription : <strong>".$row['product_name']."</strong></li>";
+    $message .= "<li>Qty Request : <strong>".print_number($row['quantity'],2)." ".$row['unit']."</strong></li>";
+    $message .= "<li>Total : <strong>".print_number($row['total'],2)."</strong></li>";
+    $message .= "</ul>";
+    // $message .= "<p>No Purchase Request : ".$row['pr_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Your Name'); 
+    $this->email->to($recipient);
+    $this->email->subject('Notification Purchase Request No : '.$row['pr_number']); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient($level){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',$level);
+    return $this->db->get('')->result();
+  }
+
+  public function getNotifApproval($level){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('person_name',$level);
+    return $this->db->getauth_leresult();
   }
 
 }

@@ -168,7 +168,8 @@ class Budgeting extends MY_Controller {
      // if ($this->input->is_ajax_request() === FALSE)
      //  redirect($this->modules['secure']['route'] .'/denied');
       $entity   = $this->model->cotById($id);
-      $hours = $this->model->cotHourById($id);
+      // $hours = $this->model->cotHourById($id);
+      $hours = $this->model->cotQtyById($id);
       $this->data['id_cot'] = $id;
       $this->data['entity'] = $entity;
       $this->data['hour'] = $hours;

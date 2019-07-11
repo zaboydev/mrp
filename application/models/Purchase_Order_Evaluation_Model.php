@@ -569,6 +569,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
+    if($approval!='without_approval'){
+      $this->send_mail($document_id);
+    }
     return TRUE;
   }
 
@@ -853,6 +856,60 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
     $this->db->trans_commit();
     return TRUE;
+  }
+
+  public function send_mail($doc_id) { 
+    $this->db->from('tb_purchase_orders');
+    $this->db->where('id',$doc_id);
+    $query = $this->db->get();
+    $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifRecipient(9);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'baliflight@hotmail.com';
+    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear Chief of Maintenance</p>";
+    $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order Evaluation :</p>";
+    $message .= "<ul>";
+    $message .= "</ul>";
+    $message .= "<p>No Purchase Request : ".$row['evaluation_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order_evaluation/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'MRP'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Purchase Order Evaluation No : '.$row['evaluation_number']); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient($level){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',$level);
+    return $this->db->get('')->result();
   }
   
 }

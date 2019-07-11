@@ -192,6 +192,16 @@ class Budgeting_Model extends MY_Model {
     $this->db->where('id', $id);
     return $this->db->get('tb_budget_cot')->row();
   }
+
+  public function cotQtyById($id){
+    $this->db->select('tb_budget.mtd_quantity,tb_budget.month_number');
+    $this->db->from('tb_budget');
+    $this->db->where('id_cot', $id);
+    //echo $this->db->_compile_select();
+    $this->db->order_by('month_number');
+    return $this->db->get()->result();
+  }
+
   public function cotHourById($id){
     $this->db->select('tb_budget.hour,tb_budget.month_number');
     $this->db->from('tb_budget');
@@ -200,6 +210,7 @@ class Budgeting_Model extends MY_Model {
     $this->db->order_by('month_number');
     return $this->db->get()->result();
   }
+
   public function updateOnhand($onhand,$id_cot){
     $data = array("onhand"=>$onhand);
     $this->db->where('id', $id_cot);
