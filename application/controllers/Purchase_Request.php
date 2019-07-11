@@ -12,6 +12,7 @@ class Purchase_Request extends MY_Controller
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
+	$this->load->library('email');
     if(empty($_SESSION['request']['request_to']))
       $_SESSION['request']['request_to'] = 1;
   }
@@ -803,90 +804,37 @@ class Purchase_Request extends MY_Controller
     $this->render_view($this->module['view'] .'/create');
   }
 
-  public function sendEmail()
-  {
-    // $recipientList = $this->model->getNotifRecipient();
-    // $recipient = array();
-    // foreach ($recipientList as $key ) {
-    //   array_push($recipient, $key->email);
-    // }
-    $this->load->library('email');
-    $config = Array(
-      'protocol' => 'smtp',
-      'smtp_host' => 'smtp.gmail.com',
-      'smtp_port' => 465,
-      'smtp_user' => 'bifa.team@gmail.com',
-      'smtp_pass' => 'Bifa2018',
-      'crlf' => "\r\n",
-      'newline' => "\r\n"
-    );
-    $this->email->initialize($config);
-    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-    $this->email->to('aidanurul99@rocketmail.com');
-    $html = '<html><head> 
-                        <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
-                        <style>
-                            .content {
-                                max-width: 500px;
-                                margin: auto;
-                            }
-                            .title{
-                                width: 60%;
-                            }
+  public function send_mail() { 
+    // require('htdocs/application/libraries/PHPMailer/PHPMailerAutoload.php'); 
+    $message .= "<p>Thanks and regards</p>";
 
-                        </style></head>
-                        
-                        <body> 
-                            <div class="content">
-<div bgcolor="#0aa89e">
-    <table align="center" bgcolor="#fff" border="0" cellpadding="0" cellspacing="0" style="background-color:#fff;margin:5% auto;width:100%;max-width:600px">
-        
-        <tbody><tr>
-            <td>
-                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0aa89e" style="padding:10px 15px;font-size:14px">
-                    <tbody><tr>
-                        <td width="60%" align="left" style="padding:5px 0 0">
-                            <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                BIFA
-                            </span>
-                        </td>
-                        <td width="40%" align="right" style="padding:5px 0 0">
-                            <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                Notification
-                            </span>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>        
-        <tr>
-            <td style="padding:25px 15px 10px">
-                <table width="100%">
-                    <tbody><tr>
-                        <td>
-                            <h1 style="margin:0;font-size:16px;font-weight:bold;line-height:24px;color:rgba(0,0,0,0.70)">Halo Team</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru pada daftar Purchase Order Evaluation silakan di cek</p>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>
-    </tbody></table>
-<p>&nbsp;<br></p>
-</div>
 
-                            </div>  
-                                    
-                        
-</body></html>';
-    $this->email->subject('Notification');
-    $this->email->message($html);
+    $mail = new PHPMailer();
+    $mail->IsSMTP();
+    $mail->SMTPDebug = 3;
+    $mail->SMTPAuth = true;
+    $mail->SMTPSecure = "ssl";
 
-    $this->email->send();
+    $mail->Host = "smtp.live.com";
+    $mail->Port = 465;
+
+    // $mail->Host = "smtp.gmail.com";
+    // $mail->Port = 587;
+
+    $mail->Username = "baliflight@hotmail.com";
+    $mail->Password = "b1f42016";
+    $mail->SetFrom('baliflight@hotmail.com', 'Material Resource Planning Software');
+    // $mail->AddReplyTo($data['b_email'], $data['b_name']);
+    $mail->Subject = "Permintaan Adjustment barang ";
+    $mail->Body = $message;
+    $mail->IsHTML(true);
+    $mail->AddAddress('aidanurul99@rocketmail.com', 'Aida NUrul');
+    // $mail->AddAddress('emilia@baliflightacademy.com', 'Emilia Chang');
+    if(!$mail->Send()) {
+      $this->pretty_dump($mail->ErrorInfo);
+    } else {
+      return true;
+    }
   }
 
 }
