@@ -891,7 +891,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $message .= "</ul>";
     $message .= "<p>No Purchase Request : ".$row['evaluation_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order_evaluation/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'MRP'); 
     $this->email->to($recipient);
@@ -905,10 +905,10 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       return $this->email->print_debugger();
   }
 
-  public function getNotifApproval($level){
+  public function getNotifRecipient($level){
     $this->db->select('email');
     $this->db->from('tb_auth_users');
-    $this->db->where('person_name',$level);
+    $this->db->where('auth_level',$level);
     return $this->db->get('')->result();
   }
   

@@ -353,6 +353,7 @@ class Purchase_Order_Model extends MY_Model
   {
     
     if((config_item('auth_role') == 'HEAD OF SCHOOL')){
+      $level = 3;
       $this->db->set('review_status',strtoupper("waiting for vp finance review"));
       $this->db->set('known_by',config_item('auth_person_name'));
     }
@@ -362,16 +363,18 @@ class Purchase_Order_Model extends MY_Model
        $this->db->set('approved_by',config_item('auth_person_name'));
     }
     if((config_item('auth_role') == 'FINANCE')){
-
+      $level = 10;
        $this->db->set('review_status',strtoupper("waiting for hos review"));
        $this->db->set('checked_by',config_item('auth_person_name'));
     }
 
     if((config_item('auth_role') == 'VP FINANCE')){
-
+      $level = 11;
        $this->db->set('review_status',strtoupper("waiting for cof review"));
        $this->db->set('check_review_by',config_item('auth_person_name'));
     }
+
+    $this->send_mail($id,$level);
     $this->db->where('id', $id);
     return $this->db->update('tb_po');
   }
@@ -839,6 +842,7 @@ class Purchase_Order_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
+    $this->send_mail($id_po,9);
     return TRUE;
   }
 
@@ -946,6 +950,70 @@ class Purchase_Order_Model extends MY_Model
 
     $this->db->where('id_poe', $poe_id);
     return $this->db->get('tb_attachment_poe')->result();
+  }
+
+  public function send_mail($doc_id,$level) { 
+    $this->db->from('tb_po');
+    $this->db->where('id',$doc_id);
+    $query = $this->db->get();
+    $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifRecipient($level);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com";
+    $ket_level = '';
+    if($level==9){
+      $ket_level = 'Finance';
+    }elseif ($level==10) {
+      $ket_level = 'Head Of School';
+    } elseif($level==11){
+      $ket_level = 'Chief Of Finance';
+    }elseif($level==3){
+      $ket_level = 'VP Finance';
+    }
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'baliflight@hotmail.com';
+    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear ".$ket_level."</p>";
+    $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order :</p>";
+    $message .= "<ul>";
+    $message .= "</ul>";
+    $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'MRP'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Purchase Order No : '.$row['document_number']); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient($level){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',$level);
+    return $this->db->get('')->result();
   }
 
 }
