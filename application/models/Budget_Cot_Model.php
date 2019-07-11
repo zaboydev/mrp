@@ -165,8 +165,8 @@ class Budget_Cot_Model extends MY_Model
     $this->db->group_end();
     return $this->db->get()->num_rows(); 
   }
-  public function cotProcess($hour,$year,$id_kelipatan,$kelipatan,$itemKey,$standardQuantity)
-  // public function cotProcess($hour,$year,$id_kelipatan,$kelipatan,$itemKey,$standardQuantity,$range1,$range2)
+  // public function cotProcess($hour,$year,$id_kelipatan,$kelipatan,$itemKey,$standardQuantity)
+  public function cotProcess($hour,$year,$id_kelipatan,$kelipatan,$itemKey,$standardQuantity,$range1,$range2)
   {
     $result['insert'] = 0;
     $result['update'] = 0;
@@ -199,8 +199,8 @@ class Budget_Cot_Model extends MY_Model
       }else{
 
         $qty_standar = $standardQuantity->$part_number;//$standardQuantity->$key
-        // $range1_val  = $range1->$part_number;
-        // $range2_val  = $range2->$part_number;
+        $range1_val  = $range1->$part_number;
+        $range2_val  = $range2->$part_number;
         $oldData     = $exist['data'];
 
         // $insert = $this->insertCot($hour,$year,$id_kelipatan,$kelipatan,$key,$qty_standar,$onhand,$part_number,$oldData);
@@ -209,8 +209,8 @@ class Budget_Cot_Model extends MY_Model
         if($insert['status']){
           $result['insert'] +=1;
           $id_cot = $this->db->insert_id();
-          $this->cotToBudgeting($id_cot,$insert['qty_requirement'],$hour,$key,$onhand);
-           // $this->cotToBudgeting($id_cot,$insert['qty_requirement'],$hour,$key,$onhand,$range1_val,$range2_val);
+          // $this->cotToBudgeting($id_cot,$insert['qty_requirement'],$hour,$key,$onhand);
+           $this->cotToBudgeting($id_cot,$insert['qty_requirement'],$hour,$key,$onhand,$range1_val,$range2_val);
         } else {
           $item = $this->itemById($key);
           array_push($result['error'], "Item ".$item->description);
@@ -219,61 +219,14 @@ class Budget_Cot_Model extends MY_Model
     }
     return $result;
   }
-  function cotToBudgeting($id_cot,$qty_requirement,$hour,$id_item,$onhand){
-    $item = $this->itemById($id_item);
-    $qty_requirement = $qty_requirement-$onhand < 0 ? 0 : $qty_requirement-$onhand;
-    $price = $item->current_price;
-    $avgMonthHour = floor($hour/12);
-    $desHour = $hour-($avgMonthHour*11);
-    $avgMonthQty = floor(($avgMonthHour/$hour)*$qty_requirement);
-    $desQty = $qty_requirement - ($avgMonthQty*11);
-    $initial_budget = 0;
-    $initial_quantity = 0;
-    $mtd_budget = 0;
-    $mtd_quantity = 0;        
-    $mtd_prev_month_budget = 0;
-    $mtd_prev_month_quantity = 0;
-    $ytd_budget = 0;
-    $ytd_quantity = 0;
-    $created_at = date('Y-m-d H:i:s');
-    $updated_at = date('Y-m-d H:i:s');
-    $created_by = config_item('auth_username');
-    for ($i=1; $i <13 ; $i++) { 
-      $month_number = $i;
-      $initial_quantity = ($i == 12) ? $desQty : $avgMonthQty;
-      $initial_budget = $initial_quantity * $price;
-      $mtd_budget = $initial_budget;
-      $mtd_quantity = $initial_quantity;        
-      // $ytd_budget = $qty_requirement*$price;
-      // $ytd_quantity = $qty_requirement;
-      $ytd_budget = $ytd_budget+$mtd_budget;
-      $ytd_quantity = $ytd_quantity+$mtd_quantity;
-      $hourMonthly = ($i == 12) ? $desHour : $avgMonthHour;
-      $isBudgetExist = $this->isBudgetExist($id_cot,$month_number);
-      if(!$isBudgetExist['status']){
-        $row = array("id_cot"=>$id_cot,"month_number"=>$month_number,"initial_budget"=>$initial_budget,"initial_quantity"=>$initial_quantity,"mtd_budget"=>$mtd_budget,"mtd_quantity"=>$mtd_quantity,"mtd_prev_month_budget"=>$mtd_prev_month_budget,"mtd_prev_month_quantity"=>$mtd_prev_month_quantity,"ytd_budget"=>$ytd_budget,"ytd_quantity"=>$ytd_quantity,"created_at"=>$created_at,"updated_at"=>$updated_at,"created_by"=>$created_by,"hour"=>$hourMonthly);
-        $this->insertBudgeting($row);
-
-      } else {
-          $row = array("id_cot"=>$id_cot,"month_number"=>$month_number,"initial_budget"=>$initial_budget,"initial_quantity"=>$initial_quantity,"mtd_budget"=>$mtd_budget,"mtd_quantity"=>$mtd_quantity,"mtd_prev_month_budget"=>$mtd_prev_month_budget,"mtd_prev_month_quantity"=>$mtd_prev_month_quantity,"ytd_budget"=>$ytd_budget,"ytd_quantity"=>$ytd_quantity,"updated_at"=>$updated_at,"updated_by"=>$created_by,"hour"=>$hourMonthly);
-             $this->updateBudgeting($isBudgetExist['id'],$row);
-      }
-      $mtd_prev_month_budget = $initial_budget;
-      $mtd_prev_month_quantity = $initial_quantity;
-    }
-    
-
-  }
-
-  // function cotToBudgeting($id_cot,$qty_requirement,$hour,$id_item,$onhand,$range1_val,$range2_val){
+  // function cotToBudgeting($id_cot,$qty_requirement,$hour,$id_item,$onhand){
   //   $item = $this->itemById($id_item);
   //   $qty_requirement = $qty_requirement-$onhand < 0 ? 0 : $qty_requirement-$onhand;
   //   $price = $item->current_price;
-  //   $range = ($range2_val-$range1_val)+1;
-  //   $avgMonthHour = floor($hour/$range);
-  //   $desHour = $hour-($avgMonthHour*($range-1));
+  //   $avgMonthHour = floor($hour/12);
+  //   $desHour = $hour-($avgMonthHour*11);
   //   $avgMonthQty = floor(($avgMonthHour/$hour)*$qty_requirement);
-  //   $desQty = $qty_requirement - ($avgMonthQty*($range-1));
+  //   $desQty = $qty_requirement - ($avgMonthQty*11);
   //   $initial_budget = 0;
   //   $initial_quantity = 0;
   //   $mtd_budget = 0;
@@ -287,28 +240,15 @@ class Budget_Cot_Model extends MY_Model
   //   $created_by = config_item('auth_username');
   //   for ($i=1; $i <13 ; $i++) { 
   //     $month_number = $i;
-  //     if($i>=$range1_val && $i<=$range2_val){
-  //       $initial_quantity = ($i == $range2_val) ? $desQty : $avgMonthQty;
-  //       $initial_budget = $initial_quantity * $price;
-  //       $mtd_budget = $initial_budget;
-  //       $mtd_quantity = $initial_quantity;        
-  //       // $ytd_budget = $qty_requirement*$price;
-  //       // $ytd_quantity = $qty_requirement;
-  //       $ytd_budget = $ytd_budget+$mtd_budget;
-  //       $ytd_quantity = $ytd_quantity+$mtd_quantity;
-  //       $hourMonthly = ($i == $range2_val) ? $desHour : $avgMonthHour;
-  //     }else{
-  //       $initial_quantity = 0;
-  //       $initial_budget = 0;
-  //       $mtd_budget = 0;
-  //       $mtd_quantity = 0;        
-  //       // $ytd_budget = $qty_requirement*$price;
-  //       // $ytd_quantity = $qty_requirement;
-  //       $ytd_budget = 0;
-  //       $ytd_quantity = 0;
-  //       $hourMonthly = 0;
-  //     }
-      
+  //     $initial_quantity = ($i == 12) ? $desQty : $avgMonthQty;
+  //     $initial_budget = $initial_quantity * $price;
+  //     $mtd_budget = $initial_budget;
+  //     $mtd_quantity = $initial_quantity;        
+  //     // $ytd_budget = $qty_requirement*$price;
+  //     // $ytd_quantity = $qty_requirement;
+  //     $ytd_budget = $ytd_budget+$mtd_budget;
+  //     $ytd_quantity = $ytd_quantity+$mtd_quantity;
+  //     $hourMonthly = ($i == 12) ? $desHour : $avgMonthHour;
   //     $isBudgetExist = $this->isBudgetExist($id_cot,$month_number);
   //     if(!$isBudgetExist['status']){
   //       $row = array("id_cot"=>$id_cot,"month_number"=>$month_number,"initial_budget"=>$initial_budget,"initial_quantity"=>$initial_quantity,"mtd_budget"=>$mtd_budget,"mtd_quantity"=>$mtd_quantity,"mtd_prev_month_budget"=>$mtd_prev_month_budget,"mtd_prev_month_quantity"=>$mtd_prev_month_quantity,"ytd_budget"=>$ytd_budget,"ytd_quantity"=>$ytd_quantity,"created_at"=>$created_at,"updated_at"=>$updated_at,"created_by"=>$created_by,"hour"=>$hourMonthly);
@@ -324,6 +264,66 @@ class Budget_Cot_Model extends MY_Model
     
 
   // }
+
+  function cotToBudgeting($id_cot,$qty_requirement,$hour,$id_item,$onhand,$range1_val,$range2_val){
+    $item = $this->itemById($id_item);
+    $qty_requirement = $qty_requirement-$onhand < 0 ? 0 : $qty_requirement-$onhand;
+    $price = $item->current_price;
+    $range = ($range2_val-$range1_val)+1;
+    $avgMonthHour = floor($hour/$range);
+    $desHour = $hour-($avgMonthHour*($range-1));
+    $avgMonthQty = floor(($avgMonthHour/$hour)*$qty_requirement);
+    $desQty = $qty_requirement - ($avgMonthQty*($range-1));
+    $initial_budget = 0;
+    $initial_quantity = 0;
+    $mtd_budget = 0;
+    $mtd_quantity = 0;        
+    $mtd_prev_month_budget = 0;
+    $mtd_prev_month_quantity = 0;
+    $ytd_budget = 0;
+    $ytd_quantity = 0;
+    $created_at = date('Y-m-d H:i:s');
+    $updated_at = date('Y-m-d H:i:s');
+    $created_by = config_item('auth_username');
+    for ($i=1; $i <13 ; $i++) { 
+      $month_number = $i;
+      if($i>=$range1_val && $i<=$range2_val){
+        $initial_quantity = ($i == $range2_val) ? $desQty : $avgMonthQty;
+        $initial_budget = $initial_quantity * $price;
+        $mtd_budget = $initial_budget;
+        $mtd_quantity = $initial_quantity;        
+        // $ytd_budget = $qty_requirement*$price;
+        // $ytd_quantity = $qty_requirement;
+        $ytd_budget = $ytd_budget+$mtd_budget;
+        $ytd_quantity = $ytd_quantity+$mtd_quantity;
+        $hourMonthly = ($i == $range2_val) ? $desHour : $avgMonthHour;
+      }else{
+        $initial_quantity = 0;
+        $initial_budget = 0;
+        $mtd_budget = 0;
+        $mtd_quantity = 0;        
+        // $ytd_budget = $qty_requirement*$price;
+        // $ytd_quantity = $qty_requirement;
+        $ytd_budget = 0;
+        $ytd_quantity = 0;
+        $hourMonthly = 0;
+      }
+      
+      $isBudgetExist = $this->isBudgetExist($id_cot,$month_number);
+      if(!$isBudgetExist['status']){
+        $row = array("id_cot"=>$id_cot,"month_number"=>$month_number,"initial_budget"=>$initial_budget,"initial_quantity"=>$initial_quantity,"mtd_budget"=>$mtd_budget,"mtd_quantity"=>$mtd_quantity,"mtd_prev_month_budget"=>$mtd_prev_month_budget,"mtd_prev_month_quantity"=>$mtd_prev_month_quantity,"ytd_budget"=>$ytd_budget,"ytd_quantity"=>$ytd_quantity,"created_at"=>$created_at,"updated_at"=>$updated_at,"created_by"=>$created_by,"hour"=>$hourMonthly);
+        $this->insertBudgeting($row);
+
+      } else {
+          $row = array("id_cot"=>$id_cot,"month_number"=>$month_number,"initial_budget"=>$initial_budget,"initial_quantity"=>$initial_quantity,"mtd_budget"=>$mtd_budget,"mtd_quantity"=>$mtd_quantity,"mtd_prev_month_budget"=>$mtd_prev_month_budget,"mtd_prev_month_quantity"=>$mtd_prev_month_quantity,"ytd_budget"=>$ytd_budget,"ytd_quantity"=>$ytd_quantity,"updated_at"=>$updated_at,"updated_by"=>$created_by,"hour"=>$hourMonthly);
+             $this->updateBudgeting($isBudgetExist['id'],$row);
+      }
+      $mtd_prev_month_budget = $initial_budget;
+      $mtd_prev_month_quantity = $initial_quantity;
+    }
+    
+
+  }
 
   function insertBudgeting($row){
     return $this->db->insert('tb_budget', $row);

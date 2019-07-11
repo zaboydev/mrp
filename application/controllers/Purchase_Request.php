@@ -263,7 +263,7 @@ class Purchase_Request extends MY_Controller
         $col[] = print_date($row['pr_date'],'d/m/Y');
         $col[] = print_date($row['required_date']);
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name']:$row['item_category']);
-        $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name']:$row['description']);
+        $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name']:$row['product_name']);
         $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
         $col[] = print_string($row['additional_info']);
         $col[] = print_number($row['quantity'], 2);
@@ -610,9 +610,11 @@ class Purchase_Request extends MY_Controller
         $total ++;
         $success ++;
         $failed --;
+        // $this->model->send_mail_approved($key,'approved');
       }
     }
     if($success>0){
+
       $this->session->set_flashdata('alert', array(
                 'type' => 'success',
                 'info' => $success." data has been update!"
@@ -805,35 +807,38 @@ class Purchase_Request extends MY_Controller
   }
 
   public function send_mail() { 
- //    $from_email = "baliflight@hotmail.com"; 
- //    $to_email = "aidanurul99@rocketmail.com"; 
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
    
- //    //Load email library 
- //    $this->load->library('email'); 
- //    $config = array();
-	// $config['protocol'] = 'mail';
-	// $config['smtp_host'] = 'smtp.live.com';
-	// $config['smtp_user'] = 'baliflight@hotmail.com';
-	// $config['smtp_pass'] = 'b1f42015';
-	// $config['smtp_port'] = 587;
-	// $config['smtp_auth']        = true;
-	// $config['mailtype']         = 'html';
-	// $this->email->initialize($config);
-	// $this->email->set_newline("\r\n");
-	// $message = "<p>Dear Chief Of Maintenance,</p>";
- //    $message .= "<p>Berikut permintaan Purchase Request  dari Gudang :</p>";
- //    $message .= "<ul>";
- //    $message .= "</ul>";
- //    $message .= "<p>Silakan klik pilihan <strong style='color:blue;'>APPROVE</strong> untuk menyetujui atau <strong style='color:red;'>REJECT</strong> untuk menolak permintaan ini.</p>";
- //    $message .= "<p>Thanks and regards</p>";
- //    $this->email->from($from_email, 'Your Name'); 
- //    $this->email->to($to_email);
- //    $this->email->subject('Permintaan Approval Purchase Request'); 
- //    $this->email->message($message); 
-   	$return = $this->model->send_mail();
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+	$config['protocol'] = 'mail';
+	$config['smtp_host'] = 'smtp.live.com';
+	$config['smtp_user'] = 'baliflight@hotmail.com';
+	$config['smtp_pass'] = 'b1f42015';
+	$config['smtp_port'] = 587;
+	$config['smtp_auth']        = true;
+	$config['mailtype']         = 'html';
+	$this->email->initialize($config);
+	$this->email->set_newline("\r\n");
+	$message = "<p>Dear Chief Of Maintenance,</p>";
+    $message .= "<p>Berikut permintaan Purchase Request  dari Gudang :</p>";
+    $message .= "<ul>";
+    $message .= "</ul>";
+    $message .= "<p>Silakan klik pilihan <strong style='color:blue;'>APPROVE</strong> untuk menyetujui atau <strong style='color:red;'>REJECT</strong> untuk menolak permintaan ini.</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Your Name'); 
+    $this->email->to($to_email);
+    $this->email->subject('Permintaan Approval Purchase Request'); 
+    $this->email->message($message); 
+   	// $return = $this->model->send_mail();
     //Send mail 
- 
-    $this->session->set_flashdata("email_sent",$return); 
+    if($this->email->send()) 
+      return $this->session->set_flashdata("email_sent","email sent");
+    else 
+      return $this->session->set_flashdata("email_sent",$this->email->print_debugger());
+    // $this->session->set_flashdata("email_sent",$return); 
     $this->render_view($this->module['view'] .'/email_form');
   }
 
