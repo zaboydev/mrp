@@ -964,7 +964,7 @@ class Purchase_Order_Model extends MY_Model
       array_push($recipient, $key->email);
     }
 
-    $from_email = "baliflight@hotmail.com"; 
+    $from_email = "bifa.acd@gmail.com"; 
     $to_email = "aidanurul99@rocketmail.com";
     $ket_level = '';
     if($level==9){
@@ -982,8 +982,8 @@ class Purchase_Order_Model extends MY_Model
     $config = array();
     $config['protocol'] = 'mail';
     $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'baliflight@hotmail.com';
-    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_user'] = 'bifa.acd@gmail.com';
+    $config['smtp_pass'] = 'b1f42019';
     $config['smtp_port'] = 587;
     $config['smtp_auth']        = true;
     $config['mailtype']         = 'html';
@@ -997,7 +997,7 @@ class Purchase_Order_Model extends MY_Model
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
-    $this->email->from($from_email, 'MRP'); 
+    $this->email->from($from_email, 'Material Resource Planning'); 
     $this->email->to($recipient);
     $this->email->subject('Permintaan Approval Purchase Order No : '.$row['document_number']); 
     $this->email->message($message); 
