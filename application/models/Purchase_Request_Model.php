@@ -1980,9 +1980,9 @@ class Purchase_Request_Model extends MY_Model
     $this->load->library('email'); 
     $config = array();
     $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'baliflight@hotmail.com';
-    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_host'] = 'smtp.gmail.com';
+    $config['smtp_user'] = 'kiddo2095@gmail.com';
+    $config['smtp_pass'] = 'kyuhyun234';
     $config['smtp_port'] = 587;
     $config['smtp_auth']        = true;
     $config['mailtype']         = 'html';
@@ -1996,7 +1996,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
-    $this->email->from($from_email, 'Your Name'); 
+    $this->email->from($from_email, 'Material Resource Planning'); 
     $this->email->to($recipient);
     $this->email->subject('Permintaan Approval Purchase Request No : '.$row['pr_number']); 
     $this->email->message($message); 
@@ -2020,7 +2020,7 @@ class Purchase_Request_Model extends MY_Model
       array_push($recipient, $key->email);
     }
 
-    $from_email = "baliflight@hotmail.com"; 
+    $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com"; 
    
     //Load email library 
@@ -2028,8 +2028,8 @@ class Purchase_Request_Model extends MY_Model
     $config = array();
     $config['protocol'] = 'mail';
     $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'baliflight@hotmail.com';
-    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_user'] = 'bifa.acd@gmail.com';
+    $config['smtp_pass'] = 'b1f42019';
     $config['smtp_port'] = 587;
     $config['smtp_auth']        = true;
     $config['mailtype']         = 'html';
@@ -2043,7 +2043,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
-    $this->email->from($from_email, 'Your Name'); 
+    $this->email->from($from_email, 'Material Resource Planning'); 
     $this->email->to($recipient);
     $this->email->subject('Permintaan Approval Purchase Request No : '.$row['pr_number']); 
     $this->email->message($message); 
@@ -2068,7 +2068,7 @@ class Purchase_Request_Model extends MY_Model
       array_push($recipient, $key->email);
     }
 
-    $from_email = "baliflight@hotmail.com"; 
+    $from_email = "bifa.acd@gmail.com"; 
     $to_email = "aidanurul99@rocketmail.com"; 
    
     //Load email library 
@@ -2076,8 +2076,8 @@ class Purchase_Request_Model extends MY_Model
     $config = array();
     $config['protocol'] = 'mail';
     $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'baliflight@hotmail.com';
-    $config['smtp_pass'] = 'b1f42015';
+    $config['smtp_user'] = 'bifa.acd@gmail.com';
+    $config['smtp_pass'] = 'b1f42019';
     $config['smtp_port'] = 587;
     $config['smtp_auth']        = true;
     $config['mailtype']         = 'html';
@@ -2096,7 +2096,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
-    $this->email->from($from_email, 'Your Name'); 
+    $this->email->from($from_email, 'Material Resource Planning'); 
     $this->email->to($recipient);
     $this->email->subject('Notification Purchase Request No : '.$row['pr_number']); 
     $this->email->message($message); 

@@ -45,8 +45,8 @@
                   <th width="25%">Part Number</th>
                		<th width="25%">Item</th>
                		<th width="10%">Standard Quantity</th>
-                  <th width="5%">Standard Quantity</th>
-                  <th width="5%">Standard Quantity</th>
+                  <th width="5%">start month</th>
+                  <th width="5%">end month</th>
                	</tr>
                </thead>
                <tbody id="listView">

@@ -807,22 +807,22 @@ class Purchase_Request extends MY_Controller
   }
 
   public function send_mail() { 
-    $from_email = "baliflight@hotmail.com"; 
+    $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com"; 
    
     //Load email library 
     $this->load->library('email'); 
     $config = array();
-	$config['protocol'] = 'mail';
-	$config['smtp_host'] = 'smtp.live.com';
-	$config['smtp_user'] = 'baliflight@hotmail.com';
-	$config['smtp_pass'] = 'b1f42015';
-	$config['smtp_port'] = 587;
-	$config['smtp_auth']        = true;
-	$config['mailtype']         = 'html';
-	$this->email->initialize($config);
-	$this->email->set_newline("\r\n");
-	$message = "<p>Dear Chief Of Maintenance,</p>";
+  	$config['protocol'] = 'mail';
+  	$config['smtp_host'] = 'smtp.live.com';
+  	$config['smtp_user'] = 'baliflight@hotmail.com';
+  	$config['smtp_pass'] = 'b1f42015';
+  	$config['smtp_port'] = 587;
+  	$config['smtp_auth']        = true;
+  	$config['mailtype']         = 'html';
+  	$this->email->initialize($config);
+  	$this->email->set_newline("\r\n");
+  	$message = "<p>Dear Chief Of Maintenance,</p>";
     $message .= "<p>Berikut permintaan Purchase Request  dari Gudang :</p>";
     $message .= "<ul>";
     $message .= "</ul>";
@@ -832,7 +832,7 @@ class Purchase_Request extends MY_Controller
     $this->email->to($to_email);
     $this->email->subject('Permintaan Approval Purchase Request'); 
     $this->email->message($message); 
-   	// $return = $this->model->send_mail();
+    // $return = $this->model->send_mail();
     //Send mail 
     if($this->email->send()) 
       return $this->session->set_flashdata("email_sent","email sent");
