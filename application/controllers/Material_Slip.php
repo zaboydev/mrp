@@ -351,9 +351,9 @@ class Material_Slip extends MY_Controller
           $unit_value[]   = $row['issued_unit_value'];
           $total_value[]  = $row['issued_total_value'];
         }
-		if (config_item('auth_role') == 'FINANCE'){
-			$col[]  = print_string($row['kode_pemakaian']);
-		}
+    		if (config_item('auth_role') == 'FINANCE'){
+    			$col[]  = print_string($row['kode_pemakaian']);
+    		}
 
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];

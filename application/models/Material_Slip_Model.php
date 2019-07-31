@@ -42,7 +42,7 @@ class Material_Slip_Model extends MY_Model
       $selected['tb_issuance_items.issued_total_value'] = 'Total Value';
     }
 	
-	if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+	  if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
         $selected['tb_master_items.kode_pemakaian']    = 'Biaya Pemakaian';
     }
 
@@ -111,8 +111,8 @@ class Material_Slip_Model extends MY_Model
       $orderable[] = 'tb_issuance_items.issued_total_value';
     }
 	
-	if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
-		$orderable[] = 'tb_master_items.kode_pemakaian';
+	  if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+		  $orderable[] = 'tb_master_items.kode_pemakaian';
     }
 
     return $orderable;

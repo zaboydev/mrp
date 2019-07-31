@@ -861,6 +861,7 @@ $(function(){
 
           // $('#quantity').attr('max', maximum_quantity).focus();
           // $('#total').attr('max', maximum_price);
+          $("#modal-add-item-submit").prop("disabled", false);
 
           $('#search_item_unbudgeted').val('');
 

@@ -9,7 +9,7 @@ class Commercial_Invoice_Model extends MY_Model
 
   public function getSelectedColumns()
   {
-    return array(
+    $selected = array(
       'tb_issuances.id'                       => NULL,
       'tb_issuances.document_number'          => 'Document Number',
       'tb_issuances.issued_date'              => 'Date',
@@ -25,7 +25,19 @@ class Commercial_Invoice_Model extends MY_Model
       'tb_issuance_items.remarks'             => 'Remarks',
       'tb_issuances.issued_to'                => 'Sent To',
       'tb_issuances.issued_by'                => 'Released By',
+      'tb_receipts.received_from'                => 'Supplier',
     );
+
+    if (config_item('auth_role') != 'PIC STOCK'){
+      $selected['tb_issuance_items.issued_unit_value']  = 'Value';
+      $selected['tb_issuance_items.issued_total_value'] = 'Total Value';
+    }
+  
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+        $selected['tb_master_items.kode_pemakaian']    = 'Biaya Pemakaian';
+    }
+
+    return $selected;
   }
 
   public function getSearchableColumns()
@@ -43,6 +55,7 @@ class Commercial_Invoice_Model extends MY_Model
       'tb_issuance_items.remarks',
       'tb_issuances.issued_to',
       'tb_issuances.issued_by',
+      'tb_receipts.received_from'
     );
   }
 
@@ -64,6 +77,7 @@ class Commercial_Invoice_Model extends MY_Model
       'tb_issuance_items.remarks',
       'tb_issuances.issued_to',
       'tb_issuances.issued_by',
+      'tb_receipts.received_from'
     );
   }
 
@@ -107,6 +121,7 @@ class Commercial_Invoice_Model extends MY_Model
     $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
     $this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_in_stores.serial_id', 'left');
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+    $this->db->join('tb_receipts', 'tb_stock_in_stores.reference_document = tb_receipts.document_number');
     $this->db->where_in('tb_issuances.category', config_item('auth_inventory'));
     $this->db->where_in('tb_issuances.warehouse', config_item('auth_warehouses'));
     $this->db->like('tb_issuances.document_number', 'CI');
