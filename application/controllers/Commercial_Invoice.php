@@ -157,6 +157,7 @@ class Commercial_Invoice extends MY_Controller
       $quantity = array();
       $unit_value   = array();
       $total_value  = array();
+      $total_value_usd  = array();
 
       foreach ($entities as $row){
         $no++;
@@ -186,8 +187,13 @@ class Commercial_Invoice extends MY_Controller
           $unit_value[]   = $row['issued_unit_value'];
           $total_value[]  = $row['issued_total_value'];
         }
-        if (config_item('auth_role') == 'FINANCE'){
+        if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){          
+          $col[]  = print_number($row['kurs_dollar'], 2);
+          $col[]  = print_number($row['unit_value_dollar']*$row['issued_quantity'], 2);
           $col[]  = print_string($row['kode_pemakaian']);
+
+
+          $total_value_usd[]  = $row['unit_value_dollar']*$row['issued_quantity'];
         }
         $quantity[] = $row['issued_quantity'];
 
@@ -216,6 +222,10 @@ class Commercial_Invoice extends MY_Controller
         // $result['total'][15] = print_number(array_sum($unit_value), 2);
         $result['total'][17] = print_number(array_sum($total_value), 2);
       }
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+        // $result['total'][15] = print_number(array_sum($unit_value), 2);
+        $result['total'][19] = print_number(array_sum($total_value), 2);
+      }
     }
 
     echo json_encode($result);
@@ -233,6 +243,9 @@ class Commercial_Invoice extends MY_Controller
     if (config_item('auth_role') != 'PIC STOCK'){
       // $this->data['grid']['summary_columns'][] = 15;
       $this->data['grid']['summary_columns'][] = 17;
+    }
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+      $this->data['grid']['summary_columns'][] = 19;
     }
     $this->data['grid']['order_columns']    = array(
       0   => array( 0 => 1,  1 => 'desc' ),

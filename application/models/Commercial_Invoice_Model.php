@@ -30,11 +30,13 @@ class Commercial_Invoice_Model extends MY_Model
 
     if (config_item('auth_role') != 'PIC STOCK'){
       $selected['tb_issuance_items.issued_unit_value']  = 'Value';
-      $selected['tb_issuance_items.issued_total_value'] = 'Total Value';
+      $selected['tb_issuance_items.issued_total_value'] = 'Total Value IDR';
     }
   
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
-        $selected['tb_master_items.kode_pemakaian']    = 'Biaya Pemakaian';
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){  
+      $selected['tb_stock_in_stores.kurs_dollar'] = 'Kurs USD';    
+      $selected['tb_stock_in_stores.unit_value_dollar'] = 'Total Value USD';
+      $selected['tb_master_items.kode_pemakaian']    = 'Biaya Pemakaian';
     }
 
     return $selected;
