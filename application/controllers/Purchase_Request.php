@@ -12,7 +12,7 @@ class Purchase_Request extends MY_Controller
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
-    $this->load->library('email');
+	$this->load->library('email');
     if(empty($_SESSION['request']['request_to']))
       $_SESSION['request']['request_to'] = 1;
   }
@@ -807,6 +807,7 @@ class Purchase_Request extends MY_Controller
   }
 
   public function send_mail() { 
+
     $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com"; 
    

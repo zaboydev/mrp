@@ -76,12 +76,12 @@ class Purchase_Order_Model extends MY_Model
     }
       
   }
-  // public function getNotifRecipient($int){
-  //   $this->db->select('email','person_name');
-  //   $this->db->from('tb_auth_users');
-  //   $this->db->where('auth_level',$int);
-  //   return $this->db->get('')->result();
-  // }
+   /*public function getNotifRecipient($int){
+    $this->db->select('email','person_name');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',$int);
+    return $this->db->get('')->result();
+  }*/
   public function getSearchableColumns()
   {
     return array(
