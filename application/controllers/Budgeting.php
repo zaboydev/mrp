@@ -45,7 +45,7 @@ class Budgeting extends MY_Controller {
       $no++;
       $col = array();
       if($row->status=="ON PROCESS"){
-        if(config_item('auth_role') == 'CHIEF OF MAINTENANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+        if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
           $col[] = '<input type="checkbox" id="cb_'.$row->id_cot.'"  data-id="'.$row->id_cot.'" name="" style="display: inline;">';
         }         
       } else {

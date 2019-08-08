@@ -249,12 +249,12 @@ class App_Model extends MY_Model
         } else {
           $average_value = $grand_total_value / $balance_quantity;
         }
-		$this->db->from('tb_stock_in_stores');
+		    $this->db->from('tb_stock_in_stores');
         $this->db->where('tb_stock_in_stores.id', $stock_adj['stock_in_stores_id']);
         $query_tb_stock_in_stores = $this->db->get();
         $tb_stock_in_stores = $query_tb_stock_in_stores->unbuffered_row('array');
 		
-		$prev_old_stock = getStockPrev($tb_stock_in_stores['stock_id'],$tb_stock_in_stores['stores'])+ floatval($stock['adjustment_quantity']);
+		    $prev_old_stock = getStockPrev($tb_stock_in_stores['stock_id'],$tb_stock_in_stores['stores'])+ floatval($stock['adjustment_quantity']);
         $next_old_stock = floatval($prev_old_stock) + floatval($stock['adjustment_quantity']);
 
         $this->db->set('stock_id', $stock['stock_id']);

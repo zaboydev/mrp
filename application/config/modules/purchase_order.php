@@ -17,5 +17,5 @@ $config['module']['purchase_order']['permission']     = array(
   'print'     => 'PIC PROCUREMENT,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,PROCUREMENT,SUPER ADMIN',
   'document'  => 'PIC PROCUREMENT,PROCUREMENT,SUPERVISOR,SUPER ADMIN,FINANCE',//tambhan supervisor
   'payment'   => 'FINANCE,SUPER ADMIN',//tambhan supervisor
-  'approval'  => 'FINANCE,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,'
+  'approval'  => 'FINANCE,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN'
 );
