@@ -26,18 +26,19 @@
 <?php startblock('actions_right') ?>
   <?php if (is_granted($module, 'document')):?>
     <div class="section-floating-action-row">
-      <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') ||(config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')):?>
+      <?php if (config_item('auth_role') == 'CHIEF OF MAINTANCE' ||config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN'):?>
         <button type="button" data-source = "<?=site_url($module['route'] .'/multi_reject/');?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
           <i class="md md-clear"></i>
           <small class="top right">reject</small>
         </button>
       <?php endif;?>
-      <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') ||(config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')):?>
+      <?php if (config_item('auth_role') == 'CHIEF OF MAINTANCE' ||config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN'):?>
         <button type="button" data-source = "<?=site_url($module['route'] .'/multi_approve/');?>"  class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
           <i class="md md-spellcheck"></i>
           <small class="top right">approve</small>
         </button>
       <?php endif;?>
+	  <?php if (config_item('auth_role') == 'SUPERVISOR' ||config_item('auth_role') == 'PIC STOCK' || config_item('auth_role') == 'PIC PROCUREMENT'):?>
       <div class="btn-group dropup">
         <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
           <i class="md md-add"></i>
@@ -52,6 +53,7 @@
           <?php endforeach;?>
         </ul>
       </div>
+      <?php endif;?>
 
     </div>
   <?php endif ?>

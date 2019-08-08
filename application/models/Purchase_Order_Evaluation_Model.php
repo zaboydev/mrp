@@ -45,12 +45,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
-  public function getNotifRecipient(){
+  /*public function getNotifRecipient(){
     $this->db->select('email');
     $this->db->from('tb_auth_users');
     $this->db->where('auth_level',9);
     return $this->db->get('')->result();
-  }
+  }*/
+  
   public function getNotifRecipientHOS(){
     $this->db->select('email');
     $this->db->from('tb_auth_users');
