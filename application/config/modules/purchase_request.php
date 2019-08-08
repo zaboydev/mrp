@@ -12,8 +12,9 @@ $config['module']['purchase_request']['helper']         = 'purchase_request_help
 $config['module']['purchase_request']['table']          = 'tb_purchase_requests';
 $config['module']['purchase_request']['model']          = 'Purchase_Request_Model';
 $config['module']['purchase_request']['permission']     = array(
-  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'info'      => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN,CHIEF OF MAINTANCE',
+  'info'      => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN,CHIEF OF MAINTANCE',
   'document'  => 'PIC STOCK,SUPERVISOR,PIC PROCUREMENT,SUPER ADMIN',
   'print'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'approval'  => 'CHIEF OF MAINTANCE,FINANCE,SUPER ADMIN',
 );
