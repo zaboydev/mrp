@@ -858,7 +858,7 @@ class Purchase_Order_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
-    $this->send_mail($id_po,9);
+    $this->send_mail($id_po,14);
     return TRUE;
   }
 
@@ -983,8 +983,8 @@ class Purchase_Order_Model extends MY_Model
     $from_email = "bifa.acd@gmail.com"; 
     $to_email = "aidanurul99@rocketmail.com";
     $ket_level = '';
-    if($level==9){
-      $ket_level = 'Finance';
+    if($level==14){
+      $ket_level = 'Finance Manager';
     }elseif ($level==10) {
       $ket_level = 'Head Of School';
     } elseif($level==11){
