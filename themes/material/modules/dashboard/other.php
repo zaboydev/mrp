@@ -7,8 +7,7 @@
       <div class="row">
       </div>
 
-      <?php if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'HEAD OF SCHOOL' || config_item('auth_role') == 'CHIEF OF FINANCE') { 
-        ?>
+      <?php if (is_granted($module, 'approval')){?>
         <div class="row">
         <div class="col-sm-6">
           <div class="card">
