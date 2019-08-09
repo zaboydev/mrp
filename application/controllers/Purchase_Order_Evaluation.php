@@ -145,7 +145,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
   public function sendEmail()
   {
-    $recipientList = $this->model->getNotifRecipient();
+    $recipientList = $this->model->getNotifRecipient(9);
     $recipient = array();
     foreach ($recipientList as $key ) {
       array_push($recipient, $key->email);

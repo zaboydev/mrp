@@ -39,7 +39,8 @@ $config['levels_and_roles'] = array(
 	'10' 	=> 'HEAD OF SCHOOL',
 	'11' 	=> 'CHIEF OF FINANCE',
 	'12' 	=> 'PROCUREMENT',
-	'13'	=> 'SUPER ADMIN'
+	'13'	=> 'SUPER ADMIN',
+	'14'	=> 'FINANCE MANAGER'
 );
 
 /*

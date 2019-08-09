@@ -521,15 +521,15 @@ if ( ! function_exists('available_vendors')) {
     $CI->db->from('tb_master_vendors');
     $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
 
-    if ($category !== NULL){
-      $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
+    // if ($category !== NULL){
+    //   $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
 
-      if (is_array($category)){
-        $CI->db->where_in('tb_master_vendor_categories.category', $category);
-      } else {
-        $CI->db->where('tb_master_vendor_categories.category', $category);
-      }
-    }
+    //   if (is_array($category)){
+    //     $CI->db->where_in('tb_master_vendor_categories.category', $category);
+    //   } else {
+    //     $CI->db->where('tb_master_vendor_categories.category', $category);
+    //   }
+    // }
 
     $query  = $CI->db->get();
     $result = $query->result_array();

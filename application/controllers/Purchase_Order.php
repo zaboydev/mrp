@@ -47,8 +47,8 @@ class Purchase_Order extends MY_Controller
         $no++;
         $col = array();
        
-        if ((config_item('auth_role') == 'VP FINANCE')||(config_item('auth_role') == 'FINANCE')||(config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')){
-          if((config_item('auth_role') == 'FINANCE')&&($row['review_status'] == strtoupper("waiting for finance review"))){
+        if ((config_item('auth_role') == 'VP FINANCE')||(config_item('auth_role') == 'FINANCE MANAGER')||(config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')){
+          if((config_item('auth_role') == 'FINANCE MANAGER')&&($row['review_status'] == strtoupper("waiting for finance review"))){
             $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
           } else if ((config_item('auth_role') == 'HEAD OF SCHOOL')&&($row['review_status'] == strtoupper("waiting for hos review"))){
             $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';

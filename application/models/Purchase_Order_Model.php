@@ -19,7 +19,7 @@ class Purchase_Order_Model extends MY_Model
   }
   public function getSelectedColumns()
   {
-    if((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')||(config_item('auth_role') == 'FINANCE')||(config_item('auth_role') == 'VP FINANCE')){
+    if((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')||(config_item('auth_role') == 'FINANCE MANAGER')||(config_item('auth_role') == 'VP FINANCE')){
       return array(
       "''".' as "temp"' => "Act.",     
       'tb_po.id' => NULL,
