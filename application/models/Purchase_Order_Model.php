@@ -797,6 +797,8 @@ class Purchase_Order_Model extends MY_Model
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
     $id_po = $this->db->insert_id();
+    $total_qty = 0;
+    $total_value = 0;
 
     foreach ($_SESSION['order']['items'] as $key => $item){
       $this->db->set('purchase_order_id', $id_po);
@@ -822,6 +824,8 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
       $this->db->set('poe_number', $item['evaluation_number']);
       $this->db->insert('tb_po_item');
+      $total_qty = $total_qty+$item['quantity'];
+      $total_value = $total_value+$item['total_amount'];
 
       $this->db->set('quantity_received','"quantity_received" + '.$item['quantity'],false);
       $this->db->set('left_received_quantity','"left_received_quantity" - '.$item['quantity'],false);
@@ -837,6 +841,18 @@ class Purchase_Order_Model extends MY_Model
       }
 
     }
+
+    $after_discount = $total_value - $discount;
+    $total_taxes    = $after_discount * ( $taxes/100 );
+    $after_taxes    = $after_discount + $total_taxes;
+    $grandtotal     = $after_taxes + $shipping_cost;
+
+    $this->db->set('total_quantity',floatval($total_qty));
+    $this->db->set('total_price',floatval($total_value));
+    $this->db->set('grandtotal',floatval($grandtotal));
+    $this->db->set('remaining_payment',floatval($grandtotal));
+    $this->db->where('id', $id_po);
+    $this->db->update('tb_po');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

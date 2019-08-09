@@ -24,6 +24,9 @@ $config['parent']['budget']['icon']   = 'md md-attach-money';
 $config['parent']['accounting_report']['label']  = 'Accounting Report';
 $config['parent']['accounting_report']['icon']   = 'md md-account-balance-wallet';
 
+$config['parent']['finance']['label']  = 'Finance';
+$config['parent']['finance']['icon']   = 'md md-payment';
+
 $config['parent']['procurement']['label']  = 'Procurement';
 $config['parent']['procurement']['icon']   = 'md md-assignment';
 
@@ -83,6 +86,7 @@ require('modules/konsolidasi.php');
 require('modules/account_payable.php');
 require('modules/jurnal.php');
 require('modules/usage_jurnal.php');
+require('modules/payment.php');
 // require('modules/doc_receipt.php');
 // require('modules/doc_usage.php');
 // require('modules/doc_delivery.php');
