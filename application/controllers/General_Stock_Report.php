@@ -67,7 +67,7 @@ class General_Stock_Report extends MY_Controller
     
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $condition .'/'. $warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
     $this->data['grid']['fixed_columns']    = 4;
-    $this->data['grid']['summary_columns']  = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22);
+    $this->data['grid']['summary_columns']  = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24);
     // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
     //   $this->data['grid']['summary_columns'][] = 15;
     // }
@@ -123,6 +123,8 @@ class General_Stock_Report extends MY_Controller
     $ship_out_total_value        = array();
     $ship_in_total_value         = array();
     $balance_total_value         = array();
+    $retur_total_value         = array();
+    $retur_qty         = array();
 
     foreach ($entities as $row){
       $no++;
@@ -148,7 +150,8 @@ class General_Stock_Report extends MY_Controller
       $col[] = print_number($row['ship_out_total_value'], 2);
       $col[] = print_number($row['ship_in_qty'], 2);
       $col[] = print_number($row['ship_in_total_value'], 2);
-      
+      $col[] = print_number($row['retur_qty'], 2);
+      $col[] = print_number($row['retur_total_value'], 2);
       // $col[] = print_number($row['qty']+$row['ship_out_qty']+$row['ship_in_qty']+$row['adj_qty']+$row['mix_qty']+$row['ms_qty']+$row['grn_qty'], 2);
       // $col[] = print_number($row['total_value']+$row['ship_out_total_value']+$row['ship_in_total_value']+$row['adj_total_value']+$row['mix_total_value']+$row['ms_total_value']+$row['grn_total_value'], 2);
       $col[] = print_number($row['balance_qty'], 2);
@@ -178,7 +181,9 @@ class General_Stock_Report extends MY_Controller
       $adj_total_value[]             = $row['adj_total_value'];
       $ship_out_total_value[]        = $row['ship_out_total_value'];
       $ship_in_total_value[]         = $row['ship_in_total_value'];
-      $balance_total_value[]         = $row['total_value'];     
+      $balance_total_value[]         = $row['total_value'];
+      $retur_total_value[]         = $row['retur_total_value']; 
+      $retur_qty[]           = $row['retur_qty'];         
 
       $col['DT_RowId']              = 'row_'. $row['id'];
       $col['DT_RowData']['pkey']    = $row['id'];
@@ -212,8 +217,10 @@ class General_Stock_Report extends MY_Controller
           18  => print_number(array_sum($ship_out_total_value), 2),
           19  => print_number(array_sum($ship_in_qty), 2),
           20  => print_number(array_sum($ship_in_total_value), 2),
-          21  => print_number(array_sum($iniatial_qty), 2),
-          22  => print_number(array_sum($iniatial_total_value), 2),
+          21  => print_number(array_sum($retur_qty), 2),
+          22  => print_number(array_sum($retur_total_value), 2),
+          23  => print_number(array_sum($iniatial_qty), 2),
+          24  => print_number(array_sum($iniatial_total_value), 2),
         )
       );
     // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
@@ -577,7 +584,7 @@ class General_Stock_Report extends MY_Controller
     
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_no_shipping/'. $condition .'/'. $warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
     $this->data['grid']['fixed_columns']    = 4;
-    $this->data['grid']['summary_columns']  = array(7,8,9,10,11,12,13,14,15,16,17,18);
+    $this->data['grid']['summary_columns']  = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20);
     // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
     //   $this->data['grid']['summary_columns'][] = 15;
     // }
@@ -633,6 +640,8 @@ class General_Stock_Report extends MY_Controller
     $ship_out_total_value        = array();
     $ship_in_total_value         = array();
     $balance_total_value         = array();
+    $retur_total_value         = array();
+    $retur_qty         = array();
 
     foreach ($entities as $row){
       $no++;
@@ -643,7 +652,7 @@ class General_Stock_Report extends MY_Controller
       $col[] = print_string($row['serial_number']);
       $col[] = print_string($row['description']);
       $col[] = print_string($row['kode_stok']);
-	  $col[] = print_string($row['coa']);
+	    $col[] = print_string($row['coa']);
       $col[] = print_number($row['qty'], 2);
       $col[] = print_number($row['total_value'], 2);
       $col[] = print_number($row['grn_qty'], 2);
@@ -654,6 +663,8 @@ class General_Stock_Report extends MY_Controller
       $col[] = print_number($row['mix_total_value'], 2);
       $col[] = print_number($row['adj_qty'], 2);
       $col[] = print_number($row['adj_total_value'], 2);
+      $col[] = print_number($row['retur_qty'], 2);
+      $col[] = print_number($row['retur_total_value'], 2);
       // $col[] = print_number($row['ship_out_qty'], 2);
       // $col[] = print_number($row['ship_out_total_value'], 2);
       // $col[] = print_number($row['ship_in_qty'], 2);
@@ -663,7 +674,7 @@ class General_Stock_Report extends MY_Controller
       // $col[] = print_number($row['total_value']+$row['ship_out_total_value']+$row['ship_in_total_value']+$row['adj_total_value']+$row['mix_total_value']+$row['ms_total_value']+$row['grn_total_value'], 2);
       $col[] = print_number($row['balance_qty'], 2);
       $col[] = print_number($row['balance_total_value'], 2);
-	  $col[] = print_string($row['kode_pemakaian']);
+	    $col[] = print_string($row['kode_pemakaian']);
 
       // $col[] = print_string($row['unit']);           
       // $col[] = print_string($row['stores']);
@@ -690,6 +701,8 @@ class General_Stock_Report extends MY_Controller
       $ship_out_total_value[]        = $row['ship_out_total_value'];
       $ship_in_total_value[]         = $row['ship_in_total_value'];
       $balance_total_value[]         = $row['total_value'];     
+      $retur_total_value[]         = $row['retur_total_value']; 
+      $retur_qty[]           = $row['retur_qty'];         
 
       $col['DT_RowId']              = 'row_'. $row['id'];
       $col['DT_RowData']['pkey']    = $row['id'];
@@ -722,8 +735,10 @@ class General_Stock_Report extends MY_Controller
           // 17  => print_number(array_sum($ship_out_total_value), 2),
           // 18  => print_number(array_sum($ship_in_qty), 2),
           // 19  => print_number(array_sum($ship_in_total_value), 2),
-          17  => print_number(array_sum($iniatial_qty), 2),
-          18  => print_number(array_sum($iniatial_total_value), 2),
+          17  => print_number(array_sum($retur_qty), 2),
+          18  => print_number(array_sum($retur_total_value), 2),
+          19  => print_number(array_sum($iniatial_qty), 2),
+          20  => print_number(array_sum($iniatial_total_value), 2),
         )
       );
     // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
