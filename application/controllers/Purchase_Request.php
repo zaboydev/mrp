@@ -250,15 +250,22 @@ class Purchase_Request extends MY_Controller
         $no++;
         $col = array();
 
-        if($row['status']=="budgeted" || $row['status']=="waiting" || $row['status']=="pending"){
+        if($row['status']=='waiting'){
           if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
             $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
           }else{
             $col[] = print_number($no);
-          }          
-        } else {
+          }
+        }elseif($row['status']=='pending'){
+          if(config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'SUPER ADMIN'){
+            $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
+          }else{
+            $col[] = print_number($no);
+          }
+        }else{
           $col[] = print_number($no);
         }
+        
         $col[] = print_string($row['pr_number']);
         $col[] = print_date($row['pr_date'],'d/m/Y');
         $col[] = print_date($row['required_date']);

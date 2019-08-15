@@ -12,9 +12,9 @@ $config['module']['global_report']['helper']         = 'material_slip_helper';
 $config['module']['global_report']['table']          = 'tb_purchase_orders';
 $config['module']['global_report']['model']          = 'Global_Report_Model';
 $config['module']['global_report']['permission']     = array(
-  'index'     => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',
-  'info'      => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',
-  'print'     => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',
-  'document'  => 'PIC PROCUREMENT,SUPERVISOR,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',//tambhan supervisor
-  'payment'   => 'FINANCE,SUPER ADMIN',//tambhan supervisor
+  'index'     => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN,FINANCE MANAGER',
+  'info'      => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN,FINANCE MANAGER',
+  'print'     => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN,FINANCE MANAGER',
+  'document'  => 'PIC PROCUREMENT,SUPERVISOR,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN,FINANCE MANAGER',//tambhan supervisor
+  'payment'   => 'FINANCE,SUPER ADMIN,FINANCE MANAGER',//tambhan supervisor
 );

@@ -12,5 +12,5 @@ $config['module']['dashboard']['table']      = '';
 $config['module']['dashboard']['model']      = 'dashboard_Model';
 $config['module']['dashboard']['permission'] = array(
   'index' => 'ADMIN,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'approval' => 'CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER'
+  'approval' => 'CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN'
 );

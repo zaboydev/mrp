@@ -240,7 +240,7 @@ class Purchase_Order_Model extends MY_Model
       }elseif($status=='approved'){
         $this->db->where('tb_po.review_status', strtoupper($status));
       }elseif($status=='review_approved'){
-        if(config_item('auth_role') == 'FINANCE'){
+        if(config_item('auth_role') == 'FINANCE MANAGER'){
           $this->db->like('tb_po.review_status', 'WAITING FOR HOS');
         }
         if(config_item('auth_role') == 'HEAD OF SCHOOL'){
@@ -254,7 +254,7 @@ class Purchase_Order_Model extends MY_Model
         }
       }
     }else{
-      if(config_item('auth_role') == 'FINANCE'){
+      if(config_item('auth_role') == 'FINANCE MANAGER'){
         $this->db->like('tb_po.review_status', 'WAITING FOR FINANCE');
       }
       if(config_item('auth_role') == 'HEAD OF SCHOOL'){

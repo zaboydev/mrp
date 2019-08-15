@@ -36,6 +36,9 @@ class Dashboard extends MY_Controller
     $this->data['count_adjustmnet']    = $this->model->countAdjustment();
     $this->data['count_expired_stock'] = $this->model->countExpiredStock($start_date,$end_date);
     $this->data['expired_stock']       = $this->model->expiredStock($start_date,$end_date);
+    $this->data['count_prl']    = $this->model->count_prl(config_item('auth_role'));
+    $this->data['count_poe']    = $this->model->count_poe(config_item('auth_role'));
+    $this->data['count_po']    = $this->model->count_po(config_item('auth_role'));
 
     $this->base_theme = $this->module['view'] .'/other';
     $this->render_view();

@@ -76,8 +76,7 @@
 
     <div class="form-group">
       <label for="filter_status">Status</label>
-      <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">
-        
+      <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">       
         <option value="waiting">
           Waiting For Approval
         </option>
@@ -87,17 +86,20 @@
         <option value="rejected">
           Rejected
         </option>
-        <option value="canceled">
+        <!-- <option value="canceled">
           Canceled
-        </option>
-        <option value="unused">
+        </option> -->
+        <!-- <option value="unused">
           Unused
-        </option>
+        </option> -->
         <option value="open">
           Open
         </option>
         <option value="closed">
           Close
+        </option>
+        <option value="all">
+          All
         </option>
       </select>
     </div>

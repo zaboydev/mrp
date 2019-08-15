@@ -78,7 +78,7 @@ class Dashboard_Model extends MY_Model
     $this->db->where('tb_stock_adjustments.updated_status', 'PENDING');
     //$this->db->group_by($this->getGroupByColumns());
 	
-	$this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
+	  $this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
 
     $query = $this->db->get();
 
@@ -158,6 +158,56 @@ class Dashboard_Model extends MY_Model
     $query = $this->db->get();
 
     return $query->result_array();
+  }
+
+  public function count_prl($role){
+    $status =['waiting','pending'];
+    if($role=='CHIEF OF MAINTANCE'){
+      $status = ['waiting'];
+    }
+    if($role=='FINANCE MANAGER'){
+      $status = ['pending'];
+    }
+    $this->db->select('*');
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->where_in('tb_inventory_purchase_requisition_details.status', $status);
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function count_poe($role){
+    $status =['evaluation'];
+    $this->db->distinct();
+    $this->db->select('*');
+    $this->db->from('tb_purchase_order_items');
+    $this->db->join('tb_purchase_orders','tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id','left');
+    $this->db->where_in('tb_purchase_orders.status', $status);
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function count_po($role){
+    $this->db->select('*');
+    $this->db->from('tb_po_item');
+    $this->db->join('tb_po','tb_po.id=tb_po_item.purchase_order_id');
+    $this->db->like('tb_po.review_status', 'WAITING');
+    if($role == 'FINANCE MANAGER'){
+      $this->db->like('tb_po.review_status', 'WAITING FOR FINANCE');
+    }
+    if($role == 'HEAD OF SCHOOL'){
+      $this->db->like('tb_po.review_status', 'WAITING FOR HOS');
+    }
+    if($role == 'VP FINANCE'){
+      $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
+    }
+    if($role == 'CHIEF OF FINANCE'){
+      $this->db->like('tb_po.review_status', 'WAITING FOR COF');
+    }
+    $query = $this->db->get();
+
+    return $query->num_rows();
   }
 
 }

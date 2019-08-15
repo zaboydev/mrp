@@ -9,47 +9,42 @@
 
       <?php if (is_granted($module, 'approval')){?>
         <div class="row">
-        <div class="col-sm-6">
-          <div class="card">
-            <div class="card-head style-primary">
-              <header>APPROVAL AND REVIEW</header>
-            </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>Approval Procurement</header>
+              </div>
+              <?php if (is_granted($modules['purchase_request'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['purchase_request']['route']);?>">
+                        Purchase Requests (<strong><font color="red"><?=$count_prl;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
 
-            <div class="card-body">
-               <?php
-                  foreach (available_modules() as $mainMenu => $subMenu) {
-                    $parentMenu = config_item('parent');
-                    foreach ($subMenu as $childMenu){
-                      // $childMenuClass = ($childMenu['route'] === $module['route']) ? 'active' : '';
+                <?php if (is_granted($modules['purchase_order_evaluation'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['purchase_order_evaluation']['route']);?>">
+                        Purchase Order Evaluations (<strong><font color="red"><?=$count_poe;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
 
-                      // echo '<li class="'.$childMenuClass.'">';
-                      // echo '<a href="'.site_url($childMenu['route']).'">';
-                      // echo '<span class="title">';
-                      // echo $childMenu['label'];
-                      // echo '</span>';
-                      // echo '</a>';
-                      // echo '</li>';
-                      ?>
-                      <div class="card-head">
-                        <header>
-                          <a href="<?=site_url($childMenu['route']);?>">
-                            <?=$childMenu['label'] ?>
-                          </a>
-                        </header>
-                        <div class="tools">
-                          <a href="<?=site_url($childMenu['route']);?>" class="btn btn-icon-toggle">
-                            <i class="<?=$parentMenu[$mainMenu]['icon']?>"></i>
-                          </a>
-                        </div>
-                      </div>
-                      <?php
-                    }
-                  }
-                  ?>
-              
+                <?php if (is_granted($modules['purchase_order'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['purchase_order']['route']);?>">
+                        Purchase Order (<strong><font color="red"><?=$count_po;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
             </div>
-          </div>
-        </div>
+          </div>        
         </div>
       <?php } else { ?>
       <div class="row">
@@ -463,7 +458,7 @@
         </div>        
       </div>
     <?php endif;?>
-    <?php if(config_item('auth_role') != 'CHIEF OF MAINTANCE' && config_item('auth_role') != 'HEAD OF SCHOOL' && config_item('auth_role') != 'CHIEF OF FINANCE') { ?>
+    <?php if(config_item('auth_role') != 'CHIEF OF MAINTANCE' && config_item('auth_role') != 'FINANCE MANAGER' && config_item('auth_role') != 'HEAD OF SCHOOL' && config_item('auth_role') != 'CHIEF OF FINANCE') { ?>
     <div class="row">
       <div class="col-sm-5">
           <div class="panel-group" id="document_accordion">

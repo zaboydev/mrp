@@ -147,10 +147,21 @@ class Purchase_Request_Model extends MY_Model
 
     if (!empty($_POST['columns'][4]['search']['value'])){
       $search_status = $_POST['columns'][4]['search']['value'];
-
-      $db->where('tb_inventory_purchase_requisition_details.status', $search_status);
-    } else {
-      $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
+      if($search_status!='all'){
+        $db->where_in('tb_inventory_purchase_requisition_details.status', $search_status);
+        // $db->where_in('tb_inventory_purchase_requisition_details.status', ['waiting','pending','close','open','rejected','pending']);
+      }
+      // else{
+      //   $db->where_in('tb_inventory_purchase_requisition_details.status', $search_status);
+      // }
+    } 
+    else {
+      if(config_item('auth_role') == 'FINANCE MANAGER'){
+        $db->where('tb_inventory_purchase_requisition_details.status', 'pending');
+      }
+      // else{
+      //   $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
+      // }
     }
 
     if (!empty($_POST['columns'][8]['search']['value'])){
@@ -272,34 +283,73 @@ class Purchase_Request_Model extends MY_Model
 
   function countIndexFiltered()
   {
-    $this->connection->from('tb_inventory_purchase_requisitions');
-    $this->connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
-    $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
-    $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
-    $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
-    $this->connection->where_in('tb_product_categories.id', $this->categories);
-    $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+    if($_SESSION['request']['request_to'] == 1){
+      $this->db->select(array_keys($this->getSelectedColumns()));
+      $this->db->from('tb_inventory_purchase_requisitions');
+      $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id','LEFT');
+      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id','left');
+      $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id','left');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item','left');
+      $categories = config_item('auth_inventory');
+      // $this->db->where_in('tb_inventory_purchase_requisitions.item_category', $categories);
+      $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
-    $this->searchIndex();
+      $this->searchIndex();
 
-    $query = $this->connection->get();
+      $query = $this->db->get();
 
-    return $query->num_rows();
+      return $query->num_rows();
+    }else{
+      $this->connection->from('tb_inventory_purchase_requisitions');
+      $this->connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
+      $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
+      $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
+      $this->connection->where_in('tb_product_categories.id', $this->categories);
+      $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+
+      $this->searchIndex();
+
+      $query = $this->connection->get();
+
+      return $query->num_rows();
+    }
+    
   }
 
   public function countIndex()
   {
-    $this->connection->from('tb_inventory_purchase_requisitions');
-    $this->connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
-    $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
-    $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
-    $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
-    $this->connection->where_in('tb_product_categories.id', $this->categories);
-    $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+    if($_SESSION['request']['request_to'] == 1){
+      $this->db->select(array_keys($this->getSelectedColumns()));
+      $this->db->from('tb_inventory_purchase_requisitions');
+      $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id','LEFT');
+      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id','left');
+      $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id','left');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item','left');
+      $categories = config_item('auth_inventory');
+      // $this->db->where_in('tb_inventory_purchase_requisitions.item_category', $categories);
+      $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
-    $query = $this->connection->get();
+      $this->searchIndex();
 
-    return $query->num_rows();
+      $query = $this->db->get();
+
+      return $query->num_rows();
+    }else{
+      $this->connection->from('tb_inventory_purchase_requisitions');
+      $this->connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
+      $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
+      $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
+      $this->connection->where_in('tb_product_categories.id', $this->categories);
+      $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+
+      // $this->searchIndex();
+
+      $query = $this->connection->get();
+
+      return $query->num_rows();
+    }
   }
 
   public function findById($id)
