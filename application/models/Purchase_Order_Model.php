@@ -849,7 +849,7 @@ class Purchase_Order_Model extends MY_Model
 
     $this->db->set('total_quantity',floatval($total_qty));
     $this->db->set('total_price',floatval($total_value));
-    $this->db->set('grandtotal',floatval($grandtotal));
+    $this->db->set('grand_total',floatval($grandtotal));
     $this->db->set('remaining_payment',floatval($grandtotal));
     $this->db->where('id', $id_po);
     $this->db->update('tb_po');

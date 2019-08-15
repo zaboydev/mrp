@@ -159,9 +159,9 @@ class Purchase_Request_Model extends MY_Model
       if(config_item('auth_role') == 'FINANCE MANAGER'){
         $db->where('tb_inventory_purchase_requisition_details.status', 'pending');
       }
-      // else{
-      //   $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
-      // }
+      else{
+         $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
+      }
     }
 
     if (!empty($_POST['columns'][8]['search']['value'])){
