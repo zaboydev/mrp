@@ -119,6 +119,9 @@
         Issued by,
         <br />Procurement
         <br />
+        <?php if($entity['issued_by']!=''):?>
+        <img src="<?=base_url('ttd_user/'.get_ttd($entity['issued_by']));?>" width="100">
+        <?php endif;?>
         <br />
         <br /><?=$entity['issued_by'];?>
       </p>

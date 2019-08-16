@@ -7,7 +7,7 @@
   </tr>
   <tr>
     <td>Inventory</td>
-    <th>: <?=print_string($entity['category_name']);?></th>
+    <th>: <?=print_string($entity['item_category']);?></th>
     <td>PR Date.</td>
     <th>: <?=print_date($entity['pr_date']);?></th>
   </tr>
@@ -49,6 +49,7 @@
       <th width="1">Unit</th>
       <th align="right" width="1">Price</th>
       <th align="right" width="1">Subtotal</th>
+      <th align="right" width="1">Budget Status</th>
     </tr>
   </thead>
   <tbody>
@@ -78,6 +79,9 @@
         </td>
         <td align="right">
           <?=print_number($detail['total'], 2);?>
+        </td>
+        <td align="right">
+          <?=print_string(strtoupper($detail['budget_status']));?>
         </td>
       </tr>
     <?php endforeach;?>
@@ -116,26 +120,35 @@
         Request by:
         <br />Inventory
         <br />
+        <?php if($entity['created_by']!=''):?>
+        <img src="<?=base_url('ttd_user/'.get_ttd($entity['created_by']));?>" width="100">
+        <?php endif;?>
         <br />
         <br /><?=$entity['created_by'];?>
       </p>
+    </td>
+    <td width="50%" valign="top" align="center">
+    &nbsp;
     </td>
     <td width="25%" valign="top" align="center">
       <p>
         Approved by:
         <br />Chief Of Maintenance
         <br />
+        <?php if($entity['approved_by']!=''):?>
+        <img src="<?=base_url('ttd_user/'.get_ttd($entity['created_by']));?>" width="100">
+        <?php endif;?>
         <br />
         <br /><?=$entity['approved_by'];?>
       </p>
     </td>
-    <td width="25%" valign="top" align="center">
+    <!-- <td width="25%" valign="top" align="center">
       <p>
         Approved by:
       </p>
     </td>
     <td width="25%" valign="top" align="center">
       <p>Acknowledged by:</p>
-    </td>
+    </td> -->
   </tr>
 </table>

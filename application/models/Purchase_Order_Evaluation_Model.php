@@ -26,7 +26,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       'tb_purchase_order_items.description'         => 'Description',
       'tb_purchase_order_items.part_number'         => 'Part Number',
       'tb_purchase_order_items.quantity'            => 'Quantity',
-      'tb_purchase_orders.vendor'                   => 'Vendor',
+      'tb_purchase_order_items.vendor'                   => 'Vendor',
       'tb_purchase_order_items.unit_price'          => 'Price',
       'tb_purchase_orders.status'                   => 'Status',
       'tb_attachment_poe.id_poe as attachment'      => 'Attachment',

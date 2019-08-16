@@ -1837,6 +1837,16 @@ class Purchase_Request_Model extends MY_Model
         $this->db->insert('tb_used_budgets');
     }
 
+    // $status_prl = 0;
+    $this->db->from('tb_inventory_purchase_requisition_details');    
+    $this->db->where('tb_inventory_purchase_requisition_details.status','!=','open');
+    $this->db->where('inventory_purchase_requisition_id',$inventory_purchase_requisition_id);
+    $query_pr_item  = $this->db->get();
+    $status_prl = $query_pr_item->num_rows();
+    
+    if($status_prl==0){
+      $this->db->set('status','approved');
+    }
     $this->db->set('approved_date',date('Y-m-d'));
     $this->db->set('approved_by', config_item('auth_person_name'));
     $this->db->set('approved_notes', strtoupper($rejected_note));

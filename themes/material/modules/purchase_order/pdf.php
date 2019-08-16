@@ -259,7 +259,9 @@
 			Issued by,
 			<br />Procurement
 			<br />
-			<img src="<?=base_url('ttd_user/'.$entity['ttd_issued_by']);?>" width="100">
+			<?php if($entity['issued_by']!=''):?>
+      <img src="<?=base_url('ttd_user/'.get_ttd($entity['issued_by']));?>" width="100">
+      <?php endif;?>
 			<br />
 			<br /><?=$entity['issued_by'];?>
 		  </p>
@@ -269,6 +271,9 @@
 			Checked by,
 			<br />Finance
 			<br />
+			<?php if($entity['checked_by']!=''):?>
+      <img src="<?=base_url('ttd_user/'.get_ttd($entity['checked_by']));?>" width="100">
+      <?php endif;?>
 			<br />
 			<br /><?=$entity['checked_by'];?>
 		  </p>
@@ -278,6 +283,9 @@
 			Approved by,
 			<br />HOS
 			<br />
+			<?php if($entity['known_by']!=''):?>
+      <img src="<?=base_url('ttd_user/'.get_ttd($entity['known_by']));?>" width="100">
+      <?php endif;?>
 			<br />
 			<br /><?=$entity['known_by'];?>
 		  </p>
@@ -287,6 +295,9 @@
 			Checked by,
 			<br />VP Finance
 			<br />
+			<?php if($entity['check_review_by']!=''):?>
+      <img src="<?=base_url('ttd_user/'.get_ttd($entity['check_review_by']));?>" width="100">
+      <?php endif;?>
 			<br />
 			<br /><?=$entity['check_review_by'];?>
 		  </p>
@@ -297,6 +308,9 @@
 			Approved by,
 			<br />CFO
 			<br />
+			<?php if($entity['approved_by']!=''):?>
+      <img src="<?=base_url('ttd_user/'.get_ttd($entity['approved_by']));?>" width="100">
+      <?php endif;?>
 			<br />
 			<br /><?=$entity['approved_by'];?>
 		  </p>

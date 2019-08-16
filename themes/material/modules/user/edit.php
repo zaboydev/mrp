@@ -1,8 +1,9 @@
-<?=form_open(site_url($module['route'] .'/save'), array(
+<?=form_open_multipart(site_url($module['route'] .'/save'), array(
   'autocomplete'  => 'off',
   'id'            => 'form-edit-data',
   'class'         => 'form form-validate form-xhr ui-front',
-  'role'          => 'form'
+  'role'          => 'form',
+  // 'enctype'      => 'multipart/form-data'
 ));?>
 
   <div class="card style-default-bright">
@@ -81,6 +82,14 @@
             <?php endif;?>
             <label for="warehouse">Warehouse</label>
           </div>
+          <?php if($entity['ttd_user']==''):?>
+          <div class="form-group">
+            <input class="form-control" type="file" name="attachment" accept=".png">
+            <p style="font-size: 8pt">Allowing file format <i>png</i></p>
+            <p style="color: red; display: none;" id="typeError">The file type is not allowed to attach</p>
+            <label for="email">Scan Tanda Tangan</label>
+          </div>
+          <?php endif;?>
         </div>
 
         <div class="col-sm-4">

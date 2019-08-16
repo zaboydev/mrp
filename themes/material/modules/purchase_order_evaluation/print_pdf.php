@@ -107,12 +107,22 @@
         Prepared by:
         <br>
         <br>
+        <?php if($entity['created_by']!=''):?>
+        <img src="<?=base_url('ttd_user/'.get_ttd($entity['created_by']));?>" width="100">
+        <?php endif;?>
         <br>
         <br><?=$entity['created_by'];?>
       </p>
     </td>
     <td width="50%" valign="top" align="center">
-      <p>Approved by:</p>
+      <p>Approved by:
+        <br>
+        <br>
+        <?php if($entity['approved_by']!=''):?>
+        <img src="<?=base_url('ttd_user/'.get_ttd($entity['created_by']));?>" width="100">
+        <?php endif;?>
+        <br>
+        <br><?=$entity['approved_by'];?></p>
     </td>
   </tr>
 </table>

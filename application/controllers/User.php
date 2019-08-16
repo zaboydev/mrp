@@ -10,6 +10,7 @@ class User extends MY_Controller
 
     $this->module = $this->modules['user'];
     $this->load->model($this->module['model'], 'model');
+    $this->load->library('upload');
     $this->data['module'] = $this->module;
   }
 
@@ -140,8 +141,13 @@ class User extends MY_Controller
             'banned'      => $this->input->post('banned'),
             'auth_level'  => $this->input->post('auth_level'),
             'warehouse'   => $this->input->post('warehouse'),
-            'modified_at' => date('Y-m-d H:i:s')
+            'modified_at' => date('Y-m-d H:i:s'),
+            'ttd_user'    => $this->_uploadImage($this->input->post('username'))
           );
+
+          // if (!empty($_FILES["attachment"]["name"])) {
+          //     $user_data['ttd_user'] = $this->_uploadImage();
+          // }
 
           if ($this->input->post('passwd')){
             $passwd = $this->hash_passwd($this->input->post('passwd'));
@@ -174,7 +180,11 @@ class User extends MY_Controller
             'auth_level' => $this->input->post('auth_level'),
             'warehouse'  => $this->input->post('warehouse'),
             'created_at' => date('Y-m-d H:i:s'),
+            'ttd_user'    => $this->_uploadImage($this->input->post('username'))
           );
+          // if (!empty($_FILES["attachment"]["name"])) {
+          //     $user_data['ttd_user'] = $this->_uploadImage();
+          // }
 
           if ($this->model->insert($user_data)){
             $return['type'] = 'success';
@@ -309,4 +319,29 @@ class User extends MY_Controller
     //... render view
     $this->render_view();
   }
+
+  public function _uploadImage($name)
+{
+    $config['upload_path']          = 'ttd_user/';
+    $config['allowed_types']        = 'png';
+    $config['file_name']            = $name;
+    // $config['overwrite']			      = true;
+    $config['max_size']             = 2000; // 1MB
+    // $config['max_width']            = 1024;
+    // $config['max_height']           = 768;
+
+    $this->upload->initialize($config);
+
+    // if ($this->upload->do_upload('attachment')) {
+    //     return $this->upload->data("file_name");
+    // }else{
+    //     print_r($this->upload->display_errors());
+    //     // return "gagal";
+    // }
+    if ( ! $this->upload->do_upload('attachment')){
+			print_r($this->upload->display_errors());
+		}else{
+			return $this->upload->data("file_name");
+		}
+}
 }

@@ -911,4 +911,21 @@ if ( ! function_exists('get_stores')) {
   }
 }
 
+if ( ! function_exists('get_ttd')) {
+  function get_ttd($person_name)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('ttd_user');
+    $CI->db->from('tb_auth_users');
+    $CI->db->where('person_name', $person_name);
+
+    $query  = $CI->db->get();
+    $result = $query->unbuffered_row('array');
+    $return = $result['ttd_user'];
+
+    return $return;
+  }
+}
+
     

@@ -63,6 +63,13 @@
             </select>
             <label for="warehouse">Warehouse</label>
           </div>
+
+          <div class="form-group">
+            <input class="form-control" type="file" name="attachment" accept=".png">
+            <p style="font-size: 8pt">Allowing file format <i>png</i></p>
+            <p style="color: red; display: none;" id="typeError">The file type is not allowed to attach</p>
+            <label for="email">Scan Tanda Tangan</label>
+          </div>
         </div>
 
         <div class="col-sm-4">
