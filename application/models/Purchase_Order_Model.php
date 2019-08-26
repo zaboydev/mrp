@@ -44,7 +44,8 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.notes'                        => 'Notes',
       'tb_po.approved_by_hos'              => null,
       'tb_po.approved_by_cof'              => null,
-      'tb_purchase_orders.id as poe_id'              => null
+      'tb_purchase_orders.id as poe_id'              => null,
+      'tb_purchase_order_items.id as poe_item_id'              => null
     );
     } else {
       return array(
@@ -70,7 +71,8 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.notes'                        => 'Notes',
       'tb_po.approved_by_hos'              => null,
       'tb_po.approved_by_cof'              => null,
-      'tb_purchase_orders.id as poe_id'              => null
+      'tb_purchase_orders.id as poe_id'              => null,
+      'tb_purchase_order_items.id as poe_item_id'              => null
       
     );
     }
@@ -362,7 +364,7 @@ class Purchase_Order_Model extends MY_Model
        $this->db->set('status',strtoupper("order"));
        $this->db->set('approved_by',config_item('auth_person_name'));
     }
-    if((config_item('auth_role') == 'FINANCE')){
+    if((config_item('auth_role') == 'FINANCE MANAGER')){
       $level = 10;
        $this->db->set('review_status',strtoupper("waiting for hos review"));
        $this->db->set('checked_by',config_item('auth_person_name'));
@@ -639,7 +641,7 @@ class Purchase_Order_Model extends MY_Model
 
   public function save($id)
   {
-    $document_number      = $_POST['document_number'] . order_format_number($_POST['category']);
+    $document_number      = order_format_number($_POST['category']).$_POST['document_number'];
     $document_date        = $_POST['document_date'];
     $reference_quotation  = (empty($_POST['reference_quotation'])) ? NULL : $_POST['reference_quotation'];
     $issued_by            = (empty($_POST['issued_by'])) ? NULL : $_POST['issued_by'];
@@ -726,7 +728,7 @@ class Purchase_Order_Model extends MY_Model
 
   public function save_po()
   {
-    $document_number      = $_SESSION['order']['document_number'] . order_format_number($_SESSION['order']['category']);
+    $document_number      = order_format_number($_SESSION['order']['category']).$_SESSION['order']['document_number'];
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
     $issued_by            = (empty($_SESSION['order']['issued_by'])) ? NULL : $_SESSION['order']['issued_by'];
@@ -757,6 +759,7 @@ class Purchase_Order_Model extends MY_Model
     $warehouse            = $_SESSION['order']['warehouse'];
     $category             = $_SESSION['order']['category'];
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
+    $vendor_po               = $_SESSION['order']['vendor_po'];
 
     $this->db->trans_begin();
 
@@ -796,6 +799,11 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('tipe', strtoupper($payment_type));
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
+
+    $this->db->set('is_selected',false);
+    $this->db->where('id', $vendor_po);
+    $this->db->update('tb_purchase_order_vendors');
+
     $id_po = $this->db->insert_id();
     $total_qty = 0;
     $total_value = 0;

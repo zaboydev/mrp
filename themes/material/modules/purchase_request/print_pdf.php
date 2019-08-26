@@ -43,21 +43,22 @@
   <thead>
     <tr>
       <th align="right" width="1">No</th>
-      <th>Description</th>
-      <th>Part Number</th>
+      <th width="10">Description</th>
+      <th width="10">Part Number</th>
       <th align="right" width="1">Qty</th>
       <th width="1">Unit</th>
-      <th align="right" width="1">Price</th>
-      <th align="right" width="1">Subtotal</th>
-      <th align="right" width="1">Budget Status</th>
+      <th align="right" width="10">On Hand Stock</th>
+      <th align="right" width="10">Min. Qty</th>
+      <th align="right" width="10">Balance Budget Year to Date (Qty)</th>
+      <th align="right" width="10">Budget Status</th>
     </tr>
   </thead>
   <tbody>
     <?php $n = 0;?>
-    <?php $grand_total = array();?>
+    <?php $total_qty = array();?>
     <?php foreach ($entity['items'] as $i => $detail):?>
       <?php $n++;?>
-      <?php $grand_total[] = $detail['total'];?>
+      <?php $total_qty[] = $detail['quantity'];?>
       <tr>
         <td align="right">
           <?=print_number($n);?>
@@ -75,10 +76,13 @@
           <?=print_string($detail['unit']);?>
         </td>
         <td align="right">
-          <?=print_number($detail['price'], 2);?>
+          <?=print_number($detail['on_hand_qty'], 2);?>
         </td>
         <td align="right">
-          <?=print_number($detail['total'], 2);?>
+          <?=print_number($detail['minimum_quantity'], 2);?>
+        </td>
+        <td align="right">
+          <?=print_number($detail['ytd_quantity'] - $detail['ytd_used_quantity'], 2);?>
         </td>
         <td align="right">
           <?=print_string(strtoupper($detail['budget_status']));?>
@@ -86,17 +90,6 @@
       </tr>
     <?php endforeach;?>
   </tbody>
-  <tfoot>
-    <tr>
-      <th></th>
-      <th>Total</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th align="right"><?=print_number(array_sum($grand_total), 2);?></th>
-    </tr>
-  </tfoot>
 </table>
 
 <div class="clear"></div>
@@ -134,8 +127,8 @@
       <p>
         Approved by:
         <br />Chief Of Maintenance
-        <br />
         <?php if($entity['approved_by']!=''):?>
+        <br /><?=print_date($entity['approved_date'])?><br>
         <img src="<?=base_url('ttd_user/'.get_ttd($entity['created_by']));?>" width="100">
         <?php endif;?>
         <br />

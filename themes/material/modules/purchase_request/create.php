@@ -199,7 +199,15 @@
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="group_name" id="group_name" class="form-control input-sm" data-source="<?=site_url($module['route'] .'/search_item_groups/');?>">
+                        <!-- <input type="text" name="group_name" id="group_name" class="form-control input-sm" data-source="<?=site_url($module['route'] .'/search_item_groups/');?>"> -->
+                        <select name="group_name" id="group_name" data-tag-name="group_name" class="form-control input-sm" required data-source="<?=site_url($module['route'] .'/search_item_groups/');?>">
+                          <option>-- Select One --</option>
+                          <?php foreach (available_item_groups_2($_SESSION['request']['category']) as $group):?>
+                            <option value="<?=$group['group'];?>">
+                              <?=$group['group'];?> - <?=$group['coa'];?>
+                            </option>
+                          <?php endforeach;?>
+                        </select>
                         <label for="group_name">Group</label>
                       </div>
 
@@ -237,17 +245,17 @@
                       </div>
 
                       <div class="form-group">
-                        <input type="number" name="maximum_price" id="maximum_price" value="0" class="form-control input-sm">
+                        <input type="number" name="maximum_price" id="maximum_price" value="0" class="form-control input-sm" readonly="readonly">
                         <label for="max_value">Max. Value</label>
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="on_hand_quantity" id="on_hand_quantity" class="form-control input-sm" value="1" readonly>
+                        <input type="text" name="on_hand_quantity" id="on_hand_quantity" class="form-control input-sm" value="0" readonly>
                         <label for="on_hand_quantity">On Hand Quantity</label>
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="minimum_quantity" id="minimum_quantity" class="form-control input-sm" value="1" readonly>
+                        <input type="text" name="minimum_quantity" id="minimum_quantity" class="form-control input-sm" value="1">
                         <label for="minimum_quantity">Min. Quantity</label>
                       </div>
                     </fieldset>
@@ -262,6 +270,16 @@
                   <div class="form-group">
                     <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
                     <label for="additional_info">Additional Info/Remarks</label>
+                  </div>
+                </fieldset>
+              </div>
+              <div class="col-sm-12 col-lg-5 hide form-unbudgeted">
+                <fieldset>
+                  <legend>Unbudgeted</legend>
+
+                  <div class="form-group">
+                    <input name="xx" id="xx" data-tag-name="xx" class="form-control input-sm" value="Unbudgeted" readonly="readonly"></input>
+                    <label for="additional_info">Unbudgeted</label>
                   </div>
                 </fieldset>
               </div>
@@ -288,8 +306,8 @@
           </div>
 
           <div class="modal-footer">
-            <input type="text" id="inventory_monthly_budget_id" name="inventory_monthly_budget_id">
-            <input type="hidden" id="unbudgeted_item" name="unbudgeted_item" value="0">
+            <input type="hidden" id="inventory_monthly_budget_id" name="inventory_monthly_budget_id">
+            <input type="hidden" id="unbudgeted_item" name="unbudgeted_item">
             <input type="hidden" id="relocation_item" name="relocation_item">
             <input type="hidden" id="item_source" name="item_source">
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
@@ -593,6 +611,12 @@ $(function(){
             $('.form-relokasi').removeClass('hide');
           }
 
+          // var status = $('#inventory_monthly_budget_id').val();
+
+          // if(status==null){
+          //   $('.form-unbudgeted').removeClass('hide');
+          // }
+
           $('#mtd_quantity').val(response.mtd_quantity);
           $('#mtd_used_quantity').val( parseInt(response.mtd_used_quantity) );
           $('#mtd_used_budget').val( parseInt(response.mtd_used_budget) );
@@ -702,6 +726,8 @@ $(function(){
           $('#mtd_used_quantity').val( parseInt(ui.item.mtd_used_quantity) );
           $('#mtd_used_budget').val( parseInt(ui.item.mtd_used_budget) );
           $('#mtd_budget').val(ui.item.mtd_budget);
+          $('#on_hand_quantity').val( parseInt(ui.item.on_hand_quantity) );
+          $('#minimum_quantity').val(ui.item.minimum_quantity);
 
 
 
@@ -862,6 +888,11 @@ $(function(){
           // $('#quantity').attr('max', maximum_quantity).focus();
           // $('#total').attr('max', maximum_price);
           $("#modal-add-item-submit").prop("disabled", false);
+          // var status = $('#unbudgeted_item').val();
+
+          // if(status==1){
+          //   $('.form-unbudgeted').removeClass('hide');
+          // }
 
           $('#search_item_unbudgeted').val('');
 
@@ -1044,6 +1075,14 @@ function sum(){
   var total = parseInt($("#quantity").val()) * parseInt($("#price").val());
 
   $("#total").val(total).trigger("change");
+}
+
+function unbudgeted(){
+  var status = $('#inventory_monthly_budget_id').val();
+
+  if(status==null){
+    $('.form-unbudgeted').removeClass('hide');
+  }
 }
 </script>
 

@@ -245,5 +245,88 @@ end)',
     return $poe;
   }
 
+  public function select_budget($month,$year){
+    $this->db->select(
+      'tb_budget.mtd_budget,
+      tb_budget.mtd_quantity,
+      tb_budget.ytd_budget,
+      tb_budget.ytd_quantity,
+      tb_budget_cot.item_part_number,tb_master_items.description
+      '      
+    );
+    $this->db->join('tb_budget','tb_budget_cot.id=tb_budget.id_cot');
+    $this->db->join('tb_master_items','tb_budget_cot.id_item=tb_master_items.id');
+    $this->db->join('tb_po_item','tb_po_item.part_number=tb_budget_cot.item_part_number','left');
+    $this->db->from('tb_budget_cot');
+    $this->db->where('tb_budget.month_number',$month);
+    $this->db->where('tb_budget_cot.year',$year);
+    // $this->db->where('EXTRACT(YEAR FROM tb_issuances.issued_date)::integer = ', date('Y')-1); 
+    $this->db->group_by('
+      tb_budget.mtd_budget,tb_budget.mtd_quantity,tb_budget.ytd_budget,tb_budget.ytd_quantity,
+      tb_budget_cot.item_part_number,
+      tb_master_items.description');
+    $query = $this->db->get();
+    $budget = $query->result_array();
+    
+    return $budget;
+  }
+
+  public function qty_po($month,$year,$tipe,$part_number){
+    if($tipe=='mtd'){
+      $this->db->select('quantity');
+      $this->db->from('tb_po_item');
+      $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
+      $this->db->where('part_number',$part_number);
+      $this->db->where('EXTRACT(MONTH FROM tb_po.document_date)::integer = ', $month);
+      $qty = $this->db->get();
+      $x = 0;
+      foreach ($qty->result_array() as $row) {
+        $x = $x+$row['quantity'];
+      }
+      return $x;
+    }else{
+      $this->db->select_sum('quantity');
+      $this->db->from('tb_po_item');
+      $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
+      $this->db->where('part_number',$part_number);
+      $this->db->where('EXTRACT(YEAR FROM tb_po.document_date)::integer = ', $year);
+      $qty = $this->db->get();
+      $x = 0;
+      foreach ($qty->result_array() as $row) {
+        $x = $x+$row['quantity'];
+      }
+      return $x;
+
+    }
+  }
+
+  public function val_po($month,$year,$tipe,$part_number){
+    if($tipe=='mtd'){
+      $this->db->select('total_amount');
+      $this->db->from('tb_po_item');
+      $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
+      $this->db->where('part_number',$part_number);
+      $this->db->where('EXTRACT(MONTH FROM tb_po.document_date)::integer = ', $month);
+      $qty = $this->db->get();
+      $x = 0;
+      foreach ($qty->result_array() as $row) {
+        $x = $x+$row['total_amount'];
+      }
+      return $x;
+    }else{
+      $this->db->select('total_amount');
+      $this->db->from('tb_po_item');
+      $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
+      $this->db->where('part_number',$part_number);
+      $this->db->where('EXTRACT(YEAR FROM tb_po.document_date)::integer = ', $year);
+      $qty = $this->db->get();
+      $x = 0;
+      foreach ($qty->result_array() as $row) {
+        $x = $x+$row['total_amount'];
+      }
+      return $x;
+    }
+  }
+
   
 }

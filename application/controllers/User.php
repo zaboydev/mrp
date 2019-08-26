@@ -10,6 +10,7 @@ class User extends MY_Controller
 
     $this->module = $this->modules['user'];
     $this->load->model($this->module['model'], 'model');
+    $this->load->helper(array('form', 'url'));
     $this->load->library('upload');
     $this->data['module'] = $this->module;
   }
@@ -142,7 +143,7 @@ class User extends MY_Controller
             'auth_level'  => $this->input->post('auth_level'),
             'warehouse'   => $this->input->post('warehouse'),
             'modified_at' => date('Y-m-d H:i:s'),
-            'ttd_user'    => $this->_uploadImage($this->input->post('username'))
+            // 'ttd_user'    => $this->_uploadImage()
           );
 
           // if (!empty($_FILES["attachment"]["name"])) {
@@ -153,12 +154,16 @@ class User extends MY_Controller
             $passwd = $this->hash_passwd($this->input->post('passwd'));
             $user_data['passwd'] = $passwd;
           }
+          if (!empty($_FILES['userfile']['name'])) {
+            $upload = $this->_do_upload();
+            $user_data['ttd_user'] = $upload;
+          }
 
           $criteria = array('user_id' => $this->input->post('id'));
 
           if ($this->model->update($user_data, $criteria)){
             $return['type'] = 'success';
-            $return['info'] = 'User ' . $this->input->post('person_name') .' updated.';
+            $return['info'] = 'User ' . $this->input->post('person_name') .' updated.'.print_r($_POST);;
           } else {
             $return['type'] = 'danger';
             $return['info'] = 'There are error while updating data. Please try again later.';
@@ -180,15 +185,18 @@ class User extends MY_Controller
             'auth_level' => $this->input->post('auth_level'),
             'warehouse'  => $this->input->post('warehouse'),
             'created_at' => date('Y-m-d H:i:s'),
-            'ttd_user'    => $this->_uploadImage($this->input->post('username'))
+            // 'ttd_user'    => $this->_uploadImage()
           );
-          // if (!empty($_FILES["attachment"]["name"])) {
-          //     $user_data['ttd_user'] = $this->_uploadImage();
-          // }
+          if (!empty($_FILES['userfile']['name'])) {
+            $upload = $this->_do_upload();
+            $user_data['ttd_user'] = $upload;
+          }
+
+
 
           if ($this->model->insert($user_data)){
             $return['type'] = 'success';
-            $return['info'] = 'User for ' . $this->input->post('person_name') .' created.';
+            $return['info'] = 'User for ' . $this->input->post('person_name') .' created.'.print_r($_POST);;
           } else {
             $return['type'] = 'danger';
             $return['info'] = 'There are error while updating data. Please try again later.';
@@ -320,28 +328,27 @@ class User extends MY_Controller
     $this->render_view();
   }
 
-  public function _uploadImage($name)
+  public function _do_upload()
 {
-    $config['upload_path']          = 'ttd_user/';
-    $config['allowed_types']        = 'png';
-    $config['file_name']            = $name;
-    // $config['overwrite']			      = true;
-    $config['max_size']             = 2000; // 1MB
-    // $config['max_width']            = 1024;
-    // $config['max_height']           = 768;
-
-    $this->upload->initialize($config);
-
-    // if ($this->upload->do_upload('attachment')) {
-    //     return $this->upload->data("file_name");
-    // }else{
-    //     print_r($this->upload->display_errors());
-    //     // return "gagal";
-    // }
-    if ( ! $this->upload->do_upload('attachment')){
-			print_r($this->upload->display_errors());
-		}else{
-			return $this->upload->data("file_name");
-		}
+    $config['upload_path'] = './ttd_user/';
+    $config['allowed_types']  = 'gif|jpg|png';
+    $config['max_size']       = 100;
+    $config['max_widht']      = 1000;
+    $config['max_height']     = 1000;
+    $config['file_name']      = round(microtime(true)*1000);
+ 
+    $this->load->library('upload', $config);
+    if (!$this->upload->do_upload('photo')) {
+      // $this->session->set_flashdata('msg', $this->upload->display_errors('',''));
+      return $this->upload->display_errors('','');
+    }
+    return $this->upload->data('file_name');
 }
+
+  public function ttd($id)
+  {
+    // $this->authorized($this->module, 'document');
+    
+    $this->render_view($this->module['view'] .'/attachment');
+  }
 }

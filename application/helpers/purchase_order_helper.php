@@ -98,7 +98,7 @@ if ( ! function_exists('order_format_number')) {
     $category = $query->unbuffered_row('array');
 
     // $return = '/PO/'. $category['code'] .'/'. find_budget_setting('Active Year');
-    $return = '/PO/'. $category['code'] .'/'. date('Y');
+    $return = 'POM';
 
     return $return;
   }
@@ -117,12 +117,12 @@ if ( ! function_exists('order_last_number')) {
 
     $CI->db->select_max('document_number', 'last_number');
     $CI->db->from('tb_po');
-    $CI->db->like('tb_po.document_number', $format, 'before');
+    // $CI->db->like('tb_po.document_number', $format.'%');
 
     $query  = $CI->db->get();
     $row    = $query->unbuffered_row();
     $last   = $row->last_number;
-    $number = substr($last, 0, 6);
+    $number = substr($last, 3, 6);
     $next   = $number + 1;
     $return = sprintf('%06s', $next);
 

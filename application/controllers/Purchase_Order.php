@@ -69,8 +69,8 @@ class Purchase_Order extends MY_Controller
         $col[] = print_string($row['description']);
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['alternate_part_number']);
-        $col[] = '<a href="'.site_url($this->modules['purchase_order_evaluation']['route'] .'/print_pdf/'. $row['poe_id']).'" target="_blank">'.print_string($row['poe_number']).'</a><a href="#" data-id="'.$row['poe_id'].'" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye"></i></a>';
-        $col[] = print_string($row['purchase_request_number']);
+        $col[] = '<a href="'.site_url($this->modules['purchase_order_evaluation']['route'] .'/print_pdf/'. $row['poe_id']).'" target="_blank" >'.print_string($row['poe_number']).'</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="'.$row['poe_id'].'"></i></a>';
+        $col[] = '<a href="'.site_url($this->modules['purchase_request']['route'] .'/print_pdf_prl/'. $row['poe_item_id']).'" target="_blank" >'.print_string($row['purchase_request_number']).'</a>';
         $col[] = print_string($row['reference_quotation']);
         $col[] = strtoupper($row['vendor']);
         $col[] = print_number($row['quantity'], 2);
@@ -94,6 +94,7 @@ class Purchase_Order extends MY_Controller
               
             }
           }
+        $col[] = null;
         $col[] = null;
         $col[] = null;
         $col[] = null;
@@ -680,6 +681,7 @@ class Purchase_Order extends MY_Controller
       $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
 
       $_SESSION['order']['items']               = $item;
+      $_SESSION['order']['vendor_po']               = $vendor_id;
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
@@ -735,7 +737,7 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = $_POST['document_number'] . order_format_number($_POST['category']);
+      $document_number = order_format_number($_POST['category']).$_POST['document_number'];
 
       $errors = array();
 
@@ -775,7 +777,7 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = $_SESSION['order']['document_number'] . order_format_number($_SESSION['orders']['category']);
+      $document_number = order_format_number($_SESSION['orders']['category']).$_SESSION['order']['document_number'];
 
       $errors = array();
 

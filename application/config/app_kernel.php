@@ -53,6 +53,7 @@ require('modules/global_report.php');
 require('modules/pr_po.php');
 require('modules/po_grn.php');
 require('modules/grn_payment.php');
+require('modules/report_budget_po.php');
 
 //INVENTORY PROCESS
 require('modules/goods_received_note.php');

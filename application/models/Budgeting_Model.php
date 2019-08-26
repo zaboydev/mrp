@@ -135,9 +135,10 @@ class Budgeting_Model extends MY_Model {
       $i++;
     }
   }
-  public function index(){
+  public function index($year){
     $this->db->select('a.*');
     $this->db->from('f_budget_display() a');
+    $this->db->where('year',$year);
     $this->searchIndex();
     $orderableColumns = $this->getOrderableColumns();
     if (isset($_POST['order'])){
@@ -150,14 +151,16 @@ class Budgeting_Model extends MY_Model {
     $query = $this->db->get();
     return $query->result();
   }
-  public function countIndex(){
+  public function countIndex($year){
     $this->db->select('a.*');
     $this->db->from('f_budget_display() a');
+    $this->db->where('year',$year);
     return $this->db->get()->num_rows();
   }
-    public function countFilteredIndex(){
+    public function countFilteredIndex($year){
     $this->db->select('a.*');
     $this->db->from('f_budget_display() a');
+    $this->db->where('year',$year);
     $this->searchIndex();
     return $this->db->get()->num_rows();
   }
@@ -250,6 +253,66 @@ class Budgeting_Model extends MY_Model {
     $this->db->where('id_cot', $id_cot);
     $this->db->where('month_number', $month_number);
     return $this->db->update('tb_budget', $row);
+  }
+
+  public function select_budget($year){
+    $this->db->select('*');
+    $this->db->from('f_budget_display()');
+    $this->db->where('year',$year);
+    $query = $this->db->get();
+    return $query->result();
+  }
+
+  public function send_mail() { 
+    // $this->db->from('tb_inventory_purchase_requisitions');
+    // $this->db->where('id',$doc_id);
+    // $query = $this->db->get();
+    // $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifRecipient(9);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.gmail.com';
+    $config['smtp_user'] = 'kiddo2095@gmail.com';
+    $config['smtp_pass'] = 'kyuhyun234';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear Chief of Maintenance</p>";
+    $message .= "<p>Permintaan Baru untuk Persetujuan Budget. </p>";
+    $message .= "<ul>";
+    $message .= "</ul>"; 
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/budgeting/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Budget'); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+  public function getNotifRecipient($level){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',$level);
+    return $this->db->get('')->result();
   }
 }
 

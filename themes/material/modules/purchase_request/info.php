@@ -70,136 +70,49 @@
         <div class="table-responsive">
           <table class="table table-striped table-nowrap">
             <thead id="table_header">
-              <tr>
-                <!-- <th rowspan="3" class="text-center">Act</th> -->
-                <th rowspan="3" class="text-center">No</th>
-                <th rowspan="3" class="text-center">Description</th>
-                <th rowspan="3" class="text-center">Part Number</th>
-                <!-- <th rowspan="3" class="text-center">Request Budget</th> -->
-                <!-- <th rowspan="3" class="text-center">Available Budget</th> -->
-                <th rowspan="3" class="text-center">Qty</th>
-                <th rowspan="3" class="text-center">Unit</th>
-                <th rowspan="3" class="text-center">Price</th>
-                <th rowspan="3" class="text-center">Subtotal</th>
-                <th colspan="6" class="text-center">Month to Date</th>
-                <th colspan="6" class="text-center">Year to Date</th>
-                <th class="text-center">Budget Status</th>
-              </tr>
-              <tr>
-                <th colspan="2" class="text-center">Plan</th>
-                <th colspan="2" class="text-center">Actual</th>
-                <th colspan="2" class="text-center">Balance</th>
-                <th colspan="2" class="text-center">Plan</th>
-                <th colspan="2" class="text-center">Actual</th>
-                <th colspan="2" class="text-center">Balance</th>
-                <!-- <th colspan="2" class="text-center">Plan</th> -->
-                <!-- <th colspan="2" class="text-center">Balance</th> -->
-              </tr>
-              <tr>
-                <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
-                <!-- <th class="text-center">Qty</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Qty</th>
-                <th class="text-center">Price</th> -->
-              </tr>
+              <th align="right" width="1">No</th>
+              <th width="10">Description</th>
+              <th width="10">Part Number</th>
+              <th align="right" width="1">Qty</th>
+              <th width="1">Unit</th>
+              <th align="right" width="10">On Hand Stock</th>
+              <th align="right" width="10">Min. Qty</th>
+              <th align="right" width="10">Balance Budget Year to Date (Qty)</th>
+              <th align="right" width="10">Budget Status</th>
             </thead>
             <tbody id="table_contents">
               <?php $n = 0;?>
-              <?php $grand_total = array();?>
+              <?php $total_qty = array();?>
               <?php foreach ($entity['items'] as $i => $detail):?>
                 <?php $n++;?>
-                <?php $grand_total[] = $detail['total'];?>
+                <?php $total_qty[] = $detail['quantity'];?>
                 <tr>
-                  <td class="hide">
-                    <a href="<?=site_url($module['route'] .'/relocate/'. $entity['id']);?>" class="btn btn-floating-action btn-small btn-danger btn-tooltip ink-reaction" id="modal-edit-data-button">
-                      <i class="md md-refresh"></i>
-                      <small class="top right">Relocate</small>
-                    </a>
-                  </td>
-                  <td class="no-space">
+                  <td align="right">
                     <?=print_number($n);?>
                   </td>
                   <td>
                     <?=print_string($detail['product_name']);?>
                   </td>
                   <td>
-                    <a href="#"><?=print_string($detail['part_number']);?></a>
+                    <?=print_string($detail['part_number']);?>
                   </td>
-                  <!-- <td></td> -->
-                  <!-- <td></td> -->
-                  <td>
+                  <td align="right">
                     <?=print_number($detail['quantity'], 2);?>
                   </td>
                   <td>
                     <?=print_string($detail['unit']);?>
                   </td>
-                  <td>
-                    <?=print_number($detail['price'], 2);?>
+                  <td align="right">
+                    <?=print_number($detail['on_hand_qty'], 2);?>
                   </td>
-                  <td>
-                    <?=print_number($detail['total'], 2);?>
+                  <td align="right">
+                    <?=print_number($detail['minimum_quantity'], 2);?>
                   </td>
-                  <td>
-                    <?=print_number($detail['mtd_quantity'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['mtd_budget'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['mtd_used_quantity'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['mtd_used_budget'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['mtd_quantity'] - $detail['mtd_used_quantity'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['mtd_budget'] - $detail['mtd_used_budget'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['ytd_quantity'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['ytd_budget'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['ytd_used_quantity'], 2);?>
-                  </td>
-                  <td>
-                    <?=print_number($detail['ytd_used_budget'], 2);?>
-                  </td>
-                  <td>
+                  <td align="right">
                     <?=print_number($detail['ytd_quantity'] - $detail['ytd_used_quantity'], 2);?>
                   </td>
-                  <td>
-                    <?=print_number($detail['ytd_budget'] - $detail['ytd_used_budget'], 2);?>
-                  </td>
-                  <td class="hide">
-                    <?=print_number($detail['fyp_quantity'], 2);?>
-                  </td>
-                  <td class="hide">
-                    <?=print_number($detail['fyp_budget'], 2);?>
-                  </td>
-                  <td class="hide">
-                    <?=print_number($detail['fyp_quantity'] - $detail['fyp_used_quantity'], 2);?>
-                  </td>
-                  <td class="hide">
-                    <?=print_number($detail['fyp_budget'] - $detail['fyp_used_budget'], 2);?>
-                  </td>
-                  <td>
-                    <?=strtoupper($detail['budget_status']);?>
+                  <td align="right">
+                    <?=print_string(strtoupper($detail['budget_status']));?>
                   </td>
                 </tr>
               <?php endforeach;?>
@@ -212,21 +125,7 @@
                 <th></th>
                 <th></th>
                 <th></th>
-                <th><?=print_number(array_sum($grand_total), 2);?></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
+                <th><?=print_number(array_sum($total_qty), 2);?></th>
                 <th></th>
                 <th></th>
               </tr>

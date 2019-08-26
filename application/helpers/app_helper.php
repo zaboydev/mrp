@@ -928,4 +928,67 @@ if ( ! function_exists('get_ttd')) {
   }
 }
 
+if ( ! function_exists('budget_year')) {
+  function budget_year()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('year');
+    $CI->db->from('tb_budget_cot');
+    // $CI->db->where('stock_id', $stock_id);
+    $CI->db->group_by('year');
+    $CI->db->order_by('year','asc');
+
+    $query  = $CI->db->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['year'];
+    }
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('get_user')) {
+  function get_user($level)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('person_name');
+    $CI->db->from('tb_auth_users');
+    $CI->db->where('auth_level', $level);
+    $CI->db->limit(1);
+
+    $query  = $CI->db->get();
+    $result = $query->unbuffered_row('array');
+    $return = $result['person_name'];
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('month')) {
+  function month()
+  {
+    $return = [
+      '1' => 'Januari',
+      '2' => 'Februari',
+      '3' => 'Maret',
+      '4' => 'April',
+      '5' => 'Mei',
+      '6' => 'Juni', 
+      '7' => 'Juli',
+      '8' => 'Agustus',
+      '9' => 'September',
+      '10' => 'Oktober',
+      '11' => 'November',
+      '12' => 'Desember',
+    ];
+
+    return $return;
+  }
+}
+
     

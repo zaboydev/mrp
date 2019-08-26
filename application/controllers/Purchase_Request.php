@@ -271,8 +271,10 @@ class Purchase_Request extends MY_Controller
         $col[] = print_date($row['required_date']);
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name']:$row['item_category']);
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name']:$row['product_name']);
-        $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
-        $col[] = print_string($row['additional_info']);
+        // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
+        $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($row['product_code']).'</a>';
+        $col[] = print_number($row['min_qty']);
+        $col[] = print_number($this->countOnhand($row['product_code'],2));
         $col[] = print_number($row['quantity'], 2);
         $col[] = print_number($row['process_qty'], 2);
         $col[] = print_string(strtoupper($row['status']));
@@ -287,6 +289,11 @@ class Purchase_Request extends MY_Controller
           }          
         } else {
           $col[] = print_string($row['notes']);
+        }
+
+        if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER'){
+          $col[] = print_number($row['price'], 2);
+          $col[] = print_number($row['total'], 2);
         }
         
         $col['DT_RowId'] = 'row_'. $row['id'];
@@ -848,6 +855,32 @@ class Purchase_Request extends MY_Controller
       return $this->session->set_flashdata("email_sent",$this->email->print_debugger());
     // $this->session->set_flashdata("email_sent",$return); 
     $this->render_view($this->module['view'] .'/email_form');
+  }
+
+  public function countOnhand($part_number){
+    $return = $this->model->countOnhand($part_number)->sum;
+    return $return;
+  }
+
+  public function print_pdf_prl($poe_item_id)
+  {
+    $this->authorized($this->module, 'print');
+
+    $entity = $this->model->findPrlByPoeItemid($poe_item_id);
+
+    $this->data['entity']           = $entity;
+    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
+
+    $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+    $pdfFilePath = str_replace('/', '-', $entity['pr_number']) .".pdf";
+
+    $this->load->library('m_pdf');
+
+    $pdf = $this->m_pdf->load(null, 'A4-L');
+    $pdf->WriteHTML($html);
+    $pdf->Output($pdfFilePath, "I");
   }
 
 }

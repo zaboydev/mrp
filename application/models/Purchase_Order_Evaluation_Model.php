@@ -369,8 +369,10 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('document_reference', $document_reference);
       $this->db->set('document_date', $document_date);
       $this->db->set('created_by', $created_by);
-      $this->db->set('approved_by', $approved_by);
-      $this->db->set('approved_by', $approved_by);
+      // $this->db->set('approved_by', $approved_by);
+      if($approval=='without_approval'){          
+        $this->db->set('approved_by', $approval);
+      }
       $this->db->set('category', $category);
       $this->db->set('warehouse', $warehouse);
       $this->db->set('default_currency', $default_currency);
@@ -391,7 +393,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('document_date', $document_date);
       $this->db->set('document_reference', $document_reference);
       $this->db->set('created_by', $created_by);
-      $this->db->set('approved_by', $approved_by);
+      if($approval=='without_approval'){          
+        $this->db->set('approved_by', $approval);
+      }
       $this->db->set('warehouse', $warehouse);
       $this->db->set('category', $category);
       $this->db->set('default_currency', $default_currency);

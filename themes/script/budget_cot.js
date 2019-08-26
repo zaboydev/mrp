@@ -128,8 +128,8 @@ $(document).ready(function(){
                 		'<td>'+item.part_number+'</td>'+
                 		'<td>'+item.description+'</td>'+
                 		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="txt_'+item.part_number+'" data-type="txt" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" value="'+($("#id_kelipatan").val() === "0" ? "Other" : "0")+'" style="width: 100%"></td>'+
-                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range1_'+item.part_number+'" data-type="range1" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%"></td>'+
-                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range2_'+item.part_number+'" data-type="range2" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%"></td>'+
+                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range1_'+item.part_number+'" data-type="range1" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%" value="1"></td>'+
+                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range2_'+item.part_number+'" data-type="range2" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%" value="12"></td>'+
                 		'</tr>';
                 		$("#listView").append(text);
                 		if(itemsValue[item.part_number] != undefined){
@@ -205,29 +205,32 @@ $(document).ready(function(){
 	 });
 	$("#btn-save-data").click(function(){
 		var err = 0;
-		if(Object.keys(itemsValue).length === 0){
-			toastr.options.timeOut = 10000;
-			toastr.options.positionClass = 'toast-top-right';
-			toastr.error( 'Empty Data' );	
-		}else {
-			for (var key in itemsValue) {
-	 			    // skip loop if the property is from prototype
-	 			    if (!itemsValue.hasOwnProperty(key)) continue;
+		if (confirm('Are you sure want to save this COT and sending email? Continue?')){
+			if(Object.keys(itemsValue).length === 0){
+				toastr.options.timeOut = 10000;
+				toastr.options.positionClass = 'toast-top-right';
+				toastr.error( 'Empty Data' );	
+			}else {
+				for (var key in itemsValue) {
+		 			// skip loop if the property is from prototype
+		 			if (!itemsValue.hasOwnProperty(key)) continue;
 
-	 			    var obj = itemsValue[key];
-	 			    if(obj === "0"){
-	 			    	toastr.options.timeOut = 10000;
-	 			    	toastr.options.positionClass = 'toast-top-right';
-	 			    	toastr.error( obj.info, 'There are 0 value on your selected item standard value' );
-	 			    	err++;
-	 			    	break;
+		 			var obj = itemsValue[key];
+		 			if(obj === "0"){
+		 			    toastr.options.timeOut = 10000;
+		 			    toastr.options.positionClass = 'toast-top-right';
+		 			    toastr.error( obj.info, 'There are 0 value on your selected item standard value' );
+		 			    err++;
+		 			    break;
 
-	 			    }
-	 			}
-	 			if(err === 0){
-	 				sendData();
-	 			}
-	 		}
+		 			}
+		 		}
+		 		if(err === 0){
+		 			sendData();
+		 		}
+		 	}
+		}
+		
 
 	 	});
 	function sendData(){

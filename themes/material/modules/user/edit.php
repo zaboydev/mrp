@@ -1,9 +1,10 @@
-<?=form_open_multipart(site_url($module['route'] .'/save'), array(
+<?=form_open(site_url($module['route'] .'/save'), array(
   'autocomplete'  => 'off',
   'id'            => 'form-edit-data',
   'class'         => 'form form-validate form-xhr ui-front',
   'role'          => 'form',
-  // 'enctype'      => 'multipart/form-data'
+  'method'        => 'post',
+  'enctype'      => 'multipart/form-data'
 ));?>
 
   <div class="card style-default-bright">
@@ -82,16 +83,17 @@
             <?php endif;?>
             <label for="warehouse">Warehouse</label>
           </div>
+
           <?php if($entity['ttd_user']==''):?>
           <div class="form-group">
-            <input class="form-control" type="file" name="attachment" accept=".png">
+            <input class="form-control" type="file" name="userfile" accept=".png" id="userfile">
             <p style="font-size: 8pt">Allowing file format <i>png</i></p>
             <p style="color: red; display: none;" id="typeError">The file type is not allowed to attach</p>
-            <label for="email">Scan Tanda Tangan</label>
+            <label for="userfile">Scan Tanda Tangan</label>
           </div>
           <?php endif;?>
-        </div>
 
+        </div>
         <div class="col-sm-4">
           <div class="form-group">
             <input type="password" class="form-control" name="passwd" id="passwd" data-validation-rule="match" data-validation-match="passconf" data-validation-label="Password" data-toggle="tooltip" data-placement="top" data-trigger="focus" data-original-title="fill this input will change the current password">
@@ -128,3 +130,28 @@
   </div>
 
 <?=form_close();?>
+<script type="text/javascript">
+  function popup(mylink, windowname){
+    var height = window.innerHeight;
+    var widht;
+    var href;
+
+    if (screen.availWidth > 768){
+      width = 769;
+    } else {
+      width = screen.availWidth;
+    }
+
+    var left = (screen.availWidth / 2) - (width / 2);
+    var top = 0;
+    // var top = (screen.availHeight / 2) - (height / 2);
+
+    if (typeof(mylink) == 'string') href = mylink;
+    else href = mylink.href;
+
+    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+width+', height='+height+', top='+top+', left='+left);
+
+    if (! window.focus) return true;
+    else return false;
+  }
+</script>

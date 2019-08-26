@@ -117,12 +117,18 @@
     <td width="50%" valign="top" align="center">
       <p>Approved by:
         <br>
+        <?=print_date($entity['updated_at']);?>
         <br>
-        <?php if($entity['approved_by']!=''):?>
+        <?php if($entity['approved_by']!='' & $entity['approved_by']!='without_approval'):?>
         <img src="<?=base_url('ttd_user/'.get_ttd($entity['created_by']));?>" width="100">
         <?php endif;?>
+        <?php if($entity['approved_by']=='without_approval'):?>
+        <img src="<?=base_url('ttd_user/mark.png');?>" width="100">
+        <?php endif;?>
         <br>
-        <br><?=$entity['approved_by'];?></p>
+        <br><?php if($entity['approved_by']!='without_approval'):?>
+        <?=$entity['approved_by'];?>
+        <?php endif;?></p>
     </td>
   </tr>
 </table>

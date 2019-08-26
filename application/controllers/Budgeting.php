@@ -14,10 +14,16 @@ class Budgeting extends MY_Controller {
 
 	public function index()
 	{
-		$this->data['page']['title']            = $this->module['label'];
+    if (isset($_POST['year']) && $_POST['year'] !== NULL){
+      $year = $_POST['year'];
+    } else {
+      $year = date('Y');
+    }
+    $this->data['year']        = $year;
+		$this->data['page']['title']            = $this->module['label'].' '.$year;
 		$this->data['page']['requirement']      = array('datatable');
     	$this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    	$this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
+    	$this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'.$year);
     	$this->data['grid']['fixed_columns']    = 2;
       $this->data['grid']['summary_columns']  = array( 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36 );
     	$this->data['grid']['order_columns']    = array (
@@ -29,10 +35,16 @@ class Budgeting extends MY_Controller {
     );
 		$this->render_view($this->module['view'] .'/index');
 	}
-	public function index_data_source()
+	public function index_data_source($year)
   {
    	$this->authorized($this->module, 'index');
-    $entities = $this->model->index();
+    if ($year !== NULL){
+      $year = $year;
+    } 
+    else {
+      $year = date('Y');
+    }
+    $entities = $this->model->index($year);
 
     $onhand     = array();$qty_requirement     = array();$total_val     = array();$total_qty     = array();
     $jan_val     = array(); $feb_val     = array(); $mar_val     = array(); $apr_val     = array(); $mei_val     = array(); $jun_val     = array();
@@ -105,8 +117,8 @@ class Budgeting extends MY_Controller {
     }
      $result = array(
       "draw"                => $_POST['draw'],
-      "recordsTotal"        => $this->model->countIndex(),
-      "recordsFiltered"     => $this->model->countFilteredIndex(),
+      "recordsTotal"        => $this->model->countIndex($year),
+      "recordsFiltered"     => $this->model->countFilteredIndex($year),
       "data"                => $data,
       "total"               => array(
           9   => print_number(array_sum($onhand), 2),
@@ -141,6 +153,12 @@ class Budgeting extends MY_Controller {
     );
     echo json_encode($result);
   }
+
+  public function print_budget($year){
+    $data['data_budget'] = $this->model->select_budget($year);
+    $this->render_view($this->module['view'] .'/print',$data);
+  }
+
   public function approve(){
   	if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
@@ -214,6 +232,8 @@ class Budgeting extends MY_Controller {
     }
     echo json_encode($result);
   }
+
+
 }
 
 /* End of file Budgeting.php */

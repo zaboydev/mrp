@@ -45,9 +45,28 @@
           <i class="md md-check"></i>
           <small class="top right">Approve</small>
         </button>
+        <a href="<?=site_url($module['route'] .'/print_budget/'. $year);?>" type="button" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="btn-approve-data" target="_blank">
+          <i class="md md-print"></i>
+          <small class="top right">Print Budget <?=$year;?></small>
+        </a>
       </div>
   </div>
 <?php endblock() ?>
+<?php startblock('datafilter') ?>
+  <form method="post" class="form force-padding">
+  <div class="form-group">    
+    <label for="start_date">Budget Year</label>
+    <select class="form-control input-sm" id="year" name="year">
+      <?php foreach (budget_year() as $year):?>
+      <option value="<?=$year;?>" <?=($year == $year) ? 'selected' : '';?>>
+        <?=$year;?>
+      </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-flat btn-danger btn-block ink-reaction">Generate</button>
+</form>
 <?php endif; ?>
 
 

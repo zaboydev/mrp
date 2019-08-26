@@ -22,11 +22,16 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <div class="input-group">
+                  <!--<span class="input-group-addon" name="document_number"><?=order_format_number();?></span>-->
                   <div class="input-group-content">
-                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?=$_SESSION['order']['document_number'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
+                    <input type="text" name="format_number" id="format_number" class="form-control" maxlength="6" value="<?=order_format_number();?>" data-input-type="autoset" required readonly>
                     <label for="document_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon"><?=order_format_number();?></span>
+                  <div class="input-group-content">
+                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?=$_SESSION['order']['document_number'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
+                    <!-- <label for="document_number">Document No.</label> -->
+                  </div>
+                  
                 </div>
               </div>
 

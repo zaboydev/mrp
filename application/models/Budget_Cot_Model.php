@@ -174,24 +174,26 @@ class Budget_Cot_Model extends MY_Model
     foreach ($itemKey as $part_number) {
         // $id_stock =  getStockId($key,"SERVICEABLE");
       $this->db->order_by('id',"asc")
-          ->limit(1)
-          ->like('part_number', $part_number)
-          ->from('tb_master_items');
+      ->limit(1)
+      ->like('part_number', $part_number)
+      ->from('tb_master_items');
       $query_item = $this->db->get();
       $row_item   = $query_item->unbuffered_row('array');
       $key = $row_item['id'];
 
-        $exist = $this->checkCotItems($hour,$year,$id_kelipatan,$key,$id_stock);
-        $onhand = $this->countOnhand($part_number)->sum;
+      $exist = $this->checkCotItems($hour,$year,$id_kelipatan,$key,$id_stock);
+      $onhand = $this->countOnhand($part_number)->sum;
       if($exist['status']){
         $id = $exist['id'];
         $qty_standar = $standardQuantity->$part_number;//$standardQuantity->$key
         $oldData = $exist['data'];
+        $range1_val  = $range1->$part_number;
+        $range2_val  = $range2->$part_number;
 
          $update = $this->updateCot($id,$hour,$year,$id_kelipatan,$kelipatan,$key,$qty_standar,$onhand,$oldData);
         if($update['status']){
           $result['update'] +=1;
-          $this->cotToBudgeting($id,$update['qty_requirement'],$hour,$key,$onhand);
+          $this->cotToBudgeting($id,$update['qty_requirement'],$hour,$key,$onhand,$range1_val,$range2_val);
         } else {
           $item = $this->itemById($key);
           array_push($result['error'], "Item ".$item->description);
@@ -217,6 +219,7 @@ class Budget_Cot_Model extends MY_Model
         }
       }
     }
+    $this->send_mail();
     return $result;
   }
   // function cotToBudgeting($id_cot,$qty_requirement,$hour,$id_item,$onhand){
@@ -443,7 +446,7 @@ class Budget_Cot_Model extends MY_Model
       $qty_requirement = $prevData['data']->qty_requirement;
     }
     
-    $data = array("hours"=>$hour,"year"=>$year,"id_kelipatan"=>$id_kelipatan,"id_item"=>$id_item,"qty_standar"=>$qty_standar,"qty_requirement"=>$qty_requirement,"onhand"=>$onhand,"item_part_number"=>$part_number);
+    $data = array("hours"=>$hour,"year"=>$year,"id_kelipatan"=>$id_kelipatan,"id_item"=>$id_item,"qty_standar"=>$qty_standar,"qty_requirement"=>$qty_requirement,"onhand"=>$onhand,"item_part_number"=>$part_number,"created_by"=>config_item('auth_person_name'));
     $result['status'] = $this->db->insert('tb_budget_cot', $data);
     $result['qty_requirement'] = $qty_requirement;
     return $result;
@@ -467,5 +470,57 @@ class Budget_Cot_Model extends MY_Model
     $result['status'] = $this->db->update('tb_budget_cot', $data);
     $result['qty_requirement'] = $qty_requirement;
     return $result;
+  }
+
+  public function send_mail() { 
+    // $this->db->from('tb_inventory_purchase_requisitions');
+    // $this->db->where('id',$doc_id);
+    // $query = $this->db->get();
+    // $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifRecipient(9);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "baliflight@hotmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.gmail.com';
+    $config['smtp_user'] = 'kiddo2095@gmail.com';
+    $config['smtp_pass'] = 'kyuhyun234';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear Chief of Maintenance</p>";
+    $message .= "<p>Permintaan Approval Baru di Budgeting.</p>";
+    $message .= "<ul>";
+    $message .= "</ul>"; 
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/budgeting/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Budget'); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+  public function getNotifRecipient($level){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',$level);
+    return $this->db->get('')->result();
   }
 }

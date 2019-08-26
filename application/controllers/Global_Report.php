@@ -100,5 +100,57 @@ class Global_Report extends MY_Controller
     $this->render_view($this->module['view'] .'/index');
   }
 
+  public function budget_po_report()
+  {
+    $this->data['page']['title']            = "Budget - Purchase Order Report";
+    $data['month'] = [
+      '1' => 'Januari',
+      '2' => 'Februari',
+      '3' => 'Maret',
+      '4' => 'April',
+      '5' => 'Mei',
+      '6' => 'Juni', 
+      '7' => 'Juli',
+      '8' => 'Agustus',
+      '9' => 'September',
+      '10' => 'Oktober',
+      '11' => 'November',
+      '12' => 'Desember',
+    ];
+    $_SESSION['global_report']['month'] = date('m');
+    $_SESSION['global_report']['year'] = date('Y');
+    $_SESSION['global_report']['opname_start_date'] = last_update();
+    $this->render_view($this->module['view'] .'/report',$data);
+  }
+
+  public function selected_month()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['global_report']['month'] = $_GET['data'];
+  }
+
+  public function selected_year()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['global_report']['year'] = $_GET['data'];
+  }
+
+  public function print_report(){
+    $month = $_SESSION['global_report']['month'];
+    $year = $_SESSION['global_report']['year'];
+    $data['data_budget'] = $this->model->select_budget($month,$year);
+    foreach ($data['data_budget'] as $budget) {
+      $data['mtd_qty'][$budget['item_part_number']] = $this->model->qty_po($month,$year,'mtd',$budget['item_part_number']);
+      $data['mtd_val'][$budget['item_part_number']] = $this->model->val_po($month,$year,'mtd',$budget['item_part_number']);
+      $data['ytd_qty'][$budget['item_part_number']] = $this->model->qty_po($month,$year,'ytd',$budget['item_part_number']);
+      $data['ytd_val'][$budget['item_part_number']] = $this->model->val_po($month,$year,'ytd',$budget['item_part_number']);
+    }
+    $this->render_view($this->module['view'] .'/print_report',$data);
+  }
+
   
 }

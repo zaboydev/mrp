@@ -20,7 +20,7 @@ class Purchase_Request_Model extends MY_Model
   public function getSelectedColumns()
   {
     if($_SESSION['request']['request_to'] == 0){
-      return array(
+      $return =  array(
         'tb_inventory_purchase_requisitions.id'                       => NULL,
         'tb_inventory_purchase_requisitions.pr_number'                => 'Document Number',
         'tb_inventory_purchase_requisitions.pr_date'                  => 'Document Date',
@@ -28,27 +28,35 @@ class Purchase_Request_Model extends MY_Model
         // 'tb_product_categories.category_name'                         => 'Category',
         'tb_products.product_name'                                    => 'Description',
         'tb_products.product_code'                                    => 'Part Number',
-        'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
-        'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity',
-        '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Processed Quantity',
+        // 'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
+        'tb_products.part_number as min_qty'                                    => 'Min. Qty',
+        null                                    => 'On Hand. Qty',
+        'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity Request',
+        '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Quantity POE',
         'tb_inventory_purchase_requisitions.status'                   => 'Status',
         'tb_inventory_purchase_requisitions.suggested_supplier'       => 'Suggested Supplier',
         'tb_inventory_purchase_requisitions.deliver_to'               => 'Deliver To',
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER'){
+        $return['tb_inventory_purchase_requisition_details.price']  = 'Price';
+        $return['tb_inventory_purchase_requisition_details.total']  = 'Total';
+      }
     } else {
-      return array(
+      $return =  array(
         'tb_inventory_purchase_requisition_details.id'                       => NULL,
         'tb_inventory_purchase_requisitions.pr_number'                => 'Document Number',
         'tb_inventory_purchase_requisitions.pr_date'                  => 'Document Date',
         'tb_inventory_purchase_requisitions.required_date'            => 'Required Date',
         'tb_inventory_purchase_requisitions.item_category'                         => 'Category',
         'tb_inventory_purchase_requisition_details.product_name'                                    => 'Description',
-        'tb_inventory_purchase_requisition_details.part_number'                                    => 'Part Number',
-        'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
-        'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity',
-        '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Processed Quantity',
+        'tb_inventory_purchase_requisition_details.part_number as product_code'                                    => 'Part Number',
+        // 'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
+        'tb_master_items.minimum_quantity as min_qty'                                    => 'Min. Qty',
+        null                                    => 'On Hand. Qty',
+        'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity Request',
+        '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Quantity POE',
         'tb_inventory_purchase_requisition_details.status'                   => 'Status',
         'tb_inventory_purchase_requisition_details.budget_status'                   => 'Budget Status',
         // 'tb_inventory_purchase_requisitions.suggested_supplier'       => 'Suggested Supplier',
@@ -56,7 +64,13 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER'){
+        $return['tb_inventory_purchase_requisition_details.price']  = 'Price';
+        $return['tb_inventory_purchase_requisition_details.total']  = 'Total';
+      }
     }
+
+    return $return;
   }
 
   public function getSearchableColumns()
@@ -480,7 +494,7 @@ class Purchase_Request_Model extends MY_Model
     return $request;
   }
 
-   public function findPrlById($id)
+  public function findPrlById($id)
   {
     if($_SESSION['request']['request_to'] ==0){
       $this->connection->select('tb_inventory_purchase_requisitions.*, tb_product_categories.category_name');
@@ -558,6 +572,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisition_details.*',
         'tb_master_items.description as product_name',
         'tb_master_items.part_number',
+        'tb_master_items.minimum_quantity',
         'tb_budget.id_cot',
         'SUM(tb_budget.mtd_quantity) AS fyp_quantity',
         'SUM(tb_budget.mtd_budget) AS fyp_budget',
@@ -570,6 +585,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_master_items.description',
         'tb_master_items.part_number',
         'tb_budget.id_cot',
+        'tb_master_items.minimum_quantity',
       );
 
       $this->db->select($select);
@@ -599,7 +615,8 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_quantity'] = $row['ytd_quantity'];
         $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
         $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
-        $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
+        $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];        
+        $request['items'][$key]['on_hand_qty'] = $this->countOnhand($value['part_number'])->sum;
       }      
     }
     
@@ -1047,6 +1064,32 @@ class Purchase_Request_Model extends MY_Model
       
       
       foreach ($_SESSION['request']['items'] as $key => $data ){
+        if (isItemUnitExists($data['unit']) === FALSE){
+          $this->db->set('unit', strtoupper($data['unit']));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_units');
+        }
+        $serial_number = NULL;
+        if (isItemExists($data['part_number'], $serial_number) === FALSE){
+          $this->db->set('part_number', strtoupper($data['part_number']));
+          // $this->db->set('serial_number', strtoupper($serial_number);
+          // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+          $this->db->set('description', strtoupper($data['product_name']));
+          $this->db->set('group', strtoupper($data['group_name']));
+          $this->db->set('minimum_quantity', floatval(1));
+          $this->db->set('unit', strtoupper($data['unit']));
+          // $this->db->set('kode_stok', strtoupper($data['kode_stok']));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->set('unit_pakai', $data['unit']);
+          $this->db->insert('tb_master_items');
+
+          $item_id = $this->db->insert_id();
+        } 
+        else {
+          $item_id = getItemId($data['part_number'], $serial_number);
+        }
         if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL){
           $unbudgeted++;
           //input ke tb_unbudgeted
@@ -1477,6 +1520,7 @@ class Purchase_Request_Model extends MY_Model
   public function searchItemUnbudgeted($category)
   {
     $this->db->select('id_item');
+    $this->db->where('status','!=','REJECTED');
     $this->db->from('tb_budget_cot');
     $query_cot = $this->db->get();
     $budget_cot = $query_cot->unbuffered_row('array');
@@ -1499,7 +1543,7 @@ class Purchase_Request_Model extends MY_Model
     $this->db->join('tb_stocks', 'tb_stocks.item_id = tb_master_items.id');
     $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
     $this->db->where('tb_master_item_groups.category', $category);
-    $this->db->where_not_in('tb_master_items.id', $budget_cot);
+    $this->db->where_not_in('tb_master_items.id', $budget_cot['item_id']);
     $this->db->order_by('tb_master_items.group ASC, tb_master_items.description ASC');
     //echo $this->db->_compile_select();
     $query  = $this->db->get();
@@ -2074,7 +2118,7 @@ class Purchase_Request_Model extends MY_Model
     $query = $this->db->get();
     $row = $query->unbuffered_row('array');
 
-    $recipientList = $this->getNotifRecipient(2);
+    $recipientList = $this->getNotifRecipient(14);
     $recipient = array();
     foreach ($recipientList as $key ) {
       array_push($recipient, $key->email);
@@ -2095,7 +2139,7 @@ class Purchase_Request_Model extends MY_Model
     $config['mailtype']         = 'html';
     $this->email->initialize($config);
     $this->email->set_newline("\r\n");
-    $message = "<p>Dear Finance</p>";
+    $message = "<p>Dear Finance Manager</p>";
     $message .= "<p>Berikut permintaan Purchase Request dari Gudang :</p>";
     $message .= "<ul>";
     $message .= "</ul>";
@@ -2180,6 +2224,94 @@ class Purchase_Request_Model extends MY_Model
     $this->db->from('tb_auth_users');
     $this->db->where('person_name',$level);
     return $this->db->getauth_leresult();
+  }
+
+  public function countOnhand($part_number){
+    $this->db->select('sum(quantity)');
+    $this->db->from('tb_stock_in_stores');
+    //tambahan
+    $this->db->join('tb_stocks','tb_stocks.id=tb_stock_in_stores.stock_id');
+    $this->db->join('tb_master_items','tb_master_items.id=tb_stocks.item_id');
+    $this->db->group_by('tb_master_items.part_number');
+    //tambahan
+    $this->db->where('tb_master_items.part_number', $part_number);
+    return $this->db->get('')->row();
+  }
+
+  public function findPrlByPoeItemid($poe_item_id)
+  {
+    // $this->db->select('tb_inventory_purchase_requisition_details.*');
+      // $this->db->from('tb_inventory_purchase_requisition_details');
+      // $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
+
+      // $query_detail    = $this->db->get();
+      // $request_detail  = $query_detail->unbuffered_row();
+      $this->db->select('tb_inventory_purchase_requisitions.id');
+      $this->db->join('tb_inventory_purchase_requisition_details','tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id=tb_inventory_purchase_requisitions.id'); 
+      $this->db->join('tb_purchase_order_items','tb_purchase_order_items.inventory_purchase_request_detail_id=tb_inventory_purchase_requisition_details.id');     
+      $this->db->from('tb_inventory_purchase_requisitions');
+      $this->db->where('tb_purchase_order_items.id',$poe_item_id);
+      $query    = $this->db->get();
+      $poe_item  = $query->unbuffered_row('array');
+      $id = $poe_item['id'];
+
+      $this->db->select('tb_inventory_purchase_requisitions.*');
+      $this->db->from('tb_inventory_purchase_requisitions');
+      $this->db->where('tb_inventory_purchase_requisitions.id', $id);
+
+      $query    = $this->db->get();
+      $request  = $query->unbuffered_row('array');
+
+      $select = array(
+        'tb_inventory_purchase_requisition_details.*',
+        'tb_master_items.description as product_name',
+        'tb_master_items.part_number',
+        'tb_budget.id_cot',
+        'SUM(tb_budget.mtd_quantity) AS fyp_quantity',
+        'SUM(tb_budget.mtd_budget) AS fyp_budget',
+        'SUM(tb_budget.mtd_used_quantity) AS fyp_used_quantity',
+        'SUM(tb_budget.mtd_used_budget) AS fyp_used_budget',
+      );
+
+      $group_by = array(
+        'tb_inventory_purchase_requisition_details.id',
+        'tb_master_items.description',
+        'tb_master_items.part_number',
+        'tb_budget.id_cot',
+      );
+
+      $this->db->select($select);
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
+      $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item');
+      $this->db->where('tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id', $id);
+      $this->db->group_by($group_by);
+
+      $query = $this->db->get();
+
+      foreach ($query->result_array() as $key => $value){
+        $request['items'][$key] = $value;
+
+        $this->db->from('tb_budget');
+        $this->db->where('tb_budget.id_cot', $value['id_cot']);
+        $this->db->where('tb_budget.month_number', $this->budget_month);
+
+        $query = $this->db->get();
+        $row   = $query->unbuffered_row('array');
+
+        $request['items'][$key]['mtd_quantity'] = $row['mtd_quantity'];
+        $request['items'][$key]['mtd_budget'] = $row['mtd_budget'];
+        $request['items'][$key]['mtd_used_quantity'] = $row['mtd_used_quantity'];
+        $request['items'][$key]['mtd_used_budget'] = $row['mtd_used_budget'];
+        $request['items'][$key]['ytd_quantity'] = $row['ytd_quantity'];
+        $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
+        $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
+        $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
+      } 
+    
+
+    return $request;
   }
 
 }
