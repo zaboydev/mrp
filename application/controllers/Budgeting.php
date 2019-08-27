@@ -22,11 +22,11 @@ class Budgeting extends MY_Controller {
     $this->data['year']        = $year;
 		$this->data['page']['title']            = $this->module['label'].' '.$year;
 		$this->data['page']['requirement']      = array('datatable');
-    	$this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    	$this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'.$year);
-    	$this->data['grid']['fixed_columns']    = 2;
-      $this->data['grid']['summary_columns']  = array( 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36 );
-    	$this->data['grid']['order_columns']    = array (
+    $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'.$year);
+    $this->data['grid']['fixed_columns']    = 2;
+    $this->data['grid']['summary_columns']  = array( 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36 );
+    $this->data['grid']['order_columns']    = array (
 
       //10 => array ( 0 => 11, 1 => 'asc' ),
       // 11 => array ( 0 => 12, 1 => 'asc' ),

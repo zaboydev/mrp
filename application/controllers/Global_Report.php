@@ -139,17 +139,43 @@ class Global_Report extends MY_Controller
     $_SESSION['global_report']['year'] = $_GET['data'];
   }
 
-  public function print_report(){
+  public function print_report($tipe){
     $month = $_SESSION['global_report']['month'];
     $year = $_SESSION['global_report']['year'];
     $data['data_budget'] = $this->model->select_budget($month,$year);
     foreach ($data['data_budget'] as $budget) {
-      $data['mtd_qty'][$budget['item_part_number']] = $this->model->qty_po($month,$year,'mtd',$budget['item_part_number']);
-      $data['mtd_val'][$budget['item_part_number']] = $this->model->val_po($month,$year,'mtd',$budget['item_part_number']);
-      $data['ytd_qty'][$budget['item_part_number']] = $this->model->qty_po($month,$year,'ytd',$budget['item_part_number']);
-      $data['ytd_val'][$budget['item_part_number']] = $this->model->val_po($month,$year,'ytd',$budget['item_part_number']);
+      $data['mtd_qty'][$budget['item_part_number']] = $this->model->qty_po($month,$year,'mtd',$budget['item_part_number'])->sum;
+      $data['mtd_val'][$budget['item_part_number']] = $this->model->val_po($month,$year,'mtd',$budget['item_part_number'])->sum;
+      $data['ytd_qty'][$budget['item_part_number']] = $this->model->qty_po($month,$year,'ytd',$budget['item_part_number'])->sum;
+      $data['ytd_val'][$budget['item_part_number']] = $this->model->val_po($month,$year,'ytd',$budget['item_part_number'])->sum;
     }
-    $this->render_view($this->module['view'] .'/print_report',$data);
+    $data['month'] = $this->bulan($month);
+    $data['time'] = $year.'-'.$month.'-01';
+    $data['title'] = 'Report Budget - PO '.date('M Y', strtotime($data['time']));
+    if($tipe=='print'){
+      $this->render_view($this->module['view'] .'/print_report',$data);
+    }else{
+      $this->render_view($this->module['view'] .'/print_report_excel',$data);
+    }
+  }
+
+  function bulan($bln){
+    $return = [
+      '1' => 'Januari',
+      '2' => 'Februari',
+      '3' => 'Maret',
+      '4' => 'April',
+      '5' => 'Mei',
+      '6' => 'Juni', 
+      '7' => 'Juli',
+      '8' => 'Agustus',
+      '9' => 'September',
+      '10' => 'Oktober',
+      '11' => 'November',
+      '12' => 'Desember',
+    ];
+
+    return $return[$bln];
   }
 
   

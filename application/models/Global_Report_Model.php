@@ -273,28 +273,34 @@ end)',
 
   public function qty_po($month,$year,$tipe,$part_number){
     if($tipe=='mtd'){
-      $this->db->select('quantity');
+      $this->db->select('sum(quantity)');
       $this->db->from('tb_po_item');
       $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
       $this->db->where('part_number',$part_number);
+      $this->db->where('tb_po.review_status','APPROVED');
       $this->db->where('EXTRACT(MONTH FROM tb_po.document_date)::integer = ', $month);
-      $qty = $this->db->get();
-      $x = 0;
-      foreach ($qty->result_array() as $row) {
-        $x = $x+$row['quantity'];
-      }
+      $this->db->where('EXTRACT(YEAR FROM tb_po.document_date)::integer = ', $year);
+      // $qty = $this->db->get();
+      // $x = 0;
+      // foreach ($qty->result_array() as $row) {
+      //   $x = $x+$row['quantity'];
+      // }
+      $x = $this->db->get('')->row();
       return $x;
     }else{
-      $this->db->select_sum('quantity');
+      $this->db->select('sum(quantity)');
       $this->db->from('tb_po_item');
       $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
       $this->db->where('part_number',$part_number);
-      $this->db->where('EXTRACT(YEAR FROM tb_po.document_date)::integer = ', $year);
-      $qty = $this->db->get();
-      $x = 0;
-      foreach ($qty->result_array() as $row) {
-        $x = $x+$row['quantity'];
-      }
+      $this->db->where('tb_po.review_status','APPROVED');
+      $this->db->where('tb_po.document_date >=',$year.'-01-01');      
+      $this->db->where('tb_po.document_date <=',date("Y-m-t", strtotime($year.'-'.$month.'-01')));
+      // $qty = $this->db->get();
+      // $x = 0;
+      // foreach ($qty->result_array() as $row) {
+      //   $x = $x+$row['quantity'];
+      // }
+      $x = $this->db->get('')->row();
       return $x;
 
     }
@@ -302,28 +308,33 @@ end)',
 
   public function val_po($month,$year,$tipe,$part_number){
     if($tipe=='mtd'){
-      $this->db->select('total_amount');
+      $this->db->select('sum(total_amount)');
       $this->db->from('tb_po_item');
       $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
       $this->db->where('part_number',$part_number);
+      $this->db->where('tb_po.review_status','APPROVED');
       $this->db->where('EXTRACT(MONTH FROM tb_po.document_date)::integer = ', $month);
-      $qty = $this->db->get();
-      $x = 0;
-      foreach ($qty->result_array() as $row) {
-        $x = $x+$row['total_amount'];
-      }
+      $this->db->where('EXTRACT(YEAR FROM tb_po.document_date)::integer = ', $year);
+      // $qty = $this->db->get();
+      $x = $this->db->get('')->row();
+      // foreach ($qty->result_array() as $row) {
+      //   $x = $x+$row['total_amount'];
+      // }
       return $x;
     }else{
-      $this->db->select('total_amount');
+      $this->db->select('sum(total_amount)');
       $this->db->from('tb_po_item');
       $this->db->join('tb_po','tb_po_item.purchase_order_id=tb_po.id');
       $this->db->where('part_number',$part_number);
-      $this->db->where('EXTRACT(YEAR FROM tb_po.document_date)::integer = ', $year);
-      $qty = $this->db->get();
-      $x = 0;
-      foreach ($qty->result_array() as $row) {
-        $x = $x+$row['total_amount'];
-      }
+      $this->db->where('tb_po.review_status','APPROVED');
+      $this->db->where('tb_po.document_date >=',$year.'-01-01');      
+      $this->db->where('tb_po.document_date <=',date("Y-m-t", strtotime($year.'-'.$month.'-01')));
+      // $qty = $this->db->get();
+      // $x = 0;
+      // foreach ($qty->result_array() as $row) {
+      //   $x = $x+$row['total_amount'];
+      // }
+      $x = $this->db->get('')->row();
       return $x;
     }
   }

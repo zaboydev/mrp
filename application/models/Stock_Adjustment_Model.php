@@ -280,11 +280,11 @@ class Stock_Adjustment_Model extends MY_Model
         $prev_quantity        = floatval($stock['quantity']);
         $balance_quantity     = floatval($stock['quantity']) + $adjustment_quantity;
         $unit_value           = $data['adj_value']*$stock['kurs_dollar'];
-		$selisih  		 	  = floatval($unit_value)-floatval($stock['unit_value']);
-		$total_value 		  = $stock['quantity']*$selisih;
+		    $selisih  		 	  = floatval($unit_value)-floatval($stock['unit_value']);
+		    $total_value 		  = $stock['quantity']*$selisih;
         if($adjustment_quantity > 0){
-			$unit_value         = $stock['unit_value'];
-			$total_value 		= $adjustment_quantity*$unit_value;
+			   $unit_value         = $stock['unit_value'];
+			   $total_value 		= $adjustment_quantity*$unit_value;
         }       
         // $total_value          = $stores_quantity * $stock['unit_value'];
         // $grand_total_value    = floatval($stock['grand_total_value']) + $total_value;
@@ -308,7 +308,7 @@ class Stock_Adjustment_Model extends MY_Model
         $this->db->set('balance_quantity', $balance_quantity);
         $this->db->set('adjustment_token', date('YmdHis'));
         $this->db->set('unit_value', floatval($unit_value));
-		$this->db->set('total_value', floatval($total_value));   
+		    $this->db->set('total_value', floatval($total_value));   
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('document_number', $document_number);
         $this->db->insert('tb_stock_adjustments');
@@ -348,14 +348,14 @@ class Stock_Adjustment_Model extends MY_Model
     // $this->db->set('average_value', $average_value);
     // $this->db->set('created_by', config_item('auth_person_name'));
     // $this->db->set('remarks', $remarks);
-    // $this->db->insert('tb_stock_cards');
+    // $this->db->insert('tb_stock_cards');    
+
+    $this->send_mail($document_number);
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
     $this->db->trans_commit();
-
-    // $this->send_adjustment_request($insert_id);
 
     return TRUE;
   }
@@ -380,11 +380,101 @@ class Stock_Adjustment_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');   
     $this->db->where('tb_master_item_groups.category', $category);	
-	$this->db->like('tb_stock_in_stores.reference_document', 'GRN');
+	  $this->db->like('tb_stock_in_stores.reference_document', 'GRN');
 
     $query  = $this->db->get();
     $result = $query->result_array();
 
     return $result;
+  }
+
+  public function send_mail($document_number) { 
+    $this->db->select(array(
+      'tb_master_items.part_number',
+      'tb_master_items.description',
+      'tb_master_item_groups.category',
+      'tb_master_items.group',
+      'tb_stocks.condition',
+      'tb_stock_adjustments.created_by',
+      'tb_stock_adjustments.created_at',
+      'tb_stock_adjustments.previous_quantity',
+      'tb_stock_adjustments.adjustment_quantity',
+      'tb_stock_adjustments.balance_quantity',
+      'tb_master_items.unit',
+      'tb_stock_adjustments.remarks',
+      'tb_stock_adjustments.adjustment_token',
+      'tb_stock_adjustments.total_value',
+    ));
+    $this->db->from('tb_stock_adjustments');
+    $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_stock_adjustments.stock_in_stores_id');
+    $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where('tb_stock_adjustments.document_number',$document_number);
+    $query = $this->db->get();
+    $row = $query->result_array();
+
+    $recipientList = $this->getNotifRecipient(3);
+    $recipient = array();
+    foreach ($recipientList as $key ) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "bifa.acd@gmail.com";
+    $to_email = "aidanurul99@rocketmail.com"; 
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'bifa.acd@gmail.com';
+    $config['smtp_pass'] = 'b1f42019';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear VP Finance</p>";
+    $message .= "<p>Berikut permintaan Adjustment Baru dari Gudang :</p>";
+    $message .= "<p>No Adjustment : ".$document_number."</p>";
+    $message .= "<table width='100%'>";
+    $message .= "<thead>
+      <tr>
+      <th width='25%'>Part Number</th>
+      <th width='25%'>Description</th>
+      <th width='25%'>Qty. Adj</th>
+      <th width='25%'>Val. Adj</th>
+      </tr>
+    </thead>";
+    foreach ($row as $item) {
+      $message .= '<tr>';
+      $message .= '<td>'.$item['part_number'].'</td>';
+      $message .= '<td>'.$item['description'].'</td>';
+      $message .= '<td align="center">'.print_number($item['adjustment_quantity'],2).'</td>';
+      $message .= '<td align="center">'.print_number($item['total_value'],2).'</td>';
+      $message .= '</tr>';
+    }
+    $message .= "</table>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/permintaan_adjustment/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning'); 
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Adjustment No : '.$document_number); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient($level){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',$level);
+    return $this->db->get('')->result();
   }
 }

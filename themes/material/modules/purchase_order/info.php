@@ -209,16 +209,22 @@
   <div class="card-foot">
     <div class="pull-right">
       <?php if (is_granted($module, 'payment')):?>
-        <a href="<?=site_url($module['route'] .'/payment/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
+        <!-- <a href="<?=site_url($module['route'] .'/payment/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
           <i class="md md-attach-money"></i>
-          <small class="top right">peyment</small>
-        </a>
+          <small class="top right">payment</small>
+        </a> -->
       <?php endif;?>
 
       <?php if (is_granted($module, 'document') && empty($entity['document_number'])):?>
         <a href="<?=site_url($module['route'] .'/approve/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-approval-data-button">
           <i class="md md-edit"></i>
           <small class="top right">Create PO</small>
+        </a>
+      <?php endif;?>
+      <?php if (is_granted($module, 'document')):?>
+        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+          <i class="md md-edit"></i>
+          <small class="top right">edit</small>
         </a>
       <?php endif;?>
 

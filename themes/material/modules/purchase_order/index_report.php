@@ -84,56 +84,21 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>  
-    <div class="section-floating-action-row">
-      <?php if (is_granted($modules['purchase_order'], 'document')):?>
-      <div class="btn-group dropup">
-        <a type="button" href="<?=site_url($modules['purchase_order']['route'] .'/index_report');?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction">
-          <i class="md md-assignment"></i>
-          <small class="top right">Report</small>
-        </a>
-      </div>
-      <div class="btn-group dropup">        
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-          <i class="md md-add"></i>
-          <small class="top right">Create <?=$module['label'];?></small>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_inventory') as $category):?>
-            <li>
-              <a href="<?=site_url($modules['purchase_order']['route'] .'/create/'. $category);?>"><?=$category;?></a>
-            </li>
-          <?php endforeach;?>
-        </ul>
-      </div>
-      <div class="btn-group dropup">
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-import-data" data-toggle="modal" data-target="#import-modal">
-          <i class="md md-attach-file"></i>
-          <small class="top right">Import Data</small>
-        </button>
-      </div>
-    <?php endif ?>
-
-    <?php if (is_granted($modules['purchase_order'], 'approval')):?>
-      <div class="btn-group dropup">
-        <button type="button" data-source = "<?=site_url($module['route'] .'/multi_approve/');?>"  class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
-          <i class="md md-spellcheck"></i>
-          <small class="top right">approve</small>
-        </button>
-      </div>
-    <?php endif;?>
-    <?php if (is_granted($modules['purchase_order'], 'approval')):?>
-      <div class="btn-group dropup">
-        <button type="button" data-source = "<?=site_url($module['route'] .'/multi_reject/');?>"  class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
-          <i class="md md-close"></i>
-          <small class="top right">reject</small>
-        </button>
-      </div>
-    <?php endif;?>
-    </div>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
   <div class="form force-padding">
+    <div class="form-group">    
+      <label for="start_date">Supplier</label>
+      <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="1">
+        <option value="all" <?=('all' == $selected_vendor) ? 'selected' : '';?>>All Supplier</option>
+        <?php foreach (available_vendors() as $vendor):?>
+        <option value="<?=$vendor;?>" <?=($vendor == $selected_vendor) ? 'selected' : '';?>>
+          <?=$vendor;?>
+        </option>
+        <?php endforeach; ?>
+      </select>
+    </div>
     <div class="form-group">
       <label for="filter_received_date">Date</label>
       <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
@@ -478,6 +443,7 @@ var id_purchase_order = "";
           extend: 'excel',
           name: 'excel',
           text: '<i class="fa fa-file-excel-o"></i><small class="top center">export to EXCEL</small>',
+          messageTop: 'Text message top',
           // titleAttr: 'export to EXCEL',
           className: 'btn-tooltip',
           footer: true,

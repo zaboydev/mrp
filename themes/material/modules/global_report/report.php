@@ -38,10 +38,17 @@
                     </div>                         
                 </div>
                 <div class="row">
-                  <div class="col-md-12">
+                  <div class="col-md-6">
                     <div class="form-group">
-                      <a href="<?=site_url('Global_Report/print_report');?>" class="btn btn-block btn-primary ink-reaction" target="_blank">
-                        Search
+                      <a href="<?=site_url('Global_Report/print_report/excel');?>" class="btn btn-block btn-info ink-reaction" target="_blank">
+                        Excel
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <a href="<?=site_url('Global_Report/print_report/print');?>" class="btn btn-block btn-primary ink-reaction" target="_blank">
+                        Print
                       </a>
                     </div>
                   </div>

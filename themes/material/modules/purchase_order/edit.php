@@ -206,6 +206,9 @@
                       <a href="<?=site_url($module['route'] .'/del_item/'. $i);?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
                         <i class="fa fa-trash"></i>
                       </a>
+                      <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?=$i;?>}'>
+                        <i class="fa fa-edit"></i>
+                      </a>
                     </td>
                     <td>
                       <a href="<?=site_url($module['route'] .'/edit_item/'. $i);?>" onClick="return popup(this, 'edit')">
@@ -250,9 +253,9 @@
         <div class="card-actionbar-row">
           <div class="pull-left">
             <?php if (empty($_SESSION['order']['vendor']) === FALSE):?>
-              <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas">
+              <!-- <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas">
                 Add Item
-              </a>
+              </a> -->
             <?php endif;?>
           </div>
 
@@ -275,7 +278,7 @@
           <h4 class="modal-title" id="modal-add-item-label">Add Item</h4>
         </div>
 
-        <?=form_open(site_url($module['route'] .'/add_item'), array(
+        <?=form_open(site_url($module['route'] .'/edit_item_order'), array(
           'autocomplete' => 'off',
           'id'    => 'ajax-form-create-document',
           'class' => 'form form-validate ui-front',
@@ -362,6 +365,7 @@
         <div class="modal-footer">
           <input type="hidden" id="purchase_order_evaluation_items_vendors_id" name="purchase_order_evaluation_items_vendors_id">
           <input type="hidden" id="evaluation_number" name="evaluation_number">
+          <input type="hidden" id="item_id" name="item_id">
 
           <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
@@ -379,7 +383,7 @@
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
-      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?=site_url($module['route'] .'/save_po');?>">
+      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?=site_url($module['route'] .'/save_revisi_po');?>">
         <i class="md md-save"></i>
         <small class="top right">Save Document</small>
       </a>
@@ -534,6 +538,7 @@ $(function(){
   var buttonSubmitDocument      = $('#btn-submit-document');
   var buttonDeleteDocumentItem  = $('.btn_delete_document_item');
   var autosetInputData          = $('[data-input-type="autoset"]');
+  var buttonEditDocumentItem    = $('.btn_edit_document_item');
 
   toastr.options.closeButton = true;
 
@@ -718,6 +723,60 @@ $(function(){
         .appendTo( ul );
       };
     }
+  });
+
+  $(buttonEditDocumentItem).on('click', function(e){
+    e.preventDefault();
+
+    //var id = $(this).data('todo').id;
+    var id = $(this).data('todo').todo;
+    var data_send = {
+                id: id
+                //i: i
+            };
+    var save_method;
+
+    save_method = 'update';
+    /*$('#ajax-form-create-document')[0].reset(); // reset form on modals*/
+
+
+    $.ajax({
+      url : "<?=site_url($module['route'] .'/ajax_editItem/')?>/"+id,
+      type: "GET",
+      data: data_send,
+      dataType: "JSON",
+      success: function(response)
+      { 
+        console.log(JSON.stringify(response));
+          $('#part_number').val( response.part_number );
+          $('#description').val( response.description );
+          $('#quantity').val( response.quantity );
+          $('#unit_price').val( response.unit_price );
+          $('#core_charge').val( response.core_charge );
+          $('#total_amount').val( response.total_amount);
+          $('#unit').val( response.unit );
+          $('#purchase_order_evaluation_items_vendors_id').val( response.purchase_order_evaluation_items_vendors_id );
+          $('#evaluation_number').val( response.evaluation_number );
+
+          $('input[rel="unit_price"]').val( response.unit_price );
+
+          $('#alternate_part_number').val(response.alternate_part_number);
+
+          $('[name="item_id"]').val(id);
+        
+        
+        
+ 
+ 
+        $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
+        $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title
+ 
+      },
+      error: function (jqXHR, textStatus, errorThrown)
+      {
+        alert('Error get data from ajax');
+      }
+    });  
   });
 });
 </script>

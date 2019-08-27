@@ -2077,16 +2077,16 @@ class Purchase_Request_Model extends MY_Model
       array_push($recipient, $key->email);
     }
 
-    $from_email = "baliflight@hotmail.com"; 
+    $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com"; 
    
     //Load email library 
     $this->load->library('email'); 
     $config = array();
     $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.gmail.com';
-    $config['smtp_user'] = 'kiddo2095@gmail.com';
-    $config['smtp_pass'] = 'kyuhyun234';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'bifa.acd@gmail.com';
+    $config['smtp_pass'] = 'b1f42019';
     $config['smtp_port'] = 587;
     $config['smtp_auth']        = true;
     $config['mailtype']         = 'html';

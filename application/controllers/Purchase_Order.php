@@ -22,7 +22,11 @@ class Purchase_Order extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 3;
-    $this->data['grid']['summary_columns']  = array(13, 18, 19);
+    if ((config_item('auth_role') == 'VP FINANCE')||(config_item('auth_role') == 'FINANCE MANAGER')||(config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')){
+      $this->data['grid']['summary_columns']  = array(13, 16);
+    }else{
+      $this->data['grid']['summary_columns']  = array(12, 15);
+    }
     $this->data['grid']['order_columns']    = array();
     $this->render_view($this->module['view'] .'/index');
   }
@@ -59,8 +63,7 @@ class Purchase_Order extends MY_Controller
           } else{
             $col[] = '';
           }
-        }
-        
+        }       
         $col[] = print_number($no);
         $col[] = print_string($row['document_number'], 'N/A');
         $col[] = print_string($row['review_status']);
@@ -73,31 +76,55 @@ class Purchase_Order extends MY_Controller
         $col[] = '<a href="'.site_url($this->modules['purchase_request']['route'] .'/print_pdf_prl/'. $row['poe_item_id']).'" target="_blank" >'.print_string($row['purchase_request_number']).'</a>';
         $col[] = print_string($row['reference_quotation']);
         $col[] = strtoupper($row['vendor']);
-        $col[] = print_number($row['quantity'], 2);
-        $col[] = print_number($row['quantity_received'], 2);
-        $col[] = print_number($row['left_received_quantity'], 2);
-        $col[] = print_number($row['unit_price'], 2);
-        $col[] = print_number($row['core_charge'], 2);
-        $col[] = print_number($row['total_amount'], 2);
-        $col[] = print_number($row['amount_paid'], 2);
-         if($row['review_status'] === "APPROVED" || $row[$field] === "1" ) {
-            $col[] = '';
-          } else {
-            if($row['document_number'] == null){
+        if((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')||(config_item('auth_role') == 'FINANCE MANAGER')||(config_item('auth_role') == 'VP FINANCE')){          
+          $col[] = print_number($row['quantity'], 2);        
+          $col[] = print_number($row['unit_price'], 2);
+          $col[] = print_number($row['core_charge'], 2);
+          $col[] = print_number($row['total_amount'], 2);
+          if($row['review_status'] === "APPROVED" || $row[$field] === "1" ) {
               $col[] = '';
-            }else{
-              if((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')){
-                $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';  
-              } else {
-                $col[] ='';
+            } else {
+              if($row['document_number'] == null){
+                $col[] = '';
+              }else{
+                $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
+                
               }
-              
-            }
           }
-        $col[] = null;
-        $col[] = null;
-        $col[] = null;
-        $col[] = null;
+          $col[] = null;
+          $col[] = null;
+          $col[] = null;
+          $col[] = null;
+          $col[] = null;
+        }else{
+          $col[] = print_number($row['quantity'], 2);        
+          $col[] = print_number($row['unit_price'], 2);
+          $col[] = print_number($row['core_charge'], 2);
+          $col[] = print_number($row['total_amount'], 2);
+          $col[] = print_number($row['quantity_received'], 2);
+          $col[] = print_number($row['left_received_quantity'], 2);
+          // $col[] = print_number($row['amount_paid'], 2);   
+          if($row['review_status'] === "APPROVED" || $row[$field] === "1" ) {
+              $col[] = '';
+            } else {
+              if($row['document_number'] == null){
+                $col[] = '';
+              }else{
+                if((config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')){
+                  $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';  
+                } else {
+                  $col[] ='';
+                }
+                
+              }
+          }
+          $col[] = null;
+          $col[] = null;
+          $col[] = null;
+          $col[] = null; 
+          $col[] = null;      
+        }
+        
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
 
@@ -126,11 +153,19 @@ class Purchase_Order extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
         "total" => array(
-          13 => print_number(array_sum($quantity),2),
-          18 => print_number(array_sum($total_amount),2),
-          19 => print_number(array_sum($amount_paid),2),
+          // 13 => print_number(array_sum($quantity),2),
+          // 16 => print_number(array_sum($total_amount),2),
+          // 19 => print_number(array_sum($amount_paid),2),
         )
       );
+      if ((config_item('auth_role') == 'VP FINANCE')||(config_item('auth_role') == 'FINANCE MANAGER')||(config_item('auth_role') == 'HEAD OF SCHOOL')||(config_item('auth_role') == 'CHIEF OF FINANCE')){
+        // $result['total'][17] = print_number(array_sum($unit_value), 2);
+        $result['total'][13] = print_number(array_sum($quantity),2);
+        $result['total'][16] = print_number(array_sum($total_amount),2);
+      }else{
+        $result['total'][12] = print_number(array_sum($quantity),2);
+        $result['total'][15] = print_number(array_sum($total_amount),2);
+      }
     }
 
     echo json_encode($result);
@@ -332,6 +367,7 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['vendor_address']    = $row['address'];
     $_SESSION['order']['vendor_country']    = $row['country'];
     $_SESSION['order']['vendor_attention']  = 'Phone: '. $row['phone'];
+    // $_SESSION['order']['default_currency']  = $row['currency'];
     $_SESSION['order']['items']   = array();
 
     redirect($this->module['route'] .'/create');
@@ -413,6 +449,7 @@ class Purchase_Order extends MY_Controller
     }
     echo json_encode($base);
   }
+
   public function multi_approve()
   {
       $id_purchase_order = $this->input->post('id_purchase_order');
@@ -431,6 +468,7 @@ class Purchase_Order extends MY_Controller
         }
       }
       if($success>0){
+        $this->model->send_mail_approval($id_purchase_order,'approve',config_item('auth_person_name'));
         $this->session->set_flashdata('alert', array(
                   'type' => 'success',
                   'info' => $success." data has been update!"
@@ -445,15 +483,15 @@ class Purchase_Order extends MY_Controller
       if($total == 0 ){
         $result['status'] = 'failed';
       } else {
-        if((config_item('auth_role') == 'FINANCE')){
-            $this->sendEmail(10);
-        }
-        if((config_item('auth_role') == 'HEAD OF SCHOOL')){
-            $this->sendEmail(3);
-        }
-        if((config_item('auth_role') == 'VP FINANCE')){
-            $this->sendEmail(11);
-        }
+        // if((config_item('auth_role') == 'FINANCE')){
+        //     $this->sendEmail(10);
+        // }
+        // if((config_item('auth_role') == 'HEAD OF SCHOOL')){
+        //     $this->sendEmail(3);
+        // }
+        // if((config_item('auth_role') == 'VP FINANCE')){
+        //     $this->sendEmail(11);
+        // }
         $result['status'] = 'success';
       }
       echo json_encode($result);
@@ -520,24 +558,60 @@ class Purchase_Order extends MY_Controller
 
     echo json_encode($return);
   }
-  public function multi_reject(){
-    $str_id_purchase_order = $this->input->post('id_purchase_order');
-    $str_notes = $this->input->post('notes');
-    $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
-    $id_purchase_order = substr($id_purchase_order, 0,-1);
-    $notes = str_replace("|", "", $str_notes);
-    $notes = substr($notes, 0,-3);
-    $id_purchase_order = explode(",", $id_purchase_order);
-    $notes = explode("##,", $notes);
-    $result = $this->model->multi_reject($id_purchase_order,$notes);
-    if($result){
-      $return["status"] = "success";
-      echo json_encode($return);
-    }else{
-      $return["status"] = "failed";
-      echo json_encode($return);
-    }
+  
+  public function multi_reject()
+  {
+      $id_purchase_order = $this->input->post('id_purchase_order');
+      $id_purchase_order = str_replace("|", "", $id_purchase_order);
+      $id_purchase_order = substr($id_purchase_order, 0,-1);
+      $id_purchase_order = explode(",", $id_purchase_order);
+
+      $str_notes = $this->input->post('notes');
+      $notes = str_replace("|", "", $str_notes);
+      $notes = substr($notes, 0,-3);
+      $notes = explode("##,", $notes);
+      $total = 0;
+      $success = 0;
+      $failed = sizeof($id_purchase_order);
+      $x=0;
+      foreach ($id_purchase_order as $key) {
+        if ($this->model->reject($key,$notes[$x])){
+          $total ++;
+          $success ++;
+          $failed --;
+        }
+        $x++;
+      }
+      if($success>0){
+        $this->model->send_mail_approval($id_purchase_order,'rejected',config_item('auth_person_name'));
+        $this->session->set_flashdata('alert', array(
+                  'type' => 'success',
+                  'info' => $success." data has been update!"
+        ));
+      }
+      if($failed>0){
+        $this->session->set_flashdata('alert', array(
+                  'type' => 'danger',
+                  'info' => "There are ".$failed." errors"
+        ));
+      }
+      if($total == 0 ){
+        $result['status'] = 'failed';
+      } else {
+        // if((config_item('auth_role') == 'FINANCE')){
+        //     $this->sendEmail(10);
+        // }
+        // if((config_item('auth_role') == 'HEAD OF SCHOOL')){
+        //     $this->sendEmail(3);
+        // }
+        // if((config_item('auth_role') == 'VP FINANCE')){
+        //     $this->sendEmail(11);
+        // }
+        $result['status'] = 'success';
+      }
+      echo json_encode($result);
   }
+
   public function print_pdf($id)
   {
     $this->authorized($this->module, 'print');
@@ -728,6 +802,63 @@ class Purchase_Order extends MY_Controller
     $this->render_view($this->module['view'] .'/create');
   }
 
+  public function edit($id)
+  {
+      $this->authorized($this->module, 'document');
+
+      // if ($category !== NULL){
+      $item       = $this->model->findItemPo($id);
+      $order      = $this->model->findPo($id);
+      $category   = urldecode('SPARE PART');
+      $company    = find_budget_setting('Company Name', 'head company');
+      $address    = nl2br(find_budget_setting('Address', 'head company'));
+      $country    = 'INDONESIA';
+      $phone      = find_budget_setting('Phone No', 'head company');
+      $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
+
+      if (isset($_SESSION['order']) === FALSE){
+        $_SESSION['order']['items']               = $item;
+        $_SESSION['order']['vendor_po']           = '';
+        $_SESSION['order']['id_po']               = $id;
+        $_SESSION['order']['vendor']              = $order['vendor'];
+        $_SESSION['order']['warehouse']           = config_item('main_warehouse');
+        $_SESSION['order']['category']            = $category;
+        $_SESSION['order']['document_number']     = substr($order['document_number'], 3, 6).'R';
+        $_SESSION['order']['document_date']       = date('Y-m-d');
+        $_SESSION['order']['vendor']              = $order['vendor'];
+        $_SESSION['order']['vendor_address']      = $order['vendor_address'];
+        $_SESSION['order']['vendor_country']      = $order['vendor_country'];
+        $_SESSION['order']['vendor_phone']        = $order['vendor_phone'];
+        $_SESSION['order']['vendor_attention']    = $order['vendor_attention'];
+        $_SESSION['order']['deliver_company']     = $company;
+        $_SESSION['order']['deliver_address']     = $address;
+        $_SESSION['order']['deliver_country']     = 'INDONESIA';
+        $_SESSION['order']['deliver_phone']       = $phone;
+        $_SESSION['order']['deliver_attention']   = $attention;
+        $_SESSION['order']['bill_company']        = $company;
+        $_SESSION['order']['bill_address']        = $address;
+        $_SESSION['order']['bill_country']        = 'INDONESIA';
+        $_SESSION['order']['bill_phone']          = $phone;
+        $_SESSION['order']['bill_attention']      = $attention;
+        $_SESSION['order']['reference_quotation'] = NULL;
+        $_SESSION['order']['issued_by']           = config_item('auth_person_name');
+        $_SESSION['order']['checked_by']          = NULL;
+        $_SESSION['order']['approved_by']         = NULL;
+        $_SESSION['order']['default_currency']    = $order['default_currency'];
+        $_SESSION['order']['payment_type']        = $order['tipe'];
+        $_SESSION['order']['exchange_rate']       = 1.00;
+        $_SESSION['order']['discount']            = $order['discount'];
+        $_SESSION['order']['taxes']               = $order['taxes'];
+        $_SESSION['order']['shipping_cost']       = $order['shipping_cost'];
+        $_SESSION['order']['total_quantity']      = NULL;
+        $_SESSION['order']['total_price']         = NULL;
+        $_SESSION['order']['grand_total']         = NULL;
+        $_SESSION['order']['notes']               = NULL;
+      }
+
+    $this->render_view($this->module['view'] .'/edit');
+  }
+
   public function save($id)
   {
     // if ($this->input->is_ajax_request() == FALSE)
@@ -806,6 +937,46 @@ class Purchase_Order extends MY_Controller
 
     echo json_encode($data);
   }
+
+  public function save_revisi_po()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE){
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      $document_number = order_format_number($_SESSION['orders']['category']).$_SESSION['order']['document_number'];
+
+      $errors = array();
+
+      if (!isset($_SESSION['order']['items']) || empty($_SESSION['order']['items'])){
+        $errors[] = 'Please add at least 1 item!';
+      }
+
+      if ($this->model->isDocumentNumberExists($document_number)){
+        $errors[] = 'Duplicate Document Number: '. $_SESSION['orders']['document_number'] .' !';
+      }
+
+      if (!empty($errors)){
+        $data['success'] = FALSE;
+        $data['message'] = implode('<br />', $errors);
+      } else {
+        if ($this->model->save_revisi_po()){
+          $data['success'] = TRUE;
+          $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
+          // $this->sendEmail(2);
+        } else {
+          $data['success'] = FALSE;
+          $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+        }
+      }
+    }
+
+    echo json_encode($data);
+  }
+
   public function import()
   {
 
@@ -1080,5 +1251,144 @@ class Purchase_Order extends MY_Controller
     $data = $this->model->listAttachmentpoe($id);
     echo json_encode($data);
   }
+
+  public function ajax_editItem($key)
+  {
+    $this->authorized($this->module, 'document');    
+
+    $entity = $_SESSION['order']['items'][$key];
+
+    echo json_encode($entity);
+  }
+
+  public function edit_item_order()
+  {
+    $this->authorized($this->module, 'document');
+
+    $key=$this->input->post('item_id');
+    if (isset($_POST) && !empty($_POST)){
+      $quantity = floatval($this->input->post('quantity'));
+
+      $_SESSION['order']['items'][$key] = array(        
+        'part_number'           => trim(strtoupper($this->input->post('part_number'))),
+        'alternate_part_number' => trim(strtoupper($this->input->post('alternate_part_number'))),
+        'description'           => trim(strtoupper($this->input->post('description'))),
+        'remarks'               => trim($this->input->post('remarks')),
+        'quantity'              => $quantity,
+        'unit_price'            => $this->input->post('unit_price'),
+        'core_charge'           => $this->input->post('core_charge'),
+        'total_amount'          => $this->input->post('total_amount'),
+        'unit'                  => trim($this->input->post('unit')),
+        'evaluation_number'     => trim($this->input->post('evaluation_number')),
+        'purchase_order_evaluation_items_vendors_id' => $this->input->post('purchase_order_evaluation_items_vendors_id'),
+
+      );
+    }
+    redirect($this->module['route'] .'/edit/'.$_SESSION['order']['id_po']);
+
+  }
+
+  public function index_report()
+  {
+    $this->authorized($this->module, 'index');
+    if (isset($_POST['vendor']) && $_POST['vendor'] !== NULL){
+      $vendor = $_POST['vendor'];
+    } else {
+      $vendor = 'all';
+    }
+
+    $this->data['selected_vendor'] = $vendor;
+
+    $this->data['page']['title']            = $this->module['label'];
+    $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsReport());
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_report');
+    $this->data['grid']['fixed_columns']    = 3;
+    $this->data['grid']['summary_columns']  = array(12, 15);
+    $this->data['grid']['order_columns']    = array();
+    $this->render_view($this->module['view'] .'/index_report');
+  }
+
+  public function index_data_source_report()
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    if (is_granted($this->module, 'index') === FALSE){
+      $return['type'] = 'danger';
+      $return['info'] = "You don't have permission to access this page!";
+    } else {
+      $entities     = $this->model->getIndexReport();
+      $data         = array();
+      $no           = $_POST['start'];
+      $quantity     = array();
+      $total_amount = array();
+      $amount_paid  = array();
+      
+      foreach ($entities as $row){
+        $no++;
+        $col = array();     
+        $col[] = print_number($no);
+        $col[] = print_string($row['document_number'], 'N/A');
+        $col[] = print_string($row['review_status']);
+        $col[] = print_date($row['document_date']);
+        $col[] = print_string($row['category']);
+        $col[] = print_string($row['description']);
+        $col[] = print_string($row['part_number']);
+        $col[] = print_string($row['alternate_part_number']);
+        $col[] = '<a href="'.site_url($this->modules['purchase_order_evaluation']['route'] .'/print_pdf/'. $row['poe_id']).'" target="_blank" >'.print_string($row['poe_number']).'</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="'.$row['poe_id'].'"></i></a>';
+        $col[] = '<a href="'.site_url($this->modules['purchase_request']['route'] .'/print_pdf_prl/'. $row['poe_item_id']).'" target="_blank" >'.print_string($row['purchase_request_number']).'</a>';
+        $col[] = print_string($row['reference_quotation']);
+        $col[] = strtoupper($row['vendor']);
+        $col[] = print_number($row['quantity'], 2);        
+        $col[] = print_number($row['unit_price'], 2);
+        $col[] = print_number($row['core_charge'], 2);
+        $col[] = print_number($row['total_amount'], 2);
+        $col[] = print_number($row['quantity_received'], 2);
+        $col[] = print_number($row['left_received_quantity'], 2);
+        // $col[] = print_number($row['amount_paid'], 2);   
+        $col[] = print_string($row['notes']);
+        $col[] = null;
+        $col[] = null;
+        $col[] = null;
+        
+        $col['DT_RowId'] = 'row_'. $row['id'];
+        $col['DT_RowData']['pkey']  = $row['id'];
+
+        if ($this->has_role($this->module, 'info')){
+          $col['DT_RowAttr']['onClick']     = '';
+          $col['DT_RowAttr']['data-id']     = $row['id'];
+          $col['DT_RowAttr']['data-target'] = '#data-modal';
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+        }
+
+        if ($this->has_role($this->module, 'payment') && $row['status']=='ORDER'){
+          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          $col['DT_RowAttr']['data-target'] = '#data-modal';
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/payment/'. $row['id']);
+        }
+
+        $quantity[]     = $row['quantity'];
+        $total_amount[] = $row['total_amount'];
+        $amount_paid[]  = $row['amount_paid'];
+        $data[]         = $col;
+      }
+
+      $result = array(
+        "draw" => $_POST['draw'],
+        "recordsTotal" => $this->model->countIndexReport(),
+        "recordsFiltered" => $this->model->countIndexFilteredReport(),
+        "data" => $data,
+        "total" => array(
+          12 => print_number(array_sum($quantity),2),
+          15 => print_number(array_sum($total_amount),2),
+          // 19 => print_number(array_sum($amount_paid),2),
+        )
+      );
+    }
+
+    echo json_encode($result);
+  }
+
+
 
 }
