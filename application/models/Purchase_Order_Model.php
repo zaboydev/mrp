@@ -156,7 +156,7 @@ class Purchase_Order_Model extends MY_Model
           $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
         }
         if(config_item('auth_role') == 'VP FINANCE'){
-          $this->db->like('tb_po.review_status', 'WAITING FOR COF');
+          $this->db->like('tb_po.review_status', 'WAITING FOR CFO');
         }
         if(config_item('auth_role') == 'CHIEF OF FINANCE'){
           $this->db->like('tb_po.review_status', 'APPROVED');
@@ -176,7 +176,7 @@ class Purchase_Order_Model extends MY_Model
         $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
       }
       if(config_item('auth_role') == 'CHIEF OF FINANCE'){
-        $this->db->like('tb_po.review_status', 'WAITING FOR COF');
+        $this->db->like('tb_po.review_status', 'WAITING FOR CFO');
       }
       $this->db->where_not_in('tb_po.review_status', ['REVISI']);
       // else{
@@ -302,7 +302,7 @@ class Purchase_Order_Model extends MY_Model
 
     if((config_item('auth_role') == 'VP FINANCE')){
       $level = 11;
-       $this->db->set('review_status',strtoupper("waiting for cof review"));
+       $this->db->set('review_status',strtoupper("waiting for cfo review"));
        $this->db->set('check_review_by',config_item('auth_person_name'));
     }
 
