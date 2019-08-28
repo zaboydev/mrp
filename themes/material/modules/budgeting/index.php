@@ -6,6 +6,49 @@
 
 <?php startblock('page_body') ?>
    <?php $this->load->view('material/templates/datatable') ?>
+   <?php //if (is_granted($module, 'import')):?>
+    <div id="import-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="import-modal-label" aria-hidden="true">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <?=form_open_multipart(site_url($module['route'] .'/import'), array('autocomplete' => 'off', 'class' => 'form form-validate form-xhr ui-front'));?>
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+
+              <h4 class="modal-title" id="import-modal-label">Import Data</h4>
+            </div>
+
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="userfile">CSV File</label>
+
+                <input type="file" name="userfile" id="userfile" required>
+              </div>
+
+              <div class="form-group">
+                <label>Value Delimiter</label>
+
+                <div class="radio">
+                  <input type="radio" name="delimiter" id="delimiter_2" value=";" checked>
+                  <label for="delimiter_2">Semicolon ( ; )</label>
+                </div>
+
+                <div class="radio">
+                  <input type="radio" name="delimiter" id="delimiter_1" value=",">
+                  <label for="delimiter_1">Comma ( , )</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-block btn-primary ink-reaction">Import Data</button>
+            </div>
+          <?=form_close();?>
+        </div>
+      </div>
+    </div>
+  <?php //endif;?>
    <input type="hidden" id="baselink" value="<?=base_url() ?>" name="">
    <div id="approve-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
     <div class="newoverlay" style="" id="loadingScreen" style="display: none;">
@@ -40,6 +83,14 @@
 <?php if(config_item('auth_role') === "CHIEF OF MAINTANCE" || config_item('auth_role') === "SUPER ADMIN"):?>
 <?php startblock('actions_right') ?>
   <div class="section-floating-action-row">
+    <?php //if (is_granted($module, 'import')):?>
+      <div class="btn-group dropup">
+        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-import-data" data-toggle="modal" data-target="#import-modal">
+          <i class="md md-attach-file"></i>
+          <small class="top right">Import Data</small>
+        </button>
+      </div>
+    <?php //endif ?>
       <div class="btn-group dropup">
         <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-approve-data">
           <i class="md md-check"></i>

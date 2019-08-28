@@ -14,4 +14,5 @@ $config['module']['budgeting']['model']          = 'Budgeting_Model';
 $config['module']['budgeting']['permission']     = array(
   'index'     => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
   'approve'    => 'SUPERVISOR,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
+  'import'		=> 'SUPER ADMIN'
 );

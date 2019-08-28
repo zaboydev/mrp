@@ -233,6 +233,179 @@ class Budgeting extends MY_Controller {
     echo json_encode($result);
   }
 
+  public function import()
+  {
+    $this->authorized($this->module, 'import');
+
+    $this->load->library('form_validation');
+
+    if (isset($_POST) && !empty($_POST)){
+      $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
+
+      if ($this->form_validation->run() === TRUE){
+        $file       = $_FILES['userfile']['tmp_name'];
+        $delimiter  = $this->input->post('delimiter');
+
+        //... open file
+        if (($handle = fopen($file, "r")) !== FALSE){
+          $row     = 1;
+          $data    = array();
+          $errors  = array();
+          $user_id = array();
+          $index   = 0;
+          fgetcsv($handle); // skip first line (as header)
+          // $col = fgetcsv($handle, 1024, $delimiter);
+          // var_dump($col);
+          //... parsing line
+          while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE)
+          {
+            $row++;
+
+            /******************
+             * CHECK COLUMN 0
+             ******************/
+            $name = trim(strtoupper($col[0]));
+            $data[$row]['name'] = $name;
+
+            if ($name == '')
+              $errors[] = 'Line '. $row .': name is null!';
+
+
+            /**************************************************
+             * CHECK COLUMN 1
+             **********************************/
+            $part = trim(strtoupper($col[1]));
+            $data[$row]['part'] = $part;
+
+            if ($part == '')
+              $errors[] = 'Line '. $row .': part is null!';
+
+            /******************
+             * CHECK COLUMN 2
+             ******************/
+            $code = trim(strtoupper($col[2]));
+            $data[$row]['code'] = $code;
+
+            if ($code == '')
+              $errors[] = 'Line '. $row .': code is null!';
+
+            /******************
+             * CHECK COLUMN 3
+             ******************/
+            $data[$row]['budget'] = array();
+            $object = new \stdClass();
+            $object->month = 1;
+            $object->val = trim(strtoupper($col[3]));
+            $object->qty = trim(strtoupper($col[4]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 2;
+            $object->val = trim(strtoupper($col[5]));
+            $object->qty = trim(strtoupper($col[6]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 3;
+            $object->val = trim(strtoupper($col[7]));
+            $object->qty = trim(strtoupper($col[8]));
+            array_push($data[$row]['budget'], $object);
+            
+            $object = new \stdClass();
+            $object->month = 4;
+            $object->val = trim(strtoupper($col[9]));
+            $object->qty = trim(strtoupper($col[10]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 5;
+            $object->val = trim(strtoupper($col[11]));
+            $object->qty = trim(strtoupper($col[12]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 6;
+            $object->val = trim(strtoupper($col[13]));
+            $object->qty = trim(strtoupper($col[14]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 7;
+            $object->val = trim(strtoupper($col[15]));
+            $object->qty = trim(strtoupper($col[16]));
+            array_push($data[$row]['budget'], $object);
+            
+            $object = new \stdClass();
+            $object->month = 8;
+            $object->val = trim(strtoupper($col[17]));
+            $object->qty = trim(strtoupper($col[18]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 9;
+            $object->val = trim(strtoupper($col[19]));
+            $object->qty = trim(strtoupper($col[20]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 10;
+            $object->val = trim(strtoupper($col[21]));
+            $object->qty = trim(strtoupper($col[22]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 11;
+            $object->val = trim(strtoupper($col[23]));
+            $object->qty = trim(strtoupper($col[24]));
+            array_push($data[$row]['budget'], $object);
+            
+            $object = new \stdClass();
+            $object->month = 12;
+            $object->val = trim(strtoupper($col[25]));
+            $object->qty = trim(strtoupper($col[26]));
+            array_push($data[$row]['budget'], $object);
+
+            $unit = trim(strtoupper($col[27]));
+            $data[$row]['unit'] = $unit;
+            if ($unit == '')
+              $errors[] = 'Line '. $row .': unit is null!';
+          }
+          fclose($handle);
+          if (empty($errors)){
+            /**
+             * Insert into user table
+             */
+            if ($this->model->import($data)){
+              //... send message to view
+              $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => count($data)." data has been imported!"
+             ));
+
+              //redirect($this->module['route']);
+            }
+          } else {
+            foreach ($errors as $key => $value){
+              $err[] = "\n#". $value;
+            }
+
+            $this->session->set_flashdata('alert', array(
+              'type' => 'danger',
+              'info' => "There are errors on data\n#". implode("\n#", $errors)
+           ));
+          }
+        } else {
+          $this->session->set_flashdata('alert', array(
+            'type' => 'danger',
+            'info' => 'Cannot open file!'
+         ));
+        }
+      }
+    }
+
+    redirect($this->module['route']);
+  }
+
 
 }
 

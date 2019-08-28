@@ -314,6 +314,164 @@ class Budgeting_Model extends MY_Model {
     $this->db->where('auth_level',$level);
     return $this->db->get('')->result();
   }
+
+  public function import(array $user_data)
+  {
+    $this->db->trans_begin();
+
+    foreach ($user_data as $key => $data){
+      $description = (empty($data['name']))
+        ? NULL : strtoupper($data['name']);
+
+      $part_number = (empty($data['part']))
+        ? NULL : strtoupper($data['part']);
+
+      $product_code = (empty($data['code']))
+        ? NULL : strtoupper($data['code']);
+
+      $unit = (empty($data['unit']))
+        ? NULL : strtoupper($data['unit']);
+      $year      = date('Y');
+
+      $budget = $data['budget'];
+
+      $serial_number = NULL;
+      if (isItemUnitExists($unit) === FALSE){
+          $this->db->set('unit', strtoupper($unit));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_units');
+      }
+
+      if (isItemExists($part_number, $serial_number) === FALSE){
+        $data = array(
+          'part_number'           => $part_number,
+          'serial_number'         => $serial_number,
+          'alternate_part_number' => '',
+          'description'           => $description,
+          'group'                 => $group,
+          'unit'                  => $unit,
+          'minimum_quantity'      => 1,
+          'kode_stok'             => '',
+          'created_by'            => config_item('auth_person_name'),
+          'updated_by'            => config_item('auth_person_name'),
+        );
+
+        $this->db->insert('tb_master_items', $data);
+
+        if ($this->db->affected_rows() == 0){
+          die('tb_master_items');
+        }
+
+        $item_id = $this->db->insert_id();
+      } else {
+        $item_id = getItemId($part_number, $serial_number);
+      }
+
+      $this->db->from('tb_budget_cot');
+      $this->db->where('id_item',$item_id);
+      $this->db->where('year',$year);
+      $budget_cot = $this->db->get();
+      if ($budget_cot->num_rows() == 0){
+        $this->db->set('id_item',$item_id);
+        $this->db->set('hours','1000');
+        $this->db->set('year', $year);
+        $this->db->set('id_kelipatan',1);
+        $this->db->set('onhand',0);
+        $this->db->set('status','APPROVED');
+        $this->db->set('updated_by',config_item('auth_person_name'));        
+        $this->db->set('updated_at',date('Y-m-d'));
+        $this->db->set('item_part_number',$part_number);        
+        // $this->db->set('updated_at',date('Y-m-d'));
+        $this->db->insert('tb_budget_cot');
+        $id_cot = $this->db->insert_id();
+      }else{
+        $row_budget_cot = $budget_cot->unbuffered_row('array');
+        $id_cot = $row_budget_cot['id'];
+      }
+      $initial_quantity = 0;
+      $initial_budget = 0;
+      $mtd_budget = 0;
+      $mtd_quantity = 0;        
+      // $ytd_budget = $qty_requirement*$price;
+      // $ytd_quantity = $qty_requirement;
+      $ytd_budget = 0;
+      $ytd_quantity = 0;
+      $hourMonthly = 0;
+      $mtd_prev_month_budget = 0;
+      $mtd_prev_month_quantity = 0;
+
+      foreach ($budget as $item_budget) {
+        $ytd_budget = $ytd_budget+$item_budget->val;
+        $ytd_quantity = $ytd_quantity+$item_budget->qty;
+        $row = array(
+          "id_cot"=>$id_cot,
+          "month_number"=>$item_budget->month,
+          "initial_budget"=>$initial_budget,
+          "initial_quantity"=>$initial_quantity,
+          "mtd_budget"=>$item_budget->val,
+          "mtd_quantity"=>$item_budget->qty,
+          "mtd_prev_month_budget"=>$mtd_prev_month_budget,
+          "mtd_prev_month_quantity"=>$mtd_prev_month_quantity,
+          "ytd_budget"=>$ytd_budget,
+          "ytd_quantity"=>$ytd_quantity,
+          "created_at"=>$created_at,
+          "updated_at"=>$updated_at,
+          "created_by"=>$created_by,
+          "hour"=>$hourMonthly
+        );
+        $this->insertBudgeting($row);
+        $initial_quantity = 0;
+        $initial_budget = 0;
+        // $mtd_budget = ;
+        // $mtd_quantity = 0;        
+        $mtd_prev_month_budget = $item_budget->val;
+        $mtd_prev_month_quantity = $item_budget->qty;
+        
+        $hourMonthly = 0;
+      }
+      // for ($i=0; $i<=11  ; $i++) { 
+      //   $row = array(
+      //     "id_cot"=>$id_cot,
+      //     "month_number"=>$budget[$i]['month'],
+      //     "initial_budget"=>$initial_budget,
+      //     "initial_quantity"=>$initial_quantity,
+      //     "mtd_budget"=>$budget[$i]['val'],
+      //     "mtd_quantity"=>$budget[$i]['qty'],
+      //     "mtd_prev_month_budget"=>$mtd_prev_month_budget,
+      //     "mtd_prev_month_quantity"=>$mtd_prev_month_quantity,
+      //     "ytd_budget"=>$ytd_budget,
+      //     "ytd_quantity"=>$ytd_quantity,
+      //     "created_at"=>$created_at,
+      //     "updated_at"=>$updated_at,
+      //     "created_by"=>$created_by,
+      //     "hour"=>$hourMonthly
+      //   );
+      //   $this->insertBudgeting($row);
+      //   $initial_quantity = 0;
+      //   $initial_budget = 0;
+      //   // $mtd_budget = ;
+      //   // $mtd_quantity = 0;        
+      //   $mtd_prev_month_budget = $budget[$i]['val'];
+      //   $mtd_prev_month_quantity = $budget[$i]['qty'];
+      //   $ytd_budget = $ytd_budget+$budget[$i]['val'];
+      //   $ytd_quantity = $ytd_quantity+$budget[$i]['qty'];
+      //   $hourMonthly = 0;
+      // }
+      
+    }
+
+    if ($this->db->trans_status() === FALSE){
+      return FALSE;
+    }
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function insertBudgeting($row){
+    return $this->db->insert('tb_budget', $row);
+  }
 }
 
 /* End of file Budgeting_Model.php */
