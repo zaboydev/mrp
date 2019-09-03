@@ -148,11 +148,13 @@ $(document).ready(function(){
 			itemsValue[$(this).attr('data-id')] = $("#"+$(this).attr('data-txt')).val();
 			itemsRange1[$(this).attr('data-id')] = $("#"+$(this).attr('data-range1')).val();
 			itemsRange2[$(this).attr('data-id')] = $("#"+$(this).attr('data-range2')).val();
+			console.log(itemsId);
 		}else{ 
 			itemsId = itemsId.replace("|"+$(this).attr('data-id')+",","");
 			delete itemsValue[$(this).attr('data-id')];
 			delete itemsRange1[$(this).attr('data-id')];
 			delete itemsRange2[$(this).attr('data-id')];
+			console.log(itemsId);
 		}		
 	})
 	$("#listView").on('keydown','.number',function(e){

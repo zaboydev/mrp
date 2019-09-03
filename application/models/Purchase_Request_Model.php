@@ -173,6 +173,9 @@ class Purchase_Request_Model extends MY_Model
       if(config_item('auth_role') == 'FINANCE MANAGER'){
         $db->where('tb_inventory_purchase_requisition_details.status', 'pending');
       }
+      elseif(config_item('auth_role') == 'OPERATION SUPPORT'){
+        $db->where('tb_inventory_purchase_requisition_details.status', 'review operation support');
+      }
       else{
          $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
       }
@@ -1215,8 +1218,8 @@ class Purchase_Request_Model extends MY_Model
 
             $this->db->set('inventory_purchase_requisition_id', $document_id);
             $this->db->set('budget_id', $inventory_monthly_budget_id);
-            $this->db->set('part_number', $data['part_number']);
-            $this->db->set('product_name', $data['product_name']);
+            $this->db->set('part_number', strtoupper($data['part_number']));
+            $this->db->set('product_name', strtoupper($data['product_name']));
             $this->db->set('additional_info', $data['additional_info']);
             $this->db->set('unit', $data['unit']);
             $this->db->set('sort_order', floatval($key));
@@ -1354,7 +1357,7 @@ class Purchase_Request_Model extends MY_Model
       $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id ');
       $this->db->join('tb_master_items', 'tb_master_items on tb_master_items.id = tb_budget_cot.id_item');
       $this->db->join('tb_master_item_groups', 'tb_master_item_groups on tb_master_items.group = tb_master_item_groups.group');
-      // $this->db->where('UPPER(tb_master_item_groups.category)', strtoupper($category));
+      $this->db->where('UPPER(tb_master_item_groups.category)', $_SESSION['request']['category']);
       // $this->db->where('tb_budget.ytd_budget - tb_budget.ytd_used_budget > ', 0, FALSE);
       $this->db->where('tb_budget.mtd_budget - tb_budget.mtd_used_budget > ', 0, FALSE);
       $this->db->order_by('tb_master_items.description ASC, tb_master_items.part_number ASC');
@@ -1698,10 +1701,7 @@ class Purchase_Request_Model extends MY_Model
   public function approve($id)
   {
     $this->db->trans_begin();
-
-    $this->db->set('status', 'open');
-    $this->db->where('id', $id);
-    $this->db->update('tb_inventory_purchase_requisition_details');
+    
 
     $this->db->from('tb_inventory_purchase_requisition_details');
     $this->db->where('id',$id);
@@ -1720,150 +1720,137 @@ class Purchase_Request_Model extends MY_Model
     // $status_budget = $row_pr['status_budget'];
     $id_budget_sementara = $row['budget_id_sementara'];
 
-    if($status_budget=='relocation'){
-      
-      $this->db->set('status', 'approved');
-      $this->db->where('id', $id_budget_sementara);
-      $this->db->update('tb_inventory_relocation_budgets');
-
-      $this->db->from('tb_inventory_relocation_budgets');
-      $this->db->where('id',$id_budget_sementara);
-      $query_relocation_budget  = $this->db->get();
-      $row_relocation_budget    = $query_relocation_budget->unbuffered_row('array');
-      $origin_budget_id  = $row_relocation_budget['origin_budget_id'];
-      $destination_budget_id  = $row_relocation_budget['destination_budget_id'];
-
-      
-      $this->db->set('mtd_budget', 'mtd_budget + '.$row_relocation_budget['amount'],FALSE);
-      $this->db->where('id', $destination_budget_id);
-      $this->db->update('tb_budget');
-
-    }
-    if($status_budget=='unbudgeted' && $row['status']=='pending'){
-
-      $this->db->set('status', 'waiting');
+    if($row['status']=='review operation support'){
+      $this->db->set('status', 'open');
       $this->db->where('id', $id);
       $this->db->update('tb_inventory_purchase_requisition_details');
+    }
 
-      $this->db->order_by('id',"asc")
-	        ->limit(1)
-	        ->like('part_number', $row['part_number'])
-	        ->from('tb_master_items');
-	    $query_item = $this->db->get();
-	    $row_item   = $query_item->unbuffered_row('array');
-	    $id_item = $row_item['id'];
+    if($row['status']=='pending'){
+      if($status_budget=='unbudgeted'){
+        $this->db->set('status', 'waiting');
+        $this->db->where('id', $id);
+        $this->db->update('tb_inventory_purchase_requisition_details');
 
-      	$this->db->order_by('id',"desc")
+        $this->db->order_by('id',"asc")
+        ->limit(1)
+        ->like('part_number', strtoupper($row['part_number']))
+        ->from('tb_master_items');
+        $query_item = $this->db->get();
+        $row_item   = $query_item->unbuffered_row('array');
+        $id_item = $row_item['id'];
+
+        $this->db->order_by('id',"desc")
         ->limit(1)
         // ->like('year', $row['part_number'])
         ->from('tb_budget_cot');
-      	$query_cot = $this->db->get();
-      	$row_cot   = $query_cot->unbuffered_row('array');
-      	$hours     = $row_cot['hours'];
-      	$year      = date('Y');
+        $query_cot = $this->db->get();
+        $row_cot   = $query_cot->unbuffered_row('array');
+        $hours     = $row_cot['hours'];
+        $year      = date('Y');
 
-      	$this->db->from('tb_budget_cot');
-      	$this->db->where('id_item',$id_item);
-      	$this->db->where('year',$year);
-      	$budget_cot = $this->db->get();
-      	if ($budget_cot->num_rows() == 0){
-	        $this->db->set('id_item',$id_item);
-	        $this->db->set('hours',$hours);
-	        $this->db->set('year', $year);
-	        $this->db->set('id_kelipatan',1);
-	        $this->db->set('onhand',0);
-	        $this->db->set('status','APPROVED');
-	        $this->db->set('updated_by',config_item('auth_person_name'));        
-	        $this->db->set('updated_at',date('Y-m-d'));
-	        $this->db->insert('tb_budget_cot');
-	        $id_cot = $this->db->insert_id();
-      	}else{
-        	$row_budget_cot = $budget_cot->unbuffered_row('array');
-        	$id_cot = $row_budget_cot['id'];
-      	}
+        $this->db->from('tb_budget_cot');
+        $this->db->where('id_item',$id_item);
+        $this->db->where('year',$year);
+        $budget_cot = $this->db->get();
+        if ($budget_cot->num_rows() == 0){
+          $this->db->set('id_item',$id_item);
+          $this->db->set('hours',$hours);
+          $this->db->set('year', $year);
+          $this->db->set('id_kelipatan',1);
+          $this->db->set('onhand',0);
+          $this->db->set('qty_standar',1);
+          $this->db->set('status','APPROVED');
+          $this->db->set('item_part_number',strtoupper($row['part_number']));
+          $this->db->set('updated_by',config_item('auth_person_name'));        
+          $this->db->set('updated_at',date('Y-m-d'));
+          $this->db->insert('tb_budget_cot');
+          $id_cot = $this->db->insert_id();
+        }else{
+          $row_budget_cot = $budget_cot->unbuffered_row('array');
+          $id_cot = $row_budget_cot['id'];
+        }
 
-      	$this->db->from('tb_budget');
-      	$this->db->where('id_cot',$id_cot);
-      	$this->db->where('month_number',date('m'));
-      	$tb_budget = $this->db->get();
-      	if($tb_budget->num_rows()==0){
-      		//buat budget baru
-      		// for ($i=1; $i <13 ; $i++) {
-      			$this->db->set('id_cot', $id_cot);
-		      	// $this->db->set('month_number', $i);
-		      	$this->db->set('month_number', date('m'));
-		      	// $this->db->set('year_number', $this->budget_year);
-		      	$this->db->set('initial_quantity', floatval(0));
-		      	$this->db->set('initial_budget', floatval(0));
-		      	$this->db->set('mtd_quantity', floatval(0));
-		      	$this->db->set('mtd_budget', floatval(0));
-		      	$this->db->set('mtd_used_quantity', floatval(0));
-		      	$this->db->set('mtd_used_budget', floatval(0));
-		      	$this->db->set('mtd_used_quantity_import', floatval(0));
-		      	$this->db->set('mtd_used_budget_import', floatval(0));
-		      	$this->db->set('mtd_prev_month_quantity', floatval(0));
-		      	$this->db->set('mtd_prev_month_budget', floatval(0));
-		      	$this->db->set('mtd_prev_month_used_quantity', floatval(0));
-		      	$this->db->set('mtd_prev_month_used_budget', floatval(0));
-		      	$this->db->set('mtd_prev_month_used_quantity_import', floatval(0));
-		      	$this->db->set('mtd_prev_month_used_budget_import', floatval(0));
-		      	$this->db->set('ytd_quantity', floatval(0));
-		      	$this->db->set('ytd_budget', floatval(0));
-		      	$this->db->set('ytd_used_quantity', floatval(0));
-		      	$this->db->set('ytd_used_budget', floatval(0));
-		      	$this->db->set('ytd_used_quantity_import', floatval(0));
-		      	$this->db->set('ytd_used_budget_import', floatval(0));
-		      	$this->db->set('created_at', date('Y-m-d'));
-		      	$this->db->set('created_by', config_item('auth_person_name'));
-		      	$this->db->set('updated_at', date('Y-m-d'));
-		      	$this->db->set('updated_by', config_item('auth_person_name'));
-		      	$this->db->insert('tb_budget');
-		      	$inventory_monthly_budget_id = $this->db->insert_id();
-      		// }
-      	}
-      	// $db_month = date('m')+1;
+        $this->db->from('tb_budget');
+        $this->db->where('id_cot',$id_cot);
+        $this->db->where('month_number',date('m'));
+        $tb_budget = $this->db->get();
+        if($tb_budget->num_rows()==0){
+          //buat budget baru
+          // for ($i=1; $i <13 ; $i++) {
+          $this->db->set('id_cot', $id_cot);
+          // $this->db->set('month_number', $i);
+          $this->db->set('month_number', date('m'));
+          // $this->db->set('year_number', $this->budget_year);
+          $this->db->set('initial_quantity', floatval(0));
+          $this->db->set('initial_budget', floatval(0));
+          $this->db->set('mtd_quantity', floatval(0));
+          $this->db->set('mtd_budget', floatval(0));
+          $this->db->set('mtd_used_quantity', floatval(0));
+          $this->db->set('mtd_used_budget', floatval(0));
+          $this->db->set('mtd_used_quantity_import', floatval(0));
+          $this->db->set('mtd_used_budget_import', floatval(0));
+          $this->db->set('mtd_prev_month_quantity', floatval(0));
+          $this->db->set('mtd_prev_month_budget', floatval(0));
+          $this->db->set('mtd_prev_month_used_quantity', floatval(0));
+          $this->db->set('mtd_prev_month_used_budget', floatval(0));
+          $this->db->set('mtd_prev_month_used_quantity_import', floatval(0));
+          $this->db->set('mtd_prev_month_used_budget_import', floatval(0));
+          $this->db->set('ytd_quantity', floatval(0));
+          $this->db->set('ytd_budget', floatval(0));
+          $this->db->set('ytd_used_quantity', floatval(0));
+          $this->db->set('ytd_used_budget', floatval(0));
+          $this->db->set('ytd_used_quantity_import', floatval(0));
+          $this->db->set('ytd_used_budget_import', floatval(0));
+          $this->db->set('created_at', date('Y-m-d'));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_at', date('Y-m-d'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_budget');
+          $inventory_monthly_budget_id = $this->db->insert_id();
+        // }
+        }else{          
+          $this->db->from('tb_budget');
+          $this->db->where('id_cot',$id_cot);
+          $this->db->where('month_number',date('m'));
+          $tb_budget = $this->db->get();
+          $row_budget = $tb_budget->unbuffered_row('array');
+          $inventory_monthly_budget_id = $row_budget['id'];
+        }
 
-      	// $this->db->from('tb_budget');
-      	// $this->db->where('id_cot',$id_cot);
-      	// $this->db->where('month_number',$db_month);
-      	// $tb_month_budget = $this->db->get();
-      	// $row_month_budget = $tb_month_budget->unbuffered_row('array');
-       // 	$inventory_monthly_budget_id = $row_month_budget['id'];
-
-       	$this->db->set('mtd_quantity', 'mtd_quantity + '.$row['quantity'],FALSE);
-		    $this->db->set('mtd_budget', 'mtd_budget + '.$row['total'],FALSE);
-       	$this->db->set('mtd_used_budget', 'mtd_used_budget + '.$row['total'],FALSE);
+        $this->db->set('mtd_quantity', 'mtd_quantity + '.$row['quantity'],FALSE);
+        $this->db->set('mtd_budget', 'mtd_budget + '.$row['total'],FALSE);
+        $this->db->set('mtd_used_budget', 'mtd_used_budget + '.$row['total'],FALSE);
         $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$row['total'],FALSE);
         $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$row['quantity'],FALSE);
         $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$row['quantity'],FALSE);
         $this->db->set('ytd_quantity', 'ytd_quantity + '.$row['quantity'],FALSE);
-		    $this->db->set('ytd_budget', 'ytd_budget + '.$row['total'],FALSE);
-        // $this->db->where('month_number', $i);
+        $this->db->set('ytd_budget', 'ytd_budget + '.$row['total'],FALSE);
         $this->db->where('id', $inventory_monthly_budget_id);
         $this->db->update('tb_budget');
         //      for ($i=date('m')+2; $i <13 ; $i++) {
-        //      	$this->db->set('ytd_quantity', 'ytd_quantity + '.$row['quantity'],FALSE);
-			// $this->db->set('ytd_budget', 'ytd_budget + '.$row['total'],FALSE);
-	    //       $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$row['total'],FALSE);
-	    //       $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$row['quantity'],FALSE);
-	    //       $this->db->where('month_number', $i);
-	    //       $this->db->where('id_cot', $id_cot);
-	    //       $this->db->update('tb_budget');
-      //      }
-      	
+        //         $this->db->set('ytd_quantity', 'ytd_quantity + '.$row['quantity'],FALSE);
+        //           $this->db->set('ytd_budget', 'ytd_budget + '.$row['total'],FALSE);
+        //           $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$row['total'],FALSE);
+        //           $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$row['quantity'],FALSE);
+        //           $this->db->where('month_number', $i);
+        //           $this->db->where('id_cot', $id_cot);
+        //           $this->db->update('tb_budget');
+        //      }
+          
 
-      	$this->db->set('budget_id',$inventory_monthly_budget_id);
-      	$this->db->where('id',$id);
-      	$this->db->update('tb_inventory_purchase_requisition_details');
+        $this->db->set('budget_id',$inventory_monthly_budget_id);
+        $this->db->where('id',$id);
+        $this->db->update('tb_inventory_purchase_requisition_details');
 
-      	$this->db->set('inventory_monthly_budget_id',$inventory_monthly_budget_id);
-      	$this->db->set('status','approved');
-      	$this->db->where('id',$id_budget_sementara);
-      	$this->db->update('tb_inventory_unbudgeted');
+        $this->db->set('inventory_monthly_budget_id',$inventory_monthly_budget_id);
+        $this->db->set('status','approved');
+        $this->db->where('id',$id_budget_sementara);
+        $this->db->update('tb_inventory_unbudgeted');
 
         // $budget_id = $data['budget_id'];
-            
-            
+              
+              
         $this->db->set('budget_id',$inventory_monthly_budget_id);
         $this->db->set('inventory_purchase_requisition_id',$inventory_purchase_requisition_id);
         $this->db->set('pr_number',$row_pr['pr_number']);
@@ -1879,6 +1866,38 @@ class Purchase_Request_Model extends MY_Model
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('part_number', $row['part_number']);
         $this->db->insert('tb_used_budgets');
+      }
+
+    }
+
+    if($row['status']=='waiting'){
+      if($status_budget=='relocation'){
+        $this->db->set('status', 'approved');
+        $this->db->where('id', $id_budget_sementara);
+        $this->db->update('tb_inventory_relocation_budgets');
+
+        $this->db->from('tb_inventory_relocation_budgets');
+        $this->db->where('id',$id_budget_sementara);
+        $query_relocation_budget  = $this->db->get();
+        $row_relocation_budget    = $query_relocation_budget->unbuffered_row('array');
+        $origin_budget_id  = $row_relocation_budget['origin_budget_id'];
+        $destination_budget_id  = $row_relocation_budget['destination_budget_id'];
+
+        
+        $this->db->set('mtd_budget', 'mtd_budget + '.$row_relocation_budget['amount'],FALSE);
+        $this->db->where('id', $destination_budget_id);
+        $this->db->update('tb_budget');
+      }
+
+      if ($row_pr['item_category']=='BAHAN BAKAR') {
+        $this->db->set('status', 'review operation support');
+        $this->db->where('id', $id);
+        $this->db->update('tb_inventory_purchase_requisition_details');
+      }else{
+        $this->db->set('status', 'open');
+        $this->db->where('id', $id);
+        $this->db->update('tb_inventory_purchase_requisition_details');
+      }
     }
 
     // $status_prl = 0;

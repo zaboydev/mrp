@@ -262,13 +262,19 @@ class Purchase_Request extends MY_Controller
           }else{
             $col[] = print_number($no);
           }
+        }elseif($row['status']=='review operation support'){
+          if(config_item('auth_role') == 'OPERATION SUPPORT' || config_item('auth_role') == 'SUPER ADMIN'){
+            $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
+          }else{
+            $col[] = print_number($no);
+          }
         }else{
           $col[] = print_number($no);
         }
         
         $col[] = print_string($row['pr_number']);
         $col[] = print_date($row['pr_date'],'d/m/Y');
-        $col[] = print_date($row['required_date']);
+        $col[] = print_date($row['required_date'],'d/m/Y');
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name']:$row['item_category']);
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name']:$row['product_name']);
         // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
@@ -434,17 +440,29 @@ class Purchase_Request extends MY_Controller
 
     if ($category !== NULL){
       $category = urldecode($category);
+      if($category=='BAHAN BAKAR'){
+        $target_date = 7;
+        $start_date  = date('Y-m-d');
+        $date        = strtotime('+7 day',strtotime($start_date));
+        $required_date    = date('Y-m-d', $date);
+      }else{
+        $target_date = 30;
+        $start_date  = date('Y-m-d');
+        $date        = strtotime('+30 day',strtotime($start_date));
+        $required_date    = date('Y-m-d', $date);
+      }
 
       $_SESSION['request']['items']               = array();
       $_SESSION['request']['category']            = $category;
       $_SESSION['request']['order_number']        = request_last_number();
       $_SESSION['request']['pr_number']           = request_last_number() . request_format_number();
       $_SESSION['request']['pr_date']             = date('Y-m-d');
-      $_SESSION['request']['required_date']       = date('Y-m-d');
+      $_SESSION['request']['required_date']       = $required_date;
       $_SESSION['request']['created_by']          = config_item('auth_person_name');
       $_SESSION['request']['suggested_supplier']  = NULL;
       $_SESSION['request']['deliver_to']          = NULL;
       $_SESSION['request']['notes']               = NULL;
+      $_SESSION['request']['target_date']         = $target_date;
 
       redirect($this->module['route'] .'/create');
     }

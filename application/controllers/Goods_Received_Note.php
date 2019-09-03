@@ -50,6 +50,8 @@ class Goods_Received_Note extends MY_Controller
       redirect($this->modules['secure']['route'] .'/denied');
 
     $_SESSION['receipt']['received_from'] = $_GET['data'];
+
+    //redirect($this->module['route'] .'/create');
   }
 
   public function set_known_by()
@@ -113,7 +115,7 @@ class Goods_Received_Note extends MY_Controller
       $entities[$key]['label'] .= ($value['serial_number'] !== "") ? "SN: ". $value['serial_number'] ." || " : "";
       $entities[$key]['label'] .= 'Order Number: '. $value['document_number'] .' || ';
       $entities[$key]['label'] .= 'Consignor: '. $value['vendor'] .' || ';
-      $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['quantity']) .'</code>';
+      $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['left_received_quantity']) .'</code>';
       $entities[$key]['label'] .= '</small>';
 
       if ($value['default_currency'] == 'IDR'){

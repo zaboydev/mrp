@@ -25,8 +25,8 @@ class Payment_Model extends MY_MODEL {
 		$this->db->from('tb_po');
 		$this->db->where('vendor', $vendor);
 		$this->db->where('remaining_payment >', 0);
-		// $this->db->where('remaining_payment >', 0);
-		$this->db->where('document_number is not null', null,false);
+		$this->db->where_in('status',['ORDER','OPEN']);
+		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->result();
 	}
 	function save(){
@@ -67,6 +67,15 @@ class Payment_Model extends MY_MODEL {
 	        $this->db->set('remaining_payment','"remaining_payment" - '.$key["value"],false);
 	        $this->db->where('id', $key["document_number"]);
 	        $this->db->update('tb_po');
+
+	     //    $this->db->where('id_po',$key["document_number"]);
+	     //    $this->db->from('tb_hutang');
+	     //    $query  = $this->db->get();
+		    // $result_hutang = $query->result_array();
+
+		    // foreach ($result_hutang as $hutang) {
+		    // 	if($hutang[])
+		    // }
         }
         if ($this->db->trans_status() === FALSE)
 	      return FALSE;

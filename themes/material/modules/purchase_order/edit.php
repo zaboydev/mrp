@@ -286,7 +286,7 @@
         ));?>
 
         <div class="modal-body">
-          <div class="row">
+          <div class="row hide">
             <div class="col-xs-12">
               <div class="form-group">
                 <div class="input-group">
@@ -334,7 +334,7 @@
                 <legend>Required</legend>
 
                 <div class="form-group">
-                  <input type="text" name="quantity" id="quantity" class="form-control input-sm" readonly>
+                  <input type="text" name="quantity" id="quantity" class="form-control input-sm">
                   <label for="quantity">Quantity</label>
                 </div>
 
@@ -344,12 +344,12 @@
                 </div>
 
                 <div class="form-group">
-                  <input type="number" name="unit_price" id="unit_price" class="form-control input-sm" readonly>
+                  <input type="number" name="unit_price" id="unit_price" class="form-control input-sm">
                   <label for="unit_price">Unit Price <?=$_SESSION['order']['default_currency'];?></label>
                 </div>
 
                 <div class="form-group">
-                  <input type="number" name="core_charge" id="core_charge" class="form-control input-sm" readonly>
+                  <input type="number" name="core_charge" id="core_charge" class="form-control input-sm">
                   <label for="core_charge">Core Charge <?=$_SESSION['order']['default_currency'];?></label>
                 </div>
 
@@ -778,7 +778,17 @@ $(function(){
       }
     });  
   });
+
+  $("#unit_price").on("keydown keyup", sum);
+  $("#quantity").on("keydown keyup", sum);
+  $("#core_charge").on("keydown keyup", sum);
 });
+
+function sum(){
+  var total = parseFloat($("#quantity").val()) * (parseFloat($("#unit_price").val())+parseFloat($("#core_charge").val()));
+
+  $("#total_amount").val(total).trigger("change");
+}
 </script>
 
 <?=html_script('themes/material/assets/js/core/source/App.min.js') ?>

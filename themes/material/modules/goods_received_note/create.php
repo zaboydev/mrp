@@ -173,9 +173,11 @@
           </div>
           <div class="card-actionbar">
             <div class="card-actionbar-row">
+              <?php //if (empty($_SESSION['receipt']['received_from']) === FALSE):?>
               <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
                 Add Item
               </a>
+              <?php //endif;?>
 
               <a href="<?=site_url($module['route'] .'/discard');?>" class="btn btn-flat btn-danger ink-reaction">
                 Discard
@@ -553,7 +555,7 @@
                         <label for="minimum_quantity">Minimum Quantity</label>
                       </div>
 
-                      <?php if (config_item('auth_role') == 'SUPERVISOR'):?>
+                      <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'):?>
                         <div class="form-group">
                           <div class="row">
                             <div class="col-lg-5 col-sm-5">
@@ -619,7 +621,7 @@
                   <div class="form-group">
                     <input type="text" name="purchase_order_number" id="edit_purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm">
                     <label for="purchase_order_number">Order Number</label>
-                    <input type="hidden" name="purchase_order_item_id" id="edit_purchase_order_item_id" />
+                    <input type="text" name="purchase_order_item_id" id="edit_purchase_order_item_id" />
                   </div>
 
                   <div class="form-group">
@@ -636,8 +638,8 @@
                     <textarea name="remarks" id="edit_remarks" data-tag-name="remarks" class="form-control input-sm"></textarea>
                     <label for="remarks">Remarks</label>
                     <input type="hidden" name="item_id" id="item_id" >
-                    <input type="text" name="stock_in_store_id" id="stock_in_store_id" >
-                    <input type="text" name="receipt_items_id" id="receipt_items_id" >
+                    <input type="hidden" name="stock_in_store_id" id="stock_in_store_id" >
+                    <input type="hidden" name="receipt_items_id" id="receipt_items_id" >
                     <!-- <input type="hidden" name="document_number_receipts_items" id="document_number_receipts_items" >
                     <input type="hidden" name="category_receipts_items" id="category_receipts_items" >
                     <input type="hidden" name="warehouse_receipts_items" id="warehouse_receipts_items" >
@@ -964,8 +966,9 @@ $(function(){
             $('#description').val( ui.item.description );
             $('#alternate_part_number').val( ui.item.alternate_part_number );
             $('#group').val( ui.item.group );
-            $('#received_quantity').val( parseInt(ui.item.quantity) );
+            $('#received_quantity').val( parseInt(ui.item.left_received_quantity) );
             $('#unit').val( ui.item.unit );
+            $('#unit_pakai').val( ui.item.unit );
             $('#received_unit_value').val( parseInt(unit_value) );
             $('#purchase_order_item_id').val( ui.item.id );
             $('#purchase_order_number').val( ui.item.document_number );
@@ -1376,6 +1379,8 @@ $(function(){
         $('[id="edit_kode_stok"]').val(response.kode_stok);
         $('[id="stock_in_store_id"]').val(response.stock_in_stores_id);
         $('[id="receipt_items_id"]').val(response.receipt_items_id);
+
+        $('#edit_purchase_order_item_id').val( response.purchase_order_item_id );
         
         
  

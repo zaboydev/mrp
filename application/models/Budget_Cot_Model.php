@@ -446,7 +446,17 @@ class Budget_Cot_Model extends MY_Model
       $qty_requirement = $prevData['data']->qty_requirement;
     }
     
-    $data = array("hours"=>$hour,"year"=>$year,"id_kelipatan"=>$id_kelipatan,"id_item"=>$id_item,"qty_standar"=>$qty_standar,"qty_requirement"=>$qty_requirement,"onhand"=>$onhand,"item_part_number"=>$part_number,"created_by"=>config_item('auth_person_name'));
+    $data = array(
+      "hours"=>$hour,
+      "year"=>$year,
+      "id_kelipatan"=>$id_kelipatan,
+      "id_item"=>$id_item,
+      "qty_standar"=>$qty_standar,
+      "qty_requirement"=>$qty_requirement,
+      "onhand"=>$onhand,
+      "item_part_number"=>$part_number,
+      "created_by"=>config_item('auth_person_name')
+    );
     $result['status'] = $this->db->insert('tb_budget_cot', $data);
     $result['qty_requirement'] = $qty_requirement;
     return $result;

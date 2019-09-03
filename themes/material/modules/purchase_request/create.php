@@ -24,10 +24,14 @@
                       </div>
                     </div>
                   </div>
+                  <!-- <div class="form-group">
+                    <input type="text" name="pr_date" id="pr_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['request']['pr_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_pr_date');?>" required>
+                    <label for="required_date">Date</label>
+                  </div> -->
 
                   <div class="form-group">
-                    <input type="text" name="required_date" id="required_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['request']['required_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_required_date');?>" required>
-                    <label for="required_date">Required Date</label>
+                    <input type="text" name="required_date" id="required_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['request']['required_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_required_date');?>" required>
+                    <label for="required_date">Target Date</label>
                   </div>
                 </div>
 
@@ -474,13 +478,22 @@ $(function(){
     history.back();
   });
 
-  var today       = new Date();
-  today.setDate(today.getDate() - 30);
-  $('[data-provide="datepicker"]').datepicker({
+  // var today       = new Date();
+  var today = $('[name="required_date"]').val();
+  var today_2 = $('[name="pr_date"]').val();
+  // today.setDate(today.getDate() + 30);
+  $('#required_date').datepicker({
     autoclose: true,
     todayHighlight: true,
     format: 'yyyy-mm-dd',
     startDate: today,
+  });
+
+  $('[data-provide="datepicker"]').datepicker({
+    autoclose: true,
+    todayHighlight: true,
+    format: 'yyyy-mm-dd',
+    startDate: today_2,
   });
 
   $(document).on('click', '.btn-xhr-submit', function(e){

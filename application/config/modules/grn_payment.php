@@ -3,8 +3,8 @@
 $config['module']['grn_payment']['visible']        = TRUE;
 $config['module']['grn_payment']['main_warehouse'] = TRUE;
 $config['module']['grn_payment']['parent']         = 'report';
-$config['module']['grn_payment']['label']          = 'GRN X PAYMENT';
-$config['module']['grn_payment']['name']           = 'GRN X PAYMENT';
+$config['module']['grn_payment']['label']          = 'Purchase Order X PAYMENT';
+$config['module']['grn_payment']['name']           = 'Purchase Order X PAYMENT';
 $config['module']['grn_payment']['route']          = 'grn_payment';
 $config['module']['grn_payment']['view']           = config_item('module_path') .'grn_payment/';
 $config['module']['grn_payment']['language']       = 'prl_poe_lang';

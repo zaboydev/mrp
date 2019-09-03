@@ -168,6 +168,9 @@ class Dashboard_Model extends MY_Model
     if($role=='FINANCE MANAGER'){
       $status = ['pending'];
     }
+    if($role=='OPERATION SUPPORT'){
+      $status = ['review operation support'];
+    }
     $this->db->select('*');
     $this->db->from('tb_inventory_purchase_requisition_details');
     $this->db->where_in('tb_inventory_purchase_requisition_details.status', $status);
@@ -203,7 +206,10 @@ class Dashboard_Model extends MY_Model
       $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
     }
     if($role == 'CHIEF OF FINANCE'){
-      $this->db->like('tb_po.review_status', 'WAITING FOR COF');
+      $this->db->like('tb_po.review_status', 'WAITING FOR CFO REVIEW');
+    }
+    if($role == 'CHIEF OPERATION SUPPORT'){
+      $this->db->like('tb_po.review_status', 'WAITING FOR COO REVIEW');
     }
     $query = $this->db->get();
 

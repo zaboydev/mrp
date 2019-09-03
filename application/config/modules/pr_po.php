@@ -12,9 +12,9 @@ $config['module']['pr_po']['helper']         = 'material_slip_helper';
 $config['module']['pr_po']['table']          = 'tb_purchase_orders';
 $config['module']['pr_po']['model']          = 'Pr_Po_Model';
 $config['module']['pr_po']['permission']     = array(
-  'index'     => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE',
-  'info'      => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE',
-  'print'     => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE',
-  'document'  => 'PIC PROCUREMENT,SUPERVISOR,HEAD OF SCHOOL,CHIEF OF FINANCE',//tambhan supervisor
-  'payment'   => 'FINANCE',//tambhan supervisor
+  'index'     => 'SUPER ADMIN',
+  'info'      => 'SUPER ADMIN',
+  'print'     => 'SUPER ADMIN',
+  'document'  => 'SUPER ADMIN',//tambhan supervisor
+  'payment'   => 'SUPER ADMIN',//tambhan supervisor
 );

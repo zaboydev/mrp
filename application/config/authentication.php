@@ -40,7 +40,9 @@ $config['levels_and_roles'] = array(
 	'11' 	=> 'CHIEF OF FINANCE',
 	'12' 	=> 'PROCUREMENT',
 	'13'	=> 'SUPER ADMIN',
-	'14'	=> 'FINANCE MANAGER'
+	'14'	=> 'FINANCE MANAGER',
+	'15'	=> 'OPERATION SUPPORT',
+	'16'	=> 'CHIEF OPERATION SUPPORT'
 );
 
 /*
