@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Grn_Payment_Model extends MY_Model
+class Po_Grn_Model extends MY_Model
 {
   protected $connection;
   protected $budget_year;
@@ -18,14 +18,17 @@ class Grn_Payment_Model extends MY_Model
   public function getSelectedColumns()
   {
     return array(
-      'tb_po.id' => NULL,
-      'tb_po.document_number'                             => 'PO Number',
-      'tb_po.document_date'                               => 'Date',
-      'tb_po.vendor'                                      => 'Vendor',
-      'tb_po.default_currency'                            => 'Currency',
-      'tb_po.grand_total'                                 => 'Value Order',
-      'case when tb_purchase_order_items_payments.amount_paid is null then 0.00 else tb_purchase_order_items_payments.amount_paid end as "value_payment"'                     => 'Value Payment',
-      'tb_po.remaining_payment'                => 'Remaining Payment',
+      'tb_po_item.id' => NULL,
+      'tb_po.document_number as "po_number"'                => 'PO Number',
+      'tb_po.vendor'                                        => 'Vendor',
+      'tb_po_item.part_number'                              => 'Part Number',
+      'tb_po_item.description'                              => 'Description',
+      'tb_po.default_currency'                              => 'Currency',
+      'tb_po_item.quantity as "po_qty"'                     => 'Qty Order',
+      'tb_po_item.total_amount as "po_val"'                 => 'Value Order',
+      'case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end as "grn_qty"'                     => 'Qty Receipts',
+      'case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end as "grn_val_idr"'             => 'Val Receipts',
+      'case when tb_receipt_items.received_total_value_dollar is null then 0.00 else tb_receipt_items.received_total_value_dollar end as "grn_val_usd"'             => 'Qty Order Remaining',
     );
       
   }
@@ -33,7 +36,8 @@ class Grn_Payment_Model extends MY_Model
   {
     return array(
       'tb_po.document_number',
-      'tb_po.document_date',
+      'tb_po_item.part_number',
+      'tb_po_item.description',
       'tb_po.default_currency',
       'tb_po.vendor',
     );
@@ -44,7 +48,8 @@ class Grn_Payment_Model extends MY_Model
     return array(
       null,
       'tb_po.document_number',
-      'tb_po.document_date',
+      'tb_po_item.part_number',
+      'tb_po_item.description',
       'tb_po.default_currency',
       'tb_po.vendor',
     );
@@ -52,6 +57,12 @@ class Grn_Payment_Model extends MY_Model
  
   private function searchIndex()
   {
+    if (!empty($_POST['columns'][1]['search']['value'])){
+      $vendor = $_POST['columns'][1]['search']['value'];
+
+      $this->db->where('tb_po.vendor', $vendor);
+    }
+
     $i = 0;
 
     foreach ($this->getSearchableColumns() as $item){
@@ -77,13 +88,11 @@ class Grn_Payment_Model extends MY_Model
   {
     
     $this->db->select(array_keys($this->getSelectedColumns()),false);
-    $this->db->from('tb_po');
-    $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po.id','left');
-    // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id  = tb_receipt_items.purchase_order_item_id','left');
-    // $this->db->join('tb_purchase_orders', 'tb_purchase_order_items.purchase_order_id = tb_purchase_orders.id','left');
-    // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_purchase_orders.id ','left');
-    // $this->db->like('tb_receipts.document_number', 'GRN');
-    
+    $this->db->from('tb_po_item');
+    $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+    $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
+    $this->db->where('tb_po.status','ORDER');
     $this->searchIndex();
 
     $column_order = $this->getOrderableColumns();
@@ -98,7 +107,7 @@ class Grn_Payment_Model extends MY_Model
 
     if ($_POST['length'] != -1)
       $this->db->limit($_POST['length'], $_POST['start']);
-    
+
     $query = $this->db->get();
 
     if ($return === 'object'){
@@ -113,13 +122,11 @@ class Grn_Payment_Model extends MY_Model
   function countIndexFiltered()
   {
     $this->db->select(array_keys($this->getSelectedColumns()),false);
-    $this->db->from('tb_po');
-    $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po.id','left');
-    // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id  = tb_receipt_items.purchase_order_item_id','left');
-    // $this->db->join('tb_purchase_orders', 'tb_purchase_order_items.purchase_order_id = tb_purchase_orders.id','left');
-    // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_purchase_orders.id ','left');
-    // $this->db->like('tb_receipts.document_number', 'GRN');
-    
+    $this->db->from('tb_po_item');
+    $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+    $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
+    $this->db->where('tb_po.status','ORDER');
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -130,13 +137,11 @@ class Grn_Payment_Model extends MY_Model
   public function countIndex()
   {
     $this->db->select(array_keys($this->getSelectedColumns()),false);
-    $this->db->from('tb_po');
-    $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po.id','left');
-    // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id  = tb_receipt_items.purchase_order_item_id','left');
-    // $this->db->join('tb_purchase_orders', 'tb_purchase_order_items.purchase_order_id = tb_purchase_orders.id','left');
-    // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_purchase_orders.id ','left');
-    // $this->db->like('tb_receipts.document_number', 'GRN');
-    
+    $this->db->from('tb_po_item');
+    $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+    $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
+    $this->db->where('tb_po.status','ORDER');
     $query = $this->db->get();
 
     return $query->num_rows();

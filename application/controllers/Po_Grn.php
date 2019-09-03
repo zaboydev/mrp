@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Grn_Payment extends MY_Controller
+class Po_Grn extends MY_Controller
 {
   protected $module;
 
@@ -8,7 +8,7 @@ class Grn_Payment extends MY_Controller
   {
     parent::__construct();
 
-    $this->module = $this->modules['grn_payment'];
+    $this->module = $this->modules['po_grn'];
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
@@ -24,28 +24,38 @@ class Grn_Payment extends MY_Controller
       $entities     = $this->model->getIndex();
       $data         = array();
       $no           = $_POST['start'];
-      $remaining     = array();
-      $total_amount = array();
-      $amount_paid  = array();
+      $quantity_order     = array();
+      $value_order = array();
+      $quantity_receipt     = array();
+      $value_receipt = array();
       
       foreach ($entities as $row){
         $no++;
         $col = array();        
         $col[] = print_number($no);
-        $col[] = print_string($row['document_number']);
-        $col[] = print_date($row['document_date'],'d-M-Y');
+        $col[] = print_string($row['po_number']);
         $col[] = print_string($row['vendor']);
+        $col[] = print_string($row['part_number']);
+        $col[] = print_string($row['description']);
         $col[] = print_string($row['default_currency']);
-        $col[] = print_number($row['grand_total'], 2);
-        $col[] = print_number($row['value_payment'], 2);
-        $col[] = print_number($row['remaining_payment'], 2);
-        $col[] = '';
+        $col[] = print_number($row['po_qty'], 2);
+        $col[] = print_number($row['po_val'], 2);
+        // $col[] = print_string($row['grn_number']);
+        $col[] = print_number($row['grn_qty'], 2);
+        if($row['default_currency']=='IDR'){
+          $col[] = print_number($row['grn_val_idr'], 2);
+          $value_receipt[]            = $row['grn_val_idr'];
+        }else{
+          $col[] = print_number($row['grn_val_usd'], 2);
+          $value_receipt[]            = $row['grn_val_usd'];
+        }
+        $col[] = print_number($row['po_qty']-$row['grn_qty'], 2);
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
 
-        $remaining[]     = $row['remaining_payment'];
-        $total_amount[] = $row['grand_total'];
-        $amount_paid[]  = $row['value_payment'];
+        $quantity_order[]           = $row['po_qty'];
+        $value_order[]              = $row['po_val'];
+        $quantity_receipt[]         = $row['grn_qty'];
         $data[]         = $col;
       }
 
@@ -55,9 +65,10 @@ class Grn_Payment extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
         "total" => array(
-          5 => print_number(array_sum($total_amount),2),
-          6 => print_number(array_sum($amount_paid),2),
-          7 => print_number(array_sum($remaining),2),
+          6 => print_number(array_sum($quantity_order),2),
+          7 => print_number(array_sum($value_order),2),
+          8 => print_number(array_sum($quantity_receipt),2),
+          9 => print_number(array_sum($value_receipt),2),
         )
       );
     }
@@ -72,7 +83,7 @@ class Grn_Payment extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 3;
-    $this->data['grid']['summary_columns']  = array(5,6,7);
+    $this->data['grid']['summary_columns']  = array(6,7,8,9);
     $this->data['grid']['order_columns']    = array();
     $this->render_view($this->module['view'] .'/index');
   }

@@ -2,9 +2,9 @@
 
 $config['module']['payment']['visible']        = TRUE;
 $config['module']['payment']['main_warehouse'] = TRUE;
-$config['module']['payment']['parent']         = 'finance';
-$config['module']['payment']['label']          = 'Payment';
-$config['module']['payment']['name']           = 'Payment';
+$config['module']['payment']['parent']         = 'procurement';
+$config['module']['payment']['label']          = 'Payment Purchase Order';
+$config['module']['payment']['name']           = 'Payment Purchase Order';
 $config['module']['payment']['route']          = 'payment';
 $config['module']['payment']['view']           = config_item('module_path') .'payment/';
 $config['module']['payment']['language']       = 'account_payable_lang';

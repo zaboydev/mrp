@@ -59,7 +59,7 @@
               </div>
 
               <div class="form-group">
-                <input type="number" name="amount" id="amount" class="form-control" value="0">
+                <input type="number" name="amount" id="amount" class="form-control" value="0" readonly="readonly">
                 <label for="amount">Amount</label>
               </div>
 
@@ -312,7 +312,7 @@ function getPo(){
 $("#listView").on("change",".sel_item",function(){
   var selData = arr_po["id_"+$(this).val()]
   var selRow = $(this).data("row");
-  $("#sta_"+selRow).html(selData.review_status);
+  $("#sta_"+selRow).html(selData.status);
   $("#date_"+selRow).html(selData.document_date);
   $("#sis_"+selRow).html(selData.remaining_payment);
 })
@@ -360,6 +360,7 @@ function changeTotal(){
     sum +=parseInt($("#in_"+item).val())
   });
   $("#total_general").html(sum);
+  $("#amount").val(sum);
 }
 $("#amount").change(function(){
   if ($(this).val() === ""){

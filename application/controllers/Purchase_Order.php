@@ -1010,90 +1010,108 @@ class Purchase_Order extends MY_Controller
             $errors[] = 'Line '. $row .': document no is null!';
             
             // po status
-            $po_status = trim(strtoupper($col[2]));
-            $data[$row]['po_status'] = $po_status;
+            // $po_status = trim(strtoupper($col[2]));
+            // $data[$row]['po_status'] = 'APPROVED';
 
             //po date 
-            $date = trim(strtoupper($col[3]));
+            $date = trim(strtoupper($col[2]));
             $data[$row]['date'] = $date;
 
             // kategori
-            $kategori = trim(strtoupper($col[4]));
+            $kategori = trim(strtoupper($col[3]));
             $data[$row]['kategori'] = $kategori;
             if ($kategori == '')
             $errors[] = 'Line '. $row .': kategori is null!';
 
             // description
-            $description = trim(strtoupper($col[5]));
+            $description = trim(strtoupper($col[4]));
             $data[$row]['description'] = $description;
+            if ($description == '')
+            $errors[] = 'Line '. $row .': description is null!';
 
             // part_number
-            $part_number = trim(strtoupper($col[6]));
+            $part_number = trim(strtoupper($col[5]));
             $data[$row]['part_number'] = $part_number;
+            if ($part_number == '')
+            $errors[] = 'Line '. $row .': part_number is null!';
 
             // alt_part
-            $alt_part = trim(strtoupper($col[7]));
+            $alt_part = trim(strtoupper($col[6]));
             $data[$row]['alt_part'] = $alt_part;
 
             // poe_number
-            $poe_number = trim(strtoupper($col[8]));
+            $poe_number = trim(strtoupper($col[7]));
             $data[$row]['poe_number'] = $poe_number;
             if ($poe_number == '')
             $errors[] = 'Line '. $row .': evaluation number is null!';
 
             // pr_number
-            $pr_number = trim(strtoupper($col[9]));
+            $pr_number = trim(strtoupper($col[8]));
             $data[$row]['pr_number'] = $pr_number;
             if ($pr_number == '')
             $errors[] = 'Line '. $row .': request number is null!';
 
             // ref_quot
-            $ref_quot = trim(strtoupper($col[10]));
+            $ref_quot = trim(strtoupper($col[9]));
             $data[$row]['ref_quot'] = $ref_quot;
 
             // vendor
-            $vendor = trim(strtoupper($col[11]));
+            $vendor = trim(strtoupper($col[10]));
             $data[$row]['vendor'] = $vendor;
             if ($vendor == '')
             $errors[] = 'Line '. $row .': vendor is null!';
 
             // order_qty
-            $order_qty = trim(strtoupper($col[12]));
+            $order_qty = trim(strtoupper($col[11]));
             $data[$row]['order_qty'] = $order_qty;
 
+            // currency
+            $currency = trim(strtoupper($col[12]));
+            $data[$row]['currency'] = $currency;
+            if ($currency == '')
+            $errors[] = 'Line '. $row .': currency is null!';
+
             // request_qty
-            $request_qty = trim(strtoupper($col[13]));
-            $data[$row]['request_qty'] = $request_qty;
+            // $request_qty = trim(strtoupper($col[12]));
+            // $data[$row]['request_qty'] = $request_qty;
 
             // receive_qty
-            $kategori = trim(strtoupper($col[14]));
-            $data[$row]['receive_qty'] = $receive_qty;
+            // $kategori = trim(strtoupper($col[13]));
+            // $data[$row]['receive_qty'] = $receive_qty;
 
             // unit_price
-            $unit_price = trim(strtoupper($col[15]));
+            $unit_price = trim(strtoupper($col[13]));
             $data[$row]['unit_price'] = $unit_price;
 
             // core_charge
-            $core_charge = trim(strtoupper($col[16]));
+            $core_charge = trim(strtoupper($col[14]));
             $data[$row]['core_charge'] = $core_charge;
 
             // total_amount
-            $total_amount = trim(strtoupper($col[17]));
+            $total_amount = trim(strtoupper($col[15]));
             $data[$row]['total_amount'] = $total_amount;
 
             // paid_amount
-            $paid_amount = trim(strtoupper($col[18]));
-            $data[$row]['paid_amount'] = $paid_amount;
+            // $paid_amount = trim(strtoupper($col[17]));
+            // $data[$row]['paid_amount'] = $paid_amount;
 
             // notes
-            $notes = trim(strtoupper($col[19]));
+            $notes = trim(strtoupper($col[16]));
             $data[$row]['notes'] = $notes;
 
             // warehouse
-            $warehouse = trim(strtoupper($col[20]));
-            $data[$row]['warehouse'] = $warehouse;
+            // $warehouse = trim(strtoupper($col[19]));
+            // $data[$row]['warehouse'] = $warehouse;
             // if ($warehouse == '')
             // $errors[] = 'Line '. $row .': warehouse is null!';
+
+            // currency
+            $unit = trim(strtoupper($col[17]));
+            $data[$row]['unit'] = $unit;
+            if ($unit == '')
+            $errors[] = 'Line '. $row .': unit is null!';
+
+            
           }
           fclose($handle);
           if (empty($errors)){

@@ -222,10 +222,12 @@
         </a>
       <?php endif;?>
       <?php if (is_granted($module, 'document')):?>
+        <?php if (strpos($entity['status'], 'R') === FALSE):?>
         <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
-          <small class="top right">edit</small>
-        </a>
+          <small class="top right">Revisi</small>
+        </a>        
+        <?php endif;?>
       <?php endif;?>
 
       <?php if (is_granted($module, 'print') && $entity['document_number']!=null):?>
