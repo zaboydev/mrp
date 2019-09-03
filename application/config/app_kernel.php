@@ -50,8 +50,8 @@ require('modules/purchase_request.php');
 require('modules/purchase_order_evaluation.php');
 require('modules/purchase_order.php');
 require('modules/global_report.php');
-require('modules/pr_po.php');
-require('modules/po_grn.php');
+//require('modules/pr_po.php');
+//require('modules/po_grn.php');
 // require('modules/grn_payment.php');
 require('modules/report_budget_po.php');
 
