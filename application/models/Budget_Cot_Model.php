@@ -129,7 +129,7 @@ class Budget_Cot_Model extends MY_Model
     // if ($_POST['length'] != -1)
     //   $this->db->limit($_POST['length'], $_POST['start']);
     // return $this->db->get()->result();
-    $this->db->select('tb_master_items.description,tb_master_items.part_number');
+    $this->db->select('tb_master_items.description,tb_master_items.part_number,tb_master_items.unit');
     $this->db->from('tb_master_items');
     $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_groups.category = tb_master_item_categories.category');
@@ -140,7 +140,7 @@ class Budget_Cot_Model extends MY_Model
       $this->db->or_like('tb_master_items.part_number', trim(strtoupper($this->input->post('search'))), 'BOTH');
       // $this->db->or_like('tb_master_items.serial_number', trim(strtoupper($this->input->post('search'))), 'BOTH');
     $this->db->group_end();
-    $this->db->group_by('tb_master_items.description,tb_master_items.part_number');
+    $this->db->group_by('tb_master_items.description,tb_master_items.part_number,tb_master_items.unit');
     if(($_POST['id_kategori'] != "all")&&($this->input->post('id_kategori')!=""))
       $this->db->where('tb_master_item_categories.category', $this->input->post('id_kategori'));
     if ($_POST['length'] != -1)

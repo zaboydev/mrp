@@ -40,6 +40,7 @@ class Payment_Model extends MY_MODEL {
 		$this->db->set('no_jurnal', $no_jurnal);
         $this->db->set('tanggal_jurnal  ', date("Y-m-d"));
         $this->db->set('source', "AP");
+        $this->db->set('vendor', $vendor);
         $this->db->insert('tb_jurnal');
         $id_jurnal = $this->db->insert_id();
         $this->db->set('id_jurnal',$id_jurnal);

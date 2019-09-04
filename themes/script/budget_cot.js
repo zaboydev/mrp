@@ -127,6 +127,7 @@ $(document).ready(function(){
                 		'<td>'+no+'</td>'+
                 		'<td>'+item.part_number+'</td>'+
                 		'<td>'+item.description+'</td>'+
+                		'<td>'+item.unit+'</td>'+
                 		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="txt_'+item.part_number+'" data-type="txt" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" value="'+($("#id_kelipatan").val() === "0" ? "Other" : "0")+'" style="width: 100%"></td>'+
                 		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range1_'+item.part_number+'" data-type="range1" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%" value="1"></td>'+
                 		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range2_'+item.part_number+'" data-type="range2" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%" value="12"></td>'+

@@ -922,7 +922,11 @@ if ( ! function_exists('get_ttd')) {
 
     $query  = $CI->db->get();
     $result = $query->unbuffered_row('array');
-    $return = $result['ttd_user'];
+    if($result['ttd_user']==null){
+      $return = 'no_signature.PNG';
+    }else{
+      $return = $result['ttd_user'];
+    }    
 
     return $return;
   }

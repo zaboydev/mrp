@@ -188,6 +188,7 @@ class Usage_Jurnal_Model extends MY_MODEL {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
+    $this->db->where('tb_jurnal.source', "INV-OUT");
 
     $this->searchIndex();
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening"));
@@ -212,6 +213,7 @@ class Usage_Jurnal_Model extends MY_MODEL {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
+    $this->db->where('tb_jurnal.source', "INV-OUT");
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening"));
     $query = $this->db->get();
 

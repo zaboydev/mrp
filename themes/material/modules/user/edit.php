@@ -84,14 +84,12 @@
             <label for="warehouse">Warehouse</label>
           </div>
 
-          <?php if($entity['ttd_user']==''):?>
           <div class="form-group">
-            <input class="form-control" type="file" name="userfile" accept=".png" id="userfile">
-            <p style="font-size: 8pt">Allowing file format <i>png</i></p>
-            <p style="color: red; display: none;" id="typeError">The file type is not allowed to attach</p>
-            <label for="userfile">Scan Tanda Tangan</label>
+            <a href="<?=site_url($module['route'] .'/upload_ttd/'. $entity['user_id']);?>" onClick="return popup(this, 'attachment')" class="btn btn-primary btn-tooltip ink-reaction">
+              <i class="md md-attach-file"></i> Upload Tanda Tangan
+                <small class="top right">Upload Tanda Tangan</small>
+            </a>
           </div>
-          <?php endif;?>
 
         </div>
         <div class="col-sm-4">

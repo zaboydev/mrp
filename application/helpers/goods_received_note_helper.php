@@ -155,3 +155,22 @@ if ( ! function_exists('isKonsolidasiDateExists')) {
   }
 }
 
+if ( ! function_exists('getIdJurnal')) {
+  function getIdJurnal($no_grn)
+  {
+
+    $CI =& get_instance();
+
+    $CI->db->select('id');
+    $CI->db->from( 'tb_jurnal' );
+    $CI->db->where('no_jurnal', $no_grn);
+    // $CI->db->where('group', $group);
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    
+
+    return $row->id;
+  }
+}
+

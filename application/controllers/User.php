@@ -12,6 +12,7 @@ class User extends MY_Controller
     $this->load->model($this->module['model'], 'model');
     $this->load->helper(array('form', 'url'));
     $this->load->library('upload');
+    $this->load->helper('string');
     $this->data['module'] = $this->module;
   }
 
@@ -350,5 +351,40 @@ class User extends MY_Controller
     // $this->authorized($this->module, 'document');
     
     $this->render_view($this->module['view'] .'/attachment');
+  }
+
+  public function upload_ttd($user_id)
+  {
+    $this->authorized($this->module, 'create');
+
+    $this->data['manage_attachment'] = $this->model->listAttachment_2($user_id);
+    $this->data['id_poe'] = $user_id;
+    $this->render_view($this->module['view'] .'/manage_ttd');
+  }
+
+  public function add_attachment_to_db($user_id)
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'ttd_user/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+    
+    $this->upload->initialize($config);
+    
+    if ( ! $this->upload->do_upload('attachment'))
+    {
+      $error = array('error' => $this->upload->display_errors());
+    }
+    else
+    {
+      $data = array('upload_data' => $this->upload->data());
+      $url = $data['upload_data']['orig_name'];
+      // array_push($_SESSION["poe"]["attachment"], $url);
+      $this->model->add_attachment_to_db($user_id,$url);
+      $result["status"] = 1;
+    }
+    echo json_encode($result);
   }
 }

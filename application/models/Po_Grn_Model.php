@@ -26,9 +26,9 @@ class Po_Grn_Model extends MY_Model
       'tb_po.default_currency'                              => 'Currency',
       'tb_po_item.quantity as "po_qty"'                     => 'Qty Order',
       'tb_po_item.total_amount as "po_val"'                 => 'Value Order',
-      'case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end as "grn_qty"'                     => 'Qty Receipts',
-      'case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end as "grn_val_idr"'             => 'Val Receipts',
-      'case when tb_receipt_items.received_total_value_dollar is null then 0.00 else tb_receipt_items.received_total_value_dollar end as "grn_val_usd"'             => 'Qty Order Remaining',
+      'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"'                     => 'Qty Receipts',
+      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_val_idr"'             => 'Val Receipts',
+      'sum(case when tb_receipt_items.received_total_value_dollar is null then 0.00 else tb_receipt_items.received_total_value_dollar end) as "grn_val_usd"'             => 'Qty Order Remaining',
     );
       
   }
@@ -40,6 +40,18 @@ class Po_Grn_Model extends MY_Model
       'tb_po_item.description',
       'tb_po.default_currency',
       'tb_po.vendor',
+    );
+  }
+
+  public function getGroupedColumns()
+  {
+    return array(
+      'tb_po.document_number',
+      'tb_po_item.part_number',
+      'tb_po_item.description',
+      'tb_po.default_currency',
+      'tb_po.vendor',
+      'tb_po_item.id',
     );
   }
 
@@ -92,7 +104,8 @@ class Po_Grn_Model extends MY_Model
     $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
-    $this->db->where('tb_po.status','ORDER');
+    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
+    $this->db->group_by($this->getGroupedColumns());
     $this->searchIndex();
 
     $column_order = $this->getOrderableColumns();
@@ -126,7 +139,8 @@ class Po_Grn_Model extends MY_Model
     $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
-    $this->db->where('tb_po.status','ORDER');
+    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
+    $this->db->group_by($this->getGroupedColumns());
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -141,7 +155,8 @@ class Po_Grn_Model extends MY_Model
     $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
-    $this->db->where('tb_po.status','ORDER');
+    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
+    $this->db->group_by($this->getGroupedColumns());
     $query = $this->db->get();
 
     return $query->num_rows();

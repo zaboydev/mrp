@@ -339,4 +339,25 @@ class User_model extends MY_Model
     $this->db->trans_commit();
     return TRUE;
   }
+
+  public function listAttachment_2($id){
+    // $this->db->select('ttd_user');
+    $this->db->where('user_id', $id);
+    return $this->db->get('tb_auth_users')->result_array();
+  }
+
+  function add_attachment_to_db($user_id,$url){
+    $this->db->trans_begin();
+
+    $this->db->set('ttd_user', $url);
+    // $this->db->set('file', $url);
+    $this->db->where('user_id',$user_id);
+    $this->db->update('tb_auth_users');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
 }

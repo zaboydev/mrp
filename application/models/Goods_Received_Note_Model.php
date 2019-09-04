@@ -417,6 +417,14 @@ class Goods_Received_Note_Model extends MY_Model
 
       $this->db->where('no_grn', $document_number);
       $this->db->delete('tb_hutang');
+
+      $id_jurnal = getIdJurnal($document_number);
+
+      $this->db->where('id_jurnal', $id_jurnal);
+      $this->db->delete('tb_jurnal_detail');
+
+      $this->db->where('id', $id_jurnal);
+      $this->db->delete('tb_jurnal');
     }
     
 
@@ -450,13 +458,15 @@ class Goods_Received_Note_Model extends MY_Model
       // PROCESSING RECEIPT ITEMS
       $received_total_value = 0;
 
-      // $this->db->set('no_jurnal', $this->jrl_last_number());
-      // $this->db->set('vendor', $received_from);
-      // $this->db->set('tanggal_jurnal  ', date("Y-m-d"));
-      // $this->db->set('grn_no', $document_number);
-      // $this->db->set('source', "INV");
-      // $this->db->insert('tb_jurnal');
-      // $id_jurnal = $this->db->insert_id();
+      //insert tb_jurnal
+      $this->db->set('no_jurnal', $document_number);
+      $this->db->set('vendor', $received_from);
+      $this->db->set('tanggal_jurnal', $received_date);
+      $this->db->set('grn_no', $document_number);
+      $this->db->set('source', "INV-IN");
+      $this->db->insert('tb_jurnal');
+      $id_jurnal = $this->db->insert_id();
+      //end insert tb_jurnal
     
       // PROCESSING RECEIPT ITEMS
       foreach ($_SESSION['receipt']['items'] as $key => $data)
@@ -838,34 +848,35 @@ class Goods_Received_Note_Model extends MY_Model
         // $this->db->set('group', strtoupper($data['group']));
         // $this->db->set('doc_type', 3);     
         $this->db->insert('tb_receipt_items');
+        if($currency=='IDR'){
+              $kode = "2-101";
+              $x_total = $harga*floatval($data['received_quantity']);
+        } else {
+              $kode = "2-1102";
+              $x_total = $harga_usd*floatval($data['received_quantity']);
+        }
 		
-        /*$coa = $this->coaByGroup(strtoupper($data['group']));
+        $coa = $this->coaByGroup(strtoupper($data['group']));
         $this->db->set('id_jurnal',$id_jurnal);
         $this->db->set('jenis_transaksi',$data['group']);
-        $this->db->set('trs_debet',$x);
+        $this->db->set('trs_debet',$x_total);
         $this->db->set('trs_kredit',0);
         $this->db->set('kode_rekening',$coa->coa);
         $this->db->insert('tb_jurnal_detail');
-        if($data['kurs'] == 'rupiah' || $data['kurs_dollar']==1){
-              $kode = "2-101";
-              $prefix = "IDR";
-        } else {
-              $kode = "2-1102";
-              $prefix = "USD";
-        }
+        
         $this->db->set('id_jurnal',$id_jurnal);
-        $this->db->set('jenis_transaksi',strtoupper("supplier payable ".$prefix));
+        $this->db->set('jenis_transaksi',strtoupper("supplier payable ".$currency));
         $this->db->set('trs_debet',0);
-        $this->db->set('trs_kredit',$x);
+        $this->db->set('trs_kredit',$x_total);
         $this->db->set('kode_rekening',$kode);
-        $this->db->insert('tb_jurnal_detail');*/
+        $this->db->insert('tb_jurnal_detail');
 
         $this->db->set('document_no', $this->ap_last_number());
         $this->db->set('tanggal', date("Y-m-d"));
         $this->db->set('no_grn', $document_number);
         $this->db->set('vendor', $received_from);
-        $this->db->set('amount_idr', $harga);
-        $this->db->set('amount_usd', $harga_usd);
+        $this->db->set('amount_idr', $harga*floatval($data['received_quantity']));
+        $this->db->set('amount_usd', $harga_usd*floatval($data['received_quantity']));
         $this->db->set('payment', 0);
         $this->db->set('no_po', $data['purchase_order_number']);
         $this->db->set('id_po', $row['purchase_order_id']);

@@ -17,132 +17,28 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-  <?php if (is_granted($module, 'document')):?>
-    <div class="section-floating-action-row">
-      <div class="btn-group dropup">
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-          <i class="md md-add"></i>
-          <small class="top right">Create <?=$module['label'];?></small>
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_inventory') as $category):?>
-            <li>
-              <a href="<?=site_url($module['route'] .'/create/'. $category);?>"><?=$category;?></a>
-            </li>
-          <?php endforeach;?>
-        </ul>
-      </div>
-    </div>
-  <?php endif ?>
+  
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
   <div class="form force-padding">
     <div class="form-group">
-      <label for="filter_received_date">Received Date</label>
-      <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
+      <label for="filter_received_date">Date</label>
+      <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
     </div>
-
-    <div class="form-group">
-      <label for="filter_item_group">Category</label>
-      <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
-        <option value="">
-          Not filtered
+    <div class="form-group">    
+      <label for="start_date">Supplier</label>
+      <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
+        <option value="all" <?=('all' == $selected_vendor) ? 'selected' : '';?>>All Supplier</option>
+        <?php foreach (available_vendors() as $vendor):?>
+        <option value="<?=$vendor;?>" <?=($vendor == $selected_vendor) ? 'selected' : '';?>>
+          <?=$vendor;?>
         </option>
-
-        <?php foreach (config_item('auth_inventory') as $category):?>
-          <option value="<?=$category;?>">
-            <?=$category;?>
-          </option>
-        <?php endforeach;?>
+        <?php endforeach; ?>
       </select>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_warehouse">Base</label>
-      <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_warehouse">
-        <option value="">
-          Not filtered
-        </option>
-
-        <?php foreach (config_item('auth_warehouses') as $warehouse):?>
-          <option value="<?=$warehouse;?>">
-            <?=$warehouse;?>
-          </option>
-        <?php endforeach;?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_condition">Condition</label>
-      <select class="form-control input-sm filter_dropdown" data-column="9" id="filter_condition">
-        <option value="">
-          SERVICEABLE
-        </option>
-
-        <?php foreach (config_item('condition') as $condition):?>
-          <?php if ($condition !== 'SERVICEABLE'):?>
-            <option value="<?=$condition;?>">
-              <?=$condition;?>
-            </option>
-          <?php endif;?>
-        <?php endforeach;?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_description">Description</label>
-      <input type="text" class="form-control input-sm filter_numeric_text" data-column="5" id="filter_description">
-    </div>
-
-    <div class="form-group">
-      <label for="filter_part_number">Part Number</label>
-      <input type="text" class="form-control input-sm filter_numeric_text" data-column="6" id="filter_part_number">
-    </div>
-
-    <div class="form-group">
-      <label for="filter_received_from">Received From</label>
-      <input type="text" class="form-control input-sm filter_numeric_text" data-column="15" id="filter_received_from">
     </div>
   </div>
 <?php endblock()?>
-<?php if (is_granted($module, 'import')):?>
-  <?php startblock('offcanvas_left_actions') ?>
-    <li class="tile">
-      <a class="tile-content ink-reaction" href="#offcanvas-import" data-toggle="offcanvas">
-        <div class="tile-icon">
-          <i class="fa fa-download"></i>
-        </div>
-        <div class="tile-text">
-          Import Data
-          <small>import from csv file</small>
-        </div>
-      </a>
-    </li>
-  <?php endblock() ?>
-
-  <?php startblock('offcanvas_left_list') ?>
-    <div id="offcanvas-import" class="offcanvas-pane width-8">
-      <div class="offcanvas-head style-primary-dark">
-        <header>Import</header>
-        <div class="offcanvas-tools">
-          <a class="btn btn-icon-toggle pull-right" data-dismiss="offcanvas">
-            <i class="md md-close"></i>
-          </a>
-          <a class="btn btn-icon-toggle pull-right" href="#offcanvas-datatable-filter" data-toggle="offcanvas">
-            <i class="md md-arrow-back"></i>
-          </a>
-        </div>
-      </div>
-
-      <div class="offcanvas-body no-padding">
-        <?php $this->load->view('material/modules/stores/import') ?>
-      </div>
-    </div>
-  <?php endblock() ?>
-  
-<?php endif;?>
 
 <?php startblock('scripts')?>
   <?=html_script('vendors/pace/pace.min.js') ?>

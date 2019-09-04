@@ -79,6 +79,7 @@ class Grn_Payment_Model extends MY_Model
     $this->db->select(array_keys($this->getSelectedColumns()),false);
     $this->db->from('tb_po');
     $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po.id','left');
+    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
     // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id  = tb_receipt_items.purchase_order_item_id','left');
     // $this->db->join('tb_purchase_orders', 'tb_purchase_order_items.purchase_order_id = tb_purchase_orders.id','left');
     // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_purchase_orders.id ','left');
@@ -115,6 +116,7 @@ class Grn_Payment_Model extends MY_Model
     $this->db->select(array_keys($this->getSelectedColumns()),false);
     $this->db->from('tb_po');
     $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po.id','left');
+    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
     // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id  = tb_receipt_items.purchase_order_item_id','left');
     // $this->db->join('tb_purchase_orders', 'tb_purchase_order_items.purchase_order_id = tb_purchase_orders.id','left');
     // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_purchase_orders.id ','left');
@@ -132,6 +134,7 @@ class Grn_Payment_Model extends MY_Model
     $this->db->select(array_keys($this->getSelectedColumns()),false);
     $this->db->from('tb_po');
     $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po.id','left');
+    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
     // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id  = tb_receipt_items.purchase_order_item_id','left');
     // $this->db->join('tb_purchase_orders', 'tb_purchase_order_items.purchase_order_id = tb_purchase_orders.id','left');
     // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_purchase_orders.id ','left');
