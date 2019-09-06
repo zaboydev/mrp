@@ -162,7 +162,7 @@ class Purchase_Order_Model extends MY_Model
           $this->db->like('tb_po.review_status', 'APPROVED');
         }
       }elseif($status=='rejected'){
-        $this->db->where('tb_po.review_status', strtoupper($status));
+        $this->db->like('tb_po.review_status', 'REJECTED');
       }
       // elseif($status=='all'){
       //   $this->db->like('tb_po.review_status', 'WAITING');
