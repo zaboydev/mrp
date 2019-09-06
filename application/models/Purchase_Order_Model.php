@@ -1342,6 +1342,12 @@ class Purchase_Order_Model extends MY_Model
   function import($data){
     $this->db->trans_begin();
     foreach ($data as $key) {
+
+      $this->db->from('tb_master_vendors');
+      $this->db->where('vendor', $key['vendor']);
+      $query  = $this->db->get();
+      $row_vendor    = $query->unbuffered_row('array');
+
       // $check = $this->checkImport($key["document_no"],$key["poe_number"]);
       $company    = find_budget_setting('Company Name', 'head company');
       $address    = nl2br(find_budget_setting('Address', 'head company'));
@@ -1363,8 +1369,23 @@ class Purchase_Order_Model extends MY_Model
             $this->db->set('evaluation_number',$key["poe_number"]);
             $this->db->set('reference_quotation',$key["ref_quot"]);
             $this->db->set('vendor',$key["vendor"]);
+            $this->db->set('vendor_address',$row_vendor["address"]);
+            $this->db->set('vendor_country',$row_vendor["country"]);
+            $this->db->set('vendor_phone',$row_vendor["vendor"]);
+            $this->db->set('vendor_attention','Phone: '. $row_vendor['phone']);
             $this->db->set('notes',$key["notes"]);
             $this->db->set('warehouse','WISNU');
+            $this->db->set('deliver_company', $company);
+            $this->db->set('deliver_address', $address);
+            $this->db->set('deliver_country', $country);
+            $this->db->set('deliver_phone', $phone);
+            $this->db->set('deliver_attention', $attention);
+            $this->db->set('bill_company', $company);
+            $this->db->set('bill_address', $address);
+            $this->db->set('bill_country', $bill_country);
+            $this->db->set('bill_phone', $phone);
+            $this->db->set('bill_attention', $attention);
+            $this->db->set('default_currency', $key["currency"]);
             // $this->db->insert('tb_purchase_orders');
             $this->db->insert('tb_po');
             $po_id = $this->db->insert_id();

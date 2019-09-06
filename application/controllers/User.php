@@ -155,16 +155,16 @@ class User extends MY_Controller
             $passwd = $this->hash_passwd($this->input->post('passwd'));
             $user_data['passwd'] = $passwd;
           }
-          if (!empty($_FILES['userfile']['name'])) {
-            $upload = $this->_do_upload();
-            $user_data['ttd_user'] = $upload;
-          }
+          // if (!empty($_FILES['userfile']['name'])) {
+          //   $upload = $this->_do_upload();
+          //   $user_data['ttd_user'] = $upload;
+          // }
 
           $criteria = array('user_id' => $this->input->post('id'));
 
           if ($this->model->update($user_data, $criteria)){
             $return['type'] = 'success';
-            $return['info'] = 'User ' . $this->input->post('person_name') .' updated.'.print_r($_POST);;
+            $return['info'] = 'User ' . $this->input->post('person_name') .' updated.';
           } else {
             $return['type'] = 'danger';
             $return['info'] = 'There are error while updating data. Please try again later.';
@@ -188,16 +188,16 @@ class User extends MY_Controller
             'created_at' => date('Y-m-d H:i:s'),
             // 'ttd_user'    => $this->_uploadImage()
           );
-          if (!empty($_FILES['userfile']['name'])) {
-            $upload = $this->_do_upload();
-            $user_data['ttd_user'] = $upload;
-          }
+          // if (!empty($_FILES['userfile']['name'])) {
+          //   $upload = $this->_do_upload();
+          //   $user_data['ttd_user'] = $upload;
+          // }
 
 
 
           if ($this->model->insert($user_data)){
             $return['type'] = 'success';
-            $return['info'] = 'User for ' . $this->input->post('person_name') .' created.'.print_r($_POST);;
+            $return['info'] = 'User for ' . $this->input->post('person_name') .' created.';
           } else {
             $return['type'] = 'danger';
             $return['info'] = 'There are error while updating data. Please try again later.';
