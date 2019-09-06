@@ -112,7 +112,7 @@
       <p>
         Request by:
         <br />Inventory
-        <br />
+        <br />&nbsp;<br>
         <?php if($entity['created_by']!=''):?>
         <img src="<?=base_url('ttd_user/'.get_ttd($entity['created_by']));?>" width="100">
         <?php endif;?>
@@ -120,9 +120,11 @@
         <br /><?=$entity['created_by'];?>
       </p>
     </td>
+    <?php if($entity['item_category']!='BAHAN BAKAR'):?>
     <td width="50%" valign="top" align="center">
     &nbsp;
     </td>
+    <?php endif;?>
     <td width="25%" valign="top" align="center">
       <p>
         Approved by:
@@ -135,13 +137,18 @@
         <br /><?=$entity['approved_by'];?>
       </p>
     </td>
-    <!-- <td width="25%" valign="top" align="center">
-      <p>
-        Approved by:
+    <?php if($entity['item_category']=='BAHAN BAKAR'):?>
+    <td width="25%" valign="top" align="center">
+      <p>Acknowledged by:
+        <br />Operation Support
+        <?php if($entity['operation_review_by']!=''):?>
+        <br /><?=print_date($entity['approved_date'])?><br>
+        <img src="<?=base_url('ttd_user/'.get_ttd($entity['operation_review_by']));?>" width="100">
+        <?php endif;?>
+        <br />
+        <br /><?=$entity['operation_review_by'];?>
       </p>
     </td>
-    <td width="25%" valign="top" align="center">
-      <p>Acknowledged by:</p>
-    </td> -->
+    <?php endif;?>
   </tr>
 </table>

@@ -452,11 +452,13 @@ class Purchase_Request_Model extends MY_Model
         'SUM(tb_budget.mtd_budget) AS fyp_budget',
         'SUM(tb_budget.mtd_used_quantity) AS fyp_used_quantity',
         'SUM(tb_budget.mtd_used_budget) AS fyp_used_budget',
+        'tb_master_items.minimum_quantity',
       );
 
       $group_by = array(
         'tb_inventory_purchase_requisition_details.id',
         // 'tb_master_items.description',
+        'tb_master_items.minimum_quantity',
         // 'tb_master_items.part_number',
         'tb_budget.id_cot',
       );
@@ -490,6 +492,7 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
         $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
+        $request['items'][$key]['on_hand_qty'] = $this->countOnhand($value['part_number'])->sum;
       }      
     }
     
@@ -606,7 +609,8 @@ class Purchase_Request_Model extends MY_Model
 
         $this->db->from('tb_budget');
         $this->db->where('tb_budget.id_cot', $value['id_cot']);
-        $this->db->where('tb_budget.month_number', $this->budget_month);
+        // $this->db->where('tb_budget.month_number', $this->budget_month);
+        $this->db->where('tb_budget.id', $value['budget_id']);
 
         $query = $this->db->get();
         $row   = $query->unbuffered_row('array');
@@ -1724,6 +1728,12 @@ class Purchase_Request_Model extends MY_Model
       $this->db->set('status', 'open');
       $this->db->where('id', $id);
       $this->db->update('tb_inventory_purchase_requisition_details');
+
+      $this->db->set('operation_review_by', config_item('auth_person_name'));
+      // $this->db->set('approved_notes', strtoupper($rejected_note));
+      $this->db->where('id',$inventory_purchase_requisition_id);
+      $this->db->update('tb_inventory_purchase_requisitions');
+
     }
 
     if($row['status']=='pending'){
@@ -1898,23 +1908,23 @@ class Purchase_Request_Model extends MY_Model
         $this->db->where('id', $id);
         $this->db->update('tb_inventory_purchase_requisition_details');
       }
-    }
 
-    // $status_prl = 0;
-    $this->db->from('tb_inventory_purchase_requisition_details');    
-    $this->db->where('tb_inventory_purchase_requisition_details.status','!=','open');
-    $this->db->where('inventory_purchase_requisition_id',$inventory_purchase_requisition_id);
-    $query_pr_item  = $this->db->get();
-    $status_prl = $query_pr_item->num_rows();
-    
-    if($status_prl==0){
-      $this->db->set('status','approved');
-    }
-    $this->db->set('approved_date',date('Y-m-d'));
-    $this->db->set('approved_by', config_item('auth_person_name'));
-    $this->db->set('approved_notes', strtoupper($rejected_note));
-    $this->db->where('id',$inventory_purchase_requisition_id);
-    $this->db->update('tb_inventory_purchase_requisitions');
+      // $status_prl = 0;
+      $this->db->from('tb_inventory_purchase_requisition_details');    
+      $this->db->where_not_in('tb_inventory_purchase_requisition_details.status',['open','review operation support']);
+      $this->db->where('inventory_purchase_requisition_id',$inventory_purchase_requisition_id);
+      $query_pr_item  = $this->db->get();
+      $status_prl = $query_pr_item->num_rows();
+      
+      if($status_prl==0){
+        $this->db->set('status','approved');
+      }
+      $this->db->set('approved_date',date('Y-m-d'));
+      $this->db->set('approved_by', config_item('auth_person_name'));
+      $this->db->set('approved_notes', strtoupper($rejected_note));
+      $this->db->where('id',$inventory_purchase_requisition_id);
+      $this->db->update('tb_inventory_purchase_requisitions');
+    }    
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
@@ -2331,6 +2341,124 @@ class Purchase_Request_Model extends MY_Model
     
 
     return $request;
+  }
+
+  public function send_mail_approval($id,$ket,$by) { 
+    $item_message = '<tbody>';
+
+    $recipient = array();
+    foreach ($id as $key) {  
+      $this->db->select(
+        array(
+          'tb_inventory_purchase_requisitions.pr_number',
+          'tb_inventory_purchase_requisition_details.product_name',
+          'tb_inventory_purchase_requisition_details.part_number',
+          'tb_inventory_purchase_requisition_details.quantity',
+          'tb_inventory_purchase_requisition_details.total',
+          'tb_inventory_purchase_requisition_details.unit',
+        )
+      );    
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.id=tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+      $this->db->where('tb_inventory_purchase_requisition_details.id',$key);
+      $query = $this->db->get();
+      $row = $query->result_array();
+
+      foreach ($row as $item) {
+        $item_message .= "<tr>";         
+        $item_message .= "<td>".$item['pr_number']."</td>";         
+        $item_message .= "<td>".$item['part_number']."</td>";           
+        $item_message .= "<td>".$item['product_name']."</td>";           
+        $item_message .= "<td>".print_number($item['quantity'],2)."</td>";             
+        $item_message .= "<td>".$item['unit']."</td>";          
+        //$item_message .= "<td>".print_number($item['total'],2)."</td>";         
+        $item_message .= "</tr>";
+      }
+
+
+      $this->db->select('created_by');
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.id=tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+      $this->db->group_by('created_by');
+      $this->db->where('tb_inventory_purchase_requisition_details.id',$key);
+      $query_po = $this->db->get();
+      $row_po   = $query_po->unbuffered_row('array');
+      $issued_by = $row_po['created_by'];
+
+      $recipientList = $this->getNotifRecipient_approval($issued_by);
+      foreach ($recipientList as $key ) {
+        array_push($recipient, $key->email);
+      }
+    }
+    $item_message .= '</tbody>';
+
+    
+
+    $from_email = "bifa.acd@gmail.com"; 
+    $to_email = "aidanurul99@rocketmail.com";
+    if($ket=='approve'){      
+      $ket_level = 'Disetujui';
+    }else{
+      $ket_level = 'Ditolak';
+    }
+    // if($level==14){
+    //   $ket_level = 'Finance Manager';
+    // }elseif ($level==10) {
+    //   $ket_level = 'Head Of School';
+    // } elseif($level==11){
+    //   $ket_level = 'Chief Of Finance';
+    // }elseif($level==3){
+    //   $ket_level = 'VP Finance';
+    // }
+   
+    //Load email library 
+    $this->load->library('email'); 
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'bifa.acd@gmail.com';
+    $config['smtp_pass'] = 'b1f42019';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Hello</p>";
+    $message .= "<p>Item Berikut telah ".$ket_level." oleh ".$by."</p>";
+    $message .= "<table>";    
+    $message .= "<thead>";   
+    $message .= "<tr>";      
+    $message .= "<th>No. Doc.</th>";       
+    $message .= "<th>Part Number</th>";        
+    $message .= "<th>Description</th>";        
+    $message .= "<th>Qty Order</th>";        
+    $message .= "<th>Unit</th>";        
+    $message .= "<th>Total Val. Order</th>";    
+    $message .= "</tr>";  
+    $message .= "</thead>";
+    $message .= $item_message;   
+    $message .= "</table>";
+    // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning'); 
+    $this->email->to($recipient);
+    $this->email->subject('Notification Approval'); 
+    $this->email->message($message); 
+     
+    //Send mail 
+    if($this->email->send()) 
+      return true; 
+    else 
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient_approval($name){
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('person_name',$name);
+    return $this->db->get('')->result();
   }
 
 }
