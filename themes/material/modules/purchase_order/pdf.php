@@ -252,71 +252,142 @@
 
 	<div class="clear"></div>
 
-	<table class="condensed" style="margin-top: 20px;">
-	  <tr>
-		<td width="20%" valign="top" align="center">
-		  <p>
-			Issued by,
-			<br />Procurement
-			<br />
-			<?php if($entity['issued_by']!=''):?>
-      <img src="<?=base_url('ttd_user/'.get_ttd($entity['issued_by']));?>" width="100">
-      <?php endif;?>
-			<br />
-			<br /><?=$entity['issued_by'];?>
-		  </p>
-		</td>
-		<td width="20%" valign="top" align="center">
-		  <p>
-			Checked by,
-			<br />Finance
-			<br />
-			<?php if($entity['checked_by']!=''):?>
-      <img src="<?=base_url('ttd_user/'.get_ttd($entity['checked_by']));?>" width="100">
-      <?php endif;?>
-			<br />
-			<br /><?=$entity['checked_by'];?>
-		  </p>
-		</td>
-		<td width="20%" valign="top" align="center">
-		  <p>
-			Approved by,
-			<br />HOS
-			<br />
-			<?php if($entity['known_by']!=''):?>
-      <img src="<?=base_url('ttd_user/'.get_ttd($entity['known_by']));?>" width="100">
-      <?php endif;?>
-			<br />
-			<br /><?=$entity['known_by'];?>
-		  </p>
-		</td>
-		<td width="20%" valign="top" align="center">
-		  <p>
-			Checked by,
-			<br />VP Finance
-			<br />
-			<?php if($entity['check_review_by']!=''):?>
-      <img src="<?=base_url('ttd_user/'.get_ttd($entity['check_review_by']));?>" width="100">
-      <?php endif;?>
-			<br />
-			<br /><?=$entity['check_review_by'];?>
-		  </p>
-		</td>
-		</td>
-		<td width="20%" valign="top" align="center">
-		  <p>
-			Approved by,
-			<br />CFO
-			<br />
-			<?php if($entity['approved_by']!=''):?>
-      <img src="<?=base_url('ttd_user/'.get_ttd($entity['approved_by']));?>" width="100">
-      <?php endif;?>
-			<br />
-			<br /><?=$entity['approved_by'];?>
-		  </p>
-		</td>
-	  </tr>
-	</table>
+	<?php if ($entity['default_currency']=='IDR' && $grandtotal>=15000000):?>
+		<table class="condensed" style="margin-top: 20px;">
+			<tr>
+				<!-- <td width="2%" valign="top" align="center">&nbsp;</td> -->
+				<td width="16%" valign="top" align="center">
+					<p>
+						Issued by,
+						<br />Procurement
+						<br />
+						<?php if($entity['issued_by']!=''):?>
+							<img src="<?=base_url('ttd_user/'.get_ttd($entity['issued_by']));?>" width="100">
+						<?php endif;?>
+						<br />
+						<br /><?=$entity['issued_by'];?>
+					</p>
+				</td>
+				<td width="16%" valign="top" align="center">
+					<p>
+						Checked by,
+						<br />Finance
+						<br />
+						<?php if($entity['checked_by']!=''):?>
+						<img src="<?=base_url('ttd_user/'.get_ttd($entity['checked_by']));?>" width="100">
+						<?php endif;?>
+						<br />
+						<br /><?=$entity['checked_by'];?>
+					</p>
+				</td>
+				<td width="16%" valign="top" align="center">
+					<p>
+						Knowledge by,
+						<br />HOS
+						<br />
+						<?php if($entity['known_by']!=''):?>
+						<img src="<?=base_url('ttd_user/'.get_ttd($entity['known_by']));?>" width="100">
+						<?php endif;?>
+						<br />
+						<br /><?=$entity['known_by'];?>
+					</p>
+				</td>
+				<td width="16%" valign="top" align="center">
+					<p>
+						Approved by,
+						<br />COO
+						<br />
+						<?php if($entity['coo_review']!=''):?>
+						<img src="<?=base_url('ttd_user/'.get_ttd($entity['known_by']));?>" width="100">
+						<?php endif;?>
+						<br />
+						<br /><?=$entity['known_by'];?>
+					</p>
+				</td>
+				<td width="16%" valign="top" align="center">
+					<p>
+						Knowledge by,
+						<br />VP Finance
+						<br />
+						<?php if($entity['check_review_by']!=''):?>
+						<img src="<?=base_url('ttd_user/'.get_ttd($entity['check_review_by']));?>" width="100">
+						<?php endif;?>
+						<br />
+						<br /><?=$entity['check_review_by'];?>
+					</p>
+				</td>
+				<td width="16%" valign="top" align="center">
+					<p>
+						Approved by,
+						<br />CFO
+						<br />
+						<?php if($entity['approved_by']!=''):?>
+						<img src="<?=base_url('ttd_user/'.get_ttd($entity['approved_by']));?>" width="100">
+						<?php endif;?>
+						<br />
+						<br /><?=$entity['approved_by'];?>
+					</p>
+				</td>
+				<!-- <td width="2%" valign="top" align="center">&nbsp</td> -->
+			</tr>
+		</table>
+  	<?php elseif($entity['default_currency']=='USD' && $grandtotal>=1500): ?>
+  	<?php else:?>
+	  	<table class="condensed" style="margin-top: 20px;">
+			<tr>
+				<td width="25%" valign="top" align="center">
+				<p>
+					Issued by,
+					<br />Procurement
+					<br />
+					<?php if($entity['issued_by']!=''):?>
+						<img src="<?=base_url('ttd_user/'.get_ttd($entity['issued_by']));?>" width="100">
+					<?php endif;?>
+					<br />
+					<br /><?=$entity['issued_by'];?>
+				</p>
+				</td>
+				<td width="25%" valign="top" align="center">
+				<p>
+					Checked by,
+					<br />Finance
+					<br />
+					<?php if($entity['checked_by']!=''):?>
+					<img src="<?=base_url('ttd_user/'.get_ttd($entity['checked_by']));?>" width="100">
+					<?php endif;?>
+					<br />
+					<br /><?=$entity['checked_by'];?>
+				</p>
+				</td>
+				<td width="25%" valign="top" align="center">
+				<p>
+					Approved by,
+					<br />HOS
+					<br />
+					<?php if($entity['known_by']!=''):?>
+					<img src="<?=base_url('ttd_user/'.get_ttd($entity['known_by']));?>" width="100">
+					<?php endif;?>
+					<br />
+					<br /><?=$entity['known_by'];?>
+				</p>
+				</td>
+				<td width="25%" valign="top" align="center">
+				<p>
+					Checked by,
+					<br />VP Finance
+					<br />
+					<?php if($entity['check_review_by']!=''):?>
+					<img src="<?=base_url('ttd_user/'.get_ttd($entity['check_review_by']));?>" width="100">
+					<?php endif;?>
+					<br />
+					<br /><?=$entity['check_review_by'];?>
+				</p>
+				</td>
+			</tr>
+		</table>
+	<?php endif;?>
+
+	
   </section>
 </div>
 

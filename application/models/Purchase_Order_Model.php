@@ -295,7 +295,7 @@ class Purchase_Order_Model extends MY_Model
     
     if((config_item('auth_role') == 'HEAD OF SCHOOL')){
       if ($currency=='IDR') {
-        if($grandtotal>10000000){
+        if($grandtotal>=15000000){
           $level = 16;
           $this->db->set('review_status',strtoupper("waiting for coo review"));
           $this->db->set('known_by',config_item('auth_person_name'));
@@ -305,7 +305,7 @@ class Purchase_Order_Model extends MY_Model
           $this->db->set('known_by',config_item('auth_person_name'));
         }
       }else{
-        if($grandtotal>1000){
+        if($grandtotal>=1500){
           $level = 16;
           $this->db->set('review_status',strtoupper("waiting for coo review"));
           $this->db->set('known_by',config_item('auth_person_name'));
@@ -336,7 +336,7 @@ class Purchase_Order_Model extends MY_Model
 
     if((config_item('auth_role') == 'VP FINANCE')){
       if ($currency=='IDR') {
-        if($grandtotal>=3000000){
+        if($grandtotal>=15000000){
           $level = 11;
           $this->db->set('review_status',strtoupper("waiting for cfo review"));
           $this->db->set('check_review_by',config_item('auth_person_name'));
@@ -346,7 +346,7 @@ class Purchase_Order_Model extends MY_Model
           $this->db->set('check_review_by',config_item('auth_person_name'));
         }
       }else{
-        if($grandtotal>=300){
+        if($grandtotal>=1500){
           $level = 11;
           $this->db->set('review_status',strtoupper("waiting for cfo review"));
           $this->db->set('check_review_by',config_item('auth_person_name'));

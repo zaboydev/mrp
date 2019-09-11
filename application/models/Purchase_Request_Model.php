@@ -2347,8 +2347,7 @@ class Purchase_Request_Model extends MY_Model
     $item_message = '<tbody>';
 
     $recipient = array();
-    foreach ($id as $key) {  
-      $this->db->select(
+    $this->db->select(
         array(
           'tb_inventory_purchase_requisitions.pr_number',
           'tb_inventory_purchase_requisition_details.product_name',
@@ -2357,14 +2356,14 @@ class Purchase_Request_Model extends MY_Model
           'tb_inventory_purchase_requisition_details.total',
           'tb_inventory_purchase_requisition_details.unit',
         )
-      );    
-      $this->db->from('tb_inventory_purchase_requisition_details');
-      $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.id=tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
-      $this->db->where('tb_inventory_purchase_requisition_details.id',$key);
-      $query = $this->db->get();
-      $row = $query->result_array();
+    );    
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.id=tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    $this->db->where_in('tb_inventory_purchase_requisition_details.id',$id);
+    $query = $this->db->get();
+    $row = $query->result_array();
 
-      foreach ($row as $item) {
+    foreach ($row as $item) {
         $item_message .= "<tr>";         
         $item_message .= "<td>".$item['pr_number']."</td>";         
         $item_message .= "<td>".$item['part_number']."</td>";           
@@ -2373,24 +2372,20 @@ class Purchase_Request_Model extends MY_Model
         $item_message .= "<td>".$item['unit']."</td>";          
         //$item_message .= "<td>".print_number($item['total'],2)."</td>";         
         $item_message .= "</tr>";
-      }
-
-
-      $this->db->select('created_by');
-      $this->db->from('tb_inventory_purchase_requisition_details');
-      $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.id=tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
-      $this->db->group_by('created_by');
-      $this->db->where('tb_inventory_purchase_requisition_details.id',$key);
-      $query_po = $this->db->get();
-      $row_po   = $query_po->unbuffered_row('array');
-      $issued_by = $row_po['created_by'];
-
-      $recipientList = $this->getNotifRecipient_approval($issued_by);
-      foreach ($recipientList as $key ) {
-        array_push($recipient, $key->email);
-      }
     }
     $item_message .= '</tbody>';
+
+    $this->db->select('tb_inventory_purchase_requisitions.created_by,tb_auth_users.email');
+    $this->db->from('tb_inventory_purchase_requisitions');
+    $this->db->join('tb_inventory_purchase_requisition_details','tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    $this->db->join('tb_auth_users','tb_inventory_purchase_requisitions.created_by = tb_auth_users.person_name');
+    $this->db->group_by('tb_inventory_purchase_requisitions.created_by,tb_auth_users.email');
+    $this->db->where_in('tb_inventory_purchase_requisition_details.id',$id);
+    $query_po = $this->db->get();
+    $row_po   = $query_po->result_array();
+    foreach ($row_po as $key ) {
+        array_push($recipient, $key['email']);
+    }
 
     
 
