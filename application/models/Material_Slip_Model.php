@@ -935,6 +935,18 @@ class Material_Slip_Model extends MY_Model
     $this->db->where('id', $id);
     $this->db->delete('tb_issuances');
 
+    //delete tb_jurnal & tb_jurnal_detail
+      $this->db->select('id');
+      $this->db->from('tb_jurnal');
+      $this->db->where('grn_no', $document_number);
+      $old_id_jurnal = $this->db->get()->result();
+      foreach ($old_id_jurnal as $key) {
+        $this->db->where('id_jurnal', $key->id);
+        $this->db->delete('tb_jurnal_detail');
+      }
+      $this->db->where('grn_no', $document_number);
+      $this->db->delete('tb_jurnal');
+
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 

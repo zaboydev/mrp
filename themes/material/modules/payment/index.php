@@ -24,6 +24,13 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
+               	<select id="currency_select" class="form-control" >
+               		<option value="IDR">IDR</option>
+               		<option value="USD">USD</option>
+               	</select>
+               	<label for="currency">Currency</label>
+              </div>
+              <div class="form-group">
                	<select id="account_select" class="form-control" >
                		<option value="">No Account</option>
                		<?php foreach ($account as $key) {
@@ -266,6 +273,7 @@ $("#suplier_select").change(function(e){
   if(suplier != ""){
     if (confirm("If you change suplier the items will be reset")){
       suplier = $("#suplier_select").val()
+      currency = $("#currency_select").val()
       getPo()
       row_num = 0;
       $("#listView").html("");
@@ -275,6 +283,7 @@ $("#suplier_select").change(function(e){
     }
   }else{
     suplier = $("#suplier_select").val()
+    currency = $("#currency_select").val();
     getPo()
     row_num = 0;
     $("#listView").html("");
@@ -288,7 +297,7 @@ function getPo(){
   $.ajax({
       type: "POST",
       url: '<?=base_url()."payment/getPo"?>',
-      data:{'vendor':suplier},
+      data:{'vendor':suplier,'currency':currency},
       cache: false,
       success: function(response){
         $("#loadingScreen2").attr("style","display:none");
@@ -402,7 +411,7 @@ $("#btn-submit-document").click(function(e){
   $.ajax({
       type: "POST",
       url: '<?=base_url()."payment/save"?>',
-      data:{'account':$("#account_select").val(),"vendor":$("#suplier_select").val(),"no_cheque":$("#no_cheque").val(),"date":$("#date").val(),"amount":$("#amount").val(),"item":postData},
+      data:{'account':$("#account_select").val(),"vendor":$("#suplier_select").val(),"currency":$("#currency_select").val(),"no_cheque":$("#no_cheque").val(),"date":$("#date").val(),"amount":$("#amount").val(),"item":postData},
       cache: false,
       success: function(response){
         $("#loadingScreen2").attr("style","display:none");

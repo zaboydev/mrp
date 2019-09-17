@@ -25,7 +25,8 @@ class Payment extends MY_Controller
   if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
   $vendor = $this->input->post('vendor');
-  $po = $this->model->getPoByVendor($vendor);
+  $currency = $this->input->post('currency');
+  $po = $this->model->getPoByVendor($vendor,$currency);
   echo json_encode($po);
  }
  public function save(){

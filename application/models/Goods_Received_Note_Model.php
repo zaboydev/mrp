@@ -960,11 +960,11 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('balance_quantity', $next_old_stock);
       $this->db->set('quantity', 0 - floatval($data['received_quantity']));
       $this->db->set('unit_value', floatval($data['received_unit_value']));
-	  $this->db->set('created_by', config_item('auth_person_name'));
-	  $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
-	  $this->db->set('doc_type', 5);
-	  $this->db->set('tgl', date('Ymd',strtotime($row['received_date'])));		
-	  $this->db->set('total_value', floatval($data['received_unit_value']*(0 - floatval($data['received_quantity']))));
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
+      $this->db->set('doc_type', 5);
+      $this->db->set('tgl', date('Ymd',strtotime($row['received_date'])));		
+      $this->db->set('total_value', floatval($data['received_unit_value']*(0 - floatval($data['received_quantity']))));
       $this->db->insert('tb_stock_cards');
 
       $this->db->where('id', $data['id']);
@@ -976,6 +976,17 @@ class Goods_Received_Note_Model extends MY_Model
 
     $this->db->where('id', $id);
     $this->db->delete('tb_receipts');
+
+    $this->db->where('no_grn', $document_number);
+    $this->db->delete('tb_hutang');
+
+    $id_jurnal = getIdJurnal($document_number);
+
+    $this->db->where('id_jurnal', $id_jurnal);
+    $this->db->delete('tb_jurnal_detail');
+
+    $this->db->where('id', $id_jurnal);
+    $this->db->delete('tb_jurnal');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

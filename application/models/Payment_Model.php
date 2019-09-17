@@ -20,10 +20,11 @@ class Payment_Model extends MY_MODEL {
 		$this->db->from('tb_master_vendors');
 		return $this->db->get('')->result();
 	}
-	function getPoByVendor($vendor){
+	function getPoByVendor($vendor,$currency){
 		$this->db->select('tb_po.*');
 		$this->db->from('tb_po');
 		$this->db->where('vendor', $vendor);
+		$this->db->where('default_currency', $currency);
 		$this->db->where('remaining_payment >', 0);
 		$this->db->where_in('status',['ORDER','OPEN']);
 		// $this->db->where('document_number is not null', null,false);
@@ -37,23 +38,40 @@ class Payment_Model extends MY_MODEL {
 		$tanggal = $this->input->post('date');
 		$amount = $this->input->post('amount');
 		$no_jurnal = $this->jrl_last_number();
+		$currency = $this->input->post('currency');
+		$kurs = $this->tgl_kurs(date("Y-m-d"));
+		if($currency=='IDR'){
+			$amount_idr = $amount;
+			$amount_usd = $amount/$kurs;
+		}else{
+			$amount_usd = $amount;
+			$amount_idr = $amount*$kurs;
+		}
+
 		$this->db->set('no_jurnal', $no_jurnal);
         $this->db->set('tanggal_jurnal  ', date("Y-m-d"));
         $this->db->set('source', "AP");
         $this->db->set('vendor', $vendor);
+        $this->db->set('grn_no', $no_jurnal);
         $this->db->insert('tb_jurnal');
-        $id_jurnal = $this->db->insert_id();
+		$id_jurnal = $this->db->insert_id();
+		
         $this->db->set('id_jurnal',$id_jurnal);
-        $this->db->set('jenis_transaksi',("SUPLIER PAYMENT IDR"));
+        $this->db->set('jenis_transaksi',("SUPLIER PAYABLE ".$currency));
         $this->db->set('trs_kredit',0);
-        $this->db->set('trs_debet',$amount);
+		$this->db->set('trs_debet',$amount_idr);
+		$this->db->set('trs_kredit_usd',0);
+        $this->db->set('trs_debet_usd',$amount_usd);
        	$this->db->set('kode_rekening',"2-1101");
-        $this->db->insert('tb_jurnal_detail');
+		$this->db->insert('tb_jurnal_detail');
+		
        	$jenis = $this->groupsBycoa($account);
         $this->db->set('id_jurnal',$id_jurnal);
         $this->db->set('jenis_transaksi',$jenis);
         $this->db->set('trs_debet',0);
-        $this->db->set('trs_kredit',$amount);
+		$this->db->set('trs_kredit',$amount_idr);
+		$this->db->set('trs_debet_usd',0);
+        $this->db->set('trs_kredit_usd',$amount_usd);
         $this->db->set('kode_rekening',$account);
         $this->db->insert('tb_jurnal_detail');
         foreach ($item as $key) {
@@ -65,7 +83,8 @@ class Payment_Model extends MY_MODEL {
 	        $this->db->set('no_transaksi',$no_jurnal);
 	        $this->db->insert('tb_purchase_order_items_payments');
 
-	        $this->db->set('remaining_payment','"remaining_payment" - '.$key["value"],false);
+			$this->db->set('remaining_payment','"remaining_payment" - '.$key["value"],false);
+			$this->db->set('payment','"payment" + '.$key["value"],false);
 	        $this->db->where('id', $key["document_number"]);
 	        $this->db->update('tb_po');
 
@@ -118,6 +137,45 @@ class Payment_Model extends MY_MODEL {
 	    }
 	    return $document_number;
 	  }
+
+	// if ( ! function_exists('tgl_kurs')) {
+	function tgl_kurs($date)
+	{
+
+		// $CI =& get_instance();
+		$kurs_dollar = 0;
+		$tanggal = $date;
+
+		while ($kurs_dollar==0) {
+			// $CI->db->select('kurs_dollar');
+			// $CI->db->from( 'tb_master_kurs_dollar' );
+			// $CI->db->where('date', $date);
+
+			// $query  = $CI->db->get();
+			// $row    = $query->unbuffered_row();
+			// $kurs_dollar   = $row->kurs_dollar;
+
+		
+			$this->db->select('kurs_dollar');
+			$this->db->from( 'tb_master_kurs_dollar' );
+			$this->db->where('date', $tanggal);
+
+			$query = $this->db->get();
+
+			if($query->num_rows() > 0 ){
+				$row    = $query->unbuffered_row();
+				$kurs_dollar   = $row->kurs_dollar;
+			}else{
+				$kurs_dollar=0;
+			}
+			$tgl=strtotime('-1 day',strtotime($tanggal));
+			$tanggal = date('Y-m-d', $tgl);
+		}
+
+		return $kurs_dollar;
+		
+	}
+	// }
 }
 
 /* End of file Jurnal_Model.php */
