@@ -574,16 +574,18 @@ class Material_Slip_Model extends MY_Model
 
       $this->db->where('id', $id);
       $this->db->delete('tb_issuances');
-      // $this->db->select('id');
-      // $this->db->from('tb_jurnal');
-      // $this->db->where('grn_no', $old_document_number);
-      // $old_id_jurnal = $this->db->get()->result();
-      // foreach ($old_id_jurnal as $key) {
-      //   $this->db->where('id_jurnal', $key->id);
-      //   $this->db->delete('tb_jurnal_detail');
-      // }
-      // $this->db->where('grn_no', $old_document_number);
-      // $this->db->delete('tb_jurnal');
+
+      //delete tb_jurnal & tb_jurnal_detail
+      $this->db->select('id');
+      $this->db->from('tb_jurnal');
+      $this->db->where('grn_no', $old_document_number);
+      $old_id_jurnal = $this->db->get()->result();
+      foreach ($old_id_jurnal as $key) {
+        $this->db->where('id_jurnal', $key->id);
+        $this->db->delete('tb_jurnal_detail');
+      }
+      $this->db->where('grn_no', $old_document_number);
+      $this->db->delete('tb_jurnal');
       
     }
           // CREATE NEW DOCUMENT
@@ -614,12 +616,12 @@ class Material_Slip_Model extends MY_Model
         // $this->db->set('doc_type', 4);
         $this->db->insert('tb_issuances');
 
-        // $this->db->set('no_jurnal', $this->jrl_last_number());
-        // $this->db->set('tanggal_jurnal  ', date("Y-m-d"));
-        // $this->db->set('grn_no', $document_number);
-        // $this->db->set('source', "INV-OUT");
-        // $this->db->insert('tb_jurnal');
-        // $id_jurnal = $this->db->insert_id();
+        $this->db->set('no_jurnal', $document_number);
+        $this->db->set('tanggal_jurnal  ', date("Y-m-d"));
+        $this->db->set('grn_no', $document_number);
+        $this->db->set('source', "INV-OUT");
+        $this->db->insert('tb_jurnal');
+        $id_jurnal = $this->db->insert_id();
         // PROCESSING USAGE ITEMS
         foreach ($_SESSION['usage']['items'] as $key => $data){
           $stock_id = $data['stock_id'];
@@ -689,21 +691,28 @@ class Material_Slip_Model extends MY_Model
                 $this->db->set('remarks', $data['remarks']);
                 $this->db->insert('tb_issuance_items');
 
-                // $coa = $this->coaByGroup(strtoupper($data['group']));
-                // $this->db->set('id_jurnal',$id_jurnal);
-                // $this->db->set('jenis_transaksi',$data['group']);
-                // $this->db->set('trs_kredit',$x);
-                // $this->db->set('trs_debet',0);
-                // $this->db->set('kode_rekening',$coa->coa);
-                // $this->db->insert('tb_jurnal_detail');
-                // $kode = $this->codeByDescription(strtoupper($data['description']));
-                // $this->db->set('id_jurnal',$id_jurnal);
-                // $this->db->set('jenis_transaksi',strtoupper($data['group']." - ".$data['description']." (".$data['condition'].")"));
-                // $this->db->set('trs_debet',$x);
-                // $this->db->set('trs_kredit',0);
+                $coa = $this->coaByGroup(strtoupper($data['group']));
+                $this->db->set('id_jurnal',$id_jurnal);
+                $this->db->set('jenis_transaksi',$data['group']);
+                $this->db->set('trs_kredit',$x);
+                $this->db->set('trs_debet',0);
+                $this->db->set('trs_kredit_usd',floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+                $this->db->set('trs_debet_usd',0);
+                $this->db->set('kode_rekening',$coa->coa);
+                $this->db->set('stock_in_stores_id',$stock_in_stores_id);
+                $this->db->insert('tb_jurnal_detail');
 
-                // $this->db->set('kode_rekening',$kode->kode_pemakaian);
-                // $this->db->insert('tb_jurnal_detail');
+                $kode = $this->codeByDescription($stock_stored['stock_id']);
+                $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
+                $this->db->set('id_jurnal',$id_jurnal);
+                $this->db->set('jenis_transaksi',strtoupper($jenis_transaksi->group));
+                $this->db->set('trs_debet',$x);
+                $this->db->set('trs_kredit',0);
+                $this->db->set('trs_debet_usd',floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+                $this->db->set('trs_kredit_usd',0);
+                $this->db->set('kode_rekening',$kode->kode_pemakaian);
+                $this->db->set('stock_in_stores_id',$stock_in_stores_id);
+                $this->db->insert('tb_jurnal_detail');
                 /**
                  * CREATE STOCK CARD
                 */
@@ -782,21 +791,28 @@ class Material_Slip_Model extends MY_Model
                 $this->db->set('remarks', $data['remarks']);
                 $this->db->insert('tb_issuance_items');
 
-                // $coa = $this->coaByGroup(strtoupper($data['group']));
-                // $this->db->set('id_jurnal',$id_jurnal);
-                // $this->db->set('jenis_transaksi',$data['group']);
-                // $this->db->set('trs_kredit',$x);
-                // $this->db->set('trs_debet',0);
-                // $this->db->set('kode_rekening',$coa->coa);
-                // $this->db->insert('tb_jurnal_detail');
-                // $kode = $this->codeByDescription(strtoupper($data['description']));
-                // $this->db->set('id_jurnal',$id_jurnal);
-                // $this->db->set('jenis_transaksi',strtoupper($data['group']." - ".$data['description']." ".$data['condition'].")"));
-                // $this->db->set('trs_debet',$x);
-                // $this->db->set('trs_kredit',0);
+                $coa = $this->coaByGroup(strtoupper($data['group']));
+                $this->db->set('id_jurnal',$id_jurnal);
+                $this->db->set('jenis_transaksi',$data['group']);
+                $this->db->set('trs_kredit',$x);
+                $this->db->set('trs_debet',0);
+                $this->db->set('trs_kredit_usd',floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+                $this->db->set('trs_debet_usd',0);
+                $this->db->set('kode_rekening',$coa->coa);
+                $this->db->set('stock_in_stores_id',$stock_in_stores_id);
+                $this->db->insert('tb_jurnal_detail');
 
-                // $this->db->set('kode_rekening',$kode->kode_pemakaian);
-                // $this->db->insert('tb_jurnal_detail');
+                $kode = $this->codeByDescription($stock_stored['stock_id']);
+                $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
+                $this->db->set('id_jurnal',$id_jurnal);
+                $this->db->set('jenis_transaksi',strtoupper($jenis_transaksi->group));
+                $this->db->set('trs_debet',$x);
+                $this->db->set('trs_kredit',0);
+                $this->db->set('trs_debet_usd',floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+                $this->db->set('trs_kredit_usd',0);
+                $this->db->set('kode_rekening',$kode->kode_pemakaian);
+                $this->db->set('stock_in_stores_id',$stock_in_stores_id);
+                $this->db->insert('tb_jurnal_detail');
                 /**
                   * CREATE STOCK CARD
                 */
@@ -1173,11 +1189,19 @@ class Material_Slip_Model extends MY_Model
     $this->db->where('group', $group);
     return $this->db->get()->row();
   }
-  function codeByDescription($description){
+  function codeByDescription($id){
     $this->db->select('kode_pemakaian');
     $this->db->from('tb_master_items');
-    $this->db->where('description', $description);
+    $this->db->join('tb_stocks','tb_stocks.item_id=tb_master_items.id');
+    $this->db->where('tb_stocks.id', $id);
     
+    return $this->db->get()->row();
+  }
+
+  function groupByKode($id){
+    $this->db->select('group');
+    $this->db->from('tb_master_item_groups');
+    $this->db->where('coa', $id);
     return $this->db->get()->row();
   }
 

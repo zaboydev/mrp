@@ -850,25 +850,31 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->insert('tb_receipt_items');
         if($currency=='IDR'){
               $kode = "2-101";
-              $x_total = $harga*floatval($data['received_quantity']);
+              // $x_total = $harga*floatval($data['received_quantity']);
         } else {
               $kode = "2-1102";
-              $x_total = $harga_usd*floatval($data['received_quantity']);
+              // $x_total = $harga_usd*floatval($data['received_quantity']);
         }
 		
         $coa = $this->coaByGroup(strtoupper($data['group']));
         $this->db->set('id_jurnal',$id_jurnal);
         $this->db->set('jenis_transaksi',$data['group']);
-        $this->db->set('trs_debet',$x_total);
+        $this->db->set('trs_debet',$harga*floatval($data['received_quantity']));
         $this->db->set('trs_kredit',0);
+        $this->db->set('trs_debet_usd',$harga_usd*floatval($data['received_quantity']));
+        $this->db->set('trs_kredit_usd',0);
         $this->db->set('kode_rekening',$coa->coa);
+        $this->db->set('stock_in_stores_id',$stock_in_stores_id);
         $this->db->insert('tb_jurnal_detail');
         
         $this->db->set('id_jurnal',$id_jurnal);
         $this->db->set('jenis_transaksi',strtoupper("supplier payable ".$currency));
         $this->db->set('trs_debet',0);
-        $this->db->set('trs_kredit',$x_total);
+        $this->db->set('trs_kredit',$harga*floatval($data['received_quantity']));
+        $this->db->set('trs_debet_usd',0);
+        $this->db->set('trs_kredit_usd',$harga_usd*floatval($data['received_quantity']));
         $this->db->set('kode_rekening',$kode);
+        $this->db->set('stock_in_stores_id',$stock_in_stores_id);
         $this->db->insert('tb_jurnal_detail');
 
         $this->db->set('document_no', $this->ap_last_number());
@@ -883,6 +889,7 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('id_po_item', $data['purchase_order_item_id']);
         $this->db->set('currency', $currency);
         $this->db->set('status', "waiting for payment");
+        $this->db->set('stock_in_stores_id',$stock_in_stores_id);
         $this->db->insert('tb_hutang');
 
       }//end foreach items
