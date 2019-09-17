@@ -1267,8 +1267,10 @@ class Purchase_Request_Model extends MY_Model
     $this->db->trans_commit();
     if($unbudgeted>0){
       $this->send_mail_finance($document_id);
+    }else{
+      $this->send_mail($document_id);
     }
-    $this->send_mail($document_id);
+    
     return TRUE;
   }
 

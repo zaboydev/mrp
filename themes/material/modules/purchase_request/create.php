@@ -203,8 +203,7 @@
                       </div>
 
                       <div class="form-group">
-                        <!-- <input type="text" name="group_name" id="group_name" class="form-control input-sm" data-source="<?=site_url($module['route'] .'/search_item_groups/');?>"> -->
-                        <select name="group_name" id="group_name" data-tag-name="group_name" class="form-control input-sm" required data-source="<?=site_url($module['route'] .'/search_item_groups/');?>">
+                        <select name="group_name" id="group_name" data-tag-name="group_name" class="form-control input-sm" required>
                           <option>-- Select One --</option>
                           <?php foreach (available_item_groups_2($_SESSION['request']['category']) as $group):?>
                             <option value="<?=$group['group'];?>">
@@ -248,7 +247,7 @@
                         <input type="hidden" name="mtd_used_budget" id="mtd_used_budget" value="0">
                       </div>
 
-                      <div class="form-group">
+                      <div class="form-group hide">
                         <input type="number" name="maximum_price" id="maximum_price" value="0" class="form-control input-sm" readonly="readonly">
                         <label for="max_value">Max. Value</label>
                       </div>
@@ -316,7 +315,7 @@
             <input type="hidden" id="item_source" name="item_source">
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
-            <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction" disabled>
+            <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction">
               Add Item
             </button>
 
@@ -852,77 +851,6 @@ $(function(){
   });
 
   $.ajax({
-    url: $('#search_item_unbudgeted').data('target'),
-    dataType: "json",
-    error: function(xhr,response,results){
-      console.log(xhr.responseText);
-    },
-    success: function (resource) {
-      $('#search_item_unbudgeted').autocomplete({
-        autoFocus: true,
-        minLength: 1,
-
-        source: function (request, response) {
-          var results = $.ui.autocomplete.filter(resource, request.term);
-          response(results.slice(0, 5));
-          console.log(results);
-        },
-
-        focus: function( event, ui ) {
-          return false;
-        },
-
-        select: function( event, ui ) {
-
-          $('#product_name').val( ui.item.product_name );
-          $('#part_number').val( ui.item.product_code );
-          $('#group_name').val( ui.item.group_name );
-          $('#unit').val( ui.item.measurement_symbol );
-          $('#additional_info').val( ui.item.additional_info );
-          $('#inventory_monthly_budget_id').val( ui.item.id );
-          $('#item_source').val(ui.item.source);
-          $('#price').val( parseInt(ui.item.price) );
-          $('#maximum_price').val( 0 );
-          $('#maximum_quantity').val( 0 );
-          $('#total').val( parseInt(0) ).trigger('change');
-
-          $('#ytd_quantity').val(0);
-          $('#ytd_used_quantity').val( parseInt(0) );
-          $('#ytd_used_budget').val( parseInt(0) );
-          $('#ytd_budget').val(0);
-          $('#unbudgeted_item').val(1);
-
-          // $('input[id="quantity"]').attr('data-rule-max', maximum_quantity).attr('data-msg-max', 'max available '+ maximum_quantity);
-
-          // $('input[id="price"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-          // $('input[id="total"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-          // $('#quantity').attr('max', maximum_quantity).focus();
-          // $('#total').attr('max', maximum_price);
-          $("#modal-add-item-submit").prop("disabled", false);
-          // var status = $('#unbudgeted_item').val();
-
-          // if(status==1){
-          //   $('.form-unbudgeted').removeClass('hide');
-          // }
-
-          $('#search_item_unbudgeted').val('');
-
-          return false;
-        }
-      })
-      .data( "ui-autocomplete" )._renderItem = function( ul, item ) {
-        $( ul ).addClass('list divider-full-bleed');
-
-        return $( "<li class='tile'>" )
-        .append( '<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>' )
-        .appendTo( ul );
-      };
-    }
-  });
-
-  $.ajax({
     url: $('input[id="part_number"]').data('source'),
     dataType: "json",
     success: function (resource) {
@@ -995,18 +923,18 @@ $(function(){
     }
   });
 
-  $.ajax({
-    url: $( 'input[id="group_name"]' ).data('source'),
-    dataType: "json",
-    success: function (data) {
-      $( 'input[id="group_name"]' ).autocomplete({
-        source: function (request, response) {
-          var results = $.ui.autocomplete.filter(data, request.term);
-          response(results.slice(0, 10));
-        }
-      });
-    }
-  });
+  // $.ajax({
+  //   url: $( 'input[id="group_name"]' ).data('source'),
+  //   dataType: "json",
+  //   success: function (data) {
+  //     $( 'input[id="group_name"]' ).autocomplete({
+  //       source: function (request, response) {
+  //         var results = $.ui.autocomplete.filter(data, request.term);
+  //         response(results.slice(0, 10));
+  //       }
+  //     });
+  //   }
+  // });
 
   $("#quantity").on("keydown keyup", function(){
     var max_price   = parseInt($("#maximum_price").val()) / parseInt($("#quantity").val());
@@ -1067,7 +995,7 @@ $(function(){
     var budget_value = $("#budget_value").val();
     if ( parseFloat($(this).val()) > parseFloat($("#budget_value").val()) ){
 
-      $("#modal-add-item-submit").prop("disabled", true);
+      // $("#modal-add-item-submit").prop("disabled", true);
 
       $("#relocation_budget").closest("div").addClass("has-error").append('<p class="help-block total-error">Not allowed! max available '+ budget_value+'</p>').focus();
       $(this).val(budget_value);
