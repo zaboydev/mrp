@@ -27,7 +27,7 @@
             <div class="pull-left">BASE: </div>
             <div class="pull-right"><?=strtoupper($entity['warehouse']);?></div>
           </div>
-          <div class="clearfix">
+          <div class="clearfix hide">
             <div class="pull-left">INVENTORY: </div>
             <div class="pull-right"><?=print_string($entity['category']);?></div>
           </div>

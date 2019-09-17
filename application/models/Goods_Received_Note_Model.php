@@ -1011,7 +1011,8 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->from('tb_po_item');
     $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'left');
-    $this->db->where('tb_po.category', $category);
+    $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group', 'left');
+    $this->db->where('tb_master_item_groups.category', $category);
     $this->db->where('tb_po.status', 'ORDER');
     $this->db->where('tb_po_item.left_received_quantity > ', 0);
 

@@ -68,7 +68,7 @@ class Purchase_Order extends MY_Controller
         $col[] = print_string($row['document_number'], 'N/A');
         $col[] = print_string($row['review_status']);
         $col[] = print_date($row['document_date']);
-        $col[] = print_string($row['category']);
+        // $col[] = print_string($row['category']);
         $col[] = print_string($row['description']);
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['alternate_part_number']);
