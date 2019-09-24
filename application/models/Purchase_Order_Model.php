@@ -1402,8 +1402,8 @@ class Purchase_Order_Model extends MY_Model
             $this->db->set('purchase_request_number',$key["pr_number"]);
             $this->db->set('poe_number',$key["poe_number"]);
             $this->db->set('quantity',str_replace(",", "", $key["order_qty"]));
-            $this->db->set('quantity_requested',str_replace(",", "", $key["request_qty"]));
-            $left_received_quantity = $key["request_qty"] - $key["receive_qty"];
+            $this->db->set('quantity_requested',str_replace(",", "", $key["order_qty"]));
+            $left_received_quantity = $key["order_qty"];
             $this->db->set('left_received_quantity',$left_received_quantity);
             $this->db->set('unit_price',str_replace(",", "", $key["unit_price"]));
             $this->db->set('core_charge',str_replace(",", "", $key["core_charge"]));
