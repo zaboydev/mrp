@@ -29,12 +29,12 @@
                 <label>Value Delimiter</label>
 
                 <div class="radio">
-                  <input type="radio" name="delimiter" id="delimiter_2" value=";" checked>
+                  <input type="radio" name="delimiter" id="delimiter_2" value=";">
                   <label for="delimiter_2">Semicolon ( ; )</label>
                 </div>
 
                 <div class="radio">
-                  <input type="radio" name="delimiter" id="delimiter_1" value=",">
+                  <input type="radio" name="delimiter" id="delimiter_1" value="," checked>
                   <label for="delimiter_1">Comma ( , )</label>
                 </div>
               </div>
