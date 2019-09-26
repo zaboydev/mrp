@@ -21,7 +21,7 @@ class Setting_Model extends MY_Model
     return $row['setting_value'];
   }
 
-  public function findAllWarehouses('AVAILABLE')
+  public function findAllWarehouses()
   {
     $this->db->order_by('warehouse', 'asc');
     $this->db->where('status', 'AVAILABLE');

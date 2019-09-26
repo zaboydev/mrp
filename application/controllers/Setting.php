@@ -65,7 +65,7 @@ class Setting extends MY_Controller
      ));
     }
 
-    $warehouses = $this->model->findAllWarehouses('AVAILABLE');
+    $warehouses = $this->model->findAllWarehouses();
     $this->data['warehouses'] = $warehouses;
 
     $setting_value = $this->model->find_by_setting_name('MAIN BASE');

@@ -184,7 +184,7 @@ class Purchase_Request_Model extends MY_Model
     return $aircraft_types;
   }
 
-  public function findAllItemGroups('AVAILABLE')
+  public function findAllItemGroups()
   {
     $this->db->order_by('group', 'asc');
     $this->db->where('status', 'AVAILABLE');
@@ -193,7 +193,7 @@ class Purchase_Request_Model extends MY_Model
     return $query->result_array();
   }
 
-  public function findAllVendors('AVAILABLE')
+  public function findAllVendors()
   {
     $this->db->order_by('vendor', 'asc');
     $this->db->where('status', 'AVAILABLE');
@@ -202,7 +202,7 @@ class Purchase_Request_Model extends MY_Model
     return $query->result_array();
   }
 
-  public function findAllAircraftTypes('AVAILABLE')
+  public function findAllAircraftTypes()
   {
     $this->db->order_by('aircraft_type', 'asc');
     $this->db->where('status', 'AVAILABLE');
