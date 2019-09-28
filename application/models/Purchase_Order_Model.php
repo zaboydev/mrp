@@ -355,7 +355,7 @@ class Purchase_Order_Model extends MY_Model
     }
     if ((config_item('auth_role') == 'CHIEF OF FINANCE')) {
       $this->db->set('review_status', strtoupper("approved"));
-      $this->db->set('status', strtoupper("order"));
+      // $this->db->set('status', strtoupper("order"));
       $this->db->set('approved_by', config_item('auth_person_name'));
     }
 
@@ -380,7 +380,7 @@ class Purchase_Order_Model extends MY_Model
         } else {
           $level = 11;
           $this->db->set('review_status', strtoupper("approved"));
-          $this->db->set('status', strtoupper("order"));
+          // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
         }
       } else {
@@ -391,7 +391,7 @@ class Purchase_Order_Model extends MY_Model
         } else {
           $level = 11;
           $this->db->set('review_status', strtoupper("approved"));
-          $this->db->set('status', strtoupper("order"));
+          // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
         }
       }
