@@ -799,6 +799,13 @@ class Goods_Received_Note_Model extends MY_Model
           $this->db->set('left_received_quantity','left_received_quantity -'. $data['received_quantity'],FALSE);
           $this->db->set('quantity_received','quantity_received + '. $data['received_quantity'],FALSE);
           $this->db->update('tb_po_item');
+
+          $left_qty_po = leftQtyPo($row['purchase_order_id']);
+          if($left_qty_po==0){
+            $this->db->where('id', $row['purchase_order_id']);
+            $this->db->set('status', 'OPEN');
+            $this->db->update('tb_po');
+          }
         }
 
         if (!empty($data['purchase_order_item_id'])){

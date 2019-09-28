@@ -148,7 +148,7 @@
     <?php
       $today    = date('Y-m-d');
       $date     = strtotime('-2 day',strtotime($today));
-	  $data     = date('Y-m-d',$date);
+	    $data     = date('Y-m-d',$date);
     ?>
     <?php if (is_granted($module, 'delete') && $entity['received_date'] >= $data):?>
       <?=form_open(current_url(), array(

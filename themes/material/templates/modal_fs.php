@@ -6,7 +6,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
 
-        <h4 class="modal-title" id="data-modal-label"><?=strtoupper($module['parent']);?></h4>
+        <h4 class="modal-title" id="data-modal-label"><?= strtoupper($module['parent']); ?></h4>
       </div>
 
       <div class="modal-body no-padding"></div>

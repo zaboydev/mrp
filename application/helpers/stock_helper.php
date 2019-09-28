@@ -429,26 +429,48 @@ if ( ! function_exists('getLastUnitValue')) {
   }
 
   if ( ! function_exists('getLeftQty')) {
-  function getLeftQty($document_number)
-  {
-    $CI =& get_instance();
+    function getLeftQty($document_number)
+    {
+      $CI =& get_instance();
 
-    $CI->db->select('left_received_quantity');
-    $CI->db->from('tb_issuance_items');
-    $CI->db->where('document_number', $document_number);
-    // $CI->db->where('stores', strtoupper($stores));
+      $CI->db->select('left_received_quantity');
+      $CI->db->from('tb_issuance_items');
+      $CI->db->where('document_number', $document_number);
+      // $CI->db->where('stores', strtoupper($stores));
 
-    $query  = $CI->db->get();
-    $result = $query->result_array();
-    $return = 0;
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = 0;
 
-    foreach ($result as $row) {
-      $return = $return+$row['left_received_quantity'];
+      foreach ($result as $row) {
+        $return = $return+$row['left_received_quantity'];
+      }
+
+      return $return;
     }
-
-    return $return;
   }
-}
+
+  if (!function_exists('leftQtyPo')) {
+    function leftQtyPo($id_po)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('left_received_quantity');
+      $CI->db->from('tb_po_item');
+      $CI->db->where('purchase_order_id', $id_po);
+      // $CI->db->where('stores', strtoupper($stores));
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = 0;
+
+      foreach ($result as $row) {
+        $return = $return + $row['left_received_quantity'];
+      }
+
+      return $return;
+    }
+  }
 }
 
 

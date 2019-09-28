@@ -15,6 +15,9 @@ $config['parent']['document']['icon']   = 'md md-view-module';
 $config['parent']['report']['label']  = 'Procurement Reports';
 $config['parent']['report']['icon']   = 'md md-assessment';
 
+$config['parent']['account_payable']['label']  = 'Account Payable';
+$config['parent']['account_payable']['icon']   = 'md md-view-module';
+
 $config['parent']['setting']['label']  = 'Settings';
 $config['parent']['setting']['icon']   = 'md md-settings';
 

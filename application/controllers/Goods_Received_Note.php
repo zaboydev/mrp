@@ -590,7 +590,7 @@ class Goods_Received_Note extends MY_Controller
     unset($_SESSION['receipt']);
 
     $data['success'] = TRUE;
-    $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
+    $data['message'] = 'Document has been saved. You will redirected now.';
     echo json_encode($data);
 
   }

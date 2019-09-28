@@ -2,7 +2,7 @@
 
 $config['module']['payment']['visible']        = TRUE;
 $config['module']['payment']['main_warehouse'] = TRUE;
-$config['module']['payment']['parent']         = 'procurement';
+$config['module']['payment']['parent']         = 'account_payable';
 $config['module']['payment']['label']          = 'Payment Purchase Order';
 $config['module']['payment']['name']           = 'Payment Purchase Order';
 $config['module']['payment']['route']          = 'payment';
