@@ -95,11 +95,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
       $this->db->where('tb_purchase_orders.status', $search_status);
     } else {
-      // if (config_item('auth_role') == 'PIC PROCUREMENT'){
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE'){
         $this->db->where('tb_purchase_orders.status', 'evaluation');
-      // } else {
-      //   $this->db->where('tb_purchase_orders.status', 'approved');
-      // }
+      }
     }
 
     if (!empty($_POST['columns'][2]['search']['value'])){
@@ -880,15 +878,15 @@ class Purchase_Order_Evaluation_Model extends MY_Model
    
     //Load email library 
     $this->load->library('email'); 
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Dear Chief of Maintenance</p>";
     $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order Evaluation :</p>";
@@ -983,15 +981,15 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
     //Load email library 
     $this->load->library('email');
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Hello</p>";
     $message .= "<p>Item Berikut telah " . $ket_level . " oleh " . $by . "</p>";

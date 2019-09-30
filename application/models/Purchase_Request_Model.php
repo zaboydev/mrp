@@ -177,7 +177,7 @@ class Purchase_Request_Model extends MY_Model
         $db->where('tb_inventory_purchase_requisition_details.status', 'review operation support');
       }
       else{
-         $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
+        //  $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
       }
     }
 
@@ -1923,7 +1923,7 @@ class Purchase_Request_Model extends MY_Model
       }
       $this->db->set('approved_date',date('Y-m-d'));
       $this->db->set('approved_by', config_item('auth_person_name'));
-      $this->db->set('approved_notes', strtoupper($rejected_note));
+      $this->db->set('approved_notes', strtoupper('approved'));
       $this->db->where('id',$inventory_purchase_requisition_id);
       $this->db->update('tb_inventory_purchase_requisitions');
     }    
@@ -2113,15 +2113,15 @@ class Purchase_Request_Model extends MY_Model
    
     //Load email library 
     $this->load->library('email'); 
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Dear Chief of Maintenance</p>";
     $message .= "<p>Berikut permintaan Purchase Request dari Gudang :</p>";
@@ -2160,15 +2160,15 @@ class Purchase_Request_Model extends MY_Model
    
     //Load email library 
     $this->load->library('email'); 
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Dear Finance Manager</p>";
     $message .= "<p>Berikut permintaan Purchase Request dari Gudang :</p>";
@@ -2208,17 +2208,18 @@ class Purchase_Request_Model extends MY_Model
    
     //Load email library 
     $this->load->library('email'); 
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     // $message = "<p>Dear Finance</p>";
+    $message = "<p>Hello</p>";
     $message .= "<p>Item dibawah ini telah di ".ucfirst($tipe)." :</p>";
     $message .= "<ul>";
     $message .= "<li>No Purchase Request : <strong>".$row['pr_number']."</strong></li>";
@@ -2410,15 +2411,15 @@ class Purchase_Request_Model extends MY_Model
    
     //Load email library 
     $this->load->library('email'); 
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Hello</p>";
     $message .= "<p>Item Berikut telah ".$ket_level." oleh ".$by."</p>";

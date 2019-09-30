@@ -87,6 +87,9 @@
     <div class="form-group">
       <label for="filter_status">Status</label>
       <select class="form-control input-sm filter_dropdown" data-column="7" id="filter_status">
+        <option value="">
+          All
+        </option>
         <option value="evaluation">
           Evaluation
         </option>

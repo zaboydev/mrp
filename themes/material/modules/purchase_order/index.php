@@ -149,6 +149,18 @@
   </div>
 
   <div class="form-group">
+    <label for="start_date">Supplier</label>
+    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="1">
+      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
+      <?php foreach (available_vendors() as $vendor) : ?>
+        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
+          <?= $vendor; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
     <label for="filter_status">Status</label>
     <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">
       <?php if ((config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE')) : ?>

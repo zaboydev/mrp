@@ -176,21 +176,40 @@ class Purchase_Order_Model extends MY_Model
     if (!empty($_POST['columns'][4]['search']['value'])) {
       $status = $_POST['columns'][4]['search']['value'];
       if ($status == 'review') {
-        $this->db->like('tb_po.review_status', 'WAITING');
+        if (config_item('auth_role') == 'FINANCE MANAGER') {
+          $this->db->like('tb_po.review_status', 'WAITING FOR FINANCE');
+        }
+        if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+          $this->db->like('tb_po.review_status', 'WAITING FOR HOS');
+        }
+        if (config_item('auth_role') == 'VP FINANCE') {
+          $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
+        }
+        if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+          $this->db->like('tb_po.review_status', 'WAITING FOR CFO');
+        }
+        if (config_item('auth_role') == 'CHIEF OPERATION SUPPORT') {
+          $this->db->like('tb_po.review_status', 'WAITING FOR COO');
+        }else{
+          $this->db->like('tb_po.review_status', 'WAITING');
+        }
       } elseif ($status == 'approved') {
         $this->db->where('tb_po.review_status', strtoupper($status));
       } elseif ($status == 'review_approved') {
         if (config_item('auth_role') == 'FINANCE MANAGER') {
-          $this->db->like('tb_po.review_status', 'WAITING FOR HOS');
+          $this->db->where_in('tb_po.review_status', ['WAITING FOR HOS REVIEW', 'WAITING FOR VP FINANCE REVIEW', 'WAITING FOR CFO REVIEW', 'WAITING FOR COO REVIEW', 'APPROVED']);
         }
         if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-          $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
+          $this->db->where_in('tb_po.review_status', ['WAITING FOR VP FINANCE REVIEW', 'WAITING FOR CFO REVIEW', 'WAITING FOR COO REVIEW', 'APPROVED']);
         }
         if (config_item('auth_role') == 'VP FINANCE') {
-          $this->db->like('tb_po.review_status', 'WAITING FOR CFO');
+          $this->db->where_in('tb_po.review_status', ['WAITING FOR CFO REVIEW', 'APPROVED']);
         }
         if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-          $this->db->like('tb_po.review_status', 'APPROVED');
+          $this->db->where_in('tb_po.review_status', ['APPROVED']);
+        }
+        if (config_item('auth_role') == 'CHIEF OPERATION SUPPORT') {
+          $this->db->where_in('tb_po.review_status', ['WAITING FOR VP FINANCE REVIEW', 'WAITING FOR CFO REVIEW', 'APPROVED']);
         }
       } elseif ($status == 'rejected') {
         $this->db->like('tb_po.review_status', 'REJECTED');
@@ -229,6 +248,13 @@ class Purchase_Order_Model extends MY_Model
     // else{
     //   $this->db->like('tb_po.review_status', 'WAITING');
     // }
+
+    if (!empty($_POST['columns'][1]['search']['value'])) {
+      $vendor = $_POST['columns'][1]['search']['value'];
+      if ($vendor != 'all') {
+        $this->db->where('tb_po.vendor', $vendor);
+      }
+    }
 
     $i = 0;
 
@@ -1233,15 +1259,15 @@ class Purchase_Order_Model extends MY_Model
 
     //Load email library 
     $this->load->library('email');
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Dear " . $ket_level . "</p>";
     $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order :</p>";
@@ -1337,15 +1363,15 @@ class Purchase_Order_Model extends MY_Model
 
     //Load email library 
     $this->load->library('email');
-    $config = array();
-    $config['protocol'] = 'mail';
-    $config['smtp_host'] = 'smtp.live.com';
-    $config['smtp_user'] = 'bifa.acd@gmail.com';
-    $config['smtp_pass'] = 'b1f42019';
-    $config['smtp_port'] = 587;
-    $config['smtp_auth']        = true;
-    $config['mailtype']         = 'html';
-    $this->email->initialize($config);
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Hello</p>";
     $message .= "<p>Item Berikut telah " . $ket_level . " oleh " . $by . "</p>";
