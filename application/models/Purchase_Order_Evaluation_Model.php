@@ -916,5 +916,120 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->where('auth_level',$level);
     return $this->db->get('')->result();
   }
+
+  public function send_mail_approval($id, $ket, $by)
+  {
+    $item_message = '<tbody>';
+    foreach ($id as $key) {
+      $this->db->select(
+        array(
+          'tb_po.document_number',
+          'tb_po_item.description',
+          'tb_po_item.part_number',
+          'tb_po_item.quantity',
+          'tb_po_item.total_amount',
+          'tb_po_item.unit',
+        )
+      );
+      $this->db->from('tb_po_item');
+      $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
+      $this->db->where('tb_po.id', $key);
+      $query = $this->db->get();
+      $row = $query->result_array();
+
+      foreach ($row as $item) {
+        $item_message .= "<tr>";
+        $item_message .= "<td>" . $item['document_number'] . "</td>";
+        $item_message .= "<td>" . $item['part_number'] . "</td>";
+        $item_message .= "<td>" . $item['description'] . "</td>";
+        $item_message .= "<td>" . print_number($item['quantity'], 2) . "</td>";
+        $item_message .= "<td>" . $item['unit'] . "</td>";
+        $item_message .= "<td>" . print_number($item['total_amount'], 2) . "</td>";
+        $item_message .= "</tr>";
+      }
+
+
+      $this->db->select('issued_by');
+      $this->db->from('tb_po');
+      $this->db->where('id', $key);
+      $query_po = $this->db->get();
+      $row_po   = $query_po->unbuffered_row('array');
+      $issued_by = $row_po['issued_by'];
+
+      $recipientList = $this->getNotifRecipient_approval($issued_by);
+      $recipient = array();
+      foreach ($recipientList as $key) {
+        array_push($recipient, $key->email);
+      }
+    }
+    $item_message .= '</tbody>';
+
+    $from_email = "bifa.acd@gmail.com";
+    $to_email = "aidanurul99@rocketmail.com";
+    if ($ket == 'approve') {
+      $ket_level = 'Disetujui';
+    } else {
+      $ket_level = 'Ditolak';
+    }
+    // if($level==14){
+    //   $ket_level = 'Finance Manager';
+    // }elseif ($level==10) {
+    //   $ket_level = 'Head Of School';
+    // } elseif($level==11){
+    //   $ket_level = 'Chief Of Finance';
+    // }elseif($level==3){
+    //   $ket_level = 'VP Finance';
+    // }
+
+    //Load email library 
+    $this->load->library('email');
+    $config = array();
+    $config['protocol'] = 'mail';
+    $config['smtp_host'] = 'smtp.live.com';
+    $config['smtp_user'] = 'bifa.acd@gmail.com';
+    $config['smtp_pass'] = 'b1f42019';
+    $config['smtp_port'] = 587;
+    $config['smtp_auth']        = true;
+    $config['mailtype']         = 'html';
+    $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Hello</p>";
+    $message .= "<p>Item Berikut telah " . $ket_level . " oleh " . $by . "</p>";
+    $message .= "<table>";
+    $message .= "<thead>";
+    $message .= "<tr>";
+    $message .= "<th>No. Doc.</th>";
+    $message .= "<th>Part Number</th>";
+    $message .= "<th>Description</th>";
+    $message .= "<th>Qty Order</th>";
+    $message .= "<th>Unit</th>";
+    $message .= "<th>Total Val. Order</th>";
+    $message .= "</tr>";
+    $message .= "</thead>";
+    $message .= $item_message;
+    $message .= "</table>";
+    // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning');
+    $this->email->to($recipient);
+    $this->email->subject('Notification Approval');
+    $this->email->message($message);
+
+    //Send mail 
+    if ($this->email->send())
+      return true;
+    else
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient_approval($name)
+  {
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('person_name', $name);
+    return $this->db->get('')->result();
+  }
   
 }

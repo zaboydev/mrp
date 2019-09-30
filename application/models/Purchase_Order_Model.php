@@ -20,7 +20,7 @@ class Purchase_Order_Model extends MY_Model
   }
   public function getSelectedColumns()
   {
-    if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')) {
+    if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')  || (config_item('auth_role') == 'CHIEF OPERATION SUPPORT')) {
       return array(
         "''" . ' as "temp"' => "Act.",
         'tb_po.id' => NULL,
@@ -194,13 +194,14 @@ class Purchase_Order_Model extends MY_Model
         }
       } elseif ($status == 'rejected') {
         $this->db->like('tb_po.review_status', 'REJECTED');
-      } elseif ($status == 'order') {
-        $this->db->like('tb_po.review_status', 'APPROVED');
-        $this->db->like('tb_po.status', 'ORDER');
-      } elseif ($status == 'closed') {
-        $this->db->like('tb_po.review_status', 'APPROVED');
-        $this->db->like('tb_po.status', 'CLOSED');
-      }
+      } 
+      // elseif ($status == 'order') {
+      //   $this->db->like('tb_po.review_status', 'APPROVED');
+      //   $this->db->like('tb_po.status', 'ORDER');
+      // } elseif ($status == 'closed') {
+      //   $this->db->like('tb_po.review_status', 'APPROVED');
+      //   $this->db->like('tb_po.status', 'CLOSED');
+      // }
       // elseif($status=='all'){
       //   $this->db->like('tb_po.review_status', 'WAITING');
       // }
@@ -216,6 +217,9 @@ class Purchase_Order_Model extends MY_Model
       }
       if (config_item('auth_role') == 'CHIEF OF FINANCE') {
         $this->db->like('tb_po.review_status', 'WAITING FOR CFO');
+      }
+      if (config_item('auth_role') == 'CHIEF OPERATION SUPPORT') {
+        $this->db->like('tb_po.review_status', 'WAITING FOR COO');
       }
       $this->db->where_not_in('tb_po.review_status', ['REVISI']);
       // else{
@@ -1313,8 +1317,6 @@ class Purchase_Order_Model extends MY_Model
       }
     }
     $item_message .= '</tbody>';
-
-
 
     $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com";

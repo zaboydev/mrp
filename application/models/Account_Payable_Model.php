@@ -18,6 +18,7 @@ class Account_Payable_Model extends MY_Model
       'tb_po.vendor'                       => 'Vendor',
       'tb_po.grand_total'                  => 'Total Amount',
       'tb_po.payment'                      => 'Amount Due',
+      'tb_po.remaining_payment'                      => 'Remaining Payment',
       'tb_po.status'                       => 'Review Status',
       // 'tb_po.category'        => 'Category',
 

@@ -23,7 +23,7 @@ class Account_Payable extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(4, 5);
+    $this->data['grid']['summary_columns']  = array(4, 5, 6);
 
     $this->data['grid']['order_columns']    = array();
     $this->render_view($this->module['view'] . '/index');
@@ -37,7 +37,7 @@ class Account_Payable extends MY_Controller
       $entities = $this->model->getIndex();
       $data     = array();
       $no       = $_POST['start'];
-      $quantity     = array();
+      $total_sisa     = array();
       $total_bayar   = array();
       $total_value  = array();
 
@@ -50,9 +50,11 @@ class Account_Payable extends MY_Controller
         $col[]  = print_string($row['vendor']);
         $col[]  = print_number($row['grand_total'], 2);
         $col[]  = print_number($row['payment'], 2);
+        $col[]  = print_number($row['remaining_payment'], 2);
         $col[]  = print_string($row['status']);
         $total_value[] = $row['grand_total'];
         $total_bayar[] = $row['payment'];
+        $total_sisa[] = $row['remaining_payment'];
 
         $col['DT_RowId'] = 'row_' . $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
@@ -71,8 +73,9 @@ class Account_Payable extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          4 => print_number(array_sum($total_value), 2), 
+          4 => print_number(array_sum($total_value), 2),
           5 => print_number(array_sum($total_bayar), 2),
+          6 => print_number(array_sum($total_sisa), 2),
         )
       );
     }
@@ -89,5 +92,4 @@ class Account_Payable extends MY_Controller
     }
     echo json_encode($result);
   }
-  
 }
