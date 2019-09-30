@@ -325,6 +325,23 @@ if ( ! function_exists('getPartnumberQty')) {
   }
 }
 
+if (!function_exists('getPartnumber')) {
+  function getPartnumber($id)
+  {
+    $CI = &get_instance();
+
+    $CI->db->select('part_number');
+    $CI->db->from('tb_master_part_number');
+    $CI->db->where('id', strtoupper($id));
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->part_number;
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('isPartNumberExists')) {
   function isPartNumberExists($part_number)
   {

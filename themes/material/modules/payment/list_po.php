@@ -8,6 +8,7 @@ $no_item = 1; ?>
         <td><?= print_number($detail['payment'], 2) ?></td>
         <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment'] ?>" type="hidden"><?= print_number($detail['remaining_payment'], 2) ?></td>
         <td><input id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied" value="0"></td>
+        <td><button type="button" class="btn btn-xs btn-info btn-sm"><i class="fa fa-eye btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"></i></button></td>
     </tr>
     <div id="list_detail_po">
         <?php foreach ($po['items'][$detail['id']] as $i => $detail_po) : ?>

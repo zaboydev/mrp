@@ -1418,7 +1418,7 @@ class Purchase_Request_Model extends MY_Model
     return $result;
   }
 
-  public function searchBudgetForRelocation($category,$unit)
+  public function searchBudgetForRelocation($category)
   {
     $query = "";
     if($_SESSION['request']['request_to'] == 0){
@@ -1572,7 +1572,7 @@ class Purchase_Request_Model extends MY_Model
       'tb_master_items.minimum_quantity',
       'tb_master_items.unit',
       'tb_stocks.total_quantity AS on_hand_quantity',
-      'tb_stocks.average_value AS price'
+      'tb_master_items.current_price AS price'
      );
 
     $this->db->select($this->column_select);

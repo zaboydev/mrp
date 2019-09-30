@@ -20,6 +20,10 @@
             <div class="pull-right"><?= print_string($entity['document_number']); ?></div>
           </div>
           <div class="clearfix">
+            <div class="pull-left">VENDOR : </div>
+            <div class="pull-right"><?= print_string($entity['vendor']); ?></div>
+          </div>
+          <div class="clearfix">
             <div class="pull-left">DATE: </div>
             <div class="pull-right"><?= print_date($entity['document_date']); ?></div>
           </div>

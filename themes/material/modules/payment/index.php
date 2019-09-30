@@ -19,7 +19,7 @@
 
         <div class="document-header force-padding">
           <div class="row">
-            <div class="newoverlay" style="" id="loadingScreen2" style="display: none;">
+            <div class="newoverlay" id="loadingScreen2" style="display: none;">
               <i class="fa fa-refresh fa-spin"></i>
             </div>
             <div class="col-md-6">
@@ -392,6 +392,7 @@
     $("#date_" + selRow).html(selData.document_date);
     $("#sis_" + selRow).html(selData.remaining_payment);
   })
+
   $("#listView").on("click", ".btn_delete_item", function(e) {
     e.preventDefault();
     var selRow = $(this).data("row");
@@ -431,6 +432,21 @@
     }
     changeTotal();
 
+  })
+
+  $("#listView").on("click", ".btn_view_detail", function() {
+    console.log('klik detail');
+    var selRow = $(this).data("row");
+    var tipe = $(this).data("tipe");
+    if (tipe == "view") {
+      $(this).data("tipe", "hide");
+      $('.detail_' + selRow).removeClass('hide');
+      $("#in_" + selRow).attr('readonly', true);
+    } else {
+      $(this).data("tipe", "view");
+      $('.detail_' + selRow).addClass('hide');
+      $("#in_" + selRow).attr('readonly', false);
+    }
   })
 
   $("#listView").on("change", ".sel_applied_item", function() {

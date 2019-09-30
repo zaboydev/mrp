@@ -62,6 +62,7 @@ $(document).ready(function(){
 	page_count = 1;
 	itemCount = 1;
 	itemsId = "";
+	itemsNo = "";
 	itemsValue = {};
 	itemsRange1 = {};
 	itemsRange2 = {};
@@ -123,21 +124,21 @@ $(document).ready(function(){
 			no++;
 			var text = '<tr>'+
                 		// '<td style="text-align: center;"><input type="checkbox" id="cb_'+item.id+'" data-txt="txt_'+item.id+'" data-id="'+item.id+'" name="" style="display: inline;"></td>'+
-                		'<td style="text-align: center;"><input type="checkbox" id="cb_'+item.part_number+'" data-txt="txt_'+item.part_number+'" data-range1="range1_'+item.part_number+'" data-range2="range2_'+item.part_number+'" data-id="'+item.part_number+'" name="" style="display: inline;"></td>'+
+				'<td style="text-align: center;"><input type="checkbox" id="cb_' + item.id + '" data-txt="txt_' + item.id + '" data-range1="range1_' + item.id + '" data-range2="range2_' + item.id + '" data-id="' + item.id+'" name="" style="display: inline;"></td>'+
                 		'<td>'+no+'</td>'+
                 		'<td>'+item.part_number+'</td>'+
                 		'<td>'+item.description+'</td>'+
                 		'<td>'+item.unit+'</td>'+
-                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="txt_'+item.part_number+'" data-type="txt" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" value="'+($("#id_kelipatan").val() === "0" ? "Other" : "0")+'" style="width: 100%"></td>'+
-                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range1_'+item.part_number+'" data-type="range1" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%" value="1"></td>'+
-                		'<td><input type="text" '+($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly")+'class="number" id="range2_'+item.part_number+'" data-type="range2" data-cb="cb_'+item.part_number+'" data-id="'+item.part_number+'" style="width: 100%" value="12"></td>'+
+				'<td><input type="text" ' + ($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly") + 'class="number" id="txt_' + item.id + '" data-type="txt" data-cb="cb_' + item.id + '" data-id="' + item.id+'" value="'+($("#id_kelipatan").val() === "0" ? "Other" : "0")+'" style="width: 100%"></td>'+
+				'<td><input type="text" ' + ($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly") + 'class="number" id="range1_' + item.id + '" data-type="range1" data-cb="cb_' + item.id + '" data-id="' + item.id+'" style="width: 100%" value="1"></td>'+
+				'<td><input type="text" ' + ($("#id_kelipatan").val() === "0" ? "" : "class='number' readonly") + 'class="number" id="range2_' + item.id + '" data-type="range2" data-cb="cb_' + item.id + '" data-id="' + item.id+'" style="width: 100%" value="12"></td>'+
                 		'</tr>';
                 		$("#listView").append(text);
-                		if(itemsValue[item.part_number] != undefined){
-                			$("#cb_"+item.part_number).prop('checked',true);
-                			$("#txt_"+item.part_number).val(itemsValue[item.part_number]);
-                			$("#range1_"+item.part_number).val(itemsRange1[item.part_number]);
-                			$("#range2_"+item.part_number).val(itemsRange2[item.part_number]);
+			if (itemsValue[item.id] != undefined){
+				$("#cb_" + item.id).prop('checked',true);
+				$("#txt_" + item.id).val(itemsValue[item.id]);
+				$("#range1_" + item.id).val(itemsRange1[item.id]);
+				$("#range2_" + item.id).val(itemsRange2[item.id]);
                 		}
 
                 	})
@@ -146,16 +147,24 @@ $(document).ready(function(){
 	$("#listView").on('click','input[type=checkbox]',function(){
 		if($(this).prop('checked')){ 
 			itemsId +="|"+$(this).attr('data-id')+",";
+			itemsNo += "|" + $(this).attr('data-no') + ",";
 			itemsValue[$(this).attr('data-id')] = $("#"+$(this).attr('data-txt')).val();
 			itemsRange1[$(this).attr('data-id')] = $("#"+$(this).attr('data-range1')).val();
 			itemsRange2[$(this).attr('data-id')] = $("#"+$(this).attr('data-range2')).val();
 			console.log(itemsId);
+			console.log(itemsValue);
+			console.log(itemsRange1);
+			console.log(itemsRange2);
 		}else{ 
 			itemsId = itemsId.replace("|"+$(this).attr('data-id')+",","");
+			itemsNo = itemsNo.replace("|" + $(this).attr('data-id') + ",", "");
 			delete itemsValue[$(this).attr('data-id')];
 			delete itemsRange1[$(this).attr('data-id')];
 			delete itemsRange2[$(this).attr('data-id')];
 			console.log(itemsId);
+			console.log(itemsValue);
+			console.log(itemsRange1);
+			console.log(itemsRange2);
 		}		
 	})
 	$("#listView").on('keydown','.number',function(e){

@@ -125,7 +125,7 @@ class Purchase_Request extends MY_Controller
       redirect($this->modules['secure']['route'] .'/denied');
 
     $category = $_SESSION['request']['category'];
-    $entities = $this->model->searchBudgetForRelocation($category,$unit);
+    $entities = $this->model->searchBudgetForRelocation($category);
 
     foreach ($entities as $key => $value){
       $entities[$key]['label'] = $value['product_name'];
