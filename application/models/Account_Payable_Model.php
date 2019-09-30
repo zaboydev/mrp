@@ -139,9 +139,44 @@ class Account_Payable_Model extends MY_Model
   {
     $this->db->where('id', $id);
 
-    $query    = $this->db->get('tb_hutang');
-    $receipt = $query->unbuffered_row('array');
-    return $receipt;
+    $query    = $this->db->get('tb_po');
+    $po = $query->unbuffered_row('array');
+
+    $select = array(
+      'tb_po_item.*',
+      
+    );
+
+    $this->db->select($select);
+    $this->db->from('tb_po_item');    
+    $this->db->where('tb_po_item.purchase_order_id', $po['id']);
+
+    $query = $this->db->get();
+
+    foreach ($query->result_array() as $key => $value) {
+      $po['items'][$key] = $value;
+    }
+
+    $select_payment = array(
+      'tb_po_item.part_number',
+      'tb_po_item.description',
+      'tb_po_item.total_amount',
+      'tb_purchase_order_items_payments.*'
+    );
+
+    $this->db->select($select_payment);
+    $this->db->from('tb_purchase_order_items_payments');
+    $this->db->join('tb_po_item','tb_po_item.id=tb_purchase_order_items_payments.purchase_order_item_id');
+    $this->db->where('tb_po_item.purchase_order_id', $po['id']);
+
+    $query_payment = $this->db->get();
+
+    foreach ($query_payment->result_array() as $key => $value) {
+      $po['payments'][$key] = $value;
+    }
+    $po['count_payment'] = $query_payment->num_rows();
+
+    return $po;
   }
   public function urgent($id)
   {

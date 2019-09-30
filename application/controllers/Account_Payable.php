@@ -60,8 +60,11 @@ class Account_Payable extends MY_Controller
         $col['DT_RowData']['pkey']  = $row['id'];
 
         if ($this->has_role($this->module, 'info')) {
+          // $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+          // $col['DT_RowAttr']['data-id'] = $row['id'];
+          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          $col['DT_RowAttr']['data-target'] = '#data-modal';
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
-          $col['DT_RowAttr']['data-id'] = $row['id'];
         }
 
         $data[] = $col;
@@ -82,6 +85,7 @@ class Account_Payable extends MY_Controller
 
     echo json_encode($result);
   }
+
   public function urgent($id)
   {
     $result['status'] = "failed";
@@ -91,5 +95,31 @@ class Account_Payable extends MY_Controller
       $this->sendEmail();
     }
     echo json_encode($result);
+  }
+
+  public function info($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'info') === FALSE) {
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->findById($id);
+
+      $this->data['entity'] = $entity;
+
+      $return['type'] = 'success';
+
+      // if ($entity['status'] === 'evaluation') {
+      //   $return['info'] = $this->load->view($this->modules['purchase_order_evaluation']['view'] . '/info', $this->data, TRUE);
+      // } else {
+        
+      // }
+      $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
+    }
+
+    echo json_encode($return);
   }
 }

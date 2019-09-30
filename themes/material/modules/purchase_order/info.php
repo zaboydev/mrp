@@ -76,12 +76,12 @@
                 <th class="middle-alignment">Part Number</th>
                 <th class="middle-alignment">Alt. P/N</th>
                 <th class="middle-alignment">Remarks</th>
+                <th class="middle-alignment">POE Number</th>
+                <th class="middle-alignment">PR Number</th>
                 <th class="middle-alignment" colspan="2">Quantity</th>
                 <th class="middle-alignment">Unit Price <?= $entity['default_currency']; ?></th>
                 <th class="middle-alignment">Core Charge <?= $entity['default_currency']; ?></th>
                 <th class="middle-alignment">Total Amount <?= $entity['default_currency']; ?></th>
-                <th class="middle-alignment">POE Number</th>
-                <th class="middle-alignment">PR Number</th>
               </tr>
             </thead>
             <tbody id="table_contents">
@@ -108,6 +108,12 @@
                     <?= print_string($detail['remarks']); ?>
                   </td>
                   <td>
+                    <?= print_string($detail['poe_number']); ?>
+                  </td>
+                  <td>
+                    <?= print_string($detail['purchase_request_number']); ?>
+                  </td>
+                  <td>
                     <?= print_number($detail['quantity'], 2); ?>
                   </td>
                   <td>
@@ -121,12 +127,6 @@
                   </td>
                   <td>
                     <?= print_number($detail['total_amount'], 2); ?>
-                  </td>
-                  <td>
-                    <?= print_string($detail['poe_number']); ?>
-                  </td>
-                  <td>
-                    <?= print_string($detail['purchase_request_number']); ?>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -146,10 +146,10 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
+                <th></th>
                 <th style="background-color: #eee;">Subtotal <?= $entity['default_currency']; ?></th>
                 <th style="background-color: #eee;"><?= print_number($subtotal, 2); ?></th>
-                <th></th>
-                <th></th>
               </tr>
               <?php if ($entity['discount'] > 0) : ?>
                 <tr>
@@ -161,9 +161,9 @@
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                   <th style="background-color: #eee;">Discount</th>
                   <th style="background-color: #eee;"><?= print_number($entity['discount'], 2); ?></th>
-                  <th></th>
                 </tr>
               <?php endif; ?>
               <?php if ($entity['taxes'] > 0) : ?>
@@ -176,9 +176,9 @@
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                   <th style="background-color: #eee;">VAT <?= $entity['taxes']; ?> %</th>
                   <th style="background-color: #eee;"><?= print_number($total_taxes, 2); ?></th>
-                  <th></th>
                 </tr>
               <?php endif; ?>
               <?php if ($entity['shipping_cost'] > 0) : ?>
@@ -191,9 +191,9 @@
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                   <th style="background-color: #eee;">Shipping Cost</th>
                   <th style="background-color: #eee;"><?= print_number($entity['shipping_cost'], 2); ?></th>
-                  <th></th>
                 </tr>
               <?php endif; ?>
               <tr>
@@ -205,10 +205,10 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
+                <th></th>
                 <th style="background-color: #eee;">Grand Total</th>
                 <th style="background-color: #eee;"><?= print_number($grandtotal, 2); ?></th>
-                <th></th>
-                <th></th>
               </tr>
             </tfoot>
           </table>
