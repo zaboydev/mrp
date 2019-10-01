@@ -215,59 +215,59 @@ class Item_Model extends MY_Model
     return TRUE;
   }
 
-  // public function import(array $user_data)
-  // {
-  //   $this->db->trans_begin();
+  public function import(array $user_data)
+  {
+    $this->db->trans_begin();
 
-  //   foreach ($user_data as $key => $data){
-  //     $this->db->set('group', strtoupper($data['group']));
-  //     $this->db->set('description', $data['description']);
-  //     $this->db->set('part_number', strtoupper($data['part_number']));
-  //     $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-  //     $this->db->set('minimum_quantity', strtoupper($data['minimum_quantity']));
-  //     $this->db->set('unit', strtoupper($data['unit']));
-  //     $this->db->set('notes', $data['notes']);
-  //     $this->db->set('created_by', config_item('auth_person_name'));
-  //     $this->db->set('updated_by', config_item('auth_person_name'));
-  //     $this->db->set('updated_at', date('Y-m-d'));
-  //     $this->db->set('serial_number', $data['serial_number']);
-  //     $this->db->insert('tb_master_items');
+    foreach ($user_data as $key => $data){
+      $this->db->set('group', strtoupper($data['group']));
+      $this->db->set('description', $data['description']);
+      $this->db->set('part_number', strtoupper($data['part_number']));
+      $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+      $this->db->set('minimum_quantity', strtoupper($data['minimum_quantity']));
+      $this->db->set('unit', strtoupper($data['unit']));
+      $this->db->set('notes', $data['notes']);
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->set('updated_at', date('Y-m-d'));
+      $this->db->set('serial_number', $data['serial_number']);
+      $this->db->insert('tb_master_items');
 
-  //     $item_id = $this->db->insert_id();
+      $item_id = $this->db->insert_id();
 
-  //     if (isSerialExists($item_id, $data['serial_number']) === FALSE){
-  //         $this->db->set('item_id', $item_id);
-  //         $this->db->set('serial_number', strtoupper($data['serial_number']));
-  //         $this->db->set('warehouse', strtoupper($data['warehouse']));
-  //         $this->db->set('stores', strtoupper($data['stores']));
-  //         $this->db->set('condition', strtoupper($data['condition']));
-  //         $this->db->set('reference_document', 'IMPORT');
-  //         $this->db->set('updated_by', config_item('auth_person_name'));
-  //         $this->db->insert('tb_master_item_serials');
+      if (isSerialExists($item_id, $data['serial_number']) === FALSE){
+          $this->db->set('item_id', $item_id);
+          $this->db->set('serial_number', strtoupper($data['serial_number']));
+          $this->db->set('warehouse', strtoupper($data['warehouse']));
+          $this->db->set('stores', strtoupper($data['stores']));
+          $this->db->set('condition', strtoupper($data['condition']));
+          $this->db->set('reference_document', 'IMPORT');
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_serials');
 
-  //         // $serial_id  = $this->db->insert_id();
-  //       } else {
-  //         $serial     = getSerial($item_id, $data['serial_number']);
-  //         $serial_id  = $serial->id;
+          // $serial_id  = $this->db->insert_id();
+        } else {
+          $serial     = getSerial($item_id, $data['serial_number']);
+          $serial_id  = $serial->id;
 
-  //         $this->db->set('quantity', 1);
-  //         $this->db->set('warehouse', $strtoupper($data['warehouse']));
-  //         $this->db->set('stores', strtoupper($data['stores']));
-  //         $this->db->set('condition', strtoupper($data['condition']));
-  //         $this->db->set('updated_by', config_item('auth_person_name'));
-  //         $this->db->set('reference_document', 'IMPORT');
-  //         $this->db->where('id', $serial_id);
-  //         $this->db->update('tb_master_item_serials');
-  //       }
+          $this->db->set('quantity', 1);
+          $this->db->set('warehouse', strtoupper($data['warehouse']));
+          $this->db->set('stores', strtoupper($data['stores']));
+          $this->db->set('condition', strtoupper($data['condition']));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->set('reference_document', 'IMPORT');
+          $this->db->where('id', $serial_id);
+          $this->db->update('tb_master_item_serials');
+        }
 
-  //   }
+    }
 
-  //   if ($this->db->trans_status() === FALSE)
-  //     return FALSE;
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
 
-  //   $this->db->trans_commit();
-  //   return TRUE;
-  // }
+    $this->db->trans_commit();
+    return TRUE;
+  }
 
   public function import_item_price(array $user_data)
   {
@@ -324,35 +324,35 @@ class Item_Model extends MY_Model
     return TRUE;
   }
 
-  public function import(array $user_data)
-  {
-    $this->db->trans_begin();
+  // public function import(array $user_data)
+  // {
+  //   $this->db->trans_begin();
 
-    foreach ($user_data as $key => $data) {
-      // $part_number = isPartNumberExists(strtoupper($data['part_number']));
-      if(isPartNumberExists(strtoupper($data['part_number']))==FALSE){
-        // $this->db->set('group', strtoupper($data['group']));
-        $this->db->set('description', $data['description']);
-        $this->db->set('part_number', strtoupper($data['part_number']));
-        // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-        // $this->db->set('minimum_quantity', strtoupper($data['minimum_quantity']));
-        $this->db->set('unit', strtoupper($data['unit']));
-        // $this->db->set('notes', $data['notes']);
-        // $this->db->set('created_by', config_item('auth_person_name'));
-        // $this->db->set('updated_by', config_item('auth_person_name'));
-        // $this->db->set('updated_at', date('Y-m-d'));
-        // $this->db->set('serial_number', $data['serial_number']);
-        $this->db->insert('tb_master_part_number');
+  //   foreach ($user_data as $key => $data) {
+  //     // $part_number = isPartNumberExists(strtoupper($data['part_number']));
+  //     if(isPartNumberExists(strtoupper($data['part_number']))==FALSE){
+  //       // $this->db->set('group', strtoupper($data['group']));
+  //       $this->db->set('description', $data['description']);
+  //       $this->db->set('part_number', strtoupper($data['part_number']));
+  //       // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+  //       // $this->db->set('minimum_quantity', strtoupper($data['minimum_quantity']));
+  //       $this->db->set('unit', strtoupper($data['unit']));
+  //       // $this->db->set('notes', $data['notes']);
+  //       // $this->db->set('created_by', config_item('auth_person_name'));
+  //       // $this->db->set('updated_by', config_item('auth_person_name'));
+  //       // $this->db->set('updated_at', date('Y-m-d'));
+  //       // $this->db->set('serial_number', $data['serial_number']);
+  //       $this->db->insert('tb_master_part_number');
 
-        $item_id = $this->db->insert_id();
-      }
-    }
+  //       $item_id = $this->db->insert_id();
+  //     }
+  //   }
 
-    if ($this->db->trans_status() === FALSE)
-      return FALSE;
+  //   if ($this->db->trans_status() === FALSE)
+  //     return FALSE;
 
-    $this->db->trans_commit();
-    return TRUE;
-  }
+  //   $this->db->trans_commit();
+  //   return TRUE;
+  // }
 }
 
