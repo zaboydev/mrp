@@ -26,6 +26,29 @@
     <label for="filter_received_date">Date</label>
     <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
   </div>
+
+  <div class="form-group">
+    <label for="start_date">Supplier</label>
+    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="1">
+      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
+      <?php foreach (available_vendors() as $vendor) : ?>
+        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
+          <?= $vendor; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Status</label>
+    <select class="form-control input-sm filter_dropdown" id="status" name="status" data-column="3">
+      <option value="all">All</option>
+      <option value="ORDER">Order</option>
+      <option value="OPEN">Open</option>
+      <option value="ADVANCE">Advance</option>
+      <option value="CLOSED">Closed</option>
+    </select>
+  </div>
 </div>
 <?php endblock() ?>
 

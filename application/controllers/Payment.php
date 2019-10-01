@@ -29,11 +29,12 @@ class Payment extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
     $vendor = $this->input->post('vendor');
     $currency = $this->input->post('currency');
-    $po = $this->model->getPoByVendor($vendor, $currency);
+    $tipe = $this->input->post('tipe');
+    $po = $this->model->getPoByVendor($vendor, $currency,$tipe);
     $this->data['po'] = $po;
     $return['info'] = $this->load->view($this->module['view'] . '/list_po', $this->data, TRUE);
-    $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency);
-    $return['count_po'] = $this->model->countPoByVendor($vendor, $currency);
+    $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency, $tipe);
+    $return['count_po'] = $this->model->countPoByVendor($vendor, $currency, $tipe);
     echo json_encode($return);
   }
   public function save()

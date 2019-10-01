@@ -16,11 +16,17 @@ class Low_Stock extends MY_Controller
   public function index()
   {
     $this->authorized($this->module, 'index');
+    if (isset($_POST['category']) && $_POST['category'] !== NULL) {
+      $category = $_POST['category'];
+    } else {
+      $category = 'SPARE PART';
+    }
 
-    $this->data['page']['title']            = $this->module['label'];
+    $this->data['selected_category']        = $category;
+    $this->data['page']['title']            = $this->module['label'].' '.$category;
     $this->data['page']['requirement']      = array('datatable');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/');
+    $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source/'. $category);
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array(5);
     $this->data['grid']['order_columns']    = array ();
@@ -28,11 +34,18 @@ class Low_Stock extends MY_Controller
     $this->render_view($this->module['view'] .'/index');
   }
 
-  public function index_data_source()
+  public function index_data_source($category='SPARE PART')
   {
     $this->authorized($this->module, 'index');
 
-    $entities = $this->model->getIndex();
+    if ($category !== NULL){
+      $category = (urldecode($category) === 'SPARE PART') ? 'SPARE PART' : urldecode($category);
+    } 
+    else {
+      $category = urldecode($category);
+    }
+
+    $entities = $this->model->getIndex($category);
 
     $data = array();
     $no = $_POST['start'];
@@ -70,8 +83,8 @@ class Low_Stock extends MY_Controller
     $result = array(
       "draw" => $_POST['draw'],
       // "recordsTotal" => $this->model->countIndex(),
-      "recordsTotal" => $this->model->countIndex(),
-      "recordsFiltered" => $this->model->countIndexFiltered(),
+      "recordsTotal" => $this->model->countIndex($category),
+      "recordsFiltered" => $this->model->countIndexFiltered($category),
       "data" => $data,
       "total" => array(
         5 => print_number(array_sum($quantity), 2),
@@ -161,8 +174,8 @@ class Low_Stock extends MY_Controller
 
     $result = array(
         "draw" => $_POST['draw'],
-        "recordsTotal" => $this->model->countIndex($category),
-        "recordsFiltered" => $this->model->countIndexFiltered($category),
+        "recordsTotal" => $this->model->countIndex(),
+        "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
         "total" => array(
           6 => print_number(array_sum($total_quantity), 2)

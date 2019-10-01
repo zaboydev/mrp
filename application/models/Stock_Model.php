@@ -1091,7 +1091,7 @@ class Stock_Model extends MY_Model
         $this->db->set('remarks', $remarks);
 
       $this->db->set('stock_in_stores_id', $mixed_items['stock_in_stores_id']);
-      $this->db->set('date_of_entry', $date);
+      $this->db->set('date_of_entry', date('Y-m-d'));
       $this->db->set('period_year', config_item('period_year'));
       $this->db->set('period_month', config_item('period_month'));
       $this->db->set('previous_quantity', $current_quantity);

@@ -22,14 +22,14 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_master_vendors');
 		return $this->db->get('')->result();
 	}
-	function getPoByVendor($vendor, $currency)
+	function getPoByVendor($vendor, $currency,$tipe)
 	{
 		$this->db->select('tb_po.*');
 		$this->db->from('tb_po');
 		$this->db->where('vendor', $vendor);
 		$this->db->where('default_currency', $currency);
 		$this->db->where('remaining_payment >', 0);
-		$this->db->where_in('status', ['ORDER', 'OPEN']);
+		$this->db->where('status', $tipe);
 		$this->db->order_by('id','asc');
 		$po = $this->db->get()->result_array();
 		foreach ($po as $detail) {
@@ -47,7 +47,7 @@ class Payment_Model extends MY_MODEL
 		return $po;
 	}
 
-	function countPoByVendor($vendor, $currency)
+	function countPoByVendor($vendor, $currency, $tipe)
 	{
 		$this->db->select('tb_po.*');
 		$this->db->from('tb_po');
@@ -55,12 +55,12 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('tb_po.vendor', $vendor);
 		$this->db->where('tb_po.default_currency', $currency);
 		$this->db->where('tb_po.remaining_payment >', 0);
-		$this->db->where_in('tb_po.status', ['OPEN','ORDER']);
+		$this->db->where('tb_po.status', $tipe);
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
 	}
 
-	function countdetailPoByVendor($vendor, $currency)
+	function countdetailPoByVendor($vendor, $currency, $tipe)
 	{
 		$this->db->select('tb_po_item.*');
 		$this->db->from('tb_po_item');
@@ -68,7 +68,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('tb_po.vendor', $vendor);
 		$this->db->where('tb_po.default_currency', $currency);
 		$this->db->where('tb_po.remaining_payment >', 0);
-		$this->db->where_in('tb_po.status', ['ORDER', 'OPEN']);
+		$this->db->where('tb_po.status', $tipe);
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
 	}
@@ -84,12 +84,19 @@ class Payment_Model extends MY_MODEL
 		$no_jurnal = $this->jrl_last_number();
 		$currency = $this->input->post('currency');
 		$kurs = $this->tgl_kurs(date("Y-m-d"));
+		$tipe = $this->input->post('tipe');
 		if ($currency == 'IDR') {
 			$amount_idr = $amount;
 			$amount_usd = $amount / $kurs;
 		} else {
 			$amount_usd = $amount;
 			$amount_idr = $amount * $kurs;
+		}
+
+		if($tipe=="ORDER"){
+			$jenis_transaksi = 'Down Payment Inventories '.$currency;
+		}else{
+			$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
 		}
 
 		$this->db->set('no_jurnal', $no_jurnal);
@@ -101,7 +108,7 @@ class Payment_Model extends MY_MODEL
 		$id_jurnal = $this->db->insert_id();
 
 		$this->db->set('id_jurnal', $id_jurnal);
-		$this->db->set('jenis_transaksi', ("SUPLIER PAYABLE " . $currency));
+		$this->db->set('jenis_transaksi', $jenis_transaksi);
 		$this->db->set('trs_kredit', 0);
 		$this->db->set('trs_debet', $amount_idr);
 		$this->db->set('trs_kredit_usd', 0);
@@ -151,6 +158,18 @@ class Payment_Model extends MY_MODEL
 				// foreach ($result_hutang as $hutang) {
 				// 	if($hutang[])
 				// }
+				$left_qty_po = leftQtyPo($id_po);
+				$left_amount_po = leftAmountPo($id_po);
+				if ($left_amount_po == 0) {
+					$this->db->where('id', $id_po);
+					$this->db->set('status', 'ADVANCE');
+					$this->db->update('tb_po');
+				}
+				if ($left_qty_po == 0 && $left_amount_po == 0) {
+					$this->db->where('id', $id_po);
+					$this->db->set('status', 'CLOSED');
+					$this->db->update('tb_po');
+				}
 			}
 		}
 		if ($this->db->trans_status() === FALSE)

@@ -77,13 +77,18 @@ class Low_Stock_Model extends MY_Model
     }
   }
 
-  public function getIndex($return = 'array')
+  public function getIndex($category = 'SPARE PART',$return = 'array')
   {
+    
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
     $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
     $this->db->join('tb_master_items', 'tb_stocks.item_id=tb_master_items.id');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group=tb_master_items.group');
     // $this->db->where('tb_master_part_number.qty <= tb_master_part_number.min_qty');
+    if ($category !== NULL) {
+      $this->db->where('tb_master_item_groups.category', $category);
+    }
     $this->db->group_by($this->getGroupByColumns());
 
     $this->searchIndex();
@@ -112,13 +117,18 @@ class Low_Stock_Model extends MY_Model
     }
   }
 
-  public function countIndexFiltered()
+  public function countIndexFiltered($category = 'SPARE PART')
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
     $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
     $this->db->join('tb_master_items', 'tb_stocks.item_id=tb_master_items.id');
     // $this->db->where('tb_master_part_number.qty <= tb_master_part_number.min_qty');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group=tb_master_items.group');
+    // $this->db->where('tb_master_part_number.qty <= tb_master_part_number.min_qty');
+    if ($category !== NULL) {
+      $this->db->where('tb_master_item_groups.category', $category);
+    }
     $this->db->group_by($this->getGroupByColumns());
 
     $this->searchIndex();
@@ -128,13 +138,18 @@ class Low_Stock_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function countIndex()
+  public function countIndex($category = 'SPARE PART')
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
     $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
     $this->db->join('tb_master_items', 'tb_stocks.item_id=tb_master_items.id');
     // $this->db->where('tb_master_part_number.qty <= tb_master_part_number.min_qty');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group=tb_master_items.group');
+    // $this->db->where('tb_master_part_number.qty <= tb_master_part_number.min_qty');
+    if ($category !== NULL) {
+      $this->db->where('tb_master_item_groups.category', $category);
+    }
     $this->db->group_by($this->getGroupByColumns());
 
     $query = $this->db->get();

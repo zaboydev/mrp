@@ -65,6 +65,28 @@ class Account_Payable_Model extends MY_Model
 
   private function searchIndex()
   {
+    if (!empty($_POST['columns'][2]['search']['value'])) {
+      $search_received_date = $_POST['columns'][2]['search']['value'];
+      $range_received_date  = explode(' ', $search_received_date);
+
+      $this->db->where('tb_po.document_date >= ', $range_received_date[0]);
+      $this->db->where('tb_po.document_date <= ', $range_received_date[1]);
+    }
+
+    if (!empty($_POST['columns'][1]['search']['value'])) {
+      $vendor = $_POST['columns'][1]['search']['value'];
+
+      $this->db->where('tb_po.vendor', $vendor);
+    }
+
+    if (!empty($_POST['columns'][3]['search']['value'])) {
+      $status = $_POST['columns'][3]['search']['value'];
+
+      if($status != 'all'){
+        $this->db->where('tb_po.status', $status);
+      }
+    }
+
     $i = 0;
     foreach ($this->getSearchableColumns() as $item) {
       if ($_POST['search']['value']) {
@@ -88,7 +110,7 @@ class Account_Payable_Model extends MY_Model
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_po');
-    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED']);
+    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED','ADVANCE']);
     // $this->db->join('tb_po_item','tb_po.purchase_order_id=tb_po_item.id');
     // $this->db->group_by($this->getGroupedColumns());
     $this->searchIndex();
@@ -119,7 +141,7 @@ class Account_Payable_Model extends MY_Model
   function countIndexFiltered()
   {
     $this->db->from('tb_po');
-    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED']);
+    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED', 'ADVANCE']);
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -130,7 +152,7 @@ class Account_Payable_Model extends MY_Model
   public function countIndex()
   {
     $this->db->from('tb_po');
-    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED']);
+    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED', 'ADVANCE']);
     $query = $this->db->get();
 
     return $query->num_rows();

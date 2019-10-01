@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
 class Goods_Received_Note_Model extends MY_Model
 {
@@ -36,13 +36,13 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipts.received_by'                 => 'Received By',
     );
 
-    if (config_item('auth_role') != 'PIC STOCK'){
+    if (config_item('auth_role') != 'PIC STOCK') {
       $return['tb_receipt_items.received_unit_value']  = 'Value';
       $return[null] = 'Total Value';
       // $return['tb_receipt_items.received_unit_value+tb_stock_cards.quantity) as balance_quantity']  => 'Balance',
     }
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-	  $return['tb_stock_in_stores.unit_value_dollar']  = 'Price USD';
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+      $return['tb_stock_in_stores.unit_value_dollar']  = 'Price USD';
       $return['tb_stock_in_stores.kurs_dollar']  = 'Kurs';
     }
 
@@ -95,7 +95,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipts.received_by',
     );
 
-    if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN'){
+    if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN') {
       $return[] = 'tb_receipt_items.received_unit_value';
       //$return[] = 'tb_receipt_items.received_total_value';
     }
@@ -105,7 +105,7 @@ class Goods_Received_Note_Model extends MY_Model
 
   private function searchIndex()
   {
-    if (!empty($_POST['columns'][2]['search']['value'])){
+    if (!empty($_POST['columns'][2]['search']['value'])) {
       $search_received_date = $_POST['columns'][2]['search']['value'];
       $range_received_date  = explode(' ', $search_received_date);
 
@@ -113,37 +113,37 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->where('tb_receipts.received_date <= ', $range_received_date[1]);
     }
 
-    if (!empty($_POST['columns'][3]['search']['value'])){
+    if (!empty($_POST['columns'][3]['search']['value'])) {
       $search_category = $_POST['columns'][3]['search']['value'];
 
       $this->db->where('tb_receipts.category', $search_category);
     }
 
-    if (!empty($_POST['columns'][4]['search']['value'])){
+    if (!empty($_POST['columns'][4]['search']['value'])) {
       $search_warehouse = $_POST['columns'][4]['search']['value'];
 
       $this->db->where('tb_receipts.warehouse', $search_warehouse);
     }
 
-    if (!empty($_POST['columns'][5]['search']['value'])){
+    if (!empty($_POST['columns'][5]['search']['value'])) {
       $search_description = $_POST['columns'][5]['search']['value'];
 
       $this->db->like('UPPER(tb_master_items.description)', strtoupper($search_description));
     }
 
-    if (!empty($_POST['columns'][6]['search']['value'])){
+    if (!empty($_POST['columns'][6]['search']['value'])) {
       $search_part_number = $_POST['columns'][6]['search']['value'];
 
       $this->db->like('UPPER(tb_master_items.part_number)', strtoupper($search_part_number));
     }
 
-    if (!empty($_POST['columns'][9]['search']['value'])){
+    if (!empty($_POST['columns'][9]['search']['value'])) {
       $search_condition = $_POST['columns'][9]['search']['value'];
 
       $this->db->like('UPPER(tb_stocks.condition)', strtoupper($search_condition));
     }
 
-    if (!empty($_POST['columns'][15]['search']['value'])){
+    if (!empty($_POST['columns'][15]['search']['value'])) {
       $search_received_from = $_POST['columns'][15]['search']['value'];
 
       $this->db->like('UPPER(tb_receipts.received_from)', strtoupper($search_received_from));
@@ -151,15 +151,15 @@ class Goods_Received_Note_Model extends MY_Model
 
     $i = 0;
 
-    foreach ($this->getSearchableColumns() as $item){
-      if ($_POST['search']['value']){
+    foreach ($this->getSearchableColumns() as $item) {
+      if ($_POST['search']['value']) {
         $term = strtoupper($_POST['search']['value']);
 
-        if ($i === 0){
+        if ($i === 0) {
           $this->db->group_start();
-          $this->db->like('UPPER('.$item.')', $term);
+          $this->db->like('UPPER(' . $item . ')', $term);
         } else {
-          $this->db->or_like('UPPER('.$item.')', $term);
+          $this->db->or_like('UPPER(' . $item . ')', $term);
         }
 
         if (count($this->getSearchableColumns()) - 1 == $i)
@@ -187,8 +187,8 @@ class Goods_Received_Note_Model extends MY_Model
 
     $column_order = $this->getOrderableColumns();
 
-    if (isset($_POST['order'])){
-      foreach ($_POST['order'] as $key => $order){
+    if (isset($_POST['order'])) {
+      foreach ($_POST['order'] as $key => $order) {
         $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
       }
     } else {
@@ -200,9 +200,9 @@ class Goods_Received_Note_Model extends MY_Model
 
     $query = $this->db->get();
 
-    if ($return === 'object'){
+    if ($return === 'object') {
       return $query->result();
-    } elseif ($return === 'json'){
+    } elseif ($return === 'json') {
       return json_encode($query->result());
     } else {
       return $query->result_array();
@@ -261,7 +261,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.unit',
       'tb_master_items.group',
       'tb_master_items.minimum_quantity',
-      'tb_receipt_items.id as receipt_items_id',//tambahan
+      'tb_receipt_items.id as receipt_items_id', //tambahan
       'tb_receipt_items.received_quantity',
       'tb_receipt_items.received_unit_value',
       'tb_receipt_items.received_unit_value_dollar',
@@ -284,16 +284,16 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_receipt_items.stock_in_stores_id');
     // $this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_in_stores.serial_id', 'left');
     $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
-    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');   
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     // $this->db->join('tb_master_item_konversi', 'tb_master_item_konversi.item_id = tb_master_items.id');//tambahan
     $this->db->where('tb_receipt_items.document_number', $receipt['document_number']);
 
     $query = $this->db->get();
 
-    foreach ($query->result_array() as $key => $value){
+    foreach ($query->result_array() as $key => $value) {
       $receipt['items'][$key] = $value;
 
-      if (empty($receipt['category'])){
+      if (empty($receipt['category'])) {
         $this->db->select('category');
         $this->db->from('tb_master_item_groups');
         $this->db->where('group', $value['group']);
@@ -343,7 +343,7 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->trans_begin();
 
     // DELETE OLD DOCUMENT
-    if (isset($_SESSION['receipt']['id'])){
+    if (isset($_SESSION['receipt']['id'])) {
       $id = $_SESSION['receipt']['id'];
 
       $this->db->select('document_number, warehouse,received_date');
@@ -372,7 +372,7 @@ class Goods_Received_Note_Model extends MY_Model
         // $prev_old_stock = getStockActive($data['stock_id']);
         // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['received_quantity']);
 
-        $prev_old_stock = getStockPrev($data['stock_id'],$data['stores']);
+        $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
         $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
 
         $this->db->set('stock_id', $data['stock_id']);
@@ -394,16 +394,16 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
         $this->db->set('doc_type', 5);
-        $this->db->set('tgl', date('Ymd',strtotime($row['received_date'])));    
-        $this->db->set('total_value', floatval($data['received_unit_value']*(0 - floatval($data['received_quantity']))));
+        $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
+        $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
         $this->db->insert('tb_stock_cards');
 
-        if($data['purchase_order_item_id']!=null){
+        if ($data['purchase_order_item_id'] != null) {
           $this->db->where('id', $data['purchase_order_item_id']);
-          $this->db->set('left_received_quantity','left_received_quantity +'. $data['received_quantity'],FALSE);
-          $this->db->set('quantity_received','quantity_received - '. $data['received_quantity'],FALSE);
+          $this->db->set('left_received_quantity', 'left_received_quantity +' . $data['received_quantity'], FALSE);
+          $this->db->set('quantity_received', 'quantity_received - ' . $data['received_quantity'], FALSE);
           $this->db->update('tb_po_item');
-        }        
+        }
 
         $this->db->where('id', $data['id']);
         $this->db->delete('tb_receipt_items');
@@ -426,498 +426,498 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->where('id', $id_jurnal);
       $this->db->delete('tb_jurnal');
     }
-    
 
-      // CREATE NEW DOCUMENT
-      $document_id      = (isset($_SESSION['receipt']['id'])) ? $_SESSION['receipt']['id'] : NULL;
-      $document_edit    = (isset($_SESSION['receipt']['edit'])) ? $_SESSION['receipt']['edit'] : NULL;
-      $document_number  = sprintf('%06s', $_SESSION['receipt']['document_number']) . receipt_format_number();
-      $received_date    = $_SESSION['receipt']['received_date'];
-      $received_by      = (empty($_SESSION['receipt']['received_by'])) ? NULL : $_SESSION['receipt']['received_by'];
-      $received_from    = (empty($_SESSION['receipt']['received_from'])) ? NULL : $_SESSION['receipt']['received_from'];
-      $known_by         = (empty($_SESSION['receipt']['known_by'])) ? NULL : $_SESSION['receipt']['known_by'];
-      $approved_by      = (empty($_SESSION['receipt']['approved_by'])) ? NULL : $_SESSION['receipt']['approved_by'];
-      $warehouse        = $_SESSION['receipt']['warehouse'];
-      $category         = $_SESSION['receipt']['category'];
-      $notes            = (empty($_SESSION['receipt']['notes'])) ? NULL : $_SESSION['receipt']['notes'];
-      $kurs = tgl_kurs($received_date);
 
-      $this->db->set('document_number', $document_number);
-      $this->db->set('received_from', $received_from);
-      $this->db->set('received_date', $received_date);
-      $this->db->set('received_by', $received_by);
-      $this->db->set('known_by', $known_by);
-      $this->db->set('approved_by', $approved_by);
-      $this->db->set('category', $category);
-      $this->db->set('warehouse', $warehouse);
-      $this->db->set('notes', $notes);
-      $this->db->set('created_by', config_item('auth_person_name'));
-      $this->db->set('updated_by', config_item('auth_person_name'));
-      $this->db->insert('tb_receipts');
+    // CREATE NEW DOCUMENT
+    $document_id      = (isset($_SESSION['receipt']['id'])) ? $_SESSION['receipt']['id'] : NULL;
+    $document_edit    = (isset($_SESSION['receipt']['edit'])) ? $_SESSION['receipt']['edit'] : NULL;
+    $document_number  = sprintf('%06s', $_SESSION['receipt']['document_number']) . receipt_format_number();
+    $received_date    = $_SESSION['receipt']['received_date'];
+    $received_by      = (empty($_SESSION['receipt']['received_by'])) ? NULL : $_SESSION['receipt']['received_by'];
+    $received_from    = (empty($_SESSION['receipt']['received_from'])) ? NULL : $_SESSION['receipt']['received_from'];
+    $known_by         = (empty($_SESSION['receipt']['known_by'])) ? NULL : $_SESSION['receipt']['known_by'];
+    $approved_by      = (empty($_SESSION['receipt']['approved_by'])) ? NULL : $_SESSION['receipt']['approved_by'];
+    $warehouse        = $_SESSION['receipt']['warehouse'];
+    $category         = $_SESSION['receipt']['category'];
+    $notes            = (empty($_SESSION['receipt']['notes'])) ? NULL : $_SESSION['receipt']['notes'];
+    $kurs = tgl_kurs($received_date);
 
-      // PROCESSING RECEIPT ITEMS
-      $received_total_value = 0;
+    $this->db->set('document_number', $document_number);
+    $this->db->set('received_from', $received_from);
+    $this->db->set('received_date', $received_date);
+    $this->db->set('received_by', $received_by);
+    $this->db->set('known_by', $known_by);
+    $this->db->set('approved_by', $approved_by);
+    $this->db->set('category', $category);
+    $this->db->set('warehouse', $warehouse);
+    $this->db->set('notes', $notes);
+    $this->db->set('created_by', config_item('auth_person_name'));
+    $this->db->set('updated_by', config_item('auth_person_name'));
+    $this->db->insert('tb_receipts');
 
-      //insert tb_jurnal
-      $this->db->set('no_jurnal', $document_number);
-      $this->db->set('vendor', $received_from);
-      $this->db->set('tanggal_jurnal', $received_date);
-      $this->db->set('grn_no', $document_number);
-      $this->db->set('source', "INV-IN");
-      $this->db->insert('tb_jurnal');
-      $id_jurnal = $this->db->insert_id();
-      //end insert tb_jurnal
-    
-      // PROCESSING RECEIPT ITEMS
-      foreach ($_SESSION['receipt']['items'] as $key => $data)
-      {
-        $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
+    // PROCESSING RECEIPT ITEMS
+    $received_total_value = 0;
 
-        /**
-         * CREATE UNIT OF MEASUREMENT IF NOT EXISTS
-         */
-        if (isItemUnitExists($data['unit']) === FALSE){
-          $this->db->set('unit', strtoupper($data['unit']));
+    //insert tb_jurnal
+    $this->db->set('no_jurnal', $document_number);
+    $this->db->set('vendor', $received_from);
+    $this->db->set('tanggal_jurnal', $received_date);
+    $this->db->set('grn_no', $document_number);
+    $this->db->set('source', "INV-IN");
+    $this->db->insert('tb_jurnal');
+    $id_jurnal = $this->db->insert_id();
+    //end insert tb_jurnal
+
+    // PROCESSING RECEIPT ITEMS
+    foreach ($_SESSION['receipt']['items'] as $key => $data) {
+      $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
+
+      /**
+       * CREATE UNIT OF MEASUREMENT IF NOT EXISTS
+       */
+      if (isItemUnitExists($data['unit']) === FALSE) {
+        $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->insert('tb_master_item_units');
+      }
+
+      if (!empty($data['unit_pakai'])) {
+        if (isItemUnitExists($data['unit_pakai']) === FALSE) {
+          $this->db->set('unit', strtoupper($data['unit_pakai']));
           $this->db->set('created_by', config_item('auth_person_name'));
           $this->db->set('updated_by', config_item('auth_person_name'));
           $this->db->insert('tb_master_item_units');
         }
+      }
 
-        if(!empty($data['unit_pakai'])){
-          if (isItemUnitExists($data['unit_pakai']) === FALSE){
-            $this->db->set('unit', strtoupper($data['unit_pakai']));
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('updated_by', config_item('auth_person_name'));
-            $this->db->insert('tb_master_item_units');
-          }
-        }
+      /**
+       * CREATE STORES IF NOT EXISTS
+       */
+      if (isStoresExists($data['stores']) === FALSE && isStoresExists($data['stores'], $category) === FALSE) {
+        $this->db->set('stores', strtoupper($data['stores']));
+        $this->db->set('warehouse', $warehouse);
+        $this->db->set('category', $category);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->insert('tb_master_stores');
+      }
 
-        /**
-         * CREATE STORES IF NOT EXISTS
-         */
-        if (isStoresExists($data['stores']) === FALSE && isStoresExists($data['stores'], $category) === FALSE){
-          $this->db->set('stores', strtoupper($data['stores']));
-          $this->db->set('warehouse', $warehouse);
-          $this->db->set('category', $category);
-          $this->db->set('created_by', config_item('auth_person_name'));
-          $this->db->set('updated_by', config_item('auth_person_name'));
-          $this->db->insert('tb_master_stores');
-        }
-
-        /**
-         * CREATE ITEM IF NOT EXISTS
-         */
-        if (isItemExists($data['part_number'], $serial_number) === FALSE){
-          $this->db->set('part_number', strtoupper($data['part_number']));
-          $this->db->set('serial_number', strtoupper($data['serial_number']));
-          $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-          $this->db->set('description', strtoupper($data['description']));
-          $this->db->set('group', strtoupper($data['group']));
-          $this->db->set('minimum_quantity', floatval($data['minimum_quantity']));
-          // $this->db->set('unit', strtoupper($data['unit']));
-          $this->db->set('kode_stok', strtoupper($data['kode_stok']));
-          $this->db->set('created_by', config_item('auth_person_name'));
-          $this->db->set('updated_by', config_item('auth_person_name'));
-          if(!empty($data['unit_pakai'])){
-            $this->db->set('unit', strtoupper($data['unit_pakai']));
-            $this->db->set('unit_pakai', $data['unit']);
-            $this->db->set('qty_konversi',$data['isi']);
-            $qty_konvers = floatval($data['received_quantity'])*floatval($data['isi']);
-          }else{
-            $this->db->set('unit', strtoupper($data['unit']));
-            
-            $qty_konvers = floatval($data['received_quantity']);
-          }
-          $this->db->insert('tb_master_items');
-
-          $item_id = $this->db->insert_id();
-        } 
-        else {
-          $item_id = getItemId($data['part_number'], $serial_number);
-          if(!empty($data['unit_pakai']) && !empty($data['isi'])){
-              $qty_konvers = floatval($data['received_quantity'])*floatval($data['isi']);
-          }else{
-              $qty_konvers = floatval($data['received_quantity']);
-          }
-        }
-
-        /**
-         * CREATE part number IF NOT EXISTS in tb master part number
-         */
-
-        // if (isPartNumberExists($data['part_number']) === FALSE){
-        //   $this->db->set('part_number', strtoupper($data['part_number']));
-        //   $this->db->set('min_qty', $data['minimum_quantity']);        
-        //   $this->db->set('item_id', $item_id);        
-        //   $this->db->set('qty', $data['received_quantity']);
-        //   $this->db->insert('tb_master_part_number');
-        // }
-        // else{
-        //   if (isset($_SESSION['receipt']['id'])){
-            
-        //   }else{
-        //     $qty_awal = getPartnumberQty($data['part_number']);
-
-        //     $qty_baru = floatval($data['received_quantity']) + floatval($qty_awal);
-
-        //     $this->db->set('qty', $qty_baru);
-        //     $this->db->where('part_number', strtoupper($data['part_number']));
-        //     $this->db->update('tb_master_part_number');
-        //   }
-        // }
-
-
-        
-
-        /**
-         * CREATE SERIAL NUMBER IF NOT EXISTS
-         */
-        if (!empty($data['serial_number'])){
-          if (isSerialExists($item_id, $data['serial_number']) === FALSE){
-            $this->db->set('item_id', $item_id);
-            $this->db->set('serial_number', strtoupper($data['serial_number']));
-            $this->db->set('warehouse', $warehouse);
-            $this->db->set('stores', strtoupper($data['stores']));
-            $this->db->set('condition', strtoupper($data['condition']));
-            $this->db->set('reference_document', $document_number);
-            $this->db->set('updated_by', config_item('auth_person_name'));
-            $this->db->insert('tb_master_item_serials');
-
-            $serial_id  = $this->db->insert_id();
-          } else {
-            $serial     = getSerial($item_id, $data['serial_number']);
-            $serial_id  = $serial->id;
-
-            $this->db->set('quantity', 1);
-            $this->db->set('warehouse', $warehouse);
-            $this->db->set('stores', strtoupper($data['stores']));
-            $this->db->set('condition', strtoupper($data['condition']));
-            $this->db->set('updated_by', config_item('auth_person_name'));
-            $this->db->set('reference_document', $document_number);
-            $this->db->where('id', $serial_id);
-            $this->db->update('tb_master_item_serials');
-          }
+      /**
+       * CREATE ITEM IF NOT EXISTS
+       */
+      if (isItemExists($data['part_number'], $serial_number) === FALSE) {
+        $this->db->set('part_number', strtoupper($data['part_number']));
+        $this->db->set('serial_number', strtoupper($data['serial_number']));
+        $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+        $this->db->set('description', strtoupper($data['description']));
+        $this->db->set('group', strtoupper($data['group']));
+        $this->db->set('minimum_quantity', floatval($data['minimum_quantity']));
+        // $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('kode_stok', strtoupper($data['kode_stok']));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        if (!empty($data['unit_pakai'])) {
+          $this->db->set('unit', strtoupper($data['unit_pakai']));
+          $this->db->set('unit_pakai', $data['unit']);
+          $this->db->set('qty_konversi', $data['isi']);
+          $qty_konvers = floatval($data['received_quantity']) * floatval($data['isi']);
         } else {
-          $serial_id = NULL;
+          $this->db->set('unit', strtoupper($data['unit']));
+
+          $qty_konvers = floatval($data['received_quantity']);
         }
+        $this->db->insert('tb_master_items');
 
-        /**
-         * ADD ITEM INTO STOCK
-         */
-        if (isStockExists($item_id, strtoupper($data['condition']))){
-          $stock_id = getStockId($item_id, strtoupper($data['condition']));
-            /**
-           * CREATE STOCK CARD
-           */
-          // $prev_stock   = getStockActive($stock_id);
-          $prev_stock   = getStockPrev($stock_id,strtoupper($data['stores']));
-          $next_stock   = floatval($prev_stock) + floatval($data['received_quantity']);
-
-          // if (!isset($_SESSION['receipt']['id'])){
-            $this->db->set('serial_id', $serial_id);
-            $this->db->set('stock_id', $stock_id);
-            $this->db->set('warehouse', $warehouse);
-            $this->db->set('stores', strtoupper($data['stores']));
-            $this->db->set('date_of_entry', $received_date);
-            $this->db->set('period_year', config_item('period_year'));
-            $this->db->set('period_month', config_item('period_month'));
-            $this->db->set('document_type', 'RECEIPT');
-            $this->db->set('document_number', $document_number);
-            $this->db->set('received_from', $received_from);
-            $this->db->set('received_by', $received_by);
-            $this->db->set('prev_quantity', floatval($prev_stock));
-            $this->db->set('balance_quantity', $next_stock);
-            $this->db->set('quantity', floatval($qty_konvers));
-            if($data['kurs'] == 'rupiah' || $data['kurs_dollar']==1){
-              $this->db->set('unit_value', floatval($data['received_unit_value']));
-            }else{
-              // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-              $this->db->set('unit_value', floatval($kurs)*floatval($data['received_unit_value']));
-            }
-            // $this->db->set('kurs_dollar', floatval($kurs));
-            $this->db->set('remarks', $data['remarks']);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('doc_type', 5);
-            $this->db->set('tgl', date('Ymd',strtotime($received_date)));
-            $this->db->insert('tb_stock_cards');
-            $stock_card_id = $this->db->insert_id();
-          // }
-
-          
+        $item_id = $this->db->insert_id();
+      } else {
+        $item_id = getItemId($data['part_number'], $serial_number);
+        if (!empty($data['unit_pakai']) && !empty($data['isi'])) {
+          $qty_konvers = floatval($data['received_quantity']) * floatval($data['isi']);
         } else {
+          $qty_konvers = floatval($data['received_quantity']);
+        }
+      }
+
+      /**
+       * CREATE part number IF NOT EXISTS in tb master part number
+       */
+
+      // if (isPartNumberExists($data['part_number']) === FALSE){
+      //   $this->db->set('part_number', strtoupper($data['part_number']));
+      //   $this->db->set('min_qty', $data['minimum_quantity']);        
+      //   $this->db->set('item_id', $item_id);        
+      //   $this->db->set('qty', $data['received_quantity']);
+      //   $this->db->insert('tb_master_part_number');
+      // }
+      // else{
+      //   if (isset($_SESSION['receipt']['id'])){
+
+      //   }else{
+      //     $qty_awal = getPartnumberQty($data['part_number']);
+
+      //     $qty_baru = floatval($data['received_quantity']) + floatval($qty_awal);
+
+      //     $this->db->set('qty', $qty_baru);
+      //     $this->db->where('part_number', strtoupper($data['part_number']));
+      //     $this->db->update('tb_master_part_number');
+      //   }
+      // }
+
+
+
+
+      /**
+       * CREATE SERIAL NUMBER IF NOT EXISTS
+       */
+      if (!empty($data['serial_number'])) {
+        if (isSerialExists($item_id, $data['serial_number']) === FALSE) {
           $this->db->set('item_id', $item_id);
+          $this->db->set('serial_number', strtoupper($data['serial_number']));
+          $this->db->set('warehouse', $warehouse);
+          $this->db->set('stores', strtoupper($data['stores']));
           $this->db->set('condition', strtoupper($data['condition']));
-          $this->db->set('initial_total_quantity', floatval($data['received_quantity']));
-          $this->db->set('created_by', config_item('auth_person_name'));
-          $this->db->insert('tb_stocks');
+          $this->db->set('reference_document', $document_number);
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_serials');
 
-          $stock_id = $this->db->insert_id();
+          $serial_id  = $this->db->insert_id();
+        } else {
+          $serial     = getSerial($item_id, $data['serial_number']);
+          $serial_id  = $serial->id;
 
-          /**
-           * CREATE STOCK CARD
-          */
-          // $prev_stock   = getStockActive($stock_id);
-          // $next_stock   = floatval($prev_stock->total_quantity) + floatval($data['received_quantity']);
-
-          // if (!isset($_SESSION['receipt']['id'])){
-            $this->db->set('serial_id', $serial_id);
-            $this->db->set('stock_id', $stock_id);
-            $this->db->set('warehouse', $warehouse);
-            $this->db->set('stores', strtoupper($data['stores']));
-            $this->db->set('date_of_entry', $received_date);
-            $this->db->set('period_year', config_item('period_year'));
-            $this->db->set('period_month', config_item('period_month'));
-            $this->db->set('document_type', 'RECEIPT');
-            $this->db->set('document_number', $document_number);
-            $this->db->set('received_from', $received_from);
-            $this->db->set('received_by', $received_by);
-            $this->db->set('prev_quantity', floatval(0));
-            $this->db->set('balance_quantity', floatval(0)+floatval($data['received_quantity']));
-            $this->db->set('quantity', floatval($qty_konvers));
-            if($data['kurs'] == 'rupiah' || $data['kurs_dollar']==1){
-              $this->db->set('unit_value', floatval($data['received_unit_value']));
-            }else{
-              // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-              $this->db->set('unit_value', floatval($kurs)*floatval($data['received_unit_value']));
-            }
-            // $this->db->set('kurs_dollar', floatval($kurs));
-            $this->db->set('remarks', $data['remarks']);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('doc_type', 5);
-            $this->db->set('tgl', date('Ymd',strtotime($received_date)));
-            $this->db->insert('tb_stock_cards');
-            $stock_card_id = $this->db->insert_id();
-          // }
+          $this->db->set('quantity', 1);
+          $this->db->set('warehouse', $warehouse);
+          $this->db->set('stores', strtoupper($data['stores']));
+          $this->db->set('condition', strtoupper($data['condition']));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->set('reference_document', $document_number);
+          $this->db->where('id', $serial_id);
+          $this->db->update('tb_master_item_serials');
         }
+      } else {
+        $serial_id = NULL;
+      }
 
-        $base = ['WISNU'=>1,'BANYUWANGI'=>2,'SOLO'=>3,'LOMBOK'=>4,'JEMBER'=>5,'PALANGKARAYA'=>6,'WISNU REKONDISI'=>7,'BSR REKONDISI'=>8,];
-        $warehouse_id=$base[$warehouse];
-        $date=date('Y-m-d');
-        $kurs = tgl_kurs($received_date);
+      /**
+       * ADD ITEM INTO STOCK
+       */
+      if (isStockExists($item_id, strtoupper($data['condition']))) {
+        $stock_id = getStockId($item_id, strtoupper($data['condition']));
+        /**
+         * CREATE STOCK CARD
+         */
+        // $prev_stock   = getStockActive($stock_id);
+        $prev_stock   = getStockPrev($stock_id, strtoupper($data['stores']));
+        $next_stock   = floatval($prev_stock) + floatval($data['received_quantity']);
 
-
-        // ADD to STORES
-
-            $this->db->set('stock_id', $stock_id);
-            $this->db->set('serial_id', $serial_id);
-            $this->db->set('warehouse', $warehouse);
-            $this->db->set('stores', strtoupper($data['stores']));
-            $this->db->set('initial_quantity', floatval($data['received_quantity']));          
-            // $this->db->set('quantity', floatval($data['received_quantity']));
-            $this->db->set('quantity', floatval($qty_konvers));
-           
-
-            if($data['kurs_dollar']==1 || $data['kurs']=='rupiah'){
-              $this->db->set('unit_value', floatval($data['received_unit_value']));
-              $this->db->set('initial_unit_value', floatval($data['received_unit_value']));
-              $this->db->set('unit_value_dollar', floatval($data['received_unit_value'])/floatval($kurs));
-              $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value'])/floatval($kurs));
-              $this->db->set('kurs_dollar', 1);
-              $harga = $data['received_unit_value'];
-              $currency = 'IDR';
-              $harga_usd = floatval($data['received_unit_value'])/floatval($kurs);
-
-              // $this->db->set('current_price',floatval($data['received_unit_value']));
-              // $this->db->where('id',$item_id);
-              // $this->db->update('tb_master_items');
-            }else{
-              if($data['kurs']=='dollar'){
-                $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-                $this->db->set('unit_value', floatval($kurs)*floatval($data['received_unit_value']));
-                $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value']));
-                $this->db->set('kurs_dollar', floatval($kurs));
-                $this->db->set('initial_unit_value', floatval($kurs)*floatval($data['received_unit_value']));
-                $harga= floatval($kurs)*floatval($data['received_unit_value']);
-                $currency = 'USD';
-                $harga_usd = floatval($data['received_unit_value']);
-                // $this->db->set('current_price',floatval($harga));
-                // $this->db->where('id',$item_id);
-                // $this->db->update('tb_master_items');
-
-              }else{
-
-                $this->db->set('unit_value_dollar', floatval($data['received_unit_value_dollar']));
-                $this->db->set('unit_value', floatval($data['received_unit_value']));
-                $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value_dollar']));
-                $this->db->set('kurs_dollar', floatval($data['kurs_dollar']));
-                $this->db->set('initial_unit_value', floatval($kurs)*floatval($data['received_unit_value']));
-                $harga= floatval($data['received_unit_value']);
-                $currency = 'IDR';
-                $harga_usd = floatval($data['received_unit_value_dollar']);
-                // $this->db->set('current_price',floatval($harga));
-                // $this->db->where('id',$item_id);
-                // $this->db->update('tb_master_items');
-
-              }
-              
-            }
-
-            $this->db->set('reference_document', $document_number);
-            $this->db->set('received_date', $received_date);
-            if($data['no_expired_date'] !== 'no'){            
-              $this->db->set('no_expired_date', 'yes');              
-            }else{
-              $this->db->set('no_expired_date', 'no');
-            }
-            if(!empty($data['expired_date'])){
-              $this->db->set('expired_date', $data['expired_date']);        
-            }          
-            $this->db->set('received_by', $received_by);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('remarks', $data['remarks']);
-            $this->db->set('qty_konvers', floatval($qty_konvers));
-            $this->db->set('warehouse_id', $warehouse_id);
-            $this->db->insert('tb_stock_in_stores');
-
-            $stock_in_stores_id = $this->db->insert_id();
-
-            $this->db->set('stock_in_stores_id',$stock_in_stores_id);
-            $this->db->set('unit_value',$harga);
-            $this->db->set('total_value',floatval($qty_konvers)*floatval($harga));
-            $this->db->where('id', $stock_card_id);
-            $this->db->update('tb_stock_cards');
-
-            $this->db->set('current_price',floatval($harga));
-            $this->db->where('id',$item_id);
-            $this->db->update('tb_master_items');
-
+        // if (!isset($_SESSION['receipt']['id'])){
+        $this->db->set('serial_id', $serial_id);
+        $this->db->set('stock_id', $stock_id);
+        $this->db->set('warehouse', $warehouse);
+        $this->db->set('stores', strtoupper($data['stores']));
+        $this->db->set('date_of_entry', $received_date);
+        $this->db->set('period_year', config_item('period_year'));
+        $this->db->set('period_month', config_item('period_month'));
+        $this->db->set('document_type', 'RECEIPT');
+        $this->db->set('document_number', $document_number);
+        $this->db->set('received_from', $received_from);
+        $this->db->set('received_by', $received_by);
+        $this->db->set('prev_quantity', floatval($prev_stock));
+        $this->db->set('balance_quantity', $next_stock);
+        $this->db->set('quantity', floatval($qty_konvers));
+        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
+          $this->db->set('unit_value', floatval($data['received_unit_value']));
+        } else {
+          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('unit_value', floatval($kurs) * floatval($data['received_unit_value']));
+        }
+        // $this->db->set('kurs_dollar', floatval($kurs));
+        $this->db->set('remarks', $data['remarks']);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('doc_type', 5);
+        $this->db->set('tgl', date('Ymd', strtotime($received_date)));
+        $this->db->insert('tb_stock_cards');
+        $stock_card_id = $this->db->insert_id();
         // }
-        
+
+
+      } else {
+        $this->db->set('item_id', $item_id);
+        $this->db->set('condition', strtoupper($data['condition']));
+        $this->db->set('initial_total_quantity', floatval($data['received_quantity']));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->insert('tb_stocks');
+
+        $stock_id = $this->db->insert_id();
 
         /**
-         * INSERT INTO RECEIPT ITEMS
+         * CREATE STOCK CARD
          */
-        if (!empty($data['purchase_order_item_id'])){
-          $this->db->from('tb_po_item');
-          $this->db->where('tb_po_item.id', $data['purchase_order_item_id']);
+        // $prev_stock   = getStockActive($stock_id);
+        // $next_stock   = floatval($prev_stock->total_quantity) + floatval($data['received_quantity']);
 
-          $query  = $this->db->get();
-          $row    = $query->unbuffered_row('array');
-          $qty    = floatval($row['left_received_quantity']) - floatval($data['received_quantity']);
-
-          $this->db->where('id', $data['purchase_order_item_id']);
-          $this->db->set('left_received_quantity','left_received_quantity -'. $data['received_quantity'],FALSE);
-          $this->db->set('quantity_received','quantity_received + '. $data['received_quantity'],FALSE);
-          $this->db->update('tb_po_item');
-
-          $left_qty_po = leftQtyPo($row['purchase_order_id']);
-          if($left_qty_po==0){
-            $this->db->where('id', $row['purchase_order_id']);
-            $this->db->set('status', 'OPEN');
-            $this->db->update('tb_po');
-          }
-        }
-
-        if (!empty($data['purchase_order_item_id'])){
-          $this->db->set('purchase_order_item_id', $data['purchase_order_item_id']);
-        }    
+        // if (!isset($_SESSION['receipt']['id'])){
+        $this->db->set('serial_id', $serial_id);
+        $this->db->set('stock_id', $stock_id);
+        $this->db->set('warehouse', $warehouse);
+        $this->db->set('stores', strtoupper($data['stores']));
+        $this->db->set('date_of_entry', $received_date);
+        $this->db->set('period_year', config_item('period_year'));
+        $this->db->set('period_month', config_item('period_month'));
+        $this->db->set('document_type', 'RECEIPT');
         $this->db->set('document_number', $document_number);
-        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-        $this->db->set('received_quantity', floatval($qty_konvers));
-        if($data['kurs_dollar']==1 || $data['kurs']=='rupiah'){
-          $this->db->set('received_unit_value', floatval($data['received_unit_value']));
-          $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($qty_konvers));
-          $received_total_value +=  floatval($data['received_unit_value']) * floatval($qty_konvers);
-          $x = floatval($data['received_unit_value']) * floatval($qty_konvers);
-          $this->db->set('kurs_dollar', 1);
-        }else{
-          if($data['kurs']=='dollar'){
-            $this->db->set('received_unit_value_dollar', floatval($data['received_unit_value']));
-            $this->db->set('received_unit_value', floatval($kurs)*floatval($data['received_unit_value']));
-            $this->db->set('received_total_value', floatval($kurs)*floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-            $received_total_value += floatval($kurs)*floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-            $x = floatval($kurs)*floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-            $this->db->set('received_total_value_dollar', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-            $this->db->set('kurs_dollar', floatval($kurs));
-          }else{
-            $this->db->set('received_unit_value_dollar', floatval($data['received_unit_value_dollar']));
-            $this->db->set('received_unit_value', floatval($data['received_unit_value']));
-            $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-            $received_total_value += floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-            $x = floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-            $this->db->set('received_total_value_dollar', floatval($data['received_unit_value_dollar']) * floatval($data['received_quantity']));
-            $this->db->set('kurs_dollar', floatval($data['kurs_dollar']));
-          }
-          
-        }
-            
-        $this->db->set('purchase_order_number', $data['purchase_order_number']);
-        $this->db->set('reference_number', $data['reference_number']);
-        $this->db->set('awb_number', $data['awb_number']);
-        $this->db->set('remarks', $data['remarks']);
-        $this->db->set('received_date_item', $received_date);
-        if(!empty($data['unit_pakai']) && !empty($data['isi'])){
-            $this->db->set('received_unit', strtoupper($data['unit_pakai']));
-        }else{
-            $this->db->set('received_unit', strtoupper($data['unit']));
-        }
-        
-        // $this->db->set('group', strtoupper($data['group']));
-        // $this->db->set('doc_type', 3);     
-        $this->db->insert('tb_receipt_items');
-        if($currency=='IDR'){
-              $kode = "2-101";
-              // $x_total = $harga*floatval($data['received_quantity']);
+        $this->db->set('received_from', $received_from);
+        $this->db->set('received_by', $received_by);
+        $this->db->set('prev_quantity', floatval(0));
+        $this->db->set('balance_quantity', floatval(0) + floatval($data['received_quantity']));
+        $this->db->set('quantity', floatval($qty_konvers));
+        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
+          $this->db->set('unit_value', floatval($data['received_unit_value']));
         } else {
-              $kode = "2-1102";
-              // $x_total = $harga_usd*floatval($data['received_quantity']);
+          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('unit_value', floatval($kurs) * floatval($data['received_unit_value']));
         }
-		
-        $coa = $this->coaByGroup(strtoupper($data['group']));
-        $this->db->set('id_jurnal',$id_jurnal);
-        $this->db->set('jenis_transaksi',$data['group']);
-        $this->db->set('trs_debet',$harga*floatval($data['received_quantity']));
-        $this->db->set('trs_kredit',0);
-        $this->db->set('trs_debet_usd',$harga_usd*floatval($data['received_quantity']));
-        $this->db->set('trs_kredit_usd',0);
-        $this->db->set('kode_rekening',$coa->coa);
-        $this->db->set('stock_in_stores_id',$stock_in_stores_id);
-        $this->db->insert('tb_jurnal_detail');
-        
-        $this->db->set('id_jurnal',$id_jurnal);
-        $this->db->set('jenis_transaksi',strtoupper("supplier payable ".$currency));
-        $this->db->set('trs_debet',0);
-        $this->db->set('trs_kredit',$harga*floatval($data['received_quantity']));
-        $this->db->set('trs_debet_usd',0);
-        $this->db->set('trs_kredit_usd',$harga_usd*floatval($data['received_quantity']));
-        $this->db->set('kode_rekening',$kode);
-        $this->db->set('stock_in_stores_id',$stock_in_stores_id);
-        $this->db->insert('tb_jurnal_detail');
+        // $this->db->set('kurs_dollar', floatval($kurs));
+        $this->db->set('remarks', $data['remarks']);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('doc_type', 5);
+        $this->db->set('tgl', date('Ymd', strtotime($received_date)));
+        $this->db->insert('tb_stock_cards');
+        $stock_card_id = $this->db->insert_id();
+        // }
+      }
 
-        $this->db->set('document_no', $this->ap_last_number());
-        $this->db->set('tanggal', date("Y-m-d"));
-        $this->db->set('no_grn', $document_number);
-        $this->db->set('vendor', $received_from);
-        $this->db->set('amount_idr', $harga*floatval($data['received_quantity']));
-        $this->db->set('amount_usd', $harga_usd*floatval($data['received_quantity']));
-        $this->db->set('payment', 0);
-        $this->db->set('no_po', $data['purchase_order_number']);
-        $this->db->set('id_po', $row['purchase_order_id']);
-        $this->db->set('id_po_item', $data['purchase_order_item_id']);
-        $this->db->set('currency', $currency);
-        $this->db->set('status', "waiting for payment");
-        $this->db->set('stock_in_stores_id',$stock_in_stores_id);
-        $this->db->insert('tb_hutang');
-
-      }//end foreach items
-     
-      
+      $base = ['WISNU' => 1, 'BANYUWANGI' => 2, 'SOLO' => 3, 'LOMBOK' => 4, 'JEMBER' => 5, 'PALANGKARAYA' => 6, 'WISNU REKONDISI' => 7, 'BSR REKONDISI' => 8,];
+      $warehouse_id = $base[$warehouse];
+      $date = date('Y-m-d');
+      $kurs = tgl_kurs($received_date);
 
 
-      // $this->db->set('id_jurnal',$id_jurnal);
-      // $this->db->set('jenis_transaksi',strtoupper("kredit"));
-      // $this->db->set('trs_debet',0);
-      // $this->db->set('trs_kredit',$received_total_value);
-      // $this->db->set('kode_rekening','2-1101');
-      // $this->db->insert('tb_jurnal_detail');
-    
+      // ADD to STORES
 
-      if ($this->db->trans_status() === FALSE)
-        return FALSE;
+      $this->db->set('stock_id', $stock_id);
+      $this->db->set('serial_id', $serial_id);
+      $this->db->set('warehouse', $warehouse);
+      $this->db->set('stores', strtoupper($data['stores']));
+      $this->db->set('initial_quantity', floatval($data['received_quantity']));
+      // $this->db->set('quantity', floatval($data['received_quantity']));
+      $this->db->set('quantity', floatval($qty_konvers));
 
-      $this->db->trans_commit();
-      return TRUE;
-    
+
+      if ($data['kurs_dollar'] == 1 || $data['kurs'] == 'rupiah') {
+        $this->db->set('unit_value', floatval($data['received_unit_value']));
+        $this->db->set('initial_unit_value', floatval($data['received_unit_value']));
+        $this->db->set('unit_value_dollar', floatval($data['received_unit_value']) / floatval($kurs));
+        $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value']) / floatval($kurs));
+        $this->db->set('kurs_dollar', 1);
+        $harga = $data['received_unit_value'];
+        $currency = 'IDR';
+        $harga_usd = floatval($data['received_unit_value']) / floatval($kurs);
+
+        // $this->db->set('current_price',floatval($data['received_unit_value']));
+        // $this->db->where('id',$item_id);
+        // $this->db->update('tb_master_items');
+      } else {
+        if ($data['kurs'] == 'dollar') {
+          $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('unit_value', floatval($kurs) * floatval($data['received_unit_value']));
+          $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('kurs_dollar', floatval($kurs));
+          $this->db->set('initial_unit_value', floatval($kurs) * floatval($data['received_unit_value']));
+          $harga = floatval($kurs) * floatval($data['received_unit_value']);
+          $currency = 'USD';
+          $harga_usd = floatval($data['received_unit_value']);
+          // $this->db->set('current_price',floatval($harga));
+          // $this->db->where('id',$item_id);
+          // $this->db->update('tb_master_items');
+
+        } else {
+
+          $this->db->set('unit_value_dollar', floatval($data['received_unit_value_dollar']));
+          $this->db->set('unit_value', floatval($data['received_unit_value']));
+          $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value_dollar']));
+          $this->db->set('kurs_dollar', floatval($data['kurs_dollar']));
+          $this->db->set('initial_unit_value', floatval($kurs) * floatval($data['received_unit_value']));
+          $harga = floatval($data['received_unit_value']);
+          $currency = 'IDR';
+          $harga_usd = floatval($data['received_unit_value_dollar']);
+          // $this->db->set('current_price',floatval($harga));
+          // $this->db->where('id',$item_id);
+          // $this->db->update('tb_master_items');
+
+        }
+      }
+
+      $this->db->set('reference_document', $document_number);
+      $this->db->set('received_date', $received_date);
+      if ($data['no_expired_date'] !== 'no') {
+        $this->db->set('no_expired_date', 'yes');
+      } else {
+        $this->db->set('no_expired_date', 'no');
+      }
+      if (!empty($data['expired_date'])) {
+        $this->db->set('expired_date', $data['expired_date']);
+      }
+      $this->db->set('received_by', $received_by);
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('remarks', $data['remarks']);
+      $this->db->set('qty_konvers', floatval($qty_konvers));
+      $this->db->set('warehouse_id', $warehouse_id);
+      $this->db->insert('tb_stock_in_stores');
+
+      $stock_in_stores_id = $this->db->insert_id();
+
+      $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->set('unit_value', $harga);
+      $this->db->set('total_value', floatval($qty_konvers) * floatval($harga));
+      $this->db->where('id', $stock_card_id);
+      $this->db->update('tb_stock_cards');
+
+      $this->db->set('current_price', floatval($harga));
+      $this->db->where('id', $item_id);
+      $this->db->update('tb_master_items');
+
+      // }
+
+
+      /**
+       * INSERT INTO RECEIPT ITEMS
+       */
+      if (!empty($data['purchase_order_item_id'])) {
+        $this->db->from('tb_po_item');
+        $this->db->where('tb_po_item.id', $data['purchase_order_item_id']);
+
+        $query  = $this->db->get();
+        $row    = $query->unbuffered_row('array');
+        $qty    = floatval($row['left_received_quantity']) - floatval($data['received_quantity']);
+
+        $this->db->where('id', $data['purchase_order_item_id']);
+        $this->db->set('left_received_quantity', 'left_received_quantity -' . $data['received_quantity'], FALSE);
+        $this->db->set('quantity_received', 'quantity_received + ' . $data['received_quantity'], FALSE);
+        $this->db->update('tb_po_item');
+
+        $left_qty_po = leftQtyPo($row['purchase_order_id']);
+        $left_amount_po = leftAmountPo($row['purchase_order_id']);
+        if ($left_qty_po == 0) {
+          $this->db->where('id', $row['purchase_order_id']);
+          $this->db->set('status', 'OPEN');
+          $this->db->update('tb_po');
+        }
+        if ($left_qty_po == 0 && $left_amount_po == 0) {
+          $this->db->where('id', $row['purchase_order_id']);
+          $this->db->set('status', 'CLOSED');
+          $this->db->update('tb_po');
+        }
+      }
+
+      if (!empty($data['purchase_order_item_id'])) {
+        $this->db->set('purchase_order_item_id', $data['purchase_order_item_id']);
+      }
+      $this->db->set('document_number', $document_number);
+      $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->set('received_quantity', floatval($qty_konvers));
+      if ($data['kurs_dollar'] == 1 || $data['kurs'] == 'rupiah') {
+        $this->db->set('received_unit_value', floatval($data['received_unit_value']));
+        $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($qty_konvers));
+        $received_total_value +=  floatval($data['received_unit_value']) * floatval($qty_konvers);
+        $x = floatval($data['received_unit_value']) * floatval($qty_konvers);
+        $this->db->set('kurs_dollar', 1);
+      } else {
+        if ($data['kurs'] == 'dollar') {
+          $this->db->set('received_unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('received_unit_value', floatval($kurs) * floatval($data['received_unit_value']));
+          $this->db->set('received_total_value', floatval($kurs) * floatval($data['received_unit_value']) * floatval($data['received_quantity']));
+          $received_total_value += floatval($kurs) * floatval($data['received_unit_value']) * floatval($data['received_quantity']);
+          $x = floatval($kurs) * floatval($data['received_unit_value']) * floatval($data['received_quantity']);
+          $this->db->set('received_total_value_dollar', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
+          $this->db->set('kurs_dollar', floatval($kurs));
+        } else {
+          $this->db->set('received_unit_value_dollar', floatval($data['received_unit_value_dollar']));
+          $this->db->set('received_unit_value', floatval($data['received_unit_value']));
+          $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
+          $received_total_value += floatval($data['received_unit_value']) * floatval($data['received_quantity']);
+          $x = floatval($data['received_unit_value']) * floatval($data['received_quantity']);
+          $this->db->set('received_total_value_dollar', floatval($data['received_unit_value_dollar']) * floatval($data['received_quantity']));
+          $this->db->set('kurs_dollar', floatval($data['kurs_dollar']));
+        }
+      }
+
+      $this->db->set('purchase_order_number', $data['purchase_order_number']);
+      $this->db->set('reference_number', $data['reference_number']);
+      $this->db->set('awb_number', $data['awb_number']);
+      $this->db->set('remarks', $data['remarks']);
+      $this->db->set('received_date_item', $received_date);
+      if (!empty($data['unit_pakai']) && !empty($data['isi'])) {
+        $this->db->set('received_unit', strtoupper($data['unit_pakai']));
+      } else {
+        $this->db->set('received_unit', strtoupper($data['unit']));
+      }
+
+      // $this->db->set('group', strtoupper($data['group']));
+      // $this->db->set('doc_type', 3);     
+      $this->db->insert('tb_receipt_items');
+      if ($currency == 'IDR') {
+        $kode = "2-101";
+        // $x_total = $harga*floatval($data['received_quantity']);
+      } else {
+        $kode = "2-1102";
+        // $x_total = $harga_usd*floatval($data['received_quantity']);
+      }
+
+      $coa = $this->coaByGroup(strtoupper($data['group']));
+      $this->db->set('id_jurnal', $id_jurnal);
+      $this->db->set('jenis_transaksi', $data['group']);
+      $this->db->set('trs_debet', $harga * floatval($data['received_quantity']));
+      $this->db->set('trs_kredit', 0);
+      $this->db->set('trs_debet_usd', $harga_usd * floatval($data['received_quantity']));
+      $this->db->set('trs_kredit_usd', 0);
+      $this->db->set('kode_rekening', $coa->coa);
+      $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->insert('tb_jurnal_detail');
+
+      $this->db->set('id_jurnal', $id_jurnal);
+      $this->db->set('jenis_transaksi', strtoupper("supplier payable " . $currency));
+      $this->db->set('trs_debet', 0);
+      $this->db->set('trs_kredit', $harga * floatval($data['received_quantity']));
+      $this->db->set('trs_debet_usd', 0);
+      $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
+      $this->db->set('kode_rekening', $kode);
+      $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->insert('tb_jurnal_detail');
+
+      $this->db->set('document_no', $this->ap_last_number());
+      $this->db->set('tanggal', date("Y-m-d"));
+      $this->db->set('no_grn', $document_number);
+      $this->db->set('vendor', $received_from);
+      $this->db->set('amount_idr', $harga * floatval($data['received_quantity']));
+      $this->db->set('amount_usd', $harga_usd * floatval($data['received_quantity']));
+      $this->db->set('payment', 0);
+      $this->db->set('no_po', $data['purchase_order_number']);
+      $this->db->set('id_po', $row['purchase_order_id']);
+      $this->db->set('id_po_item', $data['purchase_order_item_id']);
+      $this->db->set('currency', $currency);
+      $this->db->set('status', "waiting for payment");
+      $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->insert('tb_hutang');
+    } //end foreach items
+
+
+
+
+    // $this->db->set('id_jurnal',$id_jurnal);
+    // $this->db->set('jenis_transaksi',strtoupper("kredit"));
+    // $this->db->set('trs_debet',0);
+    // $this->db->set('trs_kredit',$received_total_value);
+    // $this->db->set('kode_rekening','2-1101');
+    // $this->db->insert('tb_jurnal_detail');
+
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
   }
 
   public function delete()
@@ -948,7 +948,7 @@ class Goods_Received_Note_Model extends MY_Model
       // $prev_old_stock = getStockActive($data['stock_id']);
       // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['issued_quantity']);
 
-      $prev_old_stock = getStockPrev($data['stock_id'],$data['stores']);
+      $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
       $next_old_stock = floatval($prev_old_stock) - floatval($data['issued_quantity']);
 
       $this->db->set('stock_id', $data['stock_id']);
@@ -970,8 +970,8 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
       $this->db->set('doc_type', 5);
-      $this->db->set('tgl', date('Ymd',strtotime($row['received_date'])));		
-      $this->db->set('total_value', floatval($data['received_unit_value']*(0 - floatval($data['received_quantity']))));
+      $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
+      $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
       $this->db->insert('tb_stock_cards');
 
       $this->db->where('id', $data['id']);
@@ -1020,10 +1020,10 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'left');
     $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group', 'left');
     $this->db->where('tb_master_item_groups.category', $category);
-    $this->db->where('tb_po.status', 'ORDER');
+    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'ADVANCE']);
     $this->db->where('tb_po_item.left_received_quantity > ', 0);
 
-    if ($vendor !== NULL || !empty($vendor)){
+    if ($vendor !== NULL || !empty($vendor)) {
       $this->db->where('tb_po.vendor', $vendor);
     }
 
@@ -1046,7 +1046,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.minimum_quantity',
       'tb_master_items.unit',
       'tb_master_items.kode_stok',
-     );
+    );
 
     $this->db->select($this->column_select);
     $this->db->from('tb_master_items');
@@ -1076,7 +1076,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.minimum_quantity',
       'tb_master_items.unit',
       'tb_master_items.kode_stok'
-     );
+    );
 
     $this->db->select($this->column_select);
     $this->db->from('tb_master_items');
@@ -1113,7 +1113,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_stock_in_stores.*',
       'tb_stocks.condition',
       'tb_stock_in_stores.stores',
-      'tb_master_items.id',//tambahan
+      'tb_master_items.id', //tambahan
       'tb_master_items.serial_number',
       'tb_master_items.part_number',
       'tb_master_items.description',
@@ -1121,11 +1121,11 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.unit',
       'tb_master_items.kode_stok',
       'tb_master_items.group',
-      'tb_master_items.minimum_quantity',//tambahan
-      'tb_receipts.category',//tambahan
-      'tb_receipts.warehouse',//tambahan
-      'tb_receipt_items.id',//tambahan
-      'tb_receipt_items.document_number',//tambahan
+      'tb_master_items.minimum_quantity', //tambahan
+      'tb_receipts.category', //tambahan
+      'tb_receipts.warehouse', //tambahan
+      'tb_receipt_items.id', //tambahan
+      'tb_receipt_items.document_number', //tambahan
       'tb_receipt_items.received_quantity',
       'tb_receipt_items.received_unit_value',
       'tb_receipt_items.purchase_order_number',
@@ -1144,7 +1144,7 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->where('tb_receipt_items.id', $id);
 
     $query = $this->db->get();
-    
+
     return $query->unbuffered_row();
   }
 
@@ -1152,7 +1152,7 @@ class Goods_Received_Note_Model extends MY_Model
   {
     $this->db->trans_begin();
 
-    foreach ($user_data as $key => $data){
+    foreach ($user_data as $key => $data) {
       $category = (empty($data['category']))
         ? NULL : strtoupper($data['category']);
 
@@ -1208,16 +1208,16 @@ class Goods_Received_Note_Model extends MY_Model
         ? 0 : floatval($data['received_quantity']);
 
       $received_unit_value = (empty($data['received_unit_value']))
-      ? 0 : floatval($data['received_unit_value']);
+        ? 0 : floatval($data['received_unit_value']);
 
       $purchase_order_number = (empty($data['purchase_order_number']))
-      ? NULL : strtoupper($data['purchase_order_number']);
+        ? NULL : strtoupper($data['purchase_order_number']);
 
       $reference_number = (empty($data['reference_number']))
-      ? NULL : strtoupper($data['reference_number']);
+        ? NULL : strtoupper($data['reference_number']);
 
       $awb_number = (empty($data['awb_number']))
-      ? NULL : strtoupper($data['awb_number']);
+        ? NULL : strtoupper($data['awb_number']);
 
       $period_year  = get_setting('ACTIVE_YEAR');
       $period_month = get_setting('ACTIVE_MONTH');
@@ -1234,9 +1234,9 @@ class Goods_Received_Note_Model extends MY_Model
       // $category         = $_SESSION['receipt']['category'];
       // $notes            = (empty($_SESSION['receipt']['notes'])) ? NULL : $_SESSION['receipt']['notes'];
 
-      if($this->isDocumentNumberExists($document_number)){
+      if ($this->isDocumentNumberExists($document_number)) {
         $document_id = $this->getDocumentId($document_number);
-      }else{
+      } else {
         $this->db->set('document_number', $document_number);
         $this->db->set('received_from', $vendor);
         $this->db->set('received_date', $received_date);
@@ -1253,12 +1253,12 @@ class Goods_Received_Note_Model extends MY_Model
         $document_id = $this->db->insert_id();
       }
 
-      
+
 
       /**
        * CREATE UNIT OF MEASUREMENT IF NOT EXISTS
        */
-      if (isItemUnitExists($unit) === FALSE){
+      if (isItemUnitExists($unit) === FALSE) {
         $this->db->set('unit', $unit);
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('updated_by', config_item('auth_person_name'));
@@ -1268,7 +1268,7 @@ class Goods_Received_Note_Model extends MY_Model
       /**
        * CREATE STORES IF NOT EXISTS
        */
-      if (isStoresExists($stores) === FALSE && isStoresExists($stores, $category) === FALSE){
+      if (isStoresExists($stores) === FALSE && isStoresExists($stores, $category) === FALSE) {
         $this->db->set('stores', $stores);
         $this->db->set('warehouse', $warehouse);
         $this->db->set('category', $category);
@@ -1280,7 +1280,7 @@ class Goods_Received_Note_Model extends MY_Model
       /**
        * CREATE ITEM IF NOT EXISTS
        */
-      if (isItemExists($part_number, $serial_number) === FALSE){
+      if (isItemExists($part_number, $serial_number) === FALSE) {
         $this->db->set('part_number', $part_number);
         $this->db->set('serial_number', $serial_number);
         $this->db->set('alternate_part_number', $alternate_part_number);
@@ -1301,14 +1301,13 @@ class Goods_Received_Note_Model extends MY_Model
        * CREATE part number IF NOT EXISTS in tb master part number
        */
 
-      if (isPartNumberExists($part_number) === FALSE){
+      if (isPartNumberExists($part_number) === FALSE) {
         $this->db->set('part_number', $part_number);
-        $this->db->set('min_qty', $minimum_quantity);        
-        $this->db->set('item_id', $item_id);        
+        $this->db->set('min_qty', $minimum_quantity);
+        $this->db->set('item_id', $item_id);
         $this->db->set('qty', $received_quantity);
         $this->db->insert('tb_master_part_number');
-      }
-      else{
+      } else {
         $qty_awal = getPartnumberQty($part_number);
 
         $qty_baru = floatval($received_quantity) + floatval($qty_awal);
@@ -1319,13 +1318,13 @@ class Goods_Received_Note_Model extends MY_Model
       }
 
 
-      
+
 
       /**
        * CREATE SERIAL NUMBER IF NOT EXISTS
        */
-      if (!empty($data['serial_number'])){
-        if (isSerialExists($item_id, $serial_number) === FALSE){
+      if (!empty($data['serial_number'])) {
+        if (isSerialExists($item_id, $serial_number) === FALSE) {
           $this->db->set('item_id', $item_id);
           $this->db->set('serial_number', $serial_number);
           $this->db->set('warehouse', $warehouse);
@@ -1356,16 +1355,16 @@ class Goods_Received_Note_Model extends MY_Model
       /**
        * ADD ITEM INTO STOCK
        */
-      if (isStockExists($item_id, $condition)){
+      if (isStockExists($item_id, $condition)) {
         $stock_id = getStockId($item_id, $condition);
 
         /**
          * CREATE STOCK CARD
-        */
+         */
         // $prev_stock   = getStockActive($stock_id);
         // $next_stock   = floatval($prev_stock->total_quantity) + floatval($received_quantity);
 
-        $prev_stock   = getStockPrev($stock_id,$stores);
+        $prev_stock   = getStockPrev($stock_id, $stores);
         $next_stock   = floatval($prev_stock) + floatval($received_quantity);
 
         $this->db->set('serial_id', $serial_id);
@@ -1401,7 +1400,7 @@ class Goods_Received_Note_Model extends MY_Model
 
         $stock_id = $this->db->insert_id();
 
-          /**
+        /**
          * CREATE STOCK CARD
          */
         // $prev_stock   = getStockActive($stock_id);
@@ -1419,10 +1418,10 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('received_from', $vendor);
         $this->db->set('received_by', $received_by);
         $this->db->set('prev_quantity', floatval(0));
-        $this->db->set('balance_quantity', floatval(0)+floatval($received_quantity));
+        $this->db->set('balance_quantity', floatval(0) + floatval($received_quantity));
         $this->db->set('quantity', floatval($received_quantity));
         // if($data['kurs'] == 'rupiah'){
-          $this->db->set('unit_value', floatval($data['received_unit_value']));
+        $this->db->set('unit_value', floatval($data['received_unit_value']));
         // }else{
         //   $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
         //   $this->db->set('unit_value', floatval($kurs)*floatval($data['received_unit_value']));
@@ -1433,39 +1432,39 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->insert('tb_stock_cards');
       }
 
-      if($warehouse=='WISNU'){
-        $warehouse_id=1;
+      if ($warehouse == 'WISNU') {
+        $warehouse_id = 1;
       }
-      if($warehouse=='BANYUWANGI'){
-        $warehouse_id=2;
+      if ($warehouse == 'BANYUWANGI') {
+        $warehouse_id = 2;
       }
-      if($warehouse=='SOLO'){
-        $warehouse_id=3;
+      if ($warehouse == 'SOLO') {
+        $warehouse_id = 3;
       }
-      if($warehouse=='LOMBOK'){
-        $warehouse_id=4;
+      if ($warehouse == 'LOMBOK') {
+        $warehouse_id = 4;
       }
-      if($warehouse=='JEMBER'){
-        $warehouse_id=5;
+      if ($warehouse == 'JEMBER') {
+        $warehouse_id = 5;
       }
-      if($warehouse=='PALANGKARAYA'){
-        $warehouse_id=6;
+      if ($warehouse == 'PALANGKARAYA') {
+        $warehouse_id = 6;
       }
-      if($warehouse=='WISNU REKONDISI'){
-        $warehouse_id=7;
+      if ($warehouse == 'WISNU REKONDISI') {
+        $warehouse_id = 7;
       }
-      if($warehouse=='BSR REKONDISI'){
-        $warehouse_id=8;
+      if ($warehouse == 'BSR REKONDISI') {
+        $warehouse_id = 8;
       }
 
-      $kurs=kurs_dollar();
+      $kurs = kurs_dollar();
 
       // ADD to STORES
       $this->db->set('stock_id', $stock_id);
       $this->db->set('serial_id', $serial_id);
       $this->db->set('warehouse', $warehouse);
       $this->db->set('stores', $stores);
-      $this->db->set('initial_quantity', floatval($received_quantity));      
+      $this->db->set('initial_quantity', floatval($received_quantity));
       $this->db->set('quantity', floatval($received_quantity));
       // if($data['kurs'] == 'rupiah'){
       $this->db->set('unit_value', floatval($data['received_unit_value']));
@@ -1514,7 +1513,7 @@ class Goods_Received_Note_Model extends MY_Model
       // if($data['kurs'] == 'rupiah'){
       $this->db->set('received_unit_value', floatval($data['received_unit_value']));
       $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-      $this->db->set('kurs_dollar', 1);      
+      $this->db->set('kurs_dollar', 1);
       $this->db->set('purchase_order_number', $purchase_order_number);
       $this->db->set('reference_number', $reference_number);
       $this->db->set('awb_number', $awb_number);
@@ -1574,7 +1573,8 @@ class Goods_Received_Note_Model extends MY_Model
     return TRUE;
   }
 
-  function checkAPNumber(){
+  function checkAPNumber()
+  {
     return $this->db->get('tb_hutang')->num_rows();
   }
   function ap_last_number()
@@ -1583,12 +1583,12 @@ class Goods_Received_Note_Model extends MY_Model
     $year = date('Y');
 
     $format = $div . 'AP' . $year;
-    if($this->checkAPNumber() == 0 ){
+    if ($this->checkAPNumber() == 0) {
       $number = sprintf('%06s', 1);
       $document_number = $number . $div . "AP" . $div . $year;
     } else {
       $format = $div . "AP" . $div . $year;
-      $this->db->select_max('document_no','last_number');
+      $this->db->select_max('document_no', 'last_number');
       $this->db->from('tb_hutang');
       $this->db->like('document_no', $format, 'before');
       $query = $this->db->get('');
@@ -1602,7 +1602,8 @@ class Goods_Received_Note_Model extends MY_Model
     return $document_number;
   }
 
-  function checkJurnalNumber(){
+  function checkJurnalNumber()
+  {
     return $this->db->get('tb_jurnal')->num_rows();
   }
   function jrl_last_number()
@@ -1611,13 +1612,13 @@ class Goods_Received_Note_Model extends MY_Model
     $year = date('Y');
 
     $format = $div . 'JRL' . $year;
-    if($this->checkJurnalNumber() == 0 ){
+    if ($this->checkJurnalNumber() == 0) {
       $number = sprintf('%06s', 1);
       $document_number = $number . $div . "JRL" . $div . $year;
     } else {
 
       $format = $div . "JRL" . $div . $year;
-      $this->db->select_max('no_jurnal','last_number');
+      $this->db->select_max('no_jurnal', 'last_number');
       $this->db->from('tb_jurnal');
       $this->db->like('no_jurnal', $format, 'before');
       $query = $this->db->get('');
@@ -1630,11 +1631,11 @@ class Goods_Received_Note_Model extends MY_Model
     }
     return $document_number;
   }
-  function coaByGroup($group){
+  function coaByGroup($group)
+  {
     $this->db->select('coa');
     $this->db->from('tb_master_item_groups');
     $this->db->where('group', $group);
     return $this->db->get()->row();
   }
 }
-

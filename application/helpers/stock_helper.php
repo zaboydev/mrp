@@ -488,6 +488,28 @@ if ( ! function_exists('getLastUnitValue')) {
       return $return;
     }
   }
+
+  if (!function_exists('leftAmountPo')) {
+    function leftAmountPo($id_po)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('remaining_payment');
+      $CI->db->from('tb_po');
+      $CI->db->where('id', $id_po);
+      // $CI->db->where('stores', strtoupper($stores));
+
+      $query  = $CI->db->get();
+      $result = $query->unbuffered_row();
+      $return = $result->remaining_payment;
+
+      // foreach ($result as $row) {
+      //   $return = $return + $row['left_received_quantity'];
+      // }
+
+      return $return;
+    }
+  }
 }
 
 

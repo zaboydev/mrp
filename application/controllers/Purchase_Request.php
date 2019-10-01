@@ -732,7 +732,7 @@ class Purchase_Request extends MY_Controller
     redirect($this->module['route'] .'/create');
   }
 
-  public function create_item_purchase(){
+  public function create_item_purchase($category){
     
     $id_purchase_order = $this->input->post('id_purchase_order');
     $id_purchase_order = str_replace("|", "", $id_purchase_order);
@@ -743,6 +743,7 @@ class Purchase_Request extends MY_Controller
     $total = 0;
     $success = 0;
     $failed = sizeof($id_purchase_order);
+    $_SESSION['request']['category']            = $category;
     $_SESSION['request']['items'] = array();
     $i=0;
     foreach ($id_purchase_order as $key) {

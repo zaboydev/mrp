@@ -42,6 +42,13 @@
                 <label for="account_select">Account</label>
               </div>
               <div class="form-group">
+                <select id="tipe_select" class="form-control">
+                  <option value="OPEN">OPEN</option>
+                  <option value="ORDER">ORDER</option>
+                </select>
+                <label for="suplier_select">Tipe</label>
+              </div>
+              <div class="form-group">
                 <select id="suplier_select" class="form-control">
                   <option value="">No Suplier</option>
                   <?php foreach ($suplier as $key) {
@@ -271,12 +278,12 @@
 
   });
   $('#currency_select').change(function() {
-    var currency = $(this).val();
+    currency = $(this).val();
 
-    var akun = $('#account_select');
-    var supplier = $('#suplier_select');
-    akun.html('');
-    supplier.html('');
+    var akun_view = $('#account_select');
+    var supplier_view = $('#suplier_select');
+    akun_view.html('');
+    supplier_view.html('');
     $.ajax({
       type: "POST",
       url: '<?= base_url() . "payment/get_akun" ?>',
@@ -286,7 +293,7 @@
       cache: false,
       success: function(response) {
         var data = jQuery.parseJSON(response);
-        akun.html(data);
+        akun_view.html(data);
       }
     });
 
@@ -299,11 +306,24 @@
       cache: false,
       success: function(response) {
         var data = jQuery.parseJSON(response);
-        supplier.html(data);
+        supplier_view.html(data);
       }
     });
 
+    suplier = $("#suplier_select").val();
+    // currency = $("#currency_select").val();
+    tipe = $("#tipe_select").val();
+    $("#total_general").html(0);
+    $("#amount").val(0);
+    // row_num = 0;
+    $("#listView").html("");
+    row = [];
+    row_detail = [];
+
+    getPo()
+
   });
+
   $("#suplier_select").change(function(e) {
     // if (suplier != "") {
     //   if (confirm("If you change suplier the items will be reset")) {
@@ -318,8 +338,9 @@
     //   }
     // } else {
     // changeTotal();
-    suplier = $("#suplier_select").val()
+    suplier = $("#suplier_select").val();
     currency = $("#currency_select").val();
+    tipe = $("#tipe_select").val();
     $("#total_general").html(0);
     $("#amount").val(0);
     // row_num = 0;
@@ -330,7 +351,37 @@
     getPo()
 
     // }
-  })
+  });
+
+  $("#tipe_select").change(function(e) {
+    // if (suplier != "") {
+    //   if (confirm("If you change suplier the items will be reset")) {
+    //     suplier = $("#suplier_select").val()
+    //     currency = $("#currency_select").val()
+    //     getPo()
+    //     row_num = 0;
+    //     $("#listView").html("");
+    //     row = []
+    //   } else {
+    //     $("#suplier_select").val(suplier)
+    //   }
+    // } else {
+    // changeTotal();
+    suplier = $("#suplier_select").val();
+    currency = $("#currency_select").val();
+    tipe = $("#tipe_select").val();
+    $("#total_general").html(0);
+    $("#amount").val(0);
+    // row_num = 0;
+    $("#listView").html("");
+    row = [];
+    row_detail = [];
+
+    getPo()
+
+    // }
+  });
+
   var arr_po = []
   id_po = []
 
@@ -367,7 +418,8 @@
       url: '<?= base_url() . "payment/getPo" ?>',
       data: {
         'currency': currency,
-        'vendor': suplier
+        'vendor': suplier,
+        'tipe': tipe
       },
       cache: false,
       success: function(response) {
@@ -570,6 +622,7 @@
         'account': $("#account_select").val(),
         "vendor": $("#suplier_select").val(),
         "currency": $("#currency_select").val(),
+        "tipe": $("#tipe_select").val(),
         "no_cheque": $("#no_cheque").val(),
         "date": $("#date").val(),
         "amount": $("#amount").val(),
