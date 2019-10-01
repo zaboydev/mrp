@@ -1704,7 +1704,7 @@ class Purchase_Request_Model extends MY_Model
     return true;
   }
 
-  public function approve($id)
+  public function approve($id,$price)
   {
     $this->db->trans_begin();
     
@@ -1740,6 +1740,20 @@ class Purchase_Request_Model extends MY_Model
 
     if($row['status']=='pending'){
       if($status_budget=='unbudgeted'){
+
+        // if($row['price']==0){
+          
+        // }else{
+        //   $new_price = $row['price'];
+        //   $new_total = floatval($row['quantity'] * $new_price);
+        // }
+        $new_price = $price;
+        $new_total = floatval($row['quantity'] * $new_price);
+        
+        $this->db->set('price', floatval($new_price));
+        $this->db->set('total', floatval($new_total));
+        $this->db->where('id', $id);
+        $this->db->update('tb_inventory_purchase_requisition_details');
         $this->db->set('status', 'waiting');
         $this->db->where('id', $id);
         $this->db->update('tb_inventory_purchase_requisition_details');
@@ -1831,13 +1845,13 @@ class Purchase_Request_Model extends MY_Model
         }
 
         $this->db->set('mtd_quantity', 'mtd_quantity + '.$row['quantity'],FALSE);
-        $this->db->set('mtd_budget', 'mtd_budget + '.$row['total'],FALSE);
-        $this->db->set('mtd_used_budget', 'mtd_used_budget + '.$row['total'],FALSE);
-        $this->db->set('ytd_used_budget', 'ytd_used_budget + '.$row['total'],FALSE);
+        $this->db->set('mtd_budget', 'mtd_budget + '. $new_total,FALSE);
+        $this->db->set('mtd_used_budget', 'mtd_used_budget + '. $new_total,FALSE);
+        $this->db->set('ytd_used_budget', 'ytd_used_budget + '. $new_total,FALSE);
         $this->db->set('mtd_used_quantity', 'mtd_used_quantity + '.$row['quantity'],FALSE);
         $this->db->set('ytd_used_quantity', 'ytd_used_quantity + '.$row['quantity'],FALSE);
         $this->db->set('ytd_quantity', 'ytd_quantity + '.$row['quantity'],FALSE);
-        $this->db->set('ytd_budget', 'ytd_budget + '.$row['total'],FALSE);
+        $this->db->set('ytd_budget', 'ytd_budget + '. $new_total,FALSE);
         $this->db->where('id', $inventory_monthly_budget_id);
         $this->db->update('tb_budget');
         //      for ($i=date('m')+2; $i <13 ; $i++) {
@@ -1855,6 +1869,12 @@ class Purchase_Request_Model extends MY_Model
         $this->db->where('id',$id);
         $this->db->update('tb_inventory_purchase_requisition_details');
 
+        // if ($row['price'] == 0) {
+        //   $new_price = $price;
+        //   $new_total = floatval($row['quantity'] * $new_price);          
+          
+        // }
+        $this->db->set('new_budget', floatval($new_total));
         $this->db->set('inventory_monthly_budget_id',$inventory_monthly_budget_id);
         $this->db->set('status','approved');
         $this->db->where('id',$id_budget_sementara);
@@ -1872,7 +1892,7 @@ class Purchase_Request_Model extends MY_Model
         $this->db->set('product_group',$row['group_name']);
         $this->db->set('product_code',$row['part_number']);
         $this->db->set('additional_info',$row['additional_info']);
-        $this->db->set('used_budget',$row['total']);
+        $this->db->set('used_budget', $new_total);
         $this->db->set('used_quantity',$row['quantity']);
         $this->db->set('created_at', date('Y-m-d H:i:s'));
         $this->db->set('created_by', config_item('auth_person_name'));

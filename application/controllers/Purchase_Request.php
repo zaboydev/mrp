@@ -294,11 +294,15 @@ class Purchase_Request extends MY_Controller
             $col[] = print_string($row['notes']);
           }          
         } else {
-          $col[] = print_string($row['notes']);
+          if (config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          } else {
+            $col[] = print_string($row['notes']);
+          }  
         }
 
         if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER'){
-          $col[] = print_number($row['price'], 2);
+          $col[] = $row['price'] == 0? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>':'<input type="number" id="price_'.$row['id'].'" autocomplete="off" value="'. $row['price'].'"/>';
           $col[] = print_number($row['total'], 2);
         }
         
@@ -634,19 +638,27 @@ class Purchase_Request extends MY_Controller
     $id_purchase_order = str_replace("|", "", $id_purchase_order);
     $id_purchase_order = substr($id_purchase_order, 0,-1);
     $id_purchase_order = explode(",", $id_purchase_order);
+
+    $str_price = $this->input->post('price');
+    $price = str_replace("|", "", $str_price);
+    $price = substr($price, 0, -3);
+    $price = explode("##,", $price);
+
     $total = 0;
     $success = 0;
     $failed = sizeof($id_purchase_order);
+    $x=0;
     foreach ($id_purchase_order as $key) {
-      if ($this->model->approve($key)){
+      if ($this->model->approve($key,$price[$x])){
         $total ++;
         $success ++;
         $failed --;
         // $this->model->send_mail_approved($key,'approved');
       }
+      $x++;
     }
     if($success>0){
-      $this->model->send_mail_approval($id_purchase_order,'approve',config_item('auth_person_name'));
+      // $this->model->send_mail_approval($id_purchase_order,'approve',config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
                 'type' => 'success',
                 'info' => $success." data has been update!"
