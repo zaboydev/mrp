@@ -543,13 +543,15 @@ class Goods_Received_Note_Model extends MY_Model
        * CREATE part number IF NOT EXISTS in tb master part number
        */
 
-      // if (isPartNumberExists($data['part_number']) === FALSE){
-      //   $this->db->set('part_number', strtoupper($data['part_number']));
-      //   $this->db->set('min_qty', $data['minimum_quantity']);        
-      //   $this->db->set('item_id', $item_id);        
-      //   $this->db->set('qty', $data['received_quantity']);
-      //   $this->db->insert('tb_master_part_number');
-      // }
+      if (isPartNumberExists($data['part_number']) === FALSE){
+        $this->db->set('part_number', strtoupper($data['part_number']));
+        $this->db->set('min_qty', $data['minimum_quantity']);        
+        // $this->db->set('item_id', $item_id);        
+        $this->db->set('qty', $data['received_quantity']);
+        $this->db->set('description', strtoupper($data['description']));
+        $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->insert('tb_master_part_number');
+      }
       // else{
       //   if (isset($_SESSION['receipt']['id'])){
 
