@@ -155,6 +155,14 @@ class Vendor_Model extends MY_Model
       }
     }
 
+    if ($this->input->post('currency')) {
+      foreach ($this->input->post('currency') as $currency) {
+        $this->db->set('vendor', strtoupper($this->input->post('vendor')));
+        $this->db->set('currency', $currency);
+        $this->db->insert('tb_master_vendors_currency');
+      }
+    }
+
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
@@ -186,6 +194,17 @@ class Vendor_Model extends MY_Model
         $this->db->set('vendor', strtoupper($this->input->post('vendor')));
         $this->db->set('category', $category);
         $this->db->insert('tb_master_vendor_categories');
+      }
+    }
+
+    if ($this->input->post('currency')) {
+      $this->db->where('vendor', strtoupper($this->input->post('vendor')));
+      $this->db->delete('tb_master_vendors_currency');
+
+      foreach ($this->input->post('currency') as $currency) {
+        $this->db->set('vendor', strtoupper($this->input->post('vendor')));
+        $this->db->set('currency', $currency);
+        $this->db->insert('tb_master_vendors_currency');
       }
     }
 

@@ -17,8 +17,9 @@ class Payment_Model extends MY_MODEL
 	}
 	public function getSuplier($currency)
 	{
-		$this->db->select('vendor,code');
-		$this->db->where('currency', $currency);
+		$this->db->select('tb_master_vendors.vendor,tb_master_vendors.code');
+		$this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
+		$this->db->where('tb_master_vendors_currency.currency', $currency);
 		$this->db->from('tb_master_vendors');
 		return $this->db->get('')->result();
 	}
