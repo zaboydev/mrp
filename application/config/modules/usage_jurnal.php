@@ -12,10 +12,10 @@ $config['module']['usage_jurnal']['helper']         = 'material_slip_helper';
 $config['module']['usage_jurnal']['table']          = 'tb_jurnal';
 $config['module']['usage_jurnal']['model']          = 'Usage_Jurnal_Model';
 $config['module']['usage_jurnal']['permission']     = array(
-  'index'     => 'PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'info'      => 'PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'print'     => 'PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'document'  => 'PIC STOCK,SUPERVISOR,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
-  'payment'   => 'FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'import'    => 'PIC STOCK,SUPERVISOR,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
+  'index'     => 'FINANCE,CHIEF OF FINANCE,VP FINANCE,SUPER ADMIN',
+  'info'      => 'FINANCE,CHIEF OF FINANCE,VP FINANCE,SUPER ADMIN',
+  'print'     => 'FINANCE,CHIEF OF FINANCE,VP FINANCE,SUPER ADMIN',
+  'document'  => 'FINANCE,CHIEF OF FINANCE,VP FINANCE,SUPER ADMIN', //tambhan supervisor
+  'payment'   => 'FINANCE,CHIEF OF FINANCE,VP FINANCE,SUPER ADMIN',
+  'import'    => 'FINANCE,CHIEF OF FINANCE,VP FINANCE,SUPER ADMIN',//tambhan supervisor
 );

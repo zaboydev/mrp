@@ -88,9 +88,10 @@ require('modules/expired_stock.php');
 require('modules/konsolidasi.php');
 
 require('modules/account_payable.php');
+require('modules/payment.php');
 require('modules/jurnal.php');
 require('modules/usage_jurnal.php');
-require('modules/payment.php');
+require('modules/jurnal_payment.php');
 // require('modules/doc_receipt.php');
 // require('modules/doc_usage.php');
 // require('modules/doc_delivery.php');

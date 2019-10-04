@@ -11,7 +11,7 @@ class Jurnal_Model extends MY_MODEL {
   {
     $return = array(     
      
-      'tb_jurnal.tanggal_jurnal as id'            => NULL,
+      'tb_jurnal.id as id'            => NULL,
       'tb_jurnal.no_jurnal'                       => 'No Jurnal',
       'tb_jurnal.vendor'                          => 'Vendor',
       'tb_jurnal.tanggal_jurnal'                  => 'Date',
@@ -98,7 +98,7 @@ class Jurnal_Model extends MY_MODEL {
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
     $this->db->where('source', 'INV-IN');
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening",'tb_jurnal.no_jurnal',
-      'tb_jurnal.vendor','tb_jurnal_detail.jenis_transaksi'));
+      'tb_jurnal.vendor','tb_jurnal_detail.jenis_transaksi', 'tb_jurnal.id'));
     $this->searchIndex();
     $column_order = $this->getOrderableColumns();
 
@@ -107,7 +107,7 @@ class Jurnal_Model extends MY_MODEL {
         $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
       }
     } else {
-      $this->db->order_by('tb_jurnal.tanggal_jurnal', 'desc');
+      $this->db->order_by('tb_jurnal.id', 'desc');
     }
     // $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening"));
     if ($_POST['length'] != -1)
@@ -135,7 +135,7 @@ class Jurnal_Model extends MY_MODEL {
 
     $this->searchIndex();
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening",'tb_jurnal.no_jurnal',
-      'tb_jurnal.vendor','tb_jurnal_detail.jenis_transaksi'));
+      'tb_jurnal.vendor', 'tb_jurnal_detail.jenis_transaksi', 'tb_jurnal.id'));
     $query = $this->db->get();
 
     return $query->num_rows();
@@ -150,7 +150,7 @@ class Jurnal_Model extends MY_MODEL {
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
     $this->db->where('source', 'GRN');
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening",'tb_jurnal.no_jurnal',
-      'tb_jurnal.vendor','tb_jurnal_detail.jenis_transaksi'));
+      'tb_jurnal.vendor', 'tb_jurnal_detail.jenis_transaksi', 'tb_jurnal.id'));
     $query = $this->db->get();
 
     return $query->num_rows();

@@ -876,6 +876,8 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('trs_kredit_usd', 0);
       $this->db->set('kode_rekening', $coa->coa);
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->set('currency', $currency);
+      $this->db->set('kode_rekening_lawan', $kode);
       $this->db->insert('tb_jurnal_detail');
 
       $this->db->set('id_jurnal', $id_jurnal);
@@ -886,6 +888,8 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
       $this->db->set('kode_rekening', $kode);
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->set('currency', $currency);
+      $this->db->set('kode_rekening_lawan', $coa->coa);
       $this->db->insert('tb_jurnal_detail');
 
       $this->db->set('document_no', $this->ap_last_number());
