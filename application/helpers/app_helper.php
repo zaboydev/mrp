@@ -549,18 +549,22 @@ if ( ! function_exists('available_vendors_for_poe')) {
     $CI =& get_instance();
 
     $CI->db->distinct();
-    $CI->db->select('tb_master_vendors.vendor');
+    $CI->db->select('tb_master_vendors.vendor,tb_master_vendors_currency.currency');
+    $CI->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
     $CI->db->from('tb_master_vendors');
     $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
     // $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
-    $CI->db->where('tb_master_vendors.currency', $currency);
+    if($currency!=NULL){
+      $CI->db->where('tb_master_vendors_currency.currency', $currency);
+    }
+    $CI->db->order_by('tb_master_vendors.vendor', 'asc');
 
     $query  = $CI->db->get();
     $result = $query->result_array();
     $return = array();
 
     foreach ($result as $row) {
-      $return[] = $row['vendor'];
+      $return[] = $row['currency'].'-'. $row['vendor'];
     }
 
     return $return;

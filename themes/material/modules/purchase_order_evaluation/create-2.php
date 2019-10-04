@@ -24,7 +24,7 @@
                 <div class="input-group">
                   <div class="input-group-content">
                     <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?=$_SESSION['poe']['document_number'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
-                    <label for="document_number">Document No.</label>
+                    <label for="document_number">Document NO.</label>
                   </div>
                   <span class="input-group-addon"><?=poe_format_number();?></span>
                 </div>
@@ -52,7 +52,7 @@
                 <label for="approved_by">Approved/Rejected By</label>
               </div>
 			  
-              <div class="form-group">
+              <div class="form-group hide">
                 <select name="default_currency" id="default_currency" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_default_currency');?>" required>
                   <option value="USD" <?=('USD' == $_SESSION['poe']['default_currency']) ? 'selected' : '';?>>USD (US Dolar)</option>
                   <option value="IDR" <?=('IDR' == $_SESSION['poe']['default_currency']) ? 'selected' : '';?>>IDR (Indonesian Rupiah)</option>
@@ -105,9 +105,9 @@
 
                 <tr>
                   <?php for ($v = 0; $v < count($_SESSION['poe']['vendors']); $v++):?>
-                    <th class="middle-alignment text-center">Unit Price <span class="currency"><?=$_SESSION['poe']['default_currency'];?></span></th>
-                    <th class="middle-alignment text-center">Core Charge <span class="currency"><?=$_SESSION['poe']['default_currency'];?></span></th>
-                    <th class="middle-alignment text-center">Total Amount <span class="currency"><?=$_SESSION['poe']['default_currency'];?></span></th>
+                    <th class="middle-alignment text-center">Unit Price <span class="currency"><?= $_SESSION['poe']['vendors'][$v+1]['vendor_currency'];?></span></th>
+                    <th class="middle-alignment text-center">Core Charge <span class="currency"><?= $_SESSION['poe']['vendors'][$v + 1]['vendor_currency'];?></span></th>
+                    <th class="middle-alignment text-center">Total Amount <span class="currency"><?= $_SESSION['poe']['vendors'][$v + 1]['vendor_currency'];?></span></th>
                   <?php endfor;?>
                 </tr>
               </thead>

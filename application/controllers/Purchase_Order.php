@@ -767,7 +767,7 @@ class Purchase_Order extends MY_Controller
     $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
 
     $_SESSION['order']['items']               = $item;
-    $_SESSION['order']['vendor_po']               = $vendor_id;
+    $_SESSION['order']['vendor_po']           = $vendor_id;
     $_SESSION['order']['vendor']              = $order['vendor'];
     $_SESSION['order']['warehouse']           = config_item('main_warehouse');
     $_SESSION['order']['category']            = $category;

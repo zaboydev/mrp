@@ -559,12 +559,12 @@ class Purchase_Order_Model extends MY_Model
     $result['vendor_country']    = $row['country'];
     $result['vendor_attention']  = 'Phone: ' . $row['phone'];
 
-    $this->db->select('*');
-    $this->db->from('tb_purchase_orders');
-    $this->db->where('id', $vendor['purchase_order_id']);
-    $query  = $this->db->get();
-    $poe  = $query->unbuffered_row('array');
-    $result['default_currency'] = $poe['default_currency'];
+    // $this->db->select('*');
+    // $this->db->from('tb_purchase_orders');
+    // $this->db->where('id', $vendor['purchase_order_id']);
+    // $query  = $this->db->get();
+    // $poe  = $query->unbuffered_row('array');
+    $result['default_currency'] = $row['currency'];
     return $result;
   }
 

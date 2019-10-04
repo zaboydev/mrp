@@ -853,7 +853,12 @@ class Purchase_Order_Evaluation extends MY_Controller
         $_SESSION['poe']['vendors'] = array();
 
         foreach ($_POST['vendor'] as $key => $vendor) {
+          $vendor_currency = $vendor;
+          $range_vendor_currency = explode('-', $vendor_currency);
+
           $_SESSION['poe']['vendors'][$key]['vendor'] = $vendor;
+          $_SESSION['poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
+          $_SESSION['poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
           $_SESSION['poe']['vendors'][$key]['is_selected'] = 'f';
         }
 
