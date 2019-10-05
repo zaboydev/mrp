@@ -690,7 +690,7 @@ class Purchase_Request extends MY_Controller
     $notes = explode("##,", $notes);
     $result = $this->model->multi_reject($id_purchase_order,$notes);
     if($result){
-      $this->model->send_mail_approval($id_purchase_order,'approve',config_item('auth_person_name'));
+      $this->model->send_mail_approval($id_purchase_order,'rejected',config_item('auth_person_name'));
       $return["status"] = "success";
       echo json_encode($return);
     }else{
