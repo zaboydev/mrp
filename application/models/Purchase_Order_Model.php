@@ -85,6 +85,7 @@ class Purchase_Order_Model extends MY_Model
         'tb_po.id' => 'No',
         'tb_po.document_number'              => 'Document Number',
         'tb_po.review_status'                => 'Review Status',
+        'tb_po.status'                       => 'Status',
         'tb_po.document_date'                => 'Date',
         // 'tb_po.category'        => 'Category',
         'tb_po_item.description'             => 'Description',
@@ -119,7 +120,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.description',
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
-      'tb_po_item.evaluation_number',
+      'tb_po_item.poe_number',
       'tb_po_item.purchase_request_number',
       'tb_po.reference_quotation',
       'tb_po.vendor',
@@ -213,14 +214,16 @@ class Purchase_Order_Model extends MY_Model
         }
       } elseif ($status == 'rejected') {
         $this->db->like('tb_po.review_status', 'REJECTED');
-      } 
-      // elseif ($status == 'order') {
-      //   $this->db->like('tb_po.review_status', 'APPROVED');
-      //   $this->db->like('tb_po.status', 'ORDER');
-      // } elseif ($status == 'closed') {
-      //   $this->db->like('tb_po.review_status', 'APPROVED');
-      //   $this->db->like('tb_po.status', 'CLOSED');
-      // }
+      } elseif ($status == 'order') {
+        $this->db->like('tb_po.review_status', 'APPROVED');
+        $this->db->like('tb_po.status', 'ORDER');
+      } elseif ($status == 'closed') {
+        $this->db->like('tb_po.review_status', 'APPROVED');
+        $this->db->like('tb_po.status', 'CLOSED');
+      } elseif ($status == 'open') {
+        $this->db->like('tb_po.review_status', 'APPROVED');
+        $this->db->like('tb_po.status', 'OPEN');
+      }
       // elseif($status=='all'){
       //   $this->db->like('tb_po.review_status', 'WAITING');
       // }
@@ -1571,7 +1574,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.description',
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
-      'tb_po_item.evaluation_number',
+      'tb_po_item.poe_number',
       'tb_po_item.purchase_request_number',
       'tb_po.reference_quotation',
       'tb_po.vendor',

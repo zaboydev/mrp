@@ -295,6 +295,14 @@ class User_model extends MY_Model
     $this->db->set($user_data);
     $this->db->insert('tb_auth_users');
 
+    if ($this->input->post('category')) {
+      foreach ($this->input->post('category') as $key => $category) {
+        $this->db->set('category', strtoupper($category));
+        $this->db->set('username', $user_data['username']);
+        $this->db->insert('tb_auth_user_categories');
+      }
+    }
+
     if ($this->db->trans_status() === FALSE)
         return FALSE;
 
@@ -309,6 +317,14 @@ class User_model extends MY_Model
       $this->db->set($user_data);
       $this->db->where($criteria);
       $this->db->update('tb_auth_users');
+
+    if ($this->input->post('category')) {
+      foreach ($this->input->post('category') as $key => $category) {
+        $this->db->set('category', strtoupper($category));
+        $this->db->set('username', $user_data['username']);
+        $this->db->insert('tb_auth_user_categories');
+      }
+    }
 
       if ($this->db->trans_status() === FALSE)
           return FALSE;

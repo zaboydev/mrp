@@ -5,52 +5,200 @@
 <!--tambahan 9/Mei/2018-->
 
 <?php startblock('page_head_tools') ?>
+
 <?php $this->load->view('material/templates/datatable_tools') ?>
 <?php endblock() ?>
 
 <?php startblock('page_body') ?>
+
 <?php $this->load->view('material/templates/datatable') ?>
+<!-- <div id="add-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <?= form_open_multipart(site_url($module['route'] . '/add_cot'), array('autocomplete' => 'off', 'class' => 'form form-validate form-xhr ui-front', 'id' => 'add_cot_form')); ?>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+        <h4 class="modal-title" id="import-modal-label">Info AP</h4>
+      </div>
+
+      <div class="modal-body">
+        <div class="well">
+          <div class="clearfix">
+            <div class="pull-left">AP NUMBER.: </div>
+
+            <div class="pull-right" id="ap_number_lbl"></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">DATE: </div>
+            <div class="pull-right" id="date_lbl"></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">GRN NUMBER: </div>
+            <div class="pull-right" id="grn_number_lbl"></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">VENDOR: </div>
+            <div class="pull-right" id="vendor_lbl"></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">AMOUNT: </div>
+            <div class="pull-right" id="amount_lbl"></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">REMAINING DEBT: </div>
+            <div class="pull-right" id="sisa_lbl"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <div id="waiting_pay">
+          <?php if (config_item('auth_role') == 'FINANCE') { ?>
+            <div class="col-md-6">
+
+              <button type="button" class="btn btn-block btn-primary ink-reaction payment" id="btn_payment" data-id="">PAYMENT</button>
+
+            </div>
+            <div class="col-md-6">
+              <button type="button" class="btn btn-block btn-danger ink-reaction urgent" id="btn_urgent" data-id="">URGENT</button>
+            </div>
+          <?php } else {
+            ?>
+            <div class="col-md-12">
+              <button type="button" class="btn btn-block btn-danger ink-reaction urgent" id="btn_urgent" data-id="">URGENT</button>
+            </div>
+          <?php
+          } ?>
+        </div>
+        <div id="urgent_pay">
+          <?php if (config_item('auth_role') == 'FINANCE') { ?>
+            <div class="col-md-12">
+              <button type="button" class="btn btn-block btn-primary ink-reaction payment" id="btn_payment" data-id="">PAYMENT</button>
+            </div>
+          <?php } ?>
+        </div>
+      </div>
+      <?= form_close(); ?>
+    </div>
+  </div>
+</div> -->
 <?php endblock() ?>
 
 <?php startblock('page_modals') ?>
 <?php $this->load->view('material/templates/modal_fs') ?>
 <?php endblock() ?>
 
-<?php startblock('actions_right') ?>
-
-<?php endblock() ?>
-
 <?php startblock('datafilter') ?>
 <div class="form force-padding">
   <div class="form-group">
-    <label for="filter_received_date">Date</label>
+    <label for="filter_received_date">Received Date</label>
     <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
   </div>
 
   <div class="form-group">
-    <label for="start_date">Supplier</label>
-    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="1">
-      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
-      <?php foreach (available_vendors() as $vendor) : ?>
-        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
-          <?= $vendor; ?>
+    <label for="filter_item_group">Category</label>
+    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
+      <option value="">
+        Not filtered
+      </option>
+
+      <?php foreach (config_item('auth_inventory') as $category) : ?>
+        <option value="<?= $category; ?>">
+          <?= $category; ?>
         </option>
       <?php endforeach; ?>
     </select>
   </div>
 
   <div class="form-group">
-    <label for="start_date">Status</label>
-    <select class="form-control input-sm filter_dropdown" id="status" name="status" data-column="3">
-      <option value="all">All</option>
-      <option value="ORDER">Order</option>
-      <option value="OPEN">Open</option>
-      <option value="ADVANCE">Advance</option>
-      <option value="CLOSED">Closed</option>
+    <label for="filter_warehouse">Base</label>
+    <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_warehouse">
+      <option value="">
+        Not filtered
+      </option>
+
+      <?php foreach (config_item('auth_warehouses') as $warehouse) : ?>
+        <option value="<?= $warehouse; ?>">
+          <?= $warehouse; ?>
+        </option>
+      <?php endforeach; ?>
     </select>
   </div>
+
+  <div class="form-group">
+    <label for="filter_condition">Condition</label>
+    <select class="form-control input-sm filter_dropdown" data-column="9" id="filter_condition">
+      <option value="">
+        SERVICEABLE
+      </option>
+
+      <?php foreach (config_item('condition') as $condition) : ?>
+        <?php if ($condition !== 'SERVICEABLE') : ?>
+          <option value="<?= $condition; ?>">
+            <?= $condition; ?>
+          </option>
+        <?php endif; ?>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="filter_description">Description</label>
+    <input type="text" class="form-control input-sm filter_numeric_text" data-column="5" id="filter_description">
+  </div>
+
+  <div class="form-group">
+    <label for="filter_part_number">Part Number</label>
+    <input type="text" class="form-control input-sm filter_numeric_text" data-column="6" id="filter_part_number">
+  </div>
+
+  <div class="form-group">
+    <label for="filter_received_from">Received From</label>
+    <input type="text" class="form-control input-sm filter_numeric_text" data-column="15" id="filter_received_from">
+  </div>
 </div>
+
 <?php endblock() ?>
+<?php if (is_granted($module, 'import')) : ?>
+  <?php startblock('offcanvas_left_actions') ?>
+  <li class="tile">
+    <a class="tile-content ink-reaction" href="#offcanvas-import" data-toggle="offcanvas">
+      <div class="tile-icon">
+        <i class="fa fa-download"></i>
+      </div>
+      <div class="tile-text">
+        Import Data
+        <small>import from csv file</small>
+      </div>
+    </a>
+  </li>
+  <?php endblock() ?>
+
+  <?php startblock('offcanvas_left_list') ?>
+  <div id="offcanvas-import" class="offcanvas-pane width-8">
+    <div class="offcanvas-head style-primary-dark">
+      <header>Import</header>
+      <div class="offcanvas-tools">
+        <a class="btn btn-icon-toggle pull-right" data-dismiss="offcanvas">
+          <i class="md md-close"></i>
+        </a>
+        <a class="btn btn-icon-toggle pull-right" href="#offcanvas-datatable-filter" data-toggle="offcanvas">
+          <i class="md md-arrow-back"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="offcanvas-body no-padding">
+      <?php $this->load->view('material/modules/stores/import') ?>
+    </div>
+  </div>
+  <?php endblock() ?>
+
+<?php endif; ?>
 
 <?php startblock('scripts') ?>
 <?= html_script('vendors/pace/pace.min.js') ?>
@@ -150,6 +298,46 @@
     return x1 + x2;
   }
 
+  function detailAP(uri) {
+    $.ajax({
+      type: "POST",
+      url: uri,
+      cache: false,
+      success: function(response) {
+        var data = jQuery.parseJSON(response);
+        parseDetail(data);
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        console.log(xhr.status);
+        console.log(xhr.responseText);
+        console.log(thrownError);
+      }
+    });
+  }
+
+  function parseDetail(element) {
+    // console.log(data);
+    $("#ap_number_lbl").html(element.find("td").eq(1).find("span").html());
+    $("#date_lbl").html(element.find("td").eq(2).html());
+    $("#grn_number_lbl").html(element.find("td").eq(3).find("span").html());
+    $("#vendor_lbl").html(element.find("td").eq(4).find("span").html());
+    $("#amount_lbl").html(element.find("td").eq(5).find("span").html());
+    $("#sisa_lbl").html(element.find("td").eq(6).find("span").html());
+    if (element.find("td").eq(7).find("span").html() == "waiting for repayment") {
+      $("#waiting_pay").css("display", "block");
+      $("#urgent_pay").css("display", "none");
+    } else if (element.find("td").eq(7).find("span").html() == "urgent") {
+      $("#urgent_pay").css("display", "block");
+      $("#waiting_pay").css("display", "none");
+    } else {
+      $("#urgent_pay").css("display", "none");
+      $("#waiting_pay").css("display", "none");
+    }
+    $(".payment").attr("data-id", element.data('id'));
+    $(".urgent").attr("data-id", element.data('id'));
+    $("#add-modal").modal("show");
+
+  }
   $(document).on('keydown', function(event) {
     if ((event.metaKey || event.ctrlKey) && (
         String.fromCharCode(event.which).toLowerCase() === '0' ||
@@ -417,6 +605,10 @@
       }
     });
 
+    // $(datatableElement).find('tbody').on('click', 'tr', function(e) {
+    //   //detailAP($(this).data('source'));
+    //   parseDetail($(this));
+    // });
     $('.filter_numeric_text').on('keyup', function() {
       var i = $(this).data('column');
       var v = $(this).val();
@@ -485,7 +677,32 @@
         $('.progress-overlay').hide();
       }
     });
-
+    $(".urgent").click(function() {
+      var id = $(this).attr("data-id");
+      $.ajax({
+        type: "POST",
+        url: 'account_payable/urgent/' + id,
+        cache: false,
+        success: function(response) {
+          var data = jQuery.parseJSON(response);
+          if (data.status == "success") {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success('Success change status data the page will reload');
+            window.location.reload();
+          } else {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.danger('Failed change status data');
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          console.log(xhr.status);
+          console.log(xhr.responseText);
+          console.log(thrownError);
+        }
+      });
+    })
     $(document).on('click', '.btn-xhr-delete', function(e) {
       e.preventDefault();
 

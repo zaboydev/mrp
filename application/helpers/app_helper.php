@@ -1025,6 +1025,48 @@ if ( ! function_exists('month')) {
       return $return;
     }
   }
+
+  if (!function_exists('available_categories')) {
+    function available_categories()
+    {
+      $CI = &get_instance();
+
+      $CI->db->from('tb_master_item_categories');
+      // $CI->db->where('banned', '0');
+
+      $query = $CI->db->get();
+
+      return $query->result_array();
+    }
+  }
+
+  if (!function_exists('category_for_user_list')) {
+    function category_for_user_list($user)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('category');
+      $CI->db->from('tb_auth_user_categories');
+
+      if (is_array($user)) {
+        $CI->db->where_in('username', $user);
+      } else {
+        $CI->db->where('username', $user);
+      }
+
+      $CI->db->order_by('category', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = array();
+
+      foreach ($result as $row) {
+        $return[] = $row['category'];
+      }
+
+      return $return;
+    }
+  }
 }
 
     

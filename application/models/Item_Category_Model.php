@@ -143,6 +143,13 @@ class Item_Category_Model extends MY_Model
       }
     }
 
+    $super_admin = $this->user_super_admin();
+    foreach ($super_admin as $key => $user) {
+      $this->db->set('category', strtoupper($this->input->post('category')));
+      $this->db->set('username', $user);
+      $this->db->insert('tb_auth_user_categories');
+    }
+
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
@@ -265,5 +272,26 @@ class Item_Category_Model extends MY_Model
     $this->db->trans_commit();
 
     return TRUE;
+  }
+
+  public function user_super_admin()
+  {
+    // $CI = &get_instance();
+
+    $this->db->select('username');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level',13);
+
+    // $this->db->order_by('category', 'ASC');
+
+    $query  = $this->db->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['username'];
+    }
+
+    return $return;
   }
 }
