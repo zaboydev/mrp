@@ -494,7 +494,7 @@ class Stock_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
-    $this->db->where('tb_master_item_groups.group', $_SESSION['mix']['group']);
+    $this->db->where_in('tb_master_item_groups.group', ['FUEL','MOGAS']);
     $this->db->where('tb_master_item_groups.category', $_SESSION['mix']['category']);
     // $this->db->where('tb_stocks.condition', 'SERVICEABLE');
     $this->db->where('tb_stock_in_stores.quantity > ', 0);
@@ -1091,7 +1091,7 @@ class Stock_Model extends MY_Model
         $this->db->set('remarks', $remarks);
 
       $this->db->set('stock_in_stores_id', $mixed_items['stock_in_stores_id']);
-      $this->db->set('date_of_entry', date('Y-m-d'));
+      $this->db->set('date_of_entry', $issued_date);
       $this->db->set('period_year', config_item('period_year'));
       $this->db->set('period_month', config_item('period_month'));
       $this->db->set('previous_quantity', $current_quantity);

@@ -461,7 +461,7 @@ class Shipping_Document extends MY_Controller
         'insurance_currency'      => trim(strtoupper($this->input->post('insurance_currency'))),
         'awb_number'              => $this->input->post('awb_number'),
         'condition'               => $this->input->post('condition'),
-        'stores'                  => trim(strtoupper($this->input->post('stores'))),
+        'stores'                  => (strtoupper($this->input->post('stores'))),
         'unit'                    => trim($this->input->post('unit')),
         'remarks'                 => trim($this->input->post('remarks')),
       );
