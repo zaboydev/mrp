@@ -906,6 +906,10 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('status', "waiting for payment");
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
       $this->db->insert('tb_hutang');
+
+      $this->db->set('current_price',floatval($harga));
+      $this->db->where('id',$item_id);
+      $this->db->update('tb_master_items');
     } //end foreach items
 
 

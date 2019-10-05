@@ -105,9 +105,9 @@
 
                 <tr>
                   <?php for ($v = 0; $v < count($_SESSION['poe']['vendors']); $v++):?>
-                    <th class="middle-alignment text-center">Unit Price <span class="currency"><?= $_SESSION['poe']['vendors'][$v+1]['vendor_currency'];?></span></th>
-                    <th class="middle-alignment text-center">Core Charge <span class="currency"><?= $_SESSION['poe']['vendors'][$v + 1]['vendor_currency'];?></span></th>
-                    <th class="middle-alignment text-center">Total Amount <span class="currency"><?= $_SESSION['poe']['vendors'][$v + 1]['vendor_currency'];?></span></th>
+                    <th class="middle-alignment text-center">Unit Price <span class="currency"><?= $_SESSION['poe']['vendors'][$v]['vendor_currency'];?></span></th>
+                    <th class="middle-alignment text-center">Core Charge <span class="currency"><?= $_SESSION['poe']['vendors'][$v]['vendor_currency'];?></span></th>
+                    <th class="middle-alignment text-center">Total Amount <span class="currency"><?= $_SESSION['poe']['vendors'][$v]['vendor_currency'];?></span></th>
                   <?php endfor;?>
                 </tr>
               </thead>
