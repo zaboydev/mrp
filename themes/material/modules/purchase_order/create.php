@@ -252,6 +252,9 @@
                       <?= $item['evaluation_number']; ?>
                     </td>
                     <td>
+                      <?= $item['purchase_request_number']; ?>
+                    </td>
+                    <td>
                       <?= $item['remarks']; ?>
                     </td>
                   </tr>

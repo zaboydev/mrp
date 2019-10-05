@@ -32,7 +32,7 @@ class Purchase_Order_Model extends MY_Model
         'tb_po_item.part_number'             => 'Part Number',
         'tb_po_item.alternate_part_number'   => 'Alt. Part Number',
         'tb_po_item.poe_number'            => 'Ref. POE',
-        'tb_purchase_order_items.purchase_request_number' => 'Ref. PR',
+        'tb_po_item.purchase_request_number' => 'Ref. PR',
         'tb_po.reference_quotation'          => 'Ref. Quotation',
         'tb_po.vendor'                       => 'Vendor',
         'tb_po_item.quantity'                => 'Order Qty',
@@ -91,7 +91,7 @@ class Purchase_Order_Model extends MY_Model
         'tb_po_item.part_number'             => 'Part Number',
         'tb_po_item.alternate_part_number'   => 'Alt. Part Number',
         'tb_po_item.poe_number'            => 'Ref. POE',
-        'tb_purchase_order_items.purchase_request_number' => 'Ref. PR',
+        'tb_po_item.purchase_request_number' => 'Ref. PR',
         'tb_po.reference_quotation'          => 'Ref. Quotation',
         'tb_po.vendor'                       => 'Vendor',
         'tb_po_item.quantity'                => 'Order Qty',
@@ -120,7 +120,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.evaluation_number',
-      'tb_purchase_order_items.purchase_request_number',
+      'tb_po_item.purchase_request_number',
       'tb_po.reference_quotation',
       'tb_po.vendor',
       'tb_po.notes',
@@ -141,7 +141,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.evaluation_number',
-      'tb_purchase_order_items.purchase_request_number',
+      'tb_po_item.purchase_request_number',
       'tb_po.reference_quotation',
       'tb_po.vendor',
       'tb_po_item.quantity',
@@ -496,7 +496,7 @@ class Purchase_Order_Model extends MY_Model
 
     $select = array(
       'tb_po_item.*',
-      'tb_purchase_order_items.purchase_request_number',
+      'tb_po_item.purchase_request_number',
       // 'tb_purchase_order_items.ttd_issued_by'
     );
 
@@ -530,6 +530,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_purchase_order_items.core_charge',
       'tb_purchase_order_items.total_amount',
       'tb_purchase_order_items.unit',
+      'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.evaluation_number',
     );
 
@@ -920,7 +921,8 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('core_charge', floatval($item['core_charge']));
       $this->db->set('total_amount', floatval($item['total_amount']));
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
-      $this->db->set('poe_number', $item['evaluation_number']);
+      $this->db->set('poe_number', $item['evaluation_number']);      
+      $this->db->set('purchase_request_number', $item['purchase_request_number']);
       $this->db->insert('tb_po_item');
       $total_qty = $total_qty + $item['quantity'];
       $total_value = $total_value + $item['total_amount'];
@@ -1433,7 +1435,7 @@ class Purchase_Order_Model extends MY_Model
       $time = strtotime($key["date"]);
       $date = date("Y-m-d", $time);
       $po_id = "";
-      if ($check != 1) {
+      // if ($check != 1) {
         if ($check == 0) {
           $this->db->set('document_number', $key["document_no"]);
           $this->db->set('review_status', strtoupper("APPROVED"));
@@ -1470,9 +1472,9 @@ class Purchase_Order_Model extends MY_Model
           $data = $this->db->get('tb_po')->row();
           $po_id = $data->id;
 
-          $this->db->where('id', $po_id);
-          $this->db->set('remaining_payment', 'remaining_payment +' . $key['total_amount'], FALSE);
-          $this->db->update('tb_po');
+          // $this->db->where('id', $po_id);
+          // $this->db->set('remaining_payment', 'remaining_payment +' . $key['total_amount'], FALSE);
+          // $this->db->update('tb_po');
         }
         $this->db->set('purchase_order_id', $po_id);
         $this->db->set('description', $key["description"]);
@@ -1499,7 +1501,7 @@ class Purchase_Order_Model extends MY_Model
         $this->db->set('remaining_payment', '"remaining_payment" + ' . $key['total_amount'], false);
         $this->db->where('id', $po_id);
         $this->db->update('tb_po');
-      }
+      // }
     }
     if ($this->db->trans_status() === FALSE) {
       return FALSE;
@@ -1508,6 +1510,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->trans_commit();
     return TRUE;
   }
+
   function checkImport($po_no)
   {
     $this->db->where('document_number', $po_no);
@@ -1541,7 +1544,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.part_number'             => 'Part Number',
       'tb_po_item.alternate_part_number'   => 'Alt. Part Number',
       'tb_po_item.poe_number'            => 'Ref. POE',
-      'tb_purchase_order_items.purchase_request_number' => 'Ref. PR',
+      'tb_po_item.purchase_request_number' => 'Ref. PR',
       'tb_po.reference_quotation'          => 'Ref. Quotation',
       'tb_po.vendor'                       => 'Vendor',
       'tb_po_item.quantity'                => 'Order Qty',
@@ -1569,7 +1572,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.evaluation_number',
-      'tb_purchase_order_items.purchase_request_number',
+      'tb_po_item.purchase_request_number',
       'tb_po.reference_quotation',
       'tb_po.vendor',
       'tb_po.notes',
@@ -1590,7 +1593,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.evaluation_number',
-      'tb_purchase_order_items.purchase_request_number',
+      'tb_po_item.purchase_request_number',
       'tb_po.reference_quotation',
       'tb_po.vendor',
       'tb_po_item.quantity',
