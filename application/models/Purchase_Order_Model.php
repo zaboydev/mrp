@@ -565,7 +565,7 @@ class Purchase_Order_Model extends MY_Model
     // $this->db->where('id', $vendor['purchase_order_id']);
     // $query  = $this->db->get();
     // $poe  = $query->unbuffered_row('array');
-    $result['default_currency'] = $row['currency'];
+    $result['default_currency'] = $vendor['currency'];
     return $result;
   }
 
