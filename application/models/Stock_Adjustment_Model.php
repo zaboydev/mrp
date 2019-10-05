@@ -150,11 +150,12 @@ class Stock_Adjustment_Model extends MY_Model
     $orderableColumns = $this->getOrderableColumns();
 
     if (isset($_POST['order'])){
-      foreach ($_POST['order'] as $key => $order){
-        $this->db->order_by($orderableColumns[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
-      }
+      //foreach ($_POST['order'] as $key => $order){
+        //$this->db->order_by($orderableColumns[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+      //}
+	  $this->db->order_by('date_of_entry', 'desc');
     } else {
-      $this->db->order_by('id', 'desc');
+      $this->db->order_by('date_of_entry', 'desc');
     }
 
     if ($_POST['length'] != -1)

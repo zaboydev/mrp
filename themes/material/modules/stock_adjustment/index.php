@@ -95,6 +95,7 @@
   <div class="form-group">
     <label for="as_mix">Status</label>
     <select class="form-control input-sm filter_dropdown" data-column="1" id="as_mix" name="as_mix">
+      <option>All</option>
       <option value="APPROVED">
         APPROVED
       </option>

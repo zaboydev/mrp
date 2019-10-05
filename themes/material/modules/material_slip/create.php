@@ -802,7 +802,7 @@ $(function(){
           $('#description').val( ui.item.description );
           $('#alternate_part_number').val( ui.item.alternate_part_number );
           $('#group').val( ui.item.group );
-          $('#maximum_quantity').val( parseInt(ui.item.quantity) );
+          $('#maximum_quantity').val( parseFloat(ui.item.quantity) );
           $('#unit').val( ui.item.unit );
           $('#unit_pakai').val( ui.item.unit );
           $('#condition').val( ui.item.condition );
@@ -813,12 +813,12 @@ $(function(){
 
           // $('input[id="issued_quantity"]').attr('data-rule-max', parseInt(ui.item.qty_konvers)).attr('data-msg-max', 'max available '+ parseInt(ui.item.qty_konvers));
 
-          $('input[id="issued_quantity"]').attr('data-rule-max', parseInt(ui.item.quantity)).attr('data-msg-max', 'max available '+ parseInt(ui.item.quantity));
+          $('input[id="issued_quantity"]').attr('data-rule-max', parseFloat(ui.item.quantity)).attr('data-msg-max', 'max available '+ parseFloat(ui.item.quantity));
 
           // $('#issued_quantity').attr('max', parseInt(ui.item.qty_konvers)).focus();
-          $('#issued_quantity').attr('max', parseInt(ui.item.quantity)).focus();
+          $('#issued_quantity').attr('max', parseFloat(ui.item.quantity)).focus();
 
-          $('input[id="issued_quantity"]').attr('data-rule-min', parseInt(1)).attr('data-msg-min', 'min quantity '+ parseInt(1));
+          $('input[id="issued_quantity"]').attr('data-rule-min', parseFloat(0.1)).attr('data-msg-min', 'min quantity '+ parseFloat(0.1));
 
           // $('#issued_quantity').attr('max', parseInt(ui.item.qty_konvers)).focus();
           $('#issued_quantity').attr('max', parseInt(1)).focus();
@@ -851,7 +851,7 @@ $(function(){
   });
 
   $('input[id="issued_quantity"]').on('change', function (e) {
-    if (parseInt($(this).val()) > parseInt($('input[id="maximum_quantity"]').val())){
+    if (parseFloat($(this).val()) > parseFloat($('input[id="maximum_quantity"]').val())){
       alert('Maximum limit is ' + max_quantity);
       $(this).val(max_quantity);
       $(this).focus();
@@ -861,7 +861,7 @@ $(function(){
   });
 
   $('input[id="edit_issued_quantity"]').on('change', function (e) {
-    if (parseInt($(this).val()) > parseInt($('input[id="edit_maximum_quantity"]').val())){
+    if (parseFloat($(this).val()) > parseFloat($('input[id="edit_maximum_quantity"]').val())){
       alert('Maximum limit is ' + max_quantity);
       $(this).val(max_quantity);
       $(this).focus();
