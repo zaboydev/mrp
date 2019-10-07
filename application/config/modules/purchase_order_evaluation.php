@@ -12,9 +12,9 @@ $config['module']['purchase_order_evaluation']['helper']         = 'purchase_ord
 $config['module']['purchase_order_evaluation']['table']          = 'tb_purchase_order_evaluations';
 $config['module']['purchase_order_evaluation']['model']          = 'Purchase_Order_Evaluation_Model';
 $config['module']['purchase_order_evaluation']['permission']     = array(
-  'index'     => 'PIC PROCUREMENT,SUPERVISOR,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE,PROCUREMENT,SUPER ADMIN',
-  'info'      => 'PIC PROCUREMENT,SUPERVISOR,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE,PROCUREMENT,SUPER ADMIN',
-  'document'  => 'PIC PROCUREMENT,SUPERVISOR,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE,PROCUREMENT,SUPER ADMIN',//tambahan supervisor semua permission
+  'index'     => 'PIC PROCUREMENT,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE,PROCUREMENT,SUPER ADMIN',
+  'info'      => 'PIC PROCUREMENT,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE,PROCUREMENT,SUPER ADMIN',
+  'document'  => 'PIC PROCUREMENT,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE,PROCUREMENT,SUPER ADMIN',//tambahan supervisor semua permission
   'approval'  => 'CHIEF OF MAINTANCE,SUPER ADMIN',
   'print'     => 'PIC PROCUREMENT,SUPERVISOR,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE,PROCUREMENT,SUPER ADMIN,VP FINANCE,FINANCE MANAGER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,CHIEF OPERATION SUPPORT',
 );

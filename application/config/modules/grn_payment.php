@@ -12,9 +12,9 @@ $config['module']['grn_payment']['helper']         = 'material_slip_helper';
 $config['module']['grn_payment']['table']          = 'tb_purchase_orders';
 $config['module']['grn_payment']['model']          = 'Grn_Payment_Model';
 $config['module']['grn_payment']['permission']     = array(
-  'index'     => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',
-  'info'      => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',
-  'print'     => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',
-  'document'  => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,HEAD OF SCHOOL,CHIEF OF FINANCE,SUPER ADMIN',//tambhan supervisor
+  'index'     => 'PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN',
+  'info'      => 'PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN',
+  'print'     => 'PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN',
+  'document'  => 'PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN',//tambhan supervisor
   'payment'   => 'FINANCE,SUPER ADMIN',//tambhan supervisor
 );
