@@ -492,7 +492,7 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
         $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
-        $request['items'][$key]['on_hand_qty'] = $this->countOnhand($value['part_number'])->sum;
+        $request['items'][$key]['on_hand_qty'] = $this->tb_on_hand_stock($value['id'])->sum;
       }      
     }
     
@@ -623,7 +623,7 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
         $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];        
-        $request['items'][$key]['on_hand_qty'] = $this->countOnhand($value['part_number'])->sum;
+        $request['items'][$key]['on_hand_qty'] = $this->tb_on_hand_stock($value['id'])->sum;
       }      
     }
     
