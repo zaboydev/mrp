@@ -302,7 +302,12 @@ class Purchase_Request extends MY_Controller
         }
 
         if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER'){
-          $col[] = $row['price'] == 0? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>':'<input type="number" id="price_'.$row['id'].'" autocomplete="off" value="'. $row['price'].'"/>';
+          if(config_item('auth_role') == 'FINANCE MANAGER' && $row['status'] == 'pending'){
+            $col[] = $row['price'] == 0 ? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>' : '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value="' . $row['price'] . '"/>';
+          }else{
+            $col[] = print_number($row['price'], 2);
+          }
+          
           $col[] = print_number($row['total'], 2);
         }
         
