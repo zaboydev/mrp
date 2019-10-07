@@ -11,8 +11,8 @@ $config['module']['low_stock']['language']        = 'low_stock_lang';
 $config['module']['low_stock']['table']           = 'tb_master_part_number';
 $config['module']['low_stock']['model']           = 'Low_Stock_Model';
 $config['module']['low_stock']['permission']      = array(
-  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'summary'   => 'VP FINANCE,SUPERVISOR,SUPER ADMIN',
-  'detail'    => 'VP FINANCE,SUPERVISOR,SUPER ADMIN',
+  'index'     => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'summary'   => 'PROCUREMENT,VP FINANCE,SUPERVISOR,SUPER ADMIN',
+  'detail'    => 'PROCUREMENT,VP FINANCE,SUPERVISOR,SUPER ADMIN',
   'document'    => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
 );

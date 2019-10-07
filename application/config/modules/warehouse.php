@@ -11,10 +11,10 @@ $config['module']['warehouse']['language']        = 'warehouse_lang';
 $config['module']['warehouse']['table']           = 'tb_master_warehouses';
 $config['module']['warehouse']['model']           = 'Warehouse_Model';
 $config['module']['warehouse']['permission']      = array(
-  'index'   => 'ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
-  'create'  => 'ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
-  'edit'    => 'ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
-  'info'    => 'ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
-  'save'    => 'ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'index'   => 'PROCUREMENT,ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'create'  => 'PROCUREMENT,ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'edit'    => 'PROCUREMENT,ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'info'    => 'PROCUREMENT,ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'save'    => 'PROCUREMENT,ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
   'delete'  => 'ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
   );

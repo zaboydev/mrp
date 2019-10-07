@@ -11,11 +11,11 @@ $config['module']['category']['language']    = 'item_category_lang';
 $config['module']['category']['table']       = 'tb_master_item_categories';
 $config['module']['category']['model']       = 'Item_Category_Model';
 $config['module']['category']['permission']  = array(
-  'index'   => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'create'  => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'import'  => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'edit'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'info'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'save'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'index'   => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'create'  => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'import'  => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'edit'    => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'info'    => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'save'    => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
   'delete'  => 'ADMIN,FINANCE,SUPER ADMIN',
   );

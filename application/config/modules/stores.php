@@ -11,11 +11,11 @@ $config['module']['stores']['language']   = 'stores_lang';
 $config['module']['stores']['table']      = 'tb_master_stores';
 $config['module']['stores']['model']      = 'Stores_Model';
 $config['module']['stores']['permission'] = array(
-  'index'   => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPERVISOR,PIC STOCK,SUPER ADMIN',
-  'create'  => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'import'  => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'edit'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'info'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
-  'save'    => 'ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'index'   => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPERVISOR,PIC STOCK,SUPER ADMIN',
+  'create'  => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'import'  => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'edit'    => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'info'    => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
+  'save'    => 'PROCUREMENT,ADMIN,PIC PROCUREMENT,FINANCE,SUPER ADMIN',
   'delete'  => 'ADMIN,SUPER ADMIN',
   );

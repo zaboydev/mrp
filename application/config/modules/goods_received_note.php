@@ -12,8 +12,8 @@ $config['module']['goods_received_note']['helper']           = 'goods_received_n
 $config['module']['goods_received_note']['table']            = 'tb_receipts';
 $config['module']['goods_received_note']['model']            = 'Goods_Received_Note_Model';
 $config['module']['goods_received_note']['permission']       = array(
-  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'info'      => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'index'     => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'info'      => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
   //penambahan PIC PROCUREMENT
   'document'  => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
   'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,PIC PROCUREMENT,SUPER ADMIN',

@@ -11,7 +11,7 @@ $config['module']['general_stock_report']['language']          = 'stock_general_
 $config['module']['general_stock_report']['table']             = 'tb_stocks';
 $config['module']['general_stock_report']['model']             = 'General_Stock_Report_Model';
 $config['module']['general_stock_report']['permission']        = array(
-  'index'       => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
-  'show'        => 'PIC PROCUREMENT,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'index'       => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
+  'show'        => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN',
   'document_non_shipping' => 'SUPER ADMIN,FINANCE,VP FINANCE',
 );

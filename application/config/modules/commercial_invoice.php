@@ -12,9 +12,9 @@ $config['module']['commercial_invoice']['helper']           = 'commercial_invoic
 $config['module']['commercial_invoice']['table']            = 'tb_issuances';
 $config['module']['commercial_invoice']['model']            = 'Commercial_Invoice_Model';
 $config['module']['commercial_invoice']['permission']       = array(
-  'index'     => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'info'      => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'index'     => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
+  'info'      => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
   'document'  => 'PIC STOCK,SUPERVISOR,VP FINANCE,SUPER ADMIN',
-  'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'print'     => 'PROCUREMENT,PIC STOCK,SUPERVISOR,VP FINANCE,SUPER ADMIN',
   'delete'    => 'SUPERVISOR,VP FINANCE,SUPER ADMIN',
 );

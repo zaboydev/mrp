@@ -12,7 +12,7 @@ $config['module']['budgeting']['helper']         = 'material_slip_helper';
 $config['module']['budgeting']['table']          = 'tb_budget';
 $config['module']['budgeting']['model']          = 'Budgeting_Model';
 $config['module']['budgeting']['permission']     = array(
-  'index'     => 'PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'approve'    => 'SUPERVISOR,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
-  'import'		=> 'SUPER ADMIN'
+  'index'     => 'PROCUREMENT,PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
+  'approve'   => 'PROCUREMENT,SUPERVISOR,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
+  'import'		=> 'PROCUREMENT,SUPER ADMIN'
 );

@@ -12,10 +12,10 @@ $config['module']['budget_cot']['helper']         = 'material_slip_helper';
 $config['module']['budget_cot']['table']          = 'tb_budget_cot';
 $config['module']['budget_cot']['model']          = 'Budget_Cot_Model';
 $config['module']['budget_cot']['permission']     = array(
-  'index'     => 'PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'info'      => 'PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'print'     => 'PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'document'  => 'PIC PROCUREMENT,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
+  'index'     => 'PROCUREMENT,PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
+  'info'      => 'PROCUREMENT,PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
+  'print'     => 'PROCUREMENT,PIC PROCUREMENT,FINANCE,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
+  'document'  => 'PROCUREMENT,PIC PROCUREMENT,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
   'payment'   => 'FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',
-  'import'    => 'SUPERVISOR,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
+  'import'    => 'PROCUREMENT,SUPERVISOR,VP FINANCE,CHIEF OF MAINTANCE,SUPER ADMIN',//tambhan supervisor
 );
