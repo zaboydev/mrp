@@ -47,7 +47,7 @@
               <div class="form-group">
                 <input type="text" name="serial_number" id="serial_number" class="form-control" value="">
 
-                <input type="text" name="id" id="id" value="<?=$entity['id'];?>">
+                <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
                 <label for="serial_number">Serial Number</label>
               </div>
             </div>

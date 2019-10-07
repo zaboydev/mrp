@@ -1127,7 +1127,8 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('status', 'pending');          
           $this->db->set('budget_status', 'unbudgeted');          
           $this->db->set('budget_id_sementara', $budget_id_sementara);
-          $this->db->insert('tb_inventory_purchase_requisition_details');         
+          $this->db->insert('tb_inventory_purchase_requisition_details');    
+          $prl_item_id = $this->db->insert_id(); 
 
 
           // return TRUE;
@@ -1160,6 +1161,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('budget_status', 'relocation');
             $this->db->set('budget_id_sementara', $budget_id_sementara);
             $this->db->insert('tb_inventory_purchase_requisition_details');
+            $prl_item_id = $this->db->insert_id();
 
             $this->db->set('budget_id',$inventory_monthly_budget_id);
             $this->db->set('inventory_purchase_requisition_id',$document_id);
@@ -1233,6 +1235,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('total', floatval($data['total']));
             $this->db->set('status', 'waiting');
             $this->db->insert('tb_inventory_purchase_requisition_details');
+            $prl_item_id = $this->db->insert_id();
           }
 
           //update budget tujuan relokasi (dipindahkan)
@@ -1257,6 +1260,30 @@ class Purchase_Request_Model extends MY_Model
           //update budget tujuan relokasi (dipindahkan)
           
         }
+
+        $this->db->select(
+          array(
+            'tb_stock_in_stores.warehouse',
+            'sum(quantity) as qty'
+          )
+        );
+        $this->db->from('tb_stock_in_stores');
+        //tambahan
+        $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
+        $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+        $this->db->group_by('tb_master_items.part_number,tb_stock_in_stores.warehouse');
+        //tambahan
+        $this->db->where('tb_master_items.part_number', $data['part_number']);
+        $query =  $this->db->get();
+        $result = $query->result_array();
+
+        foreach ($result as $data) {
+          $this->db->set('prl_item_id', $prl_item_id);
+          $this->db->set('warehouse', $data['warehouse']);
+          $this->db->set('on_hand_stock', $data['qty']);
+          $this->db->insert('tb_purchase_request_items_on_hand_stock');
+        }
+
       }
     }
 
@@ -2290,6 +2317,19 @@ class Purchase_Request_Model extends MY_Model
     return $this->db->get('')->row();
   }
 
+  public function tb_on_hand_stock($prl_item_id)
+  {
+    $this->db->select('sum(on_hand_stock)');
+    $this->db->from('tb_purchase_request_items_on_hand_stock');
+    //tambahan
+    // $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
+    // $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+    $this->db->group_by('tb_purchase_request_items_on_hand_stock.prl_item_id');
+    //tambahan
+    $this->db->where('tb_purchase_request_items_on_hand_stock.prl_item_id', $prl_item_id);
+    return $this->db->get('')->row();
+  }
+
   public function findPrlByPoeItemid($poe_item_id)
   {
     // $this->db->select('tb_inventory_purchase_requisition_details.*');
@@ -2477,6 +2517,43 @@ class Purchase_Request_Model extends MY_Model
     $this->db->from('tb_auth_users');
     $this->db->where('person_name',$name);
     return $this->db->get('')->result();
+  }
+
+  public function info_on_hand($prl_item_id){
+    $select_prl_item = array(
+      'tb_inventory_purchase_requisition_details.part_number',
+      'tb_inventory_purchase_requisition_details.product_name',
+      'tb_inventory_purchase_requisition_details.unit',
+      'tb_inventory_purchase_requisitions.pr_number',
+      // 'tb_po_item.purchase_request_number',
+      // 'tb_purchase_order_items.ttd_issued_by'
+    );
+    $this->db->select($select_prl_item);
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
+    $this->db->where('tb_inventory_purchase_requisition_details.id', $prl_item_id);
+    $query  = $this->db->get();
+    $prl_item    = $query->unbuffered_row('array');
+
+    $select = array(
+      'tb_purchase_request_items_on_hand_stock.*',
+      // 'tb_po_item.purchase_request_number',
+      // 'tb_purchase_order_items.ttd_issued_by'
+    );
+
+    $this->db->select($select);
+    $this->db->from('tb_purchase_request_items_on_hand_stock');
+    $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.id = tb_purchase_request_items_on_hand_stock.prl_item_id', 'left');
+    $this->db->where('tb_purchase_request_items_on_hand_stock.prl_item_id', $prl_item_id);
+    $query = $this->db->get();
+    $prl_item['items_count'] = $query->num_rows();
+
+    foreach ($query->result_array() as $key => $value) {
+      $prl_item['items'][$key] = $value;
+    }
+
+
+    return $prl_item;
   }
 
 }

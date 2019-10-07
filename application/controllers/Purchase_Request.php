@@ -278,9 +278,9 @@ class Purchase_Request extends MY_Controller
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name']:$row['item_category']);
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name']:$row['product_name']);
         // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
-        $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($row['product_code']).'</a>';
+        $col[] = '<a data-id="item" data-item-row="' . $row['id'] . '" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($row['product_code']).'</a>';
         $col[] = print_number($row['min_qty']);
-        $col[] = print_number($this->countOnhand($row['product_code'],2));
+        $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id'], 2)) . '</a>';
         $col[] = print_number($row['quantity'], 2);
         $col[] = print_number($row['process_qty'], 2);
         $col[] = print_string(strtoupper($row['status']));
@@ -374,6 +374,26 @@ class Purchase_Request extends MY_Controller
 
       $return['type'] = 'success';
       $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
+    }
+
+    echo json_encode($return);
+  }
+
+  public function info_on_hand($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'info') === FALSE) {
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->info_on_hand($id);
+
+      $this->data['entity'] = $entity;
+
+      $return['type'] = 'success';
+      $return['info'] = $this->load->view($this->module['view'] . '/info_on_hand', $this->data, TRUE);
     }
 
     echo json_encode($return);
@@ -589,6 +609,7 @@ class Purchase_Request extends MY_Controller
         'mtd_used_budget'             => $this->input->post('mtd_used_budget'),
         'part_number_relocation'      => $this->input->post('origin_budget'),
         'budget_value_relocation'      => $this->input->post('budget_value'),
+        // 'budget_value_relocation'      => $this->input->post('budget_value'),
       );
     }
 
@@ -889,8 +910,8 @@ class Purchase_Request extends MY_Controller
     $this->render_view($this->module['view'] .'/email_form');
   }
 
-  public function countOnhand($part_number){
-    $return = $this->model->countOnhand($part_number)->sum;
+  public function countOnhand($prl_item_id){
+    $return = $this->model->tb_on_hand_stock($prl_item_id)->sum;
     return $return;
   }
 

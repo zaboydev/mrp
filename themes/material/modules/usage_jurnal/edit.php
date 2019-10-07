@@ -148,18 +148,18 @@
                       <input type="text" name="description" id="edit_description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" readonly>
                       <label for="description">Description</label>
                     </div>
-                    <input type="text" name="item_id" id="item_id">
-                    <input type="text" name="currency" id="currency">
-                    <input type="text" name="id_jurnal_detail" id="id_jurnal_detail">
-                    <input type="text" name="stock_in_stores_id" id="stock_in_stores_id">
-                    <input type="text" name="id_jurnal" id="id_jurnal" data-tag-name="id_jurnal" data-search-for="id_jurnal" class="form-control input-sm" readonly>
-                    <input type="text" name="trs_kredit" id="trs_kredit" data-tag-name="trs_kredit" data-search-for="trs_kredit" class="form-control input-sm" readonly>
-                    <input type="text" name="trs_kredit_usd" id="trs_kredit_usd" data-tag-name="trs_kredit_usd" data-search-for="trs_kredit_usd" class="form-control input-sm" readonly>
-                    <input type="text" name="unit_value" id="unit_value" data-tag-name="unit_value" data-search-for="unit_value" class="form-control input-sm" readonly>
-                    <input type="text" name="stores" id="stores" data-tag-name="stores" data-search-for="stores" class="form-control input-sm" readonly>
-                    <input type="text" name="warehouse" id="warehouse" data-tag-name="warehouse" data-search-for="warehouse" class="form-control input-sm" readonly>
-                    <input type="text" name="coa" id="coa" data-tag-name="coa" data-search-for="coa" class="form-control input-sm" readonly>
-                    <input type="text" name="group" id="group" data-tag-name="group" data-search-for="group" class="form-control input-sm" readonly>
+                    <input type="hidden" name="item_id" id="item_id">
+                    <input type="hidden" name="currency" id="currency">
+                    <input type="hidden" name="id_jurnal_detail" id="id_jurnal_detail">
+                    <input type="hidden" name="stock_in_stores_id" id="stock_in_stores_id">
+                    <input type="hidden" name="id_jurnal" id="id_jurnal" data-tag-name="id_jurnal" data-search-for="id_jurnal" class="form-control input-sm" readonly>
+                    <input type="hidden" name="trs_kredit" id="trs_kredit" data-tag-name="trs_kredit" data-search-for="trs_kredit" class="form-control input-sm" readonly>
+                    <input type="hidden" name="trs_kredit_usd" id="trs_kredit_usd" data-tag-name="trs_kredit_usd" data-search-for="trs_kredit_usd" class="form-control input-sm" readonly>
+                    <input type="hidden" name="unit_value" id="unit_value" data-tag-name="unit_value" data-search-for="unit_value" class="form-control input-sm" readonly>
+                    <input type="hidden" name="stores" id="stores" data-tag-name="stores" data-search-for="stores" class="form-control input-sm" readonly>
+                    <input type="hidden" name="warehouse" id="warehouse" data-tag-name="warehouse" data-search-for="warehouse" class="form-control input-sm" readonly>
+                    <input type="hidden" name="coa" id="coa" data-tag-name="coa" data-search-for="coa" class="form-control input-sm" readonly>
+                    <input type="hidden" name="group" id="group" data-tag-name="group" data-search-for="group" class="form-control input-sm" readonly>
                   </fieldset>
                 </div>
                 <div class="col-sm-6 col-lg-6">

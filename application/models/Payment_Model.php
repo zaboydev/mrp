@@ -30,7 +30,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('vendor', $vendor);
 		$this->db->where('default_currency', $currency);
 		$this->db->where('remaining_payment >', 0);
-		$this->db->where('status', $tipe);
+		$this->db->where_in('status', ['OPEN','ORDER']);
 		$this->db->order_by('id','asc');
 		$po = $this->db->get()->result_array();
 		foreach ($po as $detail) {
@@ -56,7 +56,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('tb_po.vendor', $vendor);
 		$this->db->where('tb_po.default_currency', $currency);
 		$this->db->where('tb_po.remaining_payment >', 0);
-		$this->db->where('tb_po.status', $tipe);
+		$this->db->where_in('tb_po.status', ['OPEN', 'ORDER']);
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
 	}
@@ -69,7 +69,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('tb_po.vendor', $vendor);
 		$this->db->where('tb_po.default_currency', $currency);
 		$this->db->where('tb_po.remaining_payment >', 0);
-		$this->db->where('tb_po.status', $tipe);
+		$this->db->where_in('tb_po.status', ['OPEN', 'ORDER']);
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
 	}
@@ -94,11 +94,7 @@ class Payment_Model extends MY_MODEL
 			$amount_idr = $amount * $kurs;
 		}
 
-		if($tipe=="ORDER"){
-			$jenis_transaksi = 'Down Payment Inventories '.$currency;
-		}else{
-			$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
-		}
+		
 
 		$this->db->set('no_jurnal', $no_jurnal);
 		$this->db->set('tanggal_jurnal  ', date("Y-m-d"));
@@ -107,16 +103,6 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('grn_no', $no_jurnal);
 		$this->db->insert('tb_jurnal');
 		$id_jurnal = $this->db->insert_id();
-
-		$this->db->set('id_jurnal', $id_jurnal);
-		$this->db->set('jenis_transaksi', $jenis_transaksi);
-		$this->db->set('trs_kredit', 0);
-		$this->db->set('trs_debet', $amount_idr);
-		$this->db->set('trs_kredit_usd', 0);
-		$this->db->set('trs_debet_usd', $amount_usd);
-		$this->db->set('kode_rekening', "2-1101");
-		$this->db->set('currency', $currency);
-		$this->db->insert('tb_jurnal_detail');
 
 		$jenis = $this->groupsBycoa($account);
 		$this->db->set('id_jurnal', $id_jurnal);
@@ -144,12 +130,28 @@ class Payment_Model extends MY_MODEL
 				$this->db->update('tb_po_item');
 
 				$id_po = $this->get_id_po($key["document_number"]);
-
+				$status = $this->get_status_po($id_po);
 
 				$this->db->set('remaining_payment', '"remaining_payment" - ' . $key["value"], false);
 				$this->db->set('payment', '"payment" + ' . $key["value"], false);
 				$this->db->where('id', $id_po);
 				$this->db->update('tb_po');
+
+				if ($status == "ORDER") {
+					$jenis_transaksi = 'Down Payment Inventories ' . $currency;
+				} else {
+					$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
+				}
+
+				$this->db->set('id_jurnal', $id_jurnal);
+				$this->db->set('jenis_transaksi', $jenis_transaksi);
+				$this->db->set('trs_kredit', 0);
+				$this->db->set('trs_debet', $amount_idr);
+				$this->db->set('trs_kredit_usd', 0);
+				$this->db->set('trs_debet_usd', $amount_usd);
+				$this->db->set('kode_rekening', "2-1101");
+				$this->db->set('currency', $currency);
+				$this->db->insert('tb_jurnal_detail');
 
 				//    $this->db->where('id_po',$key["document_number"]);
 				//    $this->db->from('tb_hutang');
@@ -261,6 +263,18 @@ class Payment_Model extends MY_MODEL
 		$query  = $this->db->get();
 		$row    = $query->unbuffered_row();
 		$return = $row->purchase_order_id;
+
+		return $return;
+	}
+
+	function get_status_po($id)
+	{
+		$this->db->select('status');
+		$this->db->where('id', $id);
+		$this->db->from('tb_po');
+		$query  = $this->db->get();
+		$row    = $query->unbuffered_row();
+		$return = $row->status;
 
 		return $return;
 	}

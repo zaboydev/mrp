@@ -41,7 +41,7 @@
                 </select>
                 <label for="account_select">Account</label>
               </div>
-              <div class="form-group">
+              <div class="form-group hide">
                 <select id="tipe_select" class="form-control">
                   <option value="OPEN">OPEN</option>
                   <option value="ORDER">ORDER</option>
@@ -68,7 +68,7 @@
               </div>
 
               <div class="form-group">
-                <input type="text" name="date" id="date" class="form-control" value="">
+                <input type="text" name="date" id="date" class="form-control" value="<?=date('Y-m-d')?>">
                 <label for="date">Date</label>
               </div>
 

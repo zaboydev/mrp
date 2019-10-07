@@ -706,20 +706,41 @@
           e.preventDefault();
           // console.log("tuliskan fungsinya disini");
           // tulis disini
-          var a = $(this).data('id');
-          $.ajax({
-            url: "<?= site_url($module['route'] . '/info_item/'); ?>" + "/" + a,
-            type: 'get',
-            success: function(data) {
-              var dataModal = $('#modal-item');
-              var obj = $.parseJSON(data);
-              $(dataModal)
-                .find('.modal-body')
-                .empty()
-                .append(obj.info);
-              $(dataModal).modal('show');
-            }
-          });
+          var id = $(this).data('id');
+          if (id == 'item') {
+            var a = $(this).data('item-row');
+            $.ajax({
+              url: "<?= site_url($module['route'] . '/info_item/'); ?>" + "/" + a,
+              type: 'get',
+              success: function(data) {
+                var dataModal = $('#modal-item');
+                var obj = $.parseJSON(data);
+                $(dataModal)
+                  .find('.modal-body')
+                  .empty()
+                  .append(obj.info);
+                $(dataModal).modal('show');
+              }
+            });
+          }
+
+          if (id == 'on-hand') {
+            var a = $(this).data('item-row');
+            $.ajax({
+              url: "<?= site_url($module['route'] . '/info_on_hand/'); ?>" + "/" + a,
+              type: 'get',
+              success: function(data) {
+                var dataModal = $('#modal-item');
+                var obj = $.parseJSON(data);
+                $(dataModal)
+                  .find('.modal-body')
+                  .empty()
+                  .append(obj.info);
+                $(dataModal).modal('show');
+              }
+            });
+          }
+
 
         });
 
