@@ -168,7 +168,7 @@ class Mixing extends MY_Controller
       $col[] = print_string($row['remarks']);
       $col[] = print_string($row['reference_document']);
       $col[] = print_date($row['received_date'],'d F Y');
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
+      if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
         $col[] = print_number(floatval($row['unit_value'])*floatval($row['quantity']), 2);
       }
 
@@ -186,7 +186,7 @@ class Mixing extends MY_Controller
       // $issued_quantity[] = $row['issued_quantity'];
       // $adjustment_quantity[] = $row['adjustment_quantity'];
       $quantity[] = $row['quantity'];
-      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
+      if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
         $total_price[] = floatval($row['unit_value'])*floatval($row['quantity']);
       }
 
@@ -208,7 +208,7 @@ class Mixing extends MY_Controller
       )
     );
 
-    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
+    if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
         $result['total'][18] = print_number(array_sum($total_price), 2);
       }
 
