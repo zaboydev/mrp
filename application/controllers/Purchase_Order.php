@@ -143,11 +143,11 @@ class Purchase_Order extends MY_Controller
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
         }
 
-        if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
-          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-          $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
-        }
+        // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
+        //   $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+        //   $col['DT_RowAttr']['data-target'] = '#data-modal';
+        //   $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
+        // }
 
         $quantity[]     = $row['quantity'];
         $total_amount[] = $row['total_amount'];
