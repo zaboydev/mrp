@@ -65,7 +65,7 @@ class Stock extends MY_Controller
     $this->data['page']['title']            = $this->module['label'] .' '. $warehouse.' '. $category .' '. $condition.' / PERIODE : '.$periode;
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 9 );
-    if (config_item('auth_role') != 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
+    if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
       $this->data['grid']['summary_columns'][] = 19;
     }
     // $this->data['grid']['summary_columns']  = array( 7, 8, 9, 10, 11 );
@@ -160,7 +160,7 @@ class Stock extends MY_Controller
       $col[] = print_string($row['remarks']);
       $col[] = print_string($row['reference_document']);
       $col[] = print_date($row['received_date'],'d F Y');
-      if (config_item('auth_role') != 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
+      if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
         $col[] = print_number(floatval($row['unit_value'])*floatval($row['quantity']), 2);
       }
 
@@ -200,7 +200,7 @@ class Stock extends MY_Controller
       )
     );
 
-    if (config_item('auth_role') != 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){        $result['total'][19] = print_number(array_sum($total_price), 2);
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){        $result['total'][19] = print_number(array_sum($total_price), 2);
     }
 
     echo json_encode($result);
