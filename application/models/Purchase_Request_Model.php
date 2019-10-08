@@ -1776,6 +1776,11 @@ class Purchase_Request_Model extends MY_Model
         // }
         $new_price = $price;
         $new_total = floatval($row['quantity'] * $new_price);
+
+        $this->db->set('finance_approve_by', config_item('auth_person_name'));
+        $this->db->set('finance_approve_at', date('Y-m-d'));
+        $this->db->where('id', $inventory_purchase_requisition_id);
+        $this->db->update('tb_inventory_purchase_requisitions');
         
         $this->db->set('price', floatval($new_price));
         $this->db->set('total', floatval($new_total));

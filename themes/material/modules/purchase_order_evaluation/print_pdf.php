@@ -107,8 +107,9 @@
         Prepared by:
         <br>
         <br>
+        <br>
         <?php if ($entity['created_by'] != '') : ?>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="100">
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
         <?php endif; ?>
         <br>
         <br><?= $entity['created_by']; ?>
@@ -120,7 +121,7 @@
         <?= print_date($entity['updated_at']); ?>
         <br>
         <?php if ($entity['approved_by'] != '' & $entity['approved_by'] != 'without_approval') : ?>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="75">
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
         <?php endif; ?>
         <?php if ($entity['approved_by'] == 'without_approval') : ?>
           <img src="<?= base_url('ttd_user/mark.png'); ?>" width="100">
