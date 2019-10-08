@@ -1,3 +1,10 @@
+<style>
+  @media print {
+    .new-page {
+      page-break-before: always;
+    }
+  }
+</style>
 <table class="table-no-strip condensed">
   <tr>
     <td>Request By</td>
@@ -172,4 +179,54 @@
       </td>
     <?php endif; ?>
   </tr>
+</table>
+<p class="new-page">On Hand Stock</p>
+<table class="table" style="margin-top: 20px;">
+  <thead>
+    <tr>
+      <th align="right" width="1">No</th>
+      <th>Description</th>
+      <th>Part Number</th>
+      <th>Base</th>
+      <th>On Hand Stock</th>
+      <th>Unit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php $n = 0;
+    $unbudgeted = 0; ?>
+    <?php $total_qty = array(); ?>
+    <?php foreach ($entity['items'] as $i => $detail) : ?>
+      <?php $n++; ?>
+      <?php $total_qty[] = $detail['quantity']; ?>
+      <tr>
+        <td align="right" rowspan="<?= $detail['info_on_hand_qty']['items_count'] + 1 ?>">
+          <?= print_number($n); ?>
+        </td>
+        <td rowspan="<?= $detail['info_on_hand_qty']['items_count'] + 1 ?>">
+          <?= print_string($detail['product_name']); ?>
+        </td>
+        <td rowspan="<?= $detail['info_on_hand_qty']['items_count'] + 1 ?>">
+          <?= print_string($detail['part_number']); ?>
+        </td>
+      </tr>
+      <?php foreach ($detail['info_on_hand_qty']['items'] as $i => $info) : ?>
+        <tr>
+          <td>
+            <?= print_string($info['warehouse']); ?>
+          </td>
+          <td>
+            <?= print_number($info['on_hand_stock'], 2); ?>
+          </td>
+          <td>
+            <?= print_string($detail['unit']); ?>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+      <tr>
+        <td colspan="6">&nbsp;</td>
+      </tr>
+    <?php endforeach; ?>
+
+  </tbody>
 </table>

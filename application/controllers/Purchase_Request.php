@@ -429,6 +429,7 @@ class Purchase_Request extends MY_Controller
     $this->authorized($this->module, 'print');
 
     $entity = $this->model->findPrlById($id);
+    // $on_hand_stock = $this->model->findPrlById($id);
 
     $this->data['entity']           = $entity;
     $this->data['page']['title']    = strtoupper($this->module['label']);
