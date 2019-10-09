@@ -1278,7 +1278,7 @@ class Purchase_Order_Model extends MY_Model
     $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order :</p>";
     $message .= "<ul>";
     $message .= "</ul>";
-    $message .= "<p>No Purchase Request : " . $row['document_number'] . "</p>";
+    $message .= "<p>No Purchase Order : " . $row['document_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.252.163.206/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
