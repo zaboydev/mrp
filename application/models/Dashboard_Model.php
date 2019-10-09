@@ -208,7 +208,7 @@ class Dashboard_Model extends MY_Model
     if($role == 'CHIEF OF FINANCE'){
       $this->db->like('tb_po.review_status', 'WAITING FOR CFO REVIEW');
     }
-    if($role == 'CHIEF OPERATION SUPPORT'){
+    if($role == 'CHIEF OPERATION OFFICER'){
       $this->db->like('tb_po.review_status', 'WAITING FOR COO REVIEW');
     }
     $query = $this->db->get();

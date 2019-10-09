@@ -458,7 +458,7 @@
         </div>        
       </div>
     <?php endif;?>
-    <?php if(config_item('auth_role') != 'CHIEF OF MAINTANCE' && config_item('auth_role') != 'FINANCE MANAGER' && config_item('auth_role') != 'HEAD OF SCHOOL' && config_item('auth_role') != 'CHIEF OF FINANCE') { ?>
+    <?php if(is_granted($modules['expired_stock'], 'index')) { ?>
     <div class="row">
       <div class="col-sm-5">
           <div class="panel-group" id="document_accordion">

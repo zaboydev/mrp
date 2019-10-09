@@ -51,7 +51,7 @@ class Purchase_Order extends MY_Controller
         $no++;
         $col = array();
 
-        if ((config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'CHIEF OPERATION SUPPORT')) {
+        if ((config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
           if ((config_item('auth_role') == 'FINANCE MANAGER') && ($row['review_status'] == strtoupper("waiting for finance review"))) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else if ((config_item('auth_role') == 'HEAD OF SCHOOL') && ($row['review_status'] == strtoupper("waiting for hos review"))) {
@@ -60,7 +60,7 @@ class Purchase_Order extends MY_Controller
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else if ((config_item('auth_role') == 'VP FINANCE') && ($row['review_status'] == strtoupper("waiting for vp finance review"))) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else if ((config_item('auth_role') == 'CHIEF OPERATION SUPPORT') && ($row['review_status'] == strtoupper("waiting for coo review"))) {
+          } else if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER') && ($row['review_status'] == strtoupper("waiting for coo review"))) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = '';
@@ -76,7 +76,7 @@ class Purchase_Order extends MY_Controller
         $col[] = print_number($no);
         $col[] = print_string($row['document_number'], 'N/A');
         $col[] = print_string($row['review_status']);
-        if ((config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE') && (config_item('auth_role') != 'CHIEF OPERATION SUPPORT')) {
+        if ((config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE') && (config_item('auth_role') != 'CHIEF OPERATION OFFICER')) {
 
           $col[] = print_string($row['status']);
         }
@@ -89,7 +89,7 @@ class Purchase_Order extends MY_Controller
         $col[] = '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
         $col[] = print_string($row['reference_quotation']);
         $col[] = strtoupper($row['vendor']);
-        if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'CHIEF OPERATION SUPPORT')) {
+        if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
           $col[] = print_number($row['quantity'], 2);
           $col[] = print_number($row['unit_price'], 2);
           $col[] = print_number($row['core_charge'], 2);

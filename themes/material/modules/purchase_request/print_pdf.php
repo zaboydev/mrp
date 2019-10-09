@@ -209,7 +209,13 @@
         <td rowspan="<?= $detail['info_on_hand_qty']['items_count'] + 1 ?>">
           <?= print_string($detail['part_number']); ?>
         </td>
-      </tr>
+        <?php if ($detail['info_on_hand_qty']['items_count'] == 0) : ?>
+          <td colspan="3">
+            No Data Available
+          </td>
+        <?php endif; ?>
+    </tr>
+    <?php if ($detail['info_on_hand_qty']['items_count'] > 0) : ?>
       <?php foreach ($detail['info_on_hand_qty']['items'] as $i => $info) : ?>
         <tr>
           <td>
@@ -223,10 +229,12 @@
           </td>
         </tr>
       <?php endforeach; ?>
-      <tr>
-        <td colspan="6">&nbsp;</td>
-      </tr>
-    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <tr>
+      <td colspan="6">&nbsp;</td>
+    </tr>
+  <?php endforeach; ?>
 
   </tbody>
 </table>

@@ -30,8 +30,8 @@
       <th class="middle-alignment" align="center" rowspan="2">Alt. Part Number</th>
       <th class="middle-alignment" align="right" rowspan="2">Qty</th>
       <th class="middle-alignment" align="center" rowspan="2">Unit</th>
-      <!-- <th class="middle-alignment" align="center">Remarks</th>
-      <th class="middle-alignment" align="center">PR Number</th>
+      <th class="middle-alignment" align="center" rowspan="2">Remarks</th>
+      <!-- <th class="middle-alignment" align="center">PR Number</th>
       <th class="middle-alignment" align="center" colspan="4">Vendor Detail</th> -->
       <?php foreach ($entity['vendors'] as $key => $vendor) : ?>
         <th class="middle-alignment text-center" colspan="4"><?= $vendor['vendor']; ?></th>
@@ -67,6 +67,9 @@
         </td>
         <td>
           <?= print_string($detail['unit']); ?>
+        </td>
+        <td>
+          <?= print_string($detail['remarks']); ?>
         </td>
         <?php foreach ($entity['vendors'] as $key => $vendor) : ?>
           <?php

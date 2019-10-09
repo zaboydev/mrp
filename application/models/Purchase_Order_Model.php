@@ -20,7 +20,7 @@ class Purchase_Order_Model extends MY_Model
   }
   public function getSelectedColumns()
   {
-    if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')  || (config_item('auth_role') == 'CHIEF OPERATION SUPPORT')) {
+    if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')  || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
       return array(
         "''" . ' as "temp"' => "Act.",
         'tb_po.id' => NULL,
@@ -189,7 +189,7 @@ class Purchase_Order_Model extends MY_Model
         if (config_item('auth_role') == 'CHIEF OF FINANCE') {
           $this->db->like('tb_po.review_status', 'WAITING FOR CFO');
         }
-        if (config_item('auth_role') == 'CHIEF OPERATION SUPPORT') {
+        if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
           $this->db->like('tb_po.review_status', 'WAITING FOR COO');
         }else{
           $this->db->like('tb_po.review_status', 'WAITING');
@@ -209,7 +209,7 @@ class Purchase_Order_Model extends MY_Model
         if (config_item('auth_role') == 'CHIEF OF FINANCE') {
           $this->db->where_in('tb_po.review_status', ['APPROVED']);
         }
-        if (config_item('auth_role') == 'CHIEF OPERATION SUPPORT') {
+        if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
           $this->db->where_in('tb_po.review_status', ['WAITING FOR VP FINANCE REVIEW', 'WAITING FOR CFO REVIEW', 'APPROVED']);
         }
       } elseif ($status == 'rejected') {
@@ -240,7 +240,7 @@ class Purchase_Order_Model extends MY_Model
       if (config_item('auth_role') == 'CHIEF OF FINANCE') {
         $this->db->like('tb_po.review_status', 'WAITING FOR CFO');
       }
-      if (config_item('auth_role') == 'CHIEF OPERATION SUPPORT') {
+      if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
         $this->db->like('tb_po.review_status', 'WAITING FOR COO');
       }
       $this->db->where_not_in('tb_po.review_status', ['REVISI']);
@@ -398,7 +398,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('checked_by', config_item('auth_person_name'));
     }
 
-    if ((config_item('auth_role') == 'CHIEF OPERATION SUPPORT')) {
+    if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
       $level = 3;
       $this->db->set('review_status', strtoupper("waiting for vp finance review"));
       $this->db->set('coo_review', config_item('auth_person_name'));

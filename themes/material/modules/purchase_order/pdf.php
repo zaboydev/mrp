@@ -302,10 +302,10 @@
 								<br />COO
 								<br />
 								<?php if ($entity['coo_review'] != '') : ?>
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
+									<img src="<?= base_url('ttd_user/' . get_ttd($entity['coo_review'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
-								<br /><?= $entity['known_by']; ?>
+								<br /><?= $entity['coo_review']; ?>
 							</p>
 						</td>
 						<td width="16%" valign="top" align="center">
