@@ -470,7 +470,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       ));
     }
     if($failed>0){
-      // $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
                 'info' => "There are ".$failed." errors"
