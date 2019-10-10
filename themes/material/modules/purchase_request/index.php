@@ -77,10 +77,14 @@
       <div class="form-group">
         <label for="filter_status">Status</label>
         <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">
-          <option value="all">
+          <option value="all" <?php if ((config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'CHIEF OF MAINTANCE') && (config_item('auth_role') != 'OPERATION SUPPORT')) {
+                                echo 'selected';
+                              } ?>>
             All
           </option>
-          <option value="waiting">
+          <option value="waiting" <?php if ((config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'OPERATION SUPPORT')) {
+                                    echo 'selected';
+                                  } ?>>
             Waiting For Approval
           </option>
           <option value="pending">
