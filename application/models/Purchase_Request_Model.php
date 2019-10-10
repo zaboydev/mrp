@@ -2519,6 +2519,118 @@ class Purchase_Request_Model extends MY_Model
       return $this->email->print_debugger();
   }
 
+  public function send_mail_next_approval($id, $user_id)
+  {
+    $item_message = '<tbody>';
+
+    $recipient = array();
+    $this->db->select(
+      array(
+        'tb_inventory_purchase_requisitions.pr_number',
+        'tb_inventory_purchase_requisition_details.product_name',
+        'tb_inventory_purchase_requisition_details.part_number',
+        'tb_inventory_purchase_requisition_details.quantity',
+        'tb_inventory_purchase_requisition_details.total',
+        'tb_inventory_purchase_requisition_details.unit',
+      )
+    );
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id=tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    $this->db->where_in('tb_inventory_purchase_requisition_details.id', $id);
+    $query = $this->db->get();
+    $row = $query->result_array();
+
+    foreach ($row as $item) {
+      $item_message .= "<tr>";
+      $item_message .= "<td>" . $item['pr_number'] . "</td>";
+      $item_message .= "<td>" . $item['part_number'] . "</td>";
+      $item_message .= "<td>" . $item['product_name'] . "</td>";
+      $item_message .= "<td>" . print_number($item['quantity'], 2) . "</td>";
+      $item_message .= "<td>" . $item['unit'] . "</td>";
+      //$item_message .= "<td>".print_number($item['total'],2)."</td>";         
+      $item_message .= "</tr>";
+    }
+    $item_message .= '</tbody>';
+
+    // $this->db->select('tb_inventory_purchase_requisitions.created_by,tb_auth_users.email');
+    // $this->db->from('tb_inventory_purchase_requisitions');
+    // $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    // $this->db->join('tb_auth_users', 'tb_inventory_purchase_requisitions.created_by = tb_auth_users.person_name');
+    // $this->db->group_by('tb_inventory_purchase_requisitions.created_by,tb_auth_users.email');
+    // $this->db->where_in('tb_inventory_purchase_requisition_details.id', $id);
+    // $query_po = $this->db->get();
+    // $row_po   = $query_po->result_array();
+    // foreach ($row_po as $key) {
+    //   array_push($recipient, $key['email']);
+    // }
+    $recipientList = $this->getNotifRecipient($user_id);
+    $recipient = array();
+    foreach ($recipientList as $key) {
+      array_push($recipient, $key->email);
+    }
+
+
+
+    $from_email = "bifa.acd@gmail.com";
+    $to_email = "aidanurul99@rocketmail.com";
+    // if ($ket == 'approve') {
+    //   $ket_level = 'Disetujui';
+    // } else {
+    //   $ket_level = 'Ditolak';
+    // }
+    // if($level==14){
+    //   $ket_level = 'Finance Manager';
+    // }elseif ($level==10) {
+    //   $ket_level = 'Head Of School';
+    // } elseif($level==11){
+    //   $ket_level = 'Chief Of Finance';
+    // }elseif($level==3){
+    //   $ket_level = 'VP Finance';
+    // }
+
+    //Load email library 
+    $this->load->library('email');
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Hello</p>";
+    $message .= "<p>Item Berikut perlu persetujuan</p>";
+    $message .= "<table>";
+    $message .= "<thead>";
+    $message .= "<tr>";
+    $message .= "<th>No. Doc.</th>";
+    $message .= "<th>Part Number</th>";
+    $message .= "<th>Description</th>";
+    $message .= "<th>Qty Order</th>";
+    $message .= "<th>Unit</th>";
+    $message .= "<th>Total Val. Order</th>";
+    $message .= "</tr>";
+    $message .= "</thead>";
+    $message .= $item_message;
+    $message .= "</table>";
+    // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='http://119.252.163.206/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning');
+    $this->email->to($recipient);
+    $this->email->subject('Notification Approval');
+    $this->email->message($message);
+
+    //Send mail 
+    if ($this->email->send())
+      return true;
+    else
+      return $this->email->print_debugger();
+  }
+
   public function getNotifRecipient_approval($name){
     $this->db->select('email');
     $this->db->from('tb_auth_users');

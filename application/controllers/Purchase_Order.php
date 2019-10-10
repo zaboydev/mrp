@@ -483,7 +483,7 @@ class Purchase_Order extends MY_Controller
       }
     }
     if ($success > 0) {
-      // $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
         'info' => $success . " data has been update!"

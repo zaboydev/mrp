@@ -15,7 +15,10 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /vendors/
 /2018/
 /2019/
+/ttd_user/
 /mrp_2018/
+/system/sessions/
+/attachment/
 bifa_2019-03-24.rar
 bifa_2019-03-24.zip
 /application/config/config.php
