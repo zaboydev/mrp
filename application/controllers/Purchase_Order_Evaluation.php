@@ -327,6 +327,8 @@ class Purchase_Order_Evaluation extends MY_Controller
         if(strtoupper($row['status'])=="EVALUATION"){
           if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
             $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
+          }else{
+            $col[] = print_number($no);
           }          
         } else {
           $col[] = print_number($no);
@@ -667,7 +669,7 @@ class Purchase_Order_Evaluation extends MY_Controller
             'unit_price_requested'    => floatval($request['price']),
             'total_amount_requested'  => floatval($request['quantity']) * floatval($request['price']),
             'unit'                    => $request['unit'],
-            'remarks'                 => $request['additional_info'],
+            'remarks'                 => $request['remarks'],
             'purchase_request_number' => $request['pr_number'],
           );
 
