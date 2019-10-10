@@ -30,7 +30,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       'tb_purchase_order_items.unit_price'          => 'Price',
       'tb_purchase_orders.status'                   => 'Status',
       'tb_attachment_poe.id_poe as attachment'      => 'Attachment',
-      // 'tb_purchase_orders.notes'                    => NULL,
+      'tb_purchase_orders.notes'                    => 'Notes',
 
 
     );
