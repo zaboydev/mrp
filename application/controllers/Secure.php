@@ -178,4 +178,9 @@ class Secure extends MY_Controller
 
     $this->render_view($this->module['view'] .'/password');
   }
+
+  public function cron_job_send_email()
+  {
+    $this->_model->cron_job_send_email();
+  }
 }

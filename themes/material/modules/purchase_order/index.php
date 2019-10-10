@@ -163,7 +163,7 @@
   <div class="form-group">
     <label for="filter_status">Status</label>
     <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">
-      <?php if ((config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE')) : ?>
+      <?php if ((config_item('auth_role') != 'CHIEF OPERATION OFFICER') && (config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE')) : ?>
         <option value="">
           All
         </option>
@@ -171,7 +171,7 @@
       <option value="review">
         Review
       </option>
-      <?php if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')) : ?>
+      <?php if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')) : ?>
         <option value="review_approved">
           Approved
         </option>
