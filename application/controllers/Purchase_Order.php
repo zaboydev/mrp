@@ -85,8 +85,8 @@ class Purchase_Order extends MY_Controller
         $col[] = print_string($row['description']);
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['alternate_part_number']);
-        $col[] = '<a href="' . site_url($this->modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
-        $col[] = '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
+        $col[] = $row['poe_id']==null? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+        $col[] = $row['poe_item_id']==null? '<a>' . print_string($row['purchase_request_number']) . '</a>': '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
         $col[] = print_string($row['reference_quotation']);
         $col[] = strtoupper($row['vendor']);
         if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
@@ -94,7 +94,7 @@ class Purchase_Order extends MY_Controller
           $col[] = print_number($row['unit_price'], 2);
           $col[] = print_number($row['core_charge'], 2);
           $col[] = print_number($row['total_amount'], 2);
-          if ($row['review_status'] === "APPROVED" || $row[$field] === "1") {
+          if ($row['review_status'] === "APPROVED") {
             $col[] = '';
           } else {
             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
@@ -113,7 +113,7 @@ class Purchase_Order extends MY_Controller
           $col[] = print_number($row['quantity_received'], 2);
           $col[] = print_number($row['left_received_quantity'], 2);
           // $col[] = print_number($row['amount_paid'], 2);   
-          if ($row['review_status'] === "APPROVED" || $row[$field] === "1") {
+          if ($row['review_status'] === "APPROVED") {
             $col[] = '';
           } else {
             if ($row['document_number'] == null) {
@@ -769,6 +769,7 @@ class Purchase_Order extends MY_Controller
     $country    = 'INDONESIA';
     $phone      = find_budget_setting('Phone No', 'head company');
     $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
+    $deliver_address = 'Bandara Letkol Wisnu Desa Sumberkima, Gerokgak, Singaraja, Bali 80111';
 
     $_SESSION['order']['items']               = $item;
     $_SESSION['order']['vendor_po']           = $vendor_id;
@@ -783,7 +784,7 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['vendor_phone']        = $order['vendor_phone'];
     $_SESSION['order']['vendor_attention']    = $order['vendor_attention'];
     $_SESSION['order']['deliver_company']     = $company;
-    $_SESSION['order']['deliver_address']     = $address;
+    $_SESSION['order']['deliver_address']     = $deliver_address;
     $_SESSION['order']['deliver_country']     = 'INDONESIA';
     $_SESSION['order']['deliver_phone']       = $phone;
     $_SESSION['order']['deliver_attention']   = $attention;
@@ -832,6 +833,7 @@ class Purchase_Order extends MY_Controller
     $country    = 'INDONESIA';
     $phone      = find_budget_setting('Phone No', 'head company');
     $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
+    $deliver_address = 'Bandara Letkol Wisnu Desa Sumberkima, Gerokgak, Singaraja, Bali 80111';
 
     if (isset($_SESSION['order']) === FALSE) {
       $_SESSION['order']['items']               = $item;
@@ -848,7 +850,7 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['vendor_phone']        = $order['vendor_phone'];
       $_SESSION['order']['vendor_attention']    = $order['vendor_attention'];
       $_SESSION['order']['deliver_company']     = $company;
-      $_SESSION['order']['deliver_address']     = $address;
+      $_SESSION['order']['deliver_address']     = $deliver_address;
       $_SESSION['order']['deliver_country']     = 'INDONESIA';
       $_SESSION['order']['deliver_phone']       = $phone;
       $_SESSION['order']['deliver_attention']   = $attention;
