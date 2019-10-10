@@ -1806,7 +1806,7 @@ class Purchase_Request_Model extends MY_Model
         ->from('tb_budget_cot');
         $query_cot = $this->db->get();
         $row_cot   = $query_cot->unbuffered_row('array');
-        $hours     = $row_cot['hours'];
+        $hours     = 1000;
         $year      = date('Y');
 
         $this->db->from('tb_budget_cot');
