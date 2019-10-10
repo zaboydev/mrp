@@ -68,7 +68,7 @@
 
                 <?php foreach ($entity['vendors'] as $key => $vendor) : ?>
                   <?php if ($vendor['is_selected'] == 't') : ?>
-                    <th class="middle-alignment text-left" colspan="4">
+                    <th class="middle-alignment text-left" colspan="3">
                       <?php if (is_granted($module, 'document') && $entity['status'] == 'approved') : ?>
                         <a href="<?= site_url('Purchase_Order/create_po/' . $vendor['id']); ?>" class="btn btn-tooltip btn-danger btn-sm ink-reaction">Create PO for <?= $vendor['vendor']; ?>
                           <small class="top left">Create Purchase</small>
@@ -78,7 +78,7 @@
                       <?php endif; ?>
                     </th>
                   <?php elseif ($vendor['is_selected'] == 'f') : ?>
-                    <th class="middle-alignment text-left" colspan="4"><?= $vendor['vendor']; ?></th>
+                    <th class="middle-alignment text-left" colspan="3"><?= $vendor['vendor']; ?></th>
                   <?php endif; ?>
                 <?php endforeach; ?>
 

@@ -34,7 +34,7 @@
       <!-- <th class="middle-alignment" align="center">PR Number</th>
       <th class="middle-alignment" align="center" colspan="4">Vendor Detail</th> -->
       <?php foreach ($entity['vendors'] as $key => $vendor) : ?>
-        <th class="middle-alignment text-center" colspan="4"><?= $vendor['vendor']; ?></th>
+        <th class="middle-alignment text-center" colspan="3"><?= $vendor['vendor']; ?></th>
       <?php endforeach; ?>
     </tr>
     <tr>
