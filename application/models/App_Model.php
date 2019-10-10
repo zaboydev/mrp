@@ -272,7 +272,7 @@ class App_Model extends MY_Model
         $this->db->set('unit_value', $unit_value);
         $this->db->set('average_value', $average_value);
         $this->db->set('created_by', config_item('auth_person_name'));
-        $this->db->set('remarks', $remarks);
+        $this->db->set('remarks', 'adjustment stock');
         $this->db->set('tgl', date('Ymd'));
         $this->db->set('total_value', $total_value);
         $this->db->set('doc_type', 1);
@@ -326,5 +326,10 @@ class App_Model extends MY_Model
     $row = $query->row_array();
 
     return $row['quantity'];
+  }
+
+  public function cron_job_send_email()
+  {
+    
   }
 }
