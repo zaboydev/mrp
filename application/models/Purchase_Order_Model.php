@@ -369,20 +369,24 @@ class Purchase_Order_Model extends MY_Model
           $level = 16;
           $this->db->set('review_status', strtoupper("waiting for coo review"));
           $this->db->set('known_by', config_item('auth_person_name'));
+          $this->db->set('known_at', date('Y-m-d'));
         } else {
           $level = 3;
           $this->db->set('review_status', strtoupper("waiting for vp finance review"));
           $this->db->set('known_by', config_item('auth_person_name'));
+          $this->db->set('known_at', date('Y-m-d'));
         }
       } else {
         if ($grandtotal >= 1500) {
           $level = 16;
           $this->db->set('review_status', strtoupper("waiting for coo review"));
           $this->db->set('known_by', config_item('auth_person_name'));
+          $this->db->set('known_at', date('Y-m-d'));
         } else {
           $level = 3;
           $this->db->set('review_status', strtoupper("waiting for vp finance review"));
           $this->db->set('known_by', config_item('auth_person_name'));
+          $this->db->set('known_at', date('Y-m-d'));
         }
       }
     }
@@ -390,18 +394,21 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('review_status', strtoupper("approved"));
       // $this->db->set('status', strtoupper("order"));
       $this->db->set('approved_by', config_item('auth_person_name'));
+      $this->db->set('approved_at', date('Y-m-d'));
     }
 
     if ((config_item('auth_role') == 'FINANCE MANAGER')) {
       $level = 10;
       $this->db->set('review_status', strtoupper("waiting for hos review"));
       $this->db->set('checked_by', config_item('auth_person_name'));
+      $this->db->set('checked_at', date('Y-m-d'));
     }
 
     if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
       $level = 3;
       $this->db->set('review_status', strtoupper("waiting for vp finance review"));
       $this->db->set('coo_review', config_item('auth_person_name'));
+      $this->db->set('coo_review_at', date('Y-m-d'));
     }
 
     if ((config_item('auth_role') == 'VP FINANCE')) {
@@ -410,22 +417,26 @@ class Purchase_Order_Model extends MY_Model
           $level = 11;
           $this->db->set('review_status', strtoupper("waiting for cfo review"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
+          $this->db->set('check_review_at', date('Y-m-d'));
         } else {
           $level = 11;
           $this->db->set('review_status', strtoupper("approved"));
           // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
+          $this->db->set('check_review_at', date('Y-m-d'));
         }
       } else {
         if ($grandtotal >= 1500) {
           $level = 11;
           $this->db->set('review_status', strtoupper("waiting for cfo review"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
+          $this->db->set('check_review_at', date('Y-m-d'));
         } else {
           $level = 11;
           $this->db->set('review_status', strtoupper("approved"));
           // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
+          $this->db->set('check_review_at', date('Y-m-d'));
         }
       }
     }
