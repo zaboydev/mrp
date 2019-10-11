@@ -715,7 +715,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     $result["status"] = 0;
     $date = new DateTime();
-    $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
     $config['upload_path'] = 'attachment/';
     $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
     $config['max_size']  = 2000;
@@ -741,7 +741,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     $result["status"] = 0;
     $date = new DateTime();
-    $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
     $config['upload_path'] = 'attachment/';
     $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
     $config['max_size']  = 2000;
