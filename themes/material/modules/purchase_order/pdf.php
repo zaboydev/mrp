@@ -278,6 +278,7 @@
 								<br />Finance
 								<br />
 								<?php if ($entity['checked_by'] != '') : ?>
+									<?= print_date($entity['checked_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -290,6 +291,7 @@
 								<br />HOS
 								<br />
 								<?php if ($entity['known_by'] != '') : ?>
+									<?= print_date($entity['known_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -302,6 +304,7 @@
 								<br />COO
 								<br />
 								<?php if ($entity['coo_review'] != '') : ?>
+									<?= print_date($entity['coo_review_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['coo_review'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -314,6 +317,7 @@
 								<br />VP Finance
 								<br />
 								<?php if ($entity['check_review_by'] != '') : ?>
+									<?= print_date($entity['check_review_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -326,6 +330,7 @@
 								<br />CFO
 								<br />
 								<?php if ($entity['approved_by'] != '') : ?>
+									<?= print_date($entity['approved_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -357,6 +362,7 @@
 								<br />Finance
 								<br />
 								<?php if ($entity['checked_by'] != '') : ?>
+									<?= print_date($entity['checked_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -369,6 +375,7 @@
 								<br />HOS
 								<br />
 								<?php if ($entity['known_by'] != '') : ?>
+									<?= print_date($entity['known_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -381,6 +388,7 @@
 								<br />COO
 								<br />
 								<?php if ($entity['coo_review'] != '') : ?>
+									<?= print_date($entity['coo_review_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['coo_review'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -393,6 +401,7 @@
 								<br />VP Finance
 								<br />
 								<?php if ($entity['check_review_by'] != '') : ?>
+									<?= print_date($entity['check_review_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -405,6 +414,7 @@
 								<br />CFO
 								<br />
 								<?php if ($entity['approved_by'] != '') : ?>
+									<?= print_date($entity['approved_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -435,6 +445,7 @@
 								<br />Finance
 								<br />
 								<?php if ($entity['checked_by'] != '') : ?>
+									<?= print_date($entity['checked_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -447,6 +458,7 @@
 								<br />HOS
 								<br />
 								<?php if ($entity['known_by'] != '') : ?>
+									<?= print_date($entity['known_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
@@ -459,6 +471,7 @@
 								<br />VP Finance
 								<br />
 								<?php if ($entity['check_review_by'] != '') : ?>
+									<?= print_date($entity['check_review_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
