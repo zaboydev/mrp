@@ -419,7 +419,7 @@ class Purchase_Order_Model extends MY_Model
           $this->db->set('check_review_by', config_item('auth_person_name'));
           $this->db->set('check_review_at', date('Y-m-d'));
         } else {
-          $level = 11;
+          $level = 0;
           $this->db->set('review_status', strtoupper("approved"));
           // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
@@ -432,7 +432,7 @@ class Purchase_Order_Model extends MY_Model
           $this->db->set('check_review_by', config_item('auth_person_name'));
           $this->db->set('check_review_at', date('Y-m-d'));
         } else {
-          $level = 11;
+          $level = 0;
           $this->db->set('review_status', strtoupper("approved"));
           // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
@@ -441,7 +441,9 @@ class Purchase_Order_Model extends MY_Model
       }
     }
 
-    $this->send_mail($id, $level);
+    if($level!=0){
+      $this->send_mail($id, $level);
+    }
     $this->db->where('id', $id);
     return $this->db->update('tb_po');
   }
