@@ -797,6 +797,7 @@ class Purchase_Order_Evaluation extends MY_Controller
           $_SESSION['poe']['request'][$id]['part_number'] = $request['part_number'];
           $_SESSION['poe']['request'][$id]['quantity']    = $request['quantity'];
           $_SESSION['poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
+          $_SESSION['poe']['request'][$id]['remarks']     = $request['remarks'];
 
           foreach ($request['vendors'] as $key => $vendor) {
             // $_SESSION['poe']['request'][$id]['alternate_part_number'] = $unit_price;
@@ -813,6 +814,7 @@ class Purchase_Order_Evaluation extends MY_Controller
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_received_quantity'] = $request['quantity'];
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_quantity']     = $request['quantity'];
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_amount']       = $total_price;
+            
           }
         }
 
