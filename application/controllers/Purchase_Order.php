@@ -200,6 +200,14 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['document_date'] = $_GET['data'];
   }
 
+  public function set_reference_quotation()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['order']['reference_quotation'] = $_GET['data'];
+  }
+
   public function set_term_payment()
   {
     if ($this->input->is_ajax_request() === FALSE)

@@ -166,10 +166,10 @@
         </a> -->
       <?php endif;?>
        <?php if (is_granted($module, 'document') && $open==0 && $entity['rejected_date']==null):?>
-        <a href="<?=site_url($module['route'] .'/cancel/'. $entity['id']);?>" class="btn btn-floating-action btn-danger btn-tooltip ink-reaction" id="modal-edit-data-button">
+        <!-- <a href="<?=site_url($module['route'] .'/cancel/'. $entity['id']);?>" class="btn btn-floating-action btn-danger btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-cancel"></i>
           <small class="top right">Cancel</small>
-        </a>
+        </a> -->
       <?php endif;?>
       <?php if (is_granted($module, 'print')):?>
         <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">

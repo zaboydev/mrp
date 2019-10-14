@@ -892,6 +892,7 @@ class Purchase_Order_Evaluation extends MY_Controller
               'total'                   => $request['quantity_requested'] * $request['quantity_requested'],
               'left_paid_amount'        => $request['quantity_requested'] * $request['quantity_requested'],              
               'is_cheaper'              => $cheaper,
+              'remarks'                 => $request['remarks'],
             );
           }
         }
