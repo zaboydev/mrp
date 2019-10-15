@@ -510,6 +510,21 @@ if ( ! function_exists('getLastUnitValue')) {
       return $return;
     }
   }
+
+  if (!function_exists('cotProcessExists')) {
+    function cotProcessExists($year)
+    {
+      $CI = &get_instance();
+
+      $CI->db->from('tb_budget_cot');
+      $CI->db->where('year', $year);
+      $CI->db->where('status', 'ON PROCESS');
+
+      $num_rows = $CI->db->count_all_results();
+
+      return $num_rows;
+    }
+  }
 }
 
 
