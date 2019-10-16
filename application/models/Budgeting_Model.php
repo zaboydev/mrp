@@ -139,6 +139,7 @@ class Budgeting_Model extends MY_Model {
     $this->db->select('a.*');
     $this->db->from('f_budget_display() a');
     $this->db->where('year',$year);
+    $this->db->where_in('status', ['ON PROCESS','APPROVED','WAITING','WAITING APPROVAL']);
     $this->searchIndex();
     $orderableColumns = $this->getOrderableColumns();
     if (isset($_POST['order'])){
@@ -194,6 +195,39 @@ class Budgeting_Model extends MY_Model {
   function cotById($id){
     $this->db->where('id', $id);
     return $this->db->get('tb_budget_cot')->row();
+  }
+
+  function delete()
+  {
+    $this->db->trans_begin();
+
+    $id = $this->input->post('id');
+    $this->db->set('status','DELETED');
+    $this->db->where('id', $id);
+    $this->db->update('tb_budget_cot');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function pengajuan($year)
+  {
+    $this->db->trans_begin();
+
+    $id = $this->input->post('id');
+    $this->db->set('status', 'WAITING');
+    $this->db->where('year', $year);
+    $this->db->where('status', 'ON PROCESS');
+    $this->db->update('tb_budget_cot');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
   }
 
   public function cotQtyById($id){
@@ -349,7 +383,7 @@ class Budgeting_Model extends MY_Model {
           'serial_number'         => $serial_number,
           'alternate_part_number' => '',
           'description'           => $description,
-          'group'                 => $group,
+          'group'                 => 'CONSUMABLE PART',
           'unit'                  => $unit,
           'minimum_quantity'      => 1,
           'kode_stok'             => '',
@@ -415,9 +449,9 @@ class Budgeting_Model extends MY_Model {
           "mtd_prev_month_quantity"=>$mtd_prev_month_quantity,
           "ytd_budget"=>$ytd_budget,
           "ytd_quantity"=>$ytd_quantity,
-          "created_at"=>$created_at,
-          "updated_at"=>$updated_at,
-          "created_by"=>$created_by,
+          "created_at"=>date('Y-m-d'),
+          "updated_at"=> date('Y-m-d'),
+          "created_by"=>config_item('auth_person_name'),
           "hour"=>$hourMonthly
         );
         $this->insertBudgeting($row);

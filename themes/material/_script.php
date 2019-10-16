@@ -1060,5 +1060,41 @@ $(function(){
 
     $('#adjustment_next_quantity').val(next_quantity);
   });
+
+  $('#btn-pengajuan-data').on('click', function(e){
+      e.preventDefault();
+
+      var button  = $( this );
+      var action  = button.data('target');
+
+      button.attr('disabled', true);
+
+      if (confirm('Are you sure want to submit this budget year ? Continue?')){
+        $.get(action).done(function(data){
+          var obj = $.parseJSON(data);
+
+          if ( obj.type == 'danger' ){
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error( obj.info );
+
+            buttonToDelete.attr('disabled', false);
+          } else {
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success( obj.info );
+
+            if ( datatable ){
+              datatable.ajax.reload( null, false );
+            }
+          }
+        }).fail(function(){
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error( 'Operation Failed! Please try again or ask Technical Support.' );
+        });
+      }
+
+      button.attr('disabled', false);
+    });
 });
 </script>

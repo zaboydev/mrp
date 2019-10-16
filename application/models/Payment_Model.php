@@ -23,15 +23,15 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_master_vendors');
 		return $this->db->get('')->result();
 	}
-	function getPoByVendor($vendor, $currency,$tipe)
+	function getPoByVendor($vendor, $currency, $tipe)
 	{
 		$this->db->select('tb_po.*');
 		$this->db->from('tb_po');
 		$this->db->where('vendor', $vendor);
 		$this->db->where('default_currency', $currency);
 		$this->db->where('remaining_payment >', 0);
-		$this->db->where_in('status', ['OPEN','ORDER']);
-		$this->db->order_by('id','asc');
+		$this->db->where_in('status', ['OPEN', 'ORDER']);
+		$this->db->order_by('id', 'asc');
 		$po = $this->db->get()->result_array();
 		foreach ($po as $detail) {
 			$this->db->select('*');
@@ -94,7 +94,7 @@ class Payment_Model extends MY_MODEL
 			$amount_idr = $amount * $kurs;
 		}
 
-		
+
 
 		$this->db->set('no_jurnal', $no_jurnal);
 		$this->db->set('tanggal_jurnal  ', date("Y-m-d"));

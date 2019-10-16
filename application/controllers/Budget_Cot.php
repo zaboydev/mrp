@@ -20,7 +20,7 @@ class Budget_Cot extends MY_Controller {
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
 
     
-    $this->data['page']['title']            = $this->module['label'] .' '. $warehouse.' '. $category .' '. $condition.' / PERIODE : '.$periode;
+    $this->data['page']['title']            = $this->module['label'];
     $this->data['grid']['fixed_columns']    = 2;
 
     // $this->data['grid']['summary_columns']  = array( 7, 8, 9, 10, 11 );

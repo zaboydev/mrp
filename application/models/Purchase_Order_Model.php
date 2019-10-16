@@ -915,6 +915,14 @@ class Purchase_Order_Model extends MY_Model
     $total_qty = 0;
     $total_value = 0;
 
+    $id_poe = getPoeId($vendor_po);
+    $status_select = poeVendor($id_poe);
+    if($status_select==0){
+      $this->db->set('status', 'closed');
+      $this->db->where('id', $id_poe);
+      $this->db->update('tb_purchase_orders');
+    }
+
     foreach ($_SESSION['order']['items'] as $key => $item) {
       $this->db->set('purchase_order_id', $id_po);
       $this->db->set('description', strtoupper($item['description']));

@@ -510,6 +510,55 @@ if ( ! function_exists('getLastUnitValue')) {
       return $return;
     }
   }
+
+  if (!function_exists('cotProcessExists')) {
+    function cotProcessExists($year)
+    {
+      $CI = &get_instance();
+
+      $CI->db->from('tb_budget_cot');
+      $CI->db->where('year', $year);
+      $CI->db->where('status', 'ON PROCESS');
+
+      $num_rows = $CI->db->count_all_results();
+
+      return $num_rows;
+    }
+  }
+
+  if (!function_exists('getPoeId')) {
+    function getPoeId($id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('purchase_order_id');
+      $CI->db->from('tb_purchase_order_vendors');
+      $CI->db->where('id', $id);
+      // $CI->db->where('UPPER(condition)', strtoupper($condition));
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $return = $row->purchase_order_id;
+
+      return $return;
+    }
+  }
+
+  if (!function_exists('poeVendor')) {
+    function poeVendor($purchase_order_id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->from('tb_purchase_order_vendors');
+      $CI->db->where('purchase_order_id', $purchase_order_id);
+      $CI->db->where('is_selected', true);
+
+      $num_rows = $CI->db->count_all_results();
+
+      return $num_rows;
+    }
+  }
+
 }
 
 
