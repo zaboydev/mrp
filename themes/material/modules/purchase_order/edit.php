@@ -203,9 +203,9 @@
                 <?php foreach ($_SESSION['order']['items'] as $i => $item):?>
                   <tr id="row_<?=$i;?>">
                     <td width="1">
-                      <a href="<?=site_url($module['route'] .'/del_item/'. $i);?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
+                      <!-- <a href="<?=site_url($module['route'] .'/del_item/'. $i);?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
                         <i class="fa fa-trash"></i>
-                      </a>
+                      </a> -->
                       <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?=$i;?>}'>
                         <i class="fa fa-edit"></i>
                       </a>
@@ -308,7 +308,7 @@
                 <legend>General</legend>
 
                 <div class="form-group">
-                  <input type="text" name="part_number" id="part_number" class="form-control input-sm" readonly>
+                  <input type="text" name="part_number" id="part_number" class="form-control input-sm">
                   <label for="part_number">Part Number</label>
                 </div>
 
@@ -318,7 +318,7 @@
                 </div>
 
                 <div class="form-group">
-                  <input type="text" name="description" id="description" class="form-control input-sm" readonly>
+                  <input type="text" name="description" id="description" class="form-control input-sm">
                   <label for="description">Description</label>
                 </div>
 

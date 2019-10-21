@@ -26,7 +26,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_stocks.condition'                     => 'Condition',
       'tb_receipt_items.received_quantity'      => 'Quantity',
       // 'tb_master_items.unit'                    => 'Unit',
-      'tb_receipt_items.received_unit'                    => 'Unit',
+      'tb_master_items.unit'                    => 'Unit',
       'tb_master_item_groups.coa'               => 'COA',
       'tb_master_items.kode_stok'               => 'Kode Stok',
       'tb_receipt_items.purchase_order_number'  => 'Order Number',
@@ -258,6 +258,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.part_number',
       'tb_master_items.description',
       'tb_master_items.alternate_part_number',
+      'tb_master_items.unit as unit_pakai',
       'tb_master_items.unit',
       'tb_master_items.group',
       'tb_master_items.minimum_quantity',
@@ -271,8 +272,11 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipt_items.awb_number',
       'tb_receipt_items.remarks',
       'tb_receipt_items.kode_akunting',
+      'tb_receipt_items.quantity_order',
+      'tb_receipt_items.value_order',
+      'tb_receipt_items.isi',
       //tambahan
-      'tb_master_items.unit_pakai',
+      // 'tb_master_items.unit_pakai',
       'tb_master_items.kode_stok',
       'tb_master_items.qty_konversi',
       'tb_receipt_items.received_unit',
@@ -360,7 +364,7 @@ class Goods_Received_Note_Model extends MY_Model
       $old_document_number  = $row['document_number'];
       $old_warehouse        = $row['warehouse'];
 
-      $this->db->select('tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores,tb_receipt_items.purchase_order_item_id');
+      $this->db->select('tb_receipt_items.quantity_order, tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores,tb_receipt_items.purchase_order_item_id');
       $this->db->from('tb_receipt_items');
       $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_receipt_items.stock_in_stores_id');
       $this->db->where('tb_receipt_items.document_number', $old_document_number);
@@ -400,8 +404,8 @@ class Goods_Received_Note_Model extends MY_Model
 
         if ($data['purchase_order_item_id'] != null) {
           $this->db->where('id', $data['purchase_order_item_id']);
-          $this->db->set('left_received_quantity', 'left_received_quantity +' . $data['received_quantity'], FALSE);
-          $this->db->set('quantity_received', 'quantity_received - ' . $data['received_quantity'], FALSE);
+          $this->db->set('left_received_quantity', 'left_received_quantity +' . $data['quantity_order'], FALSE);
+          $this->db->set('quantity_received', 'quantity_received - ' . $data['quantity_order'], FALSE);
           $this->db->update('tb_po_item');
         }
 
@@ -521,7 +525,8 @@ class Goods_Received_Note_Model extends MY_Model
           $this->db->set('unit', strtoupper($data['unit_pakai']));
           $this->db->set('unit_pakai', $data['unit']);
           $this->db->set('qty_konversi', $data['isi']);
-          $qty_konvers = floatval($data['received_quantity']) * floatval($data['isi']);
+          // $qty_konvers = floatval($data['received_quantity']) * floatval($data['isi']);
+          $qty_konvers = floatval($data['received_quantity']);
         } else {
           $this->db->set('unit', strtoupper($data['unit']));
 
@@ -533,7 +538,8 @@ class Goods_Received_Note_Model extends MY_Model
       } else {
         $item_id = getItemId($data['part_number'], $serial_number);
         if (!empty($data['unit_pakai']) && !empty($data['isi'])) {
-          $qty_konvers = floatval($data['received_quantity']) * floatval($data['isi']);
+          // $qty_konvers = floatval($data['received_quantity']) * floatval($data['isi']);
+          $qty_konvers = floatval($data['received_quantity']);
         } else {
           $qty_konvers = floatval($data['received_quantity']);
         }
@@ -792,11 +798,11 @@ class Goods_Received_Note_Model extends MY_Model
 
         $query  = $this->db->get();
         $row    = $query->unbuffered_row('array');
-        $qty    = floatval($row['left_received_quantity']) - floatval($data['received_quantity']);
+        $qty    = floatval($row['left_received_quantity']) - floatval($data['quantity_order']);
 
         $this->db->where('id', $data['purchase_order_item_id']);
-        $this->db->set('left_received_quantity', 'left_received_quantity -' . $data['received_quantity'], FALSE);
-        $this->db->set('quantity_received', 'quantity_received + ' . $data['received_quantity'], FALSE);
+        $this->db->set('left_received_quantity', 'left_received_quantity -' . $data['quantity_order'], FALSE);
+        $this->db->set('quantity_received', 'quantity_received + ' . $data['quantity_order'], FALSE);
         $this->db->update('tb_po_item');
 
         $left_qty_po = leftQtyPo($row['purchase_order_id']);
@@ -850,10 +856,13 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('awb_number', $data['awb_number']);
       $this->db->set('remarks', $data['remarks']);
       $this->db->set('received_date_item', $received_date);
+      $this->db->set('quantity_order', floatval($data['quantity_order']));
+      $this->db->set('value_order', floatval($data['value_order']));
+      $this->db->set('isi', floatval($data['isi']));
       if (!empty($data['unit_pakai']) && !empty($data['isi'])) {
-        $this->db->set('received_unit', strtoupper($data['unit_pakai']));
+        $this->db->set('received_unit', strtoupper($data['received_unit']));
       } else {
-        $this->db->set('received_unit', strtoupper($data['unit']));
+        $this->db->set('received_unit', strtoupper($data['received_unit']));
       }
 
       // $this->db->set('group', strtoupper($data['group']));
@@ -1022,6 +1031,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_po.exchange_rate',
       'tb_master_items.group',
       'tb_master_items.kode_stok',
+      'tb_master_items.unit as unit_pakai',
     );
 
     $this->db->select($this->column_select);
