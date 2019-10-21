@@ -955,7 +955,7 @@ class Goods_Received_Note_Model extends MY_Model
     $document_number  = $row['document_number'];
     $warehouse        = $row['warehouse'];
 
-    $this->db->select('tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores');
+    $this->db->select('tb_receipt_items.purchase_order_item_id, tb_receipt_items.quantity_order, tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores');
     $this->db->from('tb_receipt_items');
     $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_receipt_items.stock_in_stores_id');
     $this->db->where('tb_receipt_items.document_number', $document_number);
@@ -992,6 +992,13 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
       $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
       $this->db->insert('tb_stock_cards');
+
+      if ($data['purchase_order_item_id'] != null) {
+        $this->db->where('id', $data['purchase_order_item_id']);
+        $this->db->set('left_received_quantity', 'left_received_quantity +' . $data['quantity_order'], FALSE);
+        $this->db->set('quantity_received', 'quantity_received - ' . $data['quantity_order'], FALSE);
+        $this->db->update('tb_po_item');
+      }
 
       $this->db->where('id', $data['id']);
       $this->db->delete('tb_receipt_items');
