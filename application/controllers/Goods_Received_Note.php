@@ -193,7 +193,7 @@ class Goods_Received_Note extends MY_Controller
         // $col[]  = print_string($row['minimum_quantity']);
         $col[]  = print_string($row['condition']);
         $col[]  = print_string($row['received_quantity']);
-        $col[]  = print_string($row['received_unit']);
+        $col[]  = print_string($row['unit']);
         $col[]  = print_string($row['coa']);
         $col[]  = print_string($row['kode_stok']);
         $col[]  = print_string($row['purchase_order_number']);
@@ -479,12 +479,14 @@ class Goods_Received_Note extends MY_Controller
         'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
         'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
         'unit'                    => trim($this->input->post('unit')),
+        'received_unit'                    => trim($this->input->post('received_unit')),
         'remarks'                 => trim($this->input->post('remarks')),
         'kode_stok'               => trim($this->input->post('kode_stok')),
         'kurs'                    => trim($this->input->post('kurs')),
         'unit_pakai'              => trim($this->input->post('unit_pakai')),
         'isi'                     => trim($this->input->post('isi')),
-        'hasil_konversi'          => $this->input->post('qty_konversi'),
+        'quantity_order'          => $this->input->post('quantity_order'),
+        'value_order'          => $this->input->post('value_order'),
         'no_expired_date'         => $this->input->post('no_expired_date'),
 
       );
@@ -570,12 +572,14 @@ class Goods_Received_Note extends MY_Controller
         'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
         'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
         'unit'                    => trim($this->input->post('unit')),
+        'received_unit'           => trim($this->input->post('received_unit')),
         'remarks'                 => trim($this->input->post('remarks')),
         'kode_stok'               => trim($this->input->post('edit_kode_stok')),
         'kurs'                    => trim($this->input->post('edit_kurs')),        
-        'unit_pakai'              => trim($this->input->post('edit_unit_pakai')), 
-        'isi'                     => trim($this->input->post('edit_isi')),
-        'hasil_konversi'          => $this->input->post('edit_qty_konversi'),
+        'unit_pakai'              => trim($this->input->post('unit_pakai')), 
+        'isi'                     => trim($this->input->post('isi')),
+        'quantity_order'          => $this->input->post('quantity_order'),
+        'value_order'          => $this->input->post('value_order'),
         'no_expired_date'         => $this->input->post('edit_no_expired_date'),
         'stock_in_stores_id'       => trim($this->input->post('stock_in_store_id')),
         'receipt_items_id'       => trim($this->input->post('receipt_items_id')),
