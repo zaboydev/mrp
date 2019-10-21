@@ -1076,6 +1076,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->update('tb_purchase_order_items');
     }
     $this->db->set('review_status', 'REVISI');
+    $this->db->set('status', 'REVISI');
     $this->db->where('id', $id_po_lama);
     $this->db->update('tb_po');
 

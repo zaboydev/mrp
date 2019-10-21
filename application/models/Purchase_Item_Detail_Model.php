@@ -31,7 +31,7 @@ class Purchase_Item_Detail_Model extends MY_Model
             'tb_po_item.part_number',
             'tb_po_item.description'
         ));
-        
+        $this->db->where('tb_po.review_status !=','REVISI');
         if($date!=null){
             $range_date  = explode('.', $date);
             $start_date  = $range_date[0];
@@ -82,6 +82,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         $this->db->from('tb_po_item');
         $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
         $this->db->where('tb_po_item.part_number', $part_number);
+        $this->db->where('tb_po.review_status !=', 'REVISI');
         // $this->db->where('tb_po.default_currency', $currency);
         if ($date != null) {
             $range_date  = explode('.', $date);
