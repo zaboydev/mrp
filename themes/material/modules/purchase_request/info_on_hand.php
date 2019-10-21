@@ -78,7 +78,7 @@
                                                 No data available
                                             </td>
                                         </tr>
-                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 </tbody>
                                 <tfoot>
                                     <tr>

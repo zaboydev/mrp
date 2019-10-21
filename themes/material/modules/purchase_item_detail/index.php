@@ -35,11 +35,10 @@
                                         <div class="col-xs-4">
                                             <div class="form-group">
                                                 <select id="suplier_select" class="form-control">
-                                                    <option value=""></option>
                                                     <option value="all">All Suplier</option>
                                                     <?php foreach ($suplier as $key) {
                                                         ?>
-                                                        <option value="<?= $key->vendor ?>"><?= $key->vendor ?> - <?= $key->code ?></option>
+                                                        <option value="<?= $key->vendor ?>"><?= $key->code ?> - <?= $key->vendor ?></option>
                                                     <?php
                                                     } ?>
                                                 </select>
@@ -60,9 +59,14 @@
                                 </div>
                                 <div class="col-xs-3">
                                     <div class="row">
-                                        <div class="col-xs-4">
+                                        <div class="col-xs-3">
                                             <div class="form-group">
-                                                <button type="button" class="btn btn-flat btn-danger btn-block ink-reaction">Generate</button>
+                                                <button type="button" class="btn btn-sm btn-danger btn-block btn-print-report" data-tipe="print">Print</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="form-group">
+                                                <button type="button" class="btn btn-sm btn-info btn-block btn-print-report" data-tipe="excel">Excel</button>
                                             </div>
                                         </div>
                                     </div>
@@ -88,12 +92,7 @@
                                         <tbody id="listView">
 
                                         </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="5" style="text-align: right;">Total</td>
-                                                <td id="total_general">0</td>
-                                            </tr>
-                                        </tfoot>
+
                                     </table>
                                 </div>
                             </div>
@@ -102,15 +101,6 @@
                         </div>
                     </div>
                     <?= form_close(); ?>
-                </div>
-
-                <div class="section-action style-default-bright">
-                    <div class="section-floating-action-row">
-                        <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="">
-                            <i class="md md-save"></i>
-                            <small class="top right">Save Document</small>
-                        </a>
-                    </div>
                 </div>
 </section>
 <?php endblock() ?>
@@ -211,10 +201,7 @@
         }
     }(jQuery));
     $("#loadingScreen2").attr("style", "display:none");
-    $('#date').datepicker({
-        autoclose: true,
-        format: 'yyyy-mm-dd'
-    });
+
 
     function numberFormat(nStr) {
         nStr += '';
@@ -276,14 +263,33 @@
             cancelLabel: 'Clear'
         }
     }).on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
-        var i = $(this).data('column');
-        var v = $(this).val();
-        // datatable.columns(i).search(v).draw();
+        $(this).val(picker.startDate.format('YYYY-MM-DD') + '.' + picker.endDate.format('YYYY-MM-DD'));
+        // $(".btn-print-report").attr('disabled', false);
+        suplier = $("#suplier_select").val();
+        currency = $("#currency_select").val();
+        date = $("#date").val();
+        $("#total_general").html(0);
+        $("#amount").val(0);
+        // row_num = 0;
+        $("#listView").html("");
+        row = [];
+        row_detail = [];
+
+        getPo()
     }).on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
-        var i = $(this).data('column');
-        // datatable.columns(i).search('').draw();
+        // $(".btn-print-report").attr('disabled', true);
+        suplier = $("#suplier_select").val();
+        currency = $("#currency_select").val();
+        date = $("#date").val();
+        $("#total_general").html(0);
+        $("#amount").val(0);
+        // row_num = 0;
+        $("#listView").html("");
+        row = [];
+        row_detail = [];
+
+        getPo()
     });
 
     $('#currency_select').change(function() {
@@ -334,7 +340,7 @@
     });
 
     $("#suplier_select").change(function(e) {
-        
+
         suplier = $("#suplier_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
@@ -379,33 +385,13 @@
         // }
     });
 
-    $("#date").change(function(e) {
-        // if (suplier != "") {
-        //   if (confirm("If you change suplier the items will be reset")) {
-        //     suplier = $("#suplier_select").val()
-        //     currency = $("#currency_select").val()
-        //     getPo()
-        //     row_num = 0;
-        //     $("#listView").html("");
-        //     row = []
-        //   } else {
-        //     $("#suplier_select").val(suplier)
-        //   }
-        // } else {
-        // changeTotal();
+    $(".btn-print-report").on('click', function(e) {
         suplier = $("#suplier_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
-        $("#listView").html("");
-        row = [];
-        row_detail = [];
+        tipe = $(this).data('tipe');
 
-        getPo()
-
-        // }
+        get_po_for_print()
     });
 
     var arr_po = []
@@ -437,6 +423,40 @@
                 // }
             }
         });
+    }
+
+    function get_po_for_print() {
+        // $("#loadingScreen2").attr("style", "display:block");
+
+
+        // $.ajax({
+        //     type: "POST",
+        //     url: '<?= base_url() . "purchase_item_detail/get_po_for_print" ?>',
+        //     data: {
+        //         'currency': currency,
+        //         'vendor': suplier,
+        //         'date': date,
+        //         'tipe': tipe
+        //     },
+        //     cache: false,
+        //     success: function(response) {
+        //         // $("#loadingScreen2").attr("style", "display:none");
+        //         var data = jQuery.parseJSON(response);
+        //         window.open(data.info);
+        //     }
+        // });
+
+        var data = {
+            'currency': currency,
+            'vendor': suplier,
+            'date': date,
+            'tipe': tipe
+
+        };
+
+        var urlPrint = '<?= base_url() ?>' + 'purchase_item_detail/get_po_for_print/' + tipe + '/' + currency + '/' + suplier + '/' + date;
+        window.open(urlPrint);
+
     }
 
     $("#listView").on("change", ".sel_item", function() {
