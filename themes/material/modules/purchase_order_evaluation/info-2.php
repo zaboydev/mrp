@@ -182,10 +182,10 @@
       <?php endif; ?>
 
       <?php if (is_granted($modules['purchase_order_evaluation'], 'document') && $entity['status'] == 'evaluation') : ?>
-        <a href="<?= site_url($modules['purchase_order_evaluation']['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+        <!-- <a href="<?= site_url($modules['purchase_order_evaluation']['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>
-        </a>
+        </a> -->
       <?php endif; ?>
 
       <?php if (is_granted($module, 'print')) : ?>
