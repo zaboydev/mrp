@@ -660,7 +660,7 @@ class Purchase_Order_Evaluation extends MY_Controller
             'alternate_part_number'   => NULL,
             'serial_number'           => NULL,
             'unit'                    => $request['unit'],
-            'quantity'                => floatval($request['quantity']),
+            'quantity'                => floatval($request['sisa']),
             'sisa'                    => floatval($request['sisa']),
             'unit_price'              => floatval($request['price']),
             'core_charge'             => floatval(0),
@@ -671,6 +671,7 @@ class Purchase_Order_Evaluation extends MY_Controller
             'unit'                    => $request['unit'],
             'remarks'                 => $request['remarks'],
             'purchase_request_number' => $request['pr_number'],
+            'konversi'                => 1,
           );
 
           $_SESSION['poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
@@ -798,6 +799,8 @@ class Purchase_Order_Evaluation extends MY_Controller
           $_SESSION['poe']['request'][$id]['quantity']    = $request['quantity'];
           $_SESSION['poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
           $_SESSION['poe']['request'][$id]['remarks']     = $request['remarks'];
+          $_SESSION['poe']['request'][$id]['unit']     = $request['unit'];
+          $_SESSION['poe']['request'][$id]['konversi']     = $request['konversi'];
 
           foreach ($request['vendors'] as $key => $vendor) {
             // $_SESSION['poe']['request'][$id]['alternate_part_number'] = $unit_price;

@@ -285,6 +285,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $selected_detail = array(
         'tb_purchase_order_items_vendors.*',
         'tb_purchase_order_vendors.vendor',
+        'tb_purchase_order_vendors.currency'
       );
 
       $this->db->select($selected_detail);
@@ -297,6 +298,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
       foreach ($query->result_array() as $d => $detail) {
         $poe['request'][$i]['vendors'][$d] = $detail;
+        $poe['request'][$i]['vendors'][$d]['vendor'] = $detail['currency'].'-'.$detail['vendor'];
       }
     }
     $this->db->where('id_poe', $id);
@@ -416,12 +418,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
        */
       $this->db->where('purchase_order_id', $document_id);
       $this->db->delete('tb_purchase_order_vendors');
+      
       $this->db->where('purchase_order_id', $document_id);
       $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
       foreach ($tb_purchase_order_items as $key) {
         $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
         $this->db->where('id', $inventory_purchase_request_detail_id);
-        $this->db->set('sisa', '"sisa" + ' . $key->quantity, false);
+        $this->db->set('sisa', '"sisa" + ' . $key->quantity_prl, false);
         $this->db->update('tb_inventory_purchase_requisition_details');
       }
       $this->db->where('purchase_order_id', $document_id);
@@ -537,11 +540,15 @@ class Purchase_Order_Evaluation_Model extends MY_Model
           $this->db->set('core_charge', floatval($detail['core_charge']));
           $this->db->set('total_amount', floatval($detail['total']));
           $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
+          $this->db->set('quantity_prl', floatval($detail['quantity']* $item['konversi']));
+          $this->db->set('value_prl', floatval($detail['total']/ ($detail['quantity'] * $item['konversi'])));
+          $this->db->set('konversi', floatval($item['konversi']));
           $this->db->set('status_item', $item_status);
           $this->db->where('id', $poe_item_id);
           $this->db->update('tb_purchase_order_items');
+          $quantity_prl = floatval($detail['quantity'] * $item['konversi']);
 
-          $this->db->set('sisa', '"sisa" - ' . $detail['quantity'], false);
+          $this->db->set('sisa', '"sisa" - ' . $quantity_prl, false);
           $this->db->where('id', $inventory_purchase_request_detail_id);
           $this->db->update('tb_inventory_purchase_requisition_details');
 
