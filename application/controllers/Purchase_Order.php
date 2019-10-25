@@ -1324,6 +1324,7 @@ class Purchase_Order extends MY_Controller
         'unit'                  => trim($this->input->post('unit')),
         'evaluation_number'     => trim($this->input->post('evaluation_number')),
         'purchase_order_evaluation_items_vendors_id' => $this->input->post('purchase_order_evaluation_items_vendors_id'),
+        'purchase_request_number'           => $this->input->post('purchase_request_number'),
 
       );
     }

@@ -223,6 +223,9 @@ class Purchase_Order_Model extends MY_Model
       } elseif ($status == 'open') {
         $this->db->like('tb_po.review_status', 'APPROVED');
         $this->db->like('tb_po.status', 'OPEN');
+      } elseif ($status == 'revisi') {
+        $this->db->like('tb_po.review_status', 'REVISI');
+        // $this->db->like('tb_po.status', 'OPEN');
       }
       // elseif($status=='all'){
       //   $this->db->like('tb_po.review_status', 'WAITING');
@@ -1052,7 +1055,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('taxes', $taxes);
     $this->db->set('shipping_cost', $shipping_cost);
     $this->db->set('notes', $notes);
-    $this->db->set('status', 'approved');
+    $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
     $this->db->set('review_status', strtoupper('waiting for finance review'));
@@ -1106,6 +1109,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('core_charge', floatval($item['core_charge']));
       $this->db->set('total_amount', floatval($item['total_amount']));
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
+      $this->db->set('purchase_request_number', $item['purchase_request_number']);
       $this->db->set('poe_number', $item['evaluation_number']);
       $this->db->insert('tb_po_item');
       $total_qty = $total_qty + $item['quantity'];
