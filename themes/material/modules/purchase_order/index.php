@@ -186,6 +186,9 @@
       <option value="order">
         Order
       </option>
+      <option value="revisi">
+        Revisi
+      </option>
       <option value="open">
         Open
       </option>
