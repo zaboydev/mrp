@@ -356,7 +356,7 @@ class Purchase_Order_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function approve($id)
+  public function approve($id,$note)
   {
     $this->db->from('tb_po');
     $this->db->where('id', $id);
@@ -365,6 +365,11 @@ class Purchase_Order_Model extends MY_Model
     $row    = $query->unbuffered_row('array');
     $grandtotal = $row['grand_total'];
     $currency = $row['default_currency'];
+    $po_note  = $row['approval_notes'];
+    if($note!=null){
+      $po_note  = $row['approval_notes']. config_item('auth_role').':'. $note . ',';
+    }
+
 
     if ((config_item('auth_role') == 'HEAD OF SCHOOL')) {
       if ($currency == 'IDR') {
@@ -447,6 +452,7 @@ class Purchase_Order_Model extends MY_Model
     if($level!=0){
       $this->send_mail($id, $level);
     }
+    $this->db->set('approval_notes', $po_note);
     $this->db->where('id', $id);
     return $this->db->update('tb_po');
   }
@@ -836,7 +842,7 @@ class Purchase_Order_Model extends MY_Model
 
   public function save_po()
   {
-    $document_number      = order_format_number($_SESSION['order']['category']) . $_SESSION['order']['document_number'];
+    $document_number      = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
     $issued_by            = (empty($_SESSION['order']['issued_by'])) ? NULL : $_SESSION['order']['issued_by'];

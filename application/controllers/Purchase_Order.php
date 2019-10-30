@@ -192,6 +192,19 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['document_number'] = $number;
   }
 
+  public function set_format_number()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (empty($_GET['data']))
+      $format_number = order_format_number();
+    else
+      $format_number = $_GET['data'];
+
+    $_SESSION['order']['format_number'] = $format_number;
+  }
+
   public function set_document_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -479,16 +492,23 @@ class Purchase_Order extends MY_Controller
     $id_purchase_order = str_replace("|", "", $id_purchase_order);
     $id_purchase_order = substr($id_purchase_order, 0, -1);
     $id_purchase_order = explode(",", $id_purchase_order);
+    $str_notes = $this->input->post('notes');
+    $notes = str_replace("|", "", $str_notes);
+    $notes = substr($notes, 0, -3);
+    $notes = explode("##,", $notes);
+    
+    $x = 0;
     $total = 0;
     $success = 0;
     $failed = sizeof($id_purchase_order);
 
     foreach ($id_purchase_order as $key) {
-      if ($this->model->approve($key)) {
+      if ($this->model->approve($key, $notes[$x])) {
         $total++;
         $success++;
         $failed--;
       }
+      $x++;
     }
     if ($success > 0) {
       $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
@@ -784,6 +804,7 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['vendor']              = $order['vendor'];
     $_SESSION['order']['warehouse']           = config_item('main_warehouse');
     $_SESSION['order']['category']            = $category;
+    $_SESSION['order']['format_number']       = order_format_number();
     $_SESSION['order']['document_number']     = order_last_number();
     $_SESSION['order']['document_date']       = date('Y-m-d');
     $_SESSION['order']['vendor']              = $order['vendor'];
@@ -935,7 +956,7 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = order_format_number($_SESSION['orders']['category']) . $_SESSION['order']['document_number'];
+      $document_number = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
 
       $errors = array();
 
@@ -944,7 +965,7 @@ class Purchase_Order extends MY_Controller
       }
 
       if ($this->model->isDocumentNumberExists($document_number)) {
-        $errors[] = 'Duplicate Document Number: ' . $_SESSION['orders']['document_number'] . ' !';
+        $errors[] = 'Duplicate Document Number: ' . $document_number . ' !';
       }
 
       if (!empty($errors)) {
