@@ -23,7 +23,7 @@ class Purchase_Order extends MY_Controller
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 3;
     if ((config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE')) {
-      $this->data['grid']['summary_columns']  = array(13, 16);
+      $this->data['grid']['summary_columns']  = array(12, 15);
     } else {
       $this->data['grid']['summary_columns']  = array(12, 15);
     }
@@ -95,16 +95,16 @@ class Purchase_Order extends MY_Controller
           $col[] = print_number($row['core_charge'], 2);
           $col[] = print_number($row['total_amount'], 2);
           if ($row['review_status'] === "APPROVED") {
-            $col[] = '';
+            $col[] = print_string($row['notes']);
           } else {
             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
           }
           $col[] = null;
           $col[] = null;
-          $col[] = null;
-          $col[] = null;
-          $col[] = null;
-          $col[] = null;
+          // $col[] = null;
+          // $col[] = null;
+          // $col[] = null;
+          // $col[] = null;
         } else {
           $col[] = print_number($row['quantity'], 2);
           $col[] = print_number($row['unit_price'], 2);
@@ -114,7 +114,7 @@ class Purchase_Order extends MY_Controller
           $col[] = print_number($row['left_received_quantity'], 2);
           // $col[] = print_number($row['amount_paid'], 2);   
           if ($row['review_status'] === "APPROVED") {
-            $col[] = '';
+            $col[] = print_string($row['notes']);
           } else {
             if ($row['document_number'] == null) {
               $col[] = '';
@@ -122,15 +122,15 @@ class Purchase_Order extends MY_Controller
               if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE')) {
                 $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
               } else {
-                $col[] = '';
+                $col[] = print_string($row['notes']);
               }
             }
           }
           $col[] = null;
           $col[] = null;
-          $col[] = null;
-          $col[] = null;
-          $col[] = null;
+          // $col[] = null;
+          // $col[] = null;
+          // $col[] = null;
         }
 
         $col['DT_RowId'] = 'row_' . $row['id'];
@@ -168,8 +168,8 @@ class Purchase_Order extends MY_Controller
       );
       if ((config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE')) {
         // $result['total'][17] = print_number(array_sum($unit_value), 2);
-        $result['total'][13] = print_number(array_sum($quantity), 2);
-        $result['total'][16] = print_number(array_sum($total_amount), 2);
+        $result['total'][12] = print_number(array_sum($quantity), 2);
+        $result['total'][15] = print_number(array_sum($total_amount), 2);
       } else {
         $result['total'][12] = print_number(array_sum($quantity), 2);
         $result['total'][15] = print_number(array_sum($total_amount), 2);
@@ -185,11 +185,23 @@ class Purchase_Order extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
 
     if (empty($_GET['data']))
-      $number = order_last_number();
+      $number = order_last_number($_SESSION['order']['format_number']);
     else
       $number = $_GET['data'];
 
     $_SESSION['order']['document_number'] = $number;
+  }
+
+  public function get_doc_number($format)
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
+
+    $number = order_last_number('POM');
+
+    $_SESSION['order']['document_number'] = $number;
+
+    echo json_encode($number);
   }
 
   public function set_format_number()
@@ -203,6 +215,8 @@ class Purchase_Order extends MY_Controller
       $format_number = $_GET['data'];
 
     $_SESSION['order']['format_number'] = $format_number;
+
+    // $_SESSION['order']['document_number'] = order_last_number($_SESSION['order']['format_number']);
   }
 
   public function set_document_date()
@@ -805,7 +819,9 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['warehouse']           = config_item('main_warehouse');
     $_SESSION['order']['category']            = $category;
     $_SESSION['order']['format_number']       = order_format_number();
-    $_SESSION['order']['document_number']     = order_last_number();
+    $_SESSION['order']['document_number']     = order_last_number($_SESSION['order']['format_number']);
+    $_SESSION['order']['wom_document_number']     = order_last_number('WOM');
+    $_SESSION['order']['pom_document_number']     = order_last_number('POM');
     $_SESSION['order']['document_date']       = date('Y-m-d');
     $_SESSION['order']['vendor']              = $order['vendor'];
     $_SESSION['order']['vendor_address']      = $order['vendor_address'];
@@ -871,6 +887,7 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
+      $_SESSION['order']['format_number']       = substr($order['document_number'], 0, 3);
       $_SESSION['order']['document_number']     = substr($order['document_number'], 3, 6) . 'R';
       $_SESSION['order']['document_date']       = date('Y-m-d');
       $_SESSION['order']['vendor']              = $order['vendor'];
@@ -956,7 +973,7 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
 
       $errors = array();
 

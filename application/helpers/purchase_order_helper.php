@@ -105,7 +105,7 @@ if ( ! function_exists('order_format_number')) {
 }
 
 if ( ! function_exists('order_last_number')) {
-  function order_last_number($category = NULL)
+  function order_last_number($format,$category = NULL)
   {
     $CI =& get_instance();
 
@@ -113,11 +113,11 @@ if ( ! function_exists('order_last_number')) {
       $category = $_SESSION['order']['category'];
     }
 
-    $format = order_format_number($category);
+    // $format = order_format_number($category);
 
     $CI->db->select_max('document_number', 'last_number');
+    $CI->db->like('tb_po.document_number', $format, 'after');
     $CI->db->from('tb_po');
-    // $CI->db->like('tb_po.document_number', $format.'%');
 
     $query  = $CI->db->get();
     $row    = $query->unbuffered_row();

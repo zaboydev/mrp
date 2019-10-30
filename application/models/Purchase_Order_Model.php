@@ -23,7 +23,7 @@ class Purchase_Order_Model extends MY_Model
     if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')  || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
       return array(
         "''" . ' as "temp"' => "Act.",
-        'tb_po.id' => NULL,
+        'tb_po.id' => 'No',
         'tb_po.document_number'              => 'Document Number',
         'tb_po.review_status'                => 'Review Status',
         'tb_po.document_date'                => 'Date',
@@ -43,8 +43,6 @@ class Purchase_Order_Model extends MY_Model
         // 'tb_po_item.left_received_quantity'      => 'Left Qty',
         // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid' => 'Paid Amount',
         'tb_po.notes'                        => 'Notes',
-        'tb_po.approved_by_hos'              => null,
-        'tb_po.approved_by_cof'              => null,
         'tb_purchase_orders.id as poe_id'              => null,
         'tb_purchase_order_items.id as poe_item_id'              => null
       );
@@ -103,8 +101,6 @@ class Purchase_Order_Model extends MY_Model
         'tb_po_item.left_received_quantity'      => 'Left Qty',
         // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid' => 'Paid Amount',
         'tb_po.notes'                        => 'Notes',
-        'tb_po.approved_by_hos'              => null,
-        'tb_po.approved_by_cof'              => null,
         'tb_purchase_orders.id as poe_id'              => null,
         'tb_purchase_order_items.id as poe_item_id'              => null
 
@@ -712,7 +708,7 @@ class Purchase_Order_Model extends MY_Model
   public function isDocumentNumberExists($document_number)
   {
     $this->db->where('document_number', $document_number);
-    $query = $this->db->get('tb_purchase_orders');
+    $query = $this->db->get('tb_po');
 
     if ($query->num_rows() > 0)
       return true;
@@ -842,7 +838,7 @@ class Purchase_Order_Model extends MY_Model
 
   public function save_po()
   {
-    $document_number      = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
+    $document_number      = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
     $issued_by            = (empty($_SESSION['order']['issued_by'])) ? NULL : $_SESSION['order']['issued_by'];
