@@ -21,8 +21,8 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /attachment/
 bifa_2019-03-24.rar
 bifa_2019-03-24.zip
-/application/config/config.php
-/application/config/database.php
+application/config/config.php
+application/config/database.php
 
 
 # IDE Files

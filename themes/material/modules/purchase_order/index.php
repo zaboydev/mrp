@@ -616,13 +616,15 @@
         }
       });
     }
-
+    var notes = "";
     $("#modal-approve-data-button-multi").click(function() {
       var action = $(this).data('source');
       $(this).attr('disabled', true);
       if (id_purchase_order !== "") {
+        encodeNotes();
         $.post(action, {
-          'id_purchase_order': id_purchase_order
+          'id_purchase_order': id_purchase_order,
+          'notes': notes
         }).done(function(data) {
           console.log(data);
           $("#modal-approve-data-button-multi").attr('disabled', false);
@@ -650,6 +652,7 @@
         toastr.error('Empty selected data');
       }
     });
+
     $(datatableElement).find('tbody').on('click', 'td', function() {
       datatableOptions.clickCount++;
 
@@ -783,7 +786,7 @@
         $('.progress-overlay').hide();
       }
     });
-    var notes = "";
+
     $("#modal-reject-data-button-multi").click(function() {
       if (!encodeNotes()) {
         toastr.options.timeOut = 10000;
