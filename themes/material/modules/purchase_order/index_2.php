@@ -365,7 +365,7 @@
       .attr('width', '100%');
 
     <?php
-    if (is_granted($modules['purchase_order'], 'approval')) {
+    if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE')) {
       ?>
       $(datatableElement).find('thead tr:first-child th:nth-child(2)').attr('width', 1).text('No.');
       $(datatableElement).find('table td:nth-child(2)').attr('align', 'right');
@@ -433,7 +433,7 @@
         });
 
       },
-      <?php if (is_granted($modules['purchase_order'], 'approval')) { ?>
+      <?php if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE')) { ?>
         columnDefs: [{
             searchable: false,
             orderable: false,
@@ -442,13 +442,15 @@
           {
             searchable: false,
             orderable: false,
-            targets: [17]
+            visible: false,
+            targets: [21]
           },
           {
             searchable: false,
             orderable: false,
-            targets: [18]
-          },
+            visible: false,
+            targets: [22]
+          }
         ],
       <?php } else { ?>
         columnDefs: [{
@@ -459,13 +461,15 @@
           {
             searchable: false,
             orderable: false,
-            targets: [17]
+            visible: false,
+            targets: [20]
           },
           {
             searchable: false,
             orderable: false,
-            targets: [18]
-          },
+            visible: false,
+            targets: [21]
+          }
         ],
       <?php } ?>
       dom: "<'row'<'col-sm-12'tr>>" +
