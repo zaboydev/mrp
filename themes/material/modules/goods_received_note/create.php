@@ -305,7 +305,7 @@
                           <input type="text" name="received_unit" id="received_unit" data-tag-name="received_unit" data-search-for="received_unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
                         </div>
                         <div class="col-lg-3 col-sm-3 col-xs-3">
-                          <input type="text" id="isi" class="form-control input-sm" name="isi" value="1">
+                          <input type="text" id="isi" class="form-control input-sm" name="isi" value="1" required>
                         </div>
                         <div class="col-lg-3 col-sm-3 col-xs-3">
                           <input type="text" name="unit_used" id="unit_used" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
@@ -560,7 +560,7 @@
                           <input type="text" name="received_unit" id="edit_received_unit" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
                         </div>
                         <div class="col-lg-3 col-sm-3 col-xs-3">
-                          <input type="text" id="edit_isi" class="form-control input-sm" name="isi" value="0">
+                          <input type="text" id="edit_isi" class="form-control input-sm" name="isi" value="0" required>
                         </div>
                         <div class="col-lg-3 col-sm-3 col-xs-3">
                           <input type="text" name="unit_used" id="edit_unit_used" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
@@ -970,6 +970,9 @@
       });
     });
 
+    $('#isi').data('rule-min', parseInt(1)).data('msg-min', 'min val 1');
+    $('#edit_isi').data('rule-min', parseInt(1)).data('msg-min', 'min val 1');
+
     $('#search_purchase_order').on('click focus', function() {
       $.ajax({
         url: $('#search_purchase_order').data('source'),
@@ -1020,7 +1023,7 @@
 
                 }
 
-                $('#received_quantity').data('rule-max', parseInt(ui.item.quantity)).data('msg-max', 'max available ' + ui.item.quantity);
+                $('#quantity_order').data('rule-max', parseInt(ui.item.left_received_quantity)).data('msg-max', 'max available ' + ui.item.left_received_quantity);
 
                 // if (ui.item.serial_number != null){
                 //   $( inputIssuedQuantity ).val(1).attr('readonly', true);

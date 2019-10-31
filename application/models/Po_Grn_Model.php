@@ -112,7 +112,7 @@ class Po_Grn_Model extends MY_Model
     $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
-    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
+    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE','ADVANCE']);
     $this->db->group_by($this->getGroupedColumns());
     $this->searchIndex();
 
@@ -147,7 +147,7 @@ class Po_Grn_Model extends MY_Model
     $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
-    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
+    $this->db->where_in('tb_po.status',['ORDER','OPEN', 'CLOSE', 'ADVANCE']);
     $this->db->group_by($this->getGroupedColumns());
     $this->searchIndex();
 
@@ -163,7 +163,7 @@ class Po_Grn_Model extends MY_Model
     $this->db->join('tb_po ', 'tb_po_item.purchase_order_id = tb_po.id');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->join('tb_receipts', 'tb_receipt_items.document_number= tb_receipts.document_number','left');
-    $this->db->where_in('tb_po.status',['ORDER','OPEN','CLOSE']);
+    $this->db->where_in('tb_po.status',['ORDER','OPEN', 'CLOSE', 'ADVANCE']);
     $this->db->group_by($this->getGroupedColumns());
     $query = $this->db->get();
 
