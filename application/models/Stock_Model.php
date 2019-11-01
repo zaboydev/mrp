@@ -428,7 +428,7 @@ class Stock_Model extends MY_Model
     $this->db->from('tb_stock_in_stores');
     // $this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_in_stores.serial_id', 'left');
     $this->db->where('tb_stock_in_stores.stock_id', $id);
-    $this->db->where('tb_stock_in_stores.quantity > 0');//tambahan untuk task #15 relokasi
+    // $this->db->where('tb_stock_in_stores.quantity > 0');//tambahan untuk task #15 relokasi
     $this->db->where('tb_stock_in_stores.stores', $stores);
 
     $query  = $this->db->get();
