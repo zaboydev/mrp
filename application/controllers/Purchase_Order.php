@@ -140,7 +140,7 @@ class Purchase_Order extends MY_Controller
           $col['DT_RowAttr']['onClick']     = '';
           $col['DT_RowAttr']['data-id']     = $row['id'];
           $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id'].'/list');
         }
 
         // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
@@ -591,7 +591,7 @@ class Purchase_Order extends MY_Controller
 
 
 
-  public function info($id)
+  public function info($id,$tipe)
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
@@ -603,6 +603,7 @@ class Purchase_Order extends MY_Controller
       $entity = $this->model->findById($id);
 
       $this->data['entity'] = $entity;
+      $this->data['tipe'] = $tipe;
 
       $return['type'] = 'success';
 
@@ -1439,14 +1440,14 @@ class Purchase_Order extends MY_Controller
           $col['DT_RowAttr']['onClick']     = '';
           $col['DT_RowAttr']['data-id']     = $row['id'];
           $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id'].'/report');
         }
 
-        if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
-          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-          $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
-        }
+        // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
+        //   $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+        //   $col['DT_RowAttr']['data-target'] = '#data-modal';
+        //   $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
+        // }
 
         $quantity[]     = $row['quantity'];
         $total_amount[] = $row['total_amount'];

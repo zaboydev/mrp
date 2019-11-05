@@ -87,12 +87,12 @@
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
   <?php if (is_granted($modules['purchase_order'], 'document')) : ?>
-    <div class="btn-group dropup">
+    <!-- <div class="btn-group dropup">
       <a type="button" href="<?= site_url($modules['purchase_order']['route'] . '/index_report'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction">
         <i class="md md-assignment"></i>
         <small class="top right">Report</small>
       </a>
-    </div>
+    </div> -->
     <div class="btn-group dropup">
       <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
         <i class="md md-add"></i>

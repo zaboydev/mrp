@@ -1568,9 +1568,9 @@ class Purchase_Order_Model extends MY_Model
       // "''".' as "temp"' => "Act.", 
       'tb_po.id' => NULL,
       'tb_po.document_number'              => 'Document Number',
-      'tb_po.review_status'                => 'Review Status',
+      'tb_po.status'                => 'Review Status',
       'tb_po.document_date'                => 'Date',
-      'tb_po.category'        => 'Category',
+      // 'tb_po.category'        => 'Category',
       'tb_po_item.description'             => 'Description',
       'tb_po_item.part_number'             => 'Part Number',
       'tb_po_item.alternate_part_number'   => 'Alt. Part Number',
@@ -1588,8 +1588,8 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.notes'                        => 'Notes',
       // 'tb_po.approved_by_hos'              => null,
       // 'tb_po.approved_by_cof'              => null,
-      'tb_purchase_orders.id as poe_id'              => null,
-      'tb_purchase_order_items.id as poe_item_id'              => null
+      // 'tb_purchase_orders.id as poe_id'              => null,
+      // 'tb_purchase_order_items.id as poe_item_id'              => null
 
     );
   }
@@ -1598,7 +1598,7 @@ class Purchase_Order_Model extends MY_Model
   {
     return array(
       'tb_po.document_number',
-      'tb_po.category',
+      // 'tb_po.category',
       'tb_po_item.description',
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
@@ -1619,7 +1619,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.document_number',
       'tb_po.review_status',
       'tb_po.document_date',
-      'tb_po.category',
+      // 'tb_po.category',
       'tb_po_item.description',
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
@@ -1642,11 +1642,11 @@ class Purchase_Order_Model extends MY_Model
 
   private function searchIndexReport()
   {
-    if (!empty($_POST['columns'][3]['search']['value'])) {
-      $search_category = $_POST['columns'][3]['search']['value'];
+    // if (!empty($_POST['columns'][3]['search']['value'])) {
+    //   $search_category = $_POST['columns'][3]['search']['value'];
 
-      $this->db->where('tb_po.category', $search_category);
-    }
+    //   $this->db->where('tb_po.category', $search_category);
+    // }
 
     if (!empty($_POST['columns'][2]['search']['value'])) {
       $search_document_date = $_POST['columns'][2]['search']['value'];
