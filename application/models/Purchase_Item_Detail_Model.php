@@ -210,6 +210,102 @@ class Purchase_Item_Detail_Model extends MY_Model
         return $prl_item;
     }
 
+    public function getSummaryPayment($vendor, $currency, $date)
+    {
+
+        $this->db->select(
+            array(
+                'tb_po.vendor'
+            )
+        );
+        $this->db->join('tb_po_item', 'tb_po.id=tb_po_item.purchase_order_id');
+        $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id');
+        $this->db->group_by(array(
+            'tb_po.vendor',
+            // 'tb_po_item.description'
+        ));
+        $this->db->where_not_in('tb_po.review_status', ['REVISI']);
+        $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
+
+            $this->db->where('tb_purchase_order_items_payments.tanggal >=', $start_date);
+            $this->db->where('tb_purchase_order_items_payments.tanggal <=', $end_date);
+        }
+        if ($vendor != null && $vendor != 'all') {
+            $this->db->where('tb_po.vendor', $vendor);
+        }
+        if ($currency != null && $currency != 'all') {
+            $this->db->where('tb_po.default_currency', $currency);
+        }
+        $query      = $this->db->get('tb_po');
+        $item       = $query->result_array();
+
+        // $select = array(
+        //     'tb_po.document_number',
+        //     'tb_po.vendor',
+        //     'tb_po.document_date',
+        //     'tb_po.status',
+        //     'tb_po.due_date',
+        //     'tb_po_item.quantity',
+        //     'tb_po_item.total_amount'
+        // );
+
+        foreach ($item as $key => $value) {
+
+            $item[$key]['po'] = $this->getDetailSummaryPayment($value['vendor'], $currency, $date);
+        }
+
+        return $item;
+    }
+
+    function getDetailSummaryPayment($vendor, $currency, $date)
+    {
+        $select = array(
+            'tb_purchase_order_items_payments.no_cheque',
+            'tb_purchase_order_items_payments.tanggal',
+            'tb_po.document_number',
+            'tb_po.document_date',
+            'tb_po.grand_total',
+            'tb_purchase_order_items_payments.amount_paid'
+        );
+
+        $this->db->select($select);
+        $this->db->from('tb_po');
+        $this->db->join('tb_po_item', 'tb_po.id=tb_po_item.purchase_order_id');
+        $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id');
+        // $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+        $this->db->where('tb_po.vendor', $vendor);
+        $this->db->where_not_in('tb_po.review_status', ['REVISI']);
+        $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+        // $this->db->where('tb_po.default_currency', $currency);
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
+
+            $this->db->where('tb_purchase_order_items_payments.tanggal >=', $start_date);
+            $this->db->where('tb_purchase_order_items_payments.tanggal <=', $end_date);
+        }
+        if ($vendor != null && $vendor != 'all') {
+            $this->db->where('tb_po.vendor', $vendor);
+        }
+        if ($currency != null && $currency != 'all') {
+            $this->db->where('tb_po.default_currency', $currency);
+        }
+        $query = $this->db->get();
+        $prl_item['po_count'] = $query->num_rows();
+
+        foreach ($query->result_array() as $key => $value) {
+            $prl_item['po_detail'][$key] = $value;
+        }
+
+
+        return $prl_item;
+    }
+
 
 }
 

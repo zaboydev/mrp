@@ -85,6 +85,7 @@ require('modules/konsolidasi.php');
 require('modules/account_payable.php');
 require('modules/payment.php');
 require('modules/purchase_supplier_summary.php');
+require('modules/supplier_payment_history.php');
 require('modules/jurnal.php');
 require('modules/usage_jurnal.php');
 require('modules/jurnal_payment.php');
