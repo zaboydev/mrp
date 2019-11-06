@@ -12,12 +12,13 @@ class Usage_Jurnal_Model extends MY_MODEL
     $return = array(
       'tb_jurnal.id as id'            => NULL,
       'tb_jurnal.no_jurnal'                       => 'No Jurnal',
-      // 'tb_jurnal.vendor'                          => 'Vendor',
+      'tb_jurnal.vendor'                          => 'Vendor',
       'tb_jurnal.tanggal_jurnal'                  => 'Date',
       'tb_jurnal_detail.kode_rekening'            => 'Account Code',
       'tb_jurnal_detail.jenis_transaksi'          => 'Account Name',
-      'sum(trs_kredit) as kredit'                 => 'Kredit',
       'sum(trs_debet) as debet'                   => 'Debet',
+      'sum(trs_kredit) as kredit'                 => 'Kredit',
+      'tb_jurnal.source'                => NULL
     );
     return $return;
   }
@@ -45,6 +46,7 @@ class Usage_Jurnal_Model extends MY_MODEL
       'tb_jurnal.id',
       'tb_jurnal_detail.kode_rekening',
       'tb_jurnal_detail.jenis_transaksi',
+      'tb_jurnal.source'
       // 'sum(trs_kredit) as kredit',
       // 'sum(trs_debet) as debet',
     );
@@ -77,6 +79,27 @@ class Usage_Jurnal_Model extends MY_MODEL
       $this->db->where('tb_jurnal.tanggal_jurnal <= ', $range_received_date[1]);
     }
 
+    if (!empty($_POST['columns'][2]['search']['value'])) {
+      $vendor = $_POST['columns'][2]['search']['value'];
+
+      $this->db->where('tb_jurnal.vendor', $vendor);
+    }
+
+    if (!empty($_POST['columns'][3]['search']['value'])) {
+      $tipe = $_POST['columns'][3]['search']['value'];
+      if ($tipe != 'all') {
+        if ($tipe == 'Purchase') {
+          $this->db->where('tb_jurnal.source', 'INV-IN');
+        }
+        if ($tipe == 'Inventory') {
+          $this->db->where('tb_jurnal.source', 'INV-OUT');
+        }
+        if ($tipe == 'Payment') {
+          $this->db->where('tb_jurnal.source', 'AP');
+        }
+      }
+    }
+
     $i = 0;
     foreach ($this->getSearchableColumns() as $item) {
       if ($_POST['search']['value']) {
@@ -102,7 +125,7 @@ class Usage_Jurnal_Model extends MY_MODEL
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
-    $this->db->where('source', 'INV-OUT');
+    // $this->db->where('source', 'INV-OUT');
     $this->db->group_by($this->getGroupbyColumns());
     $this->searchIndex();
     $column_order = $this->getOrderableColumns();
@@ -134,7 +157,7 @@ class Usage_Jurnal_Model extends MY_MODEL
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
-    $this->db->where('source', 'INV-OUT');
+    // $this->db->where('source', 'INV-OUT');
 
     $this->searchIndex();
     $this->db->group_by($this->getGroupbyColumns());
@@ -148,7 +171,7 @@ class Usage_Jurnal_Model extends MY_MODEL
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
-    $this->db->where('source', 'INV-OUT');
+    // $this->db->where('source', 'INV-OUT');
     $this->db->group_by($this->getGroupbyColumns());
     $query = $this->db->get();
 

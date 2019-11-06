@@ -17,8 +17,8 @@ class Jurnal_Model extends MY_MODEL {
       'tb_jurnal.tanggal_jurnal'                  => 'Date',
       'tb_jurnal_detail.kode_rekening'            => 'Account Code',
       'tb_jurnal_detail.jenis_transaksi'            => 'Account Name',
-      'sum(trs_kredit) as kredit'                 => 'Kredit',
       'sum(trs_debet) as debet'                   => 'Debet',
+      'sum(trs_kredit) as kredit'                 => 'Kredit',
     );
     return $return;
   }
@@ -71,6 +71,21 @@ class Jurnal_Model extends MY_MODEL {
       $this->db->where('tb_jurnal.vendor', $vendor);
     }
 
+    if (!empty($_POST['columns'][3]['search']['value'])) {
+      $tipe = $_POST['columns'][3]['search']['value'];
+      if ($tipe!='all') {
+        if($tipe=='Purchase') {
+          $this->db->where('tb_jurnal.source', 'INV-IN');
+        }
+        if ($tipe == 'Inventory') {
+          $this->db->where('tb_jurnal.source', 'INV-OUT');
+        }
+        if ($tipe == 'Payment') {
+          $this->db->where('tb_jurnal.source', 'AP');
+        }
+      }         
+    }
+
     $i = 0;
     foreach ($this->getSearchableColumns() as $item){
       if ($_POST['search']['value']){
@@ -96,7 +111,7 @@ class Jurnal_Model extends MY_MODEL {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
-    $this->db->where('source', 'INV-IN');
+    // $this->db->where('source', 'INV-IN');
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening",'tb_jurnal.no_jurnal',
       'tb_jurnal.vendor','tb_jurnal_detail.jenis_transaksi', 'tb_jurnal.id'));
     $this->searchIndex();
@@ -108,6 +123,7 @@ class Jurnal_Model extends MY_MODEL {
       }
     } else {
       $this->db->order_by('tb_jurnal.id', 'desc');
+      // $this->db->order_by('tb_jurnal_detail.id', 'desc');
     }
     // $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening"));
     if ($_POST['length'] != -1)
@@ -131,7 +147,7 @@ class Jurnal_Model extends MY_MODEL {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
-    $this->db->where('source', 'INV-IN');
+    // $this->db->where('source', 'INV-IN');
 
     $this->searchIndex();
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening",'tb_jurnal.no_jurnal',
@@ -148,7 +164,7 @@ class Jurnal_Model extends MY_MODEL {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_jurnal');
     $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
-    $this->db->where('source', 'GRN');
+    // $this->db->where('source', 'INV-IN');
     $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening",'tb_jurnal.no_jurnal',
       'tb_jurnal.vendor', 'tb_jurnal_detail.jenis_transaksi', 'tb_jurnal.id'));
     $query = $this->db->get();

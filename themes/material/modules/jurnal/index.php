@@ -24,17 +24,26 @@
 <div class="form force-padding">
   <div class="form-group">
     <label for="filter_received_date">Date</label>
-    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+    <input data-tipe="Periode" class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
   </div>
   <div class="form-group">
     <label for="start_date">Supplier</label>
-    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
+    <select data-tipe="Vendor" class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
       <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
       <?php foreach (available_vendors() as $vendor) : ?>
         <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
           <?= $vendor; ?>
         </option>
       <?php endforeach; ?>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="start_date">Journal Type</label>
+    <select data-tipe="Source" class="form-control input-sm filter_dropdown" id="source" name="source" data-column="3">
+      <option value="all" <?= ('all' == $selected_tipe) ? 'selected' : ''; ?>>All</option>
+      <option value="Purchase" <?= ('INV-IN' == $selected_tipe) ? 'selected' : ''; ?>>Purchase</option>
+      <option value="Inventory" <?= ('INV-OUT' == $selected_tipe) ? 'selected' : ''; ?>>Inventory</option>
+      <option value="AP" <?= ('AP' == $selected_tipe) ? 'selected' : ''; ?>>Payment</option>
     </select>
   </div>
 </div>
@@ -415,6 +424,8 @@
     $('.filter_dropdown').on('change', function() {
       var i = $(this).data('column');
       var v = $(this).val();
+      var tipe = $(this).data('tipe');
+      $('#' + tipe).html(' | ' + tipe + ' : ' + v);
       datatable.columns(i).search(v).draw();
     });
 
@@ -439,6 +450,9 @@
       $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
       var i = $(this).data('column');
       var v = $(this).val();
+      var tipe = $(this).data('tipe');
+      $('#' + tipe).html(' | ' + tipe + ' : ' + picker.startDate.format('DD MMM YYYY') + ' - ' + picker.endDate.format('DD MMM YYYY'));
+
       datatable.columns(i).search(v).draw();
     }).on('cancel.daterangepicker', function(ev, picker) {
       $(this).val('');

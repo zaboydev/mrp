@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['jurnal_payment']['visible']        = TRUE;
+$config['module']['jurnal_payment']['visible']        = FALSE;
 $config['module']['jurnal_payment']['main_warehouse'] = TRUE;
 $config['module']['jurnal_payment']['parent']         = 'accounting_report';
 $config['module']['jurnal_payment']['label']          = 'Payment Jurnal';

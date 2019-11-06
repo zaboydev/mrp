@@ -3,8 +3,8 @@
 $config['module']['usage_jurnal']['visible']        = TRUE;
 $config['module']['usage_jurnal']['main_warehouse'] = TRUE;
 $config['module']['usage_jurnal']['parent']         = 'accounting_report';
-$config['module']['usage_jurnal']['label']          = 'Usage Jurnal';
-$config['module']['usage_jurnal']['name']           = 'Usage Jurnal';
+$config['module']['usage_jurnal']['label']          = 'Journal';
+$config['module']['usage_jurnal']['name']           = 'Journal';
 $config['module']['usage_jurnal']['route']          = 'usage_jurnal';
 $config['module']['usage_jurnal']['view']           = config_item('module_path') .'usage_jurnal/';
 $config['module']['usage_jurnal']['language']       = 'jurnal_lang';
