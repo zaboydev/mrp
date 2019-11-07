@@ -609,6 +609,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.total_amount',
       'tb_po_item.unit',
       'tb_po_item.poe_number as evaluation_number',
+      'tb_po_item.purchase_request_number',
     );
 
     $this->db->select($select);
@@ -838,7 +839,12 @@ class Purchase_Order_Model extends MY_Model
 
   public function save_po()
   {
-    $document_number      = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
+    if ($_SESSION['order']['format_number'] == 'POM') {
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
+    }
+    if ($_SESSION['order']['format_number'] == 'WOM') {
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
+    }
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
     $issued_by            = (empty($_SESSION['order']['issued_by'])) ? NULL : $_SESSION['order']['issued_by'];
@@ -992,7 +998,7 @@ class Purchase_Order_Model extends MY_Model
 
   public function save_revisi_po()
   {
-    $document_number      = order_format_number($_SESSION['order']['category']) . $_SESSION['order']['document_number'];
+    $document_number      = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
     $issued_by            = (empty($_SESSION['order']['issued_by'])) ? NULL : $_SESSION['order']['issued_by'];
@@ -1153,7 +1159,7 @@ class Purchase_Order_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
-    $this->send_mail($id_po, 14);
+    // $this->send_mail($id_po, 14);
     return TRUE;
   }
 

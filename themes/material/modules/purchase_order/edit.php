@@ -28,7 +28,7 @@
                     <label for="document_number">Document No.</label>
                   </div>
                   <div class="input-group-content">
-                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['order']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
+                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="7" value="<?= $_SESSION['order']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
                     <!-- <label for="document_number">Document No.</label> -->
                   </div>
 
@@ -246,7 +246,7 @@
                       <?= $item['evaluation_number']; ?>
                     </td>
                     <td>
-                      <?= $item['remarks']; ?>
+                      <?= $item['remarks']; ?> <?= $item['purchase_request_number']; ?>
                     </td>
                   </tr>
                 <?php endforeach; ?>

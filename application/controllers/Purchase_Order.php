@@ -192,18 +192,6 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['document_number'] = $number;
   }
 
-  public function get_doc_number($format)
-  {
-    // if ($this->input->is_ajax_request() === FALSE)
-    //   redirect($this->modules['secure']['route'] . '/denied');
-
-    $number = order_last_number('POM');
-
-    $_SESSION['order']['document_number'] = $number;
-
-    echo json_encode($number);
-  }
-
   public function set_format_number()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -974,7 +962,13 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
+      if($_SESSION['order']['format_number']=='POM') {
+        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
+      }
+      if ($_SESSION['order']['format_number'] == 'WOM') {
+        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
+      }
+
 
       $errors = array();
 
@@ -990,7 +984,9 @@ class Purchase_Order extends MY_Controller
         $data['success'] = FALSE;
         $data['message'] = implode('<br />', $errors);
       } else {
+        // ;
         if ($this->model->save_po()) {
+          unset($_SESSION['order']);
           $data['success'] = TRUE;
           $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
           // $this->sendEmail(2);
@@ -1013,7 +1009,7 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = order_format_number($_SESSION['orders']['category']) . $_SESSION['order']['document_number'];
+      $document_number = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
 
       $errors = array();
 
@@ -1022,7 +1018,7 @@ class Purchase_Order extends MY_Controller
       }
 
       if ($this->model->isDocumentNumberExists($document_number)) {
-        $errors[] = 'Duplicate Document Number: ' . $_SESSION['orders']['document_number'] . ' !';
+        $errors[] = 'Duplicate Document Number: ' . $document_number  . ' !';
       }
 
       if (!empty($errors)) {
@@ -1030,6 +1026,7 @@ class Purchase_Order extends MY_Controller
         $data['message'] = implode('<br />', $errors);
       } else {
         if ($this->model->save_revisi_po()) {
+          unset($_SESSION['order']);
           $data['success'] = TRUE;
           $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
           // $this->sendEmail(2);
