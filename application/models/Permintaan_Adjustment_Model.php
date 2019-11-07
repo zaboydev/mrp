@@ -183,6 +183,8 @@ class Permintaan_Adjustment_Model extends MY_Model
       'tb_master_items.unit',
       'tb_stock_adjustments.remarks',
       'tb_stock_adjustments.adjustment_token',
+      'tb_stock_in_stores.unit_value as stock_unit_value',
+      'tb_stock_in_stores.kurs_dollar',
     ));
     $this->db->from('tb_stock_adjustments');
     $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_stock_adjustments.stock_in_stores_id');

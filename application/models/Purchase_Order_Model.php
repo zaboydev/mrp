@@ -1159,7 +1159,7 @@ class Purchase_Order_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
-    // $this->send_mail($id_po, 14);
+    $this->send_mail($id_po, 14);
     return TRUE;
   }
 
