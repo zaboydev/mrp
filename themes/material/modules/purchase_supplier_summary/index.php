@@ -77,16 +77,17 @@
 
                             <div class="row">
                                 <div class=" document-data table-responsive" id="view_data">
-                                    <table class=" table table-hover" id="table-document">
+                                    <table class=" table table-hover" id="table-document" width="100%">
                                         <thead>
                                             <tr>
-                                                <th class="middle-alignment">Name</th>
-                                                <th class="middle-alignment">No PO</th>
-                                                <th class="middle-alignment">Date</th>
-                                                <th class="middle-alignment">Quantity</th>
-                                                <th class="middle-alignment">Amount</th>
-                                                <th class="middle-alignment">Status</th>
-                                                <th class="middle-alignment">Promised Date</th>
+                                                <th width="15%" class="middle-alignment" style="text-align:center">ID</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">Date</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">Currency</th>
+                                                <th width="15%" class="middle-alignment" style="text-align:center">Purchase Amount</th>
+                                                <th width="15%" class="middle-alignment" style="text-align:center">Tax</th>
+                                                <th width="15%" class="middle-alignment" style="text-align:center">Currenct Balance</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">Status</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">Due Date</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listView">
@@ -399,10 +400,11 @@
 
     function getPo() {
         $("#loadingScreen2").attr("style", "display:block");
-        console.log(suplier);
+
+
         $.ajax({
             type: "POST",
-            url: '<?= base_url() . "purchase_item_detail/getPo" ?>',
+            url: '<?= base_url() . "purchase_supplier_summary/getPo" ?>',
             data: {
                 'currency': currency,
                 'vendor': suplier,
@@ -430,7 +432,7 @@
 
         // $.ajax({
         //     type: "POST",
-        //     url: '<?= base_url() . "purchase_item_detail/get_po_for_print" ?>',
+        //     url: '<?= base_url() . "purchase_supplier_summary/get_po_for_print" ?>',
         //     data: {
         //         'currency': currency,
         //         'vendor': suplier,
@@ -453,7 +455,7 @@
 
         };
 
-        var urlPrint = '<?= base_url() ?>' + 'purchase_item_detail/get_po_for_print/' + tipe + '/' + currency + '/' + suplier + '/' + date;
+        var urlPrint = '<?= base_url() ?>' + 'purchase_supplier_summary/get_po_for_print/' + tipe + '/' + currency + '/' + suplier + '/' + date;
         window.open(urlPrint);
 
     }

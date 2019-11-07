@@ -17,41 +17,41 @@ class Expired_Stock extends MY_Controller
   {
     $this->authorized($this->module, 'index');
 
-    if (isset($_POST['start_date']) && $_POST['start_date'] !== NULL){
-      $start_date  = $_POST['start_date'];
-      $date        = strtotime('+90 day',strtotime($start_date));
-      $end_date    = date('Y-m-d', $date);
-      $periode = print_date($end_date,'d F Y');
-    } else {
-      $start_date  = date('Y-m-d');
-      $date        = strtotime('+90 day',strtotime($start_date));
-      $end_date    = date('Y-m-d', $date);
-      $periode = print_date($end_date,'d F Y');
+    // if (isset($_POST['start_date']) && $_POST['start_date'] !== NULL){
+    //   $start_date  = $_POST['start_date'];
+    //   $date        = strtotime('+90 day',strtotime($start_date));
+    //   $end_date    = date('Y-m-d', $date);
+    //   $periode = print_date($end_date,'d F Y');
+    // } else {
+    //   $start_date  = date('Y-m-d');
+    //   $date        = strtotime('+90 day',strtotime($start_date));
+    //   $end_date    = date('Y-m-d', $date);
+    //   $periode = print_date($end_date,'d F Y');
 
-    }
+    // }
 
-    if (isset($_POST['condition']) && $_POST['condition'] !== NULL){
-      $condition  = $_POST['condition'];
-    } else {
-      $condition  = "SERVICEABLE";
-    }
+    // if (isset($_POST['condition']) && $_POST['condition'] !== NULL){
+    //   $condition  = $_POST['condition'];
+    // } else {
+    //   $condition  = "SERVICEABLE";
+    // }
 
-    if (isset($_POST['category']) && $_POST['category'] !== NULL){
-      $category = $_POST['category'];
-    } else {
-      $category = NULL;
-    }
+    // if (isset($_POST['category']) && $_POST['category'] !== NULL){
+    //   $category = $_POST['category'];
+    // } else {
+    //   $category = NULL;
+    // }
 
-    if (isset($_POST['warehouse']) && $_POST['warehouse'] !== NULL){
-      $warehouse = $_POST['warehouse'];
-    } else {
-      $warehouse = 'ALL BASES';
-    }
+    // if (isset($_POST['warehouse']) && $_POST['warehouse'] !== NULL){
+    //   $warehouse = $_POST['warehouse'];
+    // } else {
+    //   $warehouse = 'ALL BASES';
+    // }
 
-    $this->data['page']['title']            = $this->module['label'] .' '. $warehouse.' '. $category .' '. $condition.' / PERIODE : '.$periode;
+    $this->data['page']['title']            = $this->module['label'];
     $this->data['page']['requirement']      = array('datatable');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $condition .'/'. $warehouse.'/'.$start_date.'/'. $end_date.'/'.$category);
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 7 );
     // $this->data['grid']['summary_columns']  = array( 7, 8, 9, 10, 11 );
@@ -75,27 +75,22 @@ class Expired_Stock extends MY_Controller
     $this->render_view($this->module['view'] .'/index');
   }
 
-  public function index_data_source($condition = 'SERVICEABLE', $warehouse='ALL BASES', $start_date,$end_date, $category = NULL)
+  public function index_data_source()
   {
     $this->authorized($this->module, 'index');
 
-    if ($warehouse !== NULL){
-      $warehouse = (urldecode($warehouse) === 'ALL BASES') ? NULL : urldecode($warehouse);
-    } 
-    else {
-      $warehouse = urldecode($warehouse);
-    }
+    // if ($warehouse !== NULL){
+    //   $warehouse = (urldecode($warehouse) === 'ALL BASES') ? NULL : urldecode($warehouse);
+    // } 
+    // else {
+    //   $warehouse = urldecode($warehouse);
+    // }
 
-    if ($category !== NULL){
-      $category = urldecode($category);
-    }
+    // if ($category !== NULL){
+    //   $category = urldecode($category);
+    // }
 
-    if ($start_date && $end_date !== NULL){
-      $start_date  = urldecode($start_date);
-      $end_date = urldecode($end_date);
-    }
-
-    $entities = $this->model->getIndex( $condition, $warehouse, $start_date,$end_date, $category);
+    $entities = $this->model->getIndex();
 
     $data = array();
     $no = $_POST['start'];
@@ -148,8 +143,8 @@ class Expired_Stock extends MY_Controller
 
     $result = array(
       "draw" => $_POST['draw'],
-      "recordsTotal" => $this->model->countIndex($condition, $warehouse, $end_date, $category),
-      "recordsFiltered" => $this->model->countIndexFiltered($condition, $warehouse, $end_date, $category),
+      "recordsTotal" => $this->model->countIndex(),
+      "recordsFiltered" => $this->model->countIndexFiltered(),
       "data" => $data,
       "total" => array(
         7 => print_number(array_sum($quantity), 2),
@@ -239,8 +234,8 @@ class Expired_Stock extends MY_Controller
 
     $result = array(
         "draw" => $_POST['draw'],
-        "recordsTotal" => $this->model->countIndex($category),
-        "recordsFiltered" => $this->model->countIndexFiltered($category),
+        "recordsTotal" => $this->model->countIndex(),
+        "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
         "total" => array(
           6 => print_number(array_sum($total_quantity), 2)

@@ -365,18 +365,6 @@ var id_purchase_order = "";
           orderable: false,
           targets: [ 0 ]
         },
-        {
-          searchable: false,
-          orderable: false,
-          visible: false,
-          targets: [ 21 ]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          visible: false,
-          targets: [ 22 ]
-        }
       ],
       <?php } else { ?>
       columnDefs : [
@@ -385,18 +373,6 @@ var id_purchase_order = "";
           orderable: false,
           targets: [ 0 ]
         },
-        {
-          searchable: false,
-          orderable: false,
-          visible: false,
-          targets: [ 20 ]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          visible: false,
-          targets: [ 21 ]
-        }
       ],
       <?php } ?>
       dom: "<'row'<'col-sm-12'tr>>" +

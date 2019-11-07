@@ -215,14 +215,24 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   function countIndexFiltered()
   {
+    // $this->db->from('tb_purchase_order_items_vendors');
+    // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
+    // $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
+    // $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
+    // $this->db->where('tb_purchase_order_vendors.is_selected', 't');
+    // $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
+    $this->db->distinct();
+    $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_purchase_order_items_vendors');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    $this->db->where('tb_purchase_order_vendors.is_selected', 't');
+    $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
+    $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
-
     $this->searchIndex();
+
+    // $this->searchIndex();
 
     $query = $this->db->get();
 
@@ -231,12 +241,22 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   public function countIndex()
   {
+    // $this->db->from('tb_purchase_order_items_vendors');
+    // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
+    // $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
+    // $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
+    // $this->db->where('tb_purchase_order_vendors.is_selected', 't');
+    // $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
+    $this->db->distinct();
+    $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_purchase_order_items_vendors');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    $this->db->where('tb_purchase_order_vendors.is_selected', 't');
+    $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
+    $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
+    $this->searchIndex();
 
     $query = $this->db->get();
 

@@ -34,18 +34,18 @@
                                         </div>
                                         <div class="col-xs-4">
                                             <div class="form-group">
-                                                <select id="suplier_select" class="form-control">
-                                                    <option value="all">All Suplier</option>
-                                                    <?php foreach ($suplier as $key) {
+                                                <select id="items_select" class="form-control">
+                                                    <option value="all">All Items</option>
+                                                    <?php foreach ($items as $key) {
                                                         ?>
-                                                        <option value="<?= $key->id ?>"><?= $key->id ?> - <?= $key->vendor ?></option>
+                                                        <option value="<?= $key->id ?>"><?= $key->part_number ?></option>
                                                     <?php
                                                     } ?>
                                                 </select>
-                                                <label for="currency">Supplier</label>
+                                                <label for="currency">Items</label>
                                             </div>
                                         </div>
-                                        <div class="col-xs-4">
+                                        <div class="col-xs-4 hide">
                                             <div class="form-group">
                                                 <select id="currency_select" class="form-control">
                                                     <option value="all">All Currency</option>
@@ -77,23 +77,22 @@
 
                             <div class="row">
                                 <div class=" document-data table-responsive" id="view_data">
-                                    <table class=" table table-hover" id="table-document">
-                                        <thead>
-                                            <tr>
-                                                <th class="middle-alignment">Name</th>
-                                                <th class="middle-alignment">No PO</th>
-                                                <th class="middle-alignment">Date</th>
-                                                <th class="middle-alignment">Quantity</th>
-                                                <th class="middle-alignment">Amount</th>
-                                                <th class="middle-alignment">Status</th>
-                                                <th class="middle-alignment">Promised Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="listView">
+                                    <div class="col-xs-8 col-xs-offset-2">
+                                        <table class=" table table-hover" id="table-document" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th width="50%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>
+                                                    <th width="25%" class="middle-alignment" style="text-align:center">Quantity</th>
+                                                    <th width="25%" class="middle-alignment" style="text-align:center">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="listView">
 
-                                        </tbody>
+                                            </tbody>
 
-                                    </table>
+                                        </table>
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -265,7 +264,7 @@
     }).on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD') + '.' + picker.endDate.format('YYYY-MM-DD'));
         // $(".btn-print-report").attr('disabled', false);
-        suplier = $("#suplier_select").val();
+        items = $("#items_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
         $("#total_general").html(0);
@@ -279,7 +278,7 @@
     }).on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
         // $(".btn-print-report").attr('disabled', true);
-        suplier = $("#suplier_select").val();
+        items = $("#items_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
         $("#total_general").html(0);
@@ -325,7 +324,7 @@
         //     }
         // });
 
-        suplier = $("#suplier_select").val();
+        items = $("#items_select").val();
         // currency = $("#currency_select").val();
         date = $("#date").val();
         $("#total_general").html(0);
@@ -339,9 +338,9 @@
 
     });
 
-    $("#suplier_select").change(function(e) {
+    $("#items_select").change(function(e) {
 
-        suplier = $("#suplier_select").val();
+        items = $("#items_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
         $("#total_general").html(0);
@@ -370,7 +369,7 @@
         //   }
         // } else {
         // changeTotal();
-        suplier = $("#suplier_select").val();
+        items = $("#items_select").val();
         currency = $("#currency_select").val();
         tipe = $("#tipe_select").val();
         $("#total_general").html(0);
@@ -386,7 +385,7 @@
     });
 
     $(".btn-print-report").on('click', function(e) {
-        suplier = $("#suplier_select").val();
+        items = $("#items_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
         tipe = $(this).data('tipe');
@@ -399,13 +398,14 @@
 
     function getPo() {
         $("#loadingScreen2").attr("style", "display:block");
-        console.log(suplier);
+
+
         $.ajax({
             type: "POST",
-            url: '<?= base_url() . "purchase_item_detail/getPo" ?>',
+            url: '<?= base_url() . "purchase_item_summary/getPo" ?>',
             data: {
                 'currency': currency,
-                'vendor': suplier,
+                'items': items,
                 'date': date
             },
             cache: false,
@@ -430,7 +430,7 @@
 
         // $.ajax({
         //     type: "POST",
-        //     url: '<?= base_url() . "purchase_item_detail/get_po_for_print" ?>',
+        //     url: '<?= base_url() . "purchase_item_summary/get_po_for_print" ?>',
         //     data: {
         //         'currency': currency,
         //         'vendor': suplier,
@@ -447,13 +447,13 @@
 
         var data = {
             'currency': currency,
-            'vendor': suplier,
+            'items': items,
             'date': date,
             'tipe': tipe
 
         };
 
-        var urlPrint = '<?= base_url() ?>' + 'purchase_item_detail/get_po_for_print/' + tipe + '/' + currency + '/' + suplier + '/' + date;
+        var urlPrint = '<?= base_url() ?>' + 'purchase_item_summary/get_po_for_print/' + tipe + '/' + currency + '/' + items + '/' + date;
         window.open(urlPrint);
 
     }

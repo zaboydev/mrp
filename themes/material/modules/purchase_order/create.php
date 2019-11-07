@@ -752,7 +752,8 @@
       if (format == 'POM') {
         var number = $('#pom_number').val();
         <?php $_SESSION['order']['document_number'] = $_SESSION['order']['pom_document_number']; ?>
-      } else {
+      }
+      if(format == 'WOM') {
         var number = $('#wom_number').val();
         <?php $_SESSION['order']['document_number'] = $_SESSION['order']['wom_document_number']; ?>
       }

@@ -1067,6 +1067,42 @@ if ( ! function_exists('month')) {
       return $return;
     }
   }
+
+  if (!function_exists('get_vendor_name')) {
+    function get_vendor_name($id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('vendor');
+      $CI->db->from('tb_master_vendors');
+
+      $CI->db->where('id', $id);
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $return = $row->vendor;
+
+      return $return;
+    }
+  }
+
+  if (!function_exists('get_part_number')) {
+    function get_part_number($id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('part_number');
+      $CI->db->from('tb_master_part_number');
+
+      $CI->db->where('id', $id);
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $return = $row->part_number;
+
+      return $return;
+    }
+  }
 }
 
     

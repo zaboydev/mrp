@@ -3,7 +3,7 @@
 $config['module']['expired_stock']['visible']         = TRUE;
 $config['module']['expired_stock']['main_warehouse']  = TRUE;
 $config['module']['expired_stock']['parent']          = 'stock';
-$config['module']['expired_stock']['label']           = 'Expire Stock Material';
+$config['module']['expired_stock']['label']           = 'Expired Stock Material';
 $config['module']['expired_stock']['name']            = 'expired_stock';
 $config['module']['expired_stock']['route']           = 'Expired_Stock';
 $config['module']['expired_stock']['view']            = config_item('module_path') .'expire_stock/';

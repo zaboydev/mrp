@@ -609,6 +609,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.total_amount',
       'tb_po_item.unit',
       'tb_po_item.poe_number as evaluation_number',
+      'tb_po_item.purchase_request_number',
     );
 
     $this->db->select($select);
@@ -838,7 +839,12 @@ class Purchase_Order_Model extends MY_Model
 
   public function save_po()
   {
-    $document_number      = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
+    if ($_SESSION['order']['format_number'] == 'POM') {
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
+    }
+    if ($_SESSION['order']['format_number'] == 'WOM') {
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
+    }
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
     $issued_by            = (empty($_SESSION['order']['issued_by'])) ? NULL : $_SESSION['order']['issued_by'];
@@ -992,7 +998,7 @@ class Purchase_Order_Model extends MY_Model
 
   public function save_revisi_po()
   {
-    $document_number      = order_format_number($_SESSION['order']['category']) . $_SESSION['order']['document_number'];
+    $document_number      = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
     $issued_by            = (empty($_SESSION['order']['issued_by'])) ? NULL : $_SESSION['order']['issued_by'];
@@ -1153,7 +1159,7 @@ class Purchase_Order_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
-    $this->send_mail($id_po, 14);
+    // $this->send_mail($id_po, 14);
     return TRUE;
   }
 
@@ -1568,9 +1574,9 @@ class Purchase_Order_Model extends MY_Model
       // "''".' as "temp"' => "Act.", 
       'tb_po.id' => NULL,
       'tb_po.document_number'              => 'Document Number',
-      'tb_po.review_status'                => 'Review Status',
+      'tb_po.status'                => 'Review Status',
       'tb_po.document_date'                => 'Date',
-      'tb_po.category'        => 'Category',
+      // 'tb_po.category'        => 'Category',
       'tb_po_item.description'             => 'Description',
       'tb_po_item.part_number'             => 'Part Number',
       'tb_po_item.alternate_part_number'   => 'Alt. Part Number',
@@ -1588,8 +1594,8 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.notes'                        => 'Notes',
       // 'tb_po.approved_by_hos'              => null,
       // 'tb_po.approved_by_cof'              => null,
-      'tb_purchase_orders.id as poe_id'              => null,
-      'tb_purchase_order_items.id as poe_item_id'              => null
+      // 'tb_purchase_orders.id as poe_id'              => null,
+      // 'tb_purchase_order_items.id as poe_item_id'              => null
 
     );
   }
@@ -1598,7 +1604,7 @@ class Purchase_Order_Model extends MY_Model
   {
     return array(
       'tb_po.document_number',
-      'tb_po.category',
+      // 'tb_po.category',
       'tb_po_item.description',
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
@@ -1619,7 +1625,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.document_number',
       'tb_po.review_status',
       'tb_po.document_date',
-      'tb_po.category',
+      // 'tb_po.category',
       'tb_po_item.description',
       'tb_po_item.part_number',
       'tb_po_item.alternate_part_number',
@@ -1642,11 +1648,11 @@ class Purchase_Order_Model extends MY_Model
 
   private function searchIndexReport()
   {
-    if (!empty($_POST['columns'][3]['search']['value'])) {
-      $search_category = $_POST['columns'][3]['search']['value'];
+    // if (!empty($_POST['columns'][3]['search']['value'])) {
+    //   $search_category = $_POST['columns'][3]['search']['value'];
 
-      $this->db->where('tb_po.category', $search_category);
-    }
+    //   $this->db->where('tb_po.category', $search_category);
+    // }
 
     if (!empty($_POST['columns'][2]['search']['value'])) {
       $search_document_date = $_POST['columns'][2]['search']['value'];

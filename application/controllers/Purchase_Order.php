@@ -140,7 +140,7 @@ class Purchase_Order extends MY_Controller
           $col['DT_RowAttr']['onClick']     = '';
           $col['DT_RowAttr']['data-id']     = $row['id'];
           $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id'].'/list');
         }
 
         // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
@@ -190,18 +190,6 @@ class Purchase_Order extends MY_Controller
       $number = $_GET['data'];
 
     $_SESSION['order']['document_number'] = $number;
-  }
-
-  public function get_doc_number($format)
-  {
-    // if ($this->input->is_ajax_request() === FALSE)
-    //   redirect($this->modules['secure']['route'] . '/denied');
-
-    $number = order_last_number('POM');
-
-    $_SESSION['order']['document_number'] = $number;
-
-    echo json_encode($number);
   }
 
   public function set_format_number()
@@ -591,7 +579,7 @@ class Purchase_Order extends MY_Controller
 
 
 
-  public function info($id)
+  public function info($id,$tipe)
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
@@ -603,6 +591,7 @@ class Purchase_Order extends MY_Controller
       $entity = $this->model->findById($id);
 
       $this->data['entity'] = $entity;
+      $this->data['tipe'] = $tipe;
 
       $return['type'] = 'success';
 
@@ -973,7 +962,13 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
+      if($_SESSION['order']['format_number']=='POM') {
+        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
+      }
+      if ($_SESSION['order']['format_number'] == 'WOM') {
+        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
+      }
+
 
       $errors = array();
 
@@ -989,7 +984,9 @@ class Purchase_Order extends MY_Controller
         $data['success'] = FALSE;
         $data['message'] = implode('<br />', $errors);
       } else {
+        // ;
         if ($this->model->save_po()) {
+          unset($_SESSION['order']);
           $data['success'] = TRUE;
           $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
           // $this->sendEmail(2);
@@ -1012,7 +1009,7 @@ class Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      $document_number = order_format_number($_SESSION['orders']['category']) . $_SESSION['order']['document_number'];
+      $document_number = $_SESSION['order']['format_number'] . $_SESSION['order']['document_number'];
 
       $errors = array();
 
@@ -1021,7 +1018,7 @@ class Purchase_Order extends MY_Controller
       }
 
       if ($this->model->isDocumentNumberExists($document_number)) {
-        $errors[] = 'Duplicate Document Number: ' . $_SESSION['orders']['document_number'] . ' !';
+        $errors[] = 'Duplicate Document Number: ' . $document_number  . ' !';
       }
 
       if (!empty($errors)) {
@@ -1029,6 +1026,7 @@ class Purchase_Order extends MY_Controller
         $data['message'] = implode('<br />', $errors);
       } else {
         if ($this->model->save_revisi_po()) {
+          unset($_SESSION['order']);
           $data['success'] = TRUE;
           $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
           // $this->sendEmail(2);
@@ -1439,14 +1437,14 @@ class Purchase_Order extends MY_Controller
           $col['DT_RowAttr']['onClick']     = '';
           $col['DT_RowAttr']['data-id']     = $row['id'];
           $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id'].'/report');
         }
 
-        if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
-          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-          $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
-        }
+        // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
+        //   $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+        //   $col['DT_RowAttr']['data-target'] = '#data-modal';
+        //   $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
+        // }
 
         $quantity[]     = $row['quantity'];
         $total_amount[] = $row['total_amount'];

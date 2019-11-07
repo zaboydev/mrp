@@ -174,74 +174,77 @@ if ($tipe == 'excel') {
                 <hr>
                 <br>
                 <div class="portlet light ">
-                    <table class="tg">
+                    <table class="tg" width="100%">
                         <thead>
                             <tr>
-                                <th class="middle-alignment">Name</th>
-                                <th class="middle-alignment">No PO</th>
-                                <th class="middle-alignment">Date</th>
-                                <th class="middle-alignment">Quantity</th>
-                                <th class="middle-alignment">Amount</th>
-                                <th class="middle-alignment">Status</th>
-                                <th class="middle-alignment">Promised Date</th>
+                                <th width="50%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>
+                                <th width="25%" class="middle-alignment" style="text-align:center">Quantity</th>
+                                <th width="25%" class="middle-alignment" style="text-align:center">Amount</th>
                             </tr>
                         </thead>
                         <tbody id="listView">
                             <?php $no = 1; ?>
+                            <?php
+                            $grand_total_quantity = array();
+                            $grand_total_amount = array();
+                            ?>
                             <?php foreach ($items as $i => $detail) : ?>
                                 <?php $n++; ?>
                                 <?php
-                                    $total_qty = array();
+                                    $total_quantity = array();
                                     $total_amount = array();
                                     ?>
-                                <?php if ($detail['items_po']['po_items_count'] > 0) : ?>
+                                <?php //if ($detail['po']['po_count'] > 0) : 
+                                    ?>
+                                <tr>
+                                    <td align="left" style="font-weight:bolder">
+                                        <?= print_string($detail['part_number']); ?>
+                                    </td>
+                                    <td align="left" style="font-weight:bolder">
+                                        <?= print_string($detail['description']); ?>
+                                    </td>
+                                    <td colspan="2"></td>
+                                </tr>
+                                <?php foreach ($detail['base'] as $i => $info_base) : ?>
                                     <tr>
-                                        <td align="left">
-                                            <?= print_string($detail['part_number']); ?>
+                                        <td colspan="2" style="font-weight:bolder">
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= print_string($info_base['warehouse']); ?>
                                         </td>
-                                        <td align="left" colspan="6">
-                                            <?= print_string($detail['description']); ?>
-                                        </td>
-                                    </tr>
-                                    <?php foreach ($detail['items_po']['po_items'] as $i => $info) : ?>
-                                        <tr>
-                                            <td>
-                                                <?= print_string($info['vendor']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_string($info['document_number']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_date($info['document_date']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_number($info['quantity'], 2); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_number($info['total_amount'], 2); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_string($info['status']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_date($info['due_date']); ?>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                                    $total_qty[] = $info['quantity'];
-                                                    $total_amount[] = $info['total_amount'];
-                                                    ?>
-                                    <?php endforeach; ?>
-                                    <tr>
-                                        <td colspan="3" align="right" style="font-weight:bolder"><?= print_string($detail['description']); ?></td>
-                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_qty), 2); ?></td>
-                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_amount), 2); ?></td>
                                         <td colspan="2"></td>
                                     </tr>
-                                <?php endif; ?>
+                                    <?php foreach ($info_base['items_grn']['grn_items'] as $i => $info) : ?>
+                                        <td colspan="2">
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= print_string($info['received_from']); ?>
+                                        </td>
 
+                                        <td>
+                                            <?= print_number($info['quantity'], 2); ?>
+                                        </td>
+                                        <td>
+                                            <?= print_number($info['total_value'], 2); ?>
+                                        </td>
 
+                                        </tr>
+                                        <?php
+                                                    $total_amount[] = $info['total_value'];
+                                                    $total_quantity[] = $info['quantity'];
+                                                    $grand_total_amount[] = $info['total_value'];
+                                                    $grand_total_quantity[] = $info['quantity'];
+                                                    ?>
+                                    <?php endforeach; ?>
+                                <?php endforeach; ?>
+
+                                <tr>
+                                    <td colspan="2" align="right" style="font-weight:bolder"><?= print_string($detail['description']); ?> TOTAL</td>
+                                    <td style="font-weight:bolder"><?= print_number(array_sum($total_quantity), 2); ?></td>
+                                    <td style="font-weight:bolder"><?= print_number(array_sum($total_amount), 2); ?></td>
+                                </tr>
                             <?php endforeach; ?>
+                            <tr>
+                                <td colspan="2" align="right" style="font-weight:bolder">GRAND TOTAL</td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_quantity), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_amount), 2); ?></td>
+                            </tr>
                         </tbody>
 
                     </table>

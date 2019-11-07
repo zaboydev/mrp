@@ -23,7 +23,7 @@ class Usage_Jurnal extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(5, 6);
+    $this->data['grid']['summary_columns']  = array(6, 7);
 
     $this->data['grid']['order_columns']    = array();
     $this->render_view($this->module['view'] . '/index');
@@ -47,11 +47,13 @@ class Usage_Jurnal extends MY_Controller
         $col = array();
         $col[]  = print_number($no);
         $col[]  = print_string($row['no_jurnal']);
+        $col[]  = print_string($row['vendor']);
         $col[]  = print_string($row['tanggal_jurnal']);
         $col[]  = print_string($row['kode_rekening']);
         $col[]  = print_string($row['jenis_transaksi']);
-        $col[]  = print_number($row['kredit'], 2);
         $col[]  = print_number($row['debet'], 2);
+        $col[]  = print_number($row['kredit'], 2);
+        $col[]  = NULL;
         $qty_debet[] = $row['kredit'];
         $qty_kredit[] = $row['kredit'];
 
@@ -62,7 +64,7 @@ class Usage_Jurnal extends MY_Controller
           $kode_rekening = "";
         }
 
-        if ($this->has_role($this->module, 'info')) {
+        if ($this->has_role($this->module, 'info') && $row['source']!='AP') {
           $col['DT_RowAttr']['onClick']     = '$(this).popup();';
           $col['DT_RowAttr']['data-target'] = '#data-modal';
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
@@ -77,8 +79,8 @@ class Usage_Jurnal extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          5 => print_number(array_sum($qty_debet), 2),
-          6 => print_number(array_sum($qty_kredit), 2),
+          6 => print_number(array_sum($qty_debet), 2),
+          7 => print_number(array_sum($qty_kredit), 2),
         )
       );
     }
@@ -304,8 +306,8 @@ class Usage_Jurnal extends MY_Controller
 
       $result = array(
         "draw"            => $_POST['draw'],
-        "recordsTotal"    => $this->model->countIndexTanggal($tanggal_jurnal, $kode_rekening),
-        "recordsFiltered" => $this->model->countIndexFilteredTanggal($tanggal_jurnal, $kode_rekening),
+        "recordsTotal"    => $this->model->countIndexTanggal($tanggal, $kode_rekening),
+        "recordsFiltered" => $this->model->countIndexFilteredTanggal($tanggal, $kode_rekening),
         "data"            => $data,
         "total"           => array(
           4 => print_number(array_sum($qty_debet), 2),  5 => print_number(array_sum($qty_kredit), 2),

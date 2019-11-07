@@ -103,6 +103,29 @@ class Expired_Stock_Model extends MY_Model
 
   private function searchIndex()
   {
+    if (!empty($_POST['columns'][1]['search']['value'])) {
+      $search_received_date = $_POST['columns'][1]['search']['value'];
+      $range_received_date  = explode(' ', $search_received_date);
+      // $this->db->where('tb_receipts.received_date >= ', $range_received_date[0]);
+      $this->db->where('tb_stock_in_stores.expired_date <= ', $range_received_date[1]);
+    }else{
+      $start_date  = date('Y-m-d');
+      $date        = strtotime('+90 day',strtotime($start_date));
+      $end_date    = date('Y-m-d', $date);
+      $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
+    }
+
+    if (!empty($_POST['columns'][3]['search']['value'])) {
+      $search_category = $_POST['columns'][3]['search']['value'];
+
+      $this->db->where('tb_master_item_groups.category', $search_category);
+    }
+
+    if (!empty($_POST['columns'][2]['search']['value'])) {
+      $search_warehouse = $_POST['columns'][2]['search']['value'];
+
+      $this->db->where('tb_stock_in_stores.warehouse', $search_warehouse);
+    }
     
 
     $i = 0;
@@ -126,7 +149,7 @@ class Expired_Stock_Model extends MY_Model
     }
   }
 
-  public function getIndex($condition = 'SERVICEABLE', $warehouse= NULL, $start_date,$end_date, $category = NULL,  $return = 'array')
+  public function getIndex($return = 'array')
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
@@ -134,46 +157,46 @@ class Expired_Stock_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     // $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
-    $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
+    // $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
-    $this->db->where('condition', $condition);
+    // $this->db->where('condition', $condition);
     $this->db->where('tb_stock_in_stores.quantity > 0');//tambahan untuk poin no 15 relokasi
 
-    if ($category !== NULL){
-      $this->db->where('tb_master_item_groups.category', $category);
-    }
+    // if ($category !== NULL){
+    //   $this->db->where('tb_master_item_groups.category', $category);
+    // }
 
-    if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
-        $this->db->group_start()
-                  ->like('tb_stock_in_stores.warehouse', 'WISNU')
-                  // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
-                  ->group_end();
-      }
-      if($warehouse == "all base rekondisi"){
-        $this->db->group_start()
-                  ->like('tb_stock_in_stores.warehouse', 'REKONDISI')
-                  ->group_end();
-      }
-      if($warehouse == 'LOMBOK'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'JEMBER'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'SOLO'){
-        $this->db->where('tb_stock_in_stores_.warehouse', $warehouse);
-      }
-       if($warehouse == 'PALANGKARAYA'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'BSR REKONDISI'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'BANYUWANGI'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }      
-    }
+    // if ($warehouse !== NULL){
+    //   if($warehouse == 'WISNU'){
+    //     $this->db->group_start()
+    //               ->like('tb_stock_in_stores.warehouse', 'WISNU')
+    //               // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
+    //               ->group_end();
+    //   }
+    //   if($warehouse == "all base rekondisi"){
+    //     $this->db->group_start()
+    //               ->like('tb_stock_in_stores.warehouse', 'REKONDISI')
+    //               ->group_end();
+    //   }
+    //   if($warehouse == 'LOMBOK'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'JEMBER'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'SOLO'){
+    //     $this->db->where('tb_stock_in_stores_.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'PALANGKARAYA'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'BSR REKONDISI'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'BANYUWANGI'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }      
+    // }
 
     $this->db->group_by($this->getGroupedColumns());
 
@@ -181,13 +204,13 @@ class Expired_Stock_Model extends MY_Model
 
     $orderableColumns = $this->getOrderableColumns();
 
-    // if (isset($_POST['order'])){
-    //   foreach ($_POST['order'] as $key => $order){
-    //     $this->db->order_by($orderableColumns[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
-    //   }
-    // } else {
+    if (isset($_POST['order'])){
+      foreach ($_POST['order'] as $key => $order){
+        $this->db->order_by($orderableColumns[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+      }
+    } else {
       $this->db->order_by('tb_stock_in_stores.reference_document', 'asc');
-    // }
+    }
 
     if ($_POST['length'] != -1)
       $this->db->limit($_POST['length'], $_POST['start']);
@@ -203,7 +226,7 @@ class Expired_Stock_Model extends MY_Model
     }
   }
 
-  public function countIndexFiltered($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $category = NULL)
+  public function countIndexFiltered()
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
@@ -214,52 +237,52 @@ class Expired_Stock_Model extends MY_Model
     // $this->db->where('tb_stock_in_stores.received_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
     // $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
-    $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
+    // $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
     $this->db->where('tb_stock_in_stores.quantity > 0');//tambahan untuk poin no 15 relokasi
-    $this->db->where('condition', $condition);
+    // $this->db->where('condition', $condition);
 
-    if ($category !== NULL){
-      $this->db->where('tb_master_item_groups.category', $category);
-    }
-
-    // if ($start_date != '-' && $end_date !='-'){
-    //   $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
-    //   $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
-    // }else{
-    //   // $this->db->where('tb_stock_in_stores.expired_date');
+    // if ($category !== NULL){
+    //   $this->db->where('tb_master_item_groups.category', $category);
     // }
 
-    if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
-        $this->db->group_start()
-                  ->like('tb_stock_in_stores.warehouse', 'WISNU')
-                  // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
-                  ->group_end();
-      }
-      if($warehouse == "all base rekondisi"){
-        $this->db->group_start()
-                  ->like('tb_stock_in_stores.warehouse', 'REKONDISI')
-                  ->group_end();
-      }
-      if($warehouse == 'LOMBOK'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'JEMBER'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'SOLO'){
-        $this->db->where('tb_stock_in_stores_.warehouse', $warehouse);
-      }
-       if($warehouse == 'PALANGKARAYA'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'BSR REKONDISI'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'BANYUWANGI'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }      
-    }
+    // // if ($start_date != '-' && $end_date !='-'){
+    // //   $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
+    // //   $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
+    // // }else{
+    // //   // $this->db->where('tb_stock_in_stores.expired_date');
+    // // }
+
+    // if ($warehouse !== NULL){
+    //   if($warehouse == 'WISNU'){
+    //     $this->db->group_start()
+    //               ->like('tb_stock_in_stores.warehouse', 'WISNU')
+    //               // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
+    //               ->group_end();
+    //   }
+    //   if($warehouse == "all base rekondisi"){
+    //     $this->db->group_start()
+    //               ->like('tb_stock_in_stores.warehouse', 'REKONDISI')
+    //               ->group_end();
+    //   }
+    //   if($warehouse == 'LOMBOK'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'JEMBER'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'SOLO'){
+    //     $this->db->where('tb_stock_in_stores_.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'PALANGKARAYA'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'BSR REKONDISI'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'BANYUWANGI'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }      
+    // }
 
     $this->db->group_by($this->getGroupedColumns());
     $this->searchIndex();
@@ -269,7 +292,7 @@ class Expired_Stock_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function countIndex($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $category = NULL)
+  public function countIndex()
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
@@ -280,50 +303,50 @@ class Expired_Stock_Model extends MY_Model
     // $this->db->where('tb_stock_in_stores.received_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
     // $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
-    $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
+    // $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
     $this->db->where('tb_stock_in_stores.quantity > 0');//tambahan untuk poin no 15 relokasi
-    $this->db->where('condition', $condition);
+    // $this->db->where('condition', $condition);
 
-    if ($category !== NULL){
-      $this->db->where('tb_master_item_groups.category', $category);
-    }
-
-    // if ($start_date != '-' && $end_date !='-'){
-    //   $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
-    //   $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
+    // if ($category !== NULL){
+    //   $this->db->where('tb_master_item_groups.category', $category);
     // }
 
-    if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
-        $this->db->group_start()
-                  ->like('tb_stock_in_stores.warehouse', 'WISNU')
-                  // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
-                  ->group_end();
-      }
-      if($warehouse == "all base rekondisi"){
-        $this->db->group_start()
-                  ->like('tb_stock_in_stores.warehouse', 'REKONDISI')
-                  ->group_end();
-      }
-      if($warehouse == 'LOMBOK'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'JEMBER'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'SOLO'){
-        $this->db->where('tb_stock_in_stores_.warehouse', $warehouse);
-      }
-       if($warehouse == 'PALANGKARAYA'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'BSR REKONDISI'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }
-       if($warehouse == 'BANYUWANGI'){
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
-      }      
-    }
+    // // if ($start_date != '-' && $end_date !='-'){
+    // //   $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
+    // //   $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
+    // // }
+
+    // if ($warehouse !== NULL){
+    //   if($warehouse == 'WISNU'){
+    //     $this->db->group_start()
+    //               ->like('tb_stock_in_stores.warehouse', 'WISNU')
+    //               // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
+    //               ->group_end();
+    //   }
+    //   if($warehouse == "all base rekondisi"){
+    //     $this->db->group_start()
+    //               ->like('tb_stock_in_stores.warehouse', 'REKONDISI')
+    //               ->group_end();
+    //   }
+    //   if($warehouse == 'LOMBOK'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'JEMBER'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'SOLO'){
+    //     $this->db->where('tb_stock_in_stores_.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'PALANGKARAYA'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'BSR REKONDISI'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }
+    //    if($warehouse == 'BANYUWANGI'){
+    //     $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+    //   }      
+    // }
 
     $this->db->group_by($this->getGroupedColumns());
 

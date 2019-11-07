@@ -36,13 +36,7 @@ $config['parent']['procurement']['icon']   = 'md md-assignment';
 $config['module'] = array();
 
 
-//UMUM
-require('modules/secure.php');
-require('modules/ajax.php');
-require('modules/dashboard.php');
-require('modules/akunting.php');
-require('modules/pdf.php');
-require('modules/setting.php');
+
 
 //PLANNING
 require('modules/budget_cot.php');
@@ -53,7 +47,7 @@ require('modules/purchase_request.php');
 require('modules/purchase_order_evaluation.php');
 require('modules/purchase_order.php');
 require('modules/global_report.php');
-// require('modules/pr_po.php');
+require('modules/purchase_order_report.php');
 require('modules/purchase_item_detail.php');
 require('modules/po_grn.php');
 require('modules/grn_payment.php');
@@ -90,6 +84,9 @@ require('modules/konsolidasi.php');
 
 require('modules/account_payable.php');
 require('modules/payment.php');
+require('modules/purchase_supplier_summary.php');
+require('modules/supplier_payment_history.php');
+require('modules/purchase_item_summary.php');
 require('modules/jurnal.php');
 require('modules/usage_jurnal.php');
 require('modules/jurnal_payment.php');
@@ -111,6 +108,14 @@ require('modules/vendor.php');
 require('modules/warehouse.php');
 require('modules/kurs.php');
 require('modules/pesawat.php');
+
+//UMUM
+require('modules/secure.php');
+require('modules/ajax.php');
+require('modules/dashboard.php');
+require('modules/akunting.php');
+require('modules/pdf.php');
+require('modules/setting.php');
 
 
 // require('modules/item_in_stores.php');
