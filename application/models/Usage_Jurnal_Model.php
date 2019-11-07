@@ -81,8 +81,9 @@ class Usage_Jurnal_Model extends MY_MODEL
 
     if (!empty($_POST['columns'][2]['search']['value'])) {
       $vendor = $_POST['columns'][2]['search']['value'];
-
-      $this->db->where('tb_jurnal.vendor', $vendor);
+      if ($vendor != 'all') {
+        $this->db->where('tb_jurnal.vendor', $vendor);
+      }      
     }
 
     if (!empty($_POST['columns'][3]['search']['value'])) {
