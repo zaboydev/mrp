@@ -909,8 +909,10 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('amount_usd', $harga_usd * floatval($data['received_quantity']));
       $this->db->set('payment', 0);
       $this->db->set('no_po', $data['purchase_order_number']);
-      $this->db->set('id_po', $row['purchase_order_id']);
-      $this->db->set('id_po_item', $data['purchase_order_item_id']);
+      if (!empty($data['purchase_order_item_id'])) {
+        $this->db->set('id_po', $row['purchase_order_id']);
+        $this->db->set('id_po_item', $data['purchase_order_item_id']);
+      }      
       $this->db->set('currency', $currency);
       $this->db->set('status', "waiting for payment");
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
