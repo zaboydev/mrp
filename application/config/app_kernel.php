@@ -98,6 +98,7 @@ require('modules/jurnal_payment.php');
 // require('modules/doc_shipment.php');
 // require('modules/item_application.php');
 //MASTER DATA
+require('modules/master_akun.php');
 require('modules/item.php');
 require('modules/item_category.php');
 require('modules/item_group.php');

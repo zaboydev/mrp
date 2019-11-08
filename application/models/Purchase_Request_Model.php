@@ -186,21 +186,40 @@ class Purchase_Request_Model extends MY_Model
     $i = 0;
 
     foreach ($this->getSearchableColumns() as $item) {
-      if ($_POST['search']['value']) {
-        $term = strtoupper($_POST['search']['value']);
+      if($_SESSION['request']['request_to']==0){
+        if ($_POST['search']['value']) {
+          $term = strtoupper($_POST['search']['value']);
 
-        if ($i === 0) {
-          $this->connection->group_start();
-          $this->connection->like('UPPER(' . $item . ')', $term);
-        } else {
-          $this->connection->or_like('UPPER(' . $item . ')', $term);
+          if ($i === 0) {
+            $this->connection->group_start();
+            $this->connection->like('UPPER(' . $item . ')', $term);
+          } else {
+            $this->connection->or_like('UPPER(' . $item . ')', $term);
+          }
+
+          if (count($this->getSearchableColumns()) - 1 == $i)
+            $this->connection->group_end();
         }
 
-        if (count($this->getSearchableColumns()) - 1 == $i)
-          $this->connection->group_end();
-      }
+        $i++;
+      }else{
+        if ($_POST['search']['value']) {
+          $term = strtoupper($_POST['search']['value']);
 
-      $i++;
+          if ($i === 0) {
+            $this->db->group_start();
+            $this->db->like('UPPER(' . $item . ')', $term);
+          } else {
+            $this->db->or_like('UPPER(' . $item . ')', $term);
+          }
+
+          if (count($this->getSearchableColumns()) - 1 == $i)
+            $this->db->group_end();
+        }
+
+        $i++;
+      }
+      
     }
   }
 

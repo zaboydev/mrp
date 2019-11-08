@@ -27,7 +27,7 @@ class Item_Group_Model extends MY_Model
   public function getSearchableColumns()
   {
     return array(
-      'group',
+      '"group"',
       'category',
       'code',
       'notes',
@@ -39,7 +39,7 @@ class Item_Group_Model extends MY_Model
   {
     return array(
       null,
-      'group',
+      '"group"',
       'category',
       'code',
       'coa',

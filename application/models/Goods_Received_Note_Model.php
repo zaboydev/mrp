@@ -869,13 +869,16 @@ class Goods_Received_Note_Model extends MY_Model
       // $this->db->set('doc_type', 3);     
       $this->db->insert('tb_receipt_items');
       if ($currency == 'IDR') {
-        $kode = "2-101";
+        $id_master_akun = 1;
+        // $kode = "2-101";
         // $x_total = $harga*floatval($data['received_quantity']);
       } else {
-        $kode = "2-1102";
+        $id_master_akun = 1;
+        // $kode = "2-1102";
         // $x_total = $harga_usd*floatval($data['received_quantity']);
       }
 
+      $akun_payable = get_set_up_akun($id_master_akun);
       $coa = $this->coaByGroup(strtoupper($data['group']));
       $this->db->set('id_jurnal', $id_jurnal);
       $this->db->set('jenis_transaksi', $data['group']);
@@ -886,16 +889,16 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('kode_rekening', $coa->coa);
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
       $this->db->set('currency', $currency);
-      $this->db->set('kode_rekening_lawan', $kode);
+      $this->db->set('kode_rekening_lawan', $akun_payable->coa);
       $this->db->insert('tb_jurnal_detail');
 
       $this->db->set('id_jurnal', $id_jurnal);
-      $this->db->set('jenis_transaksi', strtoupper("supplier payable " . $currency));
+      $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
       $this->db->set('trs_debet', 0);
       $this->db->set('trs_kredit', $harga * floatval($data['received_quantity']));
       $this->db->set('trs_debet_usd', 0);
       $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
-      $this->db->set('kode_rekening', $kode);
+      $this->db->set('kode_rekening', $akun_payable->coa);
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
       $this->db->set('currency', $currency);
       $this->db->set('kode_rekening_lawan', $coa->coa);

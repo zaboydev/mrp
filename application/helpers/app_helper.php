@@ -673,6 +673,7 @@ if ( ! function_exists('available_item_groups_2')) {
 
     $CI->db->select('tb_master_item_groups.group');
     $CI->db->select('tb_master_item_groups.coa');
+    $CI->db->select('tb_master_item_groups.id');
     $CI->db->from('tb_master_item_groups');
     $CI->db->where('UPPER(tb_master_item_groups.status)', 'AVAILABLE');
 
@@ -1101,6 +1102,24 @@ if ( ! function_exists('month')) {
       $return = $row->part_number;
 
       return $return;
+    }
+  }
+
+  if (!function_exists('get_set_up_akun')) {
+    function get_set_up_akun($id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from('tb_master_akun');
+
+      $CI->db->where('id', $id);
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      // $return = $row->part_number;
+
+      return $row;
     }
   }
 }
