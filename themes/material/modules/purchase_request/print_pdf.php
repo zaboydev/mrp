@@ -187,6 +187,7 @@
       <th align="right" width="1">No</th>
       <th>Description</th>
       <th>Part Number</th>
+      <th>Min. Qty</th>
       <th>Base</th>
       <th>On Hand Stock</th>
       <th>Unit</th>
@@ -209,32 +210,35 @@
         <td rowspan="<?= $detail['info_on_hand_qty']['items_count'] + 1 ?>">
           <?= print_string($detail['part_number']); ?>
         </td>
+        <td rowspan="<?= $detail['info_on_hand_qty']['items_count'] + 1 ?>">
+          <?= print_string($detail['minimum_quantity']); ?>
+        </td>
         <?php if ($detail['info_on_hand_qty']['items_count'] == 0) : ?>
           <td colspan="3">
             No Data Available
           </td>
         <?php endif; ?>
-    </tr>
-    <?php if ($detail['info_on_hand_qty']['items_count'] > 0) : ?>
-      <?php foreach ($detail['info_on_hand_qty']['items'] as $i => $info) : ?>
-        <tr>
-          <td>
-            <?= print_string($info['warehouse']); ?>
-          </td>
-          <td>
-            <?= print_number($info['on_hand_stock'], 2); ?>
-          </td>
-          <td>
-            <?= print_string($detail['unit']); ?>
-          </td>
-        </tr>
-      <?php endforeach; ?>
-    <?php endif; ?>
+      </tr>
+      <?php if ($detail['info_on_hand_qty']['items_count'] > 0) : ?>
+        <?php foreach ($detail['info_on_hand_qty']['items'] as $i => $info) : ?>
+          <tr>
+            <td>
+              <?= print_string($info['warehouse']); ?>
+            </td>
+            <td>
+              <?= print_number($info['on_hand_stock'], 2); ?>
+            </td>
+            <td>
+              <?= print_string($detail['unit']); ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      <?php endif; ?>
 
-    <tr>
-      <td colspan="6">&nbsp;</td>
-    </tr>
-  <?php endforeach; ?>
+      <tr>
+        <td colspan="7">&nbsp;</td>
+      </tr>
+    <?php endforeach; ?>
 
   </tbody>
 </table>

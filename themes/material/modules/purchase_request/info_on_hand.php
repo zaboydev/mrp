@@ -30,13 +30,17 @@
                     </div>
                     <div class="col-sm-12 col-lg-12">
                         <div class="form-group">
-                            <input type="text" name="description" id="description" class="form-control" autofocus required value="<?= htmlspecialchars($entity['description']); ?>">
+                            <input type="text" name="description" id="description" class="form-control" autofocus required value="<?= htmlspecialchars($entity['product_name']); ?>">
                             <label for="description">Description</label>
                         </div>
 
                         <div class="form-group">
                             <input type="text" name="part_number" id="part_number" class="form-control" required data-validation-rule="unique" data-validation-url="<?= site_url('ajax/part_number_validation'); ?>" data-validation-exception="<?= $entity['part_number']; ?>" value="<?= $entity['part_number']; ?>">
                             <label for="part_number">Part Number</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="min_qty" id="min_qty" class="form-control" required data-validation-rule="unique" data-validation-url="<?= site_url('ajax/part_number_validation'); ?>" data-validation-exception="<?= $entity['minimum_quantity']; ?>" value="<?= $entity['minimum_quantity']; ?>">
+                            <label for="part_number">Min. Qty</label>
                         </div>
                     </div>
                 </div>
