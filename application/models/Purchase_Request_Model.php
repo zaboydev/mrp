@@ -186,21 +186,40 @@ class Purchase_Request_Model extends MY_Model
     $i = 0;
 
     foreach ($this->getSearchableColumns() as $item) {
-      if ($_POST['search']['value']) {
-        $term = strtoupper($_POST['search']['value']);
+      if($_SESSION['request']['request_to']==0){
+        if ($_POST['search']['value']) {
+          $term = strtoupper($_POST['search']['value']);
 
-        if ($i === 0) {
-          $this->connection->group_start();
-          $this->connection->like('UPPER(' . $item . ')', $term);
-        } else {
-          $this->connection->or_like('UPPER(' . $item . ')', $term);
+          if ($i === 0) {
+            $this->connection->group_start();
+            $this->connection->like('UPPER(' . $item . ')', $term);
+          } else {
+            $this->connection->or_like('UPPER(' . $item . ')', $term);
+          }
+
+          if (count($this->getSearchableColumns()) - 1 == $i)
+            $this->connection->group_end();
         }
 
-        if (count($this->getSearchableColumns()) - 1 == $i)
-          $this->connection->group_end();
-      }
+        $i++;
+      }else{
+        if ($_POST['search']['value']) {
+          $term = strtoupper($_POST['search']['value']);
 
-      $i++;
+          if ($i === 0) {
+            $this->db->group_start();
+            $this->db->like('UPPER(' . $item . ')', $term);
+          } else {
+            $this->db->or_like('UPPER(' . $item . ')', $term);
+          }
+
+          if (count($this->getSearchableColumns()) - 1 == $i)
+            $this->db->group_end();
+        }
+
+        $i++;
+      }
+      
     }
   }
 
@@ -567,8 +586,8 @@ class Purchase_Request_Model extends MY_Model
 
       $select = array(
         'tb_inventory_purchase_requisition_details.*',
-        'tb_master_items.description as product_name',
-        'tb_master_items.part_number',
+        'tb_inventory_purchase_requisition_details.product_name',
+        'tb_inventory_purchase_requisition_details.part_number',
         'tb_master_items.minimum_quantity',
         'tb_budget.id_cot',
         'SUM(tb_budget.mtd_quantity) AS fyp_quantity',
@@ -579,17 +598,17 @@ class Purchase_Request_Model extends MY_Model
 
       $group_by = array(
         'tb_inventory_purchase_requisition_details.id',
-        'tb_master_items.description',
-        'tb_master_items.part_number',
+        // 'tb_master_items.description',
+        // 'tb_master_items.part_number',
         'tb_budget.id_cot',
         'tb_master_items.minimum_quantity',
       );
 
       $this->db->select($select);
       $this->db->from('tb_inventory_purchase_requisition_details');
-      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
-      $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
-      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item');
+      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id','left');
+      $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot', 'left');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
       $this->db->where('tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id', $id);
       $this->db->group_by($group_by);
 
@@ -2666,11 +2685,14 @@ class Purchase_Request_Model extends MY_Model
       'tb_inventory_purchase_requisition_details.product_name',
       'tb_inventory_purchase_requisition_details.unit',
       'tb_inventory_purchase_requisitions.pr_number',
-      // 'tb_po_item.purchase_request_number',
+      'tb_master_items.minimum_quantity',
       // 'tb_purchase_order_items.ttd_issued_by'
     );
     $this->db->select($select_prl_item);
     $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
+    $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot', 'left');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
     $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
     $this->db->where('tb_inventory_purchase_requisition_details.id', $prl_item_id);
     $query  = $this->db->get();

@@ -62,8 +62,8 @@
       <div class="form-group">
         <label for="required_date">Request To</label>
         <div class="col-md-12" style="margin-top: 10px;">
-          <label class="radio-inline">
-            <input type="radio" <?= $_SESSION['request']['request_to'] == 0 ? "checked" : ""  ?> name="request_to" style="display:inline;" value="0" data-source="<?= site_url($module['route'] . '/set_request_to'); ?>">Budget Control</label>
+          <!-- <label class="radio-inline"> -->
+            <!-- <input type="radio" <?= $_SESSION['request']['request_to'] == 0 ? "checked" : ""  ?> name="request_to" style="display:inline;" value="0" data-source="<?= site_url($module['route'] . '/set_request_to'); ?>">Budget Control</label> -->
           <label class="radio-inline">
             <input type="radio" <?= $_SESSION['request']['request_to'] == 1 ? "checked" : ""  ?> value="1" style="display: inline;" name="request_to" data-source="<?= site_url($module['route'] . '/set_request_to'); ?>">MRP
           </label>

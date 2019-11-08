@@ -716,6 +716,21 @@
       button.attr('disabled', false);
     });
 
+    $(document).on('change', '#group_id', function(e) {
+      var coa = $('option:selected', this).data('coa');
+      var group = $('option:selected', this).data('group');
+      $('[id="group"]').val(group);
+      $('[id="coa"]').val(coa);
+    });
+
+    // $("#group_id").change(function(e) {
+    //   var coa = $('option:selected', this).data('coa');
+    //   var group = $('option:selected', this).data('group');
+    //   $('[id="group"]').val(group);
+    //   $('[id="coa"]').val(coa);
+    //   // }
+    // });
+
 
     // if ( $("#table-document > tbody > tr").length == 0 )
     //   $(buttonSubmitDocument).attr('disabled', true);

@@ -77,6 +77,9 @@ class Usage_Jurnal_Model extends MY_MODEL
 
       $this->db->where('tb_jurnal.tanggal_jurnal >= ', $range_received_date[0]);
       $this->db->where('tb_jurnal.tanggal_jurnal <= ', $range_received_date[1]);
+    }else{
+      $this->db->where('tb_jurnal.tanggal_jurnal >= ', date('Y-m-d'));
+      $this->db->where('tb_jurnal.tanggal_jurnal <= ', date('Y-m-d'));
     }
 
     if (!empty($_POST['columns'][2]['search']['value'])) {
