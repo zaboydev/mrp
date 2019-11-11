@@ -46,6 +46,7 @@
       <option value="ORDER">Order</option>
       <option value="OPEN">Open</option>
       <option value="ADVANCE">Advance</option>
+      <option value="RETUR">Retur</option>
       <option value="CLOSED">Closed</option>
     </select>
   </div>

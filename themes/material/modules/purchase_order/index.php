@@ -198,7 +198,7 @@
     </select>
   </div>
 
-  <div class="form-group">
+  <div class="form-group hide">
     <label for="filter_item_group">Category</label>
     <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
       <option value="">

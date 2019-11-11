@@ -68,7 +68,7 @@
               </div>
 
               <div class="form-group">
-                <input type="text" name="date" id="date" class="form-control" value="<?=date('Y-m-d')?>">
+                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
                 <label for="date">Date</label>
               </div>
 
@@ -84,17 +84,19 @@
         </div>
 
         <div class="document-data table-responsive">
-          <table class="table table-hover" id="table-document">
+          <table class="table" id="table-document" width="100%">
             <thead>
               <tr>
                 <!-- <th class="middle-alignment">No.</th> -->
-                <th class="middle-alignment">No PO</th>
-                <th class="middle-alignment">Status</th>
-                <!-- <th class="middle-alignment">Date</th> -->
-                <th class="middle-alignment">Amount</th>
-                <th class="middle-alignment">Paid Amount</th>
-                <th class="middle-alignment">Remaining Payment</th>
-                <th class="middle-alignment">Total Applied</th>
+                <th width="15%" class="middle-alignment">No PO</th>
+                <th width="10%" class="middle-alignment">Status</th>
+                <th width="10%" class="middle-alignment">Received Qty</th>
+                <th width="10%" class="middle-alignment">Received Val.</th>
+                <th width="10%" class="middle-alignment">Amount</th>
+                <th width="10%" class="middle-alignment">Paid Amount</th>
+                <th width="10%" class="middle-alignment">Remaining Payment</th>
+                <th width="15%" class="middle-alignment">Total Applied</th>
+                <th width="5%" class="middle-alignment"></th>
               </tr>
             </thead>
             <tbody id="listView">

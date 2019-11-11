@@ -7,17 +7,17 @@
         ?>
     <?php if ($detail['items_po']['po_items_count'] > 0) : ?>
         <tr>
-            <td align="left">
+            <td style="font-weight: bolder;" align="left">
                 <?= print_string($detail['part_number']); ?>
             </td>
-            <td align="left" colspan="5">
+            <td style="font-weight: bolder;" align="left" colspan="6">
                 <?= print_string($detail['description']); ?>
             </td>
         </tr>
         <?php foreach ($detail['items_po']['po_items'] as $i => $info) : ?>
             <tr>
                 <td>
-                    <?= print_string($info['vendor']); ?>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= print_string($info['vendor']); ?>
                 </td>
                 <td>
                     <?= print_string($info['document_number']); ?>
@@ -31,7 +31,7 @@
                 <td>
                     <?= print_number($info['total_amount'], 2); ?>
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <?= print_string($info['status']); ?>
                 </td>
                 <td>
@@ -50,6 +50,8 @@
             <td colspan="2"></td>
         </tr>
     <?php endif; ?>
-
+    <tr>
+        <td style="background-color: #f0f0f0;" colspan="7">&nbsp;</td>
+    </tr>
 
 <?php endforeach; ?>

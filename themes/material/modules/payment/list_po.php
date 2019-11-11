@@ -4,6 +4,8 @@ $no_item = 1; ?>
     <tr id="row_<?= $no ?>">
         <td><input id="sel_<?= $no ?>" value="<?= $detail['id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
         <td><?= print_string($detail['status']) ?></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
         <td><?= print_number($detail['grand_total'], 2) ?></td>
         <td><?= print_number($detail['payment'], 2) ?></td>
         <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment'] ?>" type="hidden"><?= print_number($detail['remaining_payment'], 2) ?></td>
@@ -15,6 +17,8 @@ $no_item = 1; ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['id'] ?>" type="hidden"><?= print_string($detail_po['part_number']) ?></td>
                 <td><?= print_string($detail_po['description']) ?></td>
+                <td><?= print_number($detail_po['quantity_received'], 2) ?></td>
+                <td><?= print_number($detail_po['quantity_received']*($detail_po['unit_price']+ $detail_po['core_charge']), 2) ?></td>
                 <td><?= print_number($detail_po['total_amount'], 2) ?></td>
                 <td><?= print_number($detail_po['total_amount'] - $detail_po['left_paid_amount'], 2) ?></td>
                 <td><input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['left_paid_amount'] ?>" type="hidden"><?= print_number($detail_po['left_paid_amount'], 2) ?></td>

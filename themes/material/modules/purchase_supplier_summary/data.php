@@ -7,7 +7,7 @@
         ?>
     <?php if ($detail['po']['po_count'] > 0) : ?>
         <tr>
-            <td align="left">
+            <td style="font-weight: bolder;" align="left" colspan="8">
                 <?= print_string($detail['vendor']); ?>
             </td>
         </tr>
@@ -50,13 +50,15 @@
                         ?>
         <?php endforeach; ?>
         <tr>
-            <td colspan="2" align="right" style="font-weight:bolder"><?= print_string($detail['description']); ?></td>
+            <td colspan="3" align="right" style="font-weight:bolder"><?= print_string($detail['description']); ?></td>
             <td style="font-weight:bolder"><?= print_number(array_sum($total_amount), 2); ?></td>
             <td style="font-weight:bolder">&nbsp;</td>
             <td style="font-weight:bolder"><?= print_number(array_sum($total_remaining), 2); ?></td>
             <td colspan="2"></td>
         </tr>
+        <tr>
+            <td style="background-color: #f0f0f0;" colspan="8">&nbsp;</td>
+        </tr>
     <?php endif; ?>
-
 
 <?php endforeach; ?>
