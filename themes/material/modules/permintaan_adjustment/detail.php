@@ -129,6 +129,12 @@
                   }
                   ?>
 
+                  <dt>
+                    Remarks
+                  </dt>
+                  <dd>
+                    : <?= print_string($entity['remarks']); ?>
+                  </dd>
 
                   <dt>
                     Created By
