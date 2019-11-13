@@ -12,6 +12,6 @@ $config['module']['payable_reconciliation_summary']['helper']         = 'materia
 $config['module']['payable_reconciliation_summary']['table']          = 'tb_purchase_orders';
 $config['module']['payable_reconciliation_summary']['model']          = 'Purchase_Item_Detail_Model';
 $config['module']['payable_reconciliation_summary']['permission']     = array(
-    'index'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
+    'index'     => 'FINANCE,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER',
     
 );

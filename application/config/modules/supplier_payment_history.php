@@ -12,6 +12,6 @@ $config['module']['supplier_payment_history']['helper']         = 'material_slip
 $config['module']['supplier_payment_history']['table']          = 'tb_purchase_orders';
 $config['module']['supplier_payment_history']['model']          = 'Purchase_Item_Detail_Model';
 $config['module']['supplier_payment_history']['permission']     = array(
-    'index'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
+    'index'     => 'FINANCE,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER',
     
 );

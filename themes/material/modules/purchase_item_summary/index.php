@@ -164,7 +164,7 @@
                                                     <option value="all">All Items</option>
                                                     <?php foreach ($items as $key) {
                                                         ?>
-                                                        <option value="<?= $key->id ?>"><?= $key->part_number ?></option>
+                                                        <option value="<?= $key->id ?>"><?= $key->part_number ?> - <?= $key->description ?></option>
                                                     <?php
                                                     } ?>
                                                 </select>

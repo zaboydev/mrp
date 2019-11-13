@@ -49,9 +49,10 @@
             <td style="font-weight:bolder"><?= print_number(array_sum($total_amount), 2); ?></td>
             <td colspan="2"></td>
         </tr>
+        <tr>
+            <td style="background-color: #f0f0f0;" colspan="7">&nbsp;</td>
+        </tr>
     <?php endif; ?>
-    <tr>
-        <td style="background-color: #f0f0f0;" colspan="7">&nbsp;</td>
-    </tr>
+
 
 <?php endforeach; ?>

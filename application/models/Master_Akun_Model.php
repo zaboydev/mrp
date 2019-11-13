@@ -161,6 +161,7 @@ class Master_Akun_Model extends MY_Model
         $this->db->set('group_id', $this->input->post('group_id'));
         $this->db->set('group', strtoupper($this->input->post('group')));
         $this->db->set('coa', strtoupper($this->input->post('coa')));
+        $this->db->set('description', strtoupper($this->input->post('description')));
         $this->db->set('updated_at', date('Y-m-d H:i:s'));
         $this->db->set('updated_by', config_item('auth_person_name'));
         $this->db->where('id', $id);

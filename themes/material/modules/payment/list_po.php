@@ -23,6 +23,7 @@ $no_item = 1; ?>
                 <td><?= print_number($detail_po['total_amount'] - $detail_po['left_paid_amount'], 2) ?></td>
                 <td><input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['left_paid_amount'] ?>" type="hidden"><?= print_number($detail_po['left_paid_amount'], 2) ?></td>
                 <td><input id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?>" value="0"></td>
+                <td></td>
                 <?php $no_item++; ?>
             </tr>
         <?php endforeach; ?>

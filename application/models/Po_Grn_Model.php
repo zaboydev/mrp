@@ -26,9 +26,9 @@ class Po_Grn_Model extends MY_Model
       'tb_po.default_currency'                              => 'Currency',
       'tb_po_item.quantity as "po_qty"'                     => 'Qty Order',
       'tb_po_item.total_amount as "po_val"'                 => 'Value Order',
-      'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"'                     => 'Qty Receipts',
-      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_val_idr"'             => 'Val Receipts',
-      'sum(case when tb_receipt_items.received_total_value_dollar is null then 0.00 else tb_receipt_items.received_total_value_dollar end) as "grn_val_usd"'             => 'Qty Order Remaining',
+      'sum(case when tb_receipt_items.quantity_order is null then 0.00 else tb_receipt_items.quantity_order end) as "grn_qty"'                     => 'Qty Receipts',
+      'tb_po_item.unit_price'             => 'Val Receipts',
+      'tb_po_item.left_received_quantity as "grn_val_usd"'             => 'Qty Order Remaining',
     );
       
   }
@@ -46,12 +46,17 @@ class Po_Grn_Model extends MY_Model
   public function getGroupedColumns()
   {
     return array(
+      'tb_po_item.id',
       'tb_po.document_number',
+      'tb_po.vendor',
       'tb_po_item.part_number',
       'tb_po_item.description',
       'tb_po.default_currency',
-      'tb_po.vendor',
-      'tb_po_item.id',
+      'tb_po_item.quantity',
+      'tb_po_item.total_amount',
+      // 'tb_po_item.quantity_received',
+      'tb_po_item.unit_price',
+      'tb_po_item.left_received_quantity',
     );
   }
 

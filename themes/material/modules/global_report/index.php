@@ -39,72 +39,7 @@
 
 <?php startblock('datafilter') ?>
   <div class="form force-padding">
-    <div class="form-group">
-      <label for="filter_received_date">Received Date</label>
-      <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_item_group">Category</label>
-      <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
-        <option value="">
-          Not filtered
-        </option>
-
-        <?php foreach (config_item('auth_inventory') as $category):?>
-          <option value="<?=$category;?>">
-            <?=$category;?>
-          </option>
-        <?php endforeach;?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_warehouse">Base</label>
-      <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_warehouse">
-        <option value="">
-          Not filtered
-        </option>
-
-        <?php foreach (config_item('auth_warehouses') as $warehouse):?>
-          <option value="<?=$warehouse;?>">
-            <?=$warehouse;?>
-          </option>
-        <?php endforeach;?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_condition">Condition</label>
-      <select class="form-control input-sm filter_dropdown" data-column="9" id="filter_condition">
-        <option value="">
-          SERVICEABLE
-        </option>
-
-        <?php foreach (config_item('condition') as $condition):?>
-          <?php if ($condition !== 'SERVICEABLE'):?>
-            <option value="<?=$condition;?>">
-              <?=$condition;?>
-            </option>
-          <?php endif;?>
-        <?php endforeach;?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="filter_description">Description</label>
-      <input type="text" class="form-control input-sm filter_numeric_text" data-column="5" id="filter_description">
-    </div>
-
-    <div class="form-group">
-      <label for="filter_part_number">Part Number</label>
-      <input type="text" class="form-control input-sm filter_numeric_text" data-column="6" id="filter_part_number">
-    </div>
-
-    <div class="form-group">
-      <label for="filter_received_from">Received From</label>
-      <input type="text" class="form-control input-sm filter_numeric_text" data-column="15" id="filter_received_from">
-    </div>
+    
   </div>
 <?php endblock()?>
 <?php if (is_granted($module, 'import')):?>
