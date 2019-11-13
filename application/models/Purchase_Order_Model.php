@@ -1847,4 +1847,52 @@ class Purchase_Order_Model extends MY_Model
     $this->db->trans_commit();
     return TRUE;
   }
+
+  public function close_wo()
+  {
+    $this->db->trans_begin();
+
+    $id = $this->input->post('id');
+    $notes = $this->input->post('notes');
+
+    $this->db->from('tb_po_item');
+    $this->db->where('purchase_order_id',$id);
+    $query_item = $this->db->get();
+
+    foreach ($query_item->result_array() as $key => $value) {
+      $order_qty = $value['quantity'];
+      $this->db->where('id', $value['id']);
+      $this->db->set('left_received_quantity', 'left_received_quantity -' . $order_qty, FALSE);
+      $this->db->set('quantity_received', 'quantity_received + ' . $order_qty, FALSE);
+      $this->db->update('tb_po_item');
+
+      //input jurnal expenses
+      
+    }
+    $left_qty_po = leftQtyPo($id);
+    $left_amount_po = leftAmountPo($id);
+    // $uang_muka = $row['uang_muka'];
+    if ($left_qty_po == 0) {
+      $this->db->where('id', $id);
+      $this->db->set('status', 'OPEN');
+      $this->db->update('tb_po');
+    }
+    if ($left_qty_po == 0 && $left_amount_po == 0) {
+      $this->db->where('id', $id);
+      $this->db->set('status', 'CLOSED');
+      $this->db->update('tb_po');
+    }
+
+    $this->db->set('po_id',$id);
+    $this->db->set('notes',$notes);
+    $this->db->set('closing_by',config_item('auth_person_name'));
+    $this->db->set('closing_date',date('Y-m-d'));
+    $this->db->insert('tb_work_orders_closures');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
 }

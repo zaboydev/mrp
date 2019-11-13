@@ -1491,4 +1491,28 @@ class Purchase_Order extends MY_Controller
 
     echo json_encode($alert);
   }
+
+  public function close_wo()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'order') === FALSE) {
+      $alert['type']  = 'danger';
+      $alert['info']  = 'You are not allowed to delete this data!';
+    } else {
+      $entity = $this->model->findById($this->input->post('id'));
+
+      if ($this->model->close_wo()) {
+        $alert['type'] = 'success';
+        $alert['info'] = 'Purchase Order ' . $entity['document_number'] . ' has been closed.';
+        $alert['link'] = site_url($this->module['route']);
+      } else {
+        $alert['type'] = 'danger';
+        $alert['info'] = 'There are error while processing data. Please try again later.';
+      }
+    }
+
+    echo json_encode($alert);
+  }
 }

@@ -15,7 +15,7 @@ class Usage_Jurnal_Model extends MY_MODEL
       'tb_jurnal.vendor'                          => 'Vendor',
       'tb_jurnal.tanggal_jurnal'                  => 'Date',
       'tb_jurnal_detail.kode_rekening'            => 'Account Code',
-      'tb_jurnal_detail.jenis_transaksi'          => 'Account Name',
+      'tb_jurnal_detail.jenis_transaksi'          => 'Description',
       'sum(trs_debet) as debet'                   => 'Debet',
       'sum(trs_kredit) as kredit'                 => 'Kredit',
       'tb_jurnal.source'                => NULL

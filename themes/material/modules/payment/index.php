@@ -1,269 +1,76 @@
-<?php include 'themes/material/template.php' ?>
+<?php include 'themes/material/page.php' ?>
 
-<?php startblock('content') ?>
-<style>
-  .float {
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    bottom: 40px;
-    right: 40px;
-    border-radius: 50px;
-    text-align: center;
-    box-shadow: 2px 2px 3px #999;
-    z-index: 100000;
-  }
+<!--tambahan 9/Mei/2018-->
 
-  .my-float {
-    margin-top: 22px;
-  }
+<!--tambahan 9/Mei/2018-->
 
-  .tg {
-    border-collapse: collapse;
-    border-spacing: 0;
-    border-color: #ccc;
-    width: 100%;
-  }
+<?php startblock('page_head_tools') ?>
+<?php $this->load->view('material/templates/datatable_tools') ?>
+<?php endblock() ?>
 
-  .tg td {
-    font-family: "Arial", Helvetica, sans-serif !important;
-    font-size: 13px;
-    padding: 3px 3px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #fff;
+<?php startblock('page_body') ?>
+<?php $this->load->view('material/templates/datatable') ?>
+<?php endblock() ?>
 
-  }
+<?php startblock('page_modals') ?>
+<?php $this->load->view('material/templates/modal_fs') ?>
+<?php endblock() ?>
 
-  .tg th {
-    font-family: "Arial", Helvetica, sans-serif !important;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 3px 3px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #f0f0f0;
-    text-align: center;
-  }
-
-  .tg .tg-3wr7 {
-    font-weight: bold;
-    font-size: 12px;
-    font-family: "Arial", Helvetica, sans-serif !important;
-    ;
-    text-align: center
-  }
-
-  .tg .tg-ti5e {
-    font-size: 10px;
-    font-family: "Arial", Helvetica, sans-serif !important;
-    ;
-    text-align: center
-  }
-
-  .tg .tg-rv4w {
-    font-size: 10px;
-    font-family: "Arial", Helvetica, sans-serif !important;
-  }
-
-  .box {
-    background-color: white;
-    width: auto;
-    height: auto;
-    border: 1px solid black;
-    padding: 5px;
-    margin: 2px;
-  }
-
-  .tt td {
-    font-family: Arial;
-    font-size: 12px;
-    padding: 3px 3px;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #fff;
-  }
-
-  .tt th {
-    font-family: Arial;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 3px 3px;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #f0f0f0;
-  }
-
-  @media print {
-
-    html,
-    body {
-      display: block;
-      font-family: "Tahoma";
-      margin: 0px 0px 0px 0px;
-    }
-
-    /*@page {
-                size: Faktur Besar;
-                }*/
-    #footer {
-      position: fixed;
-      bottom: 0;
-    }
-
-  }
-</style>
-<section class="has-actions style-default">
-  <div class="section-body">
-
-    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form_approval')); ?>
-
-    <div class="card">
-      <div class="card-head style-primary-dark">
-        <header><?= PAGE_TITLE; ?></header>
-      </div>
-
-      <div class="card-body no-padding">
-        <?php
-        if ($this->session->flashdata('alert'))
-          render_alert($this->session->flashdata('alert')['info'], $this->session->flashdata('alert')['type']);
-        ?>
-
-        <div class="document-header force-padding">
-          <div class="row">
-            <div class="newoverlay" id="loadingScreen2" style="display: none;">
-              <i class="fa fa-refresh fa-spin"></i>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <select id="currency_select" class="form-control">
-                  <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
-                </select>
-                <label for="currency">Currency</label>
-              </div>
-              <div class="form-group">
-                <select id="account_select" class="form-control">
-                  <option value="">No Account</option>
-                  <?php foreach ($account as $key) {
-                    ?>
-                    <option value="<?= $key->coa ?>"><?= $key->coa ?> - <?= $key->group ?></option>
-                  <?php
-                  } ?>
-                </select>
-                <label for="account_select">Account</label>
-              </div>
-              <div class="form-group hide">
-                <select id="tipe_select" class="form-control">
-                  <option value="OPEN">OPEN</option>
-                  <option value="ORDER">ORDER</option>
-                </select>
-                <label for="suplier_select">Tipe</label>
-              </div>
-              <div class="form-group">
-                <select id="suplier_select" class="form-control">
-                  <option value="">No Suplier</option>
-                  <?php foreach ($suplier as $key) {
-                    ?>
-                    <option value="<?= $key->vendor ?>"><?= $key->vendor ?> - <?= $key->code ?></option>
-                  <?php
-                  } ?>
-                </select>
-                <label for="suplier_select">Suplier</label>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="">
-                <label for="no_cheque">No Cheque</label>
-              </div>
-
-              <div class="form-group">
-                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
-                <label for="date">Date</label>
-              </div>
-
-              <div class="form-group">
-                <input type="number" name="amount" id="amount" class="form-control" value="0" readonly="readonly">
-                <label for="amount">Amount</label>
-              </div>
-
-
-            </div>
-            <!-- <button class="btn btn-danger" id="add_item" type="button">Add Item</button> -->
-          </div>
-        </div>
-
-        <div class="document-data table-responsive">
-          <table class="tg" id="table-document" width="100%">
-            <thead>
-              <tr>
-                <!-- <th class="middle-alignment">No.</th> -->
-                <th width="15%" class="middle-alignment">No PO</th>
-                <th width="15%" class="middle-alignment">Status</th>
-                <th width="10%" class="middle-alignment">Received Qty</th>
-                <th width="10%" class="middle-alignment">Received Val.</th>
-                <th width="10%" class="middle-alignment">Amount</th>
-                <th width="10%" class="middle-alignment">Paid Amount</th>
-                <th width="10%" class="middle-alignment">Remaining Payment</th>
-                <th width="10%" class="middle-alignment">Total Applied</th>
-                <th width="5%" class="middle-alignment"></th>
-              </tr>
-            </thead>
-            <tbody id="listView">
-
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="5" style="text-align: right;">Total</td>
-                <td id="total_general">0</td>
-                <td colspan="3"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-    <?= form_close(); ?>
-  </div>
-
-  <div class="section-action style-default-bright">
-    <div class="section-floating-action-row">
-      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="">
-        <i class="md md-save"></i>
-        <small class="top right">Save Document</small>
+<?php startblock('actions_right') ?>
+<?php if (is_granted($module, 'document')) : ?>
+  <div class="section-floating-action-row">
+    <div class="btn-group dropup">
+      <a href="<?= site_url($module['route'] . '/create'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+        <i class="md md-add"></i>
+        <small class="top right">Create <?= $module['label']; ?></small>
       </a>
     </div>
   </div>
-</section>
+<?php endif ?>
 <?php endblock() ?>
+
+<?php startblock('datafilter') ?>
+<div class="form force-padding">
+  <div class="form-group">
+    <label for="filter_received_date">Date</label>
+    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Vendor</label>
+    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
+      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
+      <?php foreach (available_vendors() as $vendor) : ?>
+        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
+          <?= $vendor; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Currency</label>
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="3">
+      <option value="all">All Currency</option>
+      <option value="IDR">IDR</option>
+      <option value="USD">USD</option>
+    </select>
+  </div>
+
+
+</div>
+<?php endblock() ?>
+
 
 <?php startblock('scripts') ?>
 <?= html_script('vendors/pace/pace.min.js') ?>
 <?= html_script('vendors/jQuery/jQuery-2.2.1.min.js') ?>
-<?= html_script('themes/material/assets/js/libs/jquery-ui/jquery-ui.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap/bootstrap.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/nanoscroller/jquery.nanoscroller.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/spin.js/spin.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/autosize/jquery.autosize.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/toastr/toastr.js') ?>
-<?= html_script('themes/material/assets/js/libs/jquery-validation/dist/jquery.validate.min.js') ?>
-<?= html_script('themes/material/assets/js/libs/jquery-validation/dist/additional-methods.min.js') ?>
+<?= html_script('vendors/DataTables-1.10.12/datatables.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
@@ -276,30 +83,6 @@
   Pace.on('done', function() {
     $('.progress-overlay').hide();
   });
-
-  function popup(mylink, windowname) {
-    var height = window.innerHeight;
-    var widht;
-    var href;
-
-    if (screen.availWidth > 768) {
-      width = 769;
-    } else {
-      width = screen.availWidth;
-    }
-
-    var left = (screen.availWidth / 2) - (width / 2);
-    var top = 0;
-    // var top = (screen.availHeight / 2) - (height / 2);
-
-    if (typeof(mylink) == 'string') href = mylink;
-    else href = mylink.href;
-
-    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
-
-    if (!window.focus) return true;
-    else return false;
-  }
 
   (function($) {
     $.fn.reset = function() {
@@ -348,11 +131,22 @@
       })
     }
   }(jQuery));
-  $("#loadingScreen2").attr("style", "display:none");
-  $('#date').datepicker({
-    autoclose: true,
-    format: 'yyyy-mm-dd'
-  });
+
+  function submit_post_via_hidden_form(url, params) {
+    var f = $("<form target='_blank' method='POST' style='display:none;'></form>").attr('action', url).appendTo(document.body);
+
+    $.each(params, function(key, value) {
+      var hidden = $('<input type="hidden" />').attr({
+        name: key,
+        value: JSON.stringify(value)
+      });
+
+      hidden.appendTo(f);
+    });
+
+    f.submit();
+    f.remove();
+  }
 
   function numberFormat(nStr) {
     nStr += '';
@@ -379,431 +173,369 @@
       event.preventDefault();
     }
   });
-  var row_num = 0;
-  var row = []
-  var suplier = ""
-  $("#add_item").click(function() {
-    if (id_po.length > 0) {
-      row_num += 1;
-      row.push(row_num)
-      var option = "<option>No Po</option>";
-      $.each(id_po, function(i, item) {
-        option += "<option value='" + item + "'>" + arr_po["id_" + item].document_number + "</option>"
-      })
-      var text = '<tr id="row_' + row_num + '">' +
-        '<td><a href="" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_item" data-row="' + row_num + '"><i class="fa fa-trash" ></i></a> ' + row.length + '</td>' +
-        '<td><select id="sel_' + row_num + '" data-row="' + row_num + '" class="form-control sel_item">' + option + '</select></td>' +
-        '<td id="sta_' + row_num + '"></td>' +
-        '<td id="date_' + row_num + '"></td>' +
-        '<td id="sis_' + row_num + '"></td>' +
-        '<td><input id="in_' + row_num + '" data-row="' + row_num + '" type="number" class="sel_applied" value="0"></td>' +
-        '</tr>';
-      $("#listView").append(text);
-    } else {
-      toastr.options.timeOut = 10000;
-      toastr.options.positionClass = 'toast-top-right';
-      toastr.error("This vendor dont have PO");
-    }
 
-  });
-  $('#currency_select').change(function() {
-    currency = $(this).val();
+  $(function() {
+    toastr.options.closeButton = true;
 
-    var akun_view = $('#account_select');
-    var supplier_view = $('#suplier_select');
-    akun_view.html('');
-    supplier_view.html('');
-    $.ajax({
-      type: "POST",
-      url: '<?= base_url() . "payment/get_akun" ?>',
-      data: {
-        'currency': currency
-      },
-      cache: false,
-      success: function(response) {
-        var data = jQuery.parseJSON(response);
-        akun_view.html(data);
-      }
+    $('[data-toggle="redirect"]').on('click', function(e) {
+      e.preventDefault;
+
+      var url = $(this).data('url');
+
+      window.document.location = url;
     });
 
-    $.ajax({
-      type: "POST",
-      url: '<?= base_url() . "payment/get_supplier" ?>',
-      data: {
-        'currency': currency
-      },
-      cache: false,
-      success: function(response) {
-        var data = jQuery.parseJSON(response);
-        supplier_view.html(data);
-      }
+    $('[data-toggle="back"]').on('click', function(e) {
+      e.preventDefault;
+
+      history.back();
     });
 
-    suplier = $("#suplier_select").val();
-    // currency = $("#currency_select").val();
-    tipe = $("#tipe_select").val();
-    $("#total_general").html(0);
-    $("#amount").val(0);
-    // row_num = 0;
-    $("#listView").html("");
-    row = [];
-    row_detail = [];
+    $('[data-provide="datepicker"]').datepicker({
+      autoclose: true,
+      todayHighlight: true,
+      format: 'yyyy-mm-dd'
+    });
 
-    getPo()
+    var datatableElement = $('[data-provide="datatable"]');
+    var datatableOptions = new Object();
 
-  });
+    datatableOptions.selectedRows = [];
+    datatableOptions.selectedIds = [];
+    datatableOptions.clickDelay = 700;
+    datatableOptions.clickCount = 0;
+    datatableOptions.clickTimer = null;
+    datatableOptions.summaryColumns = <?= json_encode($grid['summary_columns']); ?>;
 
-  $("#suplier_select").change(function(e) {
-    // if (suplier != "") {
-    //   if (confirm("If you change suplier the items will be reset")) {
-    //     suplier = $("#suplier_select").val()
-    //     currency = $("#currency_select").val()
-    //     getPo()
-    //     row_num = 0;
-    //     $("#listView").html("");
-    //     row = []
-    //   } else {
-    //     $("#suplier_select").val(suplier)
-    //   }
-    // } else {
-    // changeTotal();
-    suplier = $("#suplier_select").val();
-    currency = $("#currency_select").val();
-    tipe = $("#tipe_select").val();
-    $("#total_general").html(0);
-    $("#amount").val(0);
-    // row_num = 0;
-    $("#listView").html("");
-    row = [];
-    row_detail = [];
+    $(datatableElement)
+      .addClass('stripe row-border cell-border order-column nowrap')
+      .attr('width', '100%');
 
-    getPo()
+    $(datatableElement).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
+    $(datatableElement).find('table td:first-child').attr('align', 'right');
 
-    // }
-  });
+    $.fn.dataTable.ext.errMode = 'throw';
 
-  $("#tipe_select").change(function(e) {
-    // if (suplier != "") {
-    //   if (confirm("If you change suplier the items will be reset")) {
-    //     suplier = $("#suplier_select").val()
-    //     currency = $("#currency_select").val()
-    //     getPo()
-    //     row_num = 0;
-    //     $("#listView").html("");
-    //     row = []
-    //   } else {
-    //     $("#suplier_select").val(suplier)
-    //   }
-    // } else {
-    // changeTotal();
-    suplier = $("#suplier_select").val();
-    currency = $("#currency_select").val();
-    tipe = $("#tipe_select").val();
-    $("#total_general").html(0);
-    $("#amount").val(0);
-    // row_num = 0;
-    $("#listView").html("");
-    row = [];
-    row_detail = [];
+    var datatable = $(datatableElement).DataTable({
+      searchDelay: 350,
+      scrollY: 410,
+      scrollX: true,
+      scrollCollapse: true,
+      lengthMenu: [
+        [10, 50, 100, -1],
+        [10, 50, 100, "All"]
+      ],
+      pageLength: 10,
+      pagingType: 'full',
 
-    getPo()
-
-    // }
-  });
-
-  var arr_po = []
-  id_po = []
-
-  function getPo() {
-    $("#loadingScreen2").attr("style", "display:block");
-    // $.ajax({
-    //   type: "POST",
-    //   url: '<?= base_url() . "payment/getPo" ?>',
-    //   data: {
-    //     'vendor': suplier,
-    //     'currency': currency
-    //   },
-    //   cache: false,
-    //   success: function(response) {
-    //     $("#loadingScreen2").attr("style", "display:none");
-    //     var data = jQuery.parseJSON(response);
-    //     arr_po = []
-    //     id_po = []
-    //     $.each(data, function(i, item) {
-    //       arr_po["id_" + item.id] = item;
-    //       id_po.push(item.id)
-    //     });
-    //   },
-    //   error: function(xhr, ajaxOptions, thrownError) {
-    //     $("#loadingScreen2").attr("style", "display:none");
-    //     console.log(xhr.status);
-    //     console.log(xhr.responseText);
-    //     console.log(thrownError);
-    //   }
-    // });
-
-    $.ajax({
-      type: "POST",
-      url: '<?= base_url() . "payment/getPo" ?>',
-      data: {
-        'currency': currency,
-        'vendor': suplier,
-        'tipe': tipe
+      order: <?= json_encode($grid['order_columns']); ?>,
+      fixedColumns: {
+        leftColumns: <?= $grid['fixed_columns']; ?>
       },
-      cache: false,
-      success: function(response) {
-        $("#loadingScreen2").attr("style", "display:none");
-        var data = jQuery.parseJSON(response);
-        $("#listView").html(data.info);
-        // console.log(data.count);
-        for (i = 1; i <= data.count_po; i++) {
-          row.push(i);
+
+      language: {
+        info: "Total _TOTAL_ entries"
+      },
+
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: "<?= $grid['data_source']; ?>",
+        type: "POST",
+        error: function(xhr, ajaxOptions, thrownError) {
+          if (xhr.status == 404) {
+            toastr.clear();
+            toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
+            alert("page not found");
+          } else {
+            toastr.clear();
+            toastr.error(textStatus + ': ' + errorThrown + '. Report this error!', 'Loading data failed!');
+          }
         }
-        for (i = 1; i <= data.count_detail; i++) {
-          row_detail.push(i);
-        }
-      }
-    });
-  }
-
-  $("#listView").on("change", ".sel_item", function() {
-    var selData = arr_po["id_" + $(this).val()]
-    var selRow = $(this).data("row");
-    $("#sta_" + selRow).html(selData.status);
-    $("#date_" + selRow).html(selData.document_date);
-    $("#sis_" + selRow).html(selData.remaining_payment);
-  })
-
-  $("#listView").on("click", ".btn_delete_item", function(e) {
-    e.preventDefault();
-    var selRow = $(this).data("row");
-    console.log(selRow)
-    $("#row_" + selRow).remove();
-    removeRow(selRow)
-  })
-
-  function removeRow(selRow) {
-
-    for (var i = 0; i < row.length; i++) {
-      if (row[i] == selRow) {
-        row.splice(i, 1);
-      }
-    }
-    console.log(row)
-  }
-
-  $("#listView").on("change", ".sel_applied", function() {
-    // console.log('test');
-    var selRow = $(this).data("row");
-    sisa = parseFloat($("#sis_" + selRow).val())
-    input = parseFloat($(this).val())
-    if (input < sisa) {
-      $('.detail_' + selRow).removeClass('hide');
-      $.each(row_detail, function(i, po) {
-        sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-        $("#in_item_" + selRow + "_" + po).val(0)
-        $("#in_" + selRow).attr('readonly', true);
-      });
-    } else {
-      $.each(row_detail, function(i, po) {
-        sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-        $("#in_item_" + selRow + "_" + po).val(sisa_item)
-      });
-      $('.detail_' + selRow).removeClass('hide');
-    }
-    changeTotal();
-
-  })
-
-  $("#listView").on("click", ".btn_view_detail", function() {
-    console.log('klik detail');
-    var selRow = $(this).data("row");
-    var tipe = $(this).data("tipe");
-    if (tipe == "view") {
-      $(this).data("tipe", "hide");
-      $('.detail_' + selRow).removeClass('hide');
-      $("#in_" + selRow).attr('readonly', true);
-    } else {
-      $(this).data("tipe", "view");
-      $('.detail_' + selRow).addClass('hide');
-      $("#in_" + selRow).attr('readonly', false);
-    }
-  })
-
-  $("#listView").on("change", ".sel_applied_item", function() {
-    // console.log('test');
-    var selRow = $(this).data("row");
-    var parent = $(this).data("parent");
-    var parent_total = $("#in_" + parent).val();
-    sisa = parseFloat($("#sis_" + selRow).val())
-    input = parseFloat($(this).val())
-    var sum = 0;
-    $('.sel_applied_' + parent).each(function(key, val) {
-      var val = $(this).val();
-      sum = parseFloat(sum) + parseFloat(val);
-    });
-    $("#in_" + parent).val(sum)
-    changeTotal();
-
-  })
-
-  $("#listView").on("keyup", ".sel_applied", function() {
-    var selRow = $(this).data("row");
-    sisa = parseFloat($("#sis_" + selRow).val())
-    input = parseFloat($(this).val())
-    if (sisa < input) {
-      console.log('lebih');
-      var text = $(this).val();
-      $(this).val(sisa);
-    }
-
-  })
-
-  $("#listView").on("keyup", ".sel_applied_item", function() {
-    var selRow = $(this).data("row");
-    var parent = $(this).data("parent");
-    var parent_total = $("#in" + parent).val()
-    sisa = parseFloat($("#sis_item_" + parent + "_" + selRow).val())
-    input = parseFloat($(this).val())
-    if (sisa < input) {
-      console.log('lebih');
-      var text = $(this).val();
-      $(this).val(sisa);
-      input = sisa;
-    }
-    $("#in" + parent).val(parent_total + input);
-  })
-
-  $("#listView").on("keydown", ".sel_applied", function(e) {
-    var selRow = $(this).data("row");
-    if ($("#sis_" + selRow).val() === "") {
-      // toastr.options.timeOut = 10000;
-      // toastr.options.positionClass = 'toast-top-right';
-      // toastr.error("There's no PO");
-      // e.preventDefault()
-      $("#sis_" + selRow).val(0);
-    }
-
-  })
-
-  function changeTotal() {
-    var sum = 0
-    $.each(row, function(i, item) {
-      sum += parseFloat($("#in_" + item).val())
-    });
-    console.log(row_detail)
-    // $('.sel_applied_' + parent).each(function(key, val) {
-    //   var val = $(this).val();
-    //   sum = parseFloat(sum) + parseFloat(val);
-    // });
-    $("#total_general").html(sum);
-    $("#amount").val(sum);
-  }
-  $("#amount").change(function() {
-    if ($(this).val() === "") {
-      $(this).val("0")
-    }
-    if (parseInt($(this).val()) < 0) {
-      $(this).val("0")
-    }
-  })
-  $("#btn-submit-document").click(function(e) {
-    e.preventDefault()
-    if ($("#account_select").val() === "" || $("#suplier_select").val() === "" || $("#no_cheque").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
-      toastr.options.timeOut = 10000;
-      toastr.options.positionClass = 'toast-top-right';
-      toastr.error("All field must be fill");
-      return
-    }
-    if (parseInt($("#amount").val()) != parseInt($("#total_general").html())) {
-      toastr.options.timeOut = 10000;
-      toastr.options.positionClass = 'toast-top-right';
-      toastr.error("Check value and item value not match");
-      return
-    }
-    var postData = []
-    // $.each(row, function(i, item) {
-    //   if (parseFloat($("#in_" + item).val()) === 0) {
-
-    //     toastr.options.timeOut = 10000;
-    //     toastr.options.positionClass = 'toast-top-right';
-    //     toastr.error("All field must be fill");
-    //     return
-    //   }
-    //   var data = {}
-    //   data["document_number"] = $("#sel_" + item).val()
-    //   data["value"] = parseInt($("#in_" + item).val())
-    //   postData.push(data);
-    // });
-    $.each(row, function(i, po) {
-      $.each(row_detail, function(i, item) {
-        var data = {}
-        data["document_number"] = $("#sel_item_" + po + "_" + item).val()
-        data["value"] = parseInt($("#in_item_" + po + "_" + item).val())
-        postData.push(data);
-      });
-    });
-    $("#loadingScreen2").attr("style", "display:block");
-    $.ajax({
-      type: "POST",
-      url: '<?= base_url() . "payment/save" ?>',
-      data: {
-        'account': $("#account_select").val(),
-        "vendor": $("#suplier_select").val(),
-        "currency": $("#currency_select").val(),
-        "tipe": $("#tipe_select").val(),
-        "no_cheque": $("#no_cheque").val(),
-        "date": $("#date").val(),
-        "amount": $("#amount").val(),
-        "item": postData
       },
-      cache: false,
-      success: function(response) {
-        $("#loadingScreen2").attr("style", "display:none");
-        var data = jQuery.parseJSON(response);
-        if (data.status == "success") {
-          clearForm()
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.success("Your data has been saved");
 
+      rowCallback: function(row, data) {
+        if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
+          $(row).addClass('selected');
+        }
+      },
+
+      columnDefs: [{
+        searchable: false,
+        orderable: false,
+        targets: [0]
+      }],
+
+      dom: "<'row'<'col-sm-12'tr>>" +
+        "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
+    });
+
+    new $.fn.dataTable.Buttons(datatable, {
+      dom: {
+        container: {
+          className: 'btn-group pull-left'
+        },
+        button: {
+          className: 'btn btn-lg btn-icon-toggle ink-reaction'
+        }
+      },
+      buttons: [{
+          extend: 'print',
+          className: 'btn-tooltip',
+          text: '<i class="fa fa-print"></i><small class="top center">Quick Print</small>',
+          // titleAttr: 'Quick print',
+          autoPrint: false,
+          footer: true,
+          exportOptions: {
+            columns: ':visible'
+          }
+        },
+        {
+          extend: 'csv',
+          name: 'csv',
+          text: '<i class="fa fa-file-text-o"></i><small class="top center">export to CSV</small>',
+          // titleAttr: 'export to CSV',
+          className: 'btn-tooltip',
+          footer: true,
+          key: {
+            ctrlKey: true,
+            key: 's'
+          },
+          exportOptions: {
+            columns: ':visible'
+          }
+        },
+        {
+          extend: 'excel',
+          name: 'excel',
+          text: '<i class="fa fa-file-excel-o"></i><small class="top center">export to EXCEL</small>',
+          // titleAttr: 'export to EXCEL',
+          className: 'btn-tooltip',
+          footer: true,
+          key: {
+            ctrlKey: true,
+            key: 'x'
+          },
+          exportOptions: {
+            columns: ':visible'
+          }
+        },
+        {
+          name: 'pdf',
+          className: 'buttons-pdf btn-tooltip',
+          text: '<i class="fa fa-file-pdf-o"></i><small class="top center">export to PDF</small>',
+          // titleAttr: 'export to PDF',
+          key: {
+            ctrlKey: true,
+            key: 'd'
+          },
+          action: function(e, dt, node, config) {
+            var pdfUrl = '<?= site_url('pdf'); ?>',
+              pdfTitle = '<?= PAGE_TITLE; ?>',
+              pdfData = datatable.buttons.exportData({
+                columns: ':visible'
+              });
+
+            submit_post_via_hidden_form(
+              pdfUrl, {
+                datatable: pdfData,
+                title: pdfTitle
+              }
+            );
+          }
+        }
+      ]
+    });
+
+    datatable.buttons(0, null).container()
+      .appendTo($('.btn-toolbar'));
+
+    if (datatableOptions.summaryColumns) {
+      datatable.on('xhr', function() {
+        var json = datatable.ajax.json();
+
+        $.each(datatableOptions.summaryColumns, function(key, value) {
+          $(datatable.column(value).footer()).html(
+            json.total[value]
+          );
+        });
+      });
+    }
+
+    $(datatableElement).find('tbody').on('click', 'td', function() {
+      datatableOptions.clickCount++;
+
+      var modalOpenOnClick = datatable.row(this).data().DT_RowData.modal;
+      var singleClickRow = datatable.row(this).data().DT_RowData.single_click;
+      var doubleClickRow = datatable.row(this).data().DT_RowData.double_click;
+
+      if (modalOpenOnClick) {
+        var dataModal = $('#data-modal');
+        var dataPrimaryKey = datatable.row(this).data().DT_RowData.pkey;
+
+        $.get(modalOpenOnClick, function(data) {
+          var obj = $.parseJSON(data);
+
+          if (obj.type == 'denied') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.info, 'ACCESS DENIED!');
+          } else {
+            $(dataModal)
+              .find('.modal-body')
+              .empty()
+              .append(obj.info);
+
+            $(dataModal)
+              .find('#modal-print-data-button')
+              .attr('href', obj.link.print);
+
+            $(dataModal)
+              .find('#modal-edit-data-button')
+              .attr('href', obj.link.edit);
+
+            $(dataModal)
+              .find('#modal-delete-data-button')
+              .attr('href', obj.link.delete);
+
+            $(dataModal).modal('show');
+
+            $(dataModal).on('click', '.modal-header:not(a)', function() {
+              $(dataModal).modal('hide');
+            });
+
+            $(dataModal).on('click', '.modal-footer:not(a)', function() {
+              $(dataModal).modal('hide');
+            });
+          }
+        });
+      } else {
+        if (datatableOptions.clickCount === 1) {
+          datatableOptions.clickTimer = setTimeout(function() {
+            datatableOptions.clickCount = 0;
+
+            if (singleClickRow)
+              window.location = singleClickRow;
+          }, datatableOptions.clickDelay);
         } else {
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error("Failed to save data");
+          clearTimeout(datatableOptions.clickTimer);
+          datatableOptions.clickCount = 0;
+
+          if (doubleClickRow)
+            window.location = doubleClickRow;
         }
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        $("#loadingScreen2").attr("style", "display:none");
-        console.log(xhr.status);
-        console.log(xhr.responseText);
-        console.log(thrownError);
       }
     });
 
-  })
+    $('.filter_numeric_text').on('keyup', function() {
+      var i = $(this).data('column');
+      var v = $(this).val();
+      datatable.columns(i).search(v).draw();
+    });
 
-  function clearForm() {
-    console.log(123)
-    $("input[type=text]").val("");
-    $("input[type=number]").val("0");
-    $("select").val($("select option:first").val());
-    row = []
-    row_num = 0;
-    arr_po = []
-    id_po = []
-    suplier = ""
-    $("#listView").html("");
-    $("#total_general").html("0");
-  }
-  $("listView").on("change", ".sel_applied", function() {
-    if ($(this).val() === "") {
-      $(this).val("0")
-    }
-    if (parseInt($(this).val()) < 0) {
-      $(this).val("0")
-    }
-  })
+    $('.filter_dropdown').on('change', function() {
+      var i = $(this).data('column');
+      var v = $(this).val();
+      datatable.columns(i).search(v).draw();
+    });
+
+    $('.filter_boolean').on('change', function() {
+      var checked = $(this).is(':checked');
+      var i = $(this).data('column');
+
+      if (checked) {
+        datatable.columns(i).search('true').draw();
+      } else {
+        datatable.columns(i).search('').draw();
+      }
+    });
+
+    $('.filter_daterange').daterangepicker({
+      autoUpdateInput: false,
+      parentEl: '#offcanvas-datatable-filter',
+      locale: {
+        cancelLabel: 'Clear'
+      }
+    }).on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
+      var i = $(this).data('column');
+      var v = $(this).val();
+      datatable.columns(i).search(v).draw();
+    }).on('cancel.daterangepicker', function(ev, picker) {
+      $(this).val('');
+      var i = $(this).data('column');
+      datatable.columns(i).search('').draw();
+    });
+
+    $('a.column-toggle').on('click', function(e) {
+      e.preventDefault();
+      var column = datatable.column($(this).attr('data-column'));
+
+      column.visible(!column.visible());
+
+      var label = $(this).attr('data-label');
+      var text = (column.visible() === true ? '<div class="tile-text">' + label + '</div>' : '<div class="tile-text text-muted">' + label + '</div>');
+
+      $(this).html(text);
+    });
+
+    $('.dataTables_paginate').find('a').removeClass();
+    $('#datatable-form').removeClass('hidden');
+    $('#datatable-form input').on('keyup', function() {
+      datatable.search(this.value).draw();
+    });
+    $('[data-toggle="reload"]').on('click', function() {
+      datatable.ajax.reload(null, false);
+    });
+
+    datatable.on('processing.dt', function(e, settings, processing) {
+      if (processing) {
+        $('.progress-overlay').show();
+      } else {
+        $('.progress-overlay').hide();
+      }
+    });
+
+    $(document).on('click', '.btn-xhr-delete', function(e) {
+      e.preventDefault();
+
+      var button = $(this);
+      var form = $('.form-xhr');
+      var action = button.attr('href');
+
+      button.attr('disabled', true);
+
+      if (confirm('Are you sure want to delete this data? Beware of this data can not be restored after it is removed. Continue?')) {
+        $.post(action, form.serialize()).done(function(data) {
+          var obj = $.parseJSON(data);
+          if (obj.type == 'danger') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.info);
+
+            buttonToDelete.attr('disabled', false);
+          } else {
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.info);
+
+            form.reset();
+
+            $('[data-dismiss="modal"]').trigger('click');
+
+            if (datatable) {
+              datatable.ajax.reload(null, false);
+            }
+          }
+        }).fail(function() {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Delete Failed! This data is still being used by another document.');
+        });
+      }
+
+      button.attr('disabled', false);
+    });
+  });
 </script>
 
 <?= html_script('themes/material/assets/js/core/source/App.min.js') ?>

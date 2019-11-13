@@ -219,7 +219,7 @@
         </div>
       </div>
     </div>
-    <?php if (is_granted($module, 'order') && $entity['review_status'] == 'APPROVED' && $entity['status'] == 'PURPOSED' && $tipe!='report') : ?>
+    <?php if (is_granted($module, 'order') && $entity['review_status'] == 'APPROVED' && $entity['status'] == 'PURPOSED' && $tipe != 'report') : ?>
       <?= form_open(current_url(), array(
           'class' => 'form-xhr-order pull-left',
         )); ?>
@@ -235,12 +235,38 @@
       </div>
       <input type="hidden" name="id" id="id" value="<?= $entity['id']; ?>">
 
-      <a href="<?= site_url($module['route'] . '/order/'); ?>" class="btn btn-floating-action btn-danger btn-xhr-order btn-tooltip ink-reaction" id="modal-order-data-button">
+      <a href="<?= site_url($module['route'] . '/order/'); ?>" data-tipe="order" class="btn btn-floating-action btn-danger btn-xhr-order btn-tooltip ink-reaction" id="modal-order-data-button">
         <i class="md md-shopping-cart"></i>
         <small class="top left">Order</small>
       </a>
       <?= form_close(); ?>
     <?php endif; ?>
+    <?php if (strpos($entity['document_number'], 'W') !== FALSE) : ?>
+      <?php if (is_granted($module, 'order') && $entity['review_status'] == 'APPROVED' && $tipe != 'report') : ?>
+        <?php if ($entity['status'] == 'ORDER') : ?>
+          <?= form_open(current_url(), array(
+                  'class' => 'form-xhr-order pull-left',
+                )); ?>
+          <div class="form-group col-xs-3">
+            <div class="input-group">
+              <span class="input-group-addon">Notes</span>
+              <div class="input-group-content">
+                <textarea name="notes" id="notes" class="form-control"></textarea>
+                <!-- <label for="document_number">Term of Payment</label> -->
+              </div>
+            </div>
+          </div>
+          <input type="hidden" name="id" id="id" value="<?= $entity['id']; ?>">
+
+          <a href="<?= site_url($module['route'] . '/close_wo/'); ?>" data-tipe="closing" class="btn btn-floating-action btn-success btn-xhr-order btn-tooltip ink-reaction" id="modal-order-data-button">
+            <i class="md md-check"></i>
+            <small class="top left">Close</small>
+          </a>
+          <?= form_close(); ?>
+        <?php endif; ?>
+      <?php endif; ?>
+    <?php endif; ?>
+
   </div>
 
   <div class="card-foot">
