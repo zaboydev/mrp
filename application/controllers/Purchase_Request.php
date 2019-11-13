@@ -287,17 +287,14 @@ class Purchase_Request extends MY_Controller
         // $col[] = print_string($row['suggested_supplier']);
         $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
         $col[] = print_person_name($row['created_by']);
+        $col[] = print_string($row['notes']);
         if($row['status']=="budgeted"){
           if(config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
             $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
-          }else{
-            $col[] = print_string($row['notes']);
-          }          
+          }         
         } else {
           if (config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'CHIEF OF MAINTANCE') {
             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          } else {
-            $col[] = print_string($row['notes']);
           }  
         }
 

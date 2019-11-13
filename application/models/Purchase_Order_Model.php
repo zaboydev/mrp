@@ -43,7 +43,7 @@ class Purchase_Order_Model extends MY_Model
         // 'tb_po_item.left_received_quantity'      => 'Left Qty',
         // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid' => 'Paid Amount',
         'tb_po.notes'                        => 'Notes',
-        'tb_purchase_orders.id as poe_id'              => null,
+        'tb_purchase_orders.id as poe_id'              => 'Approval Notes',
         'tb_purchase_order_items.id as poe_item_id'              => null
       );
     }

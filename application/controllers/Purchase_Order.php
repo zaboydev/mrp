@@ -97,9 +97,9 @@ class Purchase_Order extends MY_Controller
           if ($row['review_status'] === "APPROVED") {
             $col[] = print_string($row['notes']);
           } else {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+            $col[] = print_string($row['notes']);
           }
-          $col[] = null;
+          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';;
           $col[] = null;
           // $col[] = null;
           // $col[] = null;
