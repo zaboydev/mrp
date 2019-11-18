@@ -160,6 +160,8 @@ class Usage_Jurnal extends MY_Controller
         'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
         'trs_kredit'              => $this->input->post('trs_kredit'),
         'trs_kredit_usd'          => $this->input->post('trs_kredit_usd'),
+        'trs_debet'              => $this->input->post('trs_debet'),
+        'trs_debet_usd'          => $this->input->post('trs_debet_usd'),
         'unit_value'              => $this->input->post('unit_value'),
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'warehouse'               => $this->input->post('warehouse'),
@@ -169,7 +171,7 @@ class Usage_Jurnal extends MY_Controller
         'currency'                => $this->input->post('currency'),
         'stock_in_stores_id'      => $this->input->post('stock_in_stores_id'),
         'id_jurnal_detail'        => $this->input->post('id_jurnal_detail'),
-        'kode_akun_lawan'        => $this->input->post('kode_akun_lawan'),
+        'kode_akun_lawan'         => $this->input->post('kode_akun_lawan'),
       );
       $id_jurnal = $this->input->post('id_jurnal');
     }

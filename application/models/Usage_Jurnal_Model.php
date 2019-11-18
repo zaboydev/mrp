@@ -312,37 +312,74 @@ class Usage_Jurnal_Model extends MY_MODEL
     $query    = $this->db->get('tb_jurnal');
     $jurnal = $query->unbuffered_row('array');
 
-    $select = array(
-      'tb_jurnal_detail.id as id_jurnal_detail',
-      'tb_jurnal_detail.trs_kredit',
-      'tb_jurnal_detail.trs_kredit_usd',
-      'tb_jurnal_detail.id_jurnal',
-      'tb_jurnal_detail.currency',
-      'tb_jurnal_detail.stock_in_stores_id',
-      'tb_jurnal_detail.kode_rekening_lawan as kode_pemakaian',
-      'tb_stock_in_stores.unit_value',
-      'tb_stock_in_stores.stores',
-      'tb_stock_in_stores.warehouse',
-      'tb_master_items.part_number',
-      'tb_master_items.description',
-      // 'tb_master_items.kode_pemakaian',
-      'tb_master_items.serial_number',
-      'tb_master_item_groups.coa',
-      'tb_master_item_groups.group'
-    );
+    if($jurnal['source']=='INV-OUT'){
+      $select = array(
+        'tb_jurnal_detail.id as id_jurnal_detail',
+        'tb_jurnal_detail.trs_kredit',
+        'tb_jurnal_detail.trs_kredit_usd',
+        'tb_jurnal_detail.id_jurnal',
+        'tb_jurnal_detail.currency',
+        'tb_jurnal_detail.stock_in_stores_id',
+        'tb_jurnal_detail.kode_rekening_lawan as kode_pemakaian',
+        'tb_stock_in_stores.unit_value',
+        'tb_stock_in_stores.stores',
+        'tb_stock_in_stores.warehouse',
+        'tb_master_items.part_number',
+        'tb_master_items.description',
+        // 'tb_master_items.kode_pemakaian',
+        'tb_master_items.serial_number',
+        'tb_master_item_groups.coa',
+        'tb_master_item_groups.group'
+      );
 
-    $this->db->select($select);
-    $this->db->from('tb_jurnal_detail');
-    $this->db->join('tb_stock_in_stores','tb_stock_in_stores.id=tb_jurnal_detail.stock_in_stores_id');
-    $this->db->join('tb_stocks', 'tb_stock_in_stores.stock_id=tb_stocks.id');
-    $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
-    $this->db->join('tb_master_item_groups', 'tb_master_items.group=tb_master_item_groups.group');
-    $this->db->where('tb_jurnal_detail.id_jurnal', $jurnal['id']);
-    $this->db->where('tb_jurnal_detail.trs_kredit > 0');
-    $query = $this->db->get();
+      $this->db->select($select);
+      $this->db->from('tb_jurnal_detail');
+      $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id=tb_jurnal_detail.stock_in_stores_id');
+      $this->db->join('tb_stocks', 'tb_stock_in_stores.stock_id=tb_stocks.id');
+      $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+      $this->db->join('tb_master_item_groups', 'tb_master_items.group=tb_master_item_groups.group');
+      $this->db->where('tb_jurnal_detail.id_jurnal', $jurnal['id']);
+      $this->db->where('tb_jurnal_detail.trs_kredit > 0');
+      $query = $this->db->get();
 
-    foreach ($query->result_array() as $key => $value) {
-      $jurnal['items'][$key] = $value;
+      foreach ($query->result_array() as $key => $value) {
+        $jurnal['items'][$key] = $value;
+      }
+    }
+
+    if ($jurnal['source'] == 'INV-IN') {
+      $select = array(
+        'tb_jurnal_detail.id as id_jurnal_detail',
+        'tb_jurnal_detail.trs_debet',
+        'tb_jurnal_detail.trs_debet_usd',
+        'tb_jurnal_detail.id_jurnal',
+        'tb_jurnal_detail.currency',
+        'tb_jurnal_detail.stock_in_stores_id',
+        'tb_jurnal_detail.kode_rekening_lawan as kode_pemakaian',
+        'tb_stock_in_stores.unit_value',
+        'tb_stock_in_stores.stores',
+        'tb_stock_in_stores.warehouse',
+        'tb_master_items.part_number',
+        'tb_master_items.description',
+        // 'tb_master_items.kode_pemakaian',
+        'tb_master_items.serial_number',
+        'tb_master_item_groups.coa',
+        'tb_master_item_groups.group'
+      );
+
+      $this->db->select($select);
+      $this->db->from('tb_jurnal_detail');
+      $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id=tb_jurnal_detail.stock_in_stores_id');
+      $this->db->join('tb_stocks', 'tb_stock_in_stores.stock_id=tb_stocks.id');
+      $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+      $this->db->join('tb_master_item_groups', 'tb_master_items.group=tb_master_item_groups.group');
+      $this->db->where('tb_jurnal_detail.id_jurnal', $jurnal['id']);
+      $this->db->where('tb_jurnal_detail.trs_debet > 0');
+      $query = $this->db->get();
+
+      foreach ($query->result_array() as $key => $value) {
+        $jurnal['items'][$key] = $value;
+      }
     }
 
     return $jurnal;
@@ -351,44 +388,54 @@ class Usage_Jurnal_Model extends MY_MODEL
   public function save()
   {
     $this->db->trans_begin();
+    if($_SESSION['jurnal_usage']['source']=='INV-OUT'){
+      if (isset($_SESSION['jurnal_usage']['id'])) {
+        $id_jurnal = $_SESSION['jurnal_usage']['id'];
 
-    if (isset($_SESSION['jurnal_usage']['id'])) {
-      $id_jurnal = $_SESSION['jurnal_usage']['id'];
+        $this->db->where('id_jurnal', $id_jurnal);
+        $this->db->delete('tb_jurnal_detail');
+      }
+      foreach ($_SESSION['jurnal_usage']['items'] as $key => $data) {
 
-      $this->db->where('id_jurnal', $id_jurnal);
-      $this->db->delete('tb_jurnal_detail');
+        $coa = $this->coaByGroup(strtoupper($data['group']));
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', $data['group']);
+        $this->db->set('trs_kredit', floatval($data['trs_kredit']));
+        $this->db->set('trs_debet', 0);
+        $this->db->set('trs_kredit_usd', floatval($data['trs_kredit_usd']));
+        $this->db->set('trs_debet_usd', 0);
+        $this->db->set('kode_rekening', $coa->coa);
+        $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
+        $this->db->set('currency', $data['currency']);
+        $this->db->set('kode_rekening_lawan', $data['kode_pemakaian']);
+        $this->db->insert('tb_jurnal_detail');
+
+        // $kode = $this->codeByDescription($stock_stored['stock_id']);
+        $jenis_transaksi = $this->groupByKode($data['kode_pemakaian']);
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', strtoupper($jenis_transaksi->group));
+        $this->db->set('trs_debet', floatval($data['trs_kredit']));
+        $this->db->set('trs_kredit', 0);
+        $this->db->set('trs_debet_usd', floatval($data['trs_kredit_usd']));
+        $this->db->set('trs_kredit_usd', 0);
+        $this->db->set('kode_rekening', $data['kode_pemakaian']);
+        $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
+        $this->db->set('currency', $data['currency']);
+        $this->db->set('kode_rekening_lawan', $coa->coa);
+        $this->db->insert('tb_jurnal_detail');
+      }
+
     }
-    foreach ($_SESSION['jurnal_usage']['items'] as $key => $data) {
-
-      $coa = $this->coaByGroup(strtoupper($data['group']));
-      $this->db->set('id_jurnal', $id_jurnal);
-      $this->db->set('jenis_transaksi', $data['group']);
-      $this->db->set('trs_kredit', floatval($data['trs_kredit']));
-      $this->db->set('trs_debet', 0);
-      $this->db->set('trs_kredit_usd', floatval($data['trs_kredit_usd']));
-      $this->db->set('trs_debet_usd', 0);
-      $this->db->set('kode_rekening', $coa->coa);
-      $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
-      $this->db->set('currency', $data['currency']);
-      $this->db->set('kode_rekening_lawan', $data['kode_pemakaian']);
-      $this->db->insert('tb_jurnal_detail');
-
-      // $kode = $this->codeByDescription($stock_stored['stock_id']);
-      $jenis_transaksi = $this->groupByKode($data['kode_pemakaian']);
-      $this->db->set('id_jurnal', $id_jurnal);
-      $this->db->set('jenis_transaksi', strtoupper($jenis_transaksi->group));
-      $this->db->set('trs_debet', floatval($data['trs_kredit']));
-      $this->db->set('trs_kredit', 0);
-      $this->db->set('trs_debet_usd', floatval($data['trs_kredit_usd']));
-      $this->db->set('trs_kredit_usd', 0);
-      $this->db->set('kode_rekening', $data['kode_pemakaian']);
-      $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
-      $this->db->set('currency', $data['currency']);
-      $this->db->set('kode_rekening_lawan', $coa->coa);
-      $this->db->insert('tb_jurnal_detail');
-
+    if ($_SESSION['jurnal_usage']['source'] == 'INV-IN') {
+      foreach ($_SESSION['jurnal_usage']['items'] as $key => $data) {
+        $jenis_transaksi = $this->groupByKode($data['coa']);
+        $this->db->set('jenis_transaksi', strtoupper($jenis_transaksi->group));
+        $this->db->set('kode_rekening', $data['coa']);
+        $this->db->where('id',$data['id_jurnal_detail']);
+        $this->db->update('tb_jurnal_detail');
+      }
     }
-
+    
 
 
     if ($this->db->trans_status() === FALSE)

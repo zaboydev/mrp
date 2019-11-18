@@ -74,7 +74,7 @@ class Purchase_Order extends MY_Controller
         //   }
         // }
         $col[] = print_number($no);
-        $col[] = print_string($row['document_number'], 'N/A');
+        $col[] = '<a href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
         $col[] = print_string($row['review_status']);
         if ((config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE') && (config_item('auth_role') != 'CHIEF OPERATION OFFICER')) {
 
@@ -1407,14 +1407,14 @@ class Purchase_Order extends MY_Controller
         $no++;
         $col = array();
         $col[] = print_number($no);
-        $col[] = print_string($row['document_number'], 'N/A');
+        $col[] = print_string($row['document_number']);
         $col[] = print_string($row['review_status']);
         $col[] = print_date($row['document_date']);
         $col[] = print_string($row['category']);
         $col[] = print_string($row['description']);
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['alternate_part_number']);
-        $col[] = '<a href="' . site_url($this->modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+        $col[] = '<a href="' . site_url($this->modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
         $col[] = '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
         $col[] = print_string($row['reference_quotation']);
         $col[] = strtoupper($row['vendor']);

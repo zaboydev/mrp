@@ -466,7 +466,8 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->set('no_jurnal', $document_number);
     $this->db->set('vendor', $received_from);
     $this->db->set('tanggal_jurnal', $received_date);
-    $this->db->set('grn_no', $document_number);
+    $this->db->set('grn_no', $document_number);    
+    $this->db->set('keterangan', "Purchase ". $received_from);
     $this->db->set('source', "INV-IN");
     $this->db->insert('tb_jurnal');
     $id_jurnal = $this->db->insert_id();

@@ -28,6 +28,7 @@ class Master_Akun extends MY_Controller
       1 => array ( 0 => 2, 1 => 'asc' ),
       2 => array ( 0 => 3, 1 => 'asc' ),
       3 => array ( 0 => 4, 1 => 'asc' ),
+      4 => array(0 => 5, 1 => 'asc'),
     //   4 => array ( 0 => 5, 1 => 'desc' )
     );
 
@@ -55,6 +56,7 @@ class Master_Akun extends MY_Controller
         $col[] = print_string($row['description_akun']);
         $col[] = print_string($row['coa']);
         $col[] = print_string($row['group']);
+        $col[] = print_string($row['description']);
         $col[] = print_date($row['updated_at']);
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];

@@ -127,6 +127,9 @@ class Item_Group extends MY_Controller
         if ($this->model->isItemGroupExists($this->input->post('group'), NULL, $this->input->post('item_group_exception'))){
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Item Group! Item Group '. $this->input->post('group') .' already exists.';
+        } elseif ($this->model->isItemGroupCoaExists($this->input->post('coa'))) {
+          $return['type'] = 'danger';
+          $return['info'] = 'Duplicate COA! COA ' . $this->input->post('coa') . ' already exists.';
         } else {
           if ($this->model->update($this->input->post('id'))){
             $return['type'] = 'success';

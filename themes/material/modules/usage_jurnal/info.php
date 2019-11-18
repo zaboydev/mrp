@@ -23,24 +23,14 @@
                         <div class="pull-left">DATE : </div>
                         <div class="pull-right"> <?= print_date($entity['tanggal_jurnal']); ?></div>
                     </div>
+                    <?php if ($entity['source'] == 'INV-IN') : ?>
+                        <div class="clearfix">
+                            <div class="pull-left">Vendor : </div>
+                            <div class="pull-right"> <?= print_string($entity['vendor']); ?></div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <!-- <div class="col-sm-12 col-md-8 col-md-pull-4">
-                <dl class="dl-inline">
-                    <dt>Received From/Consignor</dt>
-                    <dd><?= $entity['received_from']; ?></dd>
-
-                    <dt>Received By/Consignee</dt>
-                    <dd><?= $entity['received_by']; ?></dd>
-
-                    <dt>Known By</dt>
-                    <dd><?= $entity['known_by']; ?></dd>
-
-                    <dt>Notes</dt>
-                    <dd><?= $entity['notes']; ?></dd>
-                </dl>
-            </div> -->
         </div>
 
         <div class="row" id="document_details">
@@ -57,7 +47,9 @@
                                 <th>Qty</th>
                                 <th>Unit Value</th>
                                 <th>Amount</th>
-                                <th>Account</th>
+                                <?php if ($entity['source'] == 'INV-OUT') : ?>
+                                    <th>Account</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <tbody id="table_contents">
@@ -81,18 +73,32 @@
                                     <td>
                                         <?= print_string($detail['warehouse']); ?>
                                     </td>
-                                    <td>
-                                        <?= print_number(($detail['trs_kredit'] / $detail['unit_value']), 2); ?>
-                                    </td>
+                                    <?php if ($entity['source'] == 'INV-OUT') : ?>
+                                        <td>
+                                            <?= print_number(($detail['trs_kredit'] / $detail['unit_value']), 2); ?>
+                                        </td>
+                                    <?php else : ?>
+                                        <td>
+                                            <?= print_number(($detail['trs_debet'] / $detail['unit_value']), 2); ?>
+                                        </td>
+                                    <?php endif; ?>
                                     <td>
                                         <?= print_number($detail['unit_value'], 2); ?>
                                     </td>
-                                    <td>
-                                        <?= print_number($detail['trs_kredit'], 2); ?>
-                                    </td>
-                                    <td>
-                                        <?= print_string($detail['kode_pemakaian']); ?>
-                                    </td>
+                                    <?php if ($entity['source'] == 'INV-OUT') : ?>
+                                        <td>
+                                            <?= print_number($detail['trs_kredit'], 2); ?>
+                                        </td>
+                                    <?php else : ?>
+                                        <td>
+                                            <?= print_number($detail['trs_debet'], 2); ?>
+                                        </td>
+                                    <?php endif; ?>
+                                    <?php if ($entity['source'] == 'INV-OUT') : ?>
+                                        <td>
+                                            <?= print_string($detail['kode_pemakaian']); ?>
+                                        </td>
+                                    <?php endif; ?>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -110,7 +116,7 @@
         ?>
 
         <div class="pull-right">
-            <?php if (is_granted($module, 'document') && $entity['source']=='INV-OUT') : ?>
+            <?php if (is_granted($module, 'document') && $entity['source'] != 'AP') : ?>
                 <a href="<?= site_url($module['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                     <i class="md md-edit"></i>
                     <small class="top right">edit</small>

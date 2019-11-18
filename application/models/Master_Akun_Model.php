@@ -14,11 +14,12 @@ class Master_Akun_Model extends MY_Model
     public function getSelectedColumns()
     {
         return array(
-            'id'          => NULL,
-            'description_akun' => 'Account Setting',
-            'coa'         => 'COA',
-            'group'       => 'Account Name',
-            'updated_at'  => 'Last Update',
+            'id'                => NULL,
+            'description_akun'  => 'Account Setting',
+            'coa'               => 'COA',
+            'group'             => 'Account Name',
+            'description'       => 'Description',
+            'updated_at'        => 'Last Update',
         );
     }
 
@@ -30,6 +31,7 @@ class Master_Akun_Model extends MY_Model
             // 'code',
             'description_akun',
             'coa',
+            'description'
         );
     }
 
@@ -43,6 +45,7 @@ class Master_Akun_Model extends MY_Model
             'coa',
             // 'notes',
             'updated_at',
+            'description'
         );
     }
 
