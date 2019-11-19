@@ -382,6 +382,41 @@ class Usage_Jurnal_Model extends MY_MODEL
       }
     }
 
+    if ($jurnal['source'] == 'INV-IN-WO') {
+      $select = array(
+        'tb_jurnal_detail.id as id_jurnal_detail',
+        'tb_jurnal_detail.trs_debet',
+        'tb_jurnal_detail.trs_debet_usd',
+        'tb_jurnal_detail.id_jurnal',
+        'tb_jurnal_detail.currency',
+        // 'tb_jurnal_detail.stock_in_stores_id',
+        'tb_jurnal_detail.kode_rekening_lawan as kode_pemakaian',
+        // 'tb_stock_in_stores.unit_value',
+        // 'tb_stock_in_stores.stores',
+        // 'tb_stock_in_stores.warehouse',
+        'tb_jurnal_detail.description as part_number',
+        'tb_jurnal_detail.description',
+        // 'tb_master_items.kode_pemakaian',
+        // 'tb_master_items.serial_number',
+        'tb_jurnal_detail.kode_rekening as coa',
+        'tb_jurnal_detail.jenis_transaksi as group'
+      );
+
+      $this->db->select($select);
+      $this->db->from('tb_jurnal_detail');
+      // $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id=tb_jurnal_detail.stock_in_stores_id');
+      // $this->db->join('tb_stocks', 'tb_stock_in_stores.stock_id=tb_stocks.id');
+      // $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+      // $this->db->join('tb_master_item_groups', 'tb_master_items.group=tb_master_item_groups.group');
+      $this->db->where('tb_jurnal_detail.id_jurnal', $jurnal['id']);
+      $this->db->where('tb_jurnal_detail.trs_debet > 0');
+      $query = $this->db->get();
+
+      foreach ($query->result_array() as $key => $value) {
+        $jurnal['items'][$key] = $value;
+      }
+    }
+
     return $jurnal;
   }
 
@@ -426,7 +461,7 @@ class Usage_Jurnal_Model extends MY_MODEL
       }
 
     }
-    if ($_SESSION['jurnal_usage']['source'] == 'INV-IN') {
+    if ($_SESSION['jurnal_usage']['source'] == 'INV-IN' || $_SESSION['jurnal_usage']['source'] == 'INV-IN-WO') {
       foreach ($_SESSION['jurnal_usage']['items'] as $key => $data) {
         $jenis_transaksi = $this->groupByKode($data['coa']);
         $this->db->set('jenis_transaksi', strtoupper($jenis_transaksi->group));

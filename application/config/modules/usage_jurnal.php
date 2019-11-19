@@ -2,7 +2,7 @@
 
 $config['module']['usage_jurnal']['visible']        = TRUE;
 $config['module']['usage_jurnal']['main_warehouse'] = TRUE;
-$config['module']['usage_jurnal']['parent']         = 'accounting_report';
+$config['module']['usage_jurnal']['parent']         = 'accounting';
 $config['module']['usage_jurnal']['label']          = 'Journal';
 $config['module']['usage_jurnal']['name']           = 'Journal';
 $config['module']['usage_jurnal']['route']          = 'usage_jurnal';

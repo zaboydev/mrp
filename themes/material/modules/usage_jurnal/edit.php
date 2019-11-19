@@ -36,7 +36,7 @@
 
             <div class="col-sm-12 col-lg-5">
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['jurnal_usage']['notes']; ?></textarea>
+                <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['jurnal_usage']['keterangan']; ?></textarea>
                 <label for="notes">Notes</label>
               </div>
             </div>
@@ -50,11 +50,13 @@
                 <tr>
                   <th>No</th>
                   <th>Description</th>
-                  <th>P/N</th>
-                  <th>S/N</th>
-                  <th>Location</th>
-                  <th>Qty</th>
-                  <th>Unit Value</th>
+                  <?php if ($_SESSION['jurnal_usage']['source'] == 'INV-OUT' || $_SESSION['jurnal_usage']['source'] == 'INV-IN') : ?>
+                    <th>P/N</th>
+                    <th>S/N</th>
+                    <th>Location</th>
+                    <th>Qty</th>
+                    <th>Unit Value</th>
+                  <?php endif; ?>
                   <th>Amount</th>
                   <th>Account</th>
                 </tr>
@@ -70,27 +72,29 @@
                     <td>
                       <?= $detail['description']; ?>
                     </td>
-                    <td>
-                      <?= $detail['part_number']; ?>
-                    </td>
-                    <td>
-                      <?= $detail['serial_number']; ?>
-                    </td>
-                    <td>
-                      <?= $detail['warehouse']; ?>
-                    </td>
-                    <?php if ($_SESSION['jurnal_usage']['source'] == 'INV-OUT') : ?>
+                    <?php if ($_SESSION['jurnal_usage']['source'] == 'INV-OUT' || $_SESSION['jurnal_usage']['source'] == 'INV-IN') : ?>
                       <td>
-                        <?= $detail['trs_kredit'] / $detail['unit_value']; ?>
+                        <?= $detail['part_number']; ?>
                       </td>
-                    <?php else : ?>
                       <td>
-                        <?= $detail['trs_debet'] / $detail['unit_value']; ?>
+                        <?= $detail['serial_number']; ?>
+                      </td>
+                      <td>
+                        <?= $detail['warehouse']; ?>
+                      </td>
+                      <?php if ($_SESSION['jurnal_usage']['source'] == 'INV-OUT') : ?>
+                        <td>
+                          <?= $detail['trs_kredit'] / $detail['unit_value']; ?>
+                        </td>
+                      <?php elseif ($_SESSION['jurnal_usage']['source'] == 'INV-IN') : ?>
+                        <td>
+                          <?= $detail['trs_debet'] / $detail['unit_value']; ?>
+                        </td>
+                      <?php endif; ?>
+                      <td>
+                        <?= $detail['unit_value']; ?>
                       </td>
                     <?php endif; ?>
-                    <td>
-                      <?= $detail['unit_value']; ?>
-                    </td>
                     <?php if ($_SESSION['jurnal_usage']['source'] == 'INV-OUT') : ?>
                       <td>
                         <?= $detail['trs_kredit']; ?>
@@ -166,21 +170,21 @@
                       <input type="text" name="description" id="edit_description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" readonly>
                       <label for="description">Description</label>
                     </div>
-                    <input type="text" name="item_id" id="item_id">
-                    <input type="text" name="currency" id="currency">
-                    <input type="text" name="id_jurnal_detail" id="id_jurnal_detail">
-                    <input type="text" name="stock_in_stores_id" id="stock_in_stores_id">
-                    <input type="text" name="id_jurnal" id="id_jurnal" data-tag-name="id_jurnal" data-search-for="id_jurnal" class="form-control input-sm" readonly>
-                    <input type="text" name="trs_kredit" id="trs_kredit" value="0" data-tag-name="trs_kredit" data-search-for="trs_kredit" class="form-control input-sm" readonly>
-                    <input type="text" name="trs_kredit_usd" id="trs_kredit_usd" value="0" data-tag-name="trs_kredit_usd" data-search-for="trs_kredit_usd" class="form-control input-sm" readonly>
-                    <input type="text" name="trs_debet" id="trs_debet" value="0" data-tag-name="trs_debet" data-search-for="trs_debet" class="form-control input-sm" readonly>
-                    <input type="text" name="trs_debet_usd" id="trs_debet_usd" value="0" data-tag-name="trs_debet_usd" data-search-for="trs_debet_usd" class="form-control input-sm" readonly>
+                    <input type="hidden" name="item_id" id="item_id">
+                    <input type="hidden" name="currency" id="currency">
+                    <input type="hidden" name="id_jurnal_detail" id="id_jurnal_detail">
+                    <input type="hidden" name="stock_in_stores_id" id="stock_in_stores_id">
+                    <input type="hidden" name="id_jurnal" id="id_jurnal" data-tag-name="id_jurnal" data-search-for="id_jurnal" class="form-control input-sm" readonly>
+                    <input type="hidden" name="trs_kredit" id="trs_kredit" value="0" data-tag-name="trs_kredit" data-search-for="trs_kredit" class="form-control input-sm" readonly>
+                    <input type="hidden" name="trs_kredit_usd" id="trs_kredit_usd" value="0" data-tag-name="trs_kredit_usd" data-search-for="trs_kredit_usd" class="form-control input-sm" readonly>
+                    <input type="hidden" name="trs_debet" id="trs_debet" value="0" data-tag-name="trs_debet" data-search-for="trs_debet" class="form-control input-sm" readonly>
+                    <input type="hidden" name="trs_debet_usd" id="trs_debet_usd" value="0" data-tag-name="trs_debet_usd" data-search-for="trs_debet_usd" class="form-control input-sm" readonly>
 
-                    <input type="text" name="unit_value" id="unit_value" data-tag-name="unit_value" data-search-for="unit_value" class="form-control input-sm" readonly>
-                    <input type="text" name="stores" id="stores" data-tag-name="stores" data-search-for="stores" class="form-control input-sm" readonly>
-                    <input type="text" name="warehouse" id="warehouse" data-tag-name="warehouse" data-search-for="warehouse" class="form-control input-sm" readonly>
+                    <input type="hidden" name="unit_value" id="unit_value" data-tag-name="unit_value" data-search-for="unit_value" class="form-control input-sm" readonly>
+                    <input type="hidden" name="stores" id="stores" data-tag-name="stores" data-search-for="stores" class="form-control input-sm" readonly>
+                    <input type="hidden" name="warehouse" id="warehouse" data-tag-name="warehouse" data-search-for="warehouse" class="form-control input-sm" readonly>
                     <!-- <input type="text" name="coa" id="coa" data-tag-name="coa" data-search-for="coa" class="form-control input-sm" readonly> -->
-                    <input type="text" name="group" id="group" data-tag-name="group" data-search-for="group" class="form-control input-sm" readonly>
+                    <input type="hidden" name="group" id="group" data-tag-name="group" data-search-for="group" class="form-control input-sm" readonly>
                   </fieldset>
                 </div>
                 <?php if ($_SESSION['jurnal_usage']['source'] == 'INV-OUT') : ?>

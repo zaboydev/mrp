@@ -876,7 +876,7 @@ class Goods_Received_Note_Model extends MY_Model
         // $kode = "2-101";
         // $x_total = $harga*floatval($data['received_quantity']);
       } else {
-        $id_master_akun = 1;
+        $id_master_akun = 2;
         // $kode = "2-1102";
         // $x_total = $harga_usd*floatval($data['received_quantity']);
       }
