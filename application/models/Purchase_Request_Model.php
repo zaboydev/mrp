@@ -2128,6 +2128,47 @@ class Purchase_Request_Model extends MY_Model
     return TRUE;
   }
 
+  function multi_closing($id_purchase_order)
+  {
+    $this->db->trans_begin();
+    $x = 0;
+    $return = 0;
+    $rejected_note = '';
+    foreach ($id_purchase_order as $id) {
+      // $this->db->where('id', $id);
+      // $tb_purchase_order_items = $this->db->get('tb_inventory_purchase_requisition_details')->result();
+      $inventory_purchase_request_detail_id = $id;
+      $this->db->set('sisa', 0);
+      $this->db->set('status', 'closed');
+      $this->db->where('id', $inventory_purchase_request_detail_id);
+      $check = $this->db->update('tb_inventory_purchase_requisition_details');
+      // $check = $this->db->update('tb_inventory_purchase_requisition_details');
+
+
+      $this->db->set('closing_by', config_item('auth_person_name'));
+      $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+      $this->db->insert('tb_purchase_request_closures');
+
+      if ($check) {
+        $return++;
+      }
+      $x++;
+      // $this->send_mail_approved($id,'rejected');
+    }
+
+    // if(($return == $x)&&($return > 0)){
+    //   return true;
+    // }else{
+    //   return false;
+    // }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
   function findItemByPartNumber($part_number)
   {
     $query = $this->db->select('*')

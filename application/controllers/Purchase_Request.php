@@ -251,21 +251,31 @@ class Purchase_Request extends MY_Controller
         $col = array();
 
         if($row['status']=='waiting'){
-          if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+          if(is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'CHIEF OF MAINTANCE'){
             $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
           }else{
             $col[] = print_number($no);
           }
         }elseif($row['status']=='pending'){
-          if(config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'SUPER ADMIN'){
+            // if(config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'SUPER ADMIN'){
+          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'FINANCE MANAGER'){
             $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
           }else{
             $col[] = print_number($no);
           }
         }elseif($row['status']=='review operation support'){
-          if(config_item('auth_role') == 'OPERATION SUPPORT' || config_item('auth_role') == 'SUPER ADMIN'){
+              // if(config_item('auth_role') == 'OPERATION SUPPORT' || config_item('auth_role') == 'SUPER ADMIN'){
+          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'OPERATION SUPPORT'){
             $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
           }else{
+            $col[] = print_number($no);
+          }
+        } elseif ($row['status'] == 'open') {
+                // if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN') {
+          if (is_granted($this->module, 'closing') === TRUE){
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          } else {
             $col[] = print_number($no);
           }
         }else{
@@ -727,6 +737,27 @@ class Purchase_Request extends MY_Controller
       $return["status"] = "success";
       echo json_encode($return);
     }else{
+      $return["status"] = "failed";
+      echo json_encode($return);
+    }
+  }
+
+  public function multi_closing()
+  {
+    $str_id_purchase_order = $this->input->post('id_purchase_order');
+    // $str_notes = $this->input->post('notes');
+    $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
+    $id_purchase_order = substr($id_purchase_order, 0, -1);
+    // $notes = str_replace("|", "", $str_notes);
+    // $notes = substr($notes, 0, -3);
+    $id_purchase_order = explode(",", $id_purchase_order);
+    // $notes = explode("##,", $notes);
+    $result = $this->model->multi_closing($id_purchase_order);
+    if ($result) {
+      // $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'));
+      $return["status"] = "success";
+      echo json_encode($return);
+    } else {
       $return["status"] = "failed";
       echo json_encode($return);
     }
