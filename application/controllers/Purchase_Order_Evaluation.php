@@ -349,11 +349,11 @@ class Purchase_Order_Evaluation extends MY_Controller
         // $col[] ='<a href="#" data-id="'.$row["id"].'" class="btn btn-icon-toggle btn-info btn-sm ">
         //                <i class="fa fa-eye"></i>
         //             </a>';
-         
+        $col[] = print_string($row['notes']);         
         if(strtoupper($row['status'])=="EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))){
           $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
         } else {
-          $col[] = print_string($row['notes']);;
+          $col[] = null;
         }
         
         $col['DT_RowId'] = 'row_'. $row['id'];

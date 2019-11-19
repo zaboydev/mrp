@@ -7,6 +7,171 @@ class Payment_Model extends MY_MODEL
 	{
 		parent::__construct();
 	}
+
+	public function getSelectedColumns()
+	{
+		$return = array(
+			'tb_purchase_order_items_payments.id'                          		=> NULL,
+			'tb_purchase_order_items_payments.no_transaksi'             		=> 'Transaction Number',
+			'tb_purchase_order_items_payments.tanggal'               			=> 'Date',
+			'tb_purchase_order_items_payments.no_cheque'                    	=> 'No Cheque',
+			'tb_po.document_number'                   							=> 'PO#',
+			'tb_po.vendor'                   									=> 'Vendor',
+			'tb_po_item.part_number'             								=> 'Part Number',
+			'tb_po_item.description'                      						=> 'Description',
+			'tb_po.default_currency'             								=> 'Currency',
+			'tb_purchase_order_items_payments.amount_paid'   					=> 'Amount',
+			'tb_purchase_order_items_payments.created_by'           			=> 'Created by',
+			'tb_purchase_order_items_payments.created_at'                     	=> 'Created At',
+		);
+
+		return $return;
+	}
+
+	public function getSearchableColumns()
+	{
+		$return = array(
+			// 'tb_purchase_order_items_payments.id',
+			'tb_purchase_order_items_payments.no_transaksi',
+			// 'tb_purchase_order_items_payments.tanggal',
+			'tb_purchase_order_items_payments.no_cheque',
+			'tb_po.document_number',
+			'tb_po_item.part_number',
+			'tb_po_item.description',
+			'tb_po.default_currency',
+			// 'tb_purchase_order_items_payments.amount_paid',
+			'tb_purchase_order_items_payments.created_by',
+			'tb_po.vendor'
+			// 'tb_purchase_order_items_payments.created_at',
+		);
+
+		return $return;
+	}
+
+	public function getOrderableColumns()
+	{
+		$return = array(
+			NULL,
+			'tb_purchase_order_items_payments.no_transaksi',
+			'tb_purchase_order_items_payments.tanggal',
+			'tb_purchase_order_items_payments.no_cheque',
+			'tb_po.document_number',
+			'tb_po_item.part_number',
+			'tb_po_item.description',
+			'tb_po.default_currency',
+			'tb_purchase_order_items_payments.amount_paid',
+			'tb_purchase_order_items_payments.created_by',
+			'tb_purchase_order_items_payments.created_at',
+			'tb_po.vendor'
+		);
+
+		return $return;
+	}
+
+	private function searchIndex()
+	{
+		if (!empty($_POST['columns'][1]['search']['value'])) {
+			$search_received_date = $_POST['columns'][1]['search']['value'];
+			$range_received_date  = explode(' ', $search_received_date);
+
+			$this->db->where('tb_purchase_order_items_payments.tanggal >= ', $range_received_date[0]);
+			$this->db->where('tb_purchase_order_items_payments.tanggal <= ', $range_received_date[1]);
+		}
+
+		if (!empty($_POST['columns'][2]['search']['value'])) {
+			$vendor = $_POST['columns'][2]['search']['value'];
+
+			$this->db->where('tb_po.vendor', $vendor);
+		}
+
+		if (!empty($_POST['columns'][3]['search']['value'])) {
+			$currency = $_POST['columns'][3]['search']['value'];
+
+			if ($currency != 'all') {
+				$this->db->where('tb_po.default_currency', $currency);
+			}
+		}
+
+		$i = 0;
+
+		foreach ($this->getSearchableColumns() as $item) {
+			if ($_POST['search']['value']) {
+				$term = strtoupper($_POST['search']['value']);
+
+				if ($i === 0) {
+					$this->db->group_start();
+					$this->db->like('UPPER(' . $item . ')', $term);
+				} else {
+					$this->db->or_like('UPPER(' . $item . ')', $term);
+				}
+
+				if (count($this->getSearchableColumns()) - 1 == $i)
+					$this->db->group_end();
+			}
+
+			$i++;
+		}
+	}
+
+	function getIndex($return = 'array')
+	{
+		$this->db->select(array_keys($this->getSelectedColumns()));
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+
+		$this->searchIndex();
+
+		$column_order = $this->getOrderableColumns();
+
+		if (isset($_POST['order'])) {
+			foreach ($_POST['order'] as $key => $order) {
+				$this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+			}
+		} else {
+			$this->db->order_by('id', 'desc');
+		}
+
+		if ($_POST['length'] != -1)
+			$this->db->limit($_POST['length'], $_POST['start']);
+
+		$query = $this->db->get();
+
+		if ($return === 'object') {
+			return $query->result();
+		} elseif ($return === 'json') {
+			return json_encode($query->result());
+		} else {
+			return $query->result_array();
+		}
+	}
+
+	function countIndexFiltered()
+	{
+		$this->db->select(array_keys($this->getSelectedColumns()));
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+
+		$this->searchIndex();
+
+		$query = $this->db->get();
+
+		return $query->num_rows();
+	}
+
+	public function countIndex()
+	{
+		$this->db->select(array_keys($this->getSelectedColumns()));
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+
+		$query = $this->db->get();
+
+		return $query->num_rows();
+	}
+
 	public function getAccount($currency)
 	{
 		$this->db->select('group,coa');
@@ -15,6 +180,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('category', "BANK");
 		return $this->db->get('')->result();
 	}
+
 	public function getSuplier($currency)
 	{
 		$this->db->select('tb_master_vendors.vendor,tb_master_vendors.code');
@@ -23,6 +189,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_master_vendors');
 		return $this->db->get('')->result();
 	}
+
 	function getPoByVendor($vendor, $currency, $tipe)
 	{
 		$this->db->select('tb_po.*');
@@ -73,6 +240,7 @@ class Payment_Model extends MY_MODEL
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
 	}
+
 	function save()
 	{
 		$this->db->trans_begin();
@@ -122,6 +290,8 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('no_cheque', $no_cheque);
 				$this->db->set('tanggal', $tanggal);
 				$this->db->set('no_transaksi', $no_jurnal);
+				$this->db->set('coa_kredit', $account);
+				$this->db->set('akun_kredit', $jenis);
 				$this->db->insert('tb_purchase_order_items_payments');
 
 				$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["value"], false);
@@ -139,6 +309,9 @@ class Payment_Model extends MY_MODEL
 
 				if ($status == "ORDER") {
 					$jenis_transaksi = 'Down Payment Inventories ' . $currency;
+					$this->db->set('uang_muka', '"uang_muka" + ' . $key["value"], false);
+					$this->db->where('id', $key["document_number"]);
+					$this->db->update('tb_po_item');
 				} else {
 					$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
 				}
@@ -181,6 +354,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->trans_commit();
 		return TRUE;
 	}
+
 	function groupsBycoa($account)
 	{
 		$this->db->select('tb_master_item_groups.group');
@@ -188,10 +362,12 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('coa', $account);
 		return $this->db->get()->row()->group;
 	}
+
 	function checkJurnalNumber()
 	{
 		return $this->db->get('tb_jurnal')->num_rows();
 	}
+
 	function jrl_last_number()
 	{
 		$div  = config_item('document_format_divider');
@@ -277,6 +453,56 @@ class Payment_Model extends MY_MODEL
 		$return = $row->status;
 
 		return $return;
+	}
+
+	public function findById($id)
+	{
+		$this->db->where('id', $id);
+
+		$query    = $this->db->get('tb_purchase_order_items_payments');
+		$payment_item = $query->unbuffered_row('array');
+		$no_jurnal = $payment_item['no_transaksi'];
+
+		$select = array(
+			'tb_purchase_order_items_payments.no_transaksi',
+			'tb_purchase_order_items_payments.tanggal',
+			'tb_purchase_order_items_payments.no_cheque',
+			'tb_purchase_order_items_payments.created_by',
+			'tb_purchase_order_items_payments.created_at',
+			'tb_purchase_order_items_payments.coa_kredit',
+			'tb_purchase_order_items_payments.akun_kredit',
+			'tb_jurnal.vendor',			
+		);
+
+		$this->db->select($select);
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_jurnal', 'tb_jurnal.no_jurnal = tb_purchase_order_items_payments.no_transaksi');
+		$this->db->where('tb_purchase_order_items_payments.no_transaksi', $no_jurnal);
+		$this->db->group_by($select);
+		$query = $this->db->get();
+		$payment = $query->unbuffered_row('array');
+
+		$select = array(
+			'tb_po_item.part_number',
+			'tb_po_item.description',
+			'tb_purchase_order_items_payments.amount_paid',
+			'tb_po.document_number',
+			'tb_po.default_currency',
+		);
+
+		$this->db->select($select);
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		$this->db->where('tb_purchase_order_items_payments.no_transaksi', $no_jurnal);
+
+		$query_item = $this->db->get();
+
+		foreach ($query_item->result_array() as $key => $value) {
+			$payment['items'][$key] = $value;
+		}
+
+		return $payment;
 	}
 	// }
 }

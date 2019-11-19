@@ -3,7 +3,7 @@
 $config['module']['stock_activity_report']['visible']         = TRUE;
 $config['module']['stock_activity_report']['main_warehouse']  = TRUE;
 $config['module']['stock_activity_report']['parent']          = 'stock';
-$config['module']['stock_activity_report']['label']           = 'Stock Card';
+$config['module']['stock_activity_report']['label']           = 'Stock Card Inventory';
 $config['module']['stock_activity_report']['name']            = 'stock_activity_report';
 $config['module']['stock_activity_report']['route']           = 'stock_activity_report';
 $config['module']['stock_activity_report']['view']            = config_item('module_path') .'stock_activity_report/';

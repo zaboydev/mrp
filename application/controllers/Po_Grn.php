@@ -42,13 +42,8 @@ class Po_Grn extends MY_Controller
         $col[] = print_number($row['po_val'], 2);
         // $col[] = print_string($row['grn_number']);
         $col[] = print_number($row['grn_qty'], 2);
-        if($row['default_currency']=='IDR'){
-          $col[] = print_number($row['grn_val_idr'], 2);
-          $value_receipt[]            = $row['grn_val_idr'];
-        }else{
-          $col[] = print_number($row['grn_val_usd'], 2);
-          $value_receipt[]            = $row['grn_val_usd'];
-        }
+        $col[] = print_number($row['grn_qty']* $row['unit_price'], 2);
+        $value_receipt[]            = $row['grn_qty'] * $row['unit_price'];
         $col[] = print_number($row['po_qty']-$row['grn_qty'], 2);
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];

@@ -442,10 +442,11 @@ class Stock_Adjustment_Model extends MY_Model
     $message .= "<table width='100%'>";
     $message .= "<thead>
       <tr>
-      <th width='25%'>Part Number</th>
-      <th width='25%'>Description</th>
-      <th width='25%'>Qty. Adj</th>
-      <th width='25%'>Val. Adj</th>
+      <th width='20%'>Part Number</th>
+      <th width='20%'>Description</th>
+      <th width='20%'>Qty. Adj</th>
+      <th width='20%'>Val. Adj</th>
+      <th width='20%'>Remarks</th>
       </tr>
     </thead>";
     foreach ($row as $item) {
@@ -454,6 +455,7 @@ class Stock_Adjustment_Model extends MY_Model
       $message .= '<td>'.$item['description'].'</td>';
       $message .= '<td align="center">'.print_number($item['adjustment_quantity'],2).'</td>';
       $message .= '<td align="center">'.print_number($item['total_value'],2).'</td>';
+      $message .= '<td>' . $item['remarks'] . '</td>';
       $message .= '</tr>';
     }
     $message .= "</table>";    

@@ -15,14 +15,101 @@ class Payment extends MY_Controller
     $this->data['module'] = $this->module;
   }
 
+  public function index_data_source()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'index') === FALSE) {
+      $return['type'] = 'danger';
+      $return['info'] = "You don't have permission to access this page!";
+    } else {
+      $entities = $this->model->getIndex();
+      $data     = array();
+      $no       = $_POST['start'];
+      $total     = array();
+
+      foreach ($entities as $row) {
+        $no++;
+        $col = array();
+        $col[]  = print_number($no);
+        $col[]  = print_string($row['no_transaksi']);
+        $col[]  = print_date($row['tanggal']);
+        $col[]  = print_string($row['no_cheque']);
+        $col[]  = print_string($row['document_number']);
+        $col[]  = print_string($row['vendor']);
+        $col[]  = print_string($row['part_number']);
+        $col[]  = print_string($row['description']);
+        $col[]  = print_string($row['default_currency']);
+        $col[]  = print_number($row['amount_paid'], 2);
+        $col[]  = print_string($row['created_by']);
+        $col[]  = print_date($row['created_at']);
+
+      
+
+        $total[] = $row['amount_paid'];
+
+        $col['DT_RowId'] = 'row_' . $row['id'];
+        $col['DT_RowData']['pkey']  = $row['id'];
+
+        if ($this->has_role($this->module, 'info')) {
+          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          $col['DT_RowAttr']['data-target'] = '#data-modal';
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+        }
+
+        $data[] = $col;
+      }
+
+      $result = array(
+        "draw"            => $_POST['draw'],
+        "recordsTotal"    => $this->model->countIndex(),
+        "recordsFiltered" => $this->model->countIndexFiltered(),
+        "data"            => $data,
+        "total"           => array(
+          9 => print_number(array_sum($total), 2),
+        )
+      );
+    }
+
+    echo json_encode($result);
+  }
+
   public function index()
+  {
+    $this->authorized($this->module, 'index');
+    unset($_SESSION['receipt']['id']);
+
+    $this->data['page']['title']            = $this->module['label'];
+    $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
+    $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
+    $this->data['grid']['fixed_columns']    = 2;
+    $this->data['grid']['summary_columns']  = array(9);
+
+    $this->data['grid']['order_columns']    = array();
+    // $this->data['grid']['order_columns']    = array(
+    //   0   => array( 0 => 1,  1 => 'desc' ),
+    //   1   => array( 0 => 2,  1 => 'desc' ),
+    //   2   => array( 0 => 3,  1 => 'asc' ),
+    //   3   => array( 0 => 4,  1 => 'asc' ),
+    //   4   => array( 0 => 5,  1 => 'asc' ),
+    //   5   => array( 0 => 6,  1 => 'asc' ),
+    //   6   => array( 0 => 7,  1 => 'asc' ),
+    //   7   => array( 0 => 8,  1 => 'asc' ),
+    // );
+
+    $this->render_view($this->module['view'] . '/index');
+  }
+
+  public function create()
   {
     $this->data['currency']                 = 'IDR';
     $this->data['page']['title']            = $this->module['label'];
     $this->data['account']                  = $this->model->getAccount($this->data['currency']);
     $this->data['suplier']                  = $this->model->getSuplier($this->data['currency']);
-    $this->render_view($this->module['view'] . '/index');
+    $this->render_view($this->module['view'] . '/create');
   }
+  
   public function getPo()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -37,6 +124,7 @@ class Payment extends MY_Controller
     $return['count_po'] = $this->model->countPoByVendor($vendor, $currency, $tipe);
     echo json_encode($return);
   }
+
   public function save()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -77,6 +165,7 @@ class Payment extends MY_Controller
     }
     echo json_encode($option);
   }
+
   public function getPoDetail()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -89,4 +178,25 @@ class Payment extends MY_Controller
     $return['count'] = $this->model->countPoDetail($id_po)+1;
     echo json_encode($return);
   }
+
+  public function info($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'info') === FALSE) {
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->findById($id);
+
+      $this->data['entity'] = $entity;
+
+      $return['type'] = 'success';
+      $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
+    }
+
+    echo json_encode($return);
+  }
+
 }

@@ -21,11 +21,12 @@ class Purchase_Item_Detail_Model extends MY_Model
 
     public function getItems()
     {
-        $this->db->select('tb_master_part_number.id,tb_master_part_number.part_number,tb_master_part_number.description');
+        $this->db->select('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
+        $this->db->group_by('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
         // $this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
         // $this->db->where('tb_master_vendors_currency.currency', $currency);
-        $this->db->from('tb_master_part_number');
-        $this->db->order_by('tb_master_part_number.part_number', 'asc');
+        $this->db->from('tb_master_items');
+        $this->db->order_by('tb_master_items.part_number', 'asc');
         return $this->db->get('')->result();
     }
 
@@ -98,7 +99,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         // $this->db->where('tb_po.review_status !=', 'REVISI');
         $this->db->where_not_in('tb_po.review_status', ['REVISI']);
         $this->db->where_not_in('tb_po.status', ['PURPOSED']);
-        // $this->db->where('tb_po.default_currency', $currency);
+        $this->db->where('tb_po_item.quantity_received != 0');
         if ($date != null) {
             $range_date  = explode('.', $date);
             $start_date  = $range_date[0];

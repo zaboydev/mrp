@@ -28,13 +28,13 @@
     <?php endforeach; ?>
     <?php if (array_sum($total_amount) > 0) : ?>
         <tr>
-            <td align="left">
+            <td style="font-weight:bolder" align="left">
                 <?= print_string($detail['vendor']); ?>
             </td>
-            <td align="left">
+            <td style="text-align:center;font-weight:bolder;" align="left">
                 <?= print_string($detail['currency']); ?>
             </td>
-            <td align="left">
+            <td style="font-weight:bolder" align="left">
                 <?php if ($detail['currency'] == 'USD') {
                             $total_due = $detail['usd'];
                         } else {

@@ -3,7 +3,7 @@
 $config['module']['stock_card']['visible']        = TRUE;
 $config['module']['stock_card']['main_warehouse'] = TRUE;
 $config['module']['stock_card']['parent']         = 'stock';
-$config['module']['stock_card']['label']          = 'Stock Card';
+$config['module']['stock_card']['label']          = 'Stock Card Finance';
 $config['module']['stock_card']['name']           = 'stock_card';
 $config['module']['stock_card']['route']          = 'stock_card';
 $config['module']['stock_card']['view']           = config_item('module_path') .'stock_card/';

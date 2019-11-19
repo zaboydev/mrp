@@ -43,7 +43,7 @@ class Purchase_Order_Model extends MY_Model
         // 'tb_po_item.left_received_quantity'      => 'Left Qty',
         // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid' => 'Paid Amount',
         'tb_po.notes'                        => 'Notes',
-        'tb_purchase_orders.id as poe_id'              => null,
+        'tb_purchase_orders.id as poe_id'              => 'Approval Notes',
         'tb_purchase_order_items.id as poe_item_id'              => null
       );
     }
@@ -1574,9 +1574,9 @@ class Purchase_Order_Model extends MY_Model
       // "''".' as "temp"' => "Act.", 
       'tb_po.id' => NULL,
       'tb_po.document_number'              => 'Document Number',
-      'tb_po.status'                => 'Review Status',
+      'tb_po.status'                => 'Status',
       'tb_po.document_date'                => 'Date',
-      // 'tb_po.category'        => 'Category',
+      // 'tb_master_items_groups.category'        => 'Category',
       'tb_po_item.description'             => 'Description',
       'tb_po_item.part_number'             => 'Part Number',
       'tb_po_item.alternate_part_number'   => 'Alt. Part Number',
@@ -1645,6 +1645,36 @@ class Purchase_Order_Model extends MY_Model
     );
   }
 
+  public function getGroupedColumnsReport()
+  {
+    return array(
+      'tb_po.id',
+      'tb_po.document_number',
+      'tb_po.status',
+      'tb_po.document_date',
+      // 'tb_master_items_groups.category'        => 'Category',
+      'tb_po_item.description',
+      'tb_po_item.part_number',
+      'tb_po_item.alternate_part_number',
+      'tb_po_item.poe_number',
+      'tb_po_item.purchase_request_number',
+      'tb_po.reference_quotation',
+      'tb_po.vendor',
+      'tb_po_item.quantity',
+      'tb_po_item.unit_price',
+      'tb_po_item.core_charge',
+      'tb_po_item.total_amount',
+      // '(tb_po_item.quantity - tb_po_item.left_received_quantity) AS quantity_received',
+      'tb_po_item.left_received_quantity',
+      // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid' => 'Paid Amount',
+      'tb_po.notes',
+      // 'tb_po.approved_by_hos'              => null,
+      // 'tb_po.approved_by_cof'              => null,
+      // 'tb_purchase_orders.id as poe_id'              => null,
+      // 'tb_purchase_order_items.id as poe_item_id'              => null
+    );
+  }
+
 
   private function searchIndexReport()
   {
@@ -1669,39 +1699,10 @@ class Purchase_Order_Model extends MY_Model
       } elseif ($status == 'approved') {
         $this->db->where('tb_po.review_status', strtoupper($status));
       } elseif ($status == 'review_approved') {
-        if (config_item('auth_role') == 'FINANCE MANAGER') {
-          $this->db->like('tb_po.review_status', 'WAITING FOR HOS');
-        }
-        if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-          $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
-        }
-        if (config_item('auth_role') == 'VP FINANCE') {
-          $this->db->like('tb_po.review_status', 'WAITING FOR COF');
-        }
-        if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-          $this->db->like('tb_po.review_status', 'APPROVED');
-        }
+        $this->db->where('tb_po.review_status', strtoupper('approved'));
+      }else{
+        $this->db->where('tb_po.status', strtoupper($status));
       }
-      // elseif($status=='all'){
-      //   $this->db->like('tb_po.review_status', 'WAITING');
-      // }
-    } else {
-      if (config_item('auth_role') == 'FINANCE MANAGER') {
-        $this->db->like('tb_po.review_status', 'WAITING FOR FINANCE');
-      }
-      if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-        $this->db->like('tb_po.review_status', 'WAITING FOR HOS');
-      }
-      if (config_item('auth_role') == 'VP FINANCE') {
-        $this->db->like('tb_po.review_status', 'WAITING FOR VP FINANCE');
-      }
-      if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-        $this->db->like('tb_po.review_status', 'WAITING FOR COF');
-      }
-      // $this->db->where_not_in('tb_po.review_status', ['REVISI']);
-      // else{
-      //   $this->db->where('tb_po.review_status','!=','REVISI');
-      // }
     }
     // else{
     //   $this->db->like('tb_po.review_status', 'WAITING');
@@ -1710,6 +1711,13 @@ class Purchase_Order_Model extends MY_Model
       $vendor = $_POST['columns'][1]['search']['value'];
       if ($vendor != 'all') {
         $this->db->where('tb_po.vendor', $vendor);
+      }
+    }
+
+    if (!empty($_POST['columns'][3]['search']['value'])) {
+      $category = $_POST['columns'][3]['search']['value'];
+      if ($category != 'all' && $category != null) {
+        $this->db->where('tb_master_item_groups.category', $category);
       }
     }
 
@@ -1742,8 +1750,11 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'LEFT');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
+    $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number','LEFT');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
     // $this->db->where('tb_po.review_status','!=','REVISI');
-    $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
+    $this->db->group_by($this->getGroupedColumnsReport());
 
     // if (config_item('auth_role') == 'FINANCE'){
     //   $this->db->where('tb_purchase_order_items.left_paid_amount > ', 0);
@@ -1777,13 +1788,16 @@ class Purchase_Order_Model extends MY_Model
 
   function countIndexFilteredReport()
   {
-    // $this->db->select(array_keys($this->getSelectedColumns()));
+    $this->db->select(array_keys($this->getSelectedColumnsReport()));
     $this->db->from('tb_po_item');
     $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    // $this->db->where('tb_po.status', 'approved');
-    $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'LEFT');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
+    // $this->db->where('tb_po.review_status','!=','REVISI');
+    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
+    $this->db->group_by($this->getGroupedColumnsReport());
 
     $this->searchIndexReport();
 
@@ -1794,13 +1808,16 @@ class Purchase_Order_Model extends MY_Model
 
   public function countIndexReport()
   {
-    // $this->db->select(array_keys($this->getSelectedColumns()));
+    $this->db->select(array_keys($this->getSelectedColumnsReport()));
     $this->db->from('tb_po_item');
     $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    // $this->db->where('tb_po.status', 'approved');
-    $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'LEFT');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
+    // $this->db->where('tb_po.review_status','!=','REVISI');
+    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
+    $this->db->group_by($this->getGroupedColumnsReport());
 
     $query = $this->db->get();
 
@@ -1823,6 +1840,54 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('due_date', $due_payment);
     $this->db->where('id', $id);
     $this->db->update('tb_po');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  public function close_wo()
+  {
+    $this->db->trans_begin();
+
+    $id = $this->input->post('id');
+    $notes = $this->input->post('notes');
+
+    $this->db->from('tb_po_item');
+    $this->db->where('purchase_order_id',$id);
+    $query_item = $this->db->get();
+
+    foreach ($query_item->result_array() as $key => $value) {
+      $order_qty = $value['quantity'];
+      $this->db->where('id', $value['id']);
+      $this->db->set('left_received_quantity', 'left_received_quantity -' . $order_qty, FALSE);
+      $this->db->set('quantity_received', 'quantity_received + ' . $order_qty, FALSE);
+      $this->db->update('tb_po_item');
+
+      //input jurnal expenses
+      
+    }
+    $left_qty_po = leftQtyPo($id);
+    $left_amount_po = leftAmountPo($id);
+    // $uang_muka = $row['uang_muka'];
+    if ($left_qty_po == 0) {
+      $this->db->where('id', $id);
+      $this->db->set('status', 'OPEN');
+      $this->db->update('tb_po');
+    }
+    if ($left_qty_po == 0 && $left_amount_po == 0) {
+      $this->db->where('id', $id);
+      $this->db->set('status', 'CLOSED');
+      $this->db->update('tb_po');
+    }
+
+    $this->db->set('po_id',$id);
+    $this->db->set('notes',$notes);
+    $this->db->set('closing_by',config_item('auth_person_name'));
+    $this->db->set('closing_date',date('Y-m-d'));
+    $this->db->insert('tb_work_orders_closures');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

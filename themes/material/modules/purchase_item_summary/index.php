@@ -1,6 +1,132 @@
 <?php include 'themes/material/template.php' ?>
 
 <?php startblock('content') ?>
+<style>
+    .float {
+        position: fixed;
+        width: 60px;
+        height: 60px;
+        bottom: 40px;
+        right: 40px;
+        border-radius: 50px;
+        text-align: center;
+        box-shadow: 2px 2px 3px #999;
+        z-index: 100000;
+    }
+
+    .my-float {
+        margin-top: 22px;
+    }
+
+    .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+        border-color: #ccc;
+        width: 100%;
+    }
+
+    .tg td {
+        font-family: "Arial", Helvetica, sans-serif !important;
+        font-size: 13px;
+        padding: 3px 3px;
+        border-style: solid;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: #000;
+        color: #333;
+        background-color: #fff;
+
+    }
+
+    .tg th {
+        font-family: "Arial", Helvetica, sans-serif !important;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 3px 3px;
+        border-style: solid;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: #000;
+        color: #333;
+        background-color: #f0f0f0;
+        text-align: center;
+    }
+
+    .tg .tg-3wr7 {
+        font-weight: bold;
+        font-size: 12px;
+        font-family: "Arial", Helvetica, sans-serif !important;
+        ;
+        text-align: center
+    }
+
+    .tg .tg-ti5e {
+        font-size: 10px;
+        font-family: "Arial", Helvetica, sans-serif !important;
+        ;
+        text-align: center
+    }
+
+    .tg .tg-rv4w {
+        font-size: 10px;
+        font-family: "Arial", Helvetica, sans-serif !important;
+    }
+
+    .box {
+        background-color: white;
+        width: auto;
+        height: auto;
+        border: 1px solid black;
+        padding: 5px;
+        margin: 2px;
+    }
+
+    .tt td {
+        font-family: Arial;
+        font-size: 12px;
+        padding: 3px 3px;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: #000;
+        color: #333;
+        background-color: #fff;
+    }
+
+    .tt th {
+        font-family: Arial;
+        font-size: 13px;
+        font-weight: bold;
+        padding: 3px 3px;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: #000;
+        color: #333;
+        background-color: #f0f0f0;
+    }
+
+    @media print {
+
+        html,
+        body {
+            display: block;
+            font-family: "Tahoma";
+            margin: 0px 0px 0px 0px;
+        }
+
+        /*@page {
+                size: Faktur Besar;
+                }*/
+        #footer {
+            position: fixed;
+            bottom: 0;
+        }
+
+    }
+</style>
 <section class="has-actions style-default">
     <div class="section-body">
 
@@ -38,7 +164,7 @@
                                                     <option value="all">All Items</option>
                                                     <?php foreach ($items as $key) {
                                                         ?>
-                                                        <option value="<?= $key->id ?>"><?= $key->part_number ?></option>
+                                                        <option value="<?= $key->id ?>"><?= $key->part_number ?> - <?= $key->description ?></option>
                                                     <?php
                                                     } ?>
                                                 </select>
@@ -78,7 +204,8 @@
                             <div class="row">
                                 <div class=" document-data table-responsive" id="view_data">
                                     <div class="col-xs-8 col-xs-offset-2">
-                                        <table class=" table table-hover" id="table-document" width="100%">
+                                        <h3 style="text-align:center;"><?= $page['title'] ?></h3>
+                                        <table class="tg" id="table-document" width="100%">
                                             <thead>
                                                 <tr>
                                                     <th width="50%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>

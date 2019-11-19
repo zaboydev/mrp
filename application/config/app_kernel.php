@@ -48,7 +48,6 @@ require('modules/purchase_order_evaluation.php');
 require('modules/purchase_order.php');
 require('modules/global_report.php');
 require('modules/purchase_order_report.php');
-require('modules/purchase_item_detail.php');
 require('modules/po_grn.php');
 require('modules/grn_payment.php');
 require('modules/report_budget_po.php');
@@ -84,6 +83,7 @@ require('modules/konsolidasi.php');
 
 require('modules/account_payable.php');
 require('modules/payment.php');
+require('modules/purchase_item_detail.php');
 require('modules/purchase_supplier_summary.php');
 require('modules/supplier_payment_history.php');
 require('modules/purchase_item_summary.php');

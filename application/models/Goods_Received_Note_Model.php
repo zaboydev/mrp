@@ -792,6 +792,7 @@ class Goods_Received_Note_Model extends MY_Model
       /**
        * INSERT INTO RECEIPT ITEMS
        */
+      $uang_muka = 0;
       if (!empty($data['purchase_order_item_id'])) {
         $this->db->from('tb_po_item');
         $this->db->where('tb_po_item.id', $data['purchase_order_item_id']);
@@ -807,6 +808,7 @@ class Goods_Received_Note_Model extends MY_Model
 
         $left_qty_po = leftQtyPo($row['purchase_order_id']);
         $left_amount_po = leftAmountPo($row['purchase_order_id']);
+        $uang_muka = $row['uang_muka'];
         if ($left_qty_po == 0) {
           $this->db->where('id', $row['purchase_order_id']);
           $this->db->set('status', 'OPEN');
@@ -1051,7 +1053,7 @@ class Goods_Received_Note_Model extends MY_Model
     $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'left');
     $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group', 'left');
-    $this->db->where('tb_master_item_groups.category', $category);
+    // $this->db->where('tb_master_item_groups.category', $category);
     $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'ADVANCE']);
     $this->db->where('tb_po_item.left_received_quantity > ', 0);
 

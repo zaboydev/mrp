@@ -198,7 +198,7 @@
     </select>
   </div>
 
-  <div class="form-group">
+  <div class="form-group hide">
     <label for="filter_item_group">Category</label>
     <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
       <option value="">
@@ -895,11 +895,12 @@
       var button = $(this);
       var form = $('.form-xhr-order');
       var action = button.attr('href');
+      var tipe = button.data('tipe');
       // $('#order-modal form').attr('action', button.data('href'));
       // $('#order-modal').show();
       button.attr('disabled', true);
 
-      if (confirm('Are you sure want to order this Purchase ? Continue?')) {
+      if (confirm('Are you sure want to '+tipe+' this Purchase ? Continue?')) {
         $.post(action, form.serialize()).done(function(data) {
           var obj = $.parseJSON(data);
           if (obj.type == 'danger') {
