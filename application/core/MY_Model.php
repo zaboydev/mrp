@@ -301,6 +301,22 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isItemGroupCoaExists($coa, $status = NULL, $code_exception = NULL)
+  {
+    $this->db->from(config_item('module')['group']['table']);
+    $this->db->where('coa', $coa);
+
+    if ($code_exception !== NULL)
+      $this->db->where('coa != ', $code_exception);
+
+    if ($status !== NULL)
+      $this->db->where('status', $status);
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? true : false;
+  }
+
   public function isItemUnitExists($unit, $status = NULL, $unit_exception = NULL)
   {
     $this->db->from(config_item('module')['item_unit']['table']);

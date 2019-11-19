@@ -128,4 +128,42 @@ if ( ! function_exists('order_last_number')) {
 
     return $return;
   }
+
+  if (!function_exists('tgl_kurs')) {
+    function tgl_kurs($date)
+    {
+
+      $CI = &get_instance();
+      $kurs_dollar = 0;
+      $tanggal = $date;
+
+      while ($kurs_dollar == 0) {
+        // $CI->db->select('kurs_dollar');
+        // $CI->db->from( 'tb_master_kurs_dollar' );
+        // $CI->db->where('date', $date);
+
+        // $query  = $CI->db->get();
+        // $row    = $query->unbuffered_row();
+        // $kurs_dollar   = $row->kurs_dollar;
+
+
+        $CI->db->select('kurs_dollar');
+        $CI->db->from('tb_master_kurs_dollar');
+        $CI->db->where('date', $tanggal);
+
+        $query = $CI->db->get();
+
+        if ($query->num_rows() > 0) {
+          $row    = $query->unbuffered_row();
+          $kurs_dollar   = $row->kurs_dollar;
+        } else {
+          $kurs_dollar = 0;
+        }
+        $tgl = strtotime('-1 day', strtotime($tanggal));
+        $tanggal = date('Y-m-d', $tgl);
+      }
+
+      return $kurs_dollar;
+    }
+  }
 }

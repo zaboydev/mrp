@@ -1855,9 +1855,29 @@ class Purchase_Order_Model extends MY_Model
     $id = $this->input->post('id');
     $notes = $this->input->post('notes');
 
+    $this->db->where('id', $id);
+    $query  = $this->db->get('tb_po');
+    $po    = $query->unbuffered_row('array');
+
+    $format = substr($po['document_number'], 0, 3);
+    $number = substr($po['document_number'], 3, 6);
+    $document_number = $number.'/'.$format.'/'.date('Y');
+
     $this->db->from('tb_po_item');
     $this->db->where('purchase_order_id',$id);
     $query_item = $this->db->get();
+
+    //insert tb_jurnal
+    $this->db->set('no_jurnal', $document_number);
+    $this->db->set('vendor', $po['vendor']);
+    $this->db->set('tanggal_jurnal', date('Y-m-d'));
+    $this->db->set('grn_no', $document_number);
+    $this->db->set('keterangan', "Purchase Work Orders from " . $po['vendor']);
+    $this->db->set('source', "INV-IN-WO");
+    $this->db->insert('tb_jurnal');
+    $id_jurnal = $this->db->insert_id();
+
+    $kurs = tgl_kurs(date('Y-m-d'));
 
     foreach ($query_item->result_array() as $key => $value) {
       $order_qty = $value['quantity'];
@@ -1867,6 +1887,55 @@ class Purchase_Order_Model extends MY_Model
       $this->db->update('tb_po_item');
 
       //input jurnal expenses
+      if ($po['default_currency'] == 'IDR') {
+        $id_master_akun = 1;
+        $harga = $value['unit_price'] + $value['core_charge'];
+        $harga_usd = $harga/$kurs;
+      } else {
+        $id_master_akun = 2;
+        $harga = ($value['unit_price'] + $value['core_charge'])*$kurs;
+        $harga_usd = $value['unit_price'] + $value['core_charge'];
+      }
+      $akun_payable = get_set_up_akun($id_master_akun);
+      $coa = $this->coaByGroup(strtoupper('expenses'));
+      $this->db->set('id_jurnal', $id_jurnal);
+      $this->db->set('jenis_transaksi', strtoupper('expenses'));
+      $this->db->set('trs_debet', ($harga) * floatval($order_qty));
+      $this->db->set('trs_kredit', 0);
+      $this->db->set('trs_debet_usd', $harga_usd * floatval($order_qty));
+      $this->db->set('trs_kredit_usd', 0);
+      $this->db->set('kode_rekening', $coa->coa);
+      $this->db->set('description', $value['description']);
+      $this->db->set('currency', $po['default_currency']);
+      $this->db->set('kode_rekening_lawan', $akun_payable->coa);
+      $this->db->insert('tb_jurnal_detail');
+
+      $this->db->set('id_jurnal', $id_jurnal);
+      $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
+      $this->db->set('trs_debet', 0);
+      $this->db->set('trs_kredit', $harga * floatval($order_qty));
+      $this->db->set('trs_debet_usd', 0);
+      $this->db->set('trs_kredit_usd', $harga_usd * floatval($order_qty));
+      $this->db->set('kode_rekening', $akun_payable->coa);
+      $this->db->set('description', $value['description']);
+      $this->db->set('currency', $po['default_currency']);
+      $this->db->set('kode_rekening_lawan', $coa->coa);
+      $this->db->insert('tb_jurnal_detail');
+
+      $this->db->set('document_no', $this->ap_last_number());
+      $this->db->set('tanggal', date("Y-m-d"));
+      $this->db->set('no_grn', $document_number);
+      $this->db->set('vendor', $po['vendor']);
+      $this->db->set('amount_idr', $harga * floatval($order_qty));
+      $this->db->set('amount_usd', $harga_usd * floatval($order_qty));
+      $this->db->set('payment', 0);
+      $this->db->set('no_po', $po['document_number']);
+      $this->db->set('id_po', $id);
+      $this->db->set('id_po_item', $value['id']);
+      $this->db->set('currency', $po['default_currency']);
+      $this->db->set('status', "waiting for payment");
+      // $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+      $this->db->insert('tb_hutang');
       
     }
     $left_qty_po = leftQtyPo($id);
@@ -1895,4 +1964,44 @@ class Purchase_Order_Model extends MY_Model
     $this->db->trans_commit();
     return TRUE;
   }
+
+  function checkAPNumber()
+  {
+    return $this->db->get('tb_hutang')->num_rows();
+  }
+
+  function ap_last_number()
+  {
+    $div  = config_item('document_format_divider');
+    $year = date('Y');
+
+    $format = $div . 'AP' . $year;
+    if ($this->checkAPNumber() == 0) {
+      $number = sprintf('%06s', 1);
+      $document_number = $number . $div . "AP" . $div . $year;
+    } else {
+      $format = $div . "AP" . $div . $year;
+      $this->db->select_max('document_no', 'last_number');
+      $this->db->from('tb_hutang');
+      $this->db->like('document_no', $format, 'before');
+      $query = $this->db->get('');
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $number = sprintf('%06s', $next);
+      $document_number = $number . $div . "AP" . $div . $year;
+    }
+    return $document_number;
+  }
+
+  function coaByGroup($group)
+  {
+    $this->db->select('coa');
+    $this->db->from('tb_master_item_groups');
+    $this->db->where('group', $group);
+    return $this->db->get()->row();
+  }
+
+  
 }

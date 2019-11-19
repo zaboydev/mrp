@@ -44,12 +44,12 @@
               </select>
               <label for="minimum_quantity">Code of Account</label>
             </div>
-            <div class="col-sm-6">
+            <!-- <div class="col-sm-6"> -->
               <div class="form-group">
                 <textarea name="description" id="description" class="form-control"><?= $entity['description']; ?></textarea>
                 <label for="description">Notes</label>
               </div>
-            </div>
+            <!-- </div> -->
           </div>
         </div>
       </div>

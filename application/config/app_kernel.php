@@ -24,8 +24,8 @@ $config['parent']['setting']['icon']   = 'md md-settings';
 $config['parent']['budget']['label']  = 'Planning';
 $config['parent']['budget']['icon']   = 'md md-attach-money';
 
-$config['parent']['accounting_report']['label']  = 'Accounting Report';
-$config['parent']['accounting_report']['icon']   = 'md md-account-balance-wallet';
+$config['parent']['accounting']['label']  = 'Accounting Report';
+$config['parent']['accounting']['icon']   = 'md md-account-balance-wallet';
 
 $config['parent']['finance']['label']  = 'Finance';
 $config['parent']['finance']['icon']   = 'md md-payment';
