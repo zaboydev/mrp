@@ -298,15 +298,47 @@ class Purchase_Request extends MY_Controller
         $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
         $col[] = print_person_name($row['created_by']);
         $col[] = print_string($row['notes']);
-        if($row['status']=="budgeted"){
-          if(config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
-            $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
-          }         
-        } else {
-          if (config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+        if ($row['status'] == 'waiting') {
+          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'CHIEF OF MAINTANCE') {
             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          }  
+          } else {
+            $col[] = '';
+          }
+        } elseif ($row['status'] == 'pending') {
+          // if(config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'SUPER ADMIN'){
+          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'FINANCE MANAGER') {
+            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          } else {
+            $col[] = '';
+          }
+        } elseif ($row['status'] == 'review operation support') {
+          // if(config_item('auth_role') == 'OPERATION SUPPORT' || config_item('auth_role') == 'SUPER ADMIN'){
+          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'OPERATION SUPPORT') {
+            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          } else {
+            $col[] = '';
+          }
+        } elseif ($row['status'] == 'open') {
+          // if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN') {
+          if (is_granted($this->module, 'closing') === TRUE) {
+            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          } else {
+            $col[] = '';
+          }
+        } else {
+          $col[] = '';
         }
+        
+        // if($row['status']=="budgeted"){
+        //   if(config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
+        //     $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
+        //   }         
+        // } else {
+        //   if (config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+        //     $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+        //   }  
+        // }
 
         if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER'){
           if(config_item('auth_role') == 'FINANCE MANAGER' && $row['status'] == 'pending'){
@@ -745,14 +777,14 @@ class Purchase_Request extends MY_Controller
   public function multi_closing()
   {
     $str_id_purchase_order = $this->input->post('id_purchase_order');
-    // $str_notes = $this->input->post('notes');
+    $str_notes = $this->input->post('notes');
     $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
     $id_purchase_order = substr($id_purchase_order, 0, -1);
-    // $notes = str_replace("|", "", $str_notes);
-    // $notes = substr($notes, 0, -3);
+    $notes = str_replace("|", "", $str_notes);
+    $notes = substr($notes, 0, -3);
     $id_purchase_order = explode(",", $id_purchase_order);
-    // $notes = explode("##,", $notes);
-    $result = $this->model->multi_closing($id_purchase_order);
+    $notes = explode("##,", $notes);
+    $result = $this->model->multi_closing($id_purchase_order,$notes);
     if ($result) {
       // $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'));
       $return["status"] = "success";

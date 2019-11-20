@@ -284,6 +284,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->insert('tb_jurnal_detail');
 		foreach ($item as $key) {
 			if ($key["value"] > 0) {
+				$id_po = $this->get_id_po($key["document_number"]);
+				$status = $this->get_status_po($id_po);
+
 				$this->db->set('purchase_order_item_id', $key["document_number"]);
 				$this->db->set('amount_paid', $key["value"]);
 				$this->db->set('created_by', config_item('auth_person_name'));
@@ -292,15 +295,20 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('no_transaksi', $no_jurnal);
 				$this->db->set('coa_kredit', $account);
 				$this->db->set('akun_kredit', $jenis);
+				if ($status == "ORDER") {
+					$this->db->set('uang_muka', $key["value"]);
+				}
+				if ($currency == 'USD') {
+					$this->db->set('kurs', $kurs);
+				}else{
+					$this->db->set('kurs', 1);
+				}
 				$this->db->insert('tb_purchase_order_items_payments');
 
 				$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["value"], false);
 				// $this->db->set('payment', '"payment" + ' . $key["value"], false);
 				$this->db->where('id', $key["document_number"]);
-				$this->db->update('tb_po_item');
-
-				$id_po = $this->get_id_po($key["document_number"]);
-				$status = $this->get_status_po($id_po);
+				$this->db->update('tb_po_item');				
 
 				$this->db->set('remaining_payment', '"remaining_payment" - ' . $key["value"], false);
 				$this->db->set('payment', '"payment" + ' . $key["value"], false);
