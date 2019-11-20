@@ -64,8 +64,11 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'FINANCE MANAGER') {
         $return['tb_inventory_purchase_requisitions.approved_notes']  = 'Note';
+      }
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
+        
         $return['tb_inventory_purchase_requisition_details.price']  = 'Price';
         $return['tb_inventory_purchase_requisition_details.total']  = 'Total';
       }
@@ -2128,7 +2131,7 @@ class Purchase_Request_Model extends MY_Model
     return TRUE;
   }
 
-  function multi_closing($id_purchase_order)
+  function multi_closing($id_purchase_order, $notes)
   {
     $this->db->trans_begin();
     $x = 0;
@@ -2146,6 +2149,7 @@ class Purchase_Request_Model extends MY_Model
 
 
       $this->db->set('closing_by', config_item('auth_person_name'));
+      $this->db->set('notes', $notes[$x]);
       $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
       $this->db->insert('tb_purchase_request_closures');
 

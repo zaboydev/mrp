@@ -710,7 +710,7 @@ class Material_Slip_Model extends MY_Model
             $this->db->insert('tb_jurnal_detail');
             $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
             $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', strtoupper($jenis_transaksi->group));
+            $this->db->set('jenis_transaksi', strtoupper($kode->group));
             $this->db->set('trs_debet', $x);
             $this->db->set('trs_kredit', 0);
             $this->db->set('trs_debet_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
@@ -819,7 +819,7 @@ class Material_Slip_Model extends MY_Model
 
             $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
             $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', strtoupper($jenis_transaksi->group));
+            $this->db->set('jenis_transaksi', strtoupper($kode->group));
             $this->db->set('trs_debet', $x);
             $this->db->set('trs_kredit', 0);
             $this->db->set('trs_debet_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
@@ -1220,9 +1220,11 @@ class Material_Slip_Model extends MY_Model
   }
   function codeByDescription($id)
   {
-    $this->db->select('kode_pemakaian');
+    $this->db->select('tb_master_items.kode_pemakaian');
+    $this->db->select('tb_master_coa.group');
     $this->db->from('tb_master_items');
     $this->db->join('tb_stocks', 'tb_stocks.item_id=tb_master_items.id');
+    $this->db->join('tb_master_coa', 'tb_master_coa.coa=tb_master_items.kode_pemakaian');
     $this->db->where('tb_stocks.id', $id);
 
     return $this->db->get()->row();

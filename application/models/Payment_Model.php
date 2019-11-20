@@ -175,9 +175,9 @@ class Payment_Model extends MY_MODEL
 	public function getAccount($currency)
 	{
 		$this->db->select('group,coa');
-		$this->db->from('tb_master_item_groups');
+		$this->db->from('tb_master_coa');
 		$this->db->like('group', $currency);
-		$this->db->where('category', "BANK");
+		$this->db->where('category', "Bank");
 		return $this->db->get('')->result();
 	}
 
@@ -284,6 +284,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->insert('tb_jurnal_detail');
 		foreach ($item as $key) {
 			if ($key["value"] > 0) {
+				$id_po = $this->get_id_po($key["document_number"]);
+				$status = $this->get_status_po($id_po);
+
 				$this->db->set('purchase_order_item_id', $key["document_number"]);
 				$this->db->set('amount_paid', $key["value"]);
 				$this->db->set('created_by', config_item('auth_person_name'));
@@ -292,15 +295,20 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('no_transaksi', $no_jurnal);
 				$this->db->set('coa_kredit', $account);
 				$this->db->set('akun_kredit', $jenis);
+				if ($status == "ORDER") {
+					$this->db->set('uang_muka', $key["value"]);
+				}
+				if ($currency == 'USD') {
+					$this->db->set('kurs', $kurs);
+				}else{
+					$this->db->set('kurs', 1);
+				}
 				$this->db->insert('tb_purchase_order_items_payments');
 
 				$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["value"], false);
 				// $this->db->set('payment', '"payment" + ' . $key["value"], false);
 				$this->db->where('id', $key["document_number"]);
-				$this->db->update('tb_po_item');
-
-				$id_po = $this->get_id_po($key["document_number"]);
-				$status = $this->get_status_po($id_po);
+				$this->db->update('tb_po_item');				
 
 				$this->db->set('remaining_payment', '"remaining_payment" - ' . $key["value"], false);
 				$this->db->set('payment', '"payment" + ' . $key["value"], false);
@@ -308,21 +316,32 @@ class Payment_Model extends MY_MODEL
 				$this->db->update('tb_po');
 
 				if ($status == "ORDER") {
+					if($currency=='IDR'){						
+						$id_master_akun = 3;
+					}else{
+						$id_master_akun = 4;
+					}
 					$jenis_transaksi = 'Down Payment Inventories ' . $currency;
 					$this->db->set('uang_muka', '"uang_muka" + ' . $key["value"], false);
 					$this->db->where('id', $key["document_number"]);
 					$this->db->update('tb_po_item');
 				} else {
+					if ($currency == 'IDR') {
+						$id_master_akun = 1;
+					} else {
+						$id_master_akun = 2;
+					}
 					$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
 				}
+				$akun = get_set_up_akun($id_master_akun);
 
 				$this->db->set('id_jurnal', $id_jurnal);
-				$this->db->set('jenis_transaksi', $jenis_transaksi);
+				$this->db->set('jenis_transaksi', strtoupper($akun->group));
 				$this->db->set('trs_kredit', 0);
 				$this->db->set('trs_debet', $amount_idr);
 				$this->db->set('trs_kredit_usd', 0);
 				$this->db->set('trs_debet_usd', $amount_usd);
-				$this->db->set('kode_rekening', "2-1101");
+				$this->db->set('kode_rekening', $akun->coa);
 				$this->db->set('currency', $currency);
 				$this->db->insert('tb_jurnal_detail');
 

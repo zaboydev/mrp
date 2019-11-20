@@ -36,7 +36,7 @@
             <div class="form-group">
               <select name="group_id" id="group_id" class="form-control" required>
                 <option value="">Select Code of Account</option>
-                <?php foreach (available_item_groups_2() as $group) : ?>
+                <?php foreach (master_coa() as $group) : ?>
                   <option value="<?= $group['id']; ?>" data-coa="<?= $group['coa']; ?>" data-group="<?= $group['group']; ?>" <?= ($group['id'] == $entity['group_id']) ? 'selected' : ''; ?>>
                     <?= $group['coa']; ?> - <?= $group['group']; ?>
                   </option>
