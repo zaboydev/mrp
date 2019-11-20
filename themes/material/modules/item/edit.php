@@ -69,7 +69,7 @@
             <div class="form-group">
               <select name="kode_pemakaian" id="kode_pemakaian" class="form-control" required>
                 <option value="">Pilih Kode Pemakaian</option>
-                <?php foreach (available_item_groups_2() as $group) : ?>
+                <?php foreach (master_coa() as $group) : ?>
                   <option value="<?= $group['coa']; ?>" <?= ($group['coa'] == $entity['kode_pemakaian']) ? 'selected' : ''; ?>>
                     <?= $group['coa']; ?> - <?= $group['group']; ?>
                   </option>

@@ -559,6 +559,47 @@ if ( ! function_exists('getLastUnitValue')) {
     }
   }
 
+  if (!function_exists('uangMuka')) {
+    function uangMuka($po_item_id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->from('tb_purchase_order_items_payments');
+      $CI->db->where('purchase_order_item_id', $po_item_id);
+      $CI->db->where('uang_muka > 0');
+
+      $num_rows = $CI->db->count_all_results();
+
+      return ($num_rows > 0) ? TRUE : FALSE;
+    }
+  }
+
+  if (!function_exists('sumJurnal')) {
+    function sumJurnal($id_jurnal, $tipe)
+    {
+      $CI = &get_instance();
+      if($tipe=='kredit'){
+        $CI->db->select('trs_kredit as value');
+      }else{
+        $CI->db->select('trs_debet as value');
+      }
+      
+      $CI->db->from('tb_jurnal_detail');
+      $CI->db->where('id_jurnal', $id_jurnal);
+      // $CI->db->where('stores', strtoupper($stores));
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = 0;
+
+      foreach ($result as $row) {
+        $return = $return + $row['value'];
+      }
+
+      return $return;
+    }
+  }
+
 }
 
 

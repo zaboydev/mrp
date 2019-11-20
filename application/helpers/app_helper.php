@@ -1122,6 +1122,29 @@ if ( ! function_exists('month')) {
       return $row;
     }
   }
+
+  if (!function_exists('master_coa')) {
+    function master_coa()
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('tb_master_coa.group');
+      $CI->db->select('tb_master_coa.coa');
+      $CI->db->select('tb_master_coa.id');
+      $CI->db->from('tb_master_coa');
+      $CI->db->where('UPPER(tb_master_coa.status)', 'AVAILABLE');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      // $return = array();
+
+      // foreach ($result as $row) {
+      //   $return[] = $row['group'];
+      // }
+
+      return $result;
+    }
+  }
 }
 
     

@@ -871,17 +871,24 @@ class Goods_Received_Note_Model extends MY_Model
       // $this->db->set('group', strtoupper($data['group']));
       // $this->db->set('doc_type', 3);     
       $this->db->insert('tb_receipt_items');
+
       if ($currency == 'IDR') {
         $id_master_akun = 1;
+        $id_master_akun_uang_muka = 3;
+        $amount     = $harga * floatval($data['received_quantity']);
         // $kode = "2-101";
         // $x_total = $harga*floatval($data['received_quantity']);
       } else {
         $id_master_akun = 2;
+        $id_master_akun_uang_muka = 4;
+        $amount     = $harga_usd * floatval($data['received_quantity']);
         // $kode = "2-1102";
         // $x_total = $harga_usd*floatval($data['received_quantity']);
       }
 
       $akun_payable = get_set_up_akun($id_master_akun);
+      $akun_uang_muka = get_set_up_akun($id_master_akun_uang_muka);
+      $akun_exchange = get_set_up_akun(5);
       $coa = $this->coaByGroup(strtoupper($data['group']));
       $this->db->set('id_jurnal', $id_jurnal);
       $this->db->set('jenis_transaksi', $data['group']);
@@ -895,17 +902,136 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('kode_rekening_lawan', $akun_payable->coa);
       $this->db->insert('tb_jurnal_detail');
 
-      $this->db->set('id_jurnal', $id_jurnal);
-      $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
-      $this->db->set('trs_debet', 0);
-      $this->db->set('trs_kredit', $harga * floatval($data['received_quantity']));
-      $this->db->set('trs_debet_usd', 0);
-      $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
-      $this->db->set('kode_rekening', $akun_payable->coa);
-      $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-      $this->db->set('currency', $currency);
-      $this->db->set('kode_rekening_lawan', $coa->coa);
-      $this->db->insert('tb_jurnal_detail');
+      if (!empty($data['purchase_order_item_id'])) {
+        if(uangMuka($data['purchase_order_item_id'])){
+          $this->db->from('tb_purchase_order_items_payments');
+          $this->db->where('purchase_order_item_id', $data['purchase_order_item_id']);
+          $this->db->where('uang_muka > 0');
+          $this->db->order_by('id','asc');
+          $query        = $this->db->get();
+          $data_uang_muka        = $query->result_array();
+          foreach ($data_uang_muka as $uang_muka) {
+            if($amount>0){
+              if($amount > $uang_muka['uang_muka']){
+                $amount = $amount-$uang_muka['uang_muka'];
+                $this->db->set('id_jurnal', $id_jurnal);
+                $this->db->set('jenis_transaksi', strtoupper($akun_uang_muka->group));
+                if ($currency == 'IDR') {
+                  $this->db->set('trs_kredit', floatval($uang_muka['uang_muka']));
+                  $this->db->set('trs_kredit_usd', floatval($uang_muka['uang_muka'] / $uang_muka['kurs']));
+                }else{
+                  $this->db->set('trs_kredit', floatval($uang_muka['uang_muka'] * $uang_muka['kurs']));
+                  $this->db->set('trs_kredit_usd', floatval($uang_muka['uang_muka']));
+                }
+                $this->db->set('trs_debet', 0);
+                $this->db->set('trs_debet_usd', 0);
+                $this->db->set('kode_rekening', $akun_uang_muka->coa);
+                $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+                $this->db->set('currency', $currency);
+                $this->db->set('kode_rekening_lawan', $coa->coa);
+                $this->db->insert('tb_jurnal_detail');
+
+                $this->db->where('id', $uang_muka['id']);
+                $this->db->set('uang_muka', 'uang_muka -' . $uang_muka['uang_muka'], FALSE);
+                $this->db->update('tb_purchase_order_items_payments');
+
+
+              }else{
+                $this->db->set('id_jurnal', $id_jurnal);
+                $this->db->set('jenis_transaksi', strtoupper($akun_uang_muka->group));
+                if ($currency == 'IDR') {
+                  $this->db->set('trs_kredit', floatval($amount));
+                  $this->db->set('trs_kredit_usd', floatval($amount / $uang_muka['kurs']));
+                } else {
+                  $this->db->set('trs_kredit', floatval($amount * $uang_muka['kurs']));
+                  $this->db->set('trs_kredit_usd', floatval($amount));
+                }
+                $this->db->set('trs_debet', 0);
+                $this->db->set('trs_debet_usd', 0);
+                $this->db->set('kode_rekening', $akun_uang_muka->coa);
+                $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+                $this->db->set('currency', $currency);
+                $this->db->set('kode_rekening_lawan', $coa->coa);
+                $this->db->insert('tb_jurnal_detail');
+                $amount = 0;
+
+                $this->db->where('id', $uang_muka['id']);
+                $this->db->set('uang_muka', 'uang_muka -' . $amount, FALSE);
+                $this->db->update('tb_purchase_order_items_payments');
+              }
+            }
+          }
+          if ($amount > 0) {
+            $this->db->set('id_jurnal', $id_jurnal);
+            $this->db->set('jenis_transaksi', strtoupper($akun_uang_muka->group));
+            if ($currency == 'IDR') {
+              $this->db->set('trs_kredit', floatval($amount));
+              $this->db->set('trs_kredit_usd', floatval($amount / $kurs));
+            } else {
+              $this->db->set('trs_kredit', floatval($amount * $kurs));
+              $this->db->set('trs_kredit_usd', floatval($amount));
+            }
+            $this->db->set('trs_debet', 0);
+            $this->db->set('trs_debet_usd', 0);
+            $this->db->set('kode_rekening', $akun_uang_muka->coa);
+            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+            $this->db->set('currency', $currency);
+            $this->db->set('kode_rekening_lawan', $coa->coa);
+            $this->db->insert('tb_jurnal_detail');
+          }
+        }else{
+          // $amount = 0;
+          $this->db->set('id_jurnal', $id_jurnal);
+          $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
+          $this->db->set('trs_debet', 0);
+          $this->db->set('trs_kredit', $harga * floatval($data['received_quantity']));
+          $this->db->set('trs_debet_usd', 0);
+          $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
+          $this->db->set('kode_rekening', $akun_payable->coa);
+          $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+          $this->db->set('currency', $currency);
+          $this->db->set('kode_rekening_lawan', $coa->coa);
+          $this->db->insert('tb_jurnal_detail');
+        }
+      }else{
+        // $amount = 0;
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
+        $this->db->set('trs_debet', 0);
+        $this->db->set('trs_kredit', $harga * floatval($data['received_quantity']));
+        $this->db->set('trs_debet_usd', 0);
+        $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
+        $this->db->set('kode_rekening', $akun_payable->coa);
+        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+        $this->db->set('currency', $currency);
+        $this->db->set('kode_rekening_lawan', $coa->coa);
+        $this->db->insert('tb_jurnal_detail');
+      }
+
+      $debet = sumJurnal($id_jurnal,'debet');
+      $kredit = sumJurnal($id_jurnal, 'kredit');
+      $selisih = $debet-$kredit;
+
+      if($selisih!=0){
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', strtoupper($akun_exchange->group));
+        if ($selisih > 0) {
+          $this->db->set('trs_debet', 0);
+          $this->db->set('trs_debet_usd', 0);
+          $this->db->set('trs_kredit', $selisih);
+          $this->db->set('trs_kredit_usd', 0);
+        } else {
+          $this->db->set('trs_debet', floatval($selisih*-1));
+          $this->db->set('trs_debet_usd', 0);
+          $this->db->set('trs_kredit', 0);
+          $this->db->set('trs_kredit_usd', 0);
+        }
+        $this->db->set('kode_rekening', $akun_exchange->coa);
+        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+        $this->db->set('currency', $currency);
+        $this->db->set('kode_rekening_lawan', $coa->coa);
+        $this->db->insert('tb_jurnal_detail');
+      }          
 
       $this->db->set('document_no', $this->ap_last_number());
       $this->db->set('tanggal', date("Y-m-d"));
@@ -1044,19 +1170,30 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_po.document_number',
       'tb_po.default_currency',
       'tb_po.exchange_rate',
-      'tb_master_items.group',
-      'tb_master_items.kode_stok',
-      'tb_master_items.unit as unit_pakai',
+      // 'tb_master_items.group',
+      // 'tb_master_items.kode_stok',
+      'tb_po_item.unit as unit_pakai',
     );
 
     $this->db->select($this->column_select);
     $this->db->from('tb_po_item');
     $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
-    $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'left');
-    $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group', 'left');
+    // $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'left');
+    // $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group', 'left');
     // $this->db->where('tb_master_item_groups.category', $category);
     $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'ADVANCE']);
     $this->db->where('tb_po_item.left_received_quantity > ', 0);
+    // $this->db->group_by(array(
+    //   'tb_po_item.id',
+    //   'tb_po_item.id',
+    //   'tb_po.vendor',
+    //   'tb_po.document_number',
+    //   'tb_po.default_currency',
+    //   'tb_po.exchange_rate',
+    //   'tb_master_items.group',
+    //   'tb_master_items.kode_stok',
+    //   'tb_master_items.unit',
+    // ));
 
     if ($vendor !== NULL || !empty($vendor)) {
       $this->db->where('tb_po.vendor', $vendor);
