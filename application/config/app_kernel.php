@@ -37,6 +37,19 @@ $config['module'] = array();
 
 
 
+//MASTER DATA
+require('modules/master_akun.php');
+require('modules/item.php');
+require('modules/item_category.php');
+require('modules/item_group.php');
+require('modules/item_serial.php');
+require('modules/item_unit.php');
+require('modules/stores.php');
+require('modules/user.php');
+require('modules/vendor.php');
+require('modules/warehouse.php');
+require('modules/kurs.php');
+require('modules/pesawat.php');
 
 //PLANNING
 require('modules/budget_cot.php');
@@ -94,19 +107,7 @@ require('modules/payable_reconciliation_summary.php');
 // require('modules/doc_return.php');
 // require('modules/doc_shipment.php');
 // require('modules/item_application.php');
-//MASTER DATA
-require('modules/master_akun.php');
-require('modules/item.php');
-require('modules/item_category.php');
-require('modules/item_group.php');
-require('modules/item_serial.php');
-require('modules/item_unit.php');
-require('modules/stores.php');
-require('modules/user.php');
-require('modules/vendor.php');
-require('modules/warehouse.php');
-require('modules/kurs.php');
-require('modules/pesawat.php');
+
 
 require('modules/jurnal.php');
 require('modules/usage_jurnal.php');
