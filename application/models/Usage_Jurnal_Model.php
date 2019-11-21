@@ -491,7 +491,7 @@ class Usage_Jurnal_Model extends MY_MODEL
   function groupByKode($id)
   {
     $this->db->select('group');
-    $this->db->from('tb_master_item_groups');
+    $this->db->from('tb_master_coa');
     $this->db->where('coa', $id);
     return $this->db->get()->row();
   }

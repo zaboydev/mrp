@@ -1133,6 +1133,7 @@ if ( ! function_exists('month')) {
       $CI->db->select('tb_master_coa.id');
       $CI->db->from('tb_master_coa');
       $CI->db->where('UPPER(tb_master_coa.status)', 'AVAILABLE');
+      $CI->db->order_by('tb_master_coa.coa','asc');
 
       $query  = $CI->db->get();
       $result = $query->result_array();

@@ -392,13 +392,13 @@ class Payment_Model extends MY_MODEL
 		$div  = config_item('document_format_divider');
 		$year = date('Y');
 
-		$format = $div . 'JRL' . $year;
+		$format = $div . 'BPV' . $year;
 		if ($this->checkJurnalNumber() == 0) {
 			$number = sprintf('%06s', 1);
-			$document_number = $number . $div . "JRL" . $div . $year;
+			$document_number = $number . $div . "BPV" . $div . $year;
 		} else {
 
-			$format = $div . "JRL" . $div . $year;
+			$format = $div . "BPV" . $div . $year;
 			$this->db->select_max('no_jurnal', 'last_number');
 			$this->db->from('tb_jurnal');
 			$this->db->like('no_jurnal', $format, 'before');
@@ -408,7 +408,7 @@ class Payment_Model extends MY_MODEL
 			$number = substr($last, 0, 6);
 			$next   = $number + 1;
 			$number = sprintf('%06s', $next);
-			$document_number = $number . $div . "JRL" . $div . $year;
+			$document_number = $number . $div . "BPV" . $div . $year;
 		}
 		return $document_number;
 	}

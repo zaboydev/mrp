@@ -207,14 +207,22 @@
                                     <table class="tg" id="table-document" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">ID</th>
-                                                <th width="10%" class="middle-alignment" style="text-align:center">Date</th>
-                                                <th width="10%" class="middle-alignment" style="text-align:center">Currency</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Purchase Amount</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Tax</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Currenct Balance</th>
-                                                <th width="10%" class="middle-alignment" style="text-align:center">Status</th>
-                                                <th width="10%" class="middle-alignment" style="text-align:center">Due Date</th>
+                                                <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">ID</th>
+                                                <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">Date</th>
+                                                <th rowspan="2" width="5%" class="middle-alignment" style="text-align:center">Currency</th>
+                                                <th colspan="2" width="20%" class="middle-alignment" style="text-align:center">Purchase Amount</th>
+                                                <th colspan="2" width="20%" class="middle-alignment" style="text-align:center">Tax</th>
+                                                <th colspan="2" width="20%" class="middle-alignment" style="text-align:center">Currenct Balance</th>
+                                                <th rowspan="2" width="5%" class="middle-alignment" style="text-align:center">Status</th>
+                                                <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">Due Date</th>
+                                            </tr>
+                                            <tr>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">USD</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">IDR</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">USD</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">IDR</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">USD</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">IDR</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listView">

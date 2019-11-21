@@ -150,15 +150,15 @@
                         </div>
                         <div class="col-xs-12">
                             <div class="row">
-                                <div class="col-xs-9">
+                                <div class="col-xs-10">
                                     <div class="row">
-                                        <div class="col-xs-4">
+                                        <div class="col-xs-3">
                                             <div class="form-group">
                                                 <input class="form-control input-sm filter_daterange" data-column="2" id="date">
                                                 <label for="currency">Date</label>
                                             </div>
                                         </div>
-                                        <div class="col-xs-4">
+                                        <div class="col-xs-3">
                                             <div class="form-group">
                                                 <select id="items_select" class="form-control">
                                                     <option value="all">All Items</option>
@@ -171,7 +171,20 @@
                                                 <label for="currency">Items</label>
                                             </div>
                                         </div>
-                                        <div class="col-xs-4 hide">
+                                        <div class="col-xs-3">
+                                            <div class="form-group">
+                                                <select id="supplier_select" class="form-control">
+                                                    <option value="all">All Suplier</option>
+                                                    <?php foreach ($suplier as $key) {
+                                                        ?>
+                                                        <option value="<?= $key->id ?>"><?= $key->id ?> - <?= $key->vendor ?></option>
+                                                    <?php
+                                                    } ?>
+                                                </select>
+                                                <label for="currency">Supplier</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
                                             <div class="form-group">
                                                 <select id="currency_select" class="form-control">
                                                     <option value="all">All Currency</option>
@@ -183,14 +196,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-xs-2">
                                     <div class="row">
-                                        <div class="col-xs-3">
+                                        <div class="col-xs-6">
                                             <div class="form-group">
                                                 <button type="button" class="btn btn-sm btn-danger btn-block btn-print-report" data-tipe="print">Print</button>
                                             </div>
                                         </div>
-                                        <div class="col-xs-3">
+                                        <div class="col-xs-6">
                                             <div class="form-group">
                                                 <button type="button" class="btn btn-sm btn-info btn-block btn-print-report" data-tipe="excel">Excel</button>
                                             </div>
@@ -208,9 +221,14 @@
                                         <table class="tg" id="table-document" width="100%">
                                             <thead>
                                                 <tr>
-                                                    <th width="50%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>
-                                                    <th width="25%" class="middle-alignment" style="text-align:center">Quantity</th>
-                                                    <th width="25%" class="middle-alignment" style="text-align:center">Amount</th>
+                                                    <th rowspan="2" width="40%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>
+                                                    <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">Quantity</th>
+                                                    <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">Unit</th>
+                                                    <th colspan="2" width="40%" class="middle-alignment" style="text-align:center">Amount</th>
+                                                </tr>
+                                                <tr>
+                                                    <th width="20%" class="middle-alignment">USD</th>
+                                                    <th width="20%" class="middle-alignment">IDR</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="listView">
@@ -394,6 +412,7 @@
         items = $("#items_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
+        supplier = $("#supplier_select").val();
         $("#total_general").html(0);
         $("#amount").val(0);
         // row_num = 0;
@@ -408,6 +427,7 @@
         items = $("#items_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
+        supplier = $("#supplier_select").val();
         $("#total_general").html(0);
         $("#amount").val(0);
         // row_num = 0;
@@ -421,39 +441,10 @@
     $('#currency_select').change(function() {
         currency = $(this).val();
 
-        // var akun_view = $('#account_select');
-        // var supplier_view = $('#suplier_select');
-        // akun_view.html('');
-        // supplier_view.html('');
-        // $.ajax({
-        //     type: "POST",
-        //     url: '<?= base_url() . "payment/get_akun" ?>',
-        //     data: {
-        //         'currency': currency
-        //     },
-        //     cache: false,
-        //     success: function(response) {
-        //         var data = jQuery.parseJSON(response);
-        //         akun_view.html(data);
-        //     }
-        // });
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: '<?= base_url() . "payment/get_supplier" ?>',
-        //     data: {
-        //         'currency': currency
-        //     },
-        //     cache: false,
-        //     success: function(response) {
-        //         var data = jQuery.parseJSON(response);
-        //         supplier_view.html(data);
-        //     }
-        // });
-
         items = $("#items_select").val();
         // currency = $("#currency_select").val();
         date = $("#date").val();
+        supplier = $("#supplier_select").val();
         $("#total_general").html(0);
         $("#amount").val(0);
         // row_num = 0;
@@ -470,6 +461,7 @@
         items = $("#items_select").val();
         currency = $("#currency_select").val();
         date = $("#date").val();
+        supplier = $("#supplier_select").val();
         $("#total_general").html(0);
         $("#amount").val(0);
         // row_num = 0;
@@ -483,22 +475,28 @@
     });
 
     $("#tipe_select").change(function(e) {
-        // if (suplier != "") {
-        //   if (confirm("If you change suplier the items will be reset")) {
-        //     suplier = $("#suplier_select").val()
-        //     currency = $("#currency_select").val()
-        //     getPo()
-        //     row_num = 0;
-        //     $("#listView").html("");
-        //     row = []
-        //   } else {
-        //     $("#suplier_select").val(suplier)
-        //   }
-        // } else {
-        // changeTotal();
+
         items = $("#items_select").val();
         currency = $("#currency_select").val();
         tipe = $("#tipe_select").val();
+        supplier = $("#supplier_select").val();
+        $("#total_general").html(0);
+        $("#amount").val(0);
+        // row_num = 0;
+        $("#listView").html("");
+        row = [];
+        row_detail = [];
+
+        getPo()
+
+        // }
+    });
+    $("#supplier_select").change(function(e) {
+
+        items = $("#items_select").val();
+        currency = $("#currency_select").val();
+        tipe = $("#tipe_select").val();
+        supplier = $("#supplier_select").val();
         $("#total_general").html(0);
         $("#amount").val(0);
         // row_num = 0;
@@ -516,6 +514,7 @@
         currency = $("#currency_select").val();
         date = $("#date").val();
         tipe = $(this).data('tipe');
+        supplier = $("#supplier_select").val();
 
         get_po_for_print()
     });
@@ -533,7 +532,8 @@
             data: {
                 'currency': currency,
                 'items': items,
-                'date': date
+                'date': date,
+                'vendor': supplier
             },
             cache: false,
             success: function(response) {

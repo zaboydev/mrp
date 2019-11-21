@@ -58,6 +58,14 @@ class Purchase_Supplier_Summary extends MY_Controller
         } else {
             $vendor_name    = $vendor;
         }
+        $periode = 'All Periode';
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
+            $periode = print_date($start_date) . ' s/d ' . print_date($end_date);
+        }
+        $this->data['periode']            = $periode;
         $items = $this->model->getPurchaseSummary($vendor_name, $currency, $date);
         $this->data['items'] = $items;
         $this->data['tipe'] = $tipe;

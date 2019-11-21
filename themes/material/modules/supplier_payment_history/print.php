@@ -168,7 +168,9 @@ if ($tipe == 'excel') {
                         </td>
                     </tr>
                     <tr>
-                        <td></td>
+                        <td>
+                            <h4><?= $periode; ?></h4>
+                        </td>
                     </tr>
                 </table>
                 <hr>
@@ -177,12 +179,18 @@ if ($tipe == 'excel') {
                     <table class="tg" width="100%">
                         <thead>
                             <tr>
-                                <th width="15%" class="middle-alignment" style="text-align:center">Cheque #</th>
-                                <th width="15%" class="middle-alignment" style="text-align:center">Chq Date</th>
-                                <th width="15%" class="middle-alignment" style="text-align:center">PO #</th>
-                                <th width="15%" class="middle-alignment" style="text-align:center">Date</th>
-                                <th width="15%" class="middle-alignment" style="text-align:center">Purchase Total Amount</th>
-                                <th width="15%" class="middle-alignment" style="text-align:center">Amount Applied</th>
+                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">Cheque #</th>
+                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">Chq Date</th>
+                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">PO #</th>
+                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">Date</th>
+                                <th colspan="2" width="20%" class="middle-alignment" style="text-align:center">Purchase Total Amount</th>
+                                <th colspan="2" width="20%" class="middle-alignment" style="text-align:center">Amount Applied</th>
+                            </tr>
+                            <tr>
+                                <th width="10%" class="middle-alignment" style="text-align:center">USD</th>
+                                <th width="10%" class="middle-alignment" style="text-align:center">IDR</th>
+                                <th width="10%" class="middle-alignment" style="text-align:center">USD</th>
+                                <th width="10%" class="middle-alignment" style="text-align:center">IDR</th>
                             </tr>
                         </thead>
                         <tbody id="listView">
@@ -190,20 +198,16 @@ if ($tipe == 'excel') {
                             <?php foreach ($items as $i => $detail) : ?>
                                 <?php $n++; ?>
                                 <?php
-                                    $total_remaining = array();
-                                    $total_amount = array();
+                                    $total_amount_idr = array();
+                                    $total_amount_usd = array();
                                     ?>
                                 <?php if ($detail['po']['po_count'] > 0) : ?>
                                     <tr>
-                                        <td align="left">
+                                        <td style="font-weight:bolder" align="left" colspan="8">
                                             <?= print_string($detail['vendor']); ?>
                                         </td>
                                     </tr>
                                     <?php foreach ($detail['po']['po_detail'] as $i => $info) : ?>
-                                        <?php
-                                                    $total_remaining_detail = array();
-                                                    $total_amount_detail = array();
-                                                    ?>
                                         <tr>
                                             <td>
                                                 &nbsp;&nbsp;&nbsp;&nbsp;<?= print_string($info['no_cheque']); ?>
@@ -218,30 +222,32 @@ if ($tipe == 'excel') {
                                                 <?= print_date($info['document_date']); ?>
                                             </td>
                                             <td>
-                                                <?= print_number($info['grand_total'], 2); ?>
+                                                <?= $info['default_currency'] == 'USD' ? print_number($info['grand_total'], 2) : print_number(0, 2); ?>
                                             </td>
                                             <td>
-                                                <?= print_number($info['amount_paid'], 2); ?>
+                                                <?= $info['default_currency'] == 'IDR' ? print_number($info['grand_total'], 2) : print_number(0, 2); ?>
                                             </td>
-
+                                            <td>
+                                                <?= $info['default_currency'] == 'USD' ? print_number($info['amount_paid'], 2) : print_number(0, 2); ?>
+                                            </td>
+                                            <td>
+                                                <?= $info['default_currency'] == 'IDR' ? print_number($info['amount_paid'], 2) : print_number(0, 2); ?>
+                                            </td>
                                         </tr>
                                         <?php
-                                                    // $total_remaining[] = $info['remaining_payment'];
-                                                    $total_amount[] = $info['amount_paid'];
-                                                    // $total_remaining_detail[] = $info['remaining_payment'];
-                                                    // $total_amount_detail[] = $info['grand_total'];
+                                                    if ($info['default_currency'] == 'USD') {
+                                                        $total_amount_usd[] = $info['amount_paid'];
+                                                    } else {
+                                                        $total_amount_idr[] = $info['amount_paid'];
+                                                    }
                                                     ?>
                                     <?php endforeach; ?>
                                     <tr>
-                                        <td colspan="5" align="right" style="font-weight:bolder">Total Payment</td>
-                                        <!-- <td style="font-weight:bolder"></td>
-            <td style="font-weight:bolder">&nbsp;</td> -->
-                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_amount), 2); ?></td>
-                                        <!-- <td colspan="2"></td> -->
+                                        <td colspan="6" align="right" style="font-weight:bolder">Total Payment</td>
+                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_amount_usd), 2); ?></td>
+                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_amount_idr), 2); ?></td>
                                     </tr>
                                 <?php endif; ?>
-
-
                             <?php endforeach; ?>
                         </tbody>
 

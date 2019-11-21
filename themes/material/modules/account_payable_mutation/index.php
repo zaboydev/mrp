@@ -150,7 +150,7 @@
                         </div>
                         <div class="col-xs-12">
                             <div class="row">
-                                <div class="col-xs-9">
+                                <div class="col-xs-10">
                                     <div class="row">
                                         <div class="col-xs-4">
                                             <div class="form-group">
@@ -171,7 +171,7 @@
                                                 <label for="currency">Supplier</label>
                                             </div>
                                         </div>
-                                        <div class="col-xs-4">
+                                        <div class="col-xs-4 hide">
                                             <div class="form-group">
                                                 <select id="currency_select" class="form-control">
                                                     <option value="all">All Currency</option>
@@ -183,14 +183,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-xs-2">
                                     <div class="row">
-                                        <div class="col-xs-3">
+                                        <div class="col-xs-6">
                                             <div class="form-group">
                                                 <button type="button" class="btn btn-sm btn-danger btn-block btn-print-report" data-tipe="print">Print</button>
                                             </div>
                                         </div>
-                                        <div class="col-xs-3">
+                                        <div class="col-xs-6">
                                             <div class="form-group">
                                                 <button type="button" class="btn btn-sm btn-info btn-block btn-print-report" data-tipe="excel">Excel</button>
                                             </div>
