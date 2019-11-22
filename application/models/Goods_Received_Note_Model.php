@@ -409,6 +409,21 @@ class Goods_Received_Note_Model extends MY_Model
           $this->db->update('tb_po_item');
         }
 
+        $this->db->select('*');
+        $this->db->where('receipt_items_id', $data['id']);
+        $this->db->from('tb_uang_muka');
+        $query_uang_muka  = $this->db->get();
+        $result_uang_muka = $query_uang_muka->result_array();
+
+        foreach ($result_uang_muka as $uang_muka) {
+          $this->db->where('id', $uang_muka['po_item_payment_id']);
+          $this->db->set('uang_muka', 'uang_muka +' . $uang_muka['amount'], FALSE);
+          $this->db->update('tb_purchase_order_items_payments');
+
+          $this->db->where('id', $uang_muka['id']);
+          $this->db->delete('tb_uang_muka');
+        }
+
         $this->db->where('id', $data['id']);
         $this->db->delete('tb_receipt_items');
 
@@ -871,6 +886,7 @@ class Goods_Received_Note_Model extends MY_Model
       // $this->db->set('group', strtoupper($data['group']));
       // $this->db->set('doc_type', 3);     
       $this->db->insert('tb_receipt_items');
+      $receipt_items_id = $this->db->insert_id();
 
       if ($currency == 'IDR') {
         $id_master_akun = 1;
@@ -935,6 +951,12 @@ class Goods_Received_Note_Model extends MY_Model
                 $this->db->set('uang_muka', 'uang_muka -' . $uang_muka['uang_muka'], FALSE);
                 $this->db->update('tb_purchase_order_items_payments');
 
+                $this->db->set('receipt_items_id', $receipt_items_id);
+                $this->db->set('po_item_payment_id', $uang_muka['id']);
+                $this->db->set('amount', $uang_muka['uang_muka']);
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->insert('tb_uang_muka');
+
 
               }else{
                 $this->db->set('id_jurnal', $id_jurnal);
@@ -958,12 +980,18 @@ class Goods_Received_Note_Model extends MY_Model
                 $this->db->where('id', $uang_muka['id']);
                 $this->db->set('uang_muka', 'uang_muka -' . $amount, FALSE);
                 $this->db->update('tb_purchase_order_items_payments');
+
+                $this->db->set('receipt_items_id', $receipt_items_id);
+                $this->db->set('po_item_payment_id', $uang_muka['id']);
+                $this->db->set('amount', $amount);
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->insert('tb_uang_muka');
               }
             }
           }
           if ($amount > 0) {
             $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', strtoupper($akun_uang_muka->group));
+            $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
             if ($currency == 'IDR') {
               $this->db->set('trs_kredit', floatval($amount));
               $this->db->set('trs_kredit_usd', floatval($amount / $kurs));
@@ -973,7 +1001,7 @@ class Goods_Received_Note_Model extends MY_Model
             }
             $this->db->set('trs_debet', 0);
             $this->db->set('trs_debet_usd', 0);
-            $this->db->set('kode_rekening', $akun_uang_muka->coa);
+            $this->db->set('kode_rekening', $akun_payable->coa);
             $this->db->set('stock_in_stores_id', $stock_in_stores_id);
             $this->db->set('currency', $currency);
             $this->db->set('kode_rekening_lawan', $coa->coa);
@@ -1132,6 +1160,21 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('left_received_quantity', 'left_received_quantity +' . $data['quantity_order'], FALSE);
         $this->db->set('quantity_received', 'quantity_received - ' . $data['quantity_order'], FALSE);
         $this->db->update('tb_po_item');
+      }
+
+      $this->db->select('*');
+      $this->db->where('receipt_items_id', $data['id']);
+      $this->db->from('tb_uang_muka');
+      $query_uang_muka  = $this->db->get();
+      $result_uang_muka = $query_uang_muka->result_array();
+
+      foreach ($result_uang_muka as $uang_muka) {
+        $this->db->where('id', $uang_muka['po_item_payment_id']);
+        $this->db->set('uang_muka', 'uang_muka +' . $uang_muka['amount'], FALSE);
+        $this->db->update('tb_purchase_order_items_payments');
+
+        $this->db->where('id', $uang_muka['id']);
+        $this->db->delete('tb_uang_muka');
       }
 
       $this->db->where('id', $data['id']);

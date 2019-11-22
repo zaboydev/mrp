@@ -1142,6 +1142,7 @@ class Stock_Model extends MY_Model
       $this->db->set('issued_total_value', floatval($unit_value) * floatval($mixed_items['mixed_quantity']));
       $this->db->set('remarks', 'Mixed to MIX FUEL');
       $this->db->insert('tb_issuance_items');
+
     }
 
     // INCREASE STOCK
@@ -1231,7 +1232,7 @@ class Stock_Model extends MY_Model
     $this->db->set('serial_id', $stock['serial_id']);
     $this->db->set('warehouse', $stock['warehouse']);
     $this->db->set('stores', $stock['stores']);
-	$this->db->set('document_number', $document_number);
+	  $this->db->set('document_number', $document_number);
     $this->db->set('date_of_entry', $date);
     $this->db->set('period_year', config_item('period_year'));
     $this->db->set('period_month', config_item('period_month'));
@@ -1248,6 +1249,7 @@ class Stock_Model extends MY_Model
     $this->db->set('tgl',date('Ymd',strtotime($date)));
     $this->db->set('total_value',floatval($unit_value) * floatval($mixing_quantity));
     $this->db->insert('tb_stock_cards');
+
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
@@ -1973,6 +1975,26 @@ class Stock_Model extends MY_Model
     $query = $this->db->get();
 
     return $query->num_rows();
+  }
+
+  function coaByGroup($group)
+  {
+    $this->db->select('coa');
+    $this->db->from('tb_master_item_groups');
+    $this->db->where('group', $group);
+    return $this->db->get()->row();
+  }
+
+  function codeByDescription($id)
+  {
+    $this->db->select('tb_master_items.kode_pemakaian');
+    $this->db->select('tb_master_coa.group');
+    $this->db->from('tb_master_items');
+    $this->db->join('tb_stocks', 'tb_stocks.item_id=tb_master_items.id');
+    $this->db->join('tb_master_coa', 'tb_master_coa.coa=tb_master_items.kode_pemakaian');
+    $this->db->where('tb_stocks.id', $id);
+
+    return $this->db->get()->row();
   }
 
 }

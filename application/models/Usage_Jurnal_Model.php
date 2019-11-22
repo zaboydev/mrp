@@ -26,13 +26,13 @@ class Usage_Jurnal_Model extends MY_MODEL
   public function getSearchableColumns()
   {
     $return = array(
-      'tb_jurnal.tanggal_jurnal',
+      // 'tb_jurnal.tanggal_jurnal',
       'tb_jurnal.no_jurnal',
-      // 'tb_jurnal.vendor',
+      'tb_jurnal.vendor',
       'tb_jurnal_detail.kode_rekening',
       'tb_jurnal_detail.jenis_transaksi',
-      'sum(trs_kredit) as kredit',
-      'sum(trs_debet) as debet',
+      // 'sum(trs_kredit) as kredit',
+      // 'sum(trs_debet) as debet',
     );
 
     return $return;
