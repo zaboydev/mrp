@@ -54,7 +54,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisition_details.part_number as product_code'                                    => 'Part Number',
         // 'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
         'tb_master_items.minimum_quantity as min_qty'                                    => 'Min. Qty',
-        null                                    => 'On Hand. Qty',
+        'tb_inventory_purchase_requisitions.notes as pr_notes'                                    => 'On Hand. Qty',
         'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity Request',
         '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Quantity POE',
         'tb_inventory_purchase_requisition_details.status'                   => 'Status',
