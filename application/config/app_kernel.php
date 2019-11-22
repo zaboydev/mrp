@@ -101,6 +101,7 @@ require('modules/purchase_supplier_summary.php');
 require('modules/supplier_payment_history.php');
 require('modules/purchase_item_summary.php');
 require('modules/payable_reconciliation_summary.php');
+require('modules/account_payable_mutation.php');
 // require('modules/doc_receipt.php');
 // require('modules/doc_usage.php');
 // require('modules/doc_delivery.php');

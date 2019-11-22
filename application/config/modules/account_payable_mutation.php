@@ -3,8 +3,8 @@
 $config['module']['account_payable_mutation']['visible']        = TRUE;
 $config['module']['account_payable_mutation']['main_warehouse'] = TRUE;
 $config['module']['account_payable_mutation']['parent']         = 'account_payable';
-$config['module']['account_payable_mutation']['label']          = 'Payable Mutation';
-$config['module']['account_payable_mutation']['name']           = 'Payable Mutation';
+$config['module']['account_payable_mutation']['label']          = 'Account Payable Mutation';
+$config['module']['account_payable_mutation']['name']           = 'Account Payable Mutation';
 $config['module']['account_payable_mutation']['route']          = 'account_payable_mutation';
 $config['module']['account_payable_mutation']['view']           = config_item('module_path') . 'account_payable_mutation/';
 $config['module']['account_payable_mutation']['language']       = 'prl_poe_lang';

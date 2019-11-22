@@ -194,7 +194,7 @@
                       <div class="form-group">
                         <select name="kode_pemakaian" id="kode_pemakaian" data-tag-name="kode_pemakaian" class="form-control input-sm" required>
                           <option>-- Select One --</option>
-                          <?php foreach (available_item_groups_2($_SESSION['receipt']['category']) as $group) : ?>
+                          <?php foreach (master_coa() as $group) : ?>
                             <option value="<?= $group['coa']; ?>">
                               <?= $group['coa']; ?> - <?= $group['group']; ?>
                             </option>

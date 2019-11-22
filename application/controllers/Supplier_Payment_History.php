@@ -59,6 +59,14 @@ class Supplier_Payment_History extends MY_Controller
             $vendor_name    = $vendor;
         }
         $items = $this->model->getSummaryPayment($vendor_name, $currency, $date);
+        $periode = 'All Periode';
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
+            $periode = print_date($start_date) . ' s/d ' . print_date($end_date);
+        }
+        $this->data['periode']            = $periode;
         $this->data['items'] = $items;
         $this->data['tipe'] = $tipe;
         $this->data['title']            = $this->module['label'];

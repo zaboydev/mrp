@@ -21,6 +21,7 @@ class Purchase_Item_Summary extends MY_Controller
         $this->data['page']['title']            = $this->module['label'];
         $this->data['account']                  = array();
         $this->data['items']                  = $this->model->getItems();
+        $this->data['suplier']                  = $this->model->getSuplier();
         $this->render_view($this->module['view'] . '/index');
     }
 
@@ -35,9 +36,15 @@ class Purchase_Item_Summary extends MY_Controller
         } else {
             $items    = $items_id;
         }
+        $vendor_id = $this->input->post('vendor');
+        if ($vendor_id != null && $vendor_id != 'all') {
+            $vendor    = get_vendor_name($vendor_id);
+        } else {
+            $vendor    = $vendor_id;
+        }
         $currency = $this->input->post('currency');
         $date = $this->input->post('date');
-        $items = $this->model->getPurchaseItemSummary($items, $currency, $date);
+        $items = $this->model->getPurchaseItemSummary($items, $currency,$vendor, $date);
         $this->data['items'] = $items;
         $return['info'] = $this->load->view($this->module['view'] . '/data', $this->data, TRUE);
         // $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency, $tipe);
@@ -59,6 +66,14 @@ class Purchase_Item_Summary extends MY_Controller
         } else {
             $items    = $items_id;
         }
+        $periode = 'All Periode';
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
+            $periode = print_date($start_date) . ' s/d ' . print_date($end_date);
+        }
+        $this->data['periode']            = $periode;
         $items = $this->model->getPurchaseItemSummary($items, $currency, $date);
         $this->data['items'] = $items;
         $this->data['tipe'] = $tipe;

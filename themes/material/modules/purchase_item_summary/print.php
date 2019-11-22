@@ -168,7 +168,9 @@ if ($tipe == 'excel') {
                         </td>
                     </tr>
                     <tr>
-                        <td></td>
+                        <td>
+                            <h4><?= $periode; ?></h4>
+                        </td>
                     </tr>
                 </table>
                 <hr>
@@ -177,22 +179,29 @@ if ($tipe == 'excel') {
                     <table class="tg" width="100%">
                         <thead>
                             <tr>
-                                <th width="50%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>
-                                <th width="25%" class="middle-alignment" style="text-align:center">Quantity</th>
-                                <th width="25%" class="middle-alignment" style="text-align:center">Amount</th>
+                                <th rowspan="2" width="40%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>
+                                <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">Quantity</th>
+                                <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">Unit</th>
+                                <th colspan="2" width="40%" class="middle-alignment" style="text-align:center">Amount</th>
+                            </tr>
+                            <tr>
+                                <th width="20%" class="middle-alignment">USD</th>
+                                <th width="20%" class="middle-alignment">IDR</th>
                             </tr>
                         </thead>
                         <tbody id="listView">
                             <?php $no = 1; ?>
                             <?php
                             $grand_total_quantity = array();
-                            $grand_total_amount = array();
+                            $grand_total_amount_idr = array();
+                            $grand_total_amount_usd = array();
                             ?>
                             <?php foreach ($items as $i => $detail) : ?>
                                 <?php $n++; ?>
                                 <?php
                                     $total_quantity = array();
-                                    $total_amount = array();
+                                    $total_amount_idr = array();
+                                    $total_amount_usd = array();
                                     ?>
                                 <?php //if ($detail['po']['po_count'] > 0) : 
                                     ?>
@@ -203,14 +212,14 @@ if ($tipe == 'excel') {
                                     <td align="left" style="font-weight:bolder">
                                         <?= print_string($detail['description']); ?>
                                     </td>
-                                    <td colspan="2"></td>
+                                    <td colspan="4"></td>
                                 </tr>
                                 <?php foreach ($detail['base'] as $i => $info_base) : ?>
                                     <tr>
                                         <td colspan="2" style="font-weight:bolder">
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= print_string($info_base['warehouse']); ?>
                                         </td>
-                                        <td colspan="2"></td>
+                                        <td colspan="4"></td>
                                     </tr>
                                     <?php foreach ($info_base['items_grn']['grn_items'] as $i => $info) : ?>
                                         <td colspan="2">
@@ -220,15 +229,26 @@ if ($tipe == 'excel') {
                                         <td>
                                             <?= print_number($info['quantity'], 2); ?>
                                         </td>
+                                        <td align="center">
+                                            <?= print_string($info['unit']); ?>
+                                        </td>
                                         <td>
-                                            <?= print_number($info['total_value'], 2); ?>
+                                            <?= $info['kurs_dollar'] > 1 ? print_number($info['total_value_usd'], 2) : print_number(0, 2); ?>
+                                        </td>
+                                        <td>
+                                            <?= $info['kurs_dollar'] == 1 ? print_number($info['total_value_idr'], 2) : print_number(0, 2); ?>
                                         </td>
 
                                         </tr>
                                         <?php
-                                                    $total_amount[] = $info['total_value'];
+                                                    if ($info['kurs_dollar'] > 1) {
+                                                        $total_amount_usd[] = $info['total_value_usd'];
+                                                        $grand_total_amount_usd[] = $info['total_value_usd'];
+                                                    } else {
+                                                        $total_amount_idr[] = $info['total_value_idr'];
+                                                        $grand_total_amount_idr[] = $info['total_value_idr'];
+                                                    }
                                                     $total_quantity[] = $info['quantity'];
-                                                    $grand_total_amount[] = $info['total_value'];
                                                     $grand_total_quantity[] = $info['quantity'];
                                                     ?>
                                     <?php endforeach; ?>
@@ -237,13 +257,20 @@ if ($tipe == 'excel') {
                                 <tr>
                                     <td colspan="2" align="right" style="font-weight:bolder"><?= print_string($detail['description']); ?> TOTAL</td>
                                     <td style="font-weight:bolder"><?= print_number(array_sum($total_quantity), 2); ?></td>
-                                    <td style="font-weight:bolder"><?= print_number(array_sum($total_amount), 2); ?></td>
+                                    <td style="font-weight:bolder"></td>
+                                    <td style="font-weight:bolder"><?= print_number(array_sum($total_amount_usd), 2); ?></td>
+                                    <td style="font-weight:bolder"><?= print_number(array_sum($total_amount_idr), 2); ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f0f0f0;" colspan="6">&nbsp;</td>
                                 </tr>
                             <?php endforeach; ?>
                             <tr>
                                 <td colspan="2" align="right" style="font-weight:bolder">GRAND TOTAL</td>
                                 <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_quantity), 2); ?></td>
-                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_amount), 2); ?></td>
+                                <td style="font-weight:bolder"></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_amount_usd), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_amount_idr), 2); ?></td>
                             </tr>
                         </tbody>
 

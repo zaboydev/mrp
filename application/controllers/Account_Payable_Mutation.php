@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Purchase_Item_Detail extends MY_Controller
+class Account_Payable_Mutation extends MY_Controller
 {
     protected $module;
     protected $id_item = 0;
@@ -9,7 +9,7 @@ class Purchase_Item_Detail extends MY_Controller
     {
         parent::__construct();
 
-        $this->module = $this->modules['purchase_item_detail'];
+        $this->module = $this->modules['account_payable_mutation'];
         $this->load->model($this->module['model'], 'model');
         $this->load->helper($this->module['helper']);
         $this->data['module'] = $this->module;
@@ -30,15 +30,14 @@ class Purchase_Item_Detail extends MY_Controller
             redirect($this->modules['secure']['route'] . '/denied');
 
         $vendor_id = $this->input->post('vendor');
-        if($vendor_id!=null && $vendor_id!='all'){
+        if ($vendor_id != null && $vendor_id != 'all') {
             $vendor    = get_vendor_name($vendor_id);
-        }else{
+        } else {
             $vendor    = $vendor_id;
         }
-        
         $currency = $this->input->post('currency');
         $date = $this->input->post('date');
-        $items = $this->model->getPurchaseItem($vendor, $currency, $date);
+        $items = $this->model->getSummaryPayment($vendor, $currency, $date);
         $this->data['items'] = $items;
         $return['info'] = $this->load->view($this->module['view'] . '/data', $this->data, TRUE);
         // $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency, $tipe);
@@ -54,21 +53,20 @@ class Purchase_Item_Detail extends MY_Controller
         // $vendor = $this->input->post('vendor');
         // $currency = $this->input->post('currency');
         // $date = $this->input->post('date');
-        // $vendor_id = $this->input->post('vendor');
         if ($vendor != null && $vendor != 'all') {
             $vendor_name    = get_vendor_name($vendor);
         } else {
             $vendor_name    = $vendor;
         }
+        $items = $this->model->getSummaryPayment($vendor_name, $currency, $date);
         $periode = 'All Periode';
-        if($date!= null){
+        if ($date != null) {
             $range_date  = explode('.', $date);
             $start_date  = $range_date[0];
             $end_date    = $range_date[1];
-            $periode = print_date($start_date).' s/d '. print_date($end_date);
+            $periode = print_date($start_date) . ' s/d ' . print_date($end_date);
         }
         $this->data['periode']            = $periode;
-        $items = $this->model->getPurchaseItem($vendor_name, $currency, $date);
         $this->data['items'] = $items;
         $this->data['tipe'] = $tipe;
         $this->data['title']            = $this->module['label'];

@@ -297,7 +297,7 @@ class Purchase_Request extends MY_Controller
         // $col[] = print_string($row['suggested_supplier']);
         $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
         $col[] = print_person_name($row['created_by']);
-        $col[] = print_string($row['notes']);
+        $col[] = print_string($row['pr_notes']).' '. print_string($row['notes']);
         if ($row['status'] == 'waiting') {
           // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
           if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'CHIEF OF MAINTANCE') {

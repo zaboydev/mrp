@@ -207,12 +207,18 @@
                                     <table class="tg" id="table-document" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Cheque #</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Chq Date</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">PO #</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Date</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Purchase Total Amount</th>
-                                                <th width="15%" class="middle-alignment" style="text-align:center">Amount Applied</th>
+                                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">Cheque #</th>
+                                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">Chq Date</th>
+                                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">PO #</th>
+                                                <th rowspan="2" width="15%" class="middle-alignment" style="text-align:center">Date</th>
+                                                <th colspan="2" width="20%" class="middle-alignment" style="text-align:center">Purchase Total Amount</th>
+                                                <th colspan="2" width="20%" class="middle-alignment" style="text-align:center">Amount Applied</th>
+                                            </tr>
+                                            <tr>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">USD</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">IDR</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">USD</th>
+                                                <th width="10%" class="middle-alignment" style="text-align:center">IDR</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listView">
