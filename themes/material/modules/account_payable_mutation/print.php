@@ -179,107 +179,118 @@ if ($tipe == 'excel') {
                     <table class="tg">
                         <thead>
                             <tr>
-                                <th rowspan="2" class="middle-alignment">Name</th>
-                                <th rowspan="2" class="middle-alignment">No PO</th>
-                                <th rowspan="2" class="middle-alignment">Date</th>
-                                <th rowspan="2" class="middle-alignment">Quantity</th>
-                                <th rowspan="2" class="middle-alignment">Unit</th>
-                                <th colspan="2" class="middle-alignment">Amount</th>
-                                <th rowspan="2" class="middle-alignment">Status</th>
-                                <th rowspan="2" class="middle-alignment">Promised Date</th>
+                                <th width="3%" rowspan="3" class="middle-alignment">No</th>
+                                <th width="12%" rowspan="3" class="middle-alignment">Vendor</th>
+                                <th width="16%" rowspan="2" colspan="2" class="middle-alignment">Saldo Awal</th>
+                                <th width="16%" rowspan="2" colspan="2" class="middle-alignment">Pembelian</th>
+                                <th width="32%" colspan="4" class="middle-alignment">Pembayaran</th>
+                                <th width="5%" rowspan="2" class="middle-alignment">Adjustmetn</th>
+                                <th width="16%" rowspan="2" colspan="2" class="middle-alignment">Saldo Akhir</th>
                             </tr>
                             <tr>
-                                <th class="middle-alignment">USD</th>
-                                <th class="middle-alignment">IDR</th>
+                                <th width="16%" colspan="2" class="middle-alignment">Cash</th>
+                                <th width="16%" colspan="2" class="middle-alignment">Bank</th>
+                            </tr>
+                            <tr>
+                                <th width="8%" class="middle-alignment">USD</th>
+                                <th width="8%" class="middle-alignment">IDR</th>
+                                <th width="8%" class="middle-alignment">USD</th>
+                                <th width="8%" class="middle-alignment">IDR</th>
+                                <th width="8%" class="middle-alignment">USD</th>
+                                <th width="8%" class="middle-alignment">IDR</th>
+                                <th width="8%" class="middle-alignment">USD</th>
+                                <th width="8%" class="middle-alignment">IDR</th>
+                                <th width="5%" class="middle-alignment">IDR</th>
+                                <th width="8%" class="middle-alignment">USD</th>
+                                <th width="8%" class="middle-alignment">IDR</th>
                             </tr>
                         </thead>
                         <tbody id="listView">
-                            <?php $no = 1; ?>
+                            <?php $no = 0; ?>
                             <?php
-                            $grand_total_qty = array();
-                            $grand_total_amount_idr = array();
-                            $grand_total_amount_usd = array();
+                            $grand_saldo_awal_usd = array();
+                            $grand_pembelian_usd = array();
+                            $grand_payment_usd = array();
+                            $grand_saldo_akhir_usd = array();
+
+                            $grand_saldo_awal_idr = array();
+                            $grand_pembelian_idr = array();
+                            $grand_payment_idr = array();
+                            $grand_saldo_akhir_idr = array();
                             ?>
                             <?php foreach ($items as $i => $detail) : ?>
-                                <?php $n++; ?>
+                                <?php $no++; ?>
                                 <?php
-                                    $total_qty = array();
-                                    $total_amount_idr = array();
-                                    $total_amount_usd = array();
+                                    $saldo_akhir_usd = $detail['saldo_awal_usd'] - $detail['payment_saldo_awal_usd'] + $detail['pembelian_usd'] - $detail['payment_usd'];
+                                    $saldo_akhir_idr = $detail['saldo_awal_idr'] - $detail['payment_saldo_awal_idr'] + $detail['pembelian_idr'] - $detail['payment_idr'];
+
+                                    $grand_saldo_awal_usd[]     = $detail['saldo_awal_usd'] - $detail['payment_saldo_awal_usd'];
+                                    $grand_pembelian_usd[]      = $detail['pembelian_usd'];
+                                    $grand_payment_usd[]        = $detail['payment_usd'];
+                                    $grand_saldo_akhir_usd[]    = $saldo_akhir_usd;
+
+                                    $grand_saldo_awal_idr[]     = $detail['saldo_awal_idr'] - $detail['payment_saldo_awal_idr'];
+                                    $grand_pembelian_idr[]      = $detail['pembelian_idr'];
+                                    $grand_payment_idr[]        = $detail['payment_idr'];
+                                    $grand_saldo_akhir_idr[]    = $saldo_akhir_idr;
                                     ?>
-                                <?php if ($detail['items_po']['po_items_count'] > 0) : ?>
-                                    <tr>
-                                        <td style="font-weight: bolder;" align="left">
-                                            <?= print_string($detail['part_number']); ?>
-                                        </td>
-                                        <td style="font-weight: bolder;" align="left" colspan="8">
-                                            <?= print_string($detail['description']); ?>
-                                        </td>
-                                    </tr>
-                                    <?php foreach ($detail['items_po']['po_items'] as $i => $info) : ?>
-                                        <tr>
-                                            <td>
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= print_string($info['vendor']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_string($info['document_number']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_date($info['document_date']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_number($info['quantity'], 2); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_string($info['unit']); ?>
-                                            </td>
-                                            <td>
-                                                <?= $info['kurs_dollar'] > 1 ? print_number($info['total_amount'], 2) : print_number(0, 2); ?>
-                                            </td>
-                                            <td>
-                                                <?= $info['kurs_dollar'] == 1 ? print_number($info['total_amount'], 2) : print_number(0, 2); ?>
-                                            </td>
-                                            <td style="text-align: center;">
-                                                <?= print_string($info['status']); ?>
-                                            </td>
-                                            <td>
-                                                <?= print_date($info['due_date']); ?>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                                    $total_qty[] = $info['quantity'];
-                                                    $grand_total_qty[] = $info['quantity'];
-                                                    if ($info['kurs_dollar'] > 1) {
-                                                        $total_amount_usd[] = $info['total_amount'];
-                                                        $grand_total_amount_usd[] = $info['total_amount'];
-                                                    } else {
-                                                        $total_amount_idr[] = $info['total_amount'];
-                                                        $grand_total_amount_idr[] = $info['total_amount'];
-                                                    }
-                                                    ?>
-                                    <?php endforeach; ?>
-                                    <tr>
-                                        <td colspan="3" align="right" style="font-weight:bolder"><?= print_string($detail['description']); ?></td>
-                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_qty), 2); ?></td>
-                                        <td style="font-weight:bolder"></td>
-                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_amount_usd), 2); ?></td>
-                                        <td style="font-weight:bolder"><?= print_number(array_sum($total_amount_idr), 2); ?></td>
-                                        <td colspan="4"></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="background-color: #f0f0f0;" colspan="9">&nbsp;</td>
-                                    </tr>
-                                <?php endif; ?>
+                                <tr>
+                                    <td style="font-weight: bolder;" align="left">
+                                        <?= $no; ?>
+                                    </td>
+                                    <td style="font-weight: bolder;" align="left">
+                                        <?= print_string($detail['vendor']); ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($detail['saldo_awal_usd'] - $detail['payment_saldo_awal_usd'], 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($detail['saldo_awal_idr'] - $detail['payment_saldo_awal_usd'], 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($detail['pembelian_usd'], 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($detail['pembelian_idr'], 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number(0, 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number(0, 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($detail['payment_usd'], 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($detail['payment_idr'], 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number(0, 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($saldo_akhir_usd, 2) ?>
+                                    </td>
+                                    <td align="left">
+                                        <?= print_number($saldo_akhir_idr, 2) ?>
+                                    </td>
+                                </tr>
 
 
                             <?php endforeach; ?>
                             <tr>
-                                <td colspan="3" align="right" style="font-weight:bolder">GRAND TOTAL</td>
-                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_qty), 2); ?></td>
-                                <td style="font-weight:bolder"></td>
-                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_amount_usd), 2); ?></td>
-                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_total_amount_idr), 2); ?></td>
-                                <td colspan="4"></td>
+                                <td colspan="2" align="right" style="font-weight:bolder">GRAND TOTAL</td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_saldo_awal_usd), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_saldo_awal_idr), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_pembelian_usd), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_pembelian_idr), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(0, 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(0, 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_payment_usd), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_payment_idr), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(0, 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_saldo_akhir_usd), 2); ?></td>
+                                <td style="font-weight:bolder"><?= print_number(array_sum($grand_saldo_akhir_idr), 2); ?></td>
                             </tr>
                         </tbody>
 

@@ -650,7 +650,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         return $prl_item;
     }
 
-    public function getPayableMutation($vendor, $currency, $date)
+    public function getPayableMutation($vendor, $date)
     {
 
         $this->db->select(
@@ -683,9 +683,9 @@ class Purchase_Item_Detail_Model extends MY_Model
         if ($vendor != null && $vendor != 'all') {
             $this->db->where('tb_hutang.vendor', $vendor);
         }
-        if ($currency != null && $currency != 'all') {
-            $this->db->where('tb_hutang.currency', $currency);
-        }
+        // if ($currency != null && $currency != 'all') {
+        //     $this->db->where('tb_hutang.currency', $currency);
+        // }
         $query      = $this->db->get('tb_hutang');
         $item       = $query->result_array();
 
@@ -700,38 +700,51 @@ class Purchase_Item_Detail_Model extends MY_Model
         // );
 
         foreach ($item as $key => $value) {
-            $item[$key]['saldo_awal'] = 
-            $item[$key]['detail'] = $this->getDetailPayableMutation($value['vendor'], $currency, $date);
+            $item[$key]['saldo_awal_usd'] = $this->getValue('saldo_awal',$value['vendor'], 'USD',$date);
+            $item[$key]['saldo_awal_idr'] = $this->getValue('saldo_awal', $value['vendor'], 'IDR', $date);
+            $item[$key]['pembelian_usd'] = $this->getValue('pembelian', $value['vendor'], 'USD', $date);
+            $item[$key]['pembelian_idr'] = $this->getValue('pembelian', $value['vendor'], 'IDR', $date);
+            $item[$key]['payment_saldo_awal_usd'] = $this->getPayment('saldo_awal', $value['vendor'], 'USD', $date);
+            $item[$key]['payment_saldo_awal_idr'] = $this->getPayment('saldo_awal', $value['vendor'], 'IDR', $date);
+            $item[$key]['payment_usd'] = $this->getPayment('pembelian', $value['vendor'], 'USD', $date);
+            $item[$key]['payment_idr'] = $this->getPayment('pembelian', $value['vendor'], 'IDR', $date);
         }
 
         return $item;
     }
 
-    function getDetailPayableMutation($vendor, $currency, $date)
+    function getValue($tipe,$vendor,$currency, $date)
     {
         $select = array(
-            // 'tb_hutang.vendor',
-            'tb_hutang.currency',
+            // 'tb_hutang.id_po_item',
+            // 'tb_hutang.currency',
             'sum(tb_hutang.amount_idr) as idr',
             'sum(tb_hutang.amount_usd) as usd',
-            'sum(tb_purchase_order_items_payments.amount_paid) as payment'
+            // 'sum(tb_purchase_order_items_payments.amount_paid) as payment'
         );
         $this->db->select($select);
+        $this->db->from('tb_hutang');
         $this->db->join('tb_po_item', 'tb_hutang.id_po_item=tb_po_item.id');
-        $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id', 'left');
+        // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id', 'left');
         $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
-        $this->db->group_by(array(
-            // 'tb_hutang.vendor',
-            'tb_hutang.currency'
-            // 'tb_po_item.description'
-        ));
+        // $this->db->group_by(array(
+        //     // 'tb_hutang.id_po_item',
+        //     'tb_hutang.currency'
+        //     // 'tb_po_item.description'
+        // ));
         if ($date != null) {
             $range_date  = explode('.', $date);
             $start_date  = $range_date[0];
             $end_date    = $range_date[1];
 
-            $this->db->where('tb_receipt_items.received_date_item >=', $start_date);
-            $this->db->where('tb_receipt_items.received_date_item <=', $end_date);
+            if($tipe=='saldo_awal'){
+                $this->db->where('tb_hutang.tanggal <', $start_date);
+            }
+            if($tipe=='pembelian'){
+                $this->db->where('tb_hutang.tanggal >=', $start_date);
+                $this->db->where('tb_hutang.tanggal <=', $end_date);
+            }            
+            
         }
         if ($vendor != null && $vendor != 'all') {
             $this->db->where('tb_hutang.vendor', $vendor);
@@ -740,14 +753,68 @@ class Purchase_Item_Detail_Model extends MY_Model
             $this->db->where('tb_hutang.currency', $currency);
         }
         $query = $this->db->get();
-        $prl_item['po_items_count'] = $query->num_rows();
 
+
+        $return = 0;
         foreach ($query->result_array() as $key => $value) {
-            $prl_item['po_items'][$key] = $value;
+            if($currency=='USD'){
+                $return = $return + $value['usd'];
+            }else{
+                $return = $return+$value['idr'];
+            }
+            
         }
+        return $return;
+    }
 
+    function getPayment($tipe, $vendor, $currency, $date)
+    {
+        $select = array(
+            // 'tb_hutang.vendor',
+            // 'tb_hutang.currency',
+            // 'sum(tb_hutang.amount_idr) as idr',
+            // 'sum(tb_hutang.amount_usd) as usd',
+            'sum(tb_purchase_order_items_payments.amount_paid) as payment'
+        );
+        $this->db->select($select);
+        $this->db->from('tb_purchase_order_items_payments');
+        $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id');
+        // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id', 'left');
+        $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
+        // $this->db->group_by(array(
+        //     // 'tb_hutang.vendor',
+        //     'tb_hutang.currency'
+        //     // 'tb_po_item.description'
+        // ));
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
 
-        return $prl_item;
+            if ($tipe == 'saldo_awal') {
+                $this->db->where('tb_purchase_order_items_payments.tanggal <', $start_date);
+            }
+            if ($tipe == 'pembelian') {
+                $this->db->where('tb_purchase_order_items_payments.tanggal >=', $start_date);
+                $this->db->where('tb_purchase_order_items_payments.tanggal <=', $end_date);
+            }
+        }
+        if ($vendor != null && $vendor != 'all') {
+            $this->db->where('tb_po.vendor', $vendor);
+        }
+        if ($currency != null && $currency != 'all') {
+            $this->db->where('tb_po.default_currency', $currency);
+        }
+        $query = $this->db->get();
+        $return = 0;
+        foreach ($query->result_array() as $key => $value) {
+            if ($currency == 'USD') {
+                $return = $return + $value['payment'];
+            } else {
+                $return = $return + $value['payment'];
+            }
+        }
+        return $return;
     }
 
 
