@@ -35,9 +35,9 @@ class Account_Payable_Mutation extends MY_Controller
         } else {
             $vendor    = $vendor_id;
         }
-        $currency = $this->input->post('currency');
+        // $currency = $this->input->post('currency');
         $date = $this->input->post('date');
-        $items = $this->model->getPayableMutation($vendor, $currency, $date);
+        $items = $this->model->getPayableMutation($vendor, $date);
         $this->data['items'] = $items;
         $return['info'] = $this->load->view($this->module['view'] . '/data', $this->data, TRUE);
         // $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency, $tipe);
@@ -45,7 +45,7 @@ class Account_Payable_Mutation extends MY_Controller
         echo json_encode($return);
     }
 
-    public function get_po_for_print($tipe,$currency,$vendor,$date=null)
+    public function get_po_for_print($tipe,$vendor,$date=null)
     {
         // if ($this->input->is_ajax_request() === FALSE)
         //     redirect($this->modules['secure']['route'] . '/denied');
@@ -58,7 +58,7 @@ class Account_Payable_Mutation extends MY_Controller
         } else {
             $vendor_name    = $vendor;
         }
-        $items = $this->model->getPayableMutation($vendor_name, $currency, $date);
+        $items = $this->model->getPayableMutation($vendor_name, $date);
         $periode = 'All Periode';
         if ($date != null) {
             $range_date  = explode('.', $date);

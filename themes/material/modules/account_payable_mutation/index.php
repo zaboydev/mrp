@@ -439,35 +439,7 @@
     $('#currency_select').change(function() {
         currency = $(this).val();
 
-        // var akun_view = $('#account_select');
-        // var supplier_view = $('#suplier_select');
-        // akun_view.html('');
-        // supplier_view.html('');
-        // $.ajax({
-        //     type: "POST",
-        //     url: '<?= base_url() . "payment/get_akun" ?>',
-        //     data: {
-        //         'currency': currency
-        //     },
-        //     cache: false,
-        //     success: function(response) {
-        //         var data = jQuery.parseJSON(response);
-        //         akun_view.html(data);
-        //     }
-        // });
 
-        // $.ajax({
-        //     type: "POST",
-        //     url: '<?= base_url() . "payment/get_supplier" ?>',
-        //     data: {
-        //         'currency': currency
-        //     },
-        //     cache: false,
-        //     success: function(response) {
-        //         var data = jQuery.parseJSON(response);
-        //         supplier_view.html(data);
-        //     }
-        // });
 
         suplier = $("#suplier_select").val();
         // currency = $("#currency_select").val();
@@ -546,9 +518,9 @@
         console.log(suplier);
         $.ajax({
             type: "POST",
-            url: '<?= base_url() . "purchase_item_detail/getPo" ?>',
+            url: '<?= base_url() . "account_payable_mutation/getPo" ?>',
             data: {
-                'currency': currency,
+                // 'currency': currency,
                 'vendor': suplier,
                 'date': date
             },
@@ -597,7 +569,7 @@
 
         };
 
-        var urlPrint = '<?= base_url() ?>' + 'purchase_item_detail/get_po_for_print/' + tipe + '/' + currency + '/' + suplier + '/' + date;
+        var urlPrint = '<?= base_url() ?>' + 'account_payable_mutation/get_po_for_print/' + tipe + '/' + suplier + '/' + date;
         window.open(urlPrint);
 
     }
