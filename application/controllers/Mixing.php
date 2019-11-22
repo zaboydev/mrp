@@ -66,9 +66,9 @@ class Mixing extends MY_Controller
     
     $this->data['page']['title']            = $this->module['label'] .' '. $warehouse.' '. $category .' '. $condition.' / PERIODE : '.$periode;
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array( 8 );
-    if (config_item('auth_role') != 'SUPERVISOR'){
-      $this->data['grid']['summary_columns'][] = 18;
+    $this->data['grid']['summary_columns']  = array( 9 );
+    if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
+      $this->data['grid']['summary_columns'][] = 19;
     }
     // $this->data['grid']['summary_columns']  = array( 7, 8, 9, 10, 11 );
     $this->data['grid']['order_columns']    = array (
@@ -199,7 +199,7 @@ class Mixing extends MY_Controller
       "recordsFiltered" => $this->model->countIndexFiltered($condition, $warehouse,$quantity, $category, $jenis, $start_date, $end_date),
       "data" => $data,
       "total" => array(
-        8 => print_number(array_sum($quantity), 2)
+        9 => print_number(array_sum($quantity), 2)
         // 7 => print_number(array_sum($initial_quantity), 2),
         // 8 => print_number(array_sum($received_quantity), 2),
         // 9 => print_number(array_sum($issued_quantity), 2),
@@ -209,7 +209,7 @@ class Mixing extends MY_Controller
     );
 
     if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
-        $result['total'][18] = print_number(array_sum($total_price), 2);
+        $result['total'][19] = print_number(array_sum($total_price), 2);
       }
 
     echo json_encode($result);
@@ -338,6 +338,7 @@ class Mixing extends MY_Controller
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'stock_in_stores_id'      => trim($this->input->post('stock_in_stores_id')),
         'unit'                    => trim($this->input->post('unit')),
+        'group'                    => trim($this->input->post('group')),
       );
 
       end($_SESSION['mix']['mixed_items']);

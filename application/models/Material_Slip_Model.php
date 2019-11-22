@@ -619,6 +619,7 @@ class Material_Slip_Model extends MY_Model
     $this->db->set('tanggal_jurnal  ', date("Y-m-d"));
     $this->db->set('grn_no', $document_number);
     $this->db->set('source', "INV-OUT");
+    $this->db->set('keterangan', 'Material Slip issued to '. $issued_to.' doc no : '. $document_number);
     $this->db->insert('tb_jurnal');
     $id_jurnal = $this->db->insert_id();
     // PROCESSING USAGE ITEMS
@@ -663,7 +664,7 @@ class Material_Slip_Model extends MY_Model
 
             // UPDATE STOCK in STORES
             $this->db->set('quantity', floatval($new_quantity));
-            $this->db->set('qty_konvers', floatval($quantity));
+            // $this->db->set('qty_konvers', floatval($quantity));
             $this->db->where('id', $stock_in_stores_id);
             $this->db->update('tb_stock_in_stores');
 
@@ -770,7 +771,7 @@ class Material_Slip_Model extends MY_Model
             $next_stock   = floatval($prev_stock) - floatval($stock_stored['quantity']);
             // UPDATE STOCK in STORES
             $this->db->set('quantity', floatval($new_quantity));
-            $this->db->set('qty_konvers', floatval($quantity));
+            // $this->db->set('qty_konvers', floatval($quantity));
             $this->db->where('id', $stock_in_stores_id);
             $this->db->update('tb_stock_in_stores');
 
@@ -1047,7 +1048,7 @@ class Material_Slip_Model extends MY_Model
         $this->db->set('issued_by', $issued_by);
         $this->db->set('required_by', $required_by);
         $this->db->set('requisition_reference', $requisition_reference);
-        $this->db->set('approved_by', $approved_by);
+        $this->db->set('approved_by', 'user');
         $this->db->set('category', $category);
         $this->db->set('warehouse', $warehouse);
         $this->db->set('notes', $notes);
