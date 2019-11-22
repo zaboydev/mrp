@@ -34,10 +34,10 @@ $grand_saldo_akhir_idr = array();
             <?= print_string($detail['vendor']); ?>
         </td>
         <td align="left">
-            <?= print_number($detail['saldo_awal_usd'] - $detail['payment_saldo_awal_usd'], 2) ?>
+            <?= print_number(($detail['saldo_awal_usd'] - $detail['payment_saldo_awal_usd']), 2) ?>
         </td>
         <td align="left">
-            <?= print_number($detail['saldo_awal_idr'] - $detail['payment_saldo_awal_usd'], 2) ?>
+            <?= print_number(($detail['saldo_awal_idr'] - $detail['payment_saldo_awal_idr']), 2) ?>
         </td>
         <td align="left">
             <?= print_number($detail['pembelian_usd'], 2) ?>
