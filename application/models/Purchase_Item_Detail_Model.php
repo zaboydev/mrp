@@ -650,6 +650,106 @@ class Purchase_Item_Detail_Model extends MY_Model
         return $prl_item;
     }
 
+    public function getPayableMutation($vendor, $currency, $date)
+    {
+
+        $this->db->select(
+            array(
+                'tb_hutang.vendor',
+                // 'tb_hutang.amount_idr',
+                // 'tb_hutang.amount_usd',
+                // 'tb_hutang.tanggal',
+
+            )
+        );
+        $this->db->join('tb_po_item', 'tb_po_item.id=tb_hutang.id_po_item');
+        $this->db->join('tb_po', 'tb_po_item.purchase_order_id=tb_po.id');
+        // $this->db->join('tb_receipt_items', 'tb_po_item.id=tb_receipt_items.purchase_order_item_id');
+        $this->db->group_by(array(
+            'tb_hutang.vendor',
+            // 'tb_po_item.description'
+        ));
+        // $this->db->where('tb_po.review_status !=','REVISI');
+        // $this->db->where_not_in('tb_po.review_status', ['REVISI']);
+        // $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
+
+            // $this->db->where('tb_receipt_items.received_date_item >=', $start_date);
+            $this->db->where('tb_hutang.tanggal <=', $end_date);
+        }
+        if ($vendor != null && $vendor != 'all') {
+            $this->db->where('tb_hutang.vendor', $vendor);
+        }
+        if ($currency != null && $currency != 'all') {
+            $this->db->where('tb_hutang.currency', $currency);
+        }
+        $query      = $this->db->get('tb_hutang');
+        $item       = $query->result_array();
+
+        // $select = array(
+        //     'tb_po.document_number',
+        //     'tb_po.vendor',
+        //     'tb_po.document_date',
+        //     'tb_po.status',
+        //     'tb_po.due_date',
+        //     'tb_po_item.quantity',
+        //     'tb_po_item.total_amount'
+        // );
+
+        foreach ($item as $key => $value) {
+            $item[$key]['saldo_awal'] = 
+            $item[$key]['detail'] = $this->getDetailPayableMutation($value['vendor'], $currency, $date);
+        }
+
+        return $item;
+    }
+
+    function getDetailPayableMutation($vendor, $currency, $date)
+    {
+        $select = array(
+            // 'tb_hutang.vendor',
+            'tb_hutang.currency',
+            'sum(tb_hutang.amount_idr) as idr',
+            'sum(tb_hutang.amount_usd) as usd',
+            'sum(tb_purchase_order_items_payments.amount_paid) as payment'
+        );
+        $this->db->select($select);
+        $this->db->join('tb_po_item', 'tb_hutang.id_po_item=tb_po_item.id');
+        $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id', 'left');
+        $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
+        $this->db->group_by(array(
+            // 'tb_hutang.vendor',
+            'tb_hutang.currency'
+            // 'tb_po_item.description'
+        ));
+        if ($date != null) {
+            $range_date  = explode('.', $date);
+            $start_date  = $range_date[0];
+            $end_date    = $range_date[1];
+
+            $this->db->where('tb_receipt_items.received_date_item >=', $start_date);
+            $this->db->where('tb_receipt_items.received_date_item <=', $end_date);
+        }
+        if ($vendor != null && $vendor != 'all') {
+            $this->db->where('tb_hutang.vendor', $vendor);
+        }
+        if ($currency != null && $currency != 'all') {
+            $this->db->where('tb_hutang.currency', $currency);
+        }
+        $query = $this->db->get();
+        $prl_item['po_items_count'] = $query->num_rows();
+
+        foreach ($query->result_array() as $key => $value) {
+            $prl_item['po_items'][$key] = $value;
+        }
+
+
+        return $prl_item;
+    }
+
 
 }
 

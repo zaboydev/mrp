@@ -64,7 +64,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'FINANCE MANAGER') {
+      if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'FINANCE MANAGER') {
         $return['tb_inventory_purchase_requisitions.approved_notes']  = 'Note';
       }
       if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {

@@ -207,18 +207,30 @@
                                     <table class="tg" id="table-document" width="100%">
                                         <thead>
                                             <tr>
-                                                <th width="20%" rowspan="2" class="middle-alignment">Name</th>
-                                                <th width="15%" rowspan="2" class="middle-alignment">No PO</th>
-                                                <th width="10%" rowspan="2" class="middle-alignment">Date</th>
-                                                <th width="10%" rowspan="2" class="middle-alignment">Quantity</th>
-                                                <th width="5%" rowspan="2" class="middle-alignment">Unit</th>
-                                                <th width="20%" colspan="2" class="middle-alignment">Amount</th>
-                                                <th width="5%" rowspan="2" class="middle-alignment">Status</th>
-                                                <th width="10%" rowspan="2" class="middle-alignment">Promised Date</th>
+                                                <th width="3%" rowspan="3" class="middle-alignment">No</th>
+                                                <th width="12%" rowspan="3" class="middle-alignment">Vendor</th>
+                                                <th width="16%" rowspan="2" colspan="2" class="middle-alignment">Saldo Awal</th>
+                                                <th width="16%" rowspan="2" colspan="2" class="middle-alignment">Pembelian</th>
+                                                <th width="32%" colspan="4" class="middle-alignment">Pembayaran</th>
+                                                <th width="5%" rowspan="2" class="middle-alignment">Adjustmetn</th>
+                                                <th width="16%" rowspan="2" colspan="2" class="middle-alignment">Saldo Akhir</th>
                                             </tr>
                                             <tr>
-                                                <th width="10%" class="middle-alignment">USD</th>
-                                                <th width="10%" class="middle-alignment">IDR</th>
+                                                <th width="16%" colspan="2" class="middle-alignment">Cash</th>
+                                                <th width="16%" colspan="2" class="middle-alignment">Bank</th>
+                                            </tr>
+                                            <tr>
+                                                <th width="8%" class="middle-alignment">USD</th>
+                                                <th width="8%" class="middle-alignment">IDR</th>
+                                                <th width="8%" class="middle-alignment">USD</th>
+                                                <th width="8%" class="middle-alignment">IDR</th>
+                                                <th width="8%" class="middle-alignment">USD</th>
+                                                <th width="8%" class="middle-alignment">IDR</th>
+                                                <th width="8%" class="middle-alignment">USD</th>
+                                                <th width="8%" class="middle-alignment">IDR</th>
+                                                <th width="5%" class="middle-alignment">IDR</th>
+                                                <th width="8%" class="middle-alignment">USD</th>
+                                                <th width="8%" class="middle-alignment">IDR</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listView">
