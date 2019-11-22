@@ -154,7 +154,7 @@
                                     <div class="row">
                                         <div class="col-xs-4">
                                             <div class="form-group">
-                                                <input class="form-control input-sm filter_daterange" data-column="2" id="date">
+                                                <input class="form-control input-sm filter_daterange" data-column="2" id="date" value="<?= date('Y-m-d') ?>.<?= date('Y-m-d') ?>">
                                                 <label for="currency">Date</label>
                                             </div>
                                         </div>
@@ -400,6 +400,7 @@
 
     });
 
+    var today = new Date();
     $('.filter_daterange').daterangepicker({
         autoUpdateInput: false,
         parentEl: '#offcanvas-datatable-filter',
@@ -421,7 +422,7 @@
 
         getPo()
     }).on('cancel.daterangepicker', function(ev, picker) {
-        $(this).val('');
+        $(this).val(today.format('YYYY-MM-DD') + '.' + today.format('YYYY-MM-DD'));
         // $(".btn-print-report").attr('disabled', true);
         suplier = $("#suplier_select").val();
         currency = $("#currency_select").val();
@@ -433,7 +434,7 @@
         row = [];
         row_detail = [];
 
-        getPo()
+        // getPo()
     });
 
     $('#currency_select').change(function() {
