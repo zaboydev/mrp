@@ -448,6 +448,8 @@
 
           $(buttonSubmitDocument).attr('disabled', false);
         });
+      } else {
+        $(buttonSubmitDocument).attr('disabled', false);
       }
 
     });

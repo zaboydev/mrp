@@ -550,7 +550,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
           if ($approval == 'without_approval') {
             $item_status               = 'open';
           }
-          $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
+          // $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
           $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
           $this->db->set('vendor', strtoupper($range_vendor_currency[1]));
           $this->db->set('quantity', floatval($detail['quantity']));
