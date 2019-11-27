@@ -17,5 +17,5 @@ $config['module']['payment']['permission']     = array(
   'print'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
   'document'  => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',//tambhan supervisor
   'payment'   => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'import'    => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',//tambhan supervisor
+  'approval'  => 'FINANCE,SUPER ADMIN',//tambhan supervisor
 );

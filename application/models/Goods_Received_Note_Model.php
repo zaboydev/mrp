@@ -545,14 +545,29 @@ class Goods_Received_Note_Model extends MY_Model
           $qty_konvers = floatval($data['received_quantity']);
         } else {
           $this->db->set('unit', strtoupper($data['unit']));
-
           $qty_konvers = floatval($data['received_quantity']);
+        }
+        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
+          $this->db->set('current_price', floatval($data['received_unit_value']));
+        } else {
+          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
         }
         $this->db->insert('tb_master_items');
 
         $item_id = $this->db->insert_id();
       } else {
         $item_id = getItemId($data['part_number'], $serial_number);
+
+        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
+          $this->db->set('current_price', floatval($data['received_unit_value']));
+        } else {
+          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
+        }
+        $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+        $this->db->where('id',$item_id);
+        $this->db->update('tb_master_items');
+
         if (!empty($data['unit_pakai']) && !empty($data['isi'])) {
           // $qty_konvers = floatval($data['received_quantity']) * floatval($data['isi']);
           $qty_konvers = floatval($data['received_quantity']);
@@ -572,7 +587,26 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('qty', $data['received_quantity']);
         $this->db->set('description', strtoupper($data['description']));
         $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('group', strtoupper($data['group']));
+        $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
+          $this->db->set('current_price', floatval($data['received_unit_value']));
+        } else {
+          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
+        }
         $this->db->insert('tb_master_part_number');
+      }else{
+        $part_number_id = getParNumberId($data['part_number']);
+        $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
+          $this->db->set('current_price', floatval($data['received_unit_value']));
+        } else {
+          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
+          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
+        }
+        $this->db->where('id', $part_number_id);
+        $this->db->update('tb_master_part_number');
       }
       // else{
       //   if (isset($_SESSION['receipt']['id'])){

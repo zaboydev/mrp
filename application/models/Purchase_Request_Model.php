@@ -1105,10 +1105,26 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('updated_by', config_item('auth_person_name'));
           $this->db->set('unit_pakai', $data['unit']);
           $this->db->insert('tb_master_items');
-
           $item_id = $this->db->insert_id();
         } else {
           $item_id = getItemId($data['part_number'], $serial_number);
+        }
+        if (isPartNumberExists($data['part_number']) === FALSE) {
+          $this->db->set('part_number', strtoupper($data['part_number']));
+          $this->db->set('min_qty', floatval(1));
+          $this->db->set('item_id', $item_id);        
+          $this->db->set('qty', 0);
+          $this->db->set('description', strtoupper($data['product_name']));
+          $this->db->set('unit', strtoupper($data['unit']));
+          $this->db->set('group', strtoupper($data['group_name']));
+          // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+          $this->db->set('current_price', floatval(1));
+          $this->db->insert('tb_master_part_number');
+        } else {
+          $part_number_id = getParNumberId($data['part_number']);
+          $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+          $this->db->where('id', $part_number_id);
+          $this->db->update('tb_master_part_number');
         }
         if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL) {
           $unbudgeted++;
@@ -2445,8 +2461,9 @@ class Purchase_Request_Model extends MY_Model
 
     $select = array(
       'tb_inventory_purchase_requisition_details.*',
-      'tb_master_items.description as product_name',
-      'tb_master_items.part_number',
+      'tb_inventory_purchase_requisition_details.product_name',
+      'tb_inventory_purchase_requisition_details.part_number',
+      'tb_master_items.minimum_quantity',
       'tb_budget.id_cot',
       'SUM(tb_budget.mtd_quantity) AS fyp_quantity',
       'SUM(tb_budget.mtd_budget) AS fyp_budget',
@@ -2456,16 +2473,17 @@ class Purchase_Request_Model extends MY_Model
 
     $group_by = array(
       'tb_inventory_purchase_requisition_details.id',
-      'tb_master_items.description',
-      'tb_master_items.part_number',
+      // 'tb_master_items.description',
+      // 'tb_master_items.part_number',
       'tb_budget.id_cot',
+      'tb_master_items.minimum_quantity',
     );
 
     $this->db->select($select);
     $this->db->from('tb_inventory_purchase_requisition_details');
-    $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
-    $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
-    $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item');
+    $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
+    $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot', 'left');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
     $this->db->where('tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id', $id);
     $this->db->group_by($group_by);
 

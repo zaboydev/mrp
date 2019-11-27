@@ -17,16 +17,27 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-<?php if (is_granted($module, 'document')) : ?>
-  <div class="section-floating-action-row">
-    <div class="btn-group dropup">
+<div class="section-floating-action-row">
+  <div class="btn-group dropup">
+
+    <?php if (is_granted($module, 'document')) : ?>
       <a href="<?= site_url($module['route'] . '/create'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
         <i class="md md-add"></i>
         <small class="top right">Create <?= $module['label']; ?></small>
       </a>
-    </div>
+    <?php endif ?>
+    <?php if (is_granted($module, 'approval')) : ?>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+        <i class="md md-clear"></i>
+        <small class="top right">reject</small>
+      </button>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
+        <i class="md md-spellcheck"></i>
+        <small class="top right">approve</small>
+      </button>
+    <?php endif ?>
   </div>
-<?php endif ?>
+</div>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
@@ -61,7 +72,6 @@
 </div>
 <?php endblock() ?>
 
-
 <?php startblock('scripts') ?>
 <?= html_script('vendors/pace/pace.min.js') ?>
 <?= html_script('vendors/jQuery/jQuery-2.2.1.min.js') ?>
@@ -83,6 +93,8 @@
   Pace.on('done', function() {
     $('.progress-overlay').hide();
   });
+
+  var id_purchase_order = "";
 
   (function($) {
     $.fn.reset = function() {
@@ -131,6 +143,19 @@
       })
     }
   }(jQuery));
+  $('input[type=radio][name=request_to]').change(function() {
+    var val = $(this).val();
+    var url = $(this).data('source');
+    console.log(val);
+    $.get(url, {
+      data: val
+    }, function(data) {
+      var result = jQuery.parseJSON(data);
+      if (result.status == "success") {
+        window.location.reload();
+      }
+    });
+  });
 
   function submit_post_via_hidden_form(url, params) {
     var f = $("<form target='_blank' method='POST' style='display:none;'></form>").attr('action', url).appendTo(document.body);
@@ -243,6 +268,7 @@
         url: "<?= $grid['data_source']; ?>",
         type: "POST",
         error: function(xhr, ajaxOptions, thrownError) {
+          console.log(xhr.responseText);
           if (xhr.status == 404) {
             toastr.clear();
             toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
@@ -258,6 +284,19 @@
         if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
           $(row).addClass('selected');
         }
+      },
+      drawCallback: function(settings) {
+        var api = this.api();
+        var data = api.rows({
+          page: 'current'
+        }).data()
+        $.each(data, function(i, item) {
+          var id = $(item[0]).attr("data-id");
+          if (id_purchase_order.indexOf("|" + id + ",") !== -1) {
+            $("#cb_" + id).attr('checked', true);
+          }
+        });
+
       },
 
       columnDefs: [{
@@ -427,7 +466,263 @@
       }
     });
 
-    $('.filter_numeric_text').on('keyup', function() {
+    var buttonSubmitDocument = $('#btn-submit-document');
+    var formDocument = $('#form-change-item');
+    $(buttonSubmitDocument).on('click', function(e) {
+      e.preventDefault();
+      $(buttonSubmitDocument).attr('disabled', true);
+
+      var url = $(this).attr('href');
+
+      $.post(url, formDocument.serialize(), function(data) {
+        var obj = $.parseJSON(data);
+
+        if (obj.success == false) {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error(obj.message);
+        } else {
+          toastr.options.timeOut = 4500;
+          toastr.options.closeButton = false;
+          toastr.options.progressBar = true;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.success(obj.message);
+
+          window.setTimeout(function() {
+            window.location.href = '<?= site_url($module['route']); ?>';
+          }, 5000);
+        }
+
+        $(buttonSubmitDocument).attr('disabled', false);
+      });
+    });
+
+    $("#modal-approve-data-button-multi").click(function() {
+      var action = $(this).data('source');
+      $(this).attr('disabled', true);
+      if (id_purchase_order !== "") {
+        $.post(action, {
+          'id_purchase_order': id_purchase_order,
+          // 'price': price
+        }).done(function(data) {
+          console.log(data);
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+          var result = jQuery.parseJSON(data);
+          if (result.status == 'success') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success('Success aprove data the page will reload');
+            window.location.reload();
+          } else {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.danger('Failed aprove data');
+          }
+        }).fail(function() {
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Delete Failed! This data is still being used by another document.');
+        });
+      } else {
+        $(this).attr('disabled', false);
+        toastr.options.timeOut = 10000;
+        toastr.options.positionClass = 'toast-top-right';
+        toastr.error('Empty selected data');
+      }
+
+    });
+
+    $("#modal-close-data-button-multi").click(function() {
+      var action = $(this).data('source');
+      $(this).attr('disabled', true);
+      if (!encodeNotes()) {
+        toastr.options.timeOut = 10000;
+        toastr.options.positionClass = 'toast-top-right';
+        toastr.error('You must filled notes for each item that you want to reject');
+      } else {
+        if (id_purchase_order !== "") {
+          $.post(action, {
+            'id_purchase_order': id_purchase_order,
+            'notes': notes
+          }).done(function(data) {
+            console.log(data);
+            $("#modal-close-data-button-multi").attr('disabled', false);
+            var result = jQuery.parseJSON(data);
+            if (result.status == 'success') {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.success('Success close data the page will reload');
+              window.location.reload();
+            } else {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.danger('Failed close data');
+            }
+          }).fail(function() {
+            $("#modal-close-data-button-multi").attr('disabled', false);
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error('Delete Failed! This data is still being used by another document.');
+          });
+        } else {
+          $(this).attr('disabled', false);
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Empty selected data');
+        }
+      }
+
+    });
+
+    function encodeNotes() {
+      new_id_purchase_order = id_purchase_order.replace(/\|/g, "");
+      new_id_purchase_order = new_id_purchase_order.substring(0, new_id_purchase_order.length - 1);
+      arr = new_id_purchase_order.split(",");
+      notes = "";
+      y = 0;
+      $.each(arr, function(i, x) {
+        if ($("#note_" + x).val() != "") {
+          notes = notes + "|" + $("#note_" + x).val() + "##,";
+          y += 1;
+        } else {
+          return false;
+        }
+      });
+      if (y == arr.length) {
+        return true
+      } else {
+        return false
+      }
+
+    }
+
+    function encodePrice() {
+      new_id_purchase_order = id_purchase_order.replace(/\|/g, "");
+      new_id_purchase_order = new_id_purchase_order.substring(0, new_id_purchase_order.length - 1);
+      arr = new_id_purchase_order.split(",");
+      price = "";
+      y = 0;
+      $.each(arr, function(i, x) {
+        if ($("#price_" + x).val() != "") {
+          price = price + "|" + $("#price_" + x).val() + "##,";
+          y += 1;
+        } else {
+          return false;
+        }
+      });
+      if (y == arr.length) {
+        return true
+      } else {
+        return false
+      }
+
+    }
+
+    $("#modal-reject-data-button-multi").click(function() {
+      var action = $(this).data('source');
+      if (id_purchase_order == "") {
+        toastr.options.timeOut = 10000;
+        toastr.options.positionClass = 'toast-top-right';
+        toastr.error('You must select item that you want to reject');
+      } else {
+        $.ajax({
+          type: "POST",
+          url: action,
+          data: {
+            "id_purchase_order": id_purchase_order,
+            // "notes": notes,
+            // "price": price
+          },
+          cache: false,
+          success: function(response) {
+            console.log(response);
+            var data = jQuery.parseJSON(response);
+            if (data.status == "success") {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.success('Successfully reject item, the page will reload now');
+              window.location.reload();
+            } else {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.error('Failed rejected item');
+            }
+          },
+          error: function(xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(xhr.responseText);
+            console.log(thrownError);
+          }
+        });
+      }
+    });
+
+    $(datatableElement).find('tbody').on('click', 'tr', function(e) {
+      console.log(e.target.nodeName);
+      if (e.target.nodeName === "INPUT") {
+        if ($(e.target).attr("type") === "checkbox") {
+          if ($(e.target).prop('checked')) {
+            id_purchase_order += "|" + $(e.target).attr('data-id') + ",";
+          } else {
+            id_purchase_order = id_purchase_order.replace("|" + $(this).attr('data-id') + ",", "");
+          }
+        }
+
+      } else if (e.target.nodeName === "SPAN") {
+        var a = $(e.target).data('id');
+        console.log(e.target.nodeName);
+        // console.log(price);
+        ///////////////////////////////////////eventdefault
+      } else {
+        $(this).popup();
+      }
+
+    });
+
+    $(datatableElement).find('tbody').on('click', 'a', function(e) {
+      e.preventDefault();
+      // console.log("tuliskan fungsinya disini");
+      // tulis disini
+      var id = $(this).data('id');
+      if (id == 'item') {
+        var a = $(this).data('item-row');
+        $.ajax({
+          url: "<?= site_url($module['route'] . '/info_item/'); ?>" + "/" + a,
+          type: 'get',
+          success: function(data) {
+            var dataModal = $('#modal-item');
+            var obj = $.parseJSON(data);
+            $(dataModal)
+              .find('.modal-body')
+              .empty()
+              .append(obj.info);
+            $(dataModal).modal('show');
+          }
+        });
+      }
+
+      if (id == 'on-hand') {
+        var a = $(this).data('item-row');
+        $.ajax({
+          url: "<?= site_url($module['route'] . '/info_on_hand/'); ?>" + "/" + a,
+          type: 'get',
+          success: function(data) {
+            var dataModal = $('#modal-item');
+            var obj = $.parseJSON(data);
+            $(dataModal)
+              .find('.modal-body')
+              .empty()
+              .append(obj.info);
+            $(dataModal).modal('show');
+          }
+        });
+      }
+
+
+    });
+
+    $('.filter_numeric_text').on('keyup click', function() {
       var i = $(this).data('column');
       var v = $(this).val();
       datatable.columns(i).search(v).draw();
@@ -455,7 +750,17 @@
       parentEl: '#offcanvas-datatable-filter',
       locale: {
         cancelLabel: 'Clear'
-      }
+      },
+      ranges: {
+        'Today': [moment(), moment()],
+        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+        'This Month': [moment().startOf('month'), moment().endOf('month')],
+        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+        'Last 3 Months': [moment().subtract(2, 'month').startOf('month'), moment().subtract('month').endOf('month')]
+      },
+      showCustomRangeLabel: false
     }).on('apply.daterangepicker', function(ev, picker) {
       $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
       var i = $(this).data('column');

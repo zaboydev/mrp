@@ -442,13 +442,13 @@
           {
             searchable: false,
             orderable: false,
-            targets: [17]
+            targets: [12]
           },
-          {
-            searchable: false,
-            orderable: false,
-            targets: [18]
-          },
+          // {
+          //   searchable: false,
+          //   orderable: false,
+          //   targets: [18]
+          // },
         ],
       <?php } else { ?>
         columnDefs: [{
@@ -459,13 +459,13 @@
           {
             searchable: false,
             orderable: false,
-            targets: [17]
+            targets: [12]
           },
-          {
-            searchable: false,
-            orderable: false,
-            targets: [18]
-          },
+          // {
+          //   searchable: false,
+          //   orderable: false,
+          //   targets: [18]
+          // },
         ],
       <?php } ?>
       dom: "<'row'<'col-sm-12'tr>>" +

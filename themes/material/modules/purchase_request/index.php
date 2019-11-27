@@ -755,6 +755,7 @@
             }
 
           });
+          
           $(datatableElement).find('tbody').on('click', 'a', function(e) {
             e.preventDefault();
             // console.log("tuliskan fungsinya disini");

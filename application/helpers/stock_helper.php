@@ -71,6 +71,23 @@ if ( ! function_exists('getItemId')) {
   }
 }
 
+if (!function_exists('getParNumberId')) {
+  function getParNumberId($part_number)
+  {
+    $CI = &get_instance();
+
+    $CI->db->select('id');
+    $CI->db->from('tb_master_part_number');
+    $CI->db->where('UPPER(part_number)', strtoupper($part_number));
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->id;
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('isSerialExists')) {
   function isSerialExists($item_id, $serial_number)
   {

@@ -115,7 +115,11 @@
                     <?= print_string($detail['poe_number']); ?>
                   </td>
                   <td>
-                    <?= print_string($detail['purchase_request_number']); ?>
+                    <?php if ($detail['poe_item_id'] == null) : ?>
+                      <a href="#"><?= print_string($detail['purchase_request_number']); ?></a>
+                    <?php else : ?>
+                      <a href="<?= site_url('purchase_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                    <?php endif; ?>
                   </td>
                   <td>
                     <?= print_number($detail['quantity'], 2); ?>

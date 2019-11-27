@@ -156,7 +156,7 @@
                 </select>
                 <label for="currency">Currency</label>
               </div>
-              <div class="form-group">
+              <div class="form-group hide">
                 <select id="account_select" class="form-control">
                   <option value="">No Account</option>
                   <?php foreach ($account as $key) {
@@ -188,7 +188,7 @@
             </div>
 
             <div class="col-md-6">
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="">
                 <label for="no_cheque">No Cheque</label>
               </div>
@@ -716,7 +716,7 @@
   })
   $("#btn-submit-document").click(function(e) {
     e.preventDefault()
-    if ($("#account_select").val() === "" || $("#suplier_select").val() === "" || $("#no_cheque").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
+    if ($("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
       toastr.options.timeOut = 10000;
       toastr.options.positionClass = 'toast-top-right';
       toastr.error("All field must be fill");
