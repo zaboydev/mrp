@@ -100,4 +100,14 @@
       </div>
     </div>
   </div>
+  <div class="card-foot">
+    <div class="pull-right">
+      <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>
+        <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+          <i class="md md-attach-money"></i>
+          <small class="top right">payment</small>
+        </a>
+      <?php endif; ?>
+    </div>
+  </div>
 </div>

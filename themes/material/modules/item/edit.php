@@ -47,7 +47,7 @@
               <label for="part_number">Part Number</label>
             </div>
 
-            <div class="form-group">
+            <div class="form-group hide">
               <input type="text" name="serial_number" id="serial_number" class="form-control" value="<?= $entity['serial_number']; ?>">
               <label for="serial_number">Serial Number</label>
             </div>
@@ -58,7 +58,7 @@
             </div>
 
             <div class="form-group">
-              <input type="text" name="minimum_quantity" id="minimum_quantity" class="form-control" value="<?= $entity['minimum_quantity']; ?>" required>
+              <input type="text" name="minimum_quantity" id="minimum_quantity" class="form-control" value="<?= $entity['min_qty']; ?>" required>
               <label for="minimum_quantity">Minimum Quantity</label>
             </div>
 
@@ -101,7 +101,7 @@
               <label for="group">Group</label>
             </div>
 
-            <div class="form-group">
+            <div class="form-group hide">
               <label>Mixable</label>
 
               <div class="radio">

@@ -32,7 +32,16 @@ class Payment extends MY_Controller
       foreach ($entities as $row) {
         $no++;
         $col = array();
-        $col[]  = print_number($no);
+        if ($row['status'] == 'WAITING') {
+          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+          if (is_granted($this->module, 'approval') === TRUE) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          } else {
+            $col[] = print_number($no);
+          }
+        }else{
+          $col[]  = print_number($no);
+        }
         $col[]  = print_string($row['no_transaksi']);
         $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['no_cheque']);
@@ -42,6 +51,7 @@ class Payment extends MY_Controller
         $col[]  = print_string($row['description']);
         $col[]  = print_string($row['default_currency']);
         $col[]  = print_number($row['amount_paid'], 2);
+        $col[]  = print_string($row['status']);
         $col[]  = print_string($row['created_by']);
         $col[]  = print_date($row['created_at']);
 
@@ -53,7 +63,8 @@ class Payment extends MY_Controller
         $col['DT_RowData']['pkey']  = $row['id'];
 
         if ($this->has_role($this->module, 'info')) {
-          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          $col['DT_RowAttr']['onClick']     = '';
           $col['DT_RowAttr']['data-target'] = '#data-modal';
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
         }
@@ -191,12 +202,125 @@ class Payment extends MY_Controller
       $entity = $this->model->findById($id);
 
       $this->data['entity'] = $entity;
+      $this->data['id']     = $id;
 
       $return['type'] = 'success';
       $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
     }
 
     echo json_encode($return);
+  }
+
+  public function multi_approve()
+  {
+    $id_purchase_order = $this->input->post('id_purchase_order');
+    $id_purchase_order = str_replace("|", "", $id_purchase_order);
+    $id_purchase_order = substr($id_purchase_order, 0, -1);
+    $id_purchase_order = explode(",", $id_purchase_order);
+
+    // $str_price = $this->input->post('price');
+    // $price = str_replace("|", "", $str_price);
+    // $price = substr($price, 0, -3);
+    // $price = explode("##,", $price);
+
+    $total = 0;
+    $success = 0;
+    $failed = sizeof($id_purchase_order);
+    $x = 0;
+    foreach ($id_purchase_order as $key) {
+      if ($this->model->approve($key)) {
+        $total++;
+        $success++;
+        $failed--;
+        // $this->model->send_mail_approved($key,'approved');
+      }
+      $x++;
+    }
+    if ($success > 0) {
+      // $id_role = 13;
+      $this->session->set_flashdata('alert', array(
+        'type' => 'success',
+        'info' => $success . " data has been approved!"
+      ));
+    }
+    if ($failed > 0) {
+      $this->session->set_flashdata('alert', array(
+        'type' => 'danger',
+        'info' => "There are " . $failed . " errors"
+      ));
+    }
+    if ($total == 0) {
+      $result['status'] = 'failed';
+    } else {
+      //$this->sendEmailHOS();
+      $result['status'] = 'success';
+    }
+    echo json_encode($result);
+  }
+
+  public function multi_reject()
+  {
+    $id_purchase_order = $this->input->post('id_purchase_order');
+    $id_purchase_order = str_replace("|", "", $id_purchase_order);
+    $id_purchase_order = substr($id_purchase_order, 0, -1);
+    $id_purchase_order = explode(",", $id_purchase_order);
+
+    // $str_price = $this->input->post('price');
+    // $price = str_replace("|", "", $str_price);
+    // $price = substr($price, 0, -3);
+    // $price = explode("##,", $price);
+
+    $total = 0;
+    $success = 0;
+    $failed = sizeof($id_purchase_order);
+    $x = 0;
+    foreach ($id_purchase_order as $key) {
+      if ($this->model->rejected($key)) {
+        $total++;
+        $success++;
+        $failed--;
+        // $this->model->send_mail_approved($key,'approved');
+      }
+      $x++;
+    }
+    if ($success > 0) {
+      // $id_role = 13;
+      $this->session->set_flashdata('alert', array(
+        'type' => 'success',
+        'info' => $success . " data has been rejected!"
+      ));
+    }
+    if ($failed > 0) {
+      $this->session->set_flashdata('alert', array(
+        'type' => 'danger',
+        'info' => "There are " . $failed . " errors"
+      ));
+    }
+    if ($total == 0) {
+      $result['status'] = 'failed';
+    } else {
+      //$this->sendEmailHOS();
+      $result['status'] = 'success';
+    }
+    echo json_encode($result);
+  }
+
+  public function bayar($id)
+  {
+    $this->authorized($this->module, 'document');
+
+    // if ($category !== NULL){
+    $item       = $this->model->findById($id);
+
+    $_SESSION['payment']                          = $item;
+    $_SESSION['payment']['no_transaksi']          = $item['no_transaksi'];
+    $_SESSION['payment']['vendor']                = $item['vendor'];
+
+    $this->data['account']                  = $this->model->getAccount($this->data['currency']);
+    $this->data['suplier']                  = $this->model->getSuplier($this->data['currency']);
+    
+
+    $this->render_view($this->module['view'] . '/bayar');
   }
 
 }

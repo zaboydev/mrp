@@ -237,6 +237,25 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isPartNumberExists($part_number, $serial_number = NULL, $part_number_exception = NULL, $serial_number_exception = NULL)
+  {
+    $this->db->from('tb_master_part_number');
+    $this->db->where('part_number', strtoupper($part_number));
+
+    // if ($serial_number !== NULL)
+    //   $this->db->where('serial_number != ', $serial_number);
+
+    if ($part_number_exception !== NULL)
+      $this->db->where('part_number != ', $part_number_exception);
+
+    // if ($serial_number_exception !== NULL)
+    //   $this->db->where('serial_number != ', $serial_number_exception);
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? true : false;
+  }
+
   public function isItemCategoryExists($category, $status = NULL, $item_category_exception = NULL)
   {
     $this->db->from(config_item('module')['category']['table']);

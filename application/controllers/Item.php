@@ -31,7 +31,7 @@ class Item extends MY_Controller
       4 => array ( 0 => 5, 1 => 'asc' ),
       5 => array ( 0 => 6, 1 => 'asc' ),
       6 => array ( 0 => 7, 1 => 'asc' ),
-      7 => array ( 0 => 8, 1 => 'desc' ),
+      // 7 => array ( 0 => 8, 1 => 'desc' ),
       // 8 => array ( 0 => 9, 1 => 'desc' ),
     );
 
@@ -56,18 +56,18 @@ class Item extends MY_Controller
         $no++;
         $col = array();
         $col[] = print_number($no);
-        $col[] = print_string($row['id']);        
+        // $col[] = print_string($row['id']);        
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['description']);
         $col[] = print_string($row['kode_stok']);
         //$col[] = print_string($row['kode_pemakaian']);
         $col[] = print_string($row['alternate_part_number']);
-        $col[] = print_string($row['serial_number']);
+        // $col[] = print_string($row['serial_number']);
         // $col[] = print_string($row['category']);
         $col[] = print_string($row['group']);
         $col[] = print_number($row['minimum_quantity'], 2);
         $col[] = print_string($row['unit']);        
-        $col[] = print_date($row['updated_at']);
+        // $col[] = print_date($row['updated_at']);
 
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
@@ -138,7 +138,7 @@ class Item extends MY_Controller
         if ($this->model->isItemDescriptionExists($this->input->post('description'), $this->input->post('description_exception'))){
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Item! Description '. $this->input->post('description') .' already exists.';
-        } elseif ($this->model->isItemExists($this->input->post('part_number'), $this->input->post('serial_number'), $this->input->post('part_number_exception'), $this->input->post('serial_number_exception'))){
+        } elseif ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'), $this->input->post('part_number_exception'), $this->input->post('serial_number_exception'))){
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Item! Part Number '. $this->input->post('part_number') .' & Serial '. $this->input->post('serial_number') .' already exists.';
         } else {
@@ -154,7 +154,7 @@ class Item extends MY_Controller
         if ($this->model->isItemDescriptionExists($this->input->post('description'))){
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Description! Description '. $this->input->post('description') .' already exists.';
-        } elseif ($this->model->isItemExists($this->input->post('part_number'), $this->input->post('serial_number'))){
+        } elseif ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'))){
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Part Number! Part Number '. $this->input->post('part_number') .' already exists.';
         } else {
@@ -193,7 +193,7 @@ class Item extends MY_Controller
     echo json_encode($return);
   }
 
-  public function import()
+  public function import_2()
   {
     $this->authorized($this->module, 'import');
 
@@ -338,6 +338,20 @@ class Item extends MY_Controller
              ******************************************/
             if ($this->model->isItemExists($part_number))
               $errors[] = 'Line '. $row .': Duplicate part number '. $part_number;
+
+               /* CHECK COLUMN 8
+             ******************/
+            $stores = trim(strtoupper($col[8]));
+            $data[$row]['stores'] = $stores;
+
+            if ($stores == '')
+              $errors[] = 'Line '. $row .': stores is null!';
+
+            /******************
+             * CHECK COLUMN 9
+             ******************/
+            $condition = trim(strtoupper($col[9]));
+            $data[$row]['condition'] = $condition;
           }
           fclose($handle);
 
@@ -481,185 +495,158 @@ class Item extends MY_Controller
     $this->render_view();
   }
 
-  // public function import()
-  // {
-  //   $this->authorized($this->module, 'import');
+  public function import()
+  {
+    $this->authorized($this->module, 'import');
 
-  //   //... load library to build form and validate it
-  //   $this->load->library('form_validation');
+    //... load library to build form and validate it
+    $this->load->library('form_validation');
 
-  //   /**
-  //    * Processing data
-  //    * if form submitted
-  //    */
-  //   if (isset($_POST) && !empty($_POST)) {
-  //     //... set rules of validation
-  //     $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
+    /**
+     * Processing data
+     * if form submitted
+     */
+    if (isset($_POST) && !empty($_POST)) {
+      //... set rules of validation
+      $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
 
-  //     /**
-  //      * Processing validation
-  //      * Run OK
-  //      */
-  //     if ($this->form_validation->run() === TRUE) {
-  //       $file       = $_FILES['userfile']['tmp_name'];
-  //       $delimiter  = $this->input->post('delimiter');
+      /**
+       * Processing validation
+       * Run OK
+       */
+      if ($this->form_validation->run() === TRUE) {
+        $file       = $_FILES['userfile']['tmp_name'];
+        $delimiter  = $this->input->post('delimiter');
 
-  //       //... open file
-  //       if (($handle = fopen($file, "r")) !== FALSE) {
-  //         $row     = 1;
-  //         $data    = array();
-  //         $errors  = array();
-  //         $user_id = array();
-  //         $index   = 0;
-  //         fgetcsv($handle); // skip first line (as header)
+        //... open file
+        if (($handle = fopen($file, "r")) !== FALSE) {
+          $row     = 1;
+          $data    = array();
+          $errors  = array();
+          $user_id = array();
+          $index   = 0;
+          fgetcsv($handle); // skip first line (as header)
 
-  //         //... parsing line
-  //         while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE) {
-  //           $row++;
+          //... parsing line
+          while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE) {
+            $row++;
 
-  //           /******************
-  //            * CHECK COLUMN 0
-  //            ******************/
-  //           // $group = trim(strtoupper($col[0]));
-  //           // $data[$row]['group'] = $group;
+            /******************
+             * CHECK COLUMN 0
+             ******************/
+            // $group = trim(strtoupper($col[0]));
+            // $data[$row]['group'] = $group;
 
-  //           // if ($group == '')
-  //           //   $errors[] = 'Line ' . $row . ': group is null!';
+            // if ($group == '')
+            //   $errors[] = 'Line ' . $row . ': group is null!';
 
-  //           // if ($this->model->isItemGroupExists($group) == FALSE)
-  //           //   $errors[] = 'Line ' . $row . ': Unknown item group ' . $group;
+            // if ($this->model->isItemGroupExists($group) == FALSE)
+            //   $errors[] = 'Line ' . $row . ': Unknown item group ' . $group;
 
-  //           /***************************************************
-  //            * CHECK COLUMN 1
-  //            ***********************************/
-  //           $description = (trim($col[0]) == '') ? null : trim(strtoupper($col[0]));
-  //           $data[$row]['description'] = $description;
+            /***************************************************
+             * CHECK COLUMN 1
+             ***********************************/
+            $description = (trim($col[0]) == '') ? null : trim(strtoupper($col[0]));
+            $data[$row]['description'] = $description;
 
-  //           if ($description === null)
-  //             $errors[] = 'Line ' . $row . ': description is null!';
+            if ($description === null)
+              $errors[] = 'Line ' . $row . ': description is null!';
 
-  //           /***************************************************
-  //            * CHECK COLUMN 2
-  //            ***********************************/
-  //           $part_number = (trim($col[1]) == '') ? null : trim(strtoupper($col[1]));
-  //           $data[$row]['part_number'] = $part_number;
+            /***************************************************
+             * CHECK COLUMN 2
+             ***********************************/
+            $part_number = (trim($col[1]) == '') ? null : trim(strtoupper($col[1]));
+            $data[$row]['part_number'] = $part_number;
 
-  //           if ($part_number === null)
-  //             $errors[] = 'Line ' . $row . ': part number is null!';
+            if ($part_number === null)
+              $errors[] = 'Line ' . $row . ': part number is null!';
 
-  //           if (strlen($part_number) > 50)
-  //             $errors[] = 'Line ' . $row . ': part number is too long!';
+            if (strlen($part_number) > 50)
+              $errors[] = 'Line ' . $row . ': part number is too long!';
 
-  //           /******************************************************
-  //            * CHECK COLUMN 3
-  //            *******************************************/
-  //           // $alternate_part_number = (trim($col[3]) == '') ? null : trim(strtoupper($col[3]));
-  //           // $data[$row]['alternate_part_number'] = $alternate_part_number;
+            
+            $unit = trim(strtoupper($col[2]));
+            $data[$row]['unit'] = $unit;
 
-  //           // if (strlen($alternate_part_number) > 50)
-  //           //   $errors[] = 'Line ' . $row . ': alt part number is too long!';
+            if ($unit == '')
+              $errors[] = 'Line ' . $row . ': Unit is null!';
 
-  //           /******************************************************
-  //            * CHECK COLUMN 4
-  //            *******************************************/
-  //           // $minimum_quantity = (trim($col[4]) == '') ? 0 : trim(strtoupper($col[4]));
-  //           // $data[$row]['minimum_quantity'] = $minimum_quantity;
+            if ($this->model->isItemUnitExists($unit) == FALSE)
+              $errors[] = 'Line ' . $row . ': Unknown unit ' . $unit;
 
-  //           // if (is_numeric($minimum_quantity) === FALSE)
-  //           //   $errors[] = 'Line ' . $row . ': minimum quantity is not numeric!';
+            $group = trim(strtoupper($col[3]));
+            $data[$row]['group'] = $group;
 
-  //           /******************
-  //            * CHECK COLUMN 5
-  //            ******************/
-  //           $unit = trim(strtoupper($col[2]));
-  //           $data[$row]['unit'] = $unit;
-
-  //           if ($unit == '')
-  //             $errors[] = 'Line ' . $row . ': Unit is null!';
-
-  //           if ($this->model->isItemUnitExists($unit) == FALSE)
-  //             $errors[] = 'Line ' . $row . ': Unknown unit ' . $unit;
-
-  //           /******************
-  //            * CHECK COLUMN 6
-  //            ******************/
-  //           // $serial_number = trim(strtoupper($col[6]));
-  //           // $data[$row]['serial_number'] = $serial_number;
-
-  //           // if ($serial_number == '')
-  //           //   $errors[] = 'Line ' . $row . ': Serial Number is null!';
-
-  //           // // if ($this->model->isItemUnitExists($unit) == FALSE)
-  //           // //   $errors[] = 'Line '. $row .': Unknown unit '. $unit;
-
-  //           // /******************
-  //           //  * CHECK COLUMN 7
-  //           //  ******************/
-  //           // $warehouse = trim(strtoupper($col[7]));
-  //           // $data[$row]['warehouse'] = $warehouse;
-
-  //           // if ($warehouse == '')
-  //           //   $errors[] = 'Line ' . $row . ': Warehouse is null!';
-
-  //           // /******************
-  //           //  * CHECK COLUMN 8
-  //           //  ******************/
-  //           // $stores = trim(strtoupper($col[8]));
-  //           // $data[$row]['stores'] = $stores;
-
-  //           // if ($stores == '')
-  //           //   $errors[] = 'Line ' . $row . ': stores is null!';
-
-  //           // /******************
-  //           //  * CHECK COLUMN 9
-  //           //  ******************/
-  //           // $condition = trim(strtoupper($col[9]));
-  //           // $data[$row]['condition'] = $condition;
-
-  //           // if ($condition == '')
-  //           //   $errors[] = 'Line ' . $row . ': condition is null!';
+            if ($group == '')
+              $errors[] = 'Line ' . $row . ': group is null!';
 
 
-  //           // /**************************************************************
-  //           //  * CHECK DUPLICATE PART NUMBER
-  //           //  ******************************************/
-  //           // if ($this->model->isItemExists($part_number))
-  //           //   $errors[] = 'Line ' . $row . ': Duplicate part number ' . $part_number;
-  //         }
-  //         fclose($handle);
+            $alternate_part_number = trim(strtoupper($col[4]));
+            $data[$row]['alternate_part_number'] = $alternate_part_number;
 
-  //         if (empty($errors)) {
-  //           /**
-  //            * Insert into user table
-  //            */
-  //           if ($this->model->import($data)) {
-  //             //... send message to view
-  //             $this->session->set_flashdata('alert', array(
-  //               'type' => 'success',
-  //               'info' => count($data) . " data has been imported!"
-  //             ));
+            // if ($alternate_part_number == '')
+            //   $errors[] = 'Line ' . $row . ': alternate_part_number is null!';
 
-  //             redirect($this->module['route']);
-  //           }
-  //         } else {
-  //           foreach ($errors as $key => $value) {
-  //             $err[] = "\n#" . $value;
-  //           }
+            $minimum_quantity = trim(strtoupper($col[5]));
+            $data[$row]['minimum_quantity'] = $minimum_quantity;
 
-  //           $this->session->set_flashdata('alert', array(
-  //             'type' => 'danger',
-  //             'info' => "There are errors on data\n#" . implode("\n#", $errors)
-  //           ));
-  //         }
-  //       } else {
-  //         $this->session->set_flashdata('alert', array(
-  //           'type' => 'danger',
-  //           'info' => 'Cannot open file!'
-  //         ));
-  //       }
-  //     }
-  //   }
+            if ($minimum_quantity == '')
+              $errors[] = 'Line ' . $row . ': minimum_quantity is null!';
 
-  //   redirect($this->module['route']);
-  // }
+            $kode_pemakaian = trim(strtoupper($col[6]));
+            $data[$row]['kode_pemakaian'] = $kode_pemakaian;
+
+            // if ($kode_pemakaian == '')
+            //   $errors[] = 'Line ' . $row . ': kode_pemakaian is null!';
+
+            $current_price = trim(strtoupper($col[7]));
+            $data[$row]['current_price'] = $current_price;
+
+            // if ($current_price == '')
+            //   $errors[] = 'Line ' . $row . ': current_price is null!';
+
+            $kode_stok = trim(strtoupper($col[8]));
+            $data[$row]['kode_stok'] = $kode_stok;
+
+            // if ($current_price == '')
+            //   $errors[] = 'Line ' . $row . ': current_price is null!';
+
+
+          }
+          fclose($handle);
+
+          if (empty($errors)) {
+            /**
+             * Insert into user table
+             */
+            if ($this->model->import($data)) {
+              //... send message to view
+              $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => count($data) . " data has been imported!"
+              ));
+
+              redirect($this->module['route']);
+            }
+          } else {
+            foreach ($errors as $key => $value) {
+              $err[] = "\n#" . $value;
+            }
+
+            $this->session->set_flashdata('alert', array(
+              'type' => 'danger',
+              'info' => "There are errors on data\n#" . implode("\n#", $errors)
+            ));
+          }
+        } else {
+          $this->session->set_flashdata('alert', array(
+            'type' => 'danger',
+            'info' => 'Cannot open file!'
+          ));
+        }
+      }
+    }
+
+    redirect($this->module['route']);
+  }
 }
