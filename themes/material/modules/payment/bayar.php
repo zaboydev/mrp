@@ -82,7 +82,7 @@
                                 <tr>
                                     <!-- <th class="middle-alignment"></th> -->
                                     <th class="middle-alignment"></th>
-                                    <th class="middle-alignment">P/N</th>
+                                    <!-- <th class="middle-alignment"></th> -->
                                     <th class="middle-alignment">Description</th>
                                     <th class="middle-alignment text-center">Amount Paid</th>
                                     <th class="middle-alignment">PO#</th>
@@ -101,9 +101,9 @@
                                             </a>
 
                                         </td>
-                                        <td class="no-space">
+                                        <!-- <td class="no-space">
                                             <?= $item['part_number']; ?>
-                                        </td>
+                                        </td> -->
                                         <td class="no-space">
                                             <?= $item['description']; ?>
                                         </td>

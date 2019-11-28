@@ -17,8 +17,8 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.no_cheque'                    	=> 'No Cheque',
 			'tb_po.document_number'                   							=> 'PO#',
 			'tb_po.vendor'                   									=> 'Vendor',
-			'tb_po_item.part_number'             								=> 'Part Number',
-			'tb_po_item.description'                      						=> 'Description',
+			// 'tb_po_item.part_number'             								=> 'Part Number',
+			'tb_purchase_order_items_payments.deskripsi as description'			=> 'Description',
 			'tb_po.default_currency'             								=> 'Currency',
 			'tb_purchase_order_items_payments.amount_paid'   					=> 'Amount',
 			'tb_purchase_order_items_payments.status'	                     	=> 'Status',
@@ -38,8 +38,8 @@ class Payment_Model extends MY_MODEL
 			// 'tb_purchase_order_items_payments.tanggal',
 			'tb_purchase_order_items_payments.no_cheque',
 			'tb_po.document_number',
-			'tb_po_item.part_number',
-			'tb_po_item.description',
+			// 'tb_po_item.part_number',
+			'tb_purchase_order_items_payments.deskripsi',
 			'tb_po.default_currency',
 			// 'tb_purchase_order_items_payments.amount_paid',
 			'tb_purchase_order_items_payments.created_by',
@@ -59,8 +59,8 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.tanggal',
 			'tb_purchase_order_items_payments.no_cheque',
 			'tb_po.document_number',
-			'tb_po_item.part_number',
-			'tb_po_item.description',
+			// 'tb_po_item.part_number',
+			'tb_purchase_order_items_payments.deskripsi',
 			'tb_po.default_currency',
 			'tb_purchase_order_items_payments.amount_paid',
 			'tb_purchase_order_items_payments.created_by',
@@ -120,8 +120,8 @@ class Payment_Model extends MY_MODEL
 	{
 		$this->db->select(array_keys($this->getSelectedColumns()));
 		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
-		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 
 		$this->searchIndex();
@@ -154,8 +154,8 @@ class Payment_Model extends MY_MODEL
 	{
 		$this->db->select(array_keys($this->getSelectedColumns()));
 		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
-		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 
 		$this->searchIndex();
@@ -169,8 +169,8 @@ class Payment_Model extends MY_MODEL
 	{
 		$this->db->select(array_keys($this->getSelectedColumns()));
 		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
-		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 
 		$query = $this->db->get();
@@ -289,10 +289,14 @@ class Payment_Model extends MY_MODEL
 		// $this->db->insert('tb_jurnal_detail');
 		foreach ($item as $key) {
 			if ($key["value"] > 0) {
-				$id_po = $this->get_id_po($key["document_number"]);
+				$id_po = $key['id_po'];
 				$status = $this->get_status_po($id_po);
 
-				$this->db->set('purchase_order_item_id', $key["document_number"]);
+				if($key["document_number"]!=0){
+					$this->db->set('purchase_order_item_id', $key["document_number"]);
+				}				
+				$this->db->set('id_po', $id_po);
+				$this->db->set('deskripsi', $key['desc']);
 				$this->db->set('amount_paid', $key["value"]);
 				$this->db->set('created_by', config_item('auth_person_name'));
 				$this->db->set('no_cheque', $no_cheque);
@@ -502,18 +506,19 @@ class Payment_Model extends MY_MODEL
 
 		$this->db->select($select);
 		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
-		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		$this->db->where('tb_purchase_order_items_payments.no_transaksi', $no_jurnal);
 		$this->db->group_by($select);
 		$query = $this->db->get();
 		$payment = $query->unbuffered_row('array');
 
 		$select = array(
-			'tb_po_item.part_number',
-			'tb_po_item.description',
+			// 'tb_po_item.part_number',
+			'tb_purchase_order_items_payments.deskripsi as description',
 			'tb_purchase_order_items_payments.amount_paid',
 			'tb_purchase_order_items_payments.purchase_order_item_id',
+			'tb_purchase_order_items_payments.id_po',
 			'tb_purchase_order_items_payments.uang_muka',
 			'tb_purchase_order_items_payments.id',
 			'tb_po.document_number',
@@ -522,9 +527,10 @@ class Payment_Model extends MY_MODEL
 
 		$this->db->select($select);
 		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
-		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		$this->db->where('tb_purchase_order_items_payments.no_transaksi', $no_jurnal);
+		$this->db->order_by('tb_purchase_order_items_payments.id_po','asc');
 
 		$query_item = $this->db->get();
 
@@ -606,7 +612,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('currency', $currency);
 		$this->db->insert('tb_jurnal_detail');
 		foreach ($_SESSION['payment']['items'] as $i => $key) {
-			$id_po = $this->get_id_po($key["purchase_order_item_id"]);
+			$id_po = $key['id_po'];
 			$status = $this->get_status_po($id_po);
 
 			// $this->db->set('purchase_order_item_id', $key["document_number"]);
@@ -628,10 +634,17 @@ class Payment_Model extends MY_MODEL
 			$this->db->where('id', $key["id"]);
 			$this->db->update('tb_purchase_order_items_payments');
 
-			$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["amount_paid"], false);
-			// $this->db->set('payment', '"payment" + ' . $key["value"], false);
-			$this->db->where('id', $key["purchase_order_item_id"]);
-			$this->db->update('tb_po_item');
+			if($key['purchase_order_item_id']!==null){
+				$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["amount_paid"], false);
+				// $this->db->set('payment', '"payment" + ' . $key["value"], false);
+				$this->db->where('id', $key["purchase_order_item_id"]);
+				$this->db->update('tb_po_item');
+			}else{
+				$this->db->set('additional_price_remaining', '"additional_price_remaining" - ' . $key["amount_paid"], false);
+				// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
+			}
 
 			$this->db->set('remaining_payment', '"remaining_payment" - ' . $key["amount_paid"], false);
 			$this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);

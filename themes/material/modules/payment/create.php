@@ -566,7 +566,7 @@
         for (i = 1; i <= data.count_po; i++) {
           row.push(i);
         }
-        for (i = 1; i <= data.count_detail; i++) {
+        for (i = 1; i <= data.count_detail + data.count_po; i++) {
           row_detail.push(i);
         }
       }
@@ -746,6 +746,8 @@
       $.each(row_detail, function(i, item) {
         var data = {}
         data["document_number"] = $("#sel_item_" + po + "_" + item).val()
+        data["id_po"] = $("#sel_item_2_" + po + "_" + item).val()
+        data["desc"] = $("#desc_item_" + po + "_" + item).val()
         data["value"] = parseInt($("#in_item_" + po + "_" + item).val())
         postData.push(data);
       });

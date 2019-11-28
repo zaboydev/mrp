@@ -52,7 +52,7 @@
                 <th>No</th>
                 <th>PO#</th>
                 <th>Currency</th>
-                <th>P/N</th>
+                <!-- <th>P/N</th> -->
                 <th>Description</th>
                 <th align="right">Amount Paid</th>
               </tr>
@@ -72,9 +72,9 @@
                   <td>
                     <?= print_string($detail['default_currency']); ?>
                   </td>
-                  <td>
+                  <!-- <td>
                     <?= print_string($detail['part_number']); ?>
-                  </td>
+                  </td> -->
                   <td>
                     <?= print_string($detail['description']); ?>
                   </td>
@@ -91,7 +91,7 @@
                 <th>Total</th>
                 <th></th>
                 <th></th>
-                <th></th>
+                <!-- <th></th> -->
                 <th><?= print_number(array_sum($amount_paid), 2); ?></th>
               </tr>
             </tfoot>

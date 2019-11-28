@@ -50,7 +50,7 @@ class Payment extends MY_Controller
         $col[]  = print_string($row['no_cheque']);
         $col[]  = print_string($row['document_number']);
         $col[]  = print_string($row['vendor']);
-        $col[]  = print_string($row['part_number']);
+        // $col[]  = print_string($row['part_number']);
         $col[]  = print_string($row['description']);
         $col[]  = print_string($row['default_currency']);
         $col[]  = print_number($row['amount_paid'], 2);
