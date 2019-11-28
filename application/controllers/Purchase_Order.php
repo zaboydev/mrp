@@ -633,6 +633,9 @@ class Purchase_Order extends MY_Controller
 
     $this->data['entity']           = $entity;
     $this->data['page']['title']    = strtoupper($this->module['label']);
+    if (strpos($entity['document_number'], 'W') !== FALSE){
+      $this->data['page']['title']    = 'WORK ORDER';
+    }
     $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->module['view'] . '/pdf', $this->data, true);
