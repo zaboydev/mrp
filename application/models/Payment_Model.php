@@ -21,9 +21,10 @@ class Payment_Model extends MY_MODEL
 			'tb_po_item.description'                      						=> 'Description',
 			'tb_po.default_currency'             								=> 'Currency',
 			'tb_purchase_order_items_payments.amount_paid'   					=> 'Amount',
-			'tb_purchase_order_items_payments.status'	                     	=> 'Status',	
+			'tb_purchase_order_items_payments.status'	                     	=> 'Status',
+			NULL											           			=> 'Attachment',
 			'tb_purchase_order_items_payments.created_by'           			=> 'Created by',
-			'tb_purchase_order_items_payments.created_at'                     	=> 'Created At',		
+			'tb_purchase_order_items_payments.created_at'                     	=> 'Created At',
 		);
 
 		return $return;
@@ -121,6 +122,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
 		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 
 		$this->searchIndex();
 
@@ -154,6 +156,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
 		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 
 		$this->searchIndex();
 
@@ -168,6 +171,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
 		$this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 
 		$query = $this->db->get();
 
@@ -301,7 +305,7 @@ class Payment_Model extends MY_MODEL
 				}
 				if ($currency == 'USD') {
 					$this->db->set('kurs', $kurs);
-				}else{
+				} else {
 					$this->db->set('kurs', 1);
 				}
 				$this->db->insert('tb_purchase_order_items_payments');
@@ -492,7 +496,8 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.coa_kredit',
 			'tb_purchase_order_items_payments.akun_kredit',
 			'tb_po.vendor',
-			'tb_purchase_order_items_payments.status',	
+			'tb_purchase_order_items_payments.status',
+			'tb_po.default_currency',
 		);
 
 		$this->db->select($select);
@@ -508,6 +513,9 @@ class Payment_Model extends MY_MODEL
 			'tb_po_item.part_number',
 			'tb_po_item.description',
 			'tb_purchase_order_items_payments.amount_paid',
+			'tb_purchase_order_items_payments.purchase_order_item_id',
+			'tb_purchase_order_items_payments.uang_muka',
+			'tb_purchase_order_items_payments.id',
 			'tb_po.document_number',
 			'tb_po.default_currency',
 		);
@@ -531,7 +539,7 @@ class Payment_Model extends MY_MODEL
 	{
 		$this->db->trans_begin();
 
-		$this->db->set('status','APPROVED');
+		$this->db->set('status', 'APPROVED');
 		$this->db->where('id', $id);
 		$this->db->update('tb_purchase_order_items_payments');
 
@@ -555,6 +563,201 @@ class Payment_Model extends MY_MODEL
 
 		$this->db->trans_commit();
 		return TRUE;
+	}
+
+	function save_pembayaran()
+	{
+		$this->db->trans_begin();
+		// $item = $this->input->post('item');
+		$account = $this->input->post('account');
+		$vendor = $this->input->post('vendor');
+		$no_cheque = $this->input->post('no_cheque');
+		$tanggal = $this->input->post('date');
+		$amount = $this->input->post('amount');
+		$no_jurnal = $this->input->post('no_transaksi');
+		$currency = $this->input->post('currency');
+		$kurs = $this->tgl_kurs(date("Y-m-d"));
+		$tipe = $this->input->post('tipe');
+		if ($currency == 'IDR') {
+			$amount_idr = $amount;
+			$amount_usd = $amount / $kurs;
+		} else {
+			$amount_usd = $amount;
+			$amount_idr = $amount * $kurs;
+		}
+
+
+		$this->db->set('no_jurnal', $no_jurnal);
+		$this->db->set('tanggal_jurnal  ', date("Y-m-d"));
+		$this->db->set('source', "AP");
+		$this->db->set('vendor', $vendor);
+		$this->db->set('grn_no', $no_jurnal);
+		$this->db->insert('tb_jurnal');
+		$id_jurnal = $this->db->insert_id();
+
+		$jenis = $this->groupsBycoa($account);
+		$this->db->set('id_jurnal', $id_jurnal);
+		$this->db->set('jenis_transaksi', $jenis);
+		$this->db->set('trs_debet', 0);
+		$this->db->set('trs_kredit', $amount_idr);
+		$this->db->set('trs_debet_usd', 0);
+		$this->db->set('trs_kredit_usd', $amount_usd);
+		$this->db->set('kode_rekening', $account);
+		$this->db->set('currency', $currency);
+		$this->db->insert('tb_jurnal_detail');
+		foreach ($_SESSION['payment']['items'] as $i => $key) {
+			$id_po = $this->get_id_po($key["purchase_order_item_id"]);
+			$status = $this->get_status_po($id_po);
+
+			// $this->db->set('purchase_order_item_id', $key["document_number"]);
+			// $this->db->set('amount_paid', $key["value"]);
+			// $this->db->set('created_by', config_item('auth_person_name'));
+			$this->db->set('no_cheque', $no_cheque);
+			$this->db->set('tanggal', $tanggal);
+			$this->db->set('status', "PAID");
+			$this->db->set('coa_kredit', $account);
+			$this->db->set('akun_kredit', $jenis);
+			// if ($status == "ORDER") {
+			// 	$this->db->set('uang_muka', $key["value"]);
+			// }
+			if ($currency == 'USD') {
+				$this->db->set('kurs', $kurs);
+			} else {
+				$this->db->set('kurs', 1);
+			}
+			$this->db->where('id', $key["id"]);
+			$this->db->update('tb_purchase_order_items_payments');
+
+			$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["amount_paid"], false);
+			// $this->db->set('payment', '"payment" + ' . $key["value"], false);
+			$this->db->where('id', $key["purchase_order_item_id"]);
+			$this->db->update('tb_po_item');
+
+			$this->db->set('remaining_payment', '"remaining_payment" - ' . $key["amount_paid"], false);
+			$this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
+			$this->db->where('id', $id_po);
+			$this->db->update('tb_po');
+
+			if ($currency == 'IDR') {
+				$amount_idr = $key["amount_paid"];
+				$amount_usd = $key["amount_paid"] / $kurs;
+			} else {
+				$amount_usd = $key["amount_paid"];
+				$amount_idr = $key["amount_paid"] * $kurs;
+			}
+
+			if ($key['uang_muka'] > 0) {
+				if ($currency == 'IDR') {
+					$id_master_akun = 3;
+				} else {
+					$id_master_akun = 4;
+				}
+				$jenis_transaksi = 'Down Payment Inventories ' . $currency;
+				// $this->db->set('uang_muka', '"uang_muka" + ' . $key["value"], false);
+				// $this->db->where('id', $key["document_number"]);
+				// $this->db->update('tb_po_item');
+			} else {
+				if ($currency == 'IDR') {
+					$id_master_akun = 1;
+				} else {
+					$id_master_akun = 2;
+				}
+				$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
+			}
+			$akun = get_set_up_akun($id_master_akun);
+
+			$this->db->set('id_jurnal', $id_jurnal);
+			$this->db->set('jenis_transaksi', strtoupper($akun->group));
+			$this->db->set('trs_kredit', 0);
+			$this->db->set('trs_debet', $amount_idr);
+			$this->db->set('trs_kredit_usd', 0);
+			$this->db->set('trs_debet_usd', $amount_usd);
+			$this->db->set('kode_rekening', $akun->coa);
+			$this->db->set('currency', $currency);
+			$this->db->insert('tb_jurnal_detail');
+
+			//    $this->db->where('id_po',$key["document_number"]);
+			//    $this->db->from('tb_hutang');
+			//    $query  = $this->db->get();
+			// $result_hutang = $query->result_array();
+
+			// foreach ($result_hutang as $hutang) {
+			// 	if($hutang[])
+			// }
+			$left_qty_po = leftQtyPo($id_po);
+			$left_amount_po = leftAmountPo($id_po);
+			if ($left_amount_po == 0) {
+				$this->db->where('id', $id_po);
+				$this->db->set('status', 'ADVANCE');
+				$this->db->update('tb_po');
+			}
+			if ($left_qty_po == 0 && $left_amount_po == 0) {
+				$this->db->where('id', $id_po);
+				$this->db->set('status', 'CLOSED');
+				$this->db->update('tb_po');
+			}
+		}
+		if ($this->db->trans_status() === FALSE)
+			return FALSE;
+
+		$this->db->trans_commit();
+		return TRUE;
+	}
+
+	public function listAttachment($id)
+	{
+		$this->db->where('id', $id);
+		$query    = $this->db->get('tb_purchase_order_items_payments');
+		$payment_item = $query->unbuffered_row('array');
+		$no_transaksi = $payment_item['no_transaksi'];
+
+		$this->db->where('no_transaksi', $no_transaksi);
+		return $this->db->get('tb_attachment_payment')->result();
+	}
+
+	public function listAttachment_2($id)
+	{
+		$this->db->where('id', $id);
+		$query    = $this->db->get('tb_purchase_order_items_payments');
+		$payment_item = $query->unbuffered_row('array');
+		$no_transaksi = $payment_item['no_transaksi'];
+
+		$this->db->where('no_transaksi', $no_transaksi);
+		return $this->db->get('tb_attachment_payment')->result_array();
+	}
+
+	function add_attachment_to_db($id, $url)
+	{
+		$this->db->trans_begin();
+
+		$this->db->where('id', $id);
+		$query    = $this->db->get('tb_purchase_order_items_payments');
+		$payment_item = $query->unbuffered_row('array');
+		$no_transaksi = $payment_item['no_transaksi'];
+
+		$this->db->set('no_transaksi', $no_transaksi);
+		$this->db->set('file', $url);
+		$this->db->insert('tb_attachment_payment');
+
+		if ($this->db->trans_status() === FALSE)
+			return FALSE;
+
+		$this->db->trans_commit();
+		return TRUE;
+	}
+
+	public function checkAttachment($id)
+	{
+		$this->db->where('id', $id);
+		$query    = $this->db->get('tb_purchase_order_items_payments');
+		$payment_item = $query->unbuffered_row('array');
+		$no_transaksi = $payment_item['no_transaksi'];
+
+		$this->db->where('no_transaksi', $no_transaksi);
+		$this->db->from('tb_attachment_payment');
+		$num_rows = $this->db->count_all_results();
+
+		return $num_rows;
 	}
 	// }
 }

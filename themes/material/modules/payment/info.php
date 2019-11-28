@@ -101,6 +101,12 @@
     </div>
   </div>
   <div class="card-foot">
+    <div class="pull-left">
+      <a href="<?= site_url($module['route'] . '/manage_attachment/' . $id); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
+        <i class="md md-attach-file"></i>
+        <small class="top right">Manage Attachment</small>
+      </a>
+    </div>
     <div class="pull-right">
       <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>
         <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
@@ -111,3 +117,28 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  function popup(mylink, windowname) {
+    var height = window.innerHeight;
+    var widht;
+    var href;
+
+    if (screen.availWidth > 768) {
+      width = 769;
+    } else {
+      width = screen.availWidth;
+    }
+
+    var left = (screen.availWidth / 2) - (width / 2);
+    var top = 0;
+    // var top = (screen.availHeight / 2) - (height / 2);
+
+    if (typeof(mylink) == 'string') href = mylink;
+    else href = mylink.href;
+
+    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+
+    if (!window.focus) return true;
+    else return false;
+  }
+</script>

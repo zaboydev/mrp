@@ -608,6 +608,7 @@
         }
       });
     }
+    
     $('.filter_numeric_text').on('keyup click', function() {
       var i = $(this).data('column');
       var v = $(this).val();

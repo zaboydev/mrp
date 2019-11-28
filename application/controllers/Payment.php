@@ -10,8 +10,10 @@ class Payment extends MY_Controller
     parent::__construct();
 
     $this->module = $this->modules['payment'];
-    $this->load->model($this->module['model'], 'model');
     $this->load->helper($this->module['helper']);
+    $this->load->model($this->module['model'], 'model');
+    $this->load->library('upload');
+    $this->load->helper('string');
     $this->data['module'] = $this->module;
   }
 
@@ -30,6 +32,7 @@ class Payment extends MY_Controller
       $total     = array();
 
       foreach ($entities as $row) {
+        $attachment = $this->model->checkAttachment($row['id']);
         $no++;
         $col = array();
         if ($row['status'] == 'WAITING') {
@@ -52,6 +55,9 @@ class Payment extends MY_Controller
         $col[]  = print_string($row['default_currency']);
         $col[]  = print_number($row['amount_paid'], 2);
         $col[]  = print_string($row['status']);
+        $col[] = $attachment == 0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
         $col[]  = print_string($row['created_by']);
         $col[]  = print_date($row['created_at']);
 
@@ -65,6 +71,7 @@ class Payment extends MY_Controller
         if ($this->has_role($this->module, 'info')) {
           // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
           $col['DT_RowAttr']['onClick']     = '';
+          $col['DT_RowAttr']['data-id']     = $row['id'];
           $col['DT_RowAttr']['data-target'] = '#data-modal';
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
         }
@@ -315,12 +322,79 @@ class Payment extends MY_Controller
     $_SESSION['payment']                          = $item;
     $_SESSION['payment']['no_transaksi']          = $item['no_transaksi'];
     $_SESSION['payment']['vendor']                = $item['vendor'];
+    $_SESSION['payment']['currency']              = $item['default_currency'];
+    $_SESSION['payment']['total_amount']          = 0;
+    foreach ($_SESSION['payment']['items'] as $i => $item){
+      $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$item['amount_paid'];
+    }
+    // $_SESSION['payment']['total_amount']          = $item['items']->sum('amount_paid');
 
-    $this->data['account']                  = $this->model->getAccount($this->data['currency']);
-    $this->data['suplier']                  = $this->model->getSuplier($this->data['currency']);
+    $this->data['account']                  = $this->model->getAccount($item['default_currency']);
+    $this->data['suplier']                  = $this->model->getSuplier($item['default_currency']);
     
 
     $this->render_view($this->module['view'] . '/bayar');
+  }
+
+  public function save_pembayaran()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+    $save = $this->model->save_pembayaran();
+    if ($save) {
+      unset($_SESSION['payment']);
+      $result["status"] = "success";
+    } else {
+      $result["status"] = "failed";
+    }
+    echo json_encode($result);
+  }
+
+  public function discard()
+  {
+    $this->authorized($this->module['permission']['document']);
+
+    unset($_SESSION['payment']);
+
+    redirect($this->module['route']);
+  }
+
+  public function listAttachment($id)
+  {
+    $data = $this->model->listAttachment($id);
+    echo json_encode($data);
+  }
+
+  public function manage_attachment($id)
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
+    $this->data['id'] = $id;
+    $this->render_view($this->module['view'] . '/manage_attachment');
+  }
+
+  public function add_attachment_to_db($id)
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'attachment/attachment_payment/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+
+    $this->upload->initialize($config);
+
+    if (!$this->upload->do_upload('attachment')) {
+      $error = array('error' => $this->upload->display_errors());
+    } else {
+      $data = array('upload_data' => $this->upload->data());
+      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      // array_push($_SESSION["poe"]["attachment"], $url);
+      $this->model->add_attachment_to_db($id, $url);
+      $result["status"] = 1;
+    }
+    echo json_encode($result);
   }
 
 }

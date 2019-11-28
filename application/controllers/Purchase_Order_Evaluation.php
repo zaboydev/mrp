@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
 class Purchase_Order_Evaluation extends MY_Controller
 {
@@ -14,16 +14,16 @@ class Purchase_Order_Evaluation extends MY_Controller
     $this->load->library('upload');
     $this->load->helper('string');
     $this->data['module'] = $this->module;
-    if(empty($_SESSION['poe']['source']))
+    if (empty($_SESSION['poe']['source']))
       $_SESSION['poe']['source'] = 1;
-    if(empty($_SESSION['poe']['attachment']))
+    if (empty($_SESSION['poe']['attachment']))
       $_SESSION['poe']['attachment'] = array();
   }
 
   public function set_doc_number()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     if (empty($_GET['data']))
       $number = poe_last_number();
@@ -36,7 +36,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_document_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['document_date'] = $_GET['data'];
   }
@@ -44,7 +44,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_created_by()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['created_by'] = $_GET['data'];
   }
@@ -52,7 +52,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_document_reference()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['document_reference'] = $_GET['data'];
   }
@@ -60,7 +60,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_status()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['status'] = $_GET['data'];
   }
@@ -68,7 +68,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_approved_by()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['approved_by'] = $_GET['data'];
   }
@@ -76,7 +76,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_default_currency()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['default_currency'] = $_GET['data'];
   }
@@ -84,7 +84,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_default_approval()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['approval'] = $_GET['data'];
   }
@@ -92,7 +92,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_exchange_rate()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['exchange_rate'] = $_GET['data'];
   }
@@ -100,7 +100,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function set_notes()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['notes'] = $_GET['data'];
   }
@@ -108,20 +108,20 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function search_request_item()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $category = $_SESSION['poe']['category'];
     $entities = $this->model->searchRequestItem($category);
 
-    foreach ($entities as $key => $value){
+    foreach ($entities as $key => $value) {
       $entities[$key]['label'] = $value['product_name'];
       $entities[$key]['label'] .= ' || PN: ';
       $entities[$key]['label'] .= $value['part_number'];
       $entities[$key]['label'] .= '<small>';
-      $entities[$key]['label'] .= 'PR number: '. $value['pr_number'] .' || ';
-      $entities[$key]['label'] .= 'PR date: '. date('d/m/Y', strtotime($value['pr_date'])) .' || ';
-      $entities[$key]['label'] .= 'Required date: '. date('d/m/Y', strtotime($value['required_date'])) .' || ';
-      $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['quantity']) .'</code>';
+      $entities[$key]['label'] .= 'PR number: ' . $value['pr_number'] . ' || ';
+      $entities[$key]['label'] .= 'PR date: ' . date('d/m/Y', strtotime($value['pr_date'])) . ' || ';
+      $entities[$key]['label'] .= 'Required date: ' . date('d/m/Y', strtotime($value['required_date'])) . ' || ';
+      $entities[$key]['label'] .= 'Quantity: <code>' . number_format($value['quantity']) . '</code>';
       $entities[$key]['label'] .= '</small>';
     }
 
@@ -131,12 +131,12 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function search_items_by_part_number()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $category = $_SESSION['poe']['category'];
     $entities = $this->model->searchItemsByPartNumber($category);
 
-    foreach ($entities as $key => $value){
+    foreach ($entities as $key => $value) {
       $entities[$key]['label'] = $value['part_number'];
     }
 
@@ -147,11 +147,11 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     $recipientList = $this->model->getNotifRecipient(9);
     $recipient = array();
-    foreach ($recipientList as $key ) {
+    foreach ($recipientList as $key) {
       array_push($recipient, $key->email);
     }
     $this->load->library('email');
-    $config = Array(
+    $config = array(
       'protocol' => 'smtp',
       'smtp_host' => 'smtp.mailtrap.io',
       'smtp_port' => 2525,
@@ -223,25 +223,25 @@ class Purchase_Order_Evaluation extends MY_Controller
   }
   public function sendEmailHOS()
   {
-      $recipientList = $this->model->getNotifRecipientHOS();
-      $recipient = array();
-      foreach ($recipientList as $key ) {
-        array_push($recipient, $key->email);
-      }
-      $this->load->library('email');
-      $config = Array(
-        'protocol' => 'smtp',
-        'smtp_host' => 'smtp.mailtrap.io',
-        'smtp_port' => 2525,
-        'smtp_user' => '8fe5a91a10cc87',
-        'smtp_pass' => '1cd529218bc7b0',
-        'crlf' => "\r\n",
-        'newline' => "\r\n"
-      );
-      $this->email->initialize($config);
-      $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-      $this->email->to($recipient);
-      $html = '<html><head> 
+    $recipientList = $this->model->getNotifRecipientHOS();
+    $recipient = array();
+    foreach ($recipientList as $key) {
+      array_push($recipient, $key->email);
+    }
+    $this->load->library('email');
+    $config = array(
+      'protocol' => 'smtp',
+      'smtp_host' => 'smtp.mailtrap.io',
+      'smtp_port' => 2525,
+      'smtp_user' => '8fe5a91a10cc87',
+      'smtp_pass' => '1cd529218bc7b0',
+      'crlf' => "\r\n",
+      'newline' => "\r\n"
+    );
+    $this->email->initialize($config);
+    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
+    $this->email->to($recipient);
+    $html = '<html><head> 
                           <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
                           <style>
                               .content {
@@ -301,18 +301,17 @@ class Purchase_Order_Evaluation extends MY_Controller
                                           
                               
       </body></html>';
-      $this->email->subject('Notification Purchase Order');
-      $this->email->message($html);
+    $this->email->subject('Notification Purchase Order');
+    $this->email->message($html);
 
-      $this->email->send();
-  
-    }
+    $this->email->send();
+  }
   public function index_data_source()
   {
     // if ($this->input->is_ajax_request() === FALSE)
     //   redirect($this->modules['secure']['route'] .'/denied');
 
-    if (is_granted($this->module, 'index') === FALSE){
+    if (is_granted($this->module, 'index') === FALSE) {
       $return['type'] = 'danger';
       $return['info'] = "You don't have permission to access this page!";
     } else {
@@ -321,15 +320,15 @@ class Purchase_Order_Evaluation extends MY_Controller
       $no       = $_POST['start'];
       $quantity = array();
 
-      foreach ($entities as $row){
+      foreach ($entities as $row) {
         $no++;
         $col = array();
-        if(strtoupper($row['status'])=="EVALUATION"){
-          if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-            $col[] = '<input type="checkbox" id="cb_'.$row['id'].'"  data-id="'.$row['id'].'" name="" style="display: inline;">';
-          }else{
+        if (strtoupper($row['status']) == "EVALUATION") {
+          if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          } else {
             $col[] = print_number($no);
-          }          
+          }
         } else {
           $col[] = print_number($no);
         }
@@ -343,27 +342,27 @@ class Purchase_Order_Evaluation extends MY_Controller
         $col[] = print_string($row['vendor']);
         $col[] = print_number($row['unit_price'], 2);
         $col[] = print_string(strtoupper($row['status']));
-        $col[] = $row['attachment'] == null ? '' : '<a href="#" data-id="'.$row["id"].'" class="btn btn-icon-toggle btn-info btn-sm ">
+        $col[] = $row['attachment'] == null ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
                        <i class="fa fa-eye"></i>
                      </a>';
         // $col[] ='<a href="#" data-id="'.$row["id"].'" class="btn btn-icon-toggle btn-info btn-sm ">
         //                <i class="fa fa-eye"></i>
         //             </a>';
-        $col[] = print_string($row['notes']);         
-        if(strtoupper($row['status'])=="EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))){
-          $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
+        $col[] = print_string($row['notes']);
+        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))) {
+          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         } else {
           $col[] = null;
         }
-        
-        $col['DT_RowId'] = 'row_'. $row['id'];
+
+        $col['DT_RowId'] = 'row_' . $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
 
-        if ($this->has_role($this->module, 'info')){
+        if ($this->has_role($this->module, 'info')) {
           $col['DT_RowAttr']['onClick']     = '';
           $col['DT_RowAttr']['data-id']     = $row['id'];
           $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
         }
 
         $data[] = $col;
@@ -379,24 +378,28 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     echo json_encode($result);
   }
-  public function listAttachment($id){
+  
+  public function listAttachment($id)
+  {
     $data = $this->model->listAttachment($id);
     echo json_encode($data);
   }
-  public function multi_reject(){
+
+  public function multi_reject()
+  {
     $str_id_purchase_order = $this->input->post('id_purchase_order');
     $str_notes = $this->input->post('notes');
     $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
-    $id_purchase_order = substr($id_purchase_order, 0,-1);
+    $id_purchase_order = substr($id_purchase_order, 0, -1);
     $notes = str_replace("|", "", $str_notes);
-    $notes = substr($notes, 0,-3);
+    $notes = substr($notes, 0, -3);
     $id_purchase_order = explode(",", $id_purchase_order);
     $notes = explode("##,", $notes);
-    $result = $this->model->multi_reject($id_purchase_order,$notes);
-    if($result){
+    $result = $this->model->multi_reject($id_purchase_order, $notes);
+    if ($result) {
       $return["status"] = "success";
       echo json_encode($return);
-    }else{
+    } else {
       $return["status"] = "failed";
       echo json_encode($return);
     }
@@ -407,23 +410,23 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     $this->data['page']['title']            = $this->module['label'];
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
+    $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = NULL;
     $this->data['grid']['order_columns']    = array();
-    $grid2 = array("note"=>"Note");
-    $grid = $this->model->getSelectedColumns()+$grid2;
+    $grid2 = array("note" => "Note");
+    $grid = $this->model->getSelectedColumns() + $grid2;
     $this->data['grid']['column']           = array_values($grid);
-    
-    $this->render_view($this->module['view'] .'/index');
+
+    $this->render_view($this->module['view'] . '/index');
   }
 
   public function info($id)
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
-    if (is_granted($this->module, 'info') === FALSE){
+    if (is_granted($this->module, 'info') === FALSE) {
       $return['type'] = 'denied';
       $return['info'] = "You don't have permission to access this data. You may need to login again.";
     } else {
@@ -432,7 +435,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       $this->data['entity'] = $entity;
 
       $return['type'] = 'success';
-      $return['info'] = $this->load->view($this->module['view'] .'/info-2', $this->data, TRUE);
+      $return['info'] = $this->load->view($this->module['view'] . '/info-2', $this->data, TRUE);
     }
 
     echo json_encode($return);
@@ -442,7 +445,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     $this->authorized($this->module, 'approval');
 
-    if ($this->model->approve($id)){
+    if ($this->model->approve($id)) {
       //$this->sendEmailHOS();
       redirect($this->module['route']);
     } else {
@@ -450,35 +453,36 @@ class Purchase_Order_Evaluation extends MY_Controller
     }
   }
 
-  public function multi_approve(){
+  public function multi_approve()
+  {
     $id_purchase_order = $this->input->post('id_purchase_order');
     $id_purchase_order = str_replace("|", "", $id_purchase_order);
-    $id_purchase_order = substr($id_purchase_order, 0,-1);
+    $id_purchase_order = substr($id_purchase_order, 0, -1);
     $id_purchase_order = explode(",", $id_purchase_order);
     $total = 0;
     $success = 0;
     $failed = sizeof($id_purchase_order);
     foreach ($id_purchase_order as $key) {
-      if ($this->model->approve($key)){
-        $total ++;
-        $success ++;
-        $failed --;
+      if ($this->model->approve($key)) {
+        $total++;
+        $success++;
+        $failed--;
       }
     }
-    if($success>0){
+    if ($success > 0) {
       $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $success." data has been update!"
+        'type' => 'success',
+        'info' => $success . " data has been update!"
       ));
     }
-    if($failed>0){
+    if ($failed > 0) {
       $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are ".$failed." errors"
+        'type' => 'danger',
+        'info' => "There are " . $failed . " errors"
       ));
     }
-    if($total == 0 ){
+    if ($total == 0) {
       $result['status'] = 'failed';
     } else {
       //$this->sendEmailHOS();
@@ -495,11 +499,11 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     $this->data['entity']           = $entity;
     $this->data['page']['title']    = strtoupper($this->module['label']);
-    $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
+    $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);
 
-    $pdfFilePath = str_replace('/', '-', $entity['document_number']) .".pdf";
+    $pdfFilePath = str_replace('/', '-', $entity['document_number']) . ".pdf";
 
     $this->load->library('m_pdf');
 
@@ -515,7 +519,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     $entity = $this->model->findById($id);
     $document_number  = sprintf('%06s', substr($entity['evaluation_number'], 0, 6));
 
-    if (!isset($_SESSION['poe']['request'])){
+    if (!isset($_SESSION['poe']['request'])) {
       $_SESSION['poe']                     = $entity;
       $_SESSION['poe']['id']               = $id;
       $_SESSION['poe']['edit']             = $entity['evaluation_number'];
@@ -523,14 +527,14 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['attachment'] = $entity['attachment'];
     }
 
-    redirect($this->module['route'] .'/create');
+    redirect($this->module['route'] . '/create');
   }
 
   public function create($category = NULL)
   {
     $this->authorized($this->module, 'document');
 
-    if ($category !== NULL){
+    if ($category !== NULL) {
       $category = urldecode($category);
 
       $_SESSION['poe']['request']             = array();
@@ -551,15 +555,15 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['grand_total']         = NULL;
       $_SESSION['poe']['notes']               = NULL;
 
-      redirect($this->module['route'] .'/create');
+      redirect($this->module['route'] . '/create');
     }
 
     if (!isset($_SESSION['poe']))
       redirect($this->module['route']);
 
-    $this->data['page']['content']    = $this->module['view'] .'/create';
+    $this->data['page']['content']    = $this->module['view'] . '/create';
 
-    $this->render_view($this->module['view'] .'/create-2');
+    $this->render_view($this->module['view'] . '/create-2');
   }
 
   public function save()
@@ -567,11 +571,11 @@ class Purchase_Order_Evaluation extends MY_Controller
     // if ($this->input->is_ajax_request() == FALSE)
     //   redirect($this->modules['secure']['route'] . '/denied');
 
-    if (is_granted($this->module, 'document') == FALSE){
+    if (is_granted($this->module, 'document') == FALSE) {
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (!isset($_SESSION['poe']['request']) || empty($_SESSION['poe']['request']) || !isset($_SESSION['poe']['vendors']) || empty($_SESSION['poe']['vendors'])){
+      if (!isset($_SESSION['poe']['request']) || empty($_SESSION['poe']['request']) || !isset($_SESSION['poe']['vendors']) || empty($_SESSION['poe']['vendors'])) {
         $data['success'] = FALSE;
         $data['message'] = 'Please add at least 1 request or vendor!';
       } else {
@@ -580,37 +584,37 @@ class Purchase_Order_Evaluation extends MY_Controller
 
         foreach ($_SESSION['poe']['request'] as $key => $item) {
           foreach ($item['vendors'] as $d => $detail) {
-            if ($detail['is_selected'] == 't'){
+            if ($detail['is_selected'] == 't') {
               $has_selected = TRUE;
             }
           }
         }
 
-        if ($has_selected == FALSE){
+        if ($has_selected == FALSE) {
           $errors[] = 'No vendor qualified For one of Item! Please approve 1 vendor for 1 Item.';
         }
 
         $document_number = $_SESSION['poe']['document_number'] . poe_format_number();
 
-        if (isset($_SESSION['poe']['edit'])){
-          if ($_SESSION['poe']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)){
-            $errors[] = 'Duplicate Document Number: '. $_SESSION['poe']['document_number'] .' !';
+        if (isset($_SESSION['poe']['edit'])) {
+          if ($_SESSION['poe']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
+            $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
           }
         } else {
-          if ($this->model->isDocumentNumberExists($document_number)){
-            $errors[] = 'Duplicate Document Number: '. $_SESSION['poe']['document_number'] .' !';
+          if ($this->model->isDocumentNumberExists($document_number)) {
+            $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
           }
         }
 
-        if (!empty($errors)){
+        if (!empty($errors)) {
           $data['success'] = FALSE;
           $data['message'] = implode('<br />', $errors);
         } else {
-          if ($this->model->save()){
+          if ($this->model->save()) {
             unset($_SESSION['poe']);
-           $this->sendEmail();
+            $this->sendEmail();
             $data['success'] = TRUE;
-            $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
+            $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
           } else {
             $data['success'] = FALSE;
             $data['message'] = 'Error while saving this document. Please ask Technical Support.';
@@ -621,10 +625,10 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     echo json_encode($data);
   }
-   public function set_source()
+  public function set_source()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['source'] = $_GET['data'];
     $result['status'] = "success";
@@ -636,7 +640,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     $this->data['entities'] = $this->model->listRequest($_SESSION['poe']['category']);
 
-    $this->render_view($this->module['view'] .'/add_request');
+    $this->render_view($this->module['view'] . '/add_request');
   }
 
   public function add_selected_request()
@@ -644,16 +648,16 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() == FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if (is_granted($this->module, 'document') == FALSE){
+    if (is_granted($this->module, 'document') == FALSE) {
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (isset($_POST['request_id']) && !empty($_POST['request_id'])){
+      if (isset($_POST['request_id']) && !empty($_POST['request_id'])) {
         $_SESSION['poe']['request'] = array();
 
         foreach ($_POST['request_id'] as $key => $request_id) {
           $request = $this->model->infoRequest($request_id);
-          
+
           $_SESSION['poe']['request'][$request_id] = array(
             'description'             => $request['product_name'],
             'part_number'             => $request['product_code'],
@@ -684,22 +688,22 @@ class Purchase_Order_Evaluation extends MY_Controller
         $data['message'] = 'Please select any request!';
       }
     }
-    
+
     echo json_encode($data);
   }
 
   public function edit_request()
   {
     $this->authorized($this->module, 'document');
-    
-    $this->render_view($this->module['view'] .'/edit_request');
+
+    $this->render_view($this->module['view'] . '/edit_request');
   }
 
   public function attachment()
   {
     $this->authorized($this->module, 'document');
-    
-    $this->render_view($this->module['view'] .'/attachment');
+
+    $this->render_view($this->module['view'] . '/attachment');
   }
 
   public function manage_attachment($id_poe)
@@ -708,7 +712,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     $this->data['manage_attachment'] = $this->model->listAttachment_2($id_poe);
     $this->data['id_poe'] = $id_poe;
-    $this->render_view($this->module['view'] .'/manage_attachment');
+    $this->render_view($this->module['view'] . '/manage_attachment');
   }
 
 
@@ -720,21 +724,18 @@ class Purchase_Order_Evaluation extends MY_Controller
     $config['upload_path'] = 'attachment/';
     $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
     $config['max_size']  = 2000;
-    
+
     $this->upload->initialize($config);
-    
-     if ( ! $this->upload->do_upload('attachment'))
-                {
-                        $error = array('error' => $this->upload->display_errors());
-                }
-                else
-                {
-                        
-                        $data = array('upload_data' => $this->upload->data());
-                        $url = $config['upload_path'].$data['upload_data']['orig_name'];
-                        array_push($_SESSION["poe"]["attachment"], $url);
-                        $result["status"] = 1;
-                }
+
+    if (!$this->upload->do_upload('attachment')) {
+      $error = array('error' => $this->upload->display_errors());
+    } else {
+
+      $data = array('upload_data' => $this->upload->data());
+      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      array_push($_SESSION["poe"]["attachment"], $url);
+      $result["status"] = 1;
+    }
     echo json_encode($result);
   }
 
@@ -746,19 +747,16 @@ class Purchase_Order_Evaluation extends MY_Controller
     $config['upload_path'] = 'attachment/';
     $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
     $config['max_size']  = 2000;
-    
+
     $this->upload->initialize($config);
-    
-    if ( ! $this->upload->do_upload('attachment'))
-    {
+
+    if (!$this->upload->do_upload('attachment')) {
       $error = array('error' => $this->upload->display_errors());
-    }
-    else
-    {
+    } else {
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'].$data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
       // array_push($_SESSION["poe"]["attachment"], $url);
-      $this->model->add_attachment_to_db($id_poe,$url);
+      $this->model->add_attachment_to_db($id_poe, $url);
       $result["status"] = 1;
     }
     echo json_encode($result);
@@ -766,19 +764,19 @@ class Purchase_Order_Evaluation extends MY_Controller
 
   public function delete_attachment($index)
   {
-    $file = FCPATH.$_SESSION["poe"]["attachment"][$index];
-    if (unlink($file)){
-        unset($_SESSION["poe"]["attachment"][$index]); 
-        $_SESSION["poe"]["attachment"] = array_values($_SESSION["poe"]["attachment"]);
-        redirect($this->module['route']."/attachment",'refresh');
+    $file = FCPATH . $_SESSION["poe"]["attachment"][$index];
+    if (unlink($file)) {
+      unset($_SESSION["poe"]["attachment"][$index]);
+      $_SESSION["poe"]["attachment"] = array_values($_SESSION["poe"]["attachment"]);
+      redirect($this->module['route'] . "/attachment", 'refresh');
     }
   }
 
-  public function delete_attachment_in_db($id_att,$id_poe)
+  public function delete_attachment_in_db($id_att, $id_poe)
   {
     $this->model->delete_attachment_in_db($id_att);
-    
-    redirect($this->module['route']."/manage_attachment/".$id_poe,'refresh');
+
+    redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
     // echo json_encode($result);
   }
 
@@ -787,11 +785,11 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() == FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if (is_granted($this->module, 'document') == FALSE){
+    if (is_granted($this->module, 'document') == FALSE) {
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (isset($_POST['request']) && !empty($_POST['request'])){
+      if (isset($_POST['request']) && !empty($_POST['request'])) {
         foreach ($_POST['request'] as $id => $request) {
           $quantity = floatval($_SESSION['poe']['request'][$id]['quantity_requested']);
 
@@ -817,7 +815,6 @@ class Purchase_Order_Evaluation extends MY_Controller
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_received_quantity'] = $request['quantity'];
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_quantity']     = $request['quantity'];
             $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_amount']       = $total_price;
-            
           }
         }
 
@@ -834,7 +831,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function delete_request($key)
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
     if (isset($_SESSION['poe']['request']))
       unset($_SESSION['poe']['request'][$key]);
@@ -844,7 +841,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    $this->render_view($this->module['view'] .'/add_vendor');
+    $this->render_view($this->module['view'] . '/add_vendor');
   }
 
   public function add_selected_vendor()
@@ -852,11 +849,11 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() == FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if (is_granted($this->module, 'document') == FALSE){
+    if (is_granted($this->module, 'document') == FALSE) {
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (isset($_POST['vendor']) && !empty($_POST['vendor'])){
+      if (isset($_POST['vendor']) && !empty($_POST['vendor'])) {
         $_SESSION['poe']['vendors'] = array();
 
         foreach ($_POST['vendor'] as $key => $vendor) {
@@ -895,7 +892,7 @@ class Purchase_Order_Evaluation extends MY_Controller
               'purchase_request_number' => $request['purchase_request_number'],
               'core_charge'             => floatval(0),
               'total'                   => $request['quantity_requested'] * $request['quantity_requested'],
-              'left_paid_amount'        => $request['quantity_requested'] * $request['quantity_requested'],              
+              'left_paid_amount'        => $request['quantity_requested'] * $request['quantity_requested'],
               'is_cheaper'              => $cheaper,
               'remarks'                 => $request['remarks'],
             );
@@ -926,32 +923,32 @@ class Purchase_Order_Evaluation extends MY_Controller
   // }
 
   //new
-  public function set_selected_vendor($item,$key_item)
+  public function set_selected_vendor($item, $key_item)
   {
     $this->authorized($this->module, 'document');
 
     // foreach ($_SESSION['poe']['request'] as $id => $request) {
-      // foreach ($_SESSION['poe']['vendor'] as $key => $vendor) {
-      //   $_SESSION['poe']['request'][$item]['vendors'][$key]['is_selected'] = 'f';
-      // }
+    // foreach ($_SESSION['poe']['vendor'] as $key => $vendor) {
+    //   $_SESSION['poe']['request'][$item]['vendors'][$key]['is_selected'] = 'f';
+    // }
     // }
 
-    foreach ($_SESSION['poe']['vendors'] as $v => $info){
+    foreach ($_SESSION['poe']['vendors'] as $v => $info) {
       $_SESSION['poe']['request'][$item]['vendors'][$v]['is_selected'] = 'f';
     }
 
     // $_SESSION['poe']['vendors'][$key]['is_selected'] = 't';
     $_SESSION['poe']['request'][$item]['vendors'][$key_item]['is_selected'] = 't';
 
-    redirect($this->module['route'] .'/create');
+    redirect($this->module['route'] . '/create');
   }
 
   public function discard()
   {
     $this->authorized($this->module['permission']['document']);
     foreach ($_SESSION['poe']["attachment"] as $key) {
-      $url = FCPATH.$key;
-      if (is_file($url)){
+      $url = FCPATH . $key;
+      if (is_file($url)) {
         unlink($url);
       }
     }
@@ -963,19 +960,19 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function delete_ajax()
   {
     if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] .'/denied');
+      redirect($this->modules['secure']['route'] . '/denied');
 
-    if (is_granted($this->module, 'delete') === FALSE){
+    if (is_granted($this->module, 'delete') === FALSE) {
       $alert['type']  = 'danger';
       $alert['info']  = 'You are not allowed to delete this data!';
     } else {
       $entity = $this->model->findById($this->input->post('id'));
 
-      if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
+      if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE) {
         $alert['type']  = 'danger';
         $alert['info']  = 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to delete this document. You can adjust stock to sync the quantity.';
       } else {
-        if ($this->model->delete()){
+        if ($this->model->delete()) {
           $alert['type'] = 'success';
           $alert['info'] = 'Data deleted.';
           $alert['link'] = site_url($this->module['route']);
