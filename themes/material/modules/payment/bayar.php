@@ -25,13 +25,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <select id="currency_select" class="form-control">
-                                    <option value="IDR">IDR</option>
-                                    <option value="USD">USD</option>
+                                    <option value="IDR" <?= ($_SESSION['payment']['currency'] == 'IDR') ? 'selected' : ''; ?>>IDR</option>
+                                    <option value="USD" <?= ($_SESSION['payment']['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
                                 </select>
                                 <label for="currency">Currency</label>
                             </div>
                             <div class="form-group">
-                                <select id="account_select" class="form-control">
+                                <select id="account_select" class="form-control" required>
                                     <option value="">No Account</option>
                                     <?php foreach ($account as $key) {
                                         ?>
@@ -49,14 +49,15 @@
                                 <label for="suplier_select">Tipe</label>
                             </div>
                             <div class="form-group">
-                                <input readonly value="<?= $_SESSION['payment']['vendor'] ?>"" type=" text" name="suplier_select" id="suplier_select" class="form-control" value="">
+                                <input readonly value="<?= $_SESSION['payment']['no_transaksi'] ?>" type="hidden" name="no_transaksi" id="no_transaksi" class="form-control">
+                                <input readonly value="<?= $_SESSION['payment']['vendor'] ?>" type="text" name="suplier_select" id="suplier_select" class="form-control">
                                 <label for="suplier_select">Suplier</label>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="">
+                                <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="" required>
                                 <label for="no_cheque">No Cheque</label>
                             </div>
 
@@ -66,7 +67,7 @@
                             </div>
 
                             <div class="form-group">
-                                <input type="number" name="amount" id="amount" class="form-control" value="0" readonly="readonly">
+                                <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment']['total_amount'] ?>" readonly="readonly">
                                 <label for="amount">Amount</label>
                             </div>
                         </div>
@@ -79,34 +80,34 @@
                         <table class="table table-hover" id="table-document">
                             <thead>
                                 <tr>
+                                    <!-- <th class="middle-alignment"></th> -->
                                     <th class="middle-alignment"></th>
-                                    <th class="middle-alignment"></th>
-                                    <th class="middle-alignment">P/N</th>
+                                    <!-- <th class="middle-alignment"></th> -->
                                     <th class="middle-alignment">Description</th>
-                                    <th class="middle-alignment text-center" colspan="2">Amount Paid</th>
+                                    <th class="middle-alignment text-center">Amount Paid</th>
                                     <th class="middle-alignment">PO#</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($_SESSION['payment']['items'] as $i => $item) : ?>
                                     <tr id="row_<?= $i; ?>">
-                                        <td width="1">
+                                        <!-- <td width="1">
                                             <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
                                                 <i class="fa fa-trash"></i>
                                             </a>
-                                        </td>
+                                        </td> -->
                                         <td>
                                             <a href="<?= site_url($module['route'] . '/edit_item/' . $i); ?>" onClick="return popup(this, 'edit')">
                                             </a>
 
                                         </td>
-                                        <td class="no-space">
+                                        <!-- <td class="no-space">
                                             <?= $item['part_number']; ?>
-                                        </td>
+                                        </td> -->
                                         <td class="no-space">
                                             <?= $item['description']; ?>
                                         </td>
-                                        <td class="text-right">
+                                        <td class="text-center">
                                             <?= number_format($item['amount_paid'], 2); ?>
                                         </td>
                                         <td>
@@ -121,7 +122,7 @@
             </div>
             <div class="card-actionbar">
                 <div class="card-actionbar-row">
-                    <a href="<?= site_url($module['route']); ?>" class="btn btn-flat btn-danger ink-reaction">
+                    <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
                         Discard
                     </a>
                 </div>
@@ -597,18 +598,20 @@
     })
     $("#btn-submit-document").click(function(e) {
         e.preventDefault()
-        if ($("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
+        $("#btn-submit-document").attr('disabled', true);
+        if ($("#account_select").val() === "" || $("#no_cheque").val() === "" || $("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
+            $("#btn-submit-document").attr('disabled', false);
             toastr.options.timeOut = 10000;
             toastr.options.positionClass = 'toast-top-right';
             toastr.error("All field must be fill");
             return
         }
-        if (parseInt($("#amount").val()) != parseInt($("#total_general").html())) {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error("Check value and item value not match");
-            return
-        }
+        // if (parseInt($("#amount").val()) != parseInt($("#total_general").html())) {
+        //     toastr.options.timeOut = 10000;
+        //     toastr.options.positionClass = 'toast-top-right';
+        //     toastr.error("Check value and item value not match");
+        //     return
+        // }
         var postData = []
         // $.each(row, function(i, item) {
         //   if (parseFloat($("#in_" + item).val()) === 0) {
@@ -623,27 +626,28 @@
         //   data["value"] = parseInt($("#in_" + item).val())
         //   postData.push(data);
         // });
-        $.each(row, function(i, po) {
-            $.each(row_detail, function(i, item) {
-                var data = {}
-                data["document_number"] = $("#sel_item_" + po + "_" + item).val()
-                data["value"] = parseInt($("#in_item_" + po + "_" + item).val())
-                postData.push(data);
-            });
-        });
+        // $.each(row, function(i, po) {
+        //     $.each(row_detail, function(i, item) {
+        //         var data = {}
+        //         data["document_number"] = $("#sel_item_" + po + "_" + item).val()
+        //         data["value"] = parseInt($("#in_item_" + po + "_" + item).val())
+        //         postData.push(data);
+        //     });
+        // });
         $("#loadingScreen2").attr("style", "display:block");
         $.ajax({
             type: "POST",
-            url: '<?= base_url() . "payment/save" ?>',
+            url: '<?= base_url() . "payment/save_pembayaran" ?>',
             data: {
                 'account': $("#account_select").val(),
                 "vendor": $("#suplier_select").val(),
+                "no_transaksi": $("#no_transaksi").val(),
                 "currency": $("#currency_select").val(),
                 "tipe": $("#tipe_select").val(),
                 "no_cheque": $("#no_cheque").val(),
                 "date": $("#date").val(),
                 "amount": $("#amount").val(),
-                "item": postData
+                // "item": postData
             },
             cache: false,
             success: function(response) {
@@ -660,6 +664,7 @@
                     }, 5000);
 
                 } else {
+                    $("#btn-submit-document").attr('disabled', false);
                     toastr.options.timeOut = 10000;
                     toastr.options.positionClass = 'toast-top-right';
                     toastr.error("Failed to save data");
@@ -667,6 +672,7 @@
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 $("#loadingScreen2").attr("style", "display:none");
+                $("#btn-submit-document").attr('disabled', false);
                 console.log(xhr.status);
                 console.log(xhr.responseText);
                 console.log(thrownError);

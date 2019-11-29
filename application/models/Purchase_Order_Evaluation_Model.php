@@ -35,6 +35,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
     );
   }
+  
   public function listAttachment($id)
   {
     $this->db->where('id_poe', $id);
@@ -61,6 +62,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->where('auth_level', 2);
     return $this->db->get('')->result();
   }
+
   public function getSearchableColumns()
   {
     return array(
@@ -137,6 +139,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $i++;
     }
   }
+
   function multi_reject($id_purchase_order, $notes)
   {
     $x = 0;
@@ -176,6 +179,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       return false;
     }
   }
+
   function getIndex($return = 'array')
   {
     $this->db->distinct();
@@ -278,7 +282,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
     foreach ($query->result_array() as $key => $vendor) {
       $poe['vendors'][$key]['id'] = $vendor['id'];
-      $poe['vendors'][$key]['vendor'] = $vendor['currency'].'-'.$vendor['vendor'];
+      $poe['vendors'][$key]['vendor'] = $vendor['currency'] . '-' . $vendor['vendor'];
       $poe['vendors'][$key]['vendor_name'] = $vendor['vendor'];
       $poe['vendors'][$key]['is_selected'] = $vendor['is_selected'];
       $poe['vendors'][$key]['vendor_currency'] = $vendor['currency'];
@@ -318,7 +322,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
       foreach ($query->result_array() as $d => $detail) {
         $poe['request'][$i]['vendors'][$d] = $detail;
-        $poe['request'][$i]['vendors'][$d]['vendor'] = $detail['currency'].'-'.$detail['vendor'];
+        $poe['request'][$i]['vendors'][$d]['vendor'] = $detail['currency'] . '-' . $detail['vendor'];
       }
     }
     $this->db->where('id_poe', $id);
@@ -438,7 +442,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
        */
       $this->db->where('purchase_order_id', $document_id);
       $this->db->delete('tb_purchase_order_vendors');
-      
+
       $this->db->where('purchase_order_id', $document_id);
       $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
       foreach ($tb_purchase_order_items as $key) {
@@ -560,8 +564,8 @@ class Purchase_Order_Evaluation_Model extends MY_Model
           $this->db->set('core_charge', floatval($detail['core_charge']));
           $this->db->set('total_amount', floatval($detail['total']));
           $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
-          $this->db->set('quantity_prl', floatval($detail['quantity']* $item['konversi']));
-          $this->db->set('value_prl', floatval($detail['total']/ ($detail['quantity'] * $item['konversi'])));
+          $this->db->set('quantity_prl', floatval($detail['quantity'] * $item['konversi']));
+          $this->db->set('value_prl', floatval($detail['total'] / ($detail['quantity'] * $item['konversi'])));
           $this->db->set('konversi', floatval($item['konversi']));
           $this->db->set('status_item', $item_status);
           $this->db->where('id', $poe_item_id);
