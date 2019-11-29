@@ -85,7 +85,7 @@ class Payment extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          9 => print_number(array_sum($total), 2),
+          8 => print_number(array_sum($total), 2),
         )
       );
     }
@@ -102,7 +102,7 @@ class Payment extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(9);
+    $this->data['grid']['summary_columns']  = array(8);
 
     $this->data['grid']['order_columns']    = array();
     // $this->data['grid']['order_columns']    = array(
