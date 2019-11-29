@@ -27,6 +27,7 @@ $no_item = 1; ?>
                 <?php $no_item++; ?>
             </tr>
         <?php endforeach; ?>
+        <?php if($detail['additional_price_remaining']>0):?>
         <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="sel_item_<?= $no ?>_<?= $no_item ?>" value="0" type="hidden"><input id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['id'] ?>" type="hidden">Additional Price</td>
             <td>Additional Price (PPN, DISC, SHIPPING COST)<input id="desc_item_<?= $no ?>_<?= $no_item ?>" value="Additional Price (PPN, DISC, SHIPPING COST)" type="hidden"></td>
@@ -39,6 +40,7 @@ $no_item = 1; ?>
             <td></td>
             <?php $no_item++; ?>
         </tr>
+        <?php endif;?>
     </div>
 
     <?php $no++; ?>

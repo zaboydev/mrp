@@ -234,6 +234,20 @@ class Payment_Model extends MY_MODEL
 		return $this->db->get()->num_rows();
 	}
 
+	function countPoAdditionalByVendor($vendor, $currency, $tipe)
+	{
+		$this->db->select('tb_po.*');
+		$this->db->from('tb_po');
+		// $this->db->join('tb_po','tb_po.id=tb_po_item.purchase_order_id');
+		$this->db->where('tb_po.vendor', $vendor);
+		$this->db->where('tb_po.default_currency', $currency);
+		$this->db->where('tb_po.remaining_payment >', 0);
+		$this->db->where('tb_po.additional_price_remaining >', 0);
+		$this->db->where_in('tb_po.status', ['OPEN', 'ORDER']);
+		// $this->db->where('document_number is not null', null,false);
+		return $this->db->get()->num_rows();
+	}
+
 	function countdetailPoByVendor($vendor, $currency, $tipe)
 	{
 		$this->db->select('tb_po_item.*');

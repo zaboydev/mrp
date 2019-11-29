@@ -140,6 +140,7 @@ class Payment extends MY_Controller
     $return['info'] = $this->load->view($this->module['view'] . '/list_po', $this->data, TRUE);
     $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency, $tipe);
     $return['count_po'] = $this->model->countPoByVendor($vendor, $currency, $tipe);
+    $return['count_po_additional'] = $this->model->countPoAdditionalByVendor($vendor, $currency, $tipe);
     echo json_encode($return);
   }
 

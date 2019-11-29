@@ -566,7 +566,7 @@
         for (i = 1; i <= data.count_po; i++) {
           row.push(i);
         }
-        for (i = 1; i <= data.count_detail + data.count_po; i++) {
+        for (i = 1; i <= data.count_detail + data.count_po_additional; i++) {
           row_detail.push(i);
         }
       }
