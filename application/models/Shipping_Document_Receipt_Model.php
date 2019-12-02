@@ -348,160 +348,163 @@ class Shipping_Document_Receipt_Model extends MY_Model
     
 
     foreach ($_POST['items'] as $id => $data){
-      if($data['received_quantity'] > 0){
-        $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
-        $item_id = getItemId($data['part_number'], $serial_number);
+      if(!empty($data['stores'])){
+        if ($data['received_quantity'] > 0) {
+          $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
+          $item_id = getItemId($data['part_number'], $serial_number);
 
-        /**
-         * CREATE STORES IF NOT EXISTS
-         */
-        if (isStoresExists($data['stores']) === FALSE && isStoresExists($data['stores'], $category) === FALSE){
-          $this->db->set('stores', strtoupper($data['stores']));
+          /**
+           * CREATE STORES IF NOT EXISTS
+           */
+          if (isStoresExists($data['stores']) === FALSE && isStoresExists($data['stores'], $category) === FALSE) {
+            $this->db->set('stores', strtoupper($data['stores']));
+            $this->db->set('warehouse', $warehouse);
+            $this->db->set('category', $category);
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->insert('tb_master_stores');
+          }
+
+          /**
+           * ADD ITEM INTO STOCK
+           */
+          $stock_id   = getStockId($item_id, strtoupper($data['condition']));
+          // $prev_stock = getStockActive($stock_id);
+          // $next_stock = floatval($prev_stock->total_quantity) + floatval($data['received_quantity']);
+          $prev_stock = getStockPrev($stock_id, $data['stores']);
+          $next_stock = floatval($prev_stock) + floatval($data['received_quantity']);
+
+          /**
+           * ADD ITEM INTO STORES
+           */
+          $base = ['WISNU' => 1, 'BANYUWANGI' => 2, 'SOLO' => 3, 'LOMBOK' => 4, 'JEMBER' => 5, 'PALANGKARAYA' => 6, 'WISNU REKONDISI' => 7, 'BSR REKONDISI' => 8,];
+          $warehouse_id = $base[$warehouse];
+          $this->db->set('stock_id', $stock_id);
+          $this->db->set('serial_id', $serial_id);
           $this->db->set('warehouse', $warehouse);
-          $this->db->set('category', $category);
-          $this->db->set('created_by', config_item('auth_person_name'));
-          $this->db->set('updated_by', config_item('auth_person_name'));
-          $this->db->insert('tb_master_stores');
-        }
-
-        /**
-         * ADD ITEM INTO STOCK
-         */
-        $stock_id   = getStockId($item_id, strtoupper($data['condition']));
-        // $prev_stock = getStockActive($stock_id);
-        // $next_stock = floatval($prev_stock->total_quantity) + floatval($data['received_quantity']);
-        $prev_stock = getStockPrev($stock_id,$data['stores']);
-        $next_stock = floatval($prev_stock) + floatval($data['received_quantity']);
-
-        /**
-         * ADD ITEM INTO STORES
-         */
-        $base = ['WISNU'=>1,'BANYUWANGI'=>2,'SOLO'=>3,'LOMBOK'=>4,'JEMBER'=>5,'PALANGKARAYA'=>6,'WISNU REKONDISI'=>7,'BSR REKONDISI'=>8,];
-        $warehouse_id=$base[$warehouse];
-        $this->db->set('stock_id', $stock_id);
-        $this->db->set('serial_id', $serial_id);
-        $this->db->set('warehouse', $warehouse);
-        $this->db->set('stores', strtoupper($data['stores']));
-        $this->db->set('initial_quantity', floatval($data['received_quantity']));
-        $this->db->set('initial_unit_value', floatval($data['received_unit_value']));
-        $this->db->set('quantity', floatval($data['received_quantity']));
-        $this->db->set('unit_value', floatval($data['received_unit_value']));
-        $this->db->set('reference_document', $document_number);
-        $this->db->set('received_date', $received_date);
-        $this->db->set('received_by', $received_by);
-        $this->db->set('created_by', config_item('auth_person_name'));
-        $this->db->set('remarks', $data['remarks']);
-        $this->db->set('warehouse_id', $warehouse_id);
-        $this->db->insert('tb_stock_in_stores');
-        $stock_in_stores_id = $this->db->insert_id();
-
-        /**
-         * INSERT INTO DELIVERY ITEMS
-         */
-        $this->db->set('issuance_item_id', $data['issuance_item_id']);
-        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-        $this->db->set('received_quantity', floatval($data['received_quantity']));
-        $this->db->set('received_unit_value', floatval($data['received_unit_value']));
-        $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-        $this->db->set('received_by', $received_by);
-        $this->db->set('remarks', $data['remarks']);
-        $this->db->insert('tb_issuance_item_receipts');
-
-        /**
-         * INSERT INTO RECEIPT ITEMS
-         */
-        // $this->db->set('issuance_item_id', $data['issuance_item_id']);
-        // $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-        // $this->db->set('received_quantity', floatval($data['received_quantity']));
-        // $this->db->set('received_unit_value', floatval($data['received_unit_value']));
-        // $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-        // $this->db->set('remarks', $data['remarks']);
-        // $this->db->insert('tb_issuance_item_receipts');
-
-        $this->db->set('document_number', $document_number);
-        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-        $this->db->set('received_quantity', floatval($data['received_quantity']));
-        $this->db->set('received_unit_value', floatval($data['received_unit_value']));
-        $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-        // $this->db->set('purchase_order_number', $data['purchase_order_number']);
-        // $this->db->set('reference_number', $data['reference_number']);
-        // $this->db->set('awb_number', $data['awb_number']);
-        $this->db->set('remarks', $data['remarks']);
-        $this->db->insert('tb_receipt_items');
-
-        /**
-         * CREATE STOCK CARD
-         */
-        $this->db->set('serial_id', $serial_id);
-        $this->db->set('stock_id', $stock_id);
-        $this->db->set('warehouse', $warehouse);
-        $this->db->set('stores', strtoupper($data['stores']));
-        $this->db->set('date_of_entry', $received_date);
-        $this->db->set('period_year', config_item('period_year'));
-        $this->db->set('period_month', config_item('period_month'));
-        $this->db->set('document_type', 'SHIPMENT');
-        $this->db->set('document_number', $document_number);
-        $this->db->set('received_from', $received_from);
-        $this->db->set('received_by', $received_by);
-        $this->db->set('prev_quantity', floatval($prev_stock->total_quantity));
-        $this->db->set('balance_quantity', $next_stock);
-        $this->db->set('quantity', floatval($data['received_quantity']));
-        $this->db->set('unit_value', floatval($data['received_unit_value']));
-        $this->db->set('remarks', $data['remarks']);
-        $this->db->set('created_by', config_item('auth_person_name'));
-        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-        $this->db->set('doc_type', 4);
-        $this->db->set('tgl', date('Ymd', strtotime($received_date)));
-        $this->db->set('total_value', floatval($data['received_quantity'])*floatval($data['received_unit_value']));
-        $this->db->insert('tb_stock_cards');
-
-        $this->db->select('left_received_quantity');
-        $this->db->from('tb_issuance_items');
-        $this->db->where('id',$data['issued_items_id']);
-        $query        = $this->db->get();
-        $issued_items = $query->unbuffered_row('array');
-        $left_received_quantity = floatval($issued_items['left_received_quantity'])-floatval($data['received_quantity']);
-        $this->db->set('left_received_quantity',$left_received_quantity);
-        if($left_received_quantity==0){
-          $this->db->set('received_by', $received_by);
+          $this->db->set('stores', strtoupper($data['stores']));
+          $this->db->set('initial_quantity', floatval($data['received_quantity']));
+          $this->db->set('initial_unit_value', floatval($data['received_unit_value']));
+          $this->db->set('quantity', floatval($data['received_quantity']));
+          $this->db->set('unit_value', floatval($data['received_unit_value']));
+          $this->db->set('reference_document', $document_number);
           $this->db->set('received_date', $received_date);
+          $this->db->set('received_by', $received_by);
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('remarks', $data['remarks']);
+          $this->db->set('warehouse_id', $warehouse_id);
+          $this->db->insert('tb_stock_in_stores');
+          $stock_in_stores_id = $this->db->insert_id();
+
+          /**
+           * INSERT INTO DELIVERY ITEMS
+           */
+          $this->db->set('issuance_item_id', $data['issuance_item_id']);
+          $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+          $this->db->set('received_quantity', floatval($data['received_quantity']));
+          $this->db->set('received_unit_value', floatval($data['received_unit_value']));
+          $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
+          $this->db->set('received_by', $received_by);
+          $this->db->set('remarks', $data['remarks']);
+          $this->db->insert('tb_issuance_item_receipts');
+
+          /**
+           * INSERT INTO RECEIPT ITEMS
+           */
+          // $this->db->set('issuance_item_id', $data['issuance_item_id']);
+          // $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+          // $this->db->set('received_quantity', floatval($data['received_quantity']));
+          // $this->db->set('received_unit_value', floatval($data['received_unit_value']));
+          // $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
+          // $this->db->set('remarks', $data['remarks']);
+          // $this->db->insert('tb_issuance_item_receipts');
+
+          $this->db->set('document_number', $document_number);
+          $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+          $this->db->set('received_quantity', floatval($data['received_quantity']));
+          $this->db->set('received_unit_value', floatval($data['received_unit_value']));
+          $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
+          // $this->db->set('purchase_order_number', $data['purchase_order_number']);
+          // $this->db->set('reference_number', $data['reference_number']);
+          // $this->db->set('awb_number', $data['awb_number']);
+          $this->db->set('remarks', $data['remarks']);
+          $this->db->insert('tb_receipt_items');
+
+          /**
+           * CREATE STOCK CARD
+           */
+          $this->db->set('serial_id', $serial_id);
+          $this->db->set('stock_id', $stock_id);
+          $this->db->set('warehouse', $warehouse);
+          $this->db->set('stores', strtoupper($data['stores']));
+          $this->db->set('date_of_entry', $received_date);
+          $this->db->set('period_year', config_item('period_year'));
+          $this->db->set('period_month', config_item('period_month'));
+          $this->db->set('document_type', 'SHIPMENT');
+          $this->db->set('document_number', $document_number);
+          $this->db->set('received_from', $received_from);
+          $this->db->set('received_by', $received_by);
+          $this->db->set('prev_quantity', floatval($prev_stock->total_quantity));
+          $this->db->set('balance_quantity', $next_stock);
+          $this->db->set('quantity', floatval($data['received_quantity']));
+          $this->db->set('unit_value', floatval($data['received_unit_value']));
+          $this->db->set('remarks', $data['remarks']);
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+          $this->db->set('doc_type', 4);
+          $this->db->set('tgl', date('Ymd', strtotime($received_date)));
+          $this->db->set('total_value', floatval($data['received_quantity']) * floatval($data['received_unit_value']));
+          $this->db->insert('tb_stock_cards');
+
+          $this->db->select('left_received_quantity');
+          $this->db->from('tb_issuance_items');
+          $this->db->where('id', $data['issued_items_id']);
+          $query        = $this->db->get();
+          $issued_items = $query->unbuffered_row('array');
+          $left_received_quantity = floatval($issued_items['left_received_quantity']) - floatval($data['received_quantity']);
+          $this->db->set('left_received_quantity', $left_received_quantity);
+          if ($left_received_quantity == 0) {
+            $this->db->set('received_by', $received_by);
+            $this->db->set('received_date', $received_date);
+          }
+          // $this->db->from('tb_issuance_items');
+          $this->db->where('id', $data['issued_items_id']);
+          $this->db->update('tb_issuance_items');
+
+
+          //delete stores sementara
+          // $this->db->from('tb_stock_in_stores');
+          // $this->db->where('id', $data['id_stores_sementara']);
+
+          // $query        = $this->db->get();
+          // $stock_sementara = $query->unbuffered_row('array');
+          // // $new_quantity = $stock_stored['quantity'] - $data['issued_quantity'];
+
+          // $this->db->set('serial_id', $serial_id);
+          // $this->db->set('stock_id', $stock_id);
+          // $this->db->set('warehouse', $stock_sementara['warehouse']);
+          // $this->db->set('stores', strtoupper($stock_sementara['stores']));
+          // $this->db->set('date_of_entry', $received_date);
+          // $this->db->set('period_year', config_item('period_year'));
+          // $this->db->set('period_month', config_item('period_month'));
+          // $this->db->set('document_type', 'SHIPMENT');
+          // $this->db->set('document_number', $document_number);
+          // $this->db->set('received_from', $received_from);
+          // $this->db->set('received_by', $received_by);
+          // $this->db->set('prev_quantity', floatval($prev_stock->total_quantity));
+          // $this->db->set('balance_quantity', $next_stock);
+          // $this->db->set('quantity', 0-floatval($data['received_quantity']));
+          // $this->db->set('unit_value', floatval($data['received_unit_value']));
+          // $this->db->set('remarks', $data['remarks']);
+          // $this->db->set('created_by', config_item('auth_person_name'));
+          // $this->db->set('stock_in_stores_id', $data['id_stores_sementara']);
+          // $this->db->insert('tb_stock_cards');
+
+          // $this->db->where('id', $data['id_stores_sementara']);
+          // $this->db->delete('tb_stock_in_stores');
         }
-        // $this->db->from('tb_issuance_items');
-        $this->db->where('id',$data['issued_items_id']);
-        $this->db->update('tb_issuance_items');
-
-
-        //delete stores sementara
-        // $this->db->from('tb_stock_in_stores');
-        // $this->db->where('id', $data['id_stores_sementara']);
-
-        // $query        = $this->db->get();
-        // $stock_sementara = $query->unbuffered_row('array');
-        // // $new_quantity = $stock_stored['quantity'] - $data['issued_quantity'];
-
-        // $this->db->set('serial_id', $serial_id);
-        // $this->db->set('stock_id', $stock_id);
-        // $this->db->set('warehouse', $stock_sementara['warehouse']);
-        // $this->db->set('stores', strtoupper($stock_sementara['stores']));
-        // $this->db->set('date_of_entry', $received_date);
-        // $this->db->set('period_year', config_item('period_year'));
-        // $this->db->set('period_month', config_item('period_month'));
-        // $this->db->set('document_type', 'SHIPMENT');
-        // $this->db->set('document_number', $document_number);
-        // $this->db->set('received_from', $received_from);
-        // $this->db->set('received_by', $received_by);
-        // $this->db->set('prev_quantity', floatval($prev_stock->total_quantity));
-        // $this->db->set('balance_quantity', $next_stock);
-        // $this->db->set('quantity', 0-floatval($data['received_quantity']));
-        // $this->db->set('unit_value', floatval($data['received_unit_value']));
-        // $this->db->set('remarks', $data['remarks']);
-        // $this->db->set('created_by', config_item('auth_person_name'));
-        // $this->db->set('stock_in_stores_id', $data['id_stores_sementara']);
-        // $this->db->insert('tb_stock_cards');
-
-        // $this->db->where('id', $data['id_stores_sementara']);
-        // $this->db->delete('tb_stock_in_stores');
       }
+      
     }
 
     $left_qty = getLeftQty($document_number);
