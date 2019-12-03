@@ -12,16 +12,16 @@
     <?php foreach ($detail['po']['po_detail'] as $i => $info) : ?>
         <?php
                 if ($info['ket'] < 31) {
-                    $a = $info['a'];
+                    $a += $info['a'];
                 }
                 if ($info['ket'] >= 31 && $info['ket'] <= 60) {
-                    $b = $info['a'];
+                    $b += $info['a'];
                 }
                 if ($info['ket'] >= 61 && $info['ket'] <= 90) {
-                    $c = $info['a'];
+                    $c += $info['a'];
                 }
                 if ($info['ket'] > 90) {
-                    $d = $info['a'];
+                    $d += $info['a'];
                 }
                 $total_amount[] = $info['a'];
                 ?>
