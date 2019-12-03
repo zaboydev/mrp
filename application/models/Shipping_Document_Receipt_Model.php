@@ -451,7 +451,7 @@ class Shipping_Document_Receipt_Model extends MY_Model
           $this->db->set('document_number', $document_number);
           $this->db->set('received_from', $received_from);
           $this->db->set('received_by', $received_by);
-          $this->db->set('prev_quantity', floatval($prev_stock->total_quantity));
+          $this->db->set('prev_quantity', floatval($prev_stock));
           $this->db->set('balance_quantity', $next_stock);
           $this->db->set('quantity', floatval($data['received_quantity']));
           $this->db->set('unit_value', floatval($data['received_unit_value']));
