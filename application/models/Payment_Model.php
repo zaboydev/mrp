@@ -422,9 +422,9 @@ class Payment_Model extends MY_MODEL
 		} else {
 
 			$format = $div . "BPV" . $div . $year;
-			$this->db->select_max('no_jurnal', 'last_number');
-			$this->db->from('tb_jurnal');
-			$this->db->like('no_jurnal', $format, 'before');
+			$this->db->select_max('no_transaksi', 'last_number');
+			$this->db->from('tb_purchase_order_items_payments');
+			$this->db->like('tb_purchase_order_items_payments', $format, 'before');
 			$query = $this->db->get('');
 			$row    = $query->unbuffered_row();
 			$last   = $row->last_number;
