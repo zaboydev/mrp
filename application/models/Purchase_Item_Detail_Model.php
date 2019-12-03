@@ -781,6 +781,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id');
         // $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id', 'left');
         $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
+        $this->db->where('tb_purchase_order_items_payments.status','PAID');
         // $this->db->group_by(array(
         //     // 'tb_hutang.vendor',
         //     'tb_hutang.currency'
