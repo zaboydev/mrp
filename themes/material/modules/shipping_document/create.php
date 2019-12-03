@@ -38,7 +38,7 @@
                     <label for="issued_by">Issued/Released By</label>
                   </div>
 
-                  <?php if (config_item('auth_role') == 'SUPERVISOR'):?>
+                  <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'):?>
                     <div class="form-group">
                       <select name="warehouse" id="warehouse" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_warehouse');?>" required>
                         <?php foreach (available_warehouses() as $w => $warehouse):?>

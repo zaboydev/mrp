@@ -215,13 +215,14 @@
               <tr>
                 <!-- <th class="middle-alignment">No.</th> -->
                 <th width="15%" class="middle-alignment">No PO</th>
-                <th width="15%" class="middle-alignment">Status</th>
-                <th width="10%" class="middle-alignment">Received Qty</th>
-                <th width="10%" class="middle-alignment">Received Val.</th>
+                <th width="13%" class="middle-alignment">Status</th>
+                <th width="10%" class="middle-alignment">Due Date</th>
+                <th width="7%" class="middle-alignment">Received Qty</th>
+                <th width="8%" class="middle-alignment">Received Val.</th>
                 <th width="10%" class="middle-alignment">Amount</th>
                 <th width="10%" class="middle-alignment">Paid Amount</th>
                 <th width="10%" class="middle-alignment">Remaining Payment</th>
-                <th width="10%" class="middle-alignment">Total Applied</th>
+                <th width="7%" class="middle-alignment">Total Applied/Purposed</th>
                 <th width="5%" class="middle-alignment"></th>
               </tr>
             </thead>
@@ -232,6 +233,7 @@
               <tr>
                 <td colspan="7" style="text-align: right;">Total Applied</td>
                 <td id="total_general">0</td>
+                <td></td>
                 <td></td>
               </tr>
             </tfoot>
@@ -569,6 +571,7 @@
         for (i = 1; i <= data.count_detail + data.count_po_additional; i++) {
           row_detail.push(i);
         }
+        changeTotal();
       }
     });
   }
