@@ -637,6 +637,7 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('status', "PAID");
 			$this->db->set('coa_kredit', $account);
 			$this->db->set('akun_kredit', $jenis);
+			$this->db->set('paid', $key["amount_paid"]);
 			// if ($status == "ORDER") {
 			// 	$this->db->set('uang_muka', $key["value"]);
 			// }
