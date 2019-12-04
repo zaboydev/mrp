@@ -509,7 +509,7 @@ class Purchase_Item_Detail_Model extends MY_Model
             'tb_hutang.currency',
             'sum(tb_hutang.amount_idr) as idr',
             'sum(tb_hutang.amount_usd) as usd',
-            'sum(tb_purchase_order_items_payments.amount_paid) as payment'
+            'sum(tb_purchase_order_items_payments.paid) as payment'
         );
         $this->db->select($select);
         $this->db->join('tb_po_item', 'tb_hutang.id_po_item=tb_po_item.id');
@@ -569,7 +569,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         $select = array(
             'tb_hutang.amount_idr',
             'tb_hutang.amount_usd',
-            'tb_purchase_order_items_payments.amount_paid',
+            'tb_purchase_order_items_payments.paid',
             'tb_po.due_date',
             'tb_hutang.currency',
             'tb_hutang.tanggal'
@@ -609,9 +609,9 @@ class Purchase_Item_Detail_Model extends MY_Model
 
         foreach ($query->result_array() as $key => $value) {
             if($value['currency']=='USD'){
-                $amount = $value['amount_usd'] - $value['amount_paid'];
+                $amount = $value['amount_usd'] - $value['paid'];
             }else{
-                $amount = $value['amount_idr'] - $value['amount_paid'];
+                $amount = $value['amount_idr'] - $value['paid'];
             }
             if($method=='PO'){
                 $datetime2 = new DateTime($value['due_date']);
