@@ -584,6 +584,7 @@ if ( ! function_exists('getLastUnitValue')) {
       $CI->db->from('tb_purchase_order_items_payments');
       $CI->db->where('purchase_order_item_id', $po_item_id);
       $CI->db->where('uang_muka > 0');
+      $CI->db->where('status','PAID');
 
       $num_rows = $CI->db->count_all_results();
 

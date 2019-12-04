@@ -209,9 +209,9 @@ class Payment_Model extends MY_MODEL
 		foreach ($po as $detail) {
 			$this->db->select('*');
 			$this->db->from('tb_po_item');
-			// $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'left');
+			$this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id');
 			$this->db->where('tb_po_item.purchase_order_id', $detail['id']);
-			$this->db->order_by('id', 'asc');
+			$this->db->order_by('tb_po_item.id', 'asc');
 			$query = $this->db->get();
 
 			foreach ($query->result_array() as $key => $value) {

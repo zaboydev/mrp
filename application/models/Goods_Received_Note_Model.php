@@ -957,6 +957,7 @@ class Goods_Received_Note_Model extends MY_Model
           $this->db->from('tb_purchase_order_items_payments');
           $this->db->where('purchase_order_item_id', $data['purchase_order_item_id']);
           $this->db->where('uang_muka > 0');
+          $this->db->where('status','PAID');
           $this->db->order_by('id','asc');
           $query        = $this->db->get();
           $data_uang_muka        = $query->result_array();

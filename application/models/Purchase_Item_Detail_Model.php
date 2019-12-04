@@ -241,6 +241,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         ));
         $this->db->where_not_in('tb_po.review_status', ['REVISI']);
         $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+        $this->db->where('tb_purchase_order_items_payments.status', 'PAID');
         if ($date != null) {
             $range_date  = explode('.', $date);
             $start_date  = $range_date[0];
@@ -296,6 +297,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         $this->db->where('tb_po.vendor', $vendor);
         $this->db->where_not_in('tb_po.review_status', ['REVISI']);
         $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+        $this->db->where('tb_purchase_order_items_payments.status', 'PAID');
         // $this->db->where('tb_po.default_currency', $currency);
         if ($date != null) {
             $range_date  = explode('.', $date);
@@ -520,6 +522,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         ));
         $this->db->where_not_in('tb_po.review_status', ['REVISI']);
         $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+        // $this->db->where('tb_purchase_order_items_payments.status', 'PAID');
         // if ($date != null) {
         //     $range_date  = explode('.', $date);
         //     $start_date  = $range_date[0];
@@ -584,6 +587,7 @@ class Purchase_Item_Detail_Model extends MY_Model
         $this->db->group_by($select);
         $this->db->where_not_in('tb_po.review_status', ['REVISI']);
         $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+        // $this->db->where('tb_purchase_order_items_payments.status', 'PAID');
         // if ($date != null) {
         //     $range_date  = explode('.', $date);
         //     $start_date  = $range_date[0];
@@ -618,7 +622,7 @@ class Purchase_Item_Detail_Model extends MY_Model
             $difference = $datetime1->diff($datetime2);
             $selisih = $difference->days;
             // if($selisih<31){
-                $a+=$amount;
+                $a=$amount;
             // }
             // if ($selisih >= 31 && $selisih<=60 ) {
             //     $b += $amount;
