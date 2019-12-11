@@ -98,6 +98,18 @@
     </select>
   </div>
 
+  <div class="form-group">
+    <label for="start_date">Status</label>
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
+      <option value="all">All Status</option>
+      <option value="WAITING">Waiting</option>
+      <option value="CHECKED">Checked</option>
+      <option value="APPROVED">Approved</option>
+      <option value="PAID">Paid</option>
+      <option value="REJECTED">Rejected</option>
+    </select>
+  </div>
+
 
 </div>
 <?php endblock() ?>

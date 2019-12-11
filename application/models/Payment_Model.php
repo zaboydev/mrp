@@ -95,6 +95,23 @@ class Payment_Model extends MY_MODEL
 			}
 		}
 
+		if (!empty($_POST['columns'][4]['search']['value'])) {
+			$status = $_POST['columns'][4]['search']['value'];
+			if($status!='all'){
+				$this->db->like('tb_purchase_order_items_payments.status', $status);
+			}			
+		} else {
+			if (config_item('auth_role') == 'FINANCE MANAGER') {
+				$this->db->like('tb_purchase_order_items_payments.status', 'WAITING');
+			}
+			if (config_item('auth_role') == 'VP FINANCE') {
+				$this->db->like('tb_purchase_order_items_payments.status', 'CHECKED');
+			}
+			if (config_item('auth_role') == 'TELLER') {
+				$this->db->like('tb_purchase_order_items_payments.status', 'APPROVED');
+			}
+		}
+
 		$i = 0;
 
 		foreach ($this->getSearchableColumns() as $item) {
@@ -424,7 +441,7 @@ class Payment_Model extends MY_MODEL
 			$format = $div . "BPV" . $div . $year;
 			$this->db->select_max('no_transaksi', 'last_number');
 			$this->db->from('tb_purchase_order_items_payments');
-			$this->db->like('tb_purchase_order_items_payments', $format, 'before');
+			$this->db->like('tb_purchase_order_items_payments.no_transaksi', $format, 'before');
 			$query = $this->db->get('');
 			$row    = $query->unbuffered_row();
 			$last   = $row->last_number;
@@ -559,9 +576,24 @@ class Payment_Model extends MY_MODEL
 	{
 		$this->db->trans_begin();
 
-		$this->db->set('status', 'APPROVED');
 		$this->db->where('id', $id);
-		$this->db->update('tb_purchase_order_items_payments');
+
+		$query    = $this->db->get('tb_purchase_order_items_payments');
+		$payment_item = $query->unbuffered_row('array');
+		$no_jurnal = $payment_item['no_transaksi'];
+
+		if ($payment_item['status']=='WAITING') {			
+			$this->db->set('status', 'CHECKED');
+			$this->db->set('checked_by', config_item('auth_person_name').'|'.date('Y-m-d'));
+			$this->db->where('no_transaksi', $no_jurnal);
+			$this->db->update('tb_purchase_order_items_payments');
+		}
+		if ($payment_item['status']=='CHECKED') {			
+			$this->db->set('status', 'APPROVED');
+			$this->db->set('approved_by', config_item('auth_person_name').'|'.date('Y-m-d'));
+			$this->db->where('no_transaksi', $no_jurnal);
+			$this->db->update('tb_purchase_order_items_payments');
+		}
 
 		if ($this->db->trans_status() === FALSE)
 			return FALSE;

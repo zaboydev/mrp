@@ -150,6 +150,11 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
+                <input readonly value="<?=$no_transaksi;?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
+                
+                <label for="suplier_select">Purpose Number</label>
+              </div>
+              <div class="form-group">
                 <select id="currency_select" class="form-control">
                   <option value="IDR">IDR</option>
                   <option value="USD">USD</option>
