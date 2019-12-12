@@ -321,21 +321,22 @@
 
                     <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN') : ?>
                       <div class="form-group">
-                        <div class="row">
-                          <div class="col-lg-6 col-sm-6">
-                            <select class="form-control input-sm" id="kurs" name="kurs" required>
-                              <!-- <option>-Pilih Mata Uang-</option> -->
-                              <option value="rupiah">Rupiah</option>
-                              <option value="dollar">USD Dollar</option>
-                            </select>
+                        <select class="form-control input-sm" id="kurs" name="kurs" required>
+                          <!-- <option>-Pilih Mata Uang-</option> -->
+                          <option value="rupiah">Rupiah</option>
+                          <option value="dollar">USD Dollar</option>
+                        </select>
+                        <label for="kurs">Currency</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="text" id="value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
 
-                          </div>
-                          <div class="col-lg-6 col-sm-6">
-                            <input type="text" id="received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                            <input type="hidden" id="value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
-                          </div>
-                        </div>
-                        <label for="kurs">Price per Unit</label>
+                        <label for="kurs">Price per Unit (Order)</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="text" id="received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02" readonly>
+
+                        <label for="kurs">Price per Unit (Pakai)</label>
                       </div>
                     <?php else : ?>
                       <div class="form-group hide">
@@ -576,20 +577,21 @@
 
                     <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN') : ?>
                       <div class="form-group">
-                        <div class="row">
-                          <div class="col-lg-5 col-sm-5">
-                            <select class="form-control input-sm" id="edit_kurs" name="edit_kurs">
-                              <option value="rupiah">Rupiah</option>
-                              <option value="dollar">USD Dollar</option>
-                            </select>
+                        <select class="form-control input-sm" id="edit_kurs" name="edit_kurs">
+                          <option value="rupiah">Rupiah</option>
+                          <option value="dollar">USD Dollar</option>
+                        </select>
+                        <label for="kurs">Currency</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="text" id="edit_value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
 
-                          </div>
-                          <div class="col-lg-7 col-sm-7">
-                            <input type="text" id="edit_received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                            <input type="hidden" id="edit_value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
-                          </div>
-                        </div>
-                        <label for="kurs">Price per Unit</label>
+                        <label for="kurs">Price per Unit (Order)</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="text" id="edit_received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02" readonly>
+
+                        <label for="kurs">Price per Unit (Pakai)</label>
                       </div>
                     <?php else : ?>
                       <div class="form-group hide">
@@ -1022,8 +1024,6 @@
                   $('[name="kurs"]').val('rupiah');
 
                 }
-                $('#received_unit_value').attr('readonly', true);
-                $('#purchase_order_number').attr('readonly', true);
 
                 $('#quantity_order').data('rule-max', parseInt(ui.item.left_received_quantity)).data('msg-max', 'max available ' + ui.item.left_received_quantity);
 
@@ -1352,23 +1352,23 @@
         $('[name="received_quantity"]').val(qty_konversi);
 
         var count_received_value = parseFloat(value) / parseFloat(isi);
-        var received_value = Number.parseFloat(count_received_value).toFixed(2);
+        var received_value = Number.parseFloat(count_received_value).toFixed(3);
         $('[name="received_unit_value"]').val(received_value);
       }
     });
 
-    $('input[name="received_unit_value"]').keyup(function() {
-      var received_value = $(this).val();
+    $('input[name="value_order"]').keyup(function() {
+      var value_order = $(this).val();
 
-      if (received_value !== '' || received_value > 0) {
+      if (value_order !== '' || value_order > 0) {
         var isi = $('[name="isi"]').val();
         // var value = $('[name="value_order"]').val();
         // var qty_konversi = parseFloat(qty) * parseFloat(isi);
         // $('[name="received_quantity"]').val(qty_konversi);
 
-        var count_value_order = parseFloat(received_value) * parseFloat(isi);
-        var value_order = Number.parseFloat(count_value_order).toFixed(2);
-        $('[name="value_order"]').val(value_order);
+        var count_received_unit_value = parseFloat(value_order) / parseFloat(isi);
+        var received_unit_value = Number.parseFloat(count_received_unit_value).toFixed(3);
+        $('[name="received_unit_value"]').val(received_unit_value);
       }
     });
 
@@ -1400,6 +1400,21 @@
         var count_received_value = parseFloat(value) / parseFloat(isi);
         var received_value = Number.parseFloat(count_received_value).toFixed(2);
         $('[name="received_unit_value"]').val(received_value);
+      }
+    });
+
+    $('input[id="edit_value_order"]').keyup(function() {
+      var value_order = $(this).val();
+
+      if (value_order !== '' || value_order > 0) {
+        var isi = $('[id="edit_isi"]').val();
+        // var value = $('[name="value_order"]').val();
+        // var qty_konversi = parseFloat(qty) * parseFloat(isi);
+        // $('[name="received_quantity"]').val(qty_konversi);
+
+        var count_received_unit_value = parseFloat(value_order) / parseFloat(isi);
+        var received_unit_value = Number.parseFloat(count_received_unit_value).toFixed(3);
+        $('[name="received_unit_value"]').val(received_unit_value);
       }
     });
 
@@ -1482,11 +1497,6 @@
           $('[id="receipt_items_id"]').val(response.receipt_items_id);
 
           $('#edit_purchase_order_item_id').val(response.purchase_order_item_id);
-
-          if (response.purchase_order_item_id != '') {
-            $('[name="received_unit_value"]').attr('readonly', true);
-            $('[name="purchase_order_number"]').attr('readonly', true);
-          }
 
 
 

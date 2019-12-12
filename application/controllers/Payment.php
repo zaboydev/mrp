@@ -37,7 +37,14 @@ class Payment extends MY_Controller
         $col = array();
         if ($row['status'] == 'WAITING') {
           // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE) {
+          if (is_granted($this->module, 'check') === TRUE) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          } else {
+            $col[] = print_number($no);
+          }
+        }else if ($row['status'] == 'CHECKED') {
+          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+          if (is_granted($this->module, 'approve') === TRUE) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = print_number($no);
@@ -125,6 +132,7 @@ class Payment extends MY_Controller
     $this->data['page']['title']            = $this->module['label'];
     $this->data['account']                  = $this->model->getAccount($this->data['currency']);
     $this->data['suplier']                  = $this->model->getSuplier($this->data['currency']);
+    $this->data['no_transaksi']                  = $this->model->jrl_last_number();
     $this->render_view($this->module['view'] . '/create');
   }
   
@@ -248,7 +256,7 @@ class Payment extends MY_Controller
       // $id_role = 13;
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
-        'info' => $success . " data has been approved!"
+        'info' => " data has been approved!"
       ));
     }
     if ($failed > 0) {

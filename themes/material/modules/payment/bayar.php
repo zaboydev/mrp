@@ -24,10 +24,12 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select id="currency_select" class="form-control">
-                                    <option value="IDR" <?= ($_SESSION['payment']['currency'] == 'IDR') ? 'selected' : ''; ?>>IDR</option>
-                                    <option value="USD" <?= ($_SESSION['payment']['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
-                                </select>
+                                <input readonly value="<?= $_SESSION['payment']['no_transaksi'] ?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
+
+                                <label for="suplier_select">Purpose Number</label>
+                            </div>
+                            <div class="form-group">
+                                <input readonly value="<?= $_SESSION['payment']['currency'] ?>" type="text" name="currency_select" id="currency_select" class="form-control">
                                 <label for="currency">Currency</label>
                             </div>
                             <div class="form-group">
@@ -295,52 +297,52 @@
         }
 
     });
-    $('#currency_select').change(function() {
-        currency = $(this).val();
+    // $('#currency_select').change(function() {
+    //     currency = $(this).val();
 
-        var akun_view = $('#account_select');
-        var supplier_view = $('#suplier_select');
-        akun_view.html('');
-        supplier_view.html('');
-        $.ajax({
-            type: "POST",
-            url: '<?= base_url() . "payment/get_akun" ?>',
-            data: {
-                'currency': currency
-            },
-            cache: false,
-            success: function(response) {
-                var data = jQuery.parseJSON(response);
-                akun_view.html(data);
-            }
-        });
+    //     var akun_view = $('#account_select');
+    //     var supplier_view = $('#suplier_select');
+    //     akun_view.html('');
+    //     supplier_view.html('');
+    //     $.ajax({
+    //         type: "POST",
+    //         url: '<?= base_url() . "payment/get_akun" ?>',
+    //         data: {
+    //             'currency': currency
+    //         },
+    //         cache: false,
+    //         success: function(response) {
+    //             var data = jQuery.parseJSON(response);
+    //             akun_view.html(data);
+    //         }
+    //     });
 
-        $.ajax({
-            type: "POST",
-            url: '<?= base_url() . "payment/get_supplier" ?>',
-            data: {
-                'currency': currency
-            },
-            cache: false,
-            success: function(response) {
-                var data = jQuery.parseJSON(response);
-                supplier_view.html(data);
-            }
-        });
+    //     $.ajax({
+    //         type: "POST",
+    //         url: '<?= base_url() . "payment/get_supplier" ?>',
+    //         data: {
+    //             'currency': currency
+    //         },
+    //         cache: false,
+    //         success: function(response) {
+    //             var data = jQuery.parseJSON(response);
+    //             supplier_view.html(data);
+    //         }
+    //     });
 
-        suplier = $("#suplier_select").val();
-        // currency = $("#currency_select").val();
-        tipe = $("#tipe_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
-        $("#listView").html("");
-        row = [];
-        row_detail = [];
+    //     suplier = $("#suplier_select").val();
+    //     // currency = $("#currency_select").val();
+    //     tipe = $("#tipe_select").val();
+    //     $("#total_general").html(0);
+    //     $("#amount").val(0);
+    //     // row_num = 0;
+    //     $("#listView").html("");
+    //     row = [];
+    //     row_detail = [];
 
-        getPo()
+    //     getPo()
 
-    });
+    // });
 
     $("#suplier_select").change(function(e) {
         // if (suplier != "") {

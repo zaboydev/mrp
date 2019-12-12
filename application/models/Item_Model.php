@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
 class Item_Model extends MY_Model
 {
@@ -25,7 +25,8 @@ class Item_Model extends MY_Model
       // 'tb_master_item_groups.category'        => 'Category',
       'tb_master_item_groups.group'           => 'Group',
       'tb_master_part_number.min_qty as minimum_quantity'      => 'Minimum Qty',
-      'tb_master_part_number.unit'                  => 'Unit',      
+      null      => 'Current Stock',
+      'tb_master_part_number.unit'                  => 'Unit',
       // 'tb_master_items.updated_at'            => 'Last Update',
     );
   }
@@ -61,13 +62,13 @@ class Item_Model extends MY_Model
 
   private function searchIndex()
   {
-    if (!empty($_POST['columns'][4]['search']['value'])){
+    if (!empty($_POST['columns'][4]['search']['value'])) {
       $search_item_category = $_POST['columns'][4]['search']['value'];
 
       $this->db->where('tb_master_item_groups.category', $search_item_category);
     }
 
-    if (!empty($_POST['columns'][5]['search']['value'])){
+    if (!empty($_POST['columns'][5]['search']['value'])) {
       $search_item_group = $_POST['columns'][5]['search']['value'];
 
       $this->db->where('tb_master_item_groups.group', $search_item_group);
@@ -75,13 +76,13 @@ class Item_Model extends MY_Model
 
     $i = 0;
 
-    foreach ($this->getSearchableColumns() as $item){
-      if ($_POST['search']['value']){
-        if ($i === 0){
+    foreach ($this->getSearchableColumns() as $item) {
+      if ($_POST['search']['value']) {
+        if ($i === 0) {
           $this->db->group_start();
-          $this->db->like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+          $this->db->like('UPPER(' . $item . ')', strtoupper($_POST['search']['value']));
         } else {
-          $this->db->or_like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+          $this->db->or_like('UPPER(' . $item . ')', strtoupper($_POST['search']['value']));
         }
 
         if (count($this->getSearchableColumns()) - 1 == $i)
@@ -103,8 +104,8 @@ class Item_Model extends MY_Model
 
     $column_order = $this->getOrderableColumns();
 
-    if (isset($_POST['order'])){
-      foreach ($_POST['order'] as $key => $order){
+    if (isset($_POST['order'])) {
+      foreach ($_POST['order'] as $key => $order) {
         $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
       }
     } else {
@@ -116,9 +117,9 @@ class Item_Model extends MY_Model
 
     $query = $this->db->get();
 
-    if ($return === 'object'){
+    if ($return === 'object') {
       return $query->result();
-    } elseif ($return === 'json'){
+    } elseif ($return === 'json') {
       return json_encode($query->result());
     } else {
       return $query->result_array();
@@ -175,7 +176,7 @@ class Item_Model extends MY_Model
     // $this->db->set('updated_by', config_item('auth_person_name'));
     // $this->db->update('tb_master_items');
     $this->db->insert('tb_master_part_number');
-    $serial_number=NULL;
+    $serial_number = NULL;
 
     if (isItemExists($this->input->post('part_number'), $serial_number) === FALSE) {
       $this->db->set('description', strtoupper($this->input->post('description')));
@@ -183,7 +184,7 @@ class Item_Model extends MY_Model
       $this->db->set('alternate_part_number', strtoupper($this->input->post('alternate_part_number')));
       $this->db->set('group', strtoupper($this->input->post('group')));
       $this->db->set('unit', strtoupper($this->input->post('unit')));
-      $this->db->set('minimum_quantity', floatval($this->input->post('minimum_quantity')));    
+      $this->db->set('minimum_quantity', floatval($this->input->post('minimum_quantity')));
       // $this->db->set('min_qty', floatval($this->input->post('minimum_quantity')));
       $this->db->set('kode_pemakaian', strtoupper($this->input->post('kode_pemakaian')));
       $this->db->set('notes', $this->input->post('notes'));
@@ -238,7 +239,7 @@ class Item_Model extends MY_Model
     $this->db->set('alternate_part_number', strtoupper($this->input->post('alternate_part_number')));
     $this->db->set('group', strtoupper($this->input->post('group')));
     $this->db->set('unit', strtoupper($this->input->post('unit')));
-    $this->db->set('minimum_quantity', floatval($this->input->post('minimum_quantity')));    
+    $this->db->set('minimum_quantity', floatval($this->input->post('minimum_quantity')));
     // $this->db->set('min_qty', floatval($this->input->post('minimum_quantity')));
     $this->db->set('notes', $this->input->post('notes'));
     $this->db->set('kode_stok', strtoupper($this->input->post('kode_stok')));
@@ -262,7 +263,7 @@ class Item_Model extends MY_Model
   {
     $this->db->trans_begin();
 
-    foreach ($user_data as $key => $data){
+    foreach ($user_data as $key => $data) {
       $this->db->set('group', strtoupper($data['group']));
       $this->db->set('description', $data['description']);
       $this->db->set('part_number', strtoupper($data['part_number']));
@@ -278,31 +279,30 @@ class Item_Model extends MY_Model
 
       $item_id = $this->db->insert_id();
 
-      if (isSerialExists($item_id, $data['serial_number']) === FALSE){
-          $this->db->set('item_id', $item_id);
-          $this->db->set('serial_number', strtoupper($data['serial_number']));
-          $this->db->set('warehouse', strtoupper($data['warehouse']));
-          $this->db->set('stores', strtoupper($data['stores']));
-          $this->db->set('condition', strtoupper($data['condition']));
-          $this->db->set('reference_document', 'IMPORT');
-          $this->db->set('updated_by', config_item('auth_person_name'));
-          $this->db->insert('tb_master_item_serials');
+      if (isSerialExists($item_id, $data['serial_number']) === FALSE) {
+        $this->db->set('item_id', $item_id);
+        $this->db->set('serial_number', strtoupper($data['serial_number']));
+        $this->db->set('warehouse', strtoupper($data['warehouse']));
+        $this->db->set('stores', strtoupper($data['stores']));
+        $this->db->set('condition', strtoupper($data['condition']));
+        $this->db->set('reference_document', 'IMPORT');
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->insert('tb_master_item_serials');
 
-          // $serial_id  = $this->db->insert_id();
-        } else {
-          $serial     = getSerial($item_id, $data['serial_number']);
-          $serial_id  = $serial->id;
+        // $serial_id  = $this->db->insert_id();
+      } else {
+        $serial     = getSerial($item_id, $data['serial_number']);
+        $serial_id  = $serial->id;
 
-          $this->db->set('quantity', 1);
-          $this->db->set('warehouse', strtoupper($data['warehouse']));
-          $this->db->set('stores', strtoupper($data['stores']));
-          $this->db->set('condition', strtoupper($data['condition']));
-          $this->db->set('updated_by', config_item('auth_person_name'));
-          $this->db->set('reference_document', 'IMPORT');
-          $this->db->where('id', $serial_id);
-          $this->db->update('tb_master_item_serials');
-        }
-
+        $this->db->set('quantity', 1);
+        $this->db->set('warehouse', strtoupper($data['warehouse']));
+        $this->db->set('stores', strtoupper($data['stores']));
+        $this->db->set('condition', strtoupper($data['condition']));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('reference_document', 'IMPORT');
+        $this->db->where('id', $serial_id);
+        $this->db->update('tb_master_item_serials');
+      }
     }
 
     if ($this->db->trans_status() === FALSE)
@@ -316,7 +316,7 @@ class Item_Model extends MY_Model
   {
     $this->db->trans_begin();
 
-    foreach ($user_data as $key => $data){
+    foreach ($user_data as $key => $data) {
       $this->db->set('base_price', $data['price']);
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
@@ -373,7 +373,7 @@ class Item_Model extends MY_Model
 
     foreach ($user_data as $key => $data) {
       // $part_number = isPartNumberExists(strtoupper($data['part_number']));
-      if(isPartNumberExists(strtoupper($data['part_number']))==FALSE){
+      if (isPartNumberExists(strtoupper($data['part_number'])) == FALSE) {
         $this->db->set('group', strtoupper($data['group']));
         $this->db->set('description', strtoupper($data['description']));
         $this->db->set('part_number', strtoupper($data['part_number']));
@@ -397,5 +397,38 @@ class Item_Model extends MY_Model
     $this->db->trans_commit();
     return TRUE;
   }
-}
 
+  public function currentStock($part_number)
+  {
+    $this->db->select('sum(quantity)');
+    $this->db->from('tb_stock_in_stores');
+    $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
+    $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+    $this->db->group_by('tb_master_items.part_number');
+    //tambahan
+    $this->db->where('tb_master_items.part_number', $part_number);
+    return $this->db->get('')->row();
+    // $this->db->select(
+    //   array(
+    //     // 'tb_stock_in_stores.warehouse',
+    //     'sum(quantity) as qty'
+    //   )
+    // );
+    // $this->db->from('tb_stock_in_stores');
+    // //tambahan
+    // $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
+    // $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+    // $this->db->group_by('tb_master_items.part_number');
+    // //tambahan
+    // $this->db->where('tb_master_items.part_number', $part_number);
+    // $query =  $this->db->get();
+    // $result = $query->result_array();
+
+    // foreach ($result as $data) {
+    //   $this->db->set('prl_item_id', $prl_item_id);
+    //   $this->db->set('warehouse', $data['warehouse']);
+    //   $this->db->set('on_hand_stock', $data['qty']);
+    //   $this->db->insert('tb_purchase_request_items_on_hand_stock');
+    // }
+  }
+}
