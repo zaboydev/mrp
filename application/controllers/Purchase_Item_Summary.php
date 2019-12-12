@@ -74,7 +74,7 @@ class Purchase_Item_Summary extends MY_Controller
             $periode = print_date($start_date) . ' s/d ' . print_date($end_date);
         }
         $this->data['periode']            = $periode;
-        $items = $this->model->getPurchaseItemSummary($items, $currency, $date);
+        $items = $this->model->getPurchaseItemSummary($items, $currency, $vendor, $date);
         $this->data['items'] = $items;
         $this->data['tipe'] = $tipe;
         $this->data['title']            = $this->module['label'];
