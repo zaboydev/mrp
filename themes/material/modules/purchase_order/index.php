@@ -183,6 +183,9 @@
       <option value="rejected">
         Rejected
       </option>
+      <option value="purposed">
+        Purposed
+      </option>
       <option value="order">
         Order
       </option>
@@ -900,7 +903,7 @@
       // $('#order-modal').show();
       button.attr('disabled', true);
 
-      if (confirm('Are you sure want to '+tipe+' this Purchase ? Continue?')) {
+      if (confirm('Are you sure want to ' + tipe + ' this Purchase ? Continue?')) {
         $.post(action, form.serialize()).done(function(data) {
           var obj = $.parseJSON(data);
           if (obj.type == 'danger') {

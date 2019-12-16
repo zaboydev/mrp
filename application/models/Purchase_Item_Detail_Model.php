@@ -21,12 +21,19 @@ class Purchase_Item_Detail_Model extends MY_Model
 
     public function getItems()
     {
-        $this->db->select('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
-        $this->db->group_by('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
+        // $this->db->select('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
+        // $this->db->group_by('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
+        // // $this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
+        // // $this->db->where('tb_master_vendors_currency.currency', $currency);
+        // $this->db->from('tb_master_items');
+        // $this->db->order_by('tb_master_items.part_number', 'asc');
+        // return $this->db->get('')->result();
+        $this->db->select('tb_master_part_number.id,tb_master_part_number.part_number,tb_master_part_number.description');
+        $this->db->group_by('tb_master_part_number.id,tb_master_part_number.part_number,tb_master_part_number.description');
         // $this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
         // $this->db->where('tb_master_vendors_currency.currency', $currency);
-        $this->db->from('tb_master_items');
-        $this->db->order_by('tb_master_items.part_number', 'asc');
+        $this->db->from('tb_master_part_number');
+        $this->db->order_by('tb_master_part_number.part_number', 'asc');
         return $this->db->get('')->result();
     }
 

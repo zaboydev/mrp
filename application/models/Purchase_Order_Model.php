@@ -201,7 +201,12 @@ class Purchase_Order_Model extends MY_Model
       } elseif ($status == 'revisi') {
         $this->db->like('tb_po.review_status', 'REVISI');
         // $this->db->like('tb_po.status', 'OPEN');
+      } elseif ($status == 'purposed') {
+        $this->db->like('tb_po.review_status', 'APPROVED');
+        $this->db->like('tb_po.status', 'PURPOSED');
+        // $this->db->like('tb_po.status', 'OPEN');
       }
+      
       // elseif($status=='all'){
       //   $this->db->like('tb_po.review_status', 'WAITING');
       // }
