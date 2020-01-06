@@ -259,7 +259,7 @@ class Purchase_Request_Model extends MY_Model
       $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
       // $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
       // $this->connection->where_in('tb_product_categories.id', $this->categories);
-      $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      // $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       $this->searchIndex();
 
@@ -285,7 +285,7 @@ class Purchase_Request_Model extends MY_Model
       $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
       $categories = config_item('auth_inventory');
       // $this->db->where_in('tb_inventory_purchase_requisitions.item_category', $categories);
-      $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      // $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       $this->searchIndex();
 
@@ -324,7 +324,7 @@ class Purchase_Request_Model extends MY_Model
       $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
       $categories = config_item('auth_inventory');
       // $this->db->where_in('tb_inventory_purchase_requisitions.item_category', $categories);
-      $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      // $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       $this->searchIndex();
 
@@ -338,7 +338,7 @@ class Purchase_Request_Model extends MY_Model
       $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
       $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
       $this->connection->where_in('tb_product_categories.id', $this->categories);
-      $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      // $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       $this->searchIndex();
 
@@ -359,7 +359,7 @@ class Purchase_Request_Model extends MY_Model
       $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
       $categories = config_item('auth_inventory');
       // $this->db->where_in('tb_inventory_purchase_requisitions.item_category', $categories);
-      $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      // $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       $this->searchIndex();
 
@@ -373,7 +373,7 @@ class Purchase_Request_Model extends MY_Model
       $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
       $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
       $this->connection->where_in('tb_product_categories.id', $this->categories);
-      $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      // $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
 
       // $this->searchIndex();
 

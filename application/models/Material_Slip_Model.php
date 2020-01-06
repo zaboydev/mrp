@@ -505,7 +505,7 @@ class Material_Slip_Model extends MY_Model
     if (isset($_SESSION['usage']['id'])) {
       $id = $_SESSION['usage']['id'];
 
-      $this->db->select('document_number, warehouse');
+      $this->db->select('document_number, warehouse,issued_date');
       $this->db->where('id', $id);
       $this->db->from('tb_issuances');
 
@@ -534,7 +534,7 @@ class Material_Slip_Model extends MY_Model
         $this->db->set('serial_id', $data['serial_id']);
         $this->db->set('warehouse', $old_warehouse);
         $this->db->set('stores', $data['stores']);
-        $this->db->set('date_of_entry', $_SESSION['usage']['issued_date']);
+        $this->db->set('date_of_entry', $row['issued_date']);
         $this->db->set('period_year', config_item('period_year'));
         $this->db->set('period_month', config_item('period_month'));
         $this->db->set('document_type', 'REVISION USAGE');
@@ -549,7 +549,7 @@ class Material_Slip_Model extends MY_Model
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
         $this->db->set('doc_type', 6);
-        $this->db->set('tgl', date('Ymd', strtotime($_SESSION['usage']['issued_date'])));
+        $this->db->set('tgl', date('Ymd', strtotime($row['issued_date'])));
         $this->db->set('total_value', floatval($data['issued_unit_value']) * (0 + floatval($data['issued_quantity'])));
         $this->db->insert('tb_stock_cards');
 

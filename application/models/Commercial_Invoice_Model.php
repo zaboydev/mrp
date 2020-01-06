@@ -305,11 +305,14 @@ class Commercial_Invoice_Model extends MY_Model
       $query = $this->db->get();
 
       foreach ($query->result_array() as $row) {
+        $prev_old_stock = getStockPrev($row['stock_id'], $row['stores']);
+        $next_old_stock = floatval($prev_old_stock) + floatval($row['quantity']);
+
         $this->db->set('stock_id', $row['stock_id']);
         $this->db->set('serial_id', $row['serial_id']);
         $this->db->set('warehouse', $warehouse);
         $this->db->set('stores', $row['stores']);
-        $this->db->set('date_of_entry', $issued_date);
+        $this->db->set('date_of_entry', $row['date_of_entry']);
         $this->db->set('period_year', config_item('period_year'));
         $this->db->set('period_month', config_item('period_month'));
         $this->db->set('document_type', 'REVISION');
@@ -318,8 +321,13 @@ class Commercial_Invoice_Model extends MY_Model
         $this->db->set('issued_by', config_item('auth_person_name'));
         $this->db->set('quantity', 0 + floatval($row['quantity']));
         $this->db->set('unit_value', floatval($row['unit_value']));
+        $this->db->set('prev_quantity', floatval($prev_old_stock));
+        $this->db->set('balance_quantity', $next_old_stock);
         $this->db->set('remarks', 'REVISION');
-		    $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('doc_type', 10);
+        $this->db->set('tgl', date('Ymd', strtotime($row['date_of_entry'])));
+        $this->db->set('total_value', floatval($row['unit_value']) * (0 + floatval($row['quantity'])));
         $this->db->insert('tb_stock_cards');
       }
 
@@ -350,8 +358,8 @@ class Commercial_Invoice_Model extends MY_Model
       /**
        * DELETE OLD STOCK
        */
-      $this->db->where('reference_document', $document_edit);
-      $this->db->delete('tb_stock_in_stores');
+      // $this->db->where('reference_document', $document_edit);
+      // $this->db->delete('tb_stock_in_stores');
 
       /**
        * UPDATE SERIAL
@@ -402,6 +410,10 @@ class Commercial_Invoice_Model extends MY_Model
       /**
        * CREATE STOCK CARD
        */
+
+      $prev_old_stock = getStockPrev($stock_stored['stock_id'], strtoupper($stock_stored['stores']));
+      $next_old_stock = floatval($prev_old_stock) - floatval($data['issued_quantity']);
+
       $this->db->set('serial_id', $stock_stored['serial_id']);
       $this->db->set('stock_id', $stock_stored['stock_id']);
       $this->db->set('warehouse', $stock_stored['warehouse']);
@@ -415,6 +427,8 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('issued_by', $issued_by);
       $this->db->set('quantity', 0 - floatval($data['issued_quantity']));
       $this->db->set('unit_value', floatval($data['issued_unit_value']));
+      $this->db->set('prev_quantity', floatval($prev_old_stock));
+      $this->db->set('balance_quantity', $next_old_stock);
       $this->db->set('remarks', $data['remarks']);
 	    $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
@@ -437,7 +451,7 @@ class Commercial_Invoice_Model extends MY_Model
 
     $id = $this->input->post('id');
 
-    $this->db->select('document_number, warehouse');
+    $this->db->select('document_number, warehouse,issued_date');
     $this->db->where('id', $id);
     $this->db->from('tb_issuances');
 
@@ -456,11 +470,14 @@ class Commercial_Invoice_Model extends MY_Model
     $result = $query->result_array();
 
     foreach ($result as $data) {
+      $prev_old_stock = getStockPrev($data['stock_id'], strtoupper($data['stores']));
+      $next_old_stock = floatval($prev_old_stock) + floatval($data['issued_quantity']);
+
       $this->db->set('stock_id', $data['stock_id']);
       $this->db->set('serial_id', $data['serial_id']);
       $this->db->set('warehouse', $warehouse);
       $this->db->set('stores', $data['stores']);
-      $this->db->set('date_of_entry', date('Y-m-d'));
+      $this->db->set('date_of_entry', $row['issued_date']);
       $this->db->set('period_year', config_item('period_year'));
       $this->db->set('period_month', config_item('period_month'));
       $this->db->set('document_type', 'REMOVAL');
@@ -469,14 +486,36 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('issued_by', config_item('auth_person_name'));
       $this->db->set('quantity', 0 - floatval($data['issued_quantity']));
       $this->db->set('unit_value', floatval($data['issued_unit_value']));
-	  $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('prev_quantity', floatval($prev_old_stock));
+      $this->db->set('balance_quantity', $next_old_stock);
+      $this->db->set('doc_type', 10);
+      $this->db->set('tgl', date('Ymd', strtotime($row['issued_date'])));
+      $this->db->set('total_value', floatval($data['issued_unit_value']) * (0 + floatval($data['issued_quantity'])));
       $this->db->insert('tb_stock_cards');
+
+      $this->db->from('tb_stock_in_stores');
+      $this->db->where('id', $data['stock_in_stores_id']);
+      $query        = $this->db->get();
+      $stock_stored = $query->unbuffered_row('array');
+      $new_quantity = $stock_stored['quantity'] + $data['issued_quantity'];
+
+      $this->db->where('id', $data['stock_in_stores_id']);
+      $this->db->set('quantity', floatval($new_quantity));
+      $this->db->update('tb_stock_in_stores');
+
+      $this->db->where('id', $data['serial_id']);
+      $this->db->set('quantity', 1);
+      $this->db->update('tb_master_item_serials');
 
       $this->db->where('id', $data['id']);
       $this->db->delete('tb_issuance_items');
 
-      $this->db->where('reference_document', $document_number);
-      $this->db->delete('tb_stock_in_stores');
+      // $this->db->where('id', $data['id']);
+      // $this->db->delete('tb_issuance_items');
+
+      // $this->db->where('reference_document', $document_number);
+      // $this->db->delete('tb_stock_in_stores');
     }
 
     $this->db->where('id', $id);
