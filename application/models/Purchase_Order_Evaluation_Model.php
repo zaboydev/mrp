@@ -778,7 +778,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       // } else {
       //   $this->db->where('UPPER(tb_master_item_groups.category)', $category);
       // }
-      $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      // $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
       $this->db->order_by('tb_inventory_purchase_requisitions.id', 'asc');
       $query = $this->db->get();
     }
