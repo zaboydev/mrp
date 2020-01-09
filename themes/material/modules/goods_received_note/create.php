@@ -603,7 +603,7 @@
                           </div>
                           <div class="col-lg-7 col-sm-7">
                             <input type="text" id="edit_received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                            <input type="hidden" id="edit_value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
+                            <input type="text" id="edit_value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
                           </div>
                         </div>
                         <label for="kurs">Price per Unit</label>
@@ -993,9 +993,9 @@
 
               select: function(event, ui) {
                 if (ui.item.default_currency == 'USD') {
-                  var unit_value = parseInt(ui.item.unit_price) * parseInt(ui.item.exchange_rate);
+                  var unit_value = parseFloat(ui.item.unit_price) * parseFloat(ui.item.exchange_rate);
                 } else {
-                  var unit_value = parseInt(ui.item.unit_price);
+                  var unit_value = parseFloat(ui.item.unit_price);
                 }
 
                 $('#consignor').val(ui.item.vendor);
