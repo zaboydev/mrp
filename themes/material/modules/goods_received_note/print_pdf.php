@@ -93,6 +93,7 @@
       <p>
         The stock record has been posted.
         <br>Signature :
+        <br><br><br><?=$entity['received_by'];?>
       </p>
     </td>
     <td valign="top">
