@@ -1744,7 +1744,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number','LEFT');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
     // $this->db->where('tb_po.review_status','!=','REVISI');
-    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
+    // $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumnsReport());
 
     // if (config_item('auth_role') == 'FINANCE'){
@@ -1787,7 +1787,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'LEFT');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
     // $this->db->where('tb_po.review_status','!=','REVISI');
-    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
+    // $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumnsReport());
 
     $this->searchIndexReport();
@@ -1807,7 +1807,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'LEFT');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
     // $this->db->where('tb_po.review_status','!=','REVISI');
-    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
+    // $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumnsReport());
 
     $query = $this->db->get();
