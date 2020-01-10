@@ -50,11 +50,11 @@
         <div class="form-group">
           <label>Category</label>
 
-          <?php foreach (config_item('auth_inventory') as $i => $inventory) : ?>
+          <?php foreach (available_categories_for_user() as $i => $inventory) : ?>
             <div class="checkbox">
-              <input type="checkbox" name="category[]" id="category[<?= $i; ?>]" value="<?= $inventory; ?>" <?= (in_array($inventory, category_for_user_list($entity['username']))) ? 'checked' : ''; ?>>
+              <input type="checkbox" name="category[]" id="category[<?= $i; ?>]" value="<?= $inventory['category']; ?>" <?= (in_array($inventory['category'], category_for_user_list($entity['username']))) ? 'checked' : ''; ?>>
               <label for="category[<?= $i; ?>]">
-                <?= $inventory; ?>
+                <?= $inventory['category']; ?>
               </label>
             </div>
           <?php endforeach; ?>

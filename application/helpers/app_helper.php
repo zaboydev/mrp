@@ -1146,6 +1146,26 @@ if ( ! function_exists('month')) {
       return $result;
     }
   }
+
+  if ( ! function_exists('available_categories_for_user')) {
+    function available_categories_for_user()
+    {
+      $CI =& get_instance();
+
+      if ($select !== NULL){
+        
+      }
+      $CI->db->select('category');
+      $CI->db->from('tb_master_item_categories');
+      $CI->db->where('status', 'AVAILABLE');
+
+      $CI->db->order_by('category', 'ASC');
+
+      $query = $CI->db->get();
+
+      return $query->result_array();
+    }
+  }
 }
 
     

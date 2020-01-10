@@ -314,6 +314,16 @@ class User_model extends MY_Model
   {
       $this->db->trans_begin();
 
+      $this->db->select('username');
+      $this->db->from('tb_auth_users');
+      $this->db->where($criteria);
+
+      $query        = $this->db->get();
+      $old_username = $query->unbuffered_row('array');
+
+      $this->db->where('username', $old_username['username']);
+      $this->db->delete('tb_auth_user_categories');
+
       $this->db->set($user_data);
       $this->db->where($criteria);
       $this->db->update('tb_auth_users');
