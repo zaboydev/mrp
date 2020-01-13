@@ -967,6 +967,9 @@ class Stock_Model extends MY_Model
     $this->db->set('remarks', $remarks);
     $this->db->set('issued_to', $remarks);
     $this->db->set('stock_in_stores_id',$id);
+    $this->db->set('doc_type', 9);
+    $this->db->set('tgl', date('Ymd'));
+    $this->db->set('total_value',0-(floatval($current_quantity)*$unit_value));
     $this->db->insert('tb_stock_cards');
 	
     // CREATE STOCK CARD ke stores baru
@@ -991,6 +994,9 @@ class Stock_Model extends MY_Model
     $this->db->set('remarks', $remarks);
     $this->db->set('issued_to', $remarks);
     $this->db->set('stock_in_stores_id',$id);
+    $this->db->set('doc_type', 9);
+    $this->db->set('tgl', date('Ymd'));
+    $this->db->set('total_value',(floatval($current_quantity)*$unit_value));
     $this->db->insert('tb_stock_cards');
 
     if ($this->db->trans_status() === FALSE)
