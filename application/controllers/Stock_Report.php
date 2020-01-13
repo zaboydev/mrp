@@ -72,9 +72,9 @@ class Stock_Report extends MY_Controller
     // $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $period_month .'/'. $period_year .'/'. $condition);
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $condition .'/'. $warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array( 9);
+    $this->data['grid']['summary_columns']  = array( 10);
     if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-      $this->data['grid']['summary_columns'][] = 15;
+      $this->data['grid']['summary_columns'][] = 14;
     }
     $this->data['grid']['order_columns']    = array (
       // 0 => array ( 0 => 3, 1 => 'asc' ),
@@ -149,7 +149,7 @@ class Stock_Report extends MY_Controller
       $col[] = print_string($row['condition']);
       $col[] = print_number($row['qty'], 2);
       $col[] = print_string($row['unit']);    
-      $col[] = print_number($row['unit_value'], 2);
+      // $col[] = print_number($row['unit_value'], 2);
       $col[] = print_number($row['minimum_quantity'], 2);            
       $col[] = print_string($row['stores']);
       // $col[] = print_string($row['warehouse']);
@@ -194,12 +194,12 @@ class Stock_Report extends MY_Controller
         "data" => $data,
         "total" => array(
           
-          9 => print_number(array_sum($current_quantity), 2),
+          10 => print_number(array_sum($current_quantity), 2),
           
         )
       );
     if(config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-      $result['total'][15] = print_number(array_sum($current_total_value), 2);
+      $result['total'][14] = print_number(array_sum($current_total_value), 2);
     }
 
     echo json_encode($result);
