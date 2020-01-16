@@ -68,17 +68,19 @@ class Stock_Activity_Report extends MY_Controller
       $col[] = print_string($row['stores']);
       $col[] = print_string($row['kode_stok']);
       $col[] = print_string($row['coa']);
+      $col[] = null;
       //$col[] = print_string($row['pn']);
       $col['DT_RowId'] = 'row_'. $row['id'];
       $col['DT_RowData']['pkey'] = $row['id'];
 
       if ($this->has_role($this->module, 'detail')) {
         $col['DT_RowAttr']['onClick'] = '$(this).redirect("_blank");';
-        if($row['serial_number'] == ''){
-            $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/detail?part_number='. $row['part_number'] .'&unit='. $row['unit'] .'&category='. $row['category'] .'&base='. $row['warehouse'].'&stores='. $row['stores'].'&desc='. $row['description'].'&coa='.$row['coa'].'&kode_stok='.$row['kode_stok'].'&serial_number=-');
-        }else{
-          $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/detail?part_number='. $row['part_number'] .'&unit='. $row['unit'] .'&category='. $row['category'] .'&base='. $row['warehouse'].'&stores='. $row['stores'].'&desc='. $row['description'].'&coa='.$row['coa'].'&kode_stok='.$row['kode_stok'].'&serial_number='.$row['serial_number']);
-        }
+        // if($row['serial_number'] == ''){
+        //   // $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/detail?part_number='. $row['part_number'] .'&unit='. $row['unit'] .'&category='. $row['category'] .'&base='. $row['warehouse'].'&stores='. $row['stores'].'&desc='. $row['description'].'&coa='.$row['coa'].'&kode_stok='.$row['kode_stok'].'&serial_number=-');
+        // }else{
+        //   $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/detail?part_number='. $row['part_number'] .'&unit='. $row['unit'] .'&category='. $row['category'] .'&base='. $row['warehouse'].'&stores='. $row['stores'].'&desc='. $row['description'].'&coa='.$row['coa'].'&kode_stok='.$row['kode_stok'].'&serial_number='.$row['serial_number']);
+        // }
+        $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/detail?stock_id='.$row['id'].'&stores='.$row['stores'].'&base='.$row['warehouse']);
         
       }
 
@@ -103,35 +105,43 @@ class Stock_Activity_Report extends MY_Controller
   {
     $this->authorized($this->module, 'detail');
 
-    if (isset($_GET['part_number']) && $_GET['part_number'] !== NULL){
-      $part_number = $_GET['part_number'];
+    if (isset($_GET['stock_id']) && $_GET['stock_id'] !== NULL){
+      $stock_id = $_GET['stock_id'];
     } else {
-      $part_number = NULL;
+      $stock_id = NULL;
     }
 
-    if (isset($_GET['serial_number']) && $_GET['serial_number'] !== NULL){
-      $serial_number = $_GET['serial_number'];
-    } else {
-      $serial_number = NULL;
-    }
+    $items = $this->model->getItems($stock_id);
 
-    if (isset($_GET['desc']) && $_GET['desc'] !== NULL){
-      $description = $_GET['desc'];
-    } else {
-      $description = NULL;
-    }
+    // if (isset($_GET['part_number']) && $_GET['part_number'] !== NULL){
+      $part_number = $items['part_number'];
+    // } else {
+    //   $part_number = NULL;
+    // }
 
-    if (isset($_GET['unit']) && $_GET['unit'] !== NULL){
-      $unit  = $_GET['unit'];
-    } else {
-      $unit  = NULL;
-    }
+    // if (isset($_GET['serial_number']) && $_GET['serial_number'] !== NULL){
+      $serial_number = $items['serial_number'];
+    // } else {
+    //   $serial_number = NULL;
+    // }
 
-    if (isset($_GET['category']) && $_GET['category'] !== NULL){
-      $category = $_GET['category'];
-    } else {
-      $category = NULL;
-    }
+    // if (isset($_GET['desc']) && $_GET['desc'] !== NULL){
+      $description = $items['description'];
+    // } else {
+    //   $description = NULL;
+    // }
+
+    // if (isset($_GET['unit']) && $_GET['unit'] !== NULL){
+      $unit  = $items['unit'];
+    // } else {
+    //   $unit  = NULL;
+    // }
+
+    // if (isset($_GET['category']) && $_GET['category'] !== NULL){
+      $category = $items['category'];
+    // } else {
+    //   $category = NULL;
+    // }
 
     if (isset($_GET['base']) && $_GET['base'] !== NULL){
       $base = $_GET['base'];
@@ -145,17 +155,19 @@ class Stock_Activity_Report extends MY_Controller
       $stores = NULL;
     }
 
-    if (isset($_GET['coa']) && $_GET['coa'] !== NULL){
-      $coa = $_GET['coa'];
-    } else {
-      $coa = NULL;
-    }
+    // if (isset($_GET['coa']) && $_GET['coa'] !== NULL){
+      $coa = $items['coa'];
+    // } else {
+    //   $coa = NULL;
+    // }
 
-    if (isset($_GET['kode_stok']) && $_GET['kode_stok'] !== NULL){
-      $kode_stok = $_GET['kode_stok'];
-    } else {
-      $kode_stok = NULL;
-    }
+    // if (isset($_GET['kode_stok']) && $_GET['kode_stok'] !== NULL){
+      $kode_stok = $items['kode_stok'];
+    // } else {
+    //   $kode_stok = NULL;
+    // }
+
+    
 
     // $this->data['selected_month']           = $period_month;
     // $this->data['selected_year']            = $period_year;
@@ -168,7 +180,8 @@ class Stock_Activity_Report extends MY_Controller
     $this->data['page']['requirement']      = array('datatable');
     $this->data['grid']['column']           = array_values($this->model->getDetailSelectedColumns());
     //$this->data['grid']['data_source']      = site_url($this->module['route'] .'/detail_data_source/'. $part_number .'/'. $unit .'/'. $category .'/'. $base .'/'. $stores.'/'. $description);
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/detail_data_source?part_number='. $part_number .'&unit='. $unit.'&category='. $category.'&base='. $base.'&stores='. $stores.'&desc='. $description.'&serial_number='.$serial_number);
+    // $this->data['grid']['data_source']      = site_url($this->module['route'] .'/detail_data_source?part_number='. $part_number .'&unit='. $unit.'&category='. $category.'&base='. $base.'&stores='. $stores.'&desc='. $description.'&serial_number='.$serial_number);
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/detail_data_source?stock_id='.$stock_id.'&stores='.$stores.'&base='.$base);
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 6,7 );
     $this->data['grid']['order_columns']    = array (
@@ -181,39 +194,37 @@ class Stock_Activity_Report extends MY_Controller
   
   public function detail_data_source()
   {
-    $this->authorized($this->module, 'detail');
+    $this->authorized($this->module, 'detail');    
 
-    
+    // if (isset($_GET['part_number']) && $_GET['part_number'] !== NULL){
+    //   $part_number = $_GET['part_number'];
+    // } else {
+    //   $part_number = NULL;
+    // }
 
-    if (isset($_GET['part_number']) && $_GET['part_number'] !== NULL){
-      $part_number = $_GET['part_number'];
-    } else {
-      $part_number = NULL;
-    }
+    // if (isset($_GET['serial_number']) && $_GET['serial_number'] !== NULL){
+    //   $serial_number = $_GET['serial_number'];
+    // } else {
+    //   $serial_number = NULL;
+    // }
 
-    if (isset($_GET['serial_number']) && $_GET['serial_number'] !== NULL){
-      $serial_number = $_GET['serial_number'];
-    } else {
-      $serial_number = NULL;
-    }
+    // if (isset($_GET['desc']) && $_GET['desc'] !== NULL){
+    //   $description = $_GET['desc'];
+    // } else {
+    //   $description = NULL;
+    // }
 
-    if (isset($_GET['desc']) && $_GET['desc'] !== NULL){
-      $description = $_GET['desc'];
-    } else {
-      $description = NULL;
-    }
+    // if (isset($_GET['unit']) && $_GET['unit'] !== NULL){
+    //   $unit  = $_GET['unit'];
+    // } else {
+    //   $unit  = NULL;
+    // }
 
-    if (isset($_GET['unit']) && $_GET['unit'] !== NULL){
-      $unit  = $_GET['unit'];
-    } else {
-      $unit  = NULL;
-    }
-
-    if (isset($_GET['category']) && $_GET['category'] !== NULL){
-      $category = $_GET['category'];
-    } else {
-      $category = NULL;
-    }
+    // if (isset($_GET['category']) && $_GET['category'] !== NULL){
+    //   $category = $_GET['category'];
+    // } else {
+    //   $category = NULL;
+    // }
 
     if (isset($_GET['base']) && $_GET['base'] !== NULL){
       $base = $_GET['base'];
@@ -227,7 +238,13 @@ class Stock_Activity_Report extends MY_Controller
       $stores = NULL;
     }
 
-    $entities = $this->model->getDetailIndex($part_number, $unit, $category, $base, $stores,$description,$serial_number);
+    if (isset($_GET['stock_id']) && $_GET['stock_id'] !== NULL){
+      $stock_id = $_GET['stock_id'];
+    } else {
+      $stock_id = NULL;
+    }
+
+    $entities = $this->model->getDetailIndex($stock_id,$base, $stores);
 
     $data = array();
     $no   = $_POST['start'];
@@ -266,8 +283,8 @@ class Stock_Activity_Report extends MY_Controller
   
     $result = array(
         "draw" => $_POST['draw'],
-        "recordsTotal" => $this->model->countDetail($part_number, $unit, $category,$base,$stores,$description,$serial_number),
-        "recordsFiltered" => $this->model->countDetailIndexFiltered($part_number, $unit, $category,$base,$stores,$description,$serial_number),
+        "recordsTotal" => $this->model->countDetail($stock_id,$base, $stores),
+        "recordsFiltered" => $this->model->countDetailIndexFiltered($stock_id,$base, $stores),
         "data" => $data,
         "total" => array(
           // 5 => print_number(array_sum($previous_quantity), 2),

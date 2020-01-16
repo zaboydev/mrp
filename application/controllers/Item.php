@@ -136,10 +136,11 @@ class Item extends MY_Controller
       $return['info'] = "You don't have permission to access this page!";
     } else {
       if ($this->input->post('id')) {
-        if ($this->model->isItemDescriptionExists($this->input->post('description'), $this->input->post('description_exception'))) {
-          $return['type'] = 'danger';
-          $return['info'] = 'Duplicate Item! Description ' . $this->input->post('description') . ' already exists.';
-        } elseif ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'), $this->input->post('part_number_exception'), $this->input->post('serial_number_exception'))) {
+        // if ($this->model->isItemDescriptionExists($this->input->post('description'), $this->input->post('description_exception'))) {
+        //   $return['type'] = 'danger';
+        //   $return['info'] = 'Duplicate Item! Description ' . $this->input->post('description') . ' already exists.';
+        // } else
+        if ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'), $this->input->post('part_number_exception'), $this->input->post('serial_number_exception'))) {
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Item! Part Number ' . $this->input->post('part_number') . ' & Serial ' . $this->input->post('serial_number') . ' already exists.';
         } else {
@@ -152,10 +153,11 @@ class Item extends MY_Controller
           }
         }
       } else {
-        if ($this->model->isItemDescriptionExists($this->input->post('description'))) {
-          $return['type'] = 'danger';
-          $return['info'] = 'Duplicate Description! Description ' . $this->input->post('description') . ' already exists.';
-        } elseif ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'))) {
+        // if ($this->model->isItemDescriptionExists($this->input->post('description'))) {
+        //   $return['type'] = 'danger';
+        //   $return['info'] = 'Duplicate Description! Description ' . $this->input->post('description') . ' already exists.';
+        // } else
+        if ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'))) {
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Part Number! Part Number ' . $this->input->post('part_number') . ' already exists.';
         } else {

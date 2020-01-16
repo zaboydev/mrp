@@ -10,19 +10,31 @@ class Stock_Activity_Report_Model extends MY_Model
   public function getSelectedColumns()
   {
     return array(
-      // 'tb_master_item_groups.category'        => NULL,
-      NULL                                    => 'No.',
-      'tb_master_items.part_number'           => 'Part Number',
-      'tb_master_items.serial_number'         => 'Serial Number',
-      'tb_master_items.description'           => 'Description', 
-      'tb_master_items.unit'                  => 'Unit',
-      'tb_master_item_groups.category'        => 'Category',
-      'tb_stock_in_stores.warehouse'          => 'Warehouse',
-      'tb_stock_in_stores.stores'             => 'Stores',
-      'tb_master_items.kode_stok'             => 'Kode Stok',
-      'tb_master_item_groups.coa'             => 'COA',
-      //'COUNT(tb_master_items.part_number) as pn'                 => 'ENTRY',
-      //'tb_stock_cards.balance_quantity'       => 'Balance Quantity',
+      // // 'tb_master_item_groups.category'        => NULL,
+      // 'tb_stock_in_stores.stock_id'                                    => 'No.',
+      // 'tb_master_items.part_number'           => 'Part Number',
+      // 'tb_master_items.serial_number'         => 'Serial Number',
+      // 'tb_master_items.description'           => 'Description', 
+      // 'tb_master_items.unit'                  => 'Unit',
+      // 'tb_master_item_groups.category'        => 'Category',
+      // 'tb_stock_in_stores.warehouse'          => 'Warehouse',
+      // 'tb_stock_in_stores.stores'             => 'Stores',
+      // 'tb_master_items.kode_stok'             => 'Kode Stok',
+      // 'tb_master_item_groups.coa'             => 'COA',
+      // 'SUM(tb_stock_in_stores.quantity) as quantity'                 => 'Quantity',
+      // //'tb_stock_cards.balance_quantity'       => 'Balance Quantity',
+
+      'tb_stocks.id'                                  => NULL,
+      'tb_master_items.part_number'                   => 'Part Number',
+      'tb_master_items.serial_number'                 => 'Serial Number',
+      'tb_master_items.description'                   => 'Description',
+      'tb_master_items.unit'                          => 'Unit',
+      'tb_master_item_groups.category'                => 'Category',
+      'tb_stock_in_stores.warehouse'                  => 'Warehouse',      
+      'tb_stock_in_stores.stores'                     => 'Stores',
+      'tb_master_items.kode_stok'                     => 'Kode Stok',
+      'tb_master_item_groups.coa'                     => 'COA',
+      'SUM(tb_stock_in_stores.quantity) as quantity'  => NULL,
     );
   }
 
@@ -74,17 +86,20 @@ class Stock_Activity_Report_Model extends MY_Model
       'tb_master_items.description',
       'tb_master_items.part_number',
       'tb_master_items.serial_number',
+      'tb_master_items.kode_stok',
       // 'tb_stock_cards.warehouse',
       // 'tb_stock_cards.stores',
       'tb_master_items.unit',
       'tb_master_item_groups.category',
-      'tb_stocks.id',
-      'tb_master_items.id',
-      'tb_master_item_groups.id',      
+      // 'tb_stocks.id',
+      // 'tb_master_items.id',
+      // 'tb_master_item_groups.id',      
       // 'tb_stock_cards.id',
       'tb_stock_in_stores.warehouse',
       'tb_stock_in_stores.stores',
-      'tb_stock_in_stores.id',
+      'tb_master_item_groups.coa',      
+      // 'tb_stock_in_stores.id',
+      'tb_stocks.id',
      
     );
   }
@@ -173,14 +188,7 @@ class Stock_Activity_Report_Model extends MY_Model
 
   public function countIndexFiltered()
   {
-    //edit
-    // $this->db->from('tb_stock_cards');
-    // //$this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_cards.serial_id', 'left');
-    // $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_cards.stock_id');
-    // $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
-    // $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
-    // // $this->db->where('tb_stocks.item_id', $item_id);
-    //edit
+    $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
     //$this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_cards.serial_id', 'left');
     $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
@@ -197,15 +205,7 @@ class Stock_Activity_Report_Model extends MY_Model
 
   public function countIndex()
   {
-    //edit
-    // $this->db->from('tb_stock_cards');
-    // //$this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_cards.serial_id', 'left');
-    // $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_cards.stock_id');
-    // $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
-    // $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
-    // // $this->db->where('tb_stocks.item_id', $item_id);
-    //edit
-
+    $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_stock_in_stores');
     //$this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_cards.serial_id', 'left');
     $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
@@ -274,8 +274,8 @@ class Stock_Activity_Report_Model extends MY_Model
       $search_issued_date = $_POST['columns'][1]['search']['value'];
       $range_issued_date  = explode(' ', $search_issued_date);
 
-      $this->db->where('tb_stock_cards.date_of_entry >= ', $range_issued_date[0].' 00:00:00');
-      $this->db->where('tb_stock_cards.date_of_entry <= ', $range_issued_date[1].' 00:00:00');
+      $this->db->where('tb_stock_cards.date_of_entry >= ', $range_issued_date[0]);
+      $this->db->where('tb_stock_cards.date_of_entry <= ', $range_issued_date[1]);
     }
 
     $i = 0;
@@ -300,7 +300,7 @@ class Stock_Activity_Report_Model extends MY_Model
   }
 
   //public function getDetailIndex($part_number=NULL, $description=NULL, $unit=NULL, $category=NULL,$base=NULL,$stores=NULL,$return = 'array')
-  public function getDetailIndex($part_number, $unit, $category,$base,$stores,$description,$serial_number, $return = 'array')
+  public function getDetailIndex($stock_id,$base, $stores, $return = 'array')
   {
     $this->db->select(array_keys($this->getDetailSelectedColumns()));
     $this->db->from('tb_stock_cards');
@@ -308,29 +308,32 @@ class Stock_Activity_Report_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
 
-    if ($category !== NULL){
-      $this->db->where('tb_master_item_groups.category', $category);
+    // if ($category !== NULL){
+    //   $this->db->where('tb_master_item_groups.category', $category);
+    // }
+    if ($stock_id !== NULL){
+      $this->db->where('tb_stock_cards.stock_id', $stock_id);
     }
 
     if ($base !== NULL){
       $this->db->where('tb_stock_cards.warehouse', $base);
     }
 
-    if ($part_number !== NULL){
-      $this->db->where('tb_master_items.part_number', $part_number);
-    }
+    // if ($part_number !== NULL){
+    //   $this->db->where('tb_master_items.part_number', $part_number);
+    // }
 
-    if ($serial_number !== NULL && $serial_number != '-'){
-      $this->db->where('tb_master_items.serial_number', $serial_number);
-    }
+    // if ($serial_number !== NULL && $serial_number != '-'){
+    //   $this->db->where('tb_master_items.serial_number', $serial_number);
+    // }
 
-    if ($description !== NULL){
-      $this->db->where('tb_master_items.description', $description);
-    }
+    // if ($description !== NULL){
+    //   $this->db->where('tb_master_items.description', $description);
+    // }
 
-    if ($unit !== NULL){
-      $this->db->where('tb_master_items.unit', $unit);
-    }
+    // if ($unit !== NULL){
+    //   $this->db->where('tb_master_items.unit', $unit);
+    // }
     if ($stores !== NULL){
       $this->db->where('tb_stock_cards.stores', $stores);
     }
@@ -361,7 +364,7 @@ class Stock_Activity_Report_Model extends MY_Model
     }
   }
 
-  public function countDetailIndexFiltered($part_number, $unit, $category,$base,$stores,$description,$serial_number)
+  public function countDetailIndexFiltered($stock_id,$base, $stores)
   {
     $this->db->from('tb_stock_cards');
     //$this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_cards.serial_id', 'left');
@@ -370,27 +373,32 @@ class Stock_Activity_Report_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
     // $this->db->where('tb_stocks.item_id', $item_id);
     //$this->db->group_by($this->getGroupedColumns());
-    if ($category !== NULL){
-      $this->db->where('tb_master_item_groups.category', $category);
+    // if ($category !== NULL){
+    //   $this->db->where('tb_master_item_groups.category', $category);
+    // }
+    if ($stock_id !== NULL){
+      $this->db->where('tb_stock_cards.stock_id', $stock_id);
     }
 
     if ($base !== NULL){
       $this->db->where('tb_stock_cards.warehouse', $base);
     }
 
-    if ($serial_number !== NULL && $serial_number != '-'){
-      $this->db->where('tb_master_items.serial_number', $serial_number);
-    }
-    
-    if ($part_number !== NULL){
-      $this->db->where('tb_master_items.part_number', $part_number);
-    }
-    if ($description !== NULL){
-      $this->db->where('tb_master_items.description', $description);
-    }
-    if ($unit !== NULL){
-      $this->db->where('tb_master_items.unit', $unit);
-    }
+    // if ($part_number !== NULL){
+    //   $this->db->where('tb_master_items.part_number', $part_number);
+    // }
+
+    // if ($serial_number !== NULL && $serial_number != '-'){
+    //   $this->db->where('tb_master_items.serial_number', $serial_number);
+    // }
+
+    // if ($description !== NULL){
+    //   $this->db->where('tb_master_items.description', $description);
+    // }
+
+    // if ($unit !== NULL){
+    //   $this->db->where('tb_master_items.unit', $unit);
+    // }
     if ($stores !== NULL){
       $this->db->where('tb_stock_cards.stores', $stores);
     }
@@ -402,7 +410,7 @@ class Stock_Activity_Report_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function countDetail($part_number, $unit, $category,$base,$stores,$description,$serial_number)
+  public function countDetail($stock_id,$base, $stores)
   {
     $this->db->from('tb_stock_cards');
     //$this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_cards.serial_id', 'left');
@@ -411,29 +419,33 @@ class Stock_Activity_Report_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
     // $this->db->where('tb_stocks.item_id', $item_id);
     //$this->db->group_by($this->getGroupedColumns());
-    if ($category !== NULL){
-      $this->db->where('tb_master_item_groups.category', $category);
-    } else {
-      $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
+    
+    // if ($category !== NULL){
+    //   $this->db->where('tb_master_item_groups.category', $category);
+    // }
+    if ($stock_id !== NULL){
+      $this->db->where('tb_stock_cards.stock_id', $stock_id);
     }
 
     if ($base !== NULL){
       $this->db->where('tb_stock_cards.warehouse', $base);
     }
 
-    if ($serial_number !== NULL && $serial_number != '-'){
-      $this->db->where('tb_master_items.serial_number', $serial_number);
-    }
+    // if ($part_number !== NULL){
+    //   $this->db->where('tb_master_items.part_number', $part_number);
+    // }
 
-    if ($part_number !== NULL){
-      $this->db->where('tb_master_items.part_number', $part_number);
-    }
-    if ($description !== NULL){
-      $this->db->where('tb_master_items.description', $description);
-    }
-    if ($unit !== NULL){
-      $this->db->where('tb_master_items.unit', $unit);
-    }
+    // if ($serial_number !== NULL && $serial_number != '-'){
+    //   $this->db->where('tb_master_items.serial_number', $serial_number);
+    // }
+
+    // if ($description !== NULL){
+    //   $this->db->where('tb_master_items.description', $description);
+    // }
+
+    // if ($unit !== NULL){
+    //   $this->db->where('tb_master_items.unit', $unit);
+    // }
     if ($stores !== NULL){
       $this->db->where('tb_stock_cards.stores', $stores);
     }
@@ -441,5 +453,27 @@ class Stock_Activity_Report_Model extends MY_Model
     $query = $this->db->get();
 
     return $query->num_rows();
+  }
+
+  public function getItems($stock_id){
+    $select = array(
+      'tb_master_items.part_number',
+      'tb_master_items.serial_number',
+      'tb_master_items.description',
+      'tb_master_items.unit',
+      'tb_master_items.kode_stok',
+      'tb_master_item_groups.category',
+      'tb_master_item_groups.coa',
+      'tb_stocks.condition'
+    );
+    $this->db->select($select);
+    $this->db->from('tb_master_items');
+    $this->db->join('tb_stocks','tb_stocks.item_id=tb_master_items.id');
+    $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
+    $this->db->where('tb_stocks.id', $stock_id);
+    $query    = $this->db->get();
+    $items = $query->unbuffered_row('array');
+
+    return $items;
   }
 }
