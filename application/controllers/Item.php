@@ -153,10 +153,11 @@ class Item extends MY_Controller
           }
         }
       } else {
-        if ($this->model->isItemDescriptionExists($this->input->post('description'))) {
-          $return['type'] = 'danger';
-          $return['info'] = 'Duplicate Description! Description ' . $this->input->post('description') . ' already exists.';
-        } elseif ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'))) {
+        // if ($this->model->isItemDescriptionExists($this->input->post('description'))) {
+        //   $return['type'] = 'danger';
+        //   $return['info'] = 'Duplicate Description! Description ' . $this->input->post('description') . ' already exists.';
+        // } else
+        if ($this->model->isPartNumberExists($this->input->post('part_number'), $this->input->post('serial_number'))) {
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Part Number! Part Number ' . $this->input->post('part_number') . ' already exists.';
         } else {
