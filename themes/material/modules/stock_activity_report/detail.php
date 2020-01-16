@@ -28,70 +28,10 @@
 <?php startblock('datafilter') ?>
   <form method="get" class="form force-padding">
     <div class="form-group">
-      <label for="month">Month</label>
-      <select class="form-control input-sm" id="month" name="month">
-        <?php for ($month = 1; $month <= 12; $month++):?>
-          <option value="<?=$month;?>" <?=($month == $selected_month) ? 'selected' : '';?>>
-            <?=numberToMonthName($month);?>
-          </option>
-        <?php endfor; ?>
-      </select>
+      <label for="filter_received_date">Date</label>
+      <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
     </div>
 
-    <div class="form-group">
-      <label for="year">Year</label>
-      <select class="form-control input-sm" id="year" name="year">
-        <?php for ($year = 2017; $year <= config_item('period_year'); $year++):?>
-          <option value="<?=$year;?>" <?=($year == $selected_year) ? 'selected' : '';?>><?=$year;?></option>
-        <?php endfor; ?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="warehouse">Base</label>
-      <select class="form-control input-sm" id="warehouse" name="warehouse">
-        <option value="ALL BASES">-- ALL BASES --</option>
-        <?php foreach (config_item('auth_warehouses') as $warehouse):?>
-          <option value="<?=$warehouse;?>" <?=($warehouse == $selected_warehouse) ? 'selected' : '';?>>
-            <?=$warehouse;?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="category">Category</label>
-      <select class="form-control input-sm" id="category" name="category">
-        <?php foreach (config_item('auth_inventory') as $category):?>
-          <option value="<?=$category;?>" <?=($category == $selected_category) ? 'selected' : '';?>>
-            <?=$category;?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="group">Group</label>
-      <select class="form-control input-sm" id="group" name="group">
-        <?php foreach (available_item_groups(config_item('auth_inventory')) as $group):?>
-          <option value="<?=$group;?>" <?=($group == $selected_group) ? 'selected' : '';?>>
-            <?=$group;?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="condition">Condition</label>
-      <select class="form-control input-sm" id="condition" name="condition">
-        <?php foreach (available_conditions() as $condition):?>
-          <option value="<?=$condition;?>" <?=($condition == $selected_condition) ? 'selected' : '';?>>
-            <?=$condition;?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
-    <button type="submit" class="btn btn-flat btn-danger btn-block ink-reaction">Generate</button>
+    <!-- <button type="submit" class="btn btn-flat btn-danger btn-block ink-reaction">Generate</button> -->
   </form>
 <?php endblock() ?>

@@ -265,7 +265,7 @@ class App_Model extends MY_Model
         $this->db->set('period_year', config_item('period_year'));
         $this->db->set('period_month', config_item('period_month'));
         $this->db->set('document_type', 'ADJUSTMENT');
-        $this->db->set('document_number', $stock['reference_document']);
+        $this->db->set('document_number', $stock_adj['document_number']);
         $this->db->set('quantity', $stock_adj['adjustment_quantity']);
         $this->db->set('prev_quantity', $prev_old_stock);
         $this->db->set('balance_quantity', $next_old_stock);
@@ -294,7 +294,6 @@ class App_Model extends MY_Model
         // $this->db->set('qty', $qty_baru);
         // $this->db->where('part_number', strtoupper($stock['part_number']));
         // $this->db->update('tb_master_part_number');
-
         $return = '<div class="alert alert-info">Adjustment request has been approved.</div>';
       } else {
         $return = '<div class="alert alert-danger">Adjustment request rejected.</div>';
