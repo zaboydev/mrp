@@ -143,7 +143,7 @@ class Stock_Adjustment_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->where('tb_stock_adjustments.as_mix','f');
-    $this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
+    // $this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
 
     $this->searchIndex();
 
@@ -180,7 +180,7 @@ class Stock_Adjustment_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->where('tb_stock_adjustments.as_mix','f');
-	$this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
+	  // $this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
 
     $this->searchIndex();
 
@@ -197,7 +197,7 @@ class Stock_Adjustment_Model extends MY_Model
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->where('tb_stock_adjustments.as_mix','f');
-	$this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
+	  // $this->db->where('EXTRACT(YEAR FROM tb_stock_adjustments.date_of_entry)::integer = ', date('Y'));
 
     $query = $this->db->get();
 
