@@ -411,6 +411,7 @@ class Payment_Model extends MY_MODEL
 			return FALSE;
 
 		$this->db->trans_commit();
+		$this->send_mail(14);
 		return TRUE;
 	}
 
@@ -582,16 +583,16 @@ class Payment_Model extends MY_MODEL
 		$payment_item = $query->unbuffered_row('array');
 		$no_jurnal = $payment_item['no_transaksi'];
 
-		if ($payment_item['status']=='WAITING') {			
+		if (config_item('auth_role')=='FINANCE MANAGER') {			
 			$this->db->set('status', 'CHECKED');
 			$this->db->set('checked_by', config_item('auth_person_name').'|'.date('Y-m-d'));
-			$this->db->where('no_transaksi', $no_jurnal);
+			$this->db->where('id', $id);
 			$this->db->update('tb_purchase_order_items_payments');
 		}
-		if ($payment_item['status']=='CHECKED') {			
+		if (config_item('auth_role')=='VP FINANCE') {			
 			$this->db->set('status', 'APPROVED');
 			$this->db->set('approved_by', config_item('auth_person_name').'|'.date('Y-m-d'));
-			$this->db->where('no_transaksi', $no_jurnal);
+			$this->db->where('id', $id);
 			$this->db->update('tb_purchase_order_items_payments');
 		}
 
@@ -644,6 +645,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('source', "AP");
 		$this->db->set('vendor', $vendor);
 		$this->db->set('grn_no', $no_jurnal);
+		$this->db->set('keterangan', strtoupper("pembayraran purchase order"));
 		$this->db->insert('tb_jurnal');
 		$id_jurnal = $this->db->insert_id();
 
@@ -818,6 +820,67 @@ class Payment_Model extends MY_MODEL
 		$num_rows = $this->db->count_all_results();
 
 		return $num_rows;
+	}
+
+	public function getNotifRecipient($level)
+	{
+		$this->db->select('email');
+		$this->db->from('tb_auth_users');
+		$this->db->where('auth_level', $level);
+		return $this->db->get('')->result();
+	}
+
+	public function send_mail($level)
+	{
+		$recipientList = $this->getNotifRecipient($level);
+		$recipient = array();
+		foreach ($recipientList as $key) {
+		array_push($recipient, $key->email);
+		}
+
+		$from_email = "bifa.acd@gmail.com";
+		// $to_email = "aidanurul99@rocketmail.com";
+		$ket_level = '';
+		if ($level == 14) {
+		$ket_level = 'Finance Manager';
+		} elseif ($level == 10) {
+		$ket_level = 'Head Of School';
+		} elseif ($level == 11) {
+		$ket_level = 'Chief Of Finance';
+		} elseif ($level == 3) {
+		$ket_level = 'VP Finance';
+		}
+
+		//Load email library 
+		$this->load->library('email');
+		// $config = array();
+		// $config['protocol'] = 'mail';
+		// $config['smtp_host'] = 'smtp.live.com';
+		// $config['smtp_user'] = 'bifa.acd@gmail.com';
+		// $config['smtp_pass'] = 'b1f42019';
+		// $config['smtp_port'] = 587;
+		// $config['smtp_auth']        = true;
+		// $config['mailtype']         = 'html';
+		// $this->email->initialize($config);
+		$this->email->set_newline("\r\n");
+		$message = "<p>Dear " . $ket_level . "</p>";
+		$message .= "<p>Kamu mendapatkan pesan untuk persetujuan pembayaran purchase order.</p>";
+		$message .= "<ul>";
+		$message .= "</ul>";
+		// $message .= "<p>No Purchase Order : " . $row['document_number'] . "</p>";
+		$message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+		$message .= "<p>[ <a href='http://119.252.163.206/payment/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+		$message .= "<p>Thanks and regards</p>";
+		$this->email->from($from_email, 'Material Resource Planning');
+		$this->email->to($recipient);
+		$this->email->subject('Permintaan Approval Payment Purchase Order');
+		$this->email->message($message);
+
+		//Send mail 
+		if ($this->email->send())
+		return true;
+		else
+		return $this->email->print_debugger();
 	}
 	// }
 }
