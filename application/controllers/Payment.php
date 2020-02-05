@@ -243,16 +243,22 @@ class Payment extends MY_Controller
     $success = 0;
     $failed = sizeof($id_purchase_order);
     $x = 0;
+    $level = 13;
+    if (config_item('auth_role')=='FINANCE MANAGER') {			
+			$level = 3;
+		}
     foreach ($id_purchase_order as $key) {
       if ($this->model->approve($key)) {
         $total++;
         $success++;
         $failed--;
-        // $this->model->send_mail_approved($key,'approved');
       }
       $x++;
     }
     if ($success > 0) {
+      if($level==3){
+        $this->model->send_mail($level);
+      }
       // $id_role = 13;
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
@@ -323,7 +329,7 @@ class Payment extends MY_Controller
 
   public function bayar($id)
   {
-    $this->authorized($this->module, 'document');
+    $this->authorized($this->module, 'payment');
 
     // if ($category !== NULL){
     $item       = $this->model->findById($id);
