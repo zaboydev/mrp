@@ -549,7 +549,7 @@ class Budget_Cot_Model extends MY_Model
     $message .= "<ul>";
     $message .= "</ul>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/mrp_demo/budgeting/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.2.51.138:7323/mrp_demo/budgeting/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);

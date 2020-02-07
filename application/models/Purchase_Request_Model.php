@@ -2276,7 +2276,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</ul>";
     $message .= "<p>No Purchase Request : " . $row['pr_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2324,7 +2324,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</ul>";
     $message .= "<p>No Purchase Request : " . $row['pr_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2379,7 +2379,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</ul>";
     // $message .= "<p>No Purchase Request : ".$row['pr_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2608,7 +2608,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</table>";
     // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2720,7 +2720,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</table>";
     // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
