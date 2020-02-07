@@ -845,7 +845,7 @@ class Stock_Model extends MY_Model
     $message .= "<li>Remarks: <strong>".$row['remarks']."</strong></li>";
     $message .= "</ul>";
     $message .= "<p>Silakan klik pilihan <strong style='color:blue;'>APPROVE</strong> untuk menyetujui atau <strong style='color:red;'>REJECT</strong> untuk menolak permintaan ini.</p>";
-    $message .= "<p>[ <a href='http://119.252.163.206/adjustment?mode=approved&id=".$row['id']."&token=".$row['adjustment_token']."' style='color:blue; font-weight:bold;'>APPROVE</a> ] | [ <a href='http://119.252.163.206/adjustment?mode=rejected&id=".$row['id']."&token=".$row['adjustment_token']."' style='color:red; font-weight:bold;'>REJECT</a> ]</p>";
+    $message .= "<p>[ <a href='http://119.2.51.138:7323/adjustment?mode=approved&id=".$row['id']."&token=".$row['adjustment_token']."' style='color:blue; font-weight:bold;'>APPROVE</a> ] | [ <a href='http://119.2.51.138:7323/adjustment?mode=rejected&id=".$row['id']."&token=".$row['adjustment_token']."' style='color:red; font-weight:bold;'>REJECT</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
 
 
