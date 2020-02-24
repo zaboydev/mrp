@@ -393,7 +393,7 @@ $(function(){
 
   $('#btn-submit-document').on('click', function(e){
     e.preventDefault();
-    // $('#btn-submit-document').attr('disabled', true);
+    $('#btn-submit-document').attr('disabled', true);
 
     var url = $(this).attr('href');
     var frm = $('#form_receiving');
