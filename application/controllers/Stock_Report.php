@@ -53,7 +53,8 @@ class Stock_Report extends MY_Controller
     $this->data['selected_category']        = $category;
     $this->data['selected_condition']       = $condition;
     $this->data['selected_warehouse']       = $warehouse;
-	$this->data['document']       = 'index_no_shipping';
+    $this->data['document']       = 'index_no_shipping';
+    $this->data['document_super_admin']       = 'index_super_admin';
 
 
     // $now=date('Y-m-d');
@@ -545,7 +546,8 @@ class Stock_Report extends MY_Controller
     $this->data['selected_category']        = $category;
     $this->data['selected_condition']       = $condition;
     $this->data['selected_warehouse']       = $warehouse;
-    $this->data['document']       = 'index_no_shipping';
+    $this->data['document']       = 'index';
+    $this->data['document_super_admin']       = 'index_super_admin';
 
 
     // $now=date('Y-m-d');
@@ -692,6 +694,201 @@ class Stock_Report extends MY_Controller
       );
     if(config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
       $result['total'][12] = print_number(array_sum($current_total_value), 2);
+    }
+
+    echo json_encode($result);
+  }
+
+  public function index_super_admin()
+  {
+    $this->authorized($this->module, 'document_super_admin');
+
+    $period_year = config_item('period_year');
+    $period_month = config_item('period_month')-1;
+
+
+    if (isset($_POST['start_date']) && $_POST['start_date'] && isset($_POST['end_date']) && $_POST['end_date'] !== NULL){
+      $start_date  = $_POST['start_date'];
+      $end_date = $_POST['end_date'];
+      $periode=print_date($start_date,'d F Y').' - '.print_date($end_date,'d F Y');
+    } else {
+      $start_date  = NULL;
+      $end_date = NULL;
+      $periode = 'ALL Periode';
+
+    }
+
+    if (isset($_POST['condition']) && $_POST['condition'] !== NULL){
+      $condition  = $_POST['condition'];
+    } else {
+      $condition  = "SERVICEABLE";
+    }
+
+    if (isset($_POST['category']) && $_POST['category'] !== NULL){
+      $category = $_POST['category'];
+    } else {
+      $category = 'all';
+    }
+
+    if (isset($_POST['warehouse']) && $_POST['warehouse'] !== NULL){
+      $warehouse = $_POST['warehouse'];
+    } else {
+      $warehouse = 'ALL BASES';
+    }
+    
+    $this->data['selected_category']        = $category;
+    $this->data['selected_condition']       = $condition;
+    $this->data['selected_warehouse']       = $warehouse;
+    $this->data['document']       = 'index';
+    $this->data['document_super_admin']       = 'index';
+
+
+    // $now=date('Y-m-d');
+    // if (!empty($_POST['columns'][6]['search']['value'])){
+    //   $search_issued_date = $_POST['columns'][6]['search']['value'];
+    //   $range_issued_date  = explode(' ', $search_issued_date);
+    //   $this->data['page']['title']            = $this->module['label'].' '.print_date($range_issued_date[0]).' - '.print_date($range_issued_date[1]);
+    // }if (empty($_POST['columns'][6]['search']['value'])){
+    //   $this->data['page']['title']            = $this->module['label'].' '.print_date($now);
+    // }
+
+    //$this->data['page']['title']            = $this->module['label'];
+    $this->data['page']['title']            = 'SUPER ADMIN '.$this->module['label'] .' '. $warehouse.' '. $category .' '. $condition.' / PERIODE : '.$periode;
+    $this->data['page']['requirement']      = array('datatable');
+    $this->data['grid']['column']           = array_values($this->model->getIndexSelectedColumns_super_admin());
+    // $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $period_month .'/'. $period_year .'/'. $condition);
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_super_admin/'. $condition .'/'. $warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
+    $this->data['grid']['fixed_columns']    = 2;
+    $this->data['grid']['summary_columns']  = array( 10);
+    if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
+      $this->data['grid']['summary_columns'][] = 14;
+    }
+    $this->data['grid']['order_columns']    = array (
+      // 0 => array ( 0 => 3, 1 => 'asc' ),
+      // 1 => array ( 0 => 4, 1 => 'asc' ),
+      // 2 => array ( 0 => 2, 1 => 'asc' ),
+      // 3 => array ( 0 => 1, 1 => 'asc' ),
+      // 4 => array ( 0 => 5, 1 => 'asc' ),
+      // 5 => array ( 0 => 6, 1 => 'asc' ),
+      // 6 => array ( 0 => 7, 1 => 'asc' ),
+      // 7 => array ( 0 => 8, 1 => 'asc' ),
+      // 8 => array ( 0 => 9, 1 => 'asc' ),
+      // 9 => array ( 0 => 10, 1 => 'asc' ),
+      /*10 => array ( 0 => 11, 1 => 'asc' ),
+      11 => array ( 0 => 12, 1 => 'asc' ),*/
+      // 12 => array ( 0 => 13, 1 => 'asc' ),
+    );
+
+    $this->render_view($this->module['view'] .'/index');
+  }
+
+  public function index_data_source_super_admin($condition = 'SERVICEABLE', $warehouse='ALL BASES', $category = 'all', $start_date = NULL, $end_date = NULL)
+  {
+    $this->authorized($this->module, 'document_super_admin');
+
+    if ($warehouse !== NULL){
+      $warehouse = (urldecode($warehouse) === 'ALL BASES') ? NULL : urldecode($warehouse);
+    } 
+    else {
+      $warehouse = urldecode($warehouse);
+    }
+
+    // if ($category !== NULL){
+    //   $category = urldecode($category);
+    // }
+    if ($category !== NULL){
+      $category = (urldecode($category) === 'all') ? NULL : urldecode($category);
+    } 
+    else {
+      $category = urldecode($category);
+    }
+
+    if ($start_date && $end_date !== NULL){
+      $start_date  = urldecode($start_date);
+      $end_date = urldecode($end_date);
+    }
+
+    $entities = $this->model->getIndex_super_admin($condition, $warehouse, $start_date, $end_date, $category);
+
+    $data = array();
+    $no   = $_POST['start'];
+
+    $previous_quantity          = array();
+    $total_received_quantity    = array();
+    $total_issued_quantity      = array();
+    $total_adjustment_quantity  = array();
+    $current_quantity           = array();
+    $current_total_value        = array();
+    $current_average_value      = array();
+
+    foreach ($entities as $row){
+      $no++;
+      $col = array();
+      $col[] = print_number($no);
+      $col[]  = print_string($row['item_id']);
+      $col[] = print_string($row['part_number']);
+      $col[] = print_string($row['description']);
+      $col[] = print_string($row['serial_number']);
+      $col[] = print_string($row['kode_stok']);
+      $col[] = print_string($row['coa']);
+      $col[] = print_string($row['category']);
+      $col[] = print_string($row['group']);
+      $col[] = print_string($row['condition']);
+      $col[] = print_number($row['qty'], 2);
+      $col[] = print_string($row['unit']);    
+      // $col[] = print_number($row['unit_value'], 2);
+      // $col[] = print_number($row['minimum_quantity'], 2);            
+      $col[] = print_string($row['stores']);
+      // $col[] = print_string($row['warehouse']);
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
+        
+        $col[] = print_number($row['unit_value'], 2);
+        $col[] = print_number($row['total_value'], 2);
+        
+        // $col[] = print_number($row['total_value'], 2);
+      }
+
+
+
+      
+
+      $col['DT_RowId']              = 'row_'. $row['id'];
+      $col['DT_RowData']['pkey']    = $row['id'];
+
+      // $previous_quantity[]          = $row['previous_quantity'];
+      // $total_received_quantity[]    = $row['total_received_quantity'];
+      // $total_issued_quantity[]      = $row['total_issued_quantity'];
+      // $total_adjustment_quantity[]  = $row['total_adjustment_quantity'];
+      $current_quantity[]           = $row['qty'];
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
+        // $current_total_value[]        = $row['total_value'];
+        $current_total_value[]        = $row['total_value'];
+      }
+      // $current_average_value[]      = $row['current_average_value'];
+
+      // if ($this->has_role($this->module, 'summary')){
+      //   $col['DT_RowAttr']['onClick']   = '$(this).redirect("_self");';
+      //   $col['DT_RowAttr']['data-href'] = site_url($this->module['route'] .'/summary?year='. $period_year .'&month='. $period_month .'&condition='. $condition .'&category='. $row['category']);
+      // }
+
+      $data[] = $col;
+    }
+
+    // $current_average_value = (array_sum($current_quantity) == 0) ? floatval(0) : array_sum($current_total_value)/array_sum($current_quantity);
+
+    $result = array(
+        "draw" => $_POST['draw'],
+        "recordsTotal" => $this->model->countIndex_super_admin($condition, $warehouse, $start_date, $end_date, $category),
+        "recordsFiltered" => $this->model->countIndexFiltered_super_admin($condition, $warehouse, $start_date, $end_date, $category),
+        "data" => $data,
+        "total" => array(
+          
+          10 => print_number(array_sum($current_quantity), 2),
+          
+        )
+      );
+    if(config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE'){
+      $result['total'][14] = print_number(array_sum($current_total_value), 2);
     }
 
     echo json_encode($result);

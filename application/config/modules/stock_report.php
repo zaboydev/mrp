@@ -14,5 +14,6 @@ $config['module']['stock_report']['permission']      = array(
   'index'     => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
   'summary'   => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
   'detail'    => 'PROCUREMENT,PIC PROCUREMENT,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'document_non_shipping' => 'FINANCE, VP FINANCE,SUPER ADMIN'
+  'document_non_shipping' => 'FINANCE, VP FINANCE,SUPER ADMIN',
+  'document_super_admin' => 'SUPER ADMIN'
 );

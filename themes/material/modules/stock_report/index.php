@@ -13,14 +13,19 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-  <?php if (is_granted($module, 'document_non_shipping')):?>
+  
     <div class="section-floating-action-row">
       <div class="btn-group dropup">
+      <?php if (is_granted($module, 'document_non_shipping')):?>
         <a type="button" href="<?=site_url($module['route'] .'/'.$document);?>" class="btn btn-floating-action btn-lg <?php if($document=='index'){echo 'btn-info';}else{echo 'btn-danger';}?> btn-tooltip ink-reaction" id="btn-create-document"><i class="md md-description"></i><small class="top right"><?php if($document=='index'){echo 'Stock Report';}else{echo 'Accounting Stock Report';}?> </small>
         </a>
+      <?php endif ?>
+      <?php if (is_granted($module, 'document_super_admin')):?>
+        <a type="button" href="<?=site_url($module['route'] .'/'.$document_super_admin);?>" class="btn btn-floating-action btn-lg <?php if($document_super_admin=='index'){echo 'btn-danger';}else{echo 'btn-info';}?> btn-tooltip ink-reaction"><i class="md md-description"></i><small class="top right"><?php if($document_super_admin=='index'){echo 'Stock Report';}else{echo 'Super Admin Stock Report';}?> </small>
+        </a>
+      <?php endif ?>
       </div>
-    </div>
-  <?php endif ?>
+    </div>  
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
