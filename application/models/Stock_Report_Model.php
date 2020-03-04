@@ -1094,4 +1094,351 @@ class Stock_Report_Model extends MY_Model
 
     return $query->num_rows();
   }
+
+  // SUMMARY REPORT
+
+  public function getIndexSelectedColumns_super_admin()
+  {
+    $return = array(
+      'tb_stock_cards.stock_id'                     => NULL,
+      'tb_master_items.id as item_id'                      => 'Item Id',
+      'tb_master_items.part_number'                 => 'Part Number',
+      'tb_master_items.description'                 => 'Description',
+      'tb_master_items.serial_number'               => 'Serial Number',
+      'tb_master_items.kode_stok'                   => 'Stock Code',
+      'tb_master_item_groups.coa'                   => 'COA',
+      'tb_master_items.group'                       => 'Group',
+      'tb_master_item_categories.category'          => 'Category',
+      'tb_stocks.condition'                         => 'Condition',
+      'SUM(tb_stock_cards.quantity) as qty'         => 'Quantity',
+      'tb_master_items.unit'                        => 'Unit',
+      // 'tb_stock_cards.unit_value'                   => 'Price',
+      // 'tb_master_items.minimum_quantity'            => 'Min. Qty',
+      'tb_stock_cards.stores'                       => 'Stores',
+      // 'tb_stock_cards.warehouse'                    => 'Stores',
+      );
+
+      if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
+        $return['tb_stock_cards.unit_value']                  = 'Price';
+        $return['SUM(tb_stock_cards.total_value) as total_value']         = 'Total Price';
+        //$return[NULL]         = 'Total Price';
+      }
+      
+      //'tb_stock_in_stores_reports.received_date' => 'Received Date',     
+      
+    return $return;
+  }
+
+  public function getIndexGroupedColumns_super_admin()
+  {
+    $retur =  array(
+      'tb_stock_cards.stock_id',
+      'tb_master_items.part_number',
+      'tb_master_items.description',
+      'tb_master_items.kode_stok',
+      'tb_master_items.group',
+      'tb_master_item_categories.category',
+      'tb_stocks.condition',
+      // 'tb_stock_cards.quantity',
+      'tb_stock_cards.unit_value',
+      'tb_master_items.minimum_quantity',
+      'tb_master_item_groups.coa',
+      'tb_master_items.serial_number',
+      'tb_stock_cards.stores',
+      'tb_master_items.unit',
+      // 'tb_stock_cards.warehouse',
+      'tb_master_items.id'
+    );
+    // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
+    //     $retur['tb_stock_cards.unit_value'];
+    // }
+
+    return $retur;
+  }
+
+  public function getIndexOrderableColumns_super_admin()
+  {
+    return array(
+      'tb_master_items.part_number',
+      'tb_master_items.description',
+      'tb_master_items.kode_stok',
+      'tb_master_items.group',
+      'tb_master_item_categories.category',
+      'tb_stocks.condition',
+      // 'tb_stock_cards.quantity',
+      // 'tb_stock_cards.unit_value',
+      'tb_master_items.minimum_quantity',
+      'tb_master_item_groups.coa',
+      'tb_master_items.serial_number',
+      'tb_stock_cards.stores',
+      'tb_master_items.unit',
+      // 'tb_stock_cards.warehouse',
+    );
+  }
+
+  public function getIndexSearchableColumns_super_admin()
+  {
+    return array(
+      'tb_master_items.part_number',
+      'tb_master_items.description',
+      'tb_master_items.kode_stok',
+      'tb_master_items.group',
+      'tb_master_item_categories.category',
+      'tb_stocks.condition',
+      // 'tb_stock_cards.quantity',
+      // 'tb_stock_cards.unit_value',
+      // 'tb_master_items.minimum_quantity',
+      'tb_master_item_groups.coa',
+      'tb_master_items.serial_number',
+      'tb_stock_cards.stores',
+      'tb_master_items.unit',
+      // 'tb_stock_cards.warehouse',
+    );
+  }
+
+  private function searchIndex_super_admin()
+  {
+    
+    $now=date('Y-m-d');
+    
+
+    $i = 0;
+    foreach ($this->getIndexSearchableColumns_super_admin() as $item){
+      
+      if ($_POST['search']['value']){
+        $term = strtoupper($_POST['search']['value']);
+
+        if ($i === 0){
+          $this->db->group_start();
+          $this->db->like('UPPER('.$item.')', $term);
+        } else {
+          $this->db->or_like('UPPER('.$item.')', $term);
+        }
+
+        if (count($this->getIndexSearchableColumns_super_admin()) - 1 == $i)
+          $this->db->group_end();
+      }
+
+      $i++;
+    }
+  }
+
+  public function getIndex_super_admin($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL,  $return = 'array')
+  {
+    
+    $this->db->select(array_keys($this->getIndexSelectedColumns_super_admin()));
+    // $this->db->select('tb_stock_in_stores_reports.received_date');
+    $this->db->from('tb_stock_cards');
+    $this->db->join('tb_stocks', 'tb_stock_cards.stock_id = tb_stocks.id');
+    // $this->db->join('tb_master_stores', 'tb_master_stores.stores = tb_stock_cards.stores');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
+    // $this->db->where('quantity != ', 0);
+	  $this->db->where('tb_stocks.condition', $condition);
+    
+
+    if ($category !== NULL){
+      $this->db->where('tb_master_item_categories.category', $category);
+    } else {
+      $this->db->where_in('tb_master_item_categories.category', config_item('auth_inventory'));
+    }
+
+    if ($start_date && $end_date !== NULL){
+      // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
+      $this->db->where('tb_stock_cards.date_of_entry <= ', $end_date);
+    }
+
+    if ($warehouse !== NULL){
+      if($warehouse == 'WISNU'){
+        $this->db->group_start()
+                  ->like('tb_stock_cards.warehouse', 'WISNU')
+                  // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
+                  ->group_end();
+      }
+      if($warehouse == "all base rekondisi"){
+        $this->db->group_start()
+                  ->like('tb_stock_cards.warehouse', 'REKONDISI')
+                  ->group_end();
+      }
+      if($warehouse == 'LOMBOK'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'JEMBER'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'SOLO'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'PALANGKARAYA'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'BSR REKONDISI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'BANYUWANGI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+      if($warehouse == 'WISNU REKONDISI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }      
+    }
+    $this->db->group_by($this->getIndexGroupedColumns_super_admin());
+
+    $this->searchIndex();
+
+    $orderableColumns = $this->getIndexOrderableColumns_super_admin();
+
+    if (isset($_POST['order'])){
+      foreach ($_POST['order'] as $key => $order){
+        $this->db->order_by($orderableColumns[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+      }
+    } else {
+      $this->db->order_by('tb_master_items.id', 'asc');
+    }
+
+    if ($_POST['length'] != -1)
+      $this->db->limit($_POST['length'], $_POST['start']);
+
+    $query = $this->db->get();
+
+    if ($return === 'object'){
+      return $query->result();
+    } elseif ($return === 'json'){
+      return json_encode($query->result());
+    } else {
+      return $query->result_array();
+    }
+  }
+
+  public function countIndexFiltered_super_admin($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  {
+    $this->db->select(array_keys($this->getIndexSelectedColumns_super_admin()));
+    // $this->db->select('tb_stock_in_stores_reports.received_date');
+    $this->db->from('tb_stock_cards');
+    $this->db->join('tb_stocks', 'tb_stock_cards.stock_id = tb_stocks.id');
+    $this->db->join('tb_master_stores', 'tb_master_stores.stores = tb_stock_cards.stores');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
+    $this->db->where('quantity != ', 0);
+	  $this->db->where('tb_stocks.condition', $condition);
+    $this->db->group_by($this->getIndexGroupedColumns_super_admin());
+    if ($category !== NULL){
+      $this->db->where('tb_master_item_categories.category', $category);
+    } else {
+      $this->db->where_in('tb_master_item_categories.category', config_item('auth_inventory'));
+    }
+
+    if ($start_date && $end_date !== NULL){
+      // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
+      $this->db->where('tb_stock_cards.date_of_entry <= ', $end_date);
+    }
+
+    if ($warehouse !== NULL){
+      if($warehouse == 'WISNU'){
+        $this->db->group_start()
+                  ->like('tb_stock_cards.warehouse', 'WISNU')
+                  // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
+                  ->group_end();
+      }
+      if($warehouse == "all base rekondisi"){
+        $this->db->group_start()
+                  ->like('tb_stock_cards.warehouse', 'REKONDISI')
+                  ->group_end();
+      }
+      if($warehouse == 'LOMBOK'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'JEMBER'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'SOLO'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'PALANGKARAYA'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'BSR REKONDISI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'BANYUWANGI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+      if($warehouse == 'WISNU REKONDISI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }      
+    }
+   
+
+    $this->searchIndex_super_admin();
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function countIndex_super_admin($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  {
+    $this->db->select(array_keys($this->getIndexSelectedColumns_super_admin()));
+    // $this->db->select('tb_stock_in_stores_reports.received_date');
+    $this->db->from('tb_stock_cards');
+    $this->db->join('tb_stocks', 'tb_stock_cards.stock_id = tb_stocks.id');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+    $this->db->join('tb_master_stores', 'tb_master_stores.stores = tb_stock_cards.stores');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
+    $this->db->where('quantity != ', 0);
+	  $this->db->where('tb_stocks.condition', $condition);
+    $this->db->group_by($this->getIndexGroupedColumns_super_admin());
+    if ($category !== NULL){
+      $this->db->where('tb_master_item_categories.category', $category);
+    } else {
+      $this->db->where_in('tb_master_item_categories.category', config_item('auth_inventory'));
+    }
+
+    if ($start_date && $end_date !== NULL){
+      // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
+      $this->db->where('tb_stock_cards.date_of_entry <= ', $end_date);
+    }
+
+    if ($warehouse !== NULL){
+      if($warehouse == 'WISNU'){
+        $this->db->group_start()
+                  ->like('tb_stock_cards.warehouse', 'WISNU')
+                  // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
+                  ->group_end();
+      }
+      if($warehouse == "all base rekondisi"){
+        $this->db->group_start()
+                  ->like('tb_stock_cards.warehouse', 'REKONDISI')
+                  ->group_end();
+      }
+      if($warehouse == 'LOMBOK'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'JEMBER'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'SOLO'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'PALANGKARAYA'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'BSR REKONDISI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+       if($warehouse == 'BANYUWANGI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }
+      if($warehouse == 'WISNU REKONDISI'){
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+      }      
+    }
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
 }
