@@ -131,6 +131,9 @@
       <option value="advance">
         Advance
       </option>
+      <option value="revisi">
+        Revisi
+      </option>
     </select>
   </div>
 

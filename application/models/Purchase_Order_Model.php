@@ -199,8 +199,8 @@ class Purchase_Order_Model extends MY_Model
         $this->db->like('tb_po.review_status', 'APPROVED');
         $this->db->like('tb_po.status', 'OPEN');
       } elseif ($status == 'revisi') {
-        $this->db->like('tb_po.review_status', 'REVISI');
-        // $this->db->like('tb_po.status', 'OPEN');
+        // $this->db->like('tb_po.review_status', 'REVISI');
+        $this->db->like('tb_po.status', 'REVISI');
       } elseif ($status == 'purposed') {
         $this->db->like('tb_po.review_status', 'APPROVED');
         $this->db->like('tb_po.status', 'PURPOSED');
@@ -225,8 +225,10 @@ class Purchase_Order_Model extends MY_Model
       }
       if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
         $this->db->like('tb_po.review_status', 'WAITING FOR COO');
+      }else{
+        $this->db->where_not_in('tb_po.status', ['REVISI']);
       }
-      $this->db->where_not_in('tb_po.review_status', ['REVISI']);
+      
       // else{
       //   $this->db->where('tb_po.review_status','!=','REVISI');
       // }
@@ -1694,6 +1696,8 @@ class Purchase_Order_Model extends MY_Model
       }else{
         $this->db->where('tb_po.status', strtoupper($status));
       }
+    }else{
+      $this->db->where_not_in('tb_po.status', ['REVISI']);
     }
     // else{
     //   $this->db->like('tb_po.review_status', 'WAITING');
