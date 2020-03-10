@@ -107,7 +107,7 @@
                     <?=print_number($detail['on_hand_qty'], 2);?>
                   </td>
                   <td align="right">
-                    <?=print_number($detail['minimum_quantity'], 2);?>
+                    <?=print_number($detail['min_qty'], 2);?>
                   </td>
                   <td align="right">
                     <?=print_number($detail['ytd_quantity'] - $detail['ytd_used_quantity'], 2);?>
