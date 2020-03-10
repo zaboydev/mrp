@@ -618,6 +618,22 @@ if ( ! function_exists('getLastUnitValue')) {
     }
   }
 
+  function search_min_qty($part_number)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('min_qty');
+    $CI->db->from('tb_master_part_number');
+    $CI->db->where('UPPER(part_number)', strtoupper($part_number));
+
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->min_qty;
+
+    return $return;
+  }
+
 }
 
 

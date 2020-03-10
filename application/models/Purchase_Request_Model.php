@@ -489,6 +489,7 @@ class Purchase_Request_Model extends MY_Model
 
       foreach ($query->result_array() as $key => $value) {
         $request['items'][$key] = $value;
+        $request['items'][$key]['min_qty'] = search_min_qty($value['part_number']);
 
         $this->db->from('tb_budget');
         $this->db->where('tb_budget.id_cot', $value['id_cot']);
@@ -620,6 +621,7 @@ class Purchase_Request_Model extends MY_Model
 
       foreach ($query->result_array() as $key => $value) {
         $request['items'][$key] = $value;
+        $request['items'][$key]['min_qty'] = search_min_qty($value['part_number']);
 
         $this->db->from('tb_budget');
         $this->db->where('tb_budget.id_cot', $value['id_cot']);
@@ -2491,6 +2493,7 @@ class Purchase_Request_Model extends MY_Model
 
     foreach ($query->result_array() as $key => $value) {
       $request['items'][$key] = $value;
+      $request['items'][$key]['min_qty'] = search_min_qty($value['part_number']);
 
       $this->db->from('tb_budget');
       $this->db->where('tb_budget.id_cot', $value['id_cot']);

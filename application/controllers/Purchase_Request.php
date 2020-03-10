@@ -290,8 +290,9 @@ class Purchase_Request extends MY_Controller
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name'] : $row['product_name']);
         // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
         $col[] = '<a data-id="item" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info/' . $row['id']) . '">' . print_string($row['product_code']) . '</a>';
-        $col[] = print_number($row['min_qty']);
-        $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id'], 2)) . '</a>';
+        $col[] = print_number(search_min_qty($row['product_code']), 2);
+        // $col[] = print_number($row['min_qty'], 2);
+        $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id']), 2) . '</a>';
         $col[] = print_number($row['quantity'], 2);
         $col[] = print_number($row['process_qty'], 2);
         $col[] = print_string(strtoupper($row['status']));
