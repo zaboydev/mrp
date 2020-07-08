@@ -92,9 +92,9 @@
         </div>
 
         <div class="form-group">
-          <?php if (config_item('levels_and_roles')==13 || config_item('levels_and_roles')==6 || config_item('levels_and_roles')==5) : ?>
+          <?php if (config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPERVISOR') : ?>
             <select name="warehouse" id="warehouse" class="form-control" required="required">
-              <?php foreach (available_warehouses(config_item('auth_warehouses')) as $base) : ?>
+              <?php foreach (available_warehouses() as $base) : ?>
                 <option value="<?= $base; ?>" <?= ($base == $entity['warehouse']) ? 'selected' : ''; ?>>
                   <?= $base; ?>
                 </option>

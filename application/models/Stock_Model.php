@@ -152,6 +152,7 @@ class Stock_Model extends MY_Model
     // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
     // $this->db->where('tb_stock_in_stores.received_date <= ', $end_date);
     $this->db->where('condition', $condition);
+    $this->db->where_in('tb_stock_in_stores.warehouse', config_item('auth_warehouses'));
     // $this->db->where('tb_stock_in_stores.quantity != 0');//tambahan untuk poin no 15 relokasi
 
     if($quantity !== NULL){
@@ -257,6 +258,7 @@ class Stock_Model extends MY_Model
     // $this->db->where('tb_stock_in_stores.received_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.quantity != 0');//tambahan untuk poin no 15 relokasi
     $this->db->where('condition', $condition);
+    $this->db->where_in('tb_stock_in_stores.warehouse', config_item('auth_warehouses'));
 
     if($quantity !== NULL){
       if($quantity == 'a'){
@@ -336,6 +338,7 @@ class Stock_Model extends MY_Model
     // $this->db->where('tb_stock_in_stores.received_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.quantity != 0');//tambahan untuk poin no 15 relokasi
     $this->db->where('condition', $condition);
+    $this->db->where_in('tb_stock_in_stores.warehouse', config_item('auth_warehouses'));
 
     if($quantity !== NULL){
       if($quantity == 'a'){
