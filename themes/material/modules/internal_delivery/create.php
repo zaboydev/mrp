@@ -703,6 +703,7 @@ $(function(){
 
         select: function( event, ui ) {
           $('input[id="part_number"]').val(ui.item.part_number);
+          $('input[id="serial_number"]').val(ui.item.serial_number);
           $('input[id="alternate_part_number"]').val(ui.item.alternate_part_number);
           $('input[id="description"]').val(ui.item.description);
           $('select[id="group"]').val(ui.item.group);

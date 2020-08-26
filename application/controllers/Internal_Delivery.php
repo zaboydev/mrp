@@ -108,7 +108,7 @@ class Internal_Delivery extends MY_Controller
     $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value){
-      $entities[$key]['label'] = $value['part_number'];
+      $entities[$key]['label'] = 'P.N : '.$value['part_number'].' | S.N : '.$value['serial_number'];
     }
 
     echo json_encode($entities);

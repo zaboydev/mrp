@@ -772,46 +772,48 @@ class Purchase_Order extends MY_Controller
     $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
     $deliver_address = 'Bandara Letkol Wisnu Desa Sumberkima, Gerokgak, Singaraja, Bali 80111';
 
-    $_SESSION['order']['items']               = $item;
-    $_SESSION['order']['vendor_po']           = $vendor_id;
-    $_SESSION['order']['vendor']              = $order['vendor'];
-    $_SESSION['order']['warehouse']           = config_item('main_warehouse');
-    $_SESSION['order']['category']            = $category;
-    $_SESSION['order']['format_number']       = order_format_number();
-    $_SESSION['order']['document_number']     = order_last_number($_SESSION['order']['format_number']);
-    $_SESSION['order']['wom_document_number']     = order_last_number('WOM');
-    $_SESSION['order']['pom_document_number']     = order_last_number('POM');
-    $_SESSION['order']['document_date']       = date('Y-m-d');
-    $_SESSION['order']['vendor']              = $order['vendor'];
-    $_SESSION['order']['vendor_address']      = $order['vendor_address'];
-    $_SESSION['order']['vendor_country']      = $order['vendor_country'];
-    $_SESSION['order']['vendor_phone']        = $order['vendor_phone'];
-    $_SESSION['order']['vendor_attention']    = $order['vendor_attention'];
-    $_SESSION['order']['deliver_company']     = $company;
-    $_SESSION['order']['deliver_address']     = $deliver_address;
-    $_SESSION['order']['deliver_country']     = 'INDONESIA';
-    $_SESSION['order']['deliver_phone']       = $phone;
-    $_SESSION['order']['deliver_attention']   = $attention;
-    $_SESSION['order']['bill_company']        = $company;
-    $_SESSION['order']['bill_address']        = $address;
-    $_SESSION['order']['bill_country']        = 'INDONESIA';
-    $_SESSION['order']['bill_phone']          = $phone;
-    $_SESSION['order']['bill_attention']      = $attention;
-    $_SESSION['order']['reference_quotation'] = NULL;
-    $_SESSION['order']['issued_by']           = config_item('auth_person_name');
-    $_SESSION['order']['checked_by']          = NULL;
-    $_SESSION['order']['approved_by']         = NULL;
-    $_SESSION['order']['default_currency']    = $order['default_currency'];
-    $_SESSION['order']['payment_type']        = 'CREDIT';
-    $_SESSION['order']['exchange_rate']       = 1.00;
-    $_SESSION['order']['discount']            = 0.00;
-    $_SESSION['order']['taxes']               = 0.00;
-    $_SESSION['order']['shipping_cost']       = 0.00;
-    $_SESSION['order']['total_quantity']      = NULL;
-    $_SESSION['order']['total_price']         = NULL;
-    $_SESSION['order']['grand_total']         = NULL;
-    $_SESSION['order']['notes']               = NULL;
-    $_SESSION['order']['term_payment']               = 0;
+    if (isset($_SESSION['order']) === FALSE) {
+      $_SESSION['order']['items']               = $item;
+      $_SESSION['order']['vendor_po']           = $vendor_id;
+      $_SESSION['order']['vendor']              = $order['vendor'];
+      $_SESSION['order']['warehouse']           = config_item('main_warehouse');
+      $_SESSION['order']['category']            = $category;
+      $_SESSION['order']['format_number']       = order_format_number();
+      $_SESSION['order']['document_number']     = order_last_number($_SESSION['order']['format_number']);
+      $_SESSION['order']['wom_document_number']     = order_last_number('WOM');
+      $_SESSION['order']['pom_document_number']     = order_last_number('POM');
+      $_SESSION['order']['document_date']       = date('Y-m-d');
+      $_SESSION['order']['vendor']              = $order['vendor'];
+      $_SESSION['order']['vendor_address']      = $order['vendor_address'];
+      $_SESSION['order']['vendor_country']      = $order['vendor_country'];
+      $_SESSION['order']['vendor_phone']        = $order['vendor_phone'];
+      $_SESSION['order']['vendor_attention']    = $order['vendor_attention'];
+      $_SESSION['order']['deliver_company']     = $company;
+      $_SESSION['order']['deliver_address']     = $deliver_address;
+      $_SESSION['order']['deliver_country']     = 'INDONESIA';
+      $_SESSION['order']['deliver_phone']       = $phone;
+      $_SESSION['order']['deliver_attention']   = $attention;
+      $_SESSION['order']['bill_company']        = $company;
+      $_SESSION['order']['bill_address']        = $address;
+      $_SESSION['order']['bill_country']        = 'INDONESIA';
+      $_SESSION['order']['bill_phone']          = $phone;
+      $_SESSION['order']['bill_attention']      = $attention;
+      $_SESSION['order']['reference_quotation'] = NULL;
+      $_SESSION['order']['issued_by']           = config_item('auth_person_name');
+      $_SESSION['order']['checked_by']          = NULL;
+      $_SESSION['order']['approved_by']         = NULL;
+      $_SESSION['order']['default_currency']    = $order['default_currency'];
+      $_SESSION['order']['payment_type']        = 'CREDIT';
+      $_SESSION['order']['exchange_rate']       = 1.00;
+      $_SESSION['order']['discount']            = 0.00;
+      $_SESSION['order']['taxes']               = 0.00;
+      $_SESSION['order']['shipping_cost']       = 0.00;
+      $_SESSION['order']['total_quantity']      = NULL;
+      $_SESSION['order']['total_price']         = NULL;
+      $_SESSION['order']['grand_total']         = NULL;
+      $_SESSION['order']['notes']               = NULL;
+      $_SESSION['order']['term_payment']               = 0;
+    }    
 
     // redirect($this->module['route'] .'/create_po/'.$vendor_id);
     // }
@@ -1210,7 +1212,7 @@ class Purchase_Order extends MY_Controller
     $this->data['key']    = $key;
     $this->data['entity'] = $_SESSION['order']['items'][$key];
 
-    $this->render_view($this->module['view'] . '/edit_item');
+    $this->render_view($this->module['view'] . '/edit_item', $this->data);
   }
 
   public function update_item($key)
@@ -1224,19 +1226,20 @@ class Purchase_Order extends MY_Controller
     } else {
       $quantity = floatval($this->input->post('quantity'));
 
-      $_SESSION['order']['items'][$key]['quantity'] = $quantity;
+      // $_SESSION['order']['items'][$key]['quantity'] = $quantity;
       $_SESSION['order']['items'][$key]['alternate_part_number'] = trim(strtoupper($this->input->post('alternate_part_number')));
+      $_SESSION['order']['items'][$key]['serial_number'] = trim(strtoupper($this->input->post('serial_number')));
 
-      foreach ($_POST['vendor'] as $v => $vendor) {
-        $unit_price   = $vendor['unit_price'];
-        $core_charge  = $vendor['core_charge'];
-        $total_price  = ($unit_price * $quantity) + ($core_charge * $quantity);
+      // foreach ($_POST['vendor'] as $v => $vendor) {
+      //   $unit_price   = $vendor['unit_price'];
+      //   $core_charge  = $vendor['core_charge'];
+      //   $total_price  = ($unit_price * $quantity) + ($core_charge * $quantity);
 
-        $_SESSION['order']['items'][$key]['vendors'][$v]['unit_price'] = $unit_price;
-        $_SESSION['order']['items'][$key]['vendors'][$v]['quantity'] = $quantity;
-        $_SESSION['order']['items'][$key]['vendors'][$v]['core_charge'] = $core_charge;
-        $_SESSION['order']['items'][$key]['vendors'][$v]['total'] = $total_price;
-      }
+      //   $_SESSION['order']['items'][$key]['vendors'][$v]['unit_price'] = $unit_price;
+      //   $_SESSION['order']['items'][$key]['vendors'][$v]['quantity'] = $quantity;
+      //   $_SESSION['order']['items'][$key]['vendors'][$v]['core_charge'] = $core_charge;
+      //   $_SESSION['order']['items'][$key]['vendors'][$v]['total'] = $total_price;
+      // }
 
       $data['success'] = TRUE;
     }
@@ -1320,6 +1323,7 @@ class Purchase_Order extends MY_Controller
 
       $_SESSION['order']['items'][$key] = array(
         'part_number'           => trim(strtoupper($this->input->post('part_number'))),
+        'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
         'alternate_part_number' => trim(strtoupper($this->input->post('alternate_part_number'))),
         'description'           => trim(strtoupper($this->input->post('description'))),
         'remarks'               => trim($this->input->post('remarks')),

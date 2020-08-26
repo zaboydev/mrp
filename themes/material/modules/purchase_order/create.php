@@ -237,7 +237,7 @@
                       </a>
                     </td>
                     <td class="no-space">
-                      <?= $item['part_number']; ?>
+                      <?= $item['part_number']; ?> | S.N : <?= $item['serial_number']; ?>
                     </td>
                     <td class="no-space">
                       <?= $item['alternate_part_number']; ?>
