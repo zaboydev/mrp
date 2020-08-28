@@ -11,22 +11,27 @@
         <fieldset>
           <div class="form-group">
             <label for="part_number">Part Number</label>
-            <input type="text" name="part_number" id="part_number" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['part_number'];?>" readonly>
+            <input type="text" name="part_number" id="part_number" class="form-control" value="<?=$entity['part_number'];?>" readonly>
           </div>
 
           <div class="form-group">
             <label for="description">Description</label>
-            <input type="text" name="description" id="description" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['description'];?>" readonly>
+            <input type="text" name="description" id="description" class="form-control" value="<?=$entity['description'];?>" readonly>
           </div>
 
           <div class="form-group">
             <label for="alternate_part_number">Alt. Part Number</label>
-            <input type="text" name="alternate_part_number" id="alternate_part_number" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['alternate_part_number'];?>" autofocus="on">
+            <input type="text" name="alternate_part_number" id="alternate_part_number" class="form-control" value="<?=$entity['alternate_part_number'];?>" autofocus="on">
+          </div>
+
+          <div class="form-group">
+            <label for="serial_number">Serial Number</label>
+            <input type="text" name="serial_number" id="serial_number" class="form-control" value="<?=$entity['serial_number'];?>" autofocus="on">
           </div>
 
           <div class="form-group">
             <label for="additional_info">Additional Info</label>
-            <input type="text" name="additional_info" id="additional_info" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['additional_info'];?>" readonly>
+            <input type="text" name="additional_info" id="additional_info" class="form-control" value="<?=$entity['remarks'];?>" readonly>
           </div>
         </fieldset>
       </div>
@@ -35,28 +40,28 @@
         <fieldset>
           <div class="form-group">
             <label for="quantity">Quantity</label>
-            <input type="text" name="quantity" id="quantity" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['quantity'];?>" required>
+            <input type="text" name="quantity" id="quantity" class="form-control" value="<?=$entity['quantity'];?>" readonly>
           </div>
 
           <div class="form-group">
             <label for="unit">Unit of Measurement</label>
-            <input type="text" name="unit" id="unit" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['unit'];?>" readonly>
+            <input type="text" name="unit" id="unit" class="form-control" value="<?=$entity['unit'];?>" readonly>
           </div>
 
           <div class="form-group">
             <label for="price">Price</label>
-            <input type="text" name="price" id="price" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['price'];?>" readonly>
+            <input type="text" name="price" id="price" class="form-control" value="<?=$entity['unit_price'];?>" readonly>
           </div>
 
           <div class="form-group">
             <label for="total">Total</label>
-            <input type="text" name="total" id="total" class="form-control" value="<?=$_SESSION['poe']['items'][$key]['total'];?>" readonly>
+            <input type="text" name="total" id="total" class="form-control" value="<?=$entity['total_amount'];?>" readonly>
           </div>
         </fieldset>
       </div>
     </div>
 
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-sm-12">
         <div class="table-responsive">
           <table class="table">
@@ -92,7 +97,7 @@
           </table>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div class="text-right">
       <button type="button" class="btn btn-default" onclick="popupClose()">Cancel</button>

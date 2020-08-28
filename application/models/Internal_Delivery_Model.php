@@ -306,29 +306,63 @@ class Internal_Delivery_Model extends MY_Model
        * decrease quantity
        * create document revision
        */
-      $this->db->from('tb_stock_cards');
-      $this->db->where('document_type', 'DELIVERY');
-      $this->db->where('document_number', $document_edit);
+      $this->db->select('document_number, warehouse,received_date');
+      $this->db->where('id', $document_id);
+      $this->db->from('tb_receipts');
 
       $query = $this->db->get();
+      $row   = $query->unbuffered_row('array');
 
-      foreach ($query->result_array() as $row) {
-        $this->db->set('stock_id', $row['stock_id']);
-        $this->db->set('serial_id', $row['serial_id']);
-        $this->db->set('warehouse', $warehouse);
-        $this->db->set('stores', $row['stores']);
-        $this->db->set('date_of_entry', $received_date);
+      $document_number  = $row['document_number'];
+      $warehouse        = $row['warehouse'];
+      // $received_date        = $row['received_date'];
+
+      $old_document_number  = $row['document_number'];
+      $old_warehouse        = $row['warehouse'];
+
+      $this->db->select('tb_receipt_items.quantity_order, tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores,tb_receipt_items.purchase_order_item_id');
+      $this->db->from('tb_receipt_items');
+      $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_receipt_items.stock_in_stores_id');
+      $this->db->where('tb_receipt_items.document_number', $old_document_number);
+
+      $query  = $this->db->get();
+      $result = $query->result_array();
+
+      foreach ($result as $data) {
+        // $prev_old_stock = getStockActive($data['stock_id']);
+        // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['received_quantity']);
+
+        $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
+        $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
+
+        $this->db->set('stock_id', $data['stock_id']);
+        $this->db->set('serial_id', $data['serial_id']);
+        $this->db->set('warehouse', $old_warehouse);
+        $this->db->set('stores', $data['stores']);
+        $this->db->set('date_of_entry', $row['received_date']);
         $this->db->set('period_year', config_item('period_year'));
         $this->db->set('period_month', config_item('period_month'));
         $this->db->set('document_type', 'REVISION');
-        $this->db->set('document_number', $document_edit);
-        $this->db->set('issued_to', $document_number);
+        $this->db->set('document_number', $old_document_number);
+        $this->db->set('issued_to', $old_document_number);
         $this->db->set('issued_by', config_item('auth_person_name'));
-        $this->db->set('quantity', 0 - floatval($row['quantity']));
-        $this->db->set('unit_value', floatval($row['unit_value']));
         $this->db->set('remarks', 'REVISION');
-		    $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('prev_quantity', floatval($prev_old_stock));
+        $this->db->set('balance_quantity', $next_old_stock);
+        $this->db->set('quantity', 0 - floatval($data['received_quantity']));
+        $this->db->set('unit_value', floatval($data['received_unit_value']));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
+        $this->db->set('doc_type', 8);
+        $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
+        $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
         $this->db->insert('tb_stock_cards');
+
+        $this->db->where('id', $data['id']);
+        $this->db->delete('tb_receipt_items');
+
+        $this->db->where('id', $data['stock_in_stores_id']);
+        $this->db->delete('tb_stock_in_stores');
       }
 
       /**
@@ -347,31 +381,13 @@ class Internal_Delivery_Model extends MY_Model
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->where('id', $document_id);
       $this->db->update('tb_receipts');
-
-      /**
-       * DELETE OLD DELIVERY ITEMS
-       */
-      $this->db->where('document_number', $document_edit);
-      $this->db->delete('tb_receipt_items');
-
-      /**
-       * DELETE OLD STOCK
-       */
-      $this->db->where('reference_document', $document_edit);
-      $this->db->delete('tb_stock_in_stores');
-
-      /**
-       * UPDATE SERIAL
-       */
-      // $this->db->where('reference_document', $document_edit);
-      // $this->db->set('quantity', 0);
-      // $this->db->update('tb_master_item_serials');
     }
 
     /**
      * PROCESSING DELIVERY ITEMS
      */
     foreach ($_SESSION['delivery']['items'] as $key => $data){
+      $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
       /**
        * CREATE UNIT OF MEASUREMENT IF NOT EXISTS
        */
@@ -397,8 +413,9 @@ class Internal_Delivery_Model extends MY_Model
       /**
        * CREATE ITEM IF NOT EXISTS
        */
-      if (isItemExists($data['part_number']) === FALSE){
+      if (isItemExists($data['part_number'],$serial_number) === FALSE){
         $this->db->set('part_number', strtoupper($data['part_number']));
+        $this->db->set('serial_number', strtoupper($data['serial_number']));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
         $this->db->set('description', strtoupper($data['description']));
         $this->db->set('group', strtoupper($data['group']));
@@ -437,32 +454,32 @@ class Internal_Delivery_Model extends MY_Model
       /**
        * CREATE SERIAL NUMBER IF NOT EXISTS
        */
-      // if (!empty($data['serial_number'])){
-      //   if (isSerialExists($item_id, $data['serial_number']) === FALSE){
-      //     $this->db->set('item_id', $item_id);
-      //     $this->db->set('serial_number', strtoupper($data['serial_number']));
-      //     $this->db->set('warehouse', $warehouse);
-      //     $this->db->set('stores', strtoupper($data['stores']));
-      //     $this->db->set('condition', strtoupper($data['condition']));
-      //     $this->db->set('updated_by', config_item('auth_person_name'));
-      //     $this->db->insert('tb_master_item_serials');
-      //
-      //     $serial_id  = $this->db->insert_id();
-      //   } else {
-      //     $serial     = getSerial($item_id, $data['serial_number']);
-      //     $serial_id  = $serial->id;
-      //
-      //     $this->db->set('quantity', 1);
-      //     $this->db->set('warehouse', $warehouse);
-      //     $this->db->set('stores', strtoupper($data['stores']));
-      //     $this->db->set('condition', strtoupper($data['condition']));
-      //     $this->db->set('updated_by', config_item('auth_person_name'));
-      //     $this->db->where('id', $serial_id);
-      //     $this->db->update('tb_master_item_serials');
-      //   }
-      // } else {
-      //   $serial_id = NULL;
-      // }
+      if (!empty($data['serial_number'])){
+        if (isSerialExists($item_id, $data['serial_number']) === FALSE){
+          $this->db->set('item_id', $item_id);
+          $this->db->set('serial_number', strtoupper($data['serial_number']));
+          $this->db->set('warehouse', $warehouse);
+          $this->db->set('stores', strtoupper($data['stores']));
+          $this->db->set('condition', strtoupper($data['condition']));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_serials');
+      
+          $serial_id  = $this->db->insert_id();
+        } else {
+          $serial     = getSerial($item_id, $data['serial_number']);
+          $serial_id  = $serial->id;
+      
+          $this->db->set('quantity', 1);
+          $this->db->set('warehouse', $warehouse);
+          $this->db->set('stores', strtoupper($data['stores']));
+          $this->db->set('condition', strtoupper($data['condition']));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->where('id', $serial_id);
+          $this->db->update('tb_master_item_serials');
+        }
+      } else {
+        $serial_id = NULL;
+      }
 
       /**
        * ADD ITEM INTO STOCK
@@ -537,6 +554,10 @@ class Internal_Delivery_Model extends MY_Model
       /**
        * CREATE STOCK CARD
        */
+
+      $prev_stock   = getStockPrev($stock_id, strtoupper($data['stores']));
+      $next_stock   = floatval($prev_stock) + floatval($data['received_quantity']);
+
       $this->db->set('serial_id', $serial_id);
       $this->db->set('stock_id', $stock_id);
       $this->db->set('warehouse', $warehouse);
@@ -549,9 +570,14 @@ class Internal_Delivery_Model extends MY_Model
       $this->db->set('received_from', $received_from);
       $this->db->set('received_by', $received_by);
       $this->db->set('quantity', floatval($data['received_quantity']));
+      $this->db->set('prev_quantity', floatval($prev_stock));
+      $this->db->set('balance_quantity', $next_stock);
       $this->db->set('unit_value', floatval($data['received_unit_value']));
       $this->db->set('remarks', $data['remarks']);
-	    $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('doc_type', 8);
+      $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
+      $this->db->set('total_value', floatval($data['received_unit_value'] * (0 + floatval($data['received_quantity']))));
       $this->db->insert('tb_stock_cards');
     }
 
@@ -660,7 +686,8 @@ class Internal_Delivery_Model extends MY_Model
       'tb_master_items.part_number',
       'tb_master_items.alternate_part_number',
       'tb_master_items.minimum_quantity',
-      'tb_master_items.unit'
+      'tb_master_items.unit',
+      'tb_master_items.serial_number',
      );
 
     $this->db->select($this->column_select);

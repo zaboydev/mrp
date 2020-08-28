@@ -534,6 +534,7 @@ class Purchase_Order_Model extends MY_Model
     $select = array(
       'tb_purchase_order_items.id as purchase_order_evaluation_items_vendors_id',
       'tb_purchase_order_items.part_number',
+      'tb_purchase_order_items.serial_number',
       'tb_purchase_order_items.alternate_part_number',
       'tb_purchase_order_items.description',
       'tb_purchase_order_items.remarks',
@@ -591,6 +592,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.poe_item_id as purchase_order_evaluation_items_vendors_id',
       'tb_po_item.id as id_item',
       'tb_po_item.part_number',
+      'tb_po_item.serial_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.description',
       'tb_po_item.remarks',
@@ -929,6 +931,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('purchase_order_id', $id_po);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
+      $this->db->set('serial_number', strtoupper($item['serial_number']));
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       // $this->db->set('quantity_requested', floatval($item['quantity_requested']));
@@ -1092,6 +1095,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('purchase_order_id', $id_po);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
+      $this->db->set('serial_number', strtoupper($item['serial_number']));
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       // $this->db->set('quantity_requested', floatval($item['quantity_requested']));

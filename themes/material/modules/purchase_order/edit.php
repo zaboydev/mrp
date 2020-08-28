@@ -190,6 +190,7 @@
                   <th class="middle-alignment"></th>
                   <th class="middle-alignment">Description</th>
                   <th class="middle-alignment">P/N</th>
+                  <th class="middle-alignment">S/N</th>
                   <th class="middle-alignment">Alt. P/N</th>
                   <th class="middle-alignment text-center" colspan="2">Quantity</th>
                   <th class="middle-alignment">Unit Price
@@ -222,7 +223,10 @@
                       </a>
                     </td>
                     <td class="no-space">
-                      <?= $item['part_number']; ?>
+                      <?= $item['part_number']; ?> 
+                    </td>
+                    <td class="no-space">
+                      <?= $item['serial_number']; ?> 
                     </td>
                     <td class="no-space">
                       <?= $item['alternate_part_number']; ?>
@@ -316,6 +320,11 @@
                 <div class="form-group">
                   <input type="text" name="part_number" id="part_number" class="form-control input-sm">
                   <label for="part_number">Part Number</label>
+                </div>
+
+                <div class="form-group">
+                  <input type="text" name="serial_number" id="serial_number" class="form-control input-sm">
+                  <label for="serial_number">Serial Number</label>
                 </div>
 
                 <div class="form-group">
@@ -755,6 +764,7 @@
         success: function(response) {
           console.log(JSON.stringify(response));
           $('#part_number').val(response.part_number);
+          $('#serial_number').val(response.serial_number);
           $('#description').val(response.description);
           $('#quantity').val(response.quantity);
           $('#unit_price').val(response.unit_price);
