@@ -230,6 +230,9 @@
                       <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
                         <i class="fa fa-trash"></i>
                       </a>
+                      <a href="<?= site_url($module['route'] . '/edit_item/' . $i); ?>" onClick="return popup(this, 'edit')"  class="btn btn-icon-toggle btn-info btn-sm">
+                        <i class="fa fa-pencil"></i>
+                      </a>
                     </td>
                     <td>
                       <a href="<?= site_url($module['route'] . '/edit_item/' . $i); ?>" onClick="return popup(this, 'edit')">
