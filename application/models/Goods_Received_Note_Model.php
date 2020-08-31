@@ -1165,7 +1165,7 @@ class Goods_Received_Note_Model extends MY_Model
       // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['issued_quantity']);
 
       $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
-      $next_old_stock = floatval($prev_old_stock) - floatval($data['issued_quantity']);
+      $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
 
       $this->db->set('stock_id', $data['stock_id']);
       $this->db->set('serial_id', $data['serial_id']);

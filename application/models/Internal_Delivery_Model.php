@@ -427,7 +427,7 @@ class Internal_Delivery_Model extends MY_Model
 
         $item_id = $this->db->insert_id();
       } else {
-        $item_id = getItemId($data['part_number']);
+        $item_id = getItemId($data['part_number'],$serial_number);
       }
 
       /**
@@ -594,7 +594,7 @@ class Internal_Delivery_Model extends MY_Model
 
     $id = $this->input->post('id');
 
-    $this->db->select('document_number, warehouse');
+    $this->db->select('document_number, warehouse, received_date');
     $this->db->where('id', $id);
     $this->db->from('tb_receipts');
 
@@ -613,20 +613,28 @@ class Internal_Delivery_Model extends MY_Model
     $result = $query->result_array();
 
     foreach ($result as $data) {
+      $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
+      $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
+
       $this->db->set('stock_id', $data['stock_id']);
       $this->db->set('serial_id', $data['serial_id']);
       $this->db->set('warehouse', $warehouse);
       $this->db->set('stores', $data['stores']);
-      $this->db->set('date_of_entry', date('Y-m-d'));
+      $this->db->set('date_of_entry', $row['received_date']);
       $this->db->set('period_year', config_item('period_year'));
       $this->db->set('period_month', config_item('period_month'));
       $this->db->set('document_type', 'REMOVAL');
       $this->db->set('document_number', $document_number);
       $this->db->set('issued_to', 'DELETE DOCUMENT');
+      $this->db->set('prev_quantity', floatval($prev_old_stock));
+      $this->db->set('balance_quantity', floatval($next_old_stock));
       $this->db->set('issued_by', config_item('auth_person_name'));
       $this->db->set('quantity', 0 - floatval($data['received_quantity']));
       $this->db->set('unit_value', floatval($data['received_unit_value']));
-	  $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('doc_type', 8);
+      $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
+      $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
       $this->db->insert('tb_stock_cards');
 
       $this->db->where('id', $data['id']);
