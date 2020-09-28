@@ -644,7 +644,7 @@ $(function(){
   });
 
   $('input[id="issued_quantity"]').on('change', function (e) {
-    if (parseInt($(this).val()) > parseInt($('input[id="maximum_quantity"]').val())){
+    if (parseFloat($(this).val()) > parseFloat($('input[id="maximum_quantity"]').val())){
       alert('Maximum limit is ' + max_quantity);
       $(this).val(max_quantity);
       $(this).focus();
