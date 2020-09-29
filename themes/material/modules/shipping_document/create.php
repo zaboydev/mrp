@@ -604,16 +604,16 @@ $(function(){
             $('#description').val( ui.item.description );
             $('#alternate_part_number').val( ui.item.alternate_part_number );
             $('#group').val( ui.item.group );
-            $('#maximum_quantity').val( parseInt(ui.item.quantity) );
+            $('#maximum_quantity').val( parseFloat(ui.item.quantity) );
             $('#unit').val( ui.item.unit );
             $('#condition').val( ui.item.condition );
             $('#stores').val( ui.item.stores );
             $('#stock_in_stores_id').val( ui.item.id );
             $('#issued_unit_value').val( ui.item.unit_value );
 
-            $('input[id="issued_quantity"]').attr('data-rule-max', parseInt(ui.item.quantity)).attr('data-msg-max', 'max available '+ parseInt(ui.item.quantity));
+            $('input[id="issued_quantity"]').attr('data-rule-max', parseFloat(ui.item.quantity)).attr('data-msg-max', 'max available '+ parseFloat(ui.item.quantity));
 
-            $('#issued_quantity').attr('max', parseInt(ui.item.quantity)).focus();
+            $('#issued_quantity').attr('max', parseFloat(ui.item.quantity)).focus();
 
             $('#search_stock_in_stores').val('');
             document.getElementById('stores_view').innerHTML='';
