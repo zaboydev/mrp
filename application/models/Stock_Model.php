@@ -380,7 +380,7 @@ class Stock_Model extends MY_Model
         $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
       }
        if($warehouse == 'SOLO'){
-        $this->db->where('tb_stock_in_stores_.warehouse', $warehouse);
+        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
       }
        if($warehouse == 'PALANGKARAYA'){
         $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
