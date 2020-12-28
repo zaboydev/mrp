@@ -79,6 +79,7 @@
                 <th class="middle-alignment">Description</th>
                 <th class="middle-alignment">Part Number</th>
                 <th class="middle-alignment">Alt. P/N</th>
+                <th class="middle-alignment">Serial Number</th>
                 <th class="middle-alignment">Remarks</th>
                 <th class="middle-alignment">POE Number</th>
                 <th class="middle-alignment">PR Number</th>
@@ -107,7 +108,9 @@
                   <td class="no-space">
                     <?= print_string($detail['alternate_part_number']); ?>
                   </td>
-
+                  <td class="no-space">
+                    <?= print_string($detail['serial_number']); ?>
+                  </td>
                   <td>
                     <?= print_string($detail['remarks']); ?>
                   </td>
@@ -156,11 +159,13 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
                 <th style="background-color: #eee;">Subtotal <?= $entity['default_currency']; ?></th>
                 <th style="background-color: #eee;"><?= print_number($subtotal, 2); ?></th>
               </tr>
               <?php if ($entity['discount'] > 0) : ?>
                 <tr>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -185,6 +190,7 @@
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                   <th style="background-color: #eee;">VAT <?= $entity['taxes']; ?> %</th>
                   <th style="background-color: #eee;"><?= print_number($total_taxes, 2); ?></th>
                 </tr>
@@ -200,11 +206,13 @@
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                   <th style="background-color: #eee;">Shipping Cost</th>
                   <th style="background-color: #eee;"><?= print_number($entity['shipping_cost'], 2); ?></th>
                 </tr>
               <?php endif; ?>
               <tr>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
