@@ -1291,6 +1291,8 @@ class Purchase_Order_Model extends MY_Model
       $ket_level = 'Chief Of Finance';
     } elseif ($level == 3) {
       $ket_level = 'VP Finance';
+    }elseif ($level == 16) {
+      $ket_level = 'CHIEF OPERATION OFFICER';
     }
 
     //Load email library 
