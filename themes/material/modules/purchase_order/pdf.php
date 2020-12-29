@@ -128,6 +128,7 @@
 						<th class="middle-alignment">Description</th>
 						<th class="middle-alignment">Part Number</th>
 						<th class="middle-alignment">Alt. P/N</th>
+						<th class="middle-alignment">Serial Number</th>
 						<th class="middle-alignment" colspan="2">Quantity</th>
 						<th class="middle-alignment">Unit Price <?= $entity['default_currency']; ?></th>
 						<th class="middle-alignment">Core Charge <?= $entity['default_currency']; ?></th>
@@ -153,6 +154,9 @@
 							</td>
 							<td class="no-space">
 								<?= print_string($detail['alternate_part_number']); ?>
+							</td>
+							<td class="no-space">
+								<?= print_string($detail['serial_number']); ?>
 							</td>
 							<td>
 								<?= print_number($detail['quantity'], 2); ?>
@@ -190,6 +194,7 @@
 						<th></th>
 						<th></th>
 						<th></th>
+						<th></th>
 						<th><?= print_number($subtotal, 2); ?></th>
 						<th></th>
 					</tr>
@@ -197,6 +202,7 @@
 						<tr>
 							<th></th>
 							<th>Discount <?= $entity['default_currency']; ?></th>
+							<th></th>
 							<th></th>
 							<th></th>
 							<th></th>
@@ -217,6 +223,7 @@
 							<th></th>
 							<th></th>
 							<th></th>
+							<th></th>
 							<th><?= print_number($total_taxes, 2); ?></th>
 							<th></th>
 						</tr>
@@ -231,6 +238,7 @@
 							<th></th>
 							<th></th>
 							<th></th>
+							<th></th>
 							<th><?= print_number($entity['shipping_cost'], 2); ?></th>
 							<th></th>
 						</tr>
@@ -238,6 +246,7 @@
 					<tr>
 						<th></th>
 						<th>Grand Total</th>
+						<th></th>
 						<th></th>
 						<th></th>
 						<th></th>
