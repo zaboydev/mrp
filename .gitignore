@@ -7,6 +7,8 @@ application/cache/*
 application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
+application/config/config.php
+application/config/database.php
 
 user_guide_src/build/*
 user_guide_src/cilexer/build/*
@@ -17,13 +19,10 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /2019/
 /ttd_user/
 /mrp_2018/
-/system/sessions/
+/system/sessions/*
 /attachment/
 bifa_2019-03-24.rar
 bifa_2019-03-24.zip
-application/config/config.php
-application/config/database.php
-
 
 # IDE Files
 #-------------------------
@@ -36,4 +35,4 @@ application/config/database.php
 *.stTheme.cache
 *.sublime-workspace
 *.sublime-project
-application/config/database.php
+# application/config/database.php

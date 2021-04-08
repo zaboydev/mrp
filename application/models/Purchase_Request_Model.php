@@ -1295,7 +1295,8 @@ class Purchase_Request_Model extends MY_Model
         $this->db->select(
           array(
             'tb_stock_in_stores.warehouse',
-            'sum(quantity) as qty'
+            'sum(quantity) as qty',
+            'tb_master_items.unit'
           )
         );
         $this->db->from('tb_stock_in_stores');
@@ -1312,6 +1313,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('prl_item_id', $prl_item_id);
           $this->db->set('warehouse', $data['warehouse']);
           $this->db->set('on_hand_stock', $data['qty']);
+          // $this->db->set('unit', $data['unit']);
           $this->db->insert('tb_purchase_request_items_on_hand_stock');
         }
       }
@@ -2750,7 +2752,7 @@ class Purchase_Request_Model extends MY_Model
     $select_prl_item = array(
       'tb_inventory_purchase_requisition_details.part_number',
       'tb_inventory_purchase_requisition_details.product_name',
-      'tb_inventory_purchase_requisition_details.unit',
+      'tb_master_items.unit',
       'tb_inventory_purchase_requisitions.pr_number',
       'tb_master_items.minimum_quantity',
       // 'tb_purchase_order_items.ttd_issued_by'
@@ -2780,6 +2782,7 @@ class Purchase_Request_Model extends MY_Model
 
     foreach ($query->result_array() as $key => $value) {
       $prl_item['items'][$key] = $value;
+      $prl_item['items'][$key]['unit'] = $prl_item['unit'];
     }
 
 

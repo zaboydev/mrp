@@ -229,7 +229,7 @@
               <?= print_number($info['on_hand_stock'], 2); ?>
             </td>
             <td>
-              <?= print_string($detail['unit']); ?>
+              <?= print_string($info['unit']); ?>
             </td>
           </tr>
         <?php endforeach; ?>

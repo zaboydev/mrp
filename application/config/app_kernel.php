@@ -33,6 +33,15 @@ $config['parent']['finance']['icon']   = 'md md-payment';
 $config['parent']['procurement']['label']  = 'Procurement';
 $config['parent']['procurement']['icon']   = 'md md-assignment';
 
+$config['parent']['capex']['label']  = 'Capex';
+$config['parent']['capex']['icon']   = 'fa fa-car';
+
+$config['parent']['inventory']['label']  = 'Inventory';
+$config['parent']['inventory']['icon']   = 'fa fa-cubes';
+
+$config['parent']['expense']['label']  = 'Expense';
+$config['parent']['expense']['icon']   = 'fa fa-money';
+
 $config['module'] = array();
 
 
@@ -54,6 +63,13 @@ require('modules/pesawat.php');
 //PLANNING
 require('modules/budget_cot.php');
 require('modules/budgeting.php');
+
+//CAPEX
+require('modules/capex_request.php');
+//Inventory
+require('modules/inventory_request.php');
+//Inventory
+require('modules/expense_request.php');
 
 //PROCUREMENT
 require('modules/purchase_request.php');
