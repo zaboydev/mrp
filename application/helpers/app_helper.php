@@ -1166,6 +1166,48 @@ if ( ! function_exists('month')) {
       return $query->result_array();
     }
   }
+
+  if ( ! function_exists('get_divisions')) {
+    function get_divisions()
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->from('tb_divisions');
+      // $connection->where('setting_name', $name);
+
+      $query    = $connection->get();
+
+      return $query->result_array();
+    }
+  }
+
+  if ( ! function_exists('user_in_head_department')) {
+  function user_in_head_department($department_id)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('username');
+    $CI->db->from('tb_head_department');
+
+    if (is_array($category)){
+      $CI->db->where_in('department_id', $department_id);
+    } else {
+      $CI->db->where('department_id', $department_id);
+    }
+
+    $CI->db->where('status', 'active');
+
+    $CI->db->order_by('username', 'ASC');
+
+    $query  = $CI->db->get();
+    $result = $query->unbuffered_row('array');
+    $return = $result['username'];
+
+    return $return;
+  }
+}
 }
 
     

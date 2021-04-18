@@ -2,9 +2,12 @@
 
 class Ajax_Model extends MY_Model
 {
+  protected $connection;
+
   public function __construct()
   {
-    parent::__construct();
+    parent::__construct();    
+    $this->connection   = $this->load->database('budgetcontrol', TRUE);
   }
 
   protected function findTable($module)
@@ -575,5 +578,19 @@ class Ajax_Model extends MY_Model
       return $data;
 
     return json_encode($data);
+  }
+
+  public function department_name_validation($value, $old_value = NULL)
+  {
+    $this->connection->from('tb_divisions');
+
+    if ($old_value !== NULL)
+      $this->connection->where('UPPER(division_name) != ', strtoupper($old_value));
+
+    $this->connection->where('UPPER(division_name)', strtoupper($value));
+
+    $query = $this->connection->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
   }
 }

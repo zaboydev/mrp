@@ -59,6 +59,7 @@ require('modules/vendor.php');
 require('modules/warehouse.php');
 require('modules/kurs.php');
 require('modules/pesawat.php');
+require('modules/departements.php');
 
 //PLANNING
 require('modules/budget_cot.php');

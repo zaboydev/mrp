@@ -22,7 +22,7 @@ class Capex_Request_Model extends MY_Model
         return array(
             'tb_capex_purchase_requisitions.id'                         => NULL,
             'tb_capex_purchase_requisitions.pr_number'                  => 'Document Number',
-            'tb_cost_centers.cost_center_name'                          => 'Document Date',
+            'tb_cost_centers.cost_center_name'                          => 'Cost Center',
             'tb_capex_purchase_requisitions.pr_date'                    => 'Document Date',
             'tb_capex_purchase_requisitions.required_date'              => 'Required Date',
             'SUM(tb_capex_purchase_requisition_details.total) as total_capex'  => 'Total',
