@@ -22,6 +22,8 @@ class Expense_Request_Model extends MY_Model
         return array(
             'tb_expense_purchase_requisitions.id'                               => NULL,
             'tb_expense_purchase_requisitions.pr_number'                        => 'Document Number',
+            'tb_expense_purchase_requisitions.status'                           => 'Status',
+            'tb_departments.department_name'                                    => 'Department Name',
             'tb_cost_centers.cost_center_name'                                  => 'Cost Center',
             'tb_expense_purchase_requisitions.pr_date'                          => 'Pr Date',
             'tb_expense_purchase_requisitions.required_date'                    => 'Required Date',
@@ -42,6 +44,8 @@ class Expense_Request_Model extends MY_Model
             'tb_accounts.account_name',
             'tb_expense_purchase_requisition_details.total',
             'tb_expense_purchase_requisitions.notes',
+            'tb_expense_purchase_requisitions.status',
+            'tb_departments.department_name'
         );
     }
 
@@ -56,6 +60,8 @@ class Expense_Request_Model extends MY_Model
             'tb_accounts.account_name',
             // 'tb_expense_purchase_requisition_detail.total',
             'tb_expense_purchase_requisitions.notes',
+            'tb_expense_purchase_requisitions.status',
+            'tb_departments.department_name'
         );
     }
 
@@ -65,11 +71,13 @@ class Expense_Request_Model extends MY_Model
             null,
             // 'tb_expense_purchase_requisitions.id',
             'tb_expense_purchase_requisitions.pr_number',
+            'tb_expense_purchase_requisitions.status',
+            'tb_departments.department_name',
             'tb_cost_centers.cost_center_name',
             'tb_expense_purchase_requisitions.pr_date',
             'tb_expense_purchase_requisitions.required_date',
             'tb_accounts.account_name',
-            'tb_expense_purchase_requisition_details.total',
+            null,
             'tb_expense_purchase_requisitions.notes',
         );
     }
@@ -86,13 +94,11 @@ class Expense_Request_Model extends MY_Model
 
         if (!empty($_POST['columns'][2]['search']['value'])){
             $search_status = $_POST['columns'][2]['search']['value'];
-            // if($search_status!='all'){
+
+            if($search_status!='all'){
                 $this->connection->where('tb_expense_purchase_requisitions.status', $search_status);
-            // }
-        } 
-        // else {
-        //     $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
-        // }
+            }            
+        }
 
         // if (!empty($_POST['columns'][3]['search']['value'])){
         //     $search_category = $_POST['columns'][3]['search']['value'];
@@ -151,6 +157,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         // $this->connection->group_by($this->getGroupedColumns());
@@ -188,6 +195,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         // $this->connection->group_by($this->getGroupedColumns());
@@ -206,6 +214,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         // $this->connection->group_by($this->getGroupedColumns());
@@ -213,5 +222,23 @@ class Expense_Request_Model extends MY_Model
         $query = $this->connection->get();
 
         return $query->num_rows();
+    }
+
+    public function approve($id,$notes)
+    {
+        $this->connection->trans_begin();
+
+        $this->connection->set('status','approved');
+        $this->connection->set('approved_date',date('Y-m-d H:i:s'));
+        $this->connection->set('approved_by',config_item('auth_person_name'));
+        $this->connection->set('approved_notes',$notes);
+        $this->connection->where('id',$id);
+        $this->connection->update('tb_expense_purchase_requisitions');
+
+        if ($this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        $this->connection->trans_commit();
+        return TRUE;
     }
 }

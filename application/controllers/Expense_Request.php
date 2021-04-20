@@ -34,8 +34,14 @@ class Expense_Request extends MY_Controller
             foreach ($entities as $row) {
                 $no++;
                 $col = array();
-                $col[] = print_number($no);
+                if ($row['status'] == 'pending' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else{                    
+                    $col[] = print_number($no);
+                }
                 $col[] = print_string($row['pr_number']);
+                $col[] = print_string(strtoupper($row['status']));
+                $col[] = print_string(strtoupper($row['department_name']));
                 $col[] = print_string($row['cost_center_name']);
                 $col[] = print_date($row['pr_date']);
                 $col[] = print_date($row['required_date']);
@@ -48,7 +54,8 @@ class Expense_Request extends MY_Controller
                 $total[]         = $row['total'];
 
                 if ($this->has_role($this->module, 'info')){
-                    $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+                    $col['DT_RowAttr']['onClick']     = '';
+                    $col['DT_RowAttr']['data-id']     = $row['id'];
                     $col['DT_RowAttr']['data-target'] = '#data-modal';
                     $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
                 }
@@ -62,7 +69,7 @@ class Expense_Request extends MY_Controller
                 "recordsFiltered" => $this->model->countIndexFiltered(),
                 "data" => $data,
                 "total" => array(
-                    5  => print_number(array_sum($total), 2),
+                    8  => print_number(array_sum($total), 2),
                 )
             );
         }
@@ -78,11 +85,11 @@ class Expense_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(6);
+        $this->data['grid']['summary_columns']  = array(8);
         $this->data['grid']['order_columns']    = array(
-            // 0   => array( 0 => 2,  1 => 'desc' ),
-            1   => array( 0 => 3,  1 => 'desc' ),
-            2   => array( 0 => 1,  1 => 'desc' ),
+            0   => array( 0 => 1,  1 => 'desc' ),
+            1   => array( 0 => 2,  1 => 'desc' ),
+            2   => array( 0 => 3,  1 => 'desc' ),
             3   => array( 0 => 4,  1 => 'asc' ),
             4   => array( 0 => 5,  1 => 'asc' ),
             5   => array( 0 => 6,  1 => 'asc' ),
@@ -285,56 +292,56 @@ class Expense_Request extends MY_Controller
 
     public function multi_approve()
     {
-        $id_purchase_order = $this->input->post('id_purchase_order');
-        $id_purchase_order = str_replace("|", "", $id_purchase_order);
-        $id_purchase_order = substr($id_purchase_order, 0, -1);
-        $id_purchase_order = explode(",", $id_purchase_order);
+        $id_expense_request = $this->input->post('id_expense_request');
+        $id_expense_request = str_replace("|", "", $id_expense_request);
+        $id_expense_request = substr($id_expense_request, 0, -1);
+        $id_expense_request = explode(",", $id_expense_request);
 
-        $str_price = $this->input->post('price');
-        $price = str_replace("|", "", $str_price);
-        $price = substr($price, 0, -3);
-        $price = explode("##,", $price);
+        $str_notes = $this->input->post('notes');
+        $notes = str_replace("|", "", $str_notes);
+        $notes = substr($price, 0, -3);
+        $notes = explode("##,", $notes);
 
         $total = 0;
         $success = 0;
-        $failed = sizeof($id_purchase_order);
+        $failed = sizeof($id_expense_request);
         $x = 0;
-        foreach ($id_purchase_order as $key) {
-        if ($this->model->approve($key, $price[$x])) {
-            $total++;
-            $success++;
-            $failed--;
-            // $this->model->send_mail_approved($key,'approved');
-        }
-        $x++;
+        foreach ($id_expense_request as $key) {
+            if ($this->model->approve($key, $price[$x])) {
+                $total++;
+                $success++;
+                $failed--;
+                // $this->model->send_mail_approved($key,'approved');
+            }
+            $x++;
         }
         if ($success > 0) {
-        // $id_role = 13;
-        if ((config_item('auth_role') == 'FINANCE MANAGER')) {
-            $id_role = 9;
-            $this->model->send_mail_next_approval($id_purchase_order, $id_role);
-        }
-        if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')) {
-            $id_role = 15;
-            $this->model->send_mail_next_approval($id_purchase_order, $id_role);
-        }
-        $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
-        $this->session->set_flashdata('alert', array(
-            'type' => 'success',
-            'info' => $success . " data has been update!"
-        ));
+            // // $id_role = 13;
+            // if ((config_item('auth_role') == 'FINANCE MANAGER')) {
+            //     $id_role = 9;
+            //     $this->model->send_mail_next_approval($id_purchase_order, $id_role);
+            // }
+            // if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')) {
+            //     $id_role = 15;
+            //     $this->model->send_mail_next_approval($id_purchase_order, $id_role);
+            // }
+            // $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+            $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => $success . " data has been update!"
+            ));
         }
         if ($failed > 0) {
-        $this->session->set_flashdata('alert', array(
-            'type' => 'danger',
-            'info' => "There are " . $failed . " errors"
-        ));
+            $this->session->set_flashdata('alert', array(
+                'type' => 'danger',
+                'info' => "There are " . $failed . " errors"
+            ));
         }
         if ($total == 0) {
-        $result['status'] = 'failed';
+            $result['status'] = 'failed';
         } else {
         //$this->sendEmailHOS();
-        $result['status'] = 'success';
+            $result['status'] = 'success';
         }
         echo json_encode($result);
     }

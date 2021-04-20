@@ -26,7 +26,7 @@
 <?php startblock('actions_right') ?>
 
 <div class="section-floating-action-row">
-  <?php if (is_granted($module, 'approval')) : ?>
+  <?php if (config_item('as_head_department')=='yes') : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-clear"></i>
@@ -74,14 +74,17 @@
         <div class="form-group">
           <label for="filter_status">Status</label>
           <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
-            <option value="">
-              All
+            <option value="all">
+              All Status
             </option>
             <option value="pending">
               Pending
             </option>
             <option value="approved">
               Approved
+            </option>
+            <option value="rejected">
+              Rejected
             </option>
           </select>
         </div>
@@ -529,7 +532,7 @@
 
           $("#modal-approve-data-button-multi").click(function() {
             var action = $(this).data('source');
-            if (!encodePrice()) {
+            if (!encodeNotes()) {
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
               toastr.error('You must filled Price for each item that you want to approve');
@@ -537,8 +540,8 @@
               $(this).attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
-                  'id_purchase_order': id_purchase_order,
-                  'price': price
+                  'id_expense_request': id_purchase_order,
+                  'notes': notes
                 }).done(function(data) {
                   console.log(data);
                   $("#modal-approve-data-button-multi").attr('disabled', false);
