@@ -44,7 +44,7 @@
             <label>Head Department</label>
             <select name="head_department" id="head_department" class="form-control" required>
               <option value="">Not Set</option>
-              <?php foreach (available_user(array('person_name', 'username'), array(2,3,9,10,11,14,16)) as $i => $user) : ?>
+              <?php foreach (available_user(array('person_name', 'username'), array(2,3,9,10,11,13,14,16)) as $i => $user) : ?>
                 <option value="<?= $user['username']; ?>" <?= ($user['username'] == user_in_head_department($entity['id'])) ? 'selected' : ''; ?>>
                   <?= $user['person_name']; ?>
                 </option>

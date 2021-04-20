@@ -8,6 +8,7 @@ class MY_Controller extends CI_Controller
   protected $login_theme;
   protected $base_theme;
   protected $modules;
+  protected $connection;
 
   public $data = array();
 
@@ -23,7 +24,7 @@ class MY_Controller extends CI_Controller
 
     // $this->is_logged_in();
     
-
+    $this->connection   = $this->load->database('budgetcontrol', TRUE);
     $this->config->load('app_config');
     $this->config->load('app_kernel');
     $this->config->load('tables');
@@ -64,6 +65,8 @@ class MY_Controller extends CI_Controller
     $this->config->set_item('auth_level', $_SESSION['auth_level']);
     $this->config->set_item('auth_warehouse', $_SESSION['warehouse']);
     $this->config->set_item('auth_email', $_SESSION['email']);
+    $this->config->set_item('as_head_department', $this->as_head_department());
+    $this->config->set_item('head_department', $this->head_department());
   }
 
   public function get_auth_role()
@@ -185,6 +188,41 @@ class MY_Controller extends CI_Controller
     }
 
     return $return;
+  }
+
+  protected function as_head_department()
+  {
+    $this->db->select('department_id');
+    $this->db->from('tb_head_department');
+    $this->db->where('username',$_SESSION['username']);
+    $this->db->where('status','active');
+    $query  = $this->db->get();
+    
+    return ( $query->num_rows() > 0 ) ? 'yes' : 'no';
+  }
+
+  protected function head_department()
+  {
+    $this->db->select('department_id');
+    $this->db->from('tb_head_department');
+    $this->db->where('username',$_SESSION['username']);
+    $this->db->where('status','active');
+    $query  = $this->db->get();
+    if($query->num_rows() > 0){      
+      $result = $query->unbuffered_row('array');
+      $department_id = $result['department_id'];
+
+      $this->connection->select('department_name');
+      $this->connection->from('tb_departments');
+      $this->connection->where('id',$department_id);
+      $query  = $this->connection->get();
+      $result = $query->unbuffered_row('array');
+      $department_name = $result['department_name'];
+    }else{
+      $department_name = 'no_head_department';
+    }
+
+    return $department_name;
   }
 
   protected function auth_inventory()

@@ -22,11 +22,15 @@ class Capex_Request_Model extends MY_Model
         return array(
             'tb_capex_purchase_requisitions.id'                         => NULL,
             'tb_capex_purchase_requisitions.pr_number'                  => 'Document Number',
+            'tb_capex_purchase_requisitions.status'                     => 'Status',
+            'tb_departments.department_name'                            => 'Department Name',
             'tb_cost_centers.cost_center_name'                          => 'Cost Center',
             'tb_capex_purchase_requisitions.pr_date'                    => 'Document Date',
             'tb_capex_purchase_requisitions.required_date'              => 'Required Date',
             'SUM(tb_capex_purchase_requisition_details.total) as total_capex'  => 'Total',
-            'tb_capex_purchase_requisitions.notes'                      => 'Notes',
+            'tb_capex_purchase_requisitions.notes'                      => 'Requisitions Notes',
+            'tb_capex_purchase_requisitions.approved_notes'             => 'Notes',
+
         );
     }
 
@@ -35,10 +39,13 @@ class Capex_Request_Model extends MY_Model
         return array(
             'tb_capex_purchase_requisitions.id',
             'tb_capex_purchase_requisitions.pr_number',
+            'tb_capex_purchase_requisitions.status',
             'tb_cost_centers.cost_center_name',
             'tb_capex_purchase_requisitions.pr_date',
             'tb_capex_purchase_requisitions.required_date',
             'tb_capex_purchase_requisitions.notes',
+            'tb_departments.department_name',
+            'tb_capex_purchase_requisitions.approved_notes'
             // 'SUM(tb_capex_purchase_requisition_detail.total) as total_capex'
         );
     }
@@ -48,10 +55,13 @@ class Capex_Request_Model extends MY_Model
         return array(
             // 'tb_capex_purchase_requisitions.id',
             'tb_capex_purchase_requisitions.pr_number',
+            'tb_capex_purchase_requisitions.status',
             'tb_cost_centers.cost_center_name',
             // 'tb_capex_purchase_requisitions.pr_date',
             // 'tb_capex_purchase_requisitions.required_date',
             'tb_capex_purchase_requisitions.notes',
+            'tb_departments.department_name',
+            'tb_capex_purchase_requisitions.approved_notes'
         );
     }
 
@@ -60,10 +70,14 @@ class Capex_Request_Model extends MY_Model
         return array(
             null,
             'tb_capex_purchase_requisitions.pr_number',
+            'tb_capex_purchase_requisitions.status',
+            'tb_departments.department_name',
             'tb_cost_centers.cost_center_name',
             'tb_capex_purchase_requisitions.pr_date',
             'tb_capex_purchase_requisitions.required_date',
+            NULL,
             'tb_capex_purchase_requisitions.notes',
+            NULL
         );
     }
 
@@ -80,9 +94,9 @@ class Capex_Request_Model extends MY_Model
         if (!empty($_POST['columns'][2]['search']['value'])){
             $search_status = $_POST['columns'][2]['search']['value'];
 
-            $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
-        } else {
-            $this->connection->where('tb_capex_purchase_requisitions.status', 'pending');
+            if($search_status!='all'){
+                $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
+            }            
         }
 
         // if (!empty($_POST['columns'][3]['search']['value'])){
@@ -141,10 +155,11 @@ class Capex_Request_Model extends MY_Model
         $this->connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id','left');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
         $this->connection->group_by($this->getGroupedColumns());
 
-        // $this->searchIndex();
+        $this->searchIndex();
 
         $column_order = $this->getOrderableColumns();
 
@@ -177,10 +192,11 @@ class Capex_Request_Model extends MY_Model
         $this->connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id','left');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
         $this->connection->group_by($this->getGroupedColumns());
 
-        // $this->searchIndex();
+        $this->searchIndex();
 
         $query = $this->connection->get();
 
@@ -194,11 +210,93 @@ class Capex_Request_Model extends MY_Model
         $this->connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id','left');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
         $this->connection->group_by($this->getGroupedColumns());
 
         $query = $this->connection->get();
 
         return $query->num_rows();
+    }
+
+    public function findById($id)
+    {
+        $this->connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name');
+        $this->connection->from('tb_capex_purchase_requisitions');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->where('tb_capex_purchase_requisitions.id', $id);
+
+        $query    = $this->connection->get();
+        $request  = $query->unbuffered_row('array');
+
+        $select = array(
+          'tb_capex_purchase_requisition_details.*',
+          'tb_products.product_name',
+          'tb_products.product_code',
+          'tb_capex_monthly_budgets.product_id',
+          'SUM(tb_capex_monthly_budgets.mtd_quantity) AS fyp_quantity',
+          'SUM(tb_capex_monthly_budgets.mtd_budget) AS fyp_budget',
+          'SUM(tb_capex_monthly_budgets.mtd_used_quantity) AS fyp_used_quantity',
+          'SUM(tb_capex_monthly_budgets.mtd_used_budget) AS fyp_used_budget',
+        );
+
+        $group_by = array(
+          'tb_capex_purchase_requisition_details.id',
+          'tb_products.product_name',
+          'tb_products.product_code',
+          'tb_capex_monthly_budgets.product_id',
+        );
+
+        $this->connection->select($select);
+        $this->connection->from('tb_capex_purchase_requisition_details');
+        $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
+        $this->connection->join('tb_products', 'tb_products.id = tb_capex_monthly_budgets.product_id');
+        $this->connection->where('tb_capex_purchase_requisition_details.capex_purchase_requisition_id', $id);
+        $this->connection->group_by($group_by);
+
+        $query = $this->connection->get();
+
+        foreach ($query->result_array() as $key => $value){
+          $request['items'][$key] = $value;
+
+          $this->connection->from('tb_capex_monthly_budgets');
+          $this->connection->where('tb_capex_monthly_budgets.annual_cost_center_id', $request['annual_cost_center_id']);
+          $this->connection->where('tb_capex_monthly_budgets.product_id', $value['product_id']);
+          $this->connection->where('tb_capex_monthly_budgets.month_number', $this->budget_month);
+          // $this->connection->where('tb_capex_monthly_budgets.year_number', $this->budget_year);
+
+          $query = $this->connection->get();
+          $row   = $query->unbuffered_row('array');
+
+          $request['items'][$key]['mtd_quantity'] = $row['mtd_quantity'];
+          $request['items'][$key]['mtd_budget'] = $row['mtd_budget'];
+          $request['items'][$key]['mtd_used_quantity'] = $row['mtd_used_quantity'];
+          $request['items'][$key]['mtd_used_budget'] = $row['mtd_used_budget'];
+          $request['items'][$key]['ytd_quantity'] = $row['ytd_quantity'];
+          $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
+          $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
+          $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
+        }
+
+        return $request;
+    }
+
+    public function approve($id,$notes)
+    {
+        $this->connection->trans_begin();
+
+        $this->connection->set('status','approved');
+        $this->connection->set('approved_date',date('Y-m-d H:i:s'));
+        $this->connection->set('approved_by',config_item('auth_person_name'));
+        $this->connection->set('approved_notes',$notes);
+        $this->connection->where('id',$id);
+        $this->connection->update('tb_capex_purchase_requisitions');
+
+        if ($this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        $this->connection->trans_commit();
+        return TRUE;
     }
 }
