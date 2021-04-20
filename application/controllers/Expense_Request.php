@@ -45,13 +45,13 @@ class Expense_Request extends MY_Controller
                 $col[] = print_string($row['cost_center_name']);
                 $col[] = print_date($row['pr_date']);
                 $col[] = print_date($row['required_date']);
-                $col[] = print_string($row['account_name']);
-                $col[] = print_number($row['total'],2);
+                // $col[] = print_string($row['account_name']);
+                $col[] = print_number($row['total_expense'],2);
                 $col[] = $row['notes'];
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
 
-                $total[]         = $row['total'];
+                $total[]         = $row['total_expense'];
 
                 if ($this->has_role($this->module, 'info')){
                     $col['DT_RowAttr']['onClick']     = '';
@@ -69,7 +69,7 @@ class Expense_Request extends MY_Controller
                 "recordsFiltered" => $this->model->countIndexFiltered(),
                 "data" => $data,
                 "total" => array(
-                    8  => print_number(array_sum($total), 2),
+                    7  => print_number(array_sum($total), 2),
                 )
             );
         }
@@ -85,7 +85,7 @@ class Expense_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(8);
+        $this->data['grid']['summary_columns']  = array(7);
         $this->data['grid']['order_columns']    = array(
             0   => array( 0 => 1,  1 => 'desc' ),
             1   => array( 0 => 2,  1 => 'desc' ),
@@ -95,6 +95,7 @@ class Expense_Request extends MY_Controller
             5   => array( 0 => 6,  1 => 'asc' ),
             6   => array( 0 => 7,  1 => 'asc' ),
             7   => array( 0 => 8,  1 => 'asc' ),
+            // 7   => array( 0 => 8,  1 => 'asc' ),
             
         );
 

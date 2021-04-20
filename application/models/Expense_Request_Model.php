@@ -27,8 +27,8 @@ class Expense_Request_Model extends MY_Model
             'tb_cost_centers.cost_center_name'                                  => 'Cost Center',
             'tb_expense_purchase_requisitions.pr_date'                          => 'Pr Date',
             'tb_expense_purchase_requisitions.required_date'                    => 'Required Date',
-            'tb_accounts.account_name'                                           => 'Account',
-            'tb_expense_purchase_requisition_details.total'  => 'Total',
+            // 'tb_accounts.account_name'                                           => 'Account',
+            'SUM(tb_expense_purchase_requisition_details.total) as total_expense'  => 'Total',
             'tb_expense_purchase_requisitions.notes'                            => 'Notes',
         );
     }
@@ -41,8 +41,8 @@ class Expense_Request_Model extends MY_Model
             'tb_cost_centers.cost_center_name',
             'tb_expense_purchase_requisitions.pr_date',
             'tb_expense_purchase_requisitions.required_date',
-            'tb_accounts.account_name',
-            'tb_expense_purchase_requisition_details.total',
+            // 'tb_accounts.account_name',
+            // 'tb_expense_purchase_requisition_details.total',
             'tb_expense_purchase_requisitions.notes',
             'tb_expense_purchase_requisitions.status',
             'tb_departments.department_name'
@@ -57,7 +57,7 @@ class Expense_Request_Model extends MY_Model
             'tb_cost_centers.cost_center_name',
             // 'tb_expense_purchase_requisitions.pr_date',
             // 'tb_expense_purchase_requisitions.required_date',
-            'tb_accounts.account_name',
+            // 'tb_accounts.account_name',
             // 'tb_expense_purchase_requisition_detail.total',
             'tb_expense_purchase_requisitions.notes',
             'tb_expense_purchase_requisitions.status',
@@ -76,7 +76,7 @@ class Expense_Request_Model extends MY_Model
             'tb_cost_centers.cost_center_name',
             'tb_expense_purchase_requisitions.pr_date',
             'tb_expense_purchase_requisitions.required_date',
-            'tb_accounts.account_name',
+            // 'tb_accounts.account_name',
             null,
             'tb_expense_purchase_requisitions.notes',
         );
@@ -158,9 +158,9 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-        $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        // $this->connection->group_by($this->getGroupedColumns());
+        $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
 
@@ -190,15 +190,17 @@ class Expense_Request_Model extends MY_Model
 
     function countIndexFiltered()
     {
+        $this->connection->select(array_keys($this->getSelectedColumns()));
+        $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
         $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-        $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        // $this->connection->group_by($this->getGroupedColumns());
+        $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
 
@@ -209,19 +211,83 @@ class Expense_Request_Model extends MY_Model
 
     public function countIndex()
     {
+        $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
         $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-        $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        // $this->connection->group_by($this->getGroupedColumns());
+        $this->connection->group_by($this->getGroupedColumns());
 
         $query = $this->connection->get();
 
         return $query->num_rows();
+    }
+
+    public function findById($id)
+    {
+        $this->connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name');
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->where('tb_expense_purchase_requisitions.id', $id);
+
+        $query    = $this->connection->get();
+        $request  = $query->unbuffered_row('array');
+
+        $select = array(
+          'tb_expense_purchase_requisition_details.*',
+          'tb_accounts.account_name',
+          'tb_accounts.account_code',
+          'tb_expense_monthly_budgets.account_id',
+          // 'SUM(tb_expense_monthly_budgets.mtd_quantity) AS fyp_quantity',
+          'SUM(tb_expense_monthly_budgets.mtd_budget) AS fyp_budget',
+          // 'SUM(tb_expense_monthly_budgets.mtd_used_quantity) AS fyp_used_quantity',
+          'SUM(tb_expense_monthly_budgets.mtd_used_budget) AS fyp_used_budget',
+        );
+
+        $group_by = array(
+          'tb_expense_purchase_requisition_details.id',
+          'tb_accounts.account_name',
+          'tb_accounts.account_code',
+          'tb_expense_monthly_budgets.account_id',
+        );
+
+        $this->connection->select($select);
+        $this->connection->from('tb_expense_purchase_requisition_details');
+        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $id);
+        $this->connection->group_by($group_by);
+
+        $query = $this->connection->get();
+
+        foreach ($query->result_array() as $key => $value){
+          $request['items'][$key] = $value;
+
+          $this->connection->from('tb_expense_monthly_budgets');
+          $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $request['annual_cost_center_id']);
+          $this->connection->where('tb_expense_monthly_budgets.account_id', $value['account_id']);
+          $this->connection->where('tb_expense_monthly_budgets.month_number', $this->budget_month);
+          // $this->connection->where('tb_capex_monthly_budgets.year_number', $this->budget_year);
+
+          $query = $this->connection->get();
+          $row   = $query->unbuffered_row('array');
+
+          // $request['items'][$key]['mtd_quantity'] = $row['mtd_quantity'];
+          $request['items'][$key]['mtd_budget'] = $row['mtd_budget'];
+          // $request['items'][$key]['mtd_used_quantity'] = $row['mtd_used_quantity'];
+          $request['items'][$key]['mtd_used_budget'] = $row['mtd_used_budget'];
+          // $request['items'][$key]['ytd_quantity'] = $row['ytd_quantity'];
+          $request['items'][$key]['ytd_budget'] = $row['ytd_budget'];
+          // $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
+          $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
+        }
+
+        return $request;
     }
 
     public function approve($id,$notes)
