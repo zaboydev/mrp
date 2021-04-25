@@ -172,46 +172,32 @@ class Capex_Request extends MY_Controller
         // $this->render_view($this->module['view'] .'/create');
     }
 
-    public function create($category = NULL)
+    public function create($cost_center = NULL)
     {
         $this->authorized($this->module, 'document');
 
-        if ($category !== NULL) {
-        $category = urldecode($category);
-        if ($category == 'BAHAN BAKAR') {
-            $target_date = 7;
-            $start_date  = date('Y-m-d');
-            $date        = strtotime('+7 day', strtotime($start_date));
-            $required_date    = date('Y-m-d', $date);
-        } else {
-            $target_date = 30;
-            $start_date  = date('Y-m-d');
-            $date        = strtotime('+30 day', strtotime($start_date));
-            $required_date    = date('Y-m-d', $date);
+        if ($cost_center !== NULL){
+          $cost_center = urldecode($cost_center);
+          $cost_center_code = findCostCenterCode($cost_center_code);
+          $_SESSION['capex']['items']            = array();
+          $_SESSION['capex']['cost_center']      = $cost_center;
+          $_SESSION['capex']['cost_center_code'] = $cost_center_code;
+          $_SESSION['capex']['document_number']  = receipt_last_number();
+          $_SESSION['capex']['required_date']    = date('Y-m-d');
+          $_SESSION['capex']['created_by']       = config_item('auth_person_name');
+          $_SESSION['capex']['warehouse']        = config_item('auth_warehouse');
+          $_SESSION['capex']['notes']            = NULL;
+
+          redirect($this->module['route'] .'/create');
         }
 
-        $_SESSION['request']['items']               = array();
-        $_SESSION['request']['category']            = $category;
-        $_SESSION['request']['order_number']        = request_last_number();
-        $_SESSION['request']['pr_number']           = request_last_number() . request_format_number();
-        $_SESSION['request']['pr_date']             = date('Y-m-d');
-        $_SESSION['request']['required_date']       = $required_date;
-        $_SESSION['request']['created_by']          = config_item('auth_person_name');
-        $_SESSION['request']['suggested_supplier']  = NULL;
-        $_SESSION['request']['deliver_to']          = NULL;
-        $_SESSION['request']['notes']               = NULL;
-        $_SESSION['request']['target_date']         = $target_date;
+        if (!isset($_SESSION['receipt']))
+          redirect($this->module['route']);
 
-        redirect($this->module['route'] . '/create');
-        }
+        $this->data['page']['content']    = $this->module['view'] .'/create';
+        $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
 
-        if (!isset($_SESSION['request']))
-        redirect($this->module['route']);
-
-        $this->data['page']['content']    = $this->module['view'] . '/create';
-        $this->data['page']['offcanvas']  = $this->module['view'] . '/create_offcanvas_add_item';
-
-        $this->render_view($this->module['view'] . '/create');
+        $this->render_view($this->module['view'] .'/create');
     }
 
     public function save()

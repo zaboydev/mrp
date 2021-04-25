@@ -60,6 +60,7 @@ require('modules/warehouse.php');
 require('modules/kurs.php');
 require('modules/pesawat.php');
 require('modules/departements.php');
+require('modules/annual_cost_centers.php');
 
 //PLANNING
 require('modules/budget_cot.php');

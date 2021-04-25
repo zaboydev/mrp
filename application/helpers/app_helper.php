@@ -1208,6 +1208,79 @@ if ( ! function_exists('month')) {
     return $return;
   }
 }
+
+if ( ! function_exists('user_in_annual_cost_centers_list')) {
+  function user_in_annual_cost_centers_list($annual_cost_center_id)
+  {
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('username');
+    $connection->from('tb_users_mrp_in_annual_cost_centers');
+
+    if (is_array($annual_cost_center_id)){
+      $connection->where_in('annual_cost_center_id', $annual_cost_center_id);
+    } else {
+      $connection->where('annual_cost_center_id', $annual_cost_center_id);
+    }
+
+    $connection->order_by('username', 'ASC');
+
+    $query  = $connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['username'];
+    }
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('available_cost_centers')) {
+  function available_cost_centers($select = NULL)
+  {
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    if ($select !== NULL){
+      $connection->select($select);
+    }
+    $connection->from('tb_cost_centers');
+    $connection->order_by('cost_center_name', 'ASC');
+
+    $query = $connection->get();
+
+    return $query->result_array();
+  }
+}
+
+if ( ! function_exists('annual_cost_centers')) {
+  function annual_cost_centers($year)
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('cost_center_id');
+    $connection->from('tb_annual_cost_centers');
+    $connection->where('year_number', $year);
+    $connection->order_by('id', 'ASC');
+
+    $query  = $connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['cost_center_id'];
+    }
+
+    return $return;
+  }
+}
+
 }
 
     

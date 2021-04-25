@@ -45,9 +45,9 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_inventory') as $category) : ?>
+          <?php foreach (config_item('auth_cost_centers') as $cost_center) : ?>
             <li>
-              <a href="<?= site_url($module['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
+              <a href="<?= site_url($module['route'] . '/create/' . $cost_center); ?>"><?= $cost_center; ?></a>
             </li>
           <?php endforeach; ?>
         </ul>
