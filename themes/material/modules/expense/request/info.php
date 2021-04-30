@@ -24,7 +24,7 @@
           </div>
           <div class="clearfix">
             <div class="pull-left">BASE: </div>
-            <div class="pull-right"><?=config_item('main_warehouse');?></div>
+            <div class="pull-right"><?=print_date($entity['base']);?></div>
           </div>
           <div class="clearfix">
             <div class="pull-left">COST CENTER: </div>

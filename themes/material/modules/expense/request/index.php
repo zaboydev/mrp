@@ -26,7 +26,7 @@
 <?php startblock('actions_right') ?>
 
 <div class="section-floating-action-row">
-  <?php if (config_item('as_head_department')=='yes') : ?>
+  <?php if (config_item('as_head_department')=='yes' || config_item('auth_role')=='BUDGETCONTROL' || config_item('auth_role')=='VP FINANCE') : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-clear"></i>
@@ -45,9 +45,9 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_inventory') as $category) : ?>
+          <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
             <li>
-              <a href="<?= site_url($module['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
+              <a href="<?= site_url($module['route'] . '/create/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
             </li>
           <?php endforeach; ?>
         </ul>

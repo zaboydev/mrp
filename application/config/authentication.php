@@ -44,7 +44,8 @@ $config['levels_and_roles'] = array(
 	'15'	=> 'OPERATION SUPPORT',
 	'16'	=> 'CHIEF OPERATION OFFICER',
 	'17'	=> 'AP STAFF',
-	'18'	=> 'TELLER'
+	'18'	=> 'TELLER',
+	'19'	=> 'BUDGETCONTROL'
 );
 
 /*

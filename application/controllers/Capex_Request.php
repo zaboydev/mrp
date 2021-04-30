@@ -17,6 +17,62 @@ class Capex_Request extends MY_Controller
         //   $_SESSION['request']['request_to'] = 1;
     }
 
+    public function set_doc_number()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (empty($_GET['data']))
+            $number = request_last_number();
+        else
+            $number = $_GET['data'];
+
+        $_SESSION['capex']['pr_number'] = $number;
+    }
+
+    public function get_available_vendors()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
+
+        // $category = $_SESSION['request']['category'];
+        $entities = $this->model->getAvailableVendors();
+
+        echo json_encode($entities);
+    }
+
+    public function set_required_date()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['capex']['required_date'] = $_GET['data'];
+    }
+
+    public function set_suggested_supplier()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['capex']['suggested_supplier'] = $_GET['data'];
+    }
+
+    public function set_deliver_to()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['capex']['deliver_to'] = $_GET['data'];
+    }
+
+    public function set_notes()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['capex']['notes'] = $_GET['data'];
+    }
+
     public function index_data_source()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -34,7 +90,9 @@ class Capex_Request extends MY_Controller
             foreach ($entities as $row) {
                 $no++;
                 $col = array();
-                if ($row['status'] == 'pending' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{                    
                     $col[] = print_number($no);
@@ -47,17 +105,14 @@ class Capex_Request extends MY_Controller
                 $col[] = print_date($row['required_date']);
                 $col[] = print_number($row['total_capex'],2);
                 $col[] = $row['notes'];
-                if ($row['status'] == 'pending' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                     $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                 }else{                    
                     $col[] = $row['approved_notes'];
                 }
 
-                if ($row['status'] == 'pending' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else{                    
-                    $col[] = print_number($no);
-                }
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
 
@@ -172,26 +227,33 @@ class Capex_Request extends MY_Controller
         // $this->render_view($this->module['view'] .'/create');
     }
 
-    public function create($cost_center = NULL)
+    public function create($annual_cost_center_id = NULL)
     {
         $this->authorized($this->module, 'document');
 
-        if ($cost_center !== NULL){
-          $cost_center = urldecode($cost_center);
-          $cost_center_code = findCostCenterCode($cost_center_code);
+        if ($annual_cost_center_id !== NULL){
+          $annual_cost_center_id = urldecode($annual_cost_center_id);
+          $cost_center = findCostCenter($annual_cost_center_id);
+          $cost_center_code = $cost_center['cost_center_code'];
+          $cost_center_name = $cost_center['cost_center_name'];
+
           $_SESSION['capex']['items']            = array();
-          $_SESSION['capex']['cost_center']      = $cost_center;
+          $_SESSION['capex']['annual_cost_center_id']   = $annual_cost_center_id;
+          $_SESSION['capex']['cost_center_id']   = $cost_center_id;
+          $_SESSION['capex']['cost_center_name'] = $cost_center_name;
           $_SESSION['capex']['cost_center_code'] = $cost_center_code;
-          $_SESSION['capex']['document_number']  = receipt_last_number();
+          $_SESSION['capex']['pr_number']        = request_last_number();
           $_SESSION['capex']['required_date']    = date('Y-m-d');
           $_SESSION['capex']['created_by']       = config_item('auth_person_name');
           $_SESSION['capex']['warehouse']        = config_item('auth_warehouse');
           $_SESSION['capex']['notes']            = NULL;
+          $_SESSION['capex']['suggested_supplier'] = NULL;
+          $_SESSION['capex']['deliver_to']          = NULL;
 
           redirect($this->module['route'] .'/create');
         }
 
-        if (!isset($_SESSION['receipt']))
+        if (!isset($_SESSION['capex']))
           redirect($this->module['route']);
 
         $this->data['page']['content']    = $this->module['view'] .'/create';
@@ -206,44 +268,44 @@ class Capex_Request extends MY_Controller
         //   redirect($this->modules['secure']['route'] . '/denied');
 
         if (is_granted($this->module, 'document') == FALSE) {
-        $data['success'] = FALSE;
-        $data['message'] = 'You are not allowed to save this Document!';
-        } else {
-        if (!isset($_SESSION['request']['items']) || empty($_SESSION['request']['items'])) {
             $data['success'] = FALSE;
-            $data['message'] = 'Please add at least 1 item!';
+            $data['message'] = 'You are not allowed to save this Document!';
         } else {
-            $pr_number = $_SESSION['request']['pr_number'];
-
-            $errors = array();
-
-            if (isset($_SESSION['request']['edit'])) {
-            if ($_SESSION['request']['edit'] != $pr_number && $this->model->isDocumentNumberExists($pr_number)) {
-                $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
-            }
-            } else {
-            if ($this->model->isDocumentNumberExists($pr_number)) {
-                $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
-            }
-            }
-
-            if (!empty($errors)) {
-            $data['success'] = FALSE;
-            $data['message'] = implode('<br />', $errors);
-            } else {
-            if ($this->model->save()) {
-                unset($_SESSION['request']);
-
-                // SEND EMAIL NOTIFICATION HERE
-                // $this->send_mail();
-                $data['success'] = TRUE;
-                $data['message'] = 'Document ' . $pr_number . ' has been saved. You will redirected now.';
-            } else {
+            if (!isset($_SESSION['capex']['items']) || empty($_SESSION['capex']['items'])) {
                 $data['success'] = FALSE;
-                $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                $data['message'] = 'Please add at least 1 item!';
+            } else {
+                $pr_number = $_SESSION['capex']['pr_number'];
+
+                $errors = array();
+
+                if (isset($_SESSION['capex']['edit'])) {
+                    if ($_SESSION['capex']['edit'] != $pr_number && $this->model->isDocumentNumberExists($pr_number)) {
+                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                    }
+                } else {
+                    if ($this->model->isDocumentNumberExists($pr_number)) {
+                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                    }
+                }
+
+                if (!empty($errors)) {
+                    $data['success'] = FALSE;
+                    $data['message'] = implode('<br />', $errors);
+                } else {
+                    if ($this->model->save()) {
+                        unset($_SESSION['capex']);
+
+                        // SEND EMAIL NOTIFICATION HERE
+                        // $this->send_mail();
+                        $data['success'] = TRUE;
+                        $data['message'] = 'Document ' . $pr_number . ' has been saved. You will redirected now.';
+                    } else {
+                        $data['success'] = FALSE;
+                        $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                    }
+                }
             }
-            }
-        }
         }
 
         echo json_encode($data);
@@ -253,7 +315,7 @@ class Capex_Request extends MY_Controller
     {
         $this->authorized($this->module['permission']['document']);
 
-        unset($_SESSION['request']);
+        unset($_SESSION['capex']);
 
         redirect($this->module['route']);
     }
@@ -397,5 +459,56 @@ class Capex_Request extends MY_Controller
         $return["status"] = "failed";
         echo json_encode($return);
         }
+    }
+
+    public function search_budget()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $annual_cost_center_id = $_SESSION['capex']['annual_cost_center_id'];
+        $entities = $this->model->searchBudget($annual_cost_center_id);
+
+        foreach ($entities as $key => $value) {
+            $entities[$key]['label'] = $value['product_name'];
+            $entities[$key]['label'] .= ' || PN: ';
+            $entities[$key]['label'] .= $value['product_code'];
+            $entities[$key]['label'] .= ' || Unit: ';
+            $entities[$key]['label'] .= $value['measurement_symbol'];
+            $entities[$key]['label'] .= '<small>';
+            $entities[$key]['label'] .= 'Left Plan Budget: <code>' . number_format($value['maximum_price'], 2) . '</code> ||';
+            $entities[$key]['label'] .= 'Left Plan Qty: <code>' . number_format($value['maximum_quantity'], 2) . '</code>';
+            $entities[$key]['label'] .= '</small>';
+        }
+
+        echo json_encode($entities);
+    }
+
+    public function add_item()
+    {
+        $this->authorized($this->module, 'document');
+
+        if (isset($_POST) && !empty($_POST)) {
+
+          $_SESSION['capex']['items'][] = array(
+            'annual_cost_center_id' => $this->input->post('annual_cost_center_id'),
+            'product_name'                => $this->input->post('product_name'),
+            'part_number'                 => $this->input->post('part_number'),
+            'unit'                        => $this->input->post('unit'),
+            'maximum_quantity'            => $this->input->post('maximum_quantity'),
+            'maximum_price'               => $this->input->post('maximum_price'),
+            'quantity'                    => $this->input->post('quantity'),
+            'price'                       => $this->input->post('price'),
+            'total'                       => $this->input->post('total'),
+            'additional_info'             => $this->input->post('additional_info'),
+            'unbudgeted_item'             => $this->input->post('unbudgeted_item'),
+            'relocation_item'             => $this->input->post('relocation_item'),
+            'need_budget'                 => $this->input->post('need_budget'),
+            'part_number_relocation'      => $this->input->post('origin_budget'),
+            'budget_value_relocation'     => $this->input->post('budget_value'),
+          );
+        }
+
+        redirect($this->module['route'] . '/create');
     }
 }

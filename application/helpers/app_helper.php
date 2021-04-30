@@ -624,6 +624,7 @@ if ( ! function_exists('available_modules')) {
   {
     $modules    = config_item('module');
     $permission = config_item('auth_role');
+    $head_dept  = config_item('as_head_department');
     $results    = array();
 
     foreach ($modules as $key => $module){

@@ -63,7 +63,7 @@ if ( ! function_exists('request_format_number')) {
   function request_format_number($cost_center_code)
   {
     
-    $return = '/Cpx/'.$cost_center_code.'/'.date('Y');
+    $return = '/Exp/'.$cost_center_code.'/'.date('Y');
 
     return $return;
   }
@@ -77,7 +77,7 @@ if ( ! function_exists('request_last_number')) {
     $connection = $CI->load->database('budgetcontrol', TRUE);
 
     $connection->select_max('order_number', 'last_number');
-    $connection->from('tb_capex_purchase_requisitions');
+    $connection->from('tb_expense_purchase_requisitions');
     // $connection->like('tb_inventory_purchase_requisitions.pr_number', find_budget_setting('Active Year'));
 
     // $connection->like('tb_capex_purchase_requisitions.pr_number', date('Y'));

@@ -22,10 +22,7 @@
             <div class="pull-left">PR DATE: </div>
             <div class="pull-right"><?=print_date($entity['pr_date']);?></div>
           </div>
-          <div class="clearfix">
-            <div class="pull-left">BASE: </div>
-            <div class="pull-right"><?=config_item('main_warehouse');?></div>
-          </div>
+          <!--  -->
           <div class="clearfix">
             <div class="pull-left">COST CENTER: </div>
             <div class="pull-right"><?=print_string($entity['cost_center_name']);?></div>
@@ -45,12 +42,14 @@
           <dd><?=strtoupper($entity['status']);?></dd>
 
           <dt>Approval Status</dt>
-          <?php if($entity['approved_date']!=null):?>
-          <dd> APPROVED by <?=print_person_name($entity['approved_by']);?></dd>
-          <?php elseif($entity['rejected_date']!=null):?>
+          <?php if($entity['status']=='approved'):?>
+          <dd> APPROVED by <?=print_person_name($entity['head_approved_by']);?></dd>
+          <?php elseif($entity['status']=='rejected'):?>
           <dd> REJECTED by <?=print_person_name($entity['rejected_by']);?></dd>
-          <?php elseif($entity['canceled_date']!=null):?>
+          <?php elseif($entity['status']=='cancel'):?>
           <dd> CANCELED by <?=print_person_name($entity['canceled_by']);?></dd>
+          <?php elseif($entity['status']=='WAITING FOR HEAD DEPT'):?>
+          <dd> BUDGETCONTROL APPROVED by <?=print_person_name($entity['approved_by']);?></dd>
           <?php endif;?>
 
           <dt>Suggested Supplier</dt>

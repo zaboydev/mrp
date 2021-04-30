@@ -26,7 +26,7 @@
 <?php startblock('actions_right') ?>
 
 <div class="section-floating-action-row">
-  <?php if (config_item('as_head_department')=='yes') : ?>
+  <?php if (config_item('as_head_department')=='yes' || config_item('auth_role')=='BUDGETCONTROL') : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-clear"></i>
@@ -45,9 +45,9 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_cost_centers') as $cost_center) : ?>
+          <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
             <li>
-              <a href="<?= site_url($module['route'] . '/create/' . $cost_center); ?>"><?= $cost_center; ?></a>
+              <a href="<?= site_url($module['route'] . '/create/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
             </li>
           <?php endforeach; ?>
         </ul>
@@ -518,11 +518,12 @@
 
           $("#modal-approve-data-button-multi").click(function() {
             var action = $(this).data('source');
-            if (!encodeNotes()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Notes for each item that you want to approve');
-            } else {
+            encodeNotes();
+            // if (!encodeNotes()) {
+            //   toastr.options.timeOut = 10000;
+            //   toastr.options.positionClass = 'toast-top-right';
+            //   toastr.error('You must filled Notes for each item that you want to approve');
+            // } else {
               $(this).attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
@@ -554,18 +555,19 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            }
+            // }
 
           });
 
           $("#modal-close-data-button-multi").click(function() {
             var action = $(this).data('source');
             $(this).attr('disabled', true);
-            if (!encodeNotes()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled notes for each item that you want to reject');
-            } else {
+            encodeNotes();
+            // if (!encodeNotes()) {
+            //   toastr.options.timeOut = 10000;
+            //   toastr.options.positionClass = 'toast-top-right';
+            //   toastr.error('You must filled notes for each item that you want to reject');
+            // } else {
               if (id_purchase_order !== "") {
                 $.post(action, {
                   'id_purchase_order': id_purchase_order,
@@ -596,7 +598,7 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            }
+            // }
 
           });
 

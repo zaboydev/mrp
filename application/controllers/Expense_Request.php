@@ -17,6 +17,35 @@ class Expense_Request extends MY_Controller
         //   $_SESSION['request']['request_to'] = 1;
     }
 
+    public function set_doc_number()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (empty($_GET['data']))
+            $number = request_last_number();
+        else
+            $number = $_GET['data'];
+
+        $_SESSION['expense']['pr_number'] = $number;
+    }
+
+    public function set_required_date()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['expense']['required_date'] = $_GET['data'];
+    }
+
+    public function set_notes()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['expense']['notes'] = $_GET['data'];
+    }
+
     public function index_data_source()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -34,7 +63,11 @@ class Expense_Request extends MY_Controller
             foreach ($entities as $row) {
                 $no++;
                 $col = array();
-                if ($row['status'] == 'pending' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{                    
                     $col[] = print_number($no);
@@ -162,46 +195,39 @@ class Expense_Request extends MY_Controller
         // $this->render_view($this->module['view'] .'/create');
     }
 
-    public function create($category = NULL)
+    public function create($annual_cost_center_id = NULL)
     {
         $this->authorized($this->module, 'document');
 
-        if ($category !== NULL) {
-        $category = urldecode($category);
-        if ($category == 'BAHAN BAKAR') {
-            $target_date = 7;
-            $start_date  = date('Y-m-d');
-            $date        = strtotime('+7 day', strtotime($start_date));
-            $required_date    = date('Y-m-d', $date);
-        } else {
-            $target_date = 30;
-            $start_date  = date('Y-m-d');
-            $date        = strtotime('+30 day', strtotime($start_date));
-            $required_date    = date('Y-m-d', $date);
+        if ($annual_cost_center_id !== NULL){
+          $annual_cost_center_id = urldecode($annual_cost_center_id);
+          $cost_center = findCostCenter($annual_cost_center_id);
+          $cost_center_code = $cost_center['cost_center_code'];
+          $cost_center_name = $cost_center['cost_center_name'];
+
+          $_SESSION['expense']['items']            = array();
+          $_SESSION['expense']['annual_cost_center_id']   = $annual_cost_center_id;
+          $_SESSION['expense']['cost_center_id']   = $cost_center_id;
+          $_SESSION['expense']['cost_center_name'] = $cost_center_name;
+          $_SESSION['expense']['cost_center_code'] = $cost_center_code;
+          $_SESSION['expense']['pr_number']        = request_last_number();
+          $_SESSION['expense']['required_date']    = date('Y-m-d');
+          $_SESSION['expense']['created_by']       = config_item('auth_person_name');
+          $_SESSION['expense']['warehouse']        = config_item('auth_warehouse');
+          $_SESSION['expense']['notes']            = NULL;
+          // $_SESSION['expense']['suggested_supplier'] = NULL;
+          // $_SESSION['expense']['deliver_to']          = NULL;
+
+          redirect($this->module['route'] .'/create');
         }
 
-        $_SESSION['request']['items']               = array();
-        $_SESSION['request']['category']            = $category;
-        $_SESSION['request']['order_number']        = request_last_number();
-        $_SESSION['request']['pr_number']           = request_last_number() . request_format_number();
-        $_SESSION['request']['pr_date']             = date('Y-m-d');
-        $_SESSION['request']['required_date']       = $required_date;
-        $_SESSION['request']['created_by']          = config_item('auth_person_name');
-        $_SESSION['request']['suggested_supplier']  = NULL;
-        $_SESSION['request']['deliver_to']          = NULL;
-        $_SESSION['request']['notes']               = NULL;
-        $_SESSION['request']['target_date']         = $target_date;
+        if (!isset($_SESSION['expense']))
+          redirect($this->module['route']);
 
-        redirect($this->module['route'] . '/create');
-        }
+        $this->data['page']['content']    = $this->module['view'] .'/create';
+        $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
 
-        if (!isset($_SESSION['request']))
-        redirect($this->module['route']);
-
-        $this->data['page']['content']    = $this->module['view'] . '/create';
-        $this->data['page']['offcanvas']  = $this->module['view'] . '/create_offcanvas_add_item';
-
-        $this->render_view($this->module['view'] . '/create');
+        $this->render_view($this->module['view'] .'/create');
     }
 
     public function save()
@@ -210,44 +236,44 @@ class Expense_Request extends MY_Controller
         //   redirect($this->modules['secure']['route'] . '/denied');
 
         if (is_granted($this->module, 'document') == FALSE) {
-        $data['success'] = FALSE;
-        $data['message'] = 'You are not allowed to save this Document!';
-        } else {
-        if (!isset($_SESSION['request']['items']) || empty($_SESSION['request']['items'])) {
             $data['success'] = FALSE;
-            $data['message'] = 'Please add at least 1 item!';
+            $data['message'] = 'You are not allowed to save this Document!';
         } else {
-            $pr_number = $_SESSION['request']['pr_number'];
-
-            $errors = array();
-
-            if (isset($_SESSION['request']['edit'])) {
-            if ($_SESSION['request']['edit'] != $pr_number && $this->model->isDocumentNumberExists($pr_number)) {
-                $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
-            }
-            } else {
-            if ($this->model->isDocumentNumberExists($pr_number)) {
-                $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
-            }
-            }
-
-            if (!empty($errors)) {
-            $data['success'] = FALSE;
-            $data['message'] = implode('<br />', $errors);
-            } else {
-            if ($this->model->save()) {
-                unset($_SESSION['request']);
-
-                // SEND EMAIL NOTIFICATION HERE
-                // $this->send_mail();
-                $data['success'] = TRUE;
-                $data['message'] = 'Document ' . $pr_number . ' has been saved. You will redirected now.';
-            } else {
+            if (!isset($_SESSION['expense']['items']) || empty($_SESSION['expense']['items'])) {
                 $data['success'] = FALSE;
-                $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                $data['message'] = 'Please add at least 1 item!';
+            } else {
+                $pr_number = $_SESSION['expense']['pr_number'];
+
+                $errors = array();
+
+                if (isset($_SESSION['expense']['edit'])) {
+                    if ($_SESSION['expense']['edit'] != $pr_number && $this->model->isDocumentNumberExists($pr_number)) {
+                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                    }
+                } else {
+                    if ($this->model->isDocumentNumberExists($pr_number)) {
+                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                    }
+                }
+
+                if (!empty($errors)) {
+                    $data['success'] = FALSE;
+                    $data['message'] = implode('<br />', $errors);
+                } else {
+                    if ($this->model->save()) {
+                        unset($_SESSION['request']);
+
+                        // SEND EMAIL NOTIFICATION HERE
+                        // $this->send_mail();
+                        $data['success'] = TRUE;
+                        $data['message'] = 'Document ' . $pr_number . ' has been saved. You will redirected now.';
+                    } else {
+                        $data['success'] = FALSE;
+                        $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                    }
+                }
             }
-            }
-        }
         }
 
         echo json_encode($data);
@@ -387,5 +413,48 @@ class Expense_Request extends MY_Controller
         $return["status"] = "failed";
         echo json_encode($return);
         }
+    }
+
+    public function search_budget()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $annual_cost_center_id = $_SESSION['expense']['annual_cost_center_id'];
+        $entities = $this->model->searchBudget($annual_cost_center_id);
+
+        foreach ($entities as $key => $value) {
+            if($value['maximum_price']>0){
+                $entities[$key]['label'] = ' Account : ';
+                $entities[$key]['label'] .= $value['account_code'].'-';
+                $entities[$key]['label'] .= $value['account_name'];
+                $entities[$key]['label'] .= '<small>';
+                $entities[$key]['label'] .= 'Left Plan Budget: <code>' . number_format($value['maximum_price'], 2) . '</code>';
+                $entities[$key]['label'] .= '</small>';
+            }
+            
+        }
+
+        echo json_encode($entities);
+    }
+
+    public function add_item()
+    {
+        $this->authorized($this->module, 'document');
+
+        if (isset($_POST) && !empty($_POST)) {
+
+          $_SESSION['expense']['items'][] = array(
+            'annual_cost_center_id'         => $this->input->post('annual_cost_center_id'),
+            'account_id'                  => $this->input->post('account_id'),
+            'account_name'                  => $this->input->post('account_name'),
+            'account_code'                  => $this->input->post('account_code'),
+            'maximum_price'                 => $this->input->post('maximum_price'),
+            'amount'                        => $this->input->post('amount'),
+            'additional_info'               => $this->input->post('additional_info'),
+          );
+        }
+
+        redirect($this->module['route'] . '/create');
     }
 }
