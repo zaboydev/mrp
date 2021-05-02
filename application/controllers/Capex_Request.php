@@ -92,7 +92,7 @@ class Capex_Request extends MY_Controller
                 $col = array();
                 if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
+                }else if($row['status']=='WAITING FOR BUDGETCONTROL' && config_item('auth_role')=='BUDGETCONTROL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{                    
                     $col[] = print_number($no);
@@ -214,13 +214,15 @@ class Capex_Request extends MY_Controller
         $this->authorized($this->module, 'document');
 
         // $entity   = $this->model->findById($id);
-        $entity   = $this->model->findPrlById($id);
+        $entity   = $this->model->findById($id);
 
         // if (!isset($_SESSION['request'])){
-        $_SESSION['request']              = $entity;
-        $_SESSION['request']['id']        = $id;
-        $_SESSION['request']['edit']      = $entity['pr_number'];
-        $_SESSION['request']['category']  = $entity['category_name'];
+        $_SESSION['capex']              = $entity;
+        $_SESSION['capex']['id']        = $id;
+        $_SESSION['capex']['edit']      = $entity['pr_number'];
+        $_SESSION['capex']['annual_cost_center_id']   = $entity['annual_cost_center_id'];
+        // $_SESSION['capex']['items']            = array();
+        
         // }
 
         redirect($this->module['route'] . '/create');
@@ -242,7 +244,8 @@ class Capex_Request extends MY_Controller
           $_SESSION['capex']['cost_center_id']   = $cost_center_id;
           $_SESSION['capex']['cost_center_name'] = $cost_center_name;
           $_SESSION['capex']['cost_center_code'] = $cost_center_code;
-          $_SESSION['capex']['pr_number']        = request_last_number();
+          $_SESSION['capex']['order_number']        = request_last_number();
+          $_SESSION['capex']['format_order_number']        = request_format_number($_SESSION['capex']['cost_center_code']);
           $_SESSION['capex']['required_date']    = date('Y-m-d');
           $_SESSION['capex']['created_by']       = config_item('auth_person_name');
           $_SESSION['capex']['warehouse']        = config_item('auth_warehouse');
@@ -275,7 +278,7 @@ class Capex_Request extends MY_Controller
                 $data['success'] = FALSE;
                 $data['message'] = 'Please add at least 1 item!';
             } else {
-                $pr_number = $_SESSION['capex']['pr_number'];
+                $pr_number = $_SESSION['capex']['order_number'].$_SESSION['capex']['format_order_number'];
 
                 $errors = array();
 
@@ -506,9 +509,50 @@ class Capex_Request extends MY_Controller
             'need_budget'                 => $this->input->post('need_budget'),
             'part_number_relocation'      => $this->input->post('origin_budget'),
             'budget_value_relocation'     => $this->input->post('budget_value'),
+            'group'                       => $this->input->post('group_name'),
           );
         }
 
         redirect($this->module['route'] . '/create');
+    }
+
+    public function ajax_editItem($key)
+    {
+        $this->authorized($this->module, 'document');    
+
+        $entity = $_SESSION['capex']['items'][$key];
+
+        echo json_encode($entity);
+    }
+
+    public function edit_item($key)
+    {
+        $this->authorized($this->module, 'document');
+
+        // $key=$this->input->post('item_id');
+        if (isset($_POST) && !empty($_POST)){
+          //$receipts_items_id = $this->input->post('item_id')
+            $_SESSION['capex']['items'][$key] = array(        
+                'annual_cost_center_id' => $this->input->post('annual_cost_center_id'),
+                'product_name'                => $this->input->post('product_name'),
+                'part_number'                 => $this->input->post('part_number'),
+                'unit'                        => $this->input->post('unit'),
+                'maximum_quantity'            => $this->input->post('maximum_quantity'),
+                'maximum_price'               => $this->input->post('maximum_price'),
+                'quantity'                    => $this->input->post('quantity'),
+                'price'                       => $this->input->post('price'),
+                'total'                       => $this->input->post('total'),
+                'additional_info'             => $this->input->post('additional_info'),
+                'unbudgeted_item'             => $this->input->post('unbudgeted_item'),
+                'relocation_item'             => $this->input->post('relocation_item'),
+                'need_budget'                 => $this->input->post('need_budget'),
+                'part_number_relocation'      => $this->input->post('origin_budget'),
+                'budget_value_relocation'     => $this->input->post('budget_value'),
+                'group'                       => $this->input->post('group_name'),
+
+            );
+        }
+        redirect($this->module['route'] .'/create');
+
     }
 }

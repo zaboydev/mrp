@@ -159,7 +159,7 @@ class Expense_Request extends MY_Controller
     {
         $this->authorized($this->module, 'print');
 
-        $entity = $this->model->findPrlById($id);
+        $entity = $this->model->findById($id);
         // $on_hand_stock = $this->model->findPrlById($id);
 
         $this->data['entity']           = $entity;

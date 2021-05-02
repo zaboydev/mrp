@@ -24,7 +24,7 @@
           </div>
           <div class="clearfix">
             <div class="pull-left">BASE: </div>
-            <div class="pull-right"><?=print_date($entity['base']);?></div>
+            <div class="pull-right"><?=print_string($entity['base']);?></div>
           </div>
           <div class="clearfix">
             <div class="pull-left">COST CENTER: </div>
@@ -44,17 +44,8 @@
           <dt>Status</dt>
           <dd><?=strtoupper($entity['status']);?></dd>
 
-          <dt>Approval Status</dt>
-          <?php if($entity['approved_date']!=null):?>
-          <dd> APPROVED by <?=print_person_name($entity['approved_by']);?></dd>
-          <?php elseif($entity['rejected_date']!=null):?>
-          <dd> REJECTED by <?=print_person_name($entity['rejected_by']);?></dd>
-          <?php elseif($entity['canceled_date']!=null):?>
-          <dd> CANCELED by <?=print_person_name($entity['canceled_by']);?></dd>
-          <?php endif;?>
-
           <dt>Suggested Supplier</dt>
-          <dd><?=print_string($entity['suggested_supplier']);?></dd>
+          <dd><?=($entity['suggested_supplier']==null)? 'N/A':print_string($entity['suggested_supplier']);?></dd>
 
           <dt>Deliver To</dt>
           <dd><?=($entity['deliver_to']==null)? 'N/A':print_string($entity['deliver_to']);?></dd>
@@ -70,23 +61,20 @@
         <div class="table-responsive">
           <table class="table table-striped table-nowrap">
             <thead id="table_header">
-              <th align="right" width="1">No</th>
-              <th width="10">Account Name</th>
-              <th width="10">Account Code</th>
-              <!-- <th align="right" width="1">Qty</th> -->
-              <!-- <th width="1">Unit</th> -->
-              <th align="right" width="10">Amount</th>
-              <th align="right" width="10">Total</th>
-              <th align="right" width="10">Balance Budget Year to Date (Qty)</th>
-              <!-- <th align="right" width="10">Budget Status</th> -->
+              <th>No</th>
+              <th>Account Name</th>
+              <th>Account Code</th>
+              <th>Amount</th>
+              <th>Total</th>
+              <th>Balance Budget Month to Date</th>
+              <th>Balance Budget Year to Date</th>
             </thead>
             <tbody id="table_contents">
               <?php $n = 0; $open=0;?>
-              <?php $total_qty = array();$total = array();?>
+              <?php $total = array();?>
               <?php foreach ($entity['items'] as $i => $detail):?>
                 <?php 
                   $n++;
-                  $total_qty[] = $detail['quantity'];
                   $total[] = $detail['total'];
                 ?>
                 <tr>
@@ -99,7 +87,6 @@
                   <td>
                     <?=print_string($detail['account_code']);?>
                   </td>
-                  <!-- -->
                   
                   <td align="right">
                     <?=print_number($detail['amount'], 2);?>
@@ -108,7 +95,10 @@
                     <?=print_number($detail['total'], 2);?>
                   </td>
                   <td align="right">
-                    <?=print_number($detail['ytd_budget'] - $detail['ytd_used_budget'], 2);?>
+                    <?=print_number($detail['balance_mtd_budget'], 2);?>
+                  </td>
+                  <td align="right">
+                    <?=print_number($detail['balance_ytd_budget'], 2);?>
                   </td>
                   
                 </tr>
@@ -122,7 +112,7 @@
                 <th></th>
                 <th><?=print_number(array_sum($total), 2);?></th>
                 <th></th>
-                <!-- <th></th> -->
+                <th></th>
               </tr>
             </tfoot>
           </table>
@@ -145,6 +135,72 @@
             <dd><?=$entity['canceled_notes'];?></dd>
           </dl>
         <?php endif;?>
+      </div>
+      <div class="col-sm-12">
+        <h3>History Purchase</h3>
+        <div class="table-responsive">
+          <table class="table table-striped table-nowrap">
+            <thead id="table_header">
+              <th style="text-align: center;">No</th>
+              <th style="text-align: center;">Tanggal</th>
+              <th style="text-align: center;">Purchase Number</th>
+              <th style="text-align: center;">Amount</th>
+              <th style="text-align: center;">Total</th>
+              <th style="text-align: center;">Created By</th>
+            </thead>
+            <tbody id="table_contents">
+              <?php $n = 0;?>
+              
+              <?php foreach ($entity['items'] as $i => $detail):?>
+                <?php 
+                  $n++;
+                ?>
+                <tr>
+                  <td style="text-align: center;">
+                    <?=print_number($n);?>
+                  </td>
+                  <td colspan="7">
+                    (<?=print_string($detail['account_code']);?>) <?=print_string($detail['account_name']);?>
+                  </td>
+                </tr><?php $total = array();?>
+                <?php foreach ($detail['history'] as $i => $history):?>
+                <tr>
+                  <?php 
+                    $total[] = $history['total'];
+                    ?>
+                  <td></td>
+                  <td>
+                    <?=print_date($history['pr_date']);?>
+                  </td>
+                  <td>
+                    <?=print_string($history['pr_number']);?>
+                  </td>
+                  <td style="text-align: right;">
+                    <?=print_number($history['amount'], 2);?>
+                  </td>
+                  <td style="text-align: right;">
+                    <?=print_number($history['total'], 2);?>
+                  </td>
+                  <td style="text-align: center;">
+                    <?=print_string($history['created_by'], 2);?>
+                  </td>                  
+                </tr>                
+                <?php endforeach;?>
+              <?php endforeach;?>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Total</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th><?=print_number(array_sum($total), 2);?></th>
+                <th></th>
+                <!-- <th></th> -->
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   </div>

@@ -28,7 +28,7 @@
     <td>Deliver to</td>
     <th>: <?= print_string($entity['deliver_to']); ?></th>
     <td>Status</td>
-    <th>: <?= ($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']); ?></th>
+    <th>: BUDGETED</th>
   </tr>
   <tr>
     <td></td>
@@ -53,30 +53,23 @@
 <table class="table" style="margin-top: 20px;" width="100%">
   <thead>
     <tr>
-      <th style="text-align: center;" width="2%">#</th>
-      <th style="text-align: center;" width="17%">Description</th>
-      <th style="text-align: center;" width="5%">P/N</th>
-      <th style="text-align: center;" width="5%">Qty</th>
-      <th style="text-align: center;" width="5%">Unit</th>
-      <th style="text-align: center;" width="10%">Price</th>
-      <th style="text-align: center;" width="12%">Total</th>
-      <th style="text-align: center;" width="10%">Balance Quantity Month to Date</th>
-      <th style="text-align: center;" width="12">Balance Budget Month to Date</th>
-      <th style="text-align: center;" width="10%">Balance Quantity Year to Date</th>
-      <th style="text-align: center;" width="12%">Balance Budget Year to Date</th>
+      <th style="text-align: center;" width="5%">#</th>
+      <th style="text-align: center;" width="15%">Account Name</th>
+      <th style="text-align: center;" width="15%">Account Code</th>
+      <th style="text-align: center;" width="15%">Amount</th>
+      <th style="text-align: center;" width="15%">Total</th>
+      <th style="text-align: center;" width="15%">Balance Budget Month to Date</th>
+      <th style="text-align: center;" width="15%">Balance Budget Year to Date</th>
     </tr>
   </thead>
   <tbody>
     <?php 
       $n = 0;
-      $unbudgeted = 0; 
-      $total_qty = array();
       $total = array();
     ?>
     <?php foreach ($entity['items'] as $i => $detail) : ?>
       <?php 
         $n++; 
-        $total_qty[] = $detail['quantity']; 
         $total[] = $detail['total']; 
       ?>
       <tr>
@@ -84,31 +77,19 @@
           <?= print_number($n); ?>
         </td>
         <td>
-          <?= print_string($detail['product_name']); ?>
+          <?= print_string($detail['account_name']); ?>
         </td>
-        <td>
-          <?= print_string($detail['product_code']); ?>
-        </td>
-        <td align="right">
-          <?= print_number($detail['quantity'], 2); ?>
-        </td>
-        <td>
-          <?= print_string($detail['unit']); ?>
+        <td style="text-align: center;">
+          <?= print_string($detail['account_code']); ?>
         </td>
         <td align="right">
-          <?= print_number($detail['price'], 2); ?>
+          <?= print_number($detail['amount'], 2); ?>
         </td>
         <td align="right">
           <?= print_number($detail['total'], 2); ?>
         </td>
         <td align="right">
-          <?=print_number($detail['balance_mtd_quantity'], 2);?>
-        </td>
-        <td align="right">
           <?=print_number($detail['balance_mtd_budget'], 2);?>
-        </td>
-        <td align="right">
-          <?=print_number($detail['balance_ytd_quantity'], 2);?>
         </td>
         <td align="right">
           <?=print_number($detail['balance_ytd_budget'], 2);?>
@@ -119,12 +100,8 @@
   <tfoot>
     <tr>
       <th colspan="3">Total</th>
-      <th style="text-align: right;"><?=print_number(array_sum($total_qty), 2);?></th>
-      <th></th>
       <th></th>
       <th style="text-align: right;"><?=print_number(array_sum($total), 2);?></th>
-      <th></th>
-      <th></th>
       <th></th>
       <th></th>
     </tr>
@@ -145,9 +122,9 @@
 
 <div class="clear"></div>
 
-<table class="condensed" style="margin-top: 20px;">
+<table class="condensed" style="margin-top: 20px;" width="100%">
   <tr>
-    <td width="30%" valign="top" align="center">
+    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
       <p>
         Request by:
         <br /><?= print_string($entity['cost_center_name']); ?>
@@ -159,11 +136,7 @@
         <br /><?= $entity['created_by']; ?>
       </p>
     </td>
-
-    <td width="5%" valign="top" align="center">
-      &nbsp;
-    </td>
-    <td width="30%" valign="top" align="center">
+    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
       <p>
         Checked by:
         <br />Budgetcontrol
@@ -175,12 +148,7 @@
         <br /><?= $entity['approved_by']; ?>
       </p>
     </td>
-
-    <td width="5%" valign="top" align="center">
-      &nbsp;
-    </td>
-
-    <td width="30%" valign="top" align="center">
+    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
       <p>
         Approved by:
         <br /><?= print_string($entity['cost_center_name']); ?> Head Dept.
@@ -192,6 +160,45 @@
         <br /><?= $entity['head_approved_by']; ?>
       </p>
     </td>
+    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Finance
+        <?php if ($entity['finance_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['finance_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['finance_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['finance_approved_by']; ?>
+      </p>
+    </td>
+
+    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Head of School
+        <?php if ($entity['hos_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['hos_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['hos_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['hos_approved_by']; ?>
+      </p>
+    </td>
+    <?php  if (array_sum($total)>15000000) :  ?>
+    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Chief Operation Officer
+        <?php if ($entity['ceo_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['ceo_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['ceo_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['ceo_approved_by']; ?>
+      </p>
+    </td>
+    <?php endif; ?>
   </tr>
 </table>
 
@@ -199,15 +206,12 @@
 <table class="table table-striped table-nowrap">
   <thead id="table_header">
     <tr>
-      <th align="right" width="1">No</th>
-      <th>Tanggal</th>
-      <th>Purchase Number</th>
-      <th align="right">Qty</th>
-      <th>Unit</th>
-      <th align="right">Price</th>
-      <th align="right">Total</th>
-      <th align="right">Created By</th>
-      <!-- <th align="right" width="10">Budget Status</th> -->
+      <th style="text-align: center;">No</th>
+      <th style="text-align: center;">Tanggal</th>
+      <th style="text-align: center;">Purchase Number</th>
+      <th style="text-align: center;">Amount</th>
+      <th style="text-align: center;">Total</th>
+      <th style="text-align: center;">Created By</th>
     </tr>
   </thead>
   <tbody id="table_contents">
@@ -218,39 +222,32 @@
       $n++;
     ?>
     <tr>
-      <td align="right">
+      <td style="text-align: center;">
         <?=print_number($n);?>
       </td>
-      <td colspan="7">
-        <?=print_string($detail['product_name']);?>
+      <td colspan="5">
+        (<?=print_string($detail['account_code']);?>) <?=print_string($detail['account_name']);?>
       </td>
-    </tr><?php $total_qty = array();$total = array();?>
+    </tr><?php $total = array();?>
     <?php foreach ($detail['history'] as $i => $history):?>
     <tr>
       <?php 
-        $total_qty[] = $history['quantity'];
         $total[] = $history['total'];
       ?>
       <td></td>
-      <td>
+      <td style="text-align: left;">
         <?=print_date($history['pr_date']);?>
       </td>
-      <td>
+      <td style="text-align: left;">
         <?=print_string($history['pr_number']);?>
       </td>
-      <td align="right">
-        <?=print_number($history['quantity'], 2);?>
+      <td style="text-align: right;">
+        <?=print_number($history['amount'], 2);?>
       </td>
-      <td>
-        <?=print_string($detail['unit']);?>
-      </td>
-      <td align="right">
-        <?=print_number($history['price'], 2);?>
-      </td>
-      <td align="right">
+      <td style="text-align: right;">
         <?=print_number($history['total'], 2);?>
       </td>
-      <td align="right">
+      <td style="text-align: center;">
         <?=print_string($history['created_by'], 2);?>
       </td>                  
     </tr>                
@@ -261,8 +258,6 @@
     <tr>
       <th>Total</th>
       <th></th>
-      <th></th>
-      <th style="text-align: right;"><?=print_number(array_sum($total_qty), 2);?></th>
       <th></th>
       <th></th>
       <th style="text-align: right;"><?=print_number(array_sum($total), 2);?></th>

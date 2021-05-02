@@ -16,8 +16,8 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['capex']['pr_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
-                    <label for="pr_number">Document No.</label>
+                    <input type="text" name="order_number" id="order_number" class="form-control" value="<?= $_SESSION['capex']['order_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
+                    <label for="order_number">Document No.</label>
                   </div>
                   <span class="input-group-addon"><?= request_format_number($_SESSION['capex']['cost_center_code']); ?></span>
                 </div>
@@ -223,7 +223,7 @@
                   <label for="price">Price</label>
                 </div>
                 <div class="form-group">
-                  <input type="text" name="total" id="total" class="form-control input-sm" value="" required>
+                  <input type="text" name="total" id="total" class="form-control input-sm" value="" readonly="">
                   <label for="total">Total</label>
                 </div>
               </fieldset>
@@ -536,61 +536,32 @@
           var action = "<?= site_url($module['route'] . '/edit_item/') ?>/" + id;
           console.log(JSON.stringify(action));
           console.log(JSON.stringify(response));
-          // var maximum_quantity  = parseInt(response.ytd_quantity) - parseInt(response.ytd_used_quantity);
-          // var maximum_price     = parseInt(response.ytd_budget) - parseInt(response.ytd_used_budget);
-
-          var maximum_quantity = parseInt(response.mtd_quantity) - parseInt(response.mtd_used_quantity);
-          var maximum_price = parseInt(response.mtd_budget) - parseInt(response.mtd_used_budget);
-
+          var maximum_quantity = parseFloat(response.maximum_quantity);
+          var maximum_price = parseFloat(response.maximum_price);
+          var price = response.price;
+          if(response.price==null){
+            price = 0;
+          }
 
           $('#product_name').val(response.product_name);
           $('#part_number').val(response.part_number);
-          $('#group_name').val(response.group_name);
           $('#unit').val(response.unit);
+          $('#group_name').val(response.group);
           $('#additional_info').val(response.additional_info);
-          $('#inventory_monthly_budget_id').val(response.inventory_monthly_budget_id);
-          $('#item_source').val(response.source);
-          $('#price').val(parseInt(response.price));
-          $('#quantity').val(parseInt(response.quantity));
+          $('#annual_cost_center_id').val(response.annual_cost_center_id);
+          $('#price').val(parseFloat(response.price));
           $('#maximum_price').val(maximum_price);
           $('#maximum_quantity').val(maximum_quantity);
-          $('#total').val(parseInt(response.price)).trigger('change');
+          $('#quantity').val(response.quantity);
+          // $('#total').val(parseFloat(price)).trigger('change');
 
-          $('#ytd_quantity').val(response.ytd_quantity);
-          $('#ytd_used_quantity').val(parseInt(response.ytd_used_quantity));
-          $('#ytd_used_budget').val(parseInt(response.ytd_used_budget));
-          $('#ytd_budget').val(response.ytd_budget);
+          $('input[id="total"]').attr('data-rule-max', parseFloat(response.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(response.maximum_price));
+          $('#total').attr('max', parseFloat(response.maximum_price));
+          $('#total').val(response.total).trigger('change');
 
-          $('#relocation_item').val(response.relocation_item);
-          $('#need_budget').val(response.need_budget);
-          $('#relocation_budget').val(response.need_budget);
+          $('#unbudgeted_item').val(0);
 
-          $('#origin_budget').val(response.part_number_relocation);
-          $('#budget_value').val(response.budget_value_relocation);
-
-          if (response.relocation_item != '') {
-            $('.form-relokasi').removeClass('hide');
-          }
-
-          // var status = $('#inventory_monthly_budget_id').val();
-
-          // if(status==null){
-          //   $('.form-unbudgeted').removeClass('hide');
-          // }
-
-          $('#mtd_quantity').val(response.mtd_quantity);
-          $('#mtd_used_quantity').val(parseInt(response.mtd_used_quantity));
-          $('#mtd_used_budget').val(parseInt(response.mtd_used_budget));
-          $('#mtd_budget').val(response.mtd_budget);
-
-
-          // $('input[id="quantity"]').attr('data-rule-max', maximum_quantity).attr('data-msg-max', 'max available '+ maximum_quantity);
-
-          // $('input[id="price"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-          // $('input[id="total"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-          // $('#quantity').attr('max', maximum_quantity).focus();
+          $('#search_budget').val('');
 
           $('#modal-add-item form').attr('action', action);
           $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
@@ -664,7 +635,12 @@
               $('#price').val(parseFloat(ui.item.current_price));
               $('#maximum_price').val(maximum_price);
               $('#maximum_quantity').val(maximum_quantity);
-              $('#total').val(parseFloat(price)).trigger('change');
+              $('#quantity').val(0);
+              $('#total').val(0);
+              // $('#total').val(parseFloat(price)).trigger('change');
+
+              $('input[id="total"]').attr('data-rule-max', parseFloat(ui.item.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(ui.item.maximum_price));
+              $('#total').attr('max', parseFloat(ui.item.maximum_price));
 
               $('#unbudgeted_item').val(0);
 
@@ -682,160 +658,6 @@
           };
       }
     });
-
-    // $.ajax({
-    //   // url: $('#origin_budget').data('target'),
-    //   url: "<?= site_url($module['route'] . '/search_budget_for_relocation/'); ?>",
-    //   dataType: "json",
-    //   error: function(xhr, response, results) {
-    //     console.log(xhr.responseText);
-    //   },
-    //   success: function(resource) {
-    //     $('#origin_budget').autocomplete({
-    //         autoFocus: true,
-    //         minLength: 1,
-
-    //         source: function(request, response) {
-    //           var results = $.ui.autocomplete.filter(resource, request.term);
-    //           response(results.slice(0, 5));
-    //           console.log(results);
-    //         },
-
-    //         focus: function(event, ui) {
-    //           return false;
-    //         },
-
-    //         select: function(event, ui) {
-    //           // var maximum_quantity  = parseInt(ui.item.ytd_quantity) - parseInt(ui.item.ytd_used_quantity);
-    //           // var maximum_price     = parseInt(ui.item.ytd_budget) - parseInt(ui.item.ytd_used_budget);
-    //           var maximum_quantity = parseInt(ui.item.mtd_quantity) - parseInt(ui.item.mtd_used_quantity);
-    //           var maximum_price = parseInt(ui.item.mtd_budget) - parseInt(ui.item.mtd_used_budget);
-    //           var total = $('#total').val();
-    //           var budget = $('#maximum_price').val();
-    //           var need_budget = parseFloat(total) - parseFloat(budget);
-
-    //           $('#budget_value').val(ui.item.maximum_price);
-    //           $('#need_budget').val(need_budget);
-    //           // $('#part_number').val( ui.item.product_code );
-    //           // $('#group_name').val( ui.item.group_name );
-    //           // $('#unit').val( ui.item.measurement_symbol );
-    //           // $('#additional_info').val( ui.item.additional_info );
-    //           $('#relocation_item').val(ui.item.id);
-    //           // $('#item_source').val(ui.item.source);
-    //           // $('#price').val( parseInt(ui.item.price) );
-    //           // $('#maximum_price').val( maximum_price );
-    //           // $('#maximum_quantity').val( maximum_quantity );
-    //           // $('#total').val( parseInt(ui.item.price) ).trigger('change');
-
-    //           // $('#ytd_quantity').val(ui.item.ytd_quantity);
-    //           // $('#ytd_used_quantity').val( parseInt(ui.item.ytd_used_quantity) );
-    //           // $('#ytd_used_budget').val( parseInt(ui.item.ytd_used_budget) );
-    //           // $('#ytd_budget').val(ui.item.ytd_budget);
-    //           $('#relocation_budget').val(need_budget);
-
-    //           // $('input[id="relocation_budget"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max available '+ maximum_price);
-    //           // $('input[id="relocation_budget"]').attr('data-rule-min', need_budget).attr('data-msg-min', 'min relocation '+ need_budget);
-
-    //           // $('input[id="price"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-    //           // $('input[id="total"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-    //           $('#relocation_budget').attr('max', maximum_price).focus();
-    //           // $('#total').attr('max', maximum_price);
-
-    //           $('#origin_budget').val(ui.item.product_code);
-    //           if (parseFloat($("#budget_value").val()) < parseFloat($("#need_budget").val())) {
-    //             $("#modal-add-item-submit").prop("disabled", true);
-
-    //           } else {
-    //             $("#modal-add-item-submit").prop("disabled", false);
-    //           }
-
-    //           return false;
-    //         }
-    //       })
-    //       .data("ui-autocomplete")._renderItem = function(ul, item) {
-    //         $(ul).addClass('list divider-full-bleed');
-
-    //         return $("<li class='tile'>")
-    //           .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
-    //           .appendTo(ul);
-    //       };
-    //   }
-    // });
-
-    // $.ajax({
-    //   url: $('input[id="part_number"]').data('source'),
-    //   dataType: "json",
-    //   success: function(resource) {
-    //     console.log(resource);
-    //     $('input[id="part_number"]').autocomplete({
-    //         autoFocus: true,
-    //         minLength: 2,
-
-    //         source: function(request, response) {
-    //           var results = $.ui.autocomplete.filter(resource, request.term);
-    //           response(results.slice(0, 5));
-    //         },
-
-    //         focus: function(event, ui) {
-    //           return false;
-    //         },
-
-    //         select: function(event, ui) {
-    //           $('input[id="part_number"]').val(ui.item.part_number);
-    //           $('input[id="additional_info"]').val('Alternate P/N: ' + ui.item.alternate_part_number);
-    //           $('input[id="product_name"]').val(ui.item.description);
-    //           $('input[id="group_name"]').val(ui.item.group);
-    //           $('input[id="unit"]').val(ui.item.unit);
-    //           $('input[id="quantity"]').val();
-    //           $('input[id="minimum_quantity"]').val(ui.item.minimum_quantity);
-    //           $('input[id="on_hand_quantity"]').val(ui.item.on_hand_quantity);
-    //           $('input[id="price"]').val(ui.item.price);
-    //           $('input[id="total"]').val(ui.item.price).trigger('change');
-
-    //           $('#maximum_price').val(0);
-    //           $('#maximum_quantity').val(0);
-
-    //           $('#ytd_quantity').val(0);
-    //           $('#ytd_used_quantity').val(parseInt(0));
-    //           $('#ytd_used_budget').val(parseInt(0));
-    //           $('#ytd_budget').val(0);
-
-    //           $('#mtd_quantity').val(0);
-    //           $('#mtd_used_quantity').val(parseInt(0));
-    //           $('#mtd_used_budget').val(parseInt(0));
-    //           $('#mtd_budget').val(0);
-
-    //           $('#inventory_monthly_budget_id').val('');
-
-    //           $('input[id="quantity"]').focus();
-
-    //           return false;
-    //         }
-    //       })
-    //       .data("ui-autocomplete")._renderItem = function(ul, item) {
-    //         $(ul).addClass('list divider-full-bleed');
-
-    //         return $("<li class='tile'>")
-    //           .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
-    //           .appendTo(ul);
-    //       };
-    //   }
-    // });
-
-    // $.ajax({
-    //   url: $('input[id="product_name"]').data('source'),
-    //   dataType: "json",
-    //   success: function(data) {
-    //     $('input[id="product_name"]').autocomplete({
-    //       source: function(request, response) {
-    //         var results = $.ui.autocomplete.filter(data, request.term);
-    //         response(results.slice(0, 10));
-    //       }
-    //     });
-    //   }
-    // });
 
     // input unit autocomplete
     $.ajax({
@@ -864,77 +686,17 @@
     //   }
     // });
 
-    $("#quantity").on("keydown keyup", function() {
-      var max_price = parseInt($("#maximum_price").val()) / parseInt($("#quantity").val());
-
-      if (parseInt($("#price").val()) > max_price && max_price >= 0) {
-        // $("#price").val(max_price);
-        
-        $('.form-relokasi').removeClass('hide');
-        $('#budget_value').attr('required', true);
-        $('#need_budget').attr('required', true);
-        $('#relocation_item').attr('required', true);
-        $('#relocation_budget').attr('required', true);
-        $('#origin_budget').attr('required', true);
-      } else {
-        $('.form-relokasi').addClass('hide');
-        $('#relocation_item').val('');
-        $('#budget_value').val('');
-        $('#need_budget').val('');
-        $('#relocation_item').val('');
-        $('#relocation_budget').val('');
-        $('#origin_budget').val('');
-
-        $('#budget_value').attr('required', false);
-        $('#need_budget').attr('required', false);
-        $('#relocation_item').attr('required', false);
-        $('#relocation_budget').attr('required', false);
-        $('#origin_budget').attr('required', false);
-      }
-      if (parseInt($("#quantity").val() > 0)) {
-        $("#modal-add-item-submit").prop("disabled", false);
-      }
-
-
+    $('input[id="quantity"],input[id="price"]').on('change', function (e) {
       sum();
     });
 
-    $("#price").on("keydown keyup", sum);
-
     $("#total").on("change", function() {
-      if (parseInt($(this).val()) > parseInt($("#maximum_price").val())) {
-
-        // $("#modal-add-item-submit").prop("disabled", true);
-
-        // $("#price").closest("div").addClass("has-error").append('<p class="help-block total-error">Not allowed!</p>').focus();
-
-        // toastr.options.timeOut = 10000;
-        // toastr.options.positionClass = 'toast-top-right';
-        // toastr.error('Price or total price is over maximum price allowed! You can not add this item.');
-      } else {
-        console.log(321)
-        $("#price").closest("div").removeClass("has-error");
-        $(".total-error").remove();
-        $("#modal-add-item-submit").prop("disabled", false);
-      }
-    });
-
-    $("#relocation_budget").on("change", function() {
-      var budget_value = $("#budget_value").val();
-      if (parseFloat($(this).val()) > parseFloat($("#budget_value").val())) {
-
-        // $("#modal-add-item-submit").prop("disabled", true);
-
-        $("#relocation_budget").closest("div").addClass("has-error").append('<p class="help-block total-error">Not allowed! max available ' + budget_value + '</p>').focus();
-        $(this).val(budget_value);
+      if (parseFloat($(this).val()) > parseFloat($('input[id="maximum_price"]').val())){
+        alert('Maximum limit is ' + $('input[id="maximum_price"]').val());
+        $("#modal-add-item-submit").prop("disabled", true);
+        $(this).val($('input[id="maximum_price"]').val());
         $(this).focus();
-        // toastr.options.timeOut = 10000;
-        // toastr.options.positionClass = 'toast-top-right';
-        // toastr.error('Price or total price is over maximum price allowed! You can not add this item.');
-      } else {
-        console.log(321)
-        $("#relocation_budget").closest("div").removeClass("has-error");
-        // $(".total-error").remove();
+      }else{
         $("#modal-add-item-submit").prop("disabled", false);
       }
     });

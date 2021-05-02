@@ -184,10 +184,17 @@ if ( ! function_exists('print_date')) {
 if ( ! function_exists('is_granted')) {
   function is_granted($module, $roles)
   {
-    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) )
+    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) ){
       return TRUE;
+    }else{
+      if (config_item('as_head_department')=='yes'&&$roles=='index') {
+        return TRUE;
+      }else{
+        return FALSE;
+      }
+    }
 
-    return FALSE;
+    
   }
 }
 
@@ -636,6 +643,13 @@ if ( ! function_exists('available_modules')) {
       if (in_array($permission, (array)$roles) && $visible == TRUE){
         if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
           $results[$module['parent']][] = $module;
+      }else{
+        if($head_dept=='yes'){
+          if($key=='capex_request'||$key=='expense_request'||$key=='inventory_request'){
+            if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
+              $results[$module['parent']][] = $module;
+          }
+        }
       }
     }
 

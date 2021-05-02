@@ -91,10 +91,16 @@ class MY_Controller extends CI_Controller
 
   public function has_role($module, $roles)
   {
-    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) )
+    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) ){
       return TRUE;
-
-    return FALSE;
+    }
+    else{
+      if (config_item('as_head_department')=='yes' && $roles=='index') {
+        return TRUE;
+      }else{
+        return FALSE;
+      }
+    }
   }
 
   public function authorized($module, $roles = NULL)

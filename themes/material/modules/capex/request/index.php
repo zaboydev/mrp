@@ -77,14 +77,20 @@
             <option value="all">
               All Status
             </option>
-            <option value="pending">
-              Pending
+            <option value="WAITING FOR BUDGETCONTROL" <?php (config_item('auth_role')=='BUDGETCONTROL')?'selected':''?>>
+              WAITING FOR BUDGETCONTROL
+            </option>
+            <option value="WAITING FOR HEAD DEPT" <?php (config_item('as_head_department')=='yes')?'selected':''?>>
+              WAITING FOR HEAD DEPT
             </option>
             <option value="approved">
-              Approved
+              APPROVED
             </option>
             <option value="rejected">
-              Rejected
+              REJECTED
+            </option>
+            <option value="cancel">
+              CANCELED
             </option>
           </select>
         </div>
