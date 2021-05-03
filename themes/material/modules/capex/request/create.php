@@ -110,11 +110,17 @@
         <?php endif; ?>
       </div>
       <div class="card-actionbar">
-        <div class="card-actionbar-row">
-          <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
-            Add Item
-          </a>
-
+        <div class="card-actionbar-row">          
+          <div class="pull-left">
+            <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas">
+              Add Item
+            </a>
+            <?php if (!empty($_SESSION['capex']['items'])):?>
+              <a href="<?=site_url($module['route'] .'/attachment');?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+                Attachment
+              </a>
+            <?php endif;?>
+          </div>
           <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
           </a>
@@ -170,11 +176,11 @@
                     <legend>General</legend>
 
                     <div class="form-group">
-                      <input type="text" name="part_number" id="part_number" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_part_number/'); ?>">
+                      <input type="text" name="part_number" id="part_number" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_part_number/'); ?>" readonly>
                       <label for="part_number">Part Number</label>
                     </div>
                     <div class="form-group">
-                      <input type="text" name="product_name" id="product_name" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_product_name/'); ?>">
+                      <input type="text" name="product_name" id="product_name" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_product_name/'); ?>" readonly>
                       <label for="product_name">Product</label>
                     </div>
                     <div class="form-group">
@@ -188,7 +194,7 @@
                     </div>
                     <div class="form-group">
                       <!-- <input type="text" name="unit" id="unit" class="form-control input-sm"> -->
-                      <input type="text" name="group_name" id="group_name" data-tag-name="group_name" data-search-for="group_name" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_groups/'); ?>" class="form-control input-sm" placeholder="Unit" required>
+                      <input type="text" name="group_name" id="group_name" data-tag-name="group_name" data-search-for="group_name" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_groups/'); ?>" class="form-control input-sm" placeholder="Unit" required readonly>
                       <label for="unit">Group</label>
                     </div>
                   </fieldset>
@@ -196,15 +202,23 @@
                 <div class="col-sm-6 col-lg-6">
                   <fieldset>
                     <legend>Balance</legend>
+                    <div class="form-group">
+                      <input type="text" name="mtd_quantity" id="mtd_quantity" class="form-control input-sm" value="0" readonly>
+                      <label for="mtd_quantity">Month to Date Quantity</label>
+                    </div>
 
                     <div class="form-group">
+                      <input type="number" name="mtd_budget" id="mtd_budget" value="1" class="form-control input-sm" readonly="readonly">
+                      <label for="mtd_budget">Month to Date Budget</label>
+                    </div>
+                    <div class="form-group">
                       <input type="text" name="maximum_quantity" id="maximum_quantity" class="form-control input-sm" value="0" readonly>
-                      <label for="maximum_quantity">Max. Quantity</label>
+                      <label for="maximum_quantity">Year to Date Quantity</label>
                     </div>
 
                     <div class="form-group">
                       <input type="number" name="maximum_price" id="maximum_price" value="1" class="form-control input-sm" readonly="readonly">
-                      <label for="max_value">Max. Value</label>
+                      <label for="max_value">Year to Date Budget</label>
                     </div>
                   </fieldset>
                 </div>
@@ -312,6 +326,30 @@
   Pace.on('done', function() {
     $('.progress-overlay').hide();
   });
+
+  function popup(mylink, windowname){
+    var height = window.innerHeight;
+    var widht;
+    var href;
+
+    if (screen.availWidth > 768){
+      width = 769;
+    } else {
+      width = screen.availWidth;
+    }
+
+    var left = (screen.availWidth / 2) - (width / 2);
+    var top = 0;
+    // var top = (screen.availHeight / 2) - (height / 2);
+
+    if (typeof(mylink) == 'string') href = mylink;
+    else href = mylink.href;
+
+    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+width+', height='+height+', top='+top+', left='+left);
+
+    if (! window.focus) return true;
+    else return false;
+  }
 
   (function($) {
     $.fn.reset = function() {
@@ -538,6 +576,8 @@
           console.log(JSON.stringify(response));
           var maximum_quantity = parseFloat(response.maximum_quantity);
           var maximum_price = parseFloat(response.maximum_price);
+          var mtd_quantity = parseFloat(response.mtd_quantity);
+          var mtd_budget = parseFloat(response.mtd_budget);
           var price = response.price;
           if(response.price==null){
             price = 0;
@@ -552,6 +592,8 @@
           $('#price').val(parseFloat(response.price));
           $('#maximum_price').val(maximum_price);
           $('#maximum_quantity').val(maximum_quantity);
+          $('#mtd_quantity').val(mtd_quantity);
+          $('#mtd_budget').val(mtd_budget);
           $('#quantity').val(response.quantity);
           // $('#total').val(parseFloat(price)).trigger('change');
 
@@ -622,6 +664,8 @@
             select: function(event, ui) {
               var maximum_quantity = parseFloat(ui.item.maximum_quantity);
               var maximum_price = parseFloat(ui.item.maximum_price);
+              var mtd_quantity = parseFloat(ui.item.mtd_quantity);
+              var mtd_budget = parseFloat(ui.item.mtd_budget);
               var price = ui.item.current_price;
               if(ui.item.current_price==null){
                 price = 0;
@@ -635,6 +679,8 @@
               $('#price').val(parseFloat(ui.item.current_price));
               $('#maximum_price').val(maximum_price);
               $('#maximum_quantity').val(maximum_quantity);
+              $('#mtd_budget').val(mtd_budget);
+              $('#mtd_quantity').val(mtd_quantity);
               $('#quantity').val(0);
               $('#total').val(0);
               // $('#total').val(parseFloat(price)).trigger('change');
@@ -692,7 +738,7 @@
 
     $("#total").on("change", function() {
       if (parseFloat($(this).val()) > parseFloat($('input[id="maximum_price"]').val())){
-        alert('Maximum limit is ' + $('input[id="maximum_price"]').val());
+        alert('This Products Year to Date is ' + $('input[id="maximum_price"]').val())+'. Please Request Relocation';
         $("#modal-add-item-submit").prop("disabled", true);
         $(this).val($('input[id="maximum_price"]').val());
         $(this).focus();

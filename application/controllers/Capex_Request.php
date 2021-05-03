@@ -13,8 +13,11 @@ class Capex_Request extends MY_Controller
         $this->load->model($this->module['model'], 'model');
         $this->data['module'] = $this->module;
         $this->load->library('email');
-        // if (empty($_SESSION['request']['request_to']))
-        //   $_SESSION['request']['request_to'] = 1;
+        $this->load->library('upload');
+        $this->load->helper('string');
+        
+        if (empty($_SESSION['capex']['attachment']))
+          $_SESSION['capex']['attachment'] = array();
     }
 
     public function set_doc_number()
@@ -479,8 +482,10 @@ class Capex_Request extends MY_Controller
             $entities[$key]['label'] .= ' || Unit: ';
             $entities[$key]['label'] .= $value['measurement_symbol'];
             $entities[$key]['label'] .= '<small>';
-            $entities[$key]['label'] .= 'Left Plan Budget: <code>' . number_format($value['maximum_price'], 2) . '</code> ||';
-            $entities[$key]['label'] .= 'Left Plan Qty: <code>' . number_format($value['maximum_quantity'], 2) . '</code>';
+            $entities[$key]['label'] .= 'Month to Date Budget: <code>' . number_format($value['mtd_budget'], 2) . '</code> ||';
+            $entities[$key]['label'] .= 'Month to Date Qty: <code>' . number_format($value['mtd_quantity'], 2) . '</code>';
+            $entities[$key]['label'] .= 'Year to Date Budget: <code>' . number_format($value['maximum_price'], 2) . '</code> ||';
+            $entities[$key]['label'] .= 'Year to Date Qty: <code>' . number_format($value['maximum_quantity'], 2) . '</code>';
             $entities[$key]['label'] .= '</small>';
         }
 
@@ -510,6 +515,8 @@ class Capex_Request extends MY_Controller
             'part_number_relocation'      => $this->input->post('origin_budget'),
             'budget_value_relocation'     => $this->input->post('budget_value'),
             'group'                       => $this->input->post('group_name'),
+            'mtd_quantity'                => $this->input->post('mtd_quantity'),
+            'mtd_budget'                  => $this->input->post('mtd_budget'),
           );
         }
 
@@ -549,10 +556,61 @@ class Capex_Request extends MY_Controller
                 'part_number_relocation'      => $this->input->post('origin_budget'),
                 'budget_value_relocation'     => $this->input->post('budget_value'),
                 'group'                       => $this->input->post('group_name'),
+                'mtd_quantity'                => $this->input->post('mtd_quantity'),
+                'mtd_budget'                  => $this->input->post('mtd_budget'),
 
             );
         }
         redirect($this->module['route'] .'/create');
 
+    }
+
+    public function del_item($key)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (isset($_SESSION['capex']['items']))
+            unset($_SESSION['capex']['items'][$key]);
+    }
+
+    public function attachment()
+    {
+        $this->authorized($this->module, 'document');
+
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function add_attachment()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+        $config['upload_path'] = 'attachment/capex_request/'.$_SESSION['capex']['cost_center_name'].'/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+          $error = array('error' => $this->upload->display_errors());
+        } else {
+
+          $data = array('upload_data' => $this->upload->data());
+          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          array_push($_SESSION["capex"]["attachment"], $url);
+          $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function delete_attachment($index)
+    {
+        $file = FCPATH . $_SESSION["capex"]["attachment"][$index];
+        if (unlink($file)) {
+            unset($_SESSION["capex"]["attachment"][$index]);
+            $_SESSION["capex"]["attachment"] = array_values($_SESSION["capex"]["attachment"]);
+            redirect($this->module['route'] . "/attachment", 'refresh');
+        }
     }
 }

@@ -269,6 +269,8 @@ class Capex_Request_Model extends MY_Model
             $request['items'][$key] = $value;
             $request['items'][$key]['balance_mtd_quantity']     = $value['ytd_quantity'] - $value['ytd_used_quantity'];
             $request['items'][$key]['balance_mtd_budget']       = $value['ytd_budget'] - $value['ytd_used_budget'];
+            $request['items'][$key]['mtd_quantity']     = $value['quantity'] + $value['ytd_quantity'] - $value['ytd_used_quantity'];
+            $request['items'][$key]['mtd_budget']       = $value['total'] + $value['ytd_budget'] - $value['ytd_used_budget'];
 
             $this->column_select = array(
                 'SUM(tb_capex_monthly_budgets.mtd_quantity) as quantity',
@@ -309,21 +311,39 @@ class Capex_Request_Model extends MY_Model
           'tb_capex_purchase_requisitions.pr_number',
           'tb_capex_purchase_requisitions.pr_date',
           'tb_capex_purchase_requisitions.created_by',
+          'tb_capex_purchase_requisition_details.id',
           'tb_capex_purchase_requisition_details.quantity',
           'tb_capex_purchase_requisition_details.unit',
           'tb_capex_purchase_requisition_details.price',
           'tb_capex_purchase_requisition_details.total',
+          'sum(case when tb_capex_purchase_requisition_detail_progress.poe_qty is null then 0.00 else tb_capex_purchase_requisition_detail_progress.poe_qty end) as "poe_qty"',  
+          'sum(case when tb_capex_purchase_requisition_detail_progress.poe_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.poe_value end) as "poe_value"',         
         );
+
+        $group = array(
+          'tb_capex_purchase_requisitions.pr_number',
+          'tb_capex_purchase_requisitions.pr_date',
+          'tb_capex_purchase_requisitions.created_by',
+          'tb_capex_purchase_requisition_details.id',
+          'tb_capex_purchase_requisition_details.quantity',
+          'tb_capex_purchase_requisition_details.unit',
+          'tb_capex_purchase_requisition_details.price',
+          'tb_capex_purchase_requisition_details.total',      
+        );
+
         $this->connection->select($select);
         $this->connection->from('tb_capex_purchase_requisition_details');
         $this->connection->join('tb_capex_purchase_requisitions', 'tb_capex_purchase_requisitions.id = tb_capex_purchase_requisition_details.capex_purchase_requisition_id');
         $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
+        $this->connection->join('tb_capex_purchase_requisition_detail_progress', 'tb_capex_purchase_requisition_detail_progress.capex_purchase_requisition_detail_id = tb_capex_purchase_requisition_details.id','left');
         $this->connection->where('tb_capex_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
         $this->connection->where('tb_capex_monthly_budgets.product_id', $product_id);
         $this->connection->where('tb_capex_purchase_requisitions.order_number <',$order_number);
+        $this->connection->group_by($group);
         $query  = $this->connection->get();
+        $return = $query->result_array();
 
-        return $query->result_array();
+        return $return;
     }
 
     public function approve($id,$notes)
@@ -380,19 +400,17 @@ class Capex_Request_Model extends MY_Model
             'tb_product_measurements.measurement_symbol',
             'tb_product_purchase_prices.current_price',
             'tb_capex_monthly_budgets.annual_cost_center_id',
+            'tb_capex_monthly_budgets.product_id',
         );
 
         $this->column_groupby = array(
-            // 'SUM(tb_capex_monthly_budgets.mtd_quantity) as quantity',
-            // 'SUM(tb_capex_monthly_budgets.mtd_budget) as budget',
-            // 'SUM(tb_capex_monthly_budgets.mtd_used_quantity) as used_quantity',
-            // 'SUM(tb_capex_monthly_budgets.mtd_used_budget) as used_budget',
             'tb_products.product_name',
             'tb_products.product_code',
             'tb_product_groups.group_name',
             'tb_product_measurements.measurement_symbol',
             'tb_product_purchase_prices.current_price',
             'tb_capex_monthly_budgets.annual_cost_center_id',
+            'tb_capex_monthly_budgets.product_id',
         );
 
         $this->connection->select($this->column_select);
@@ -409,10 +427,24 @@ class Capex_Request_Model extends MY_Model
 
         $result = $query->result_array();
         foreach ($result as $key => $value) {
-          $result[$key]['maximum_quantity'] = $value['quantity'] - $value['used_quantity'];
-          $result[$key]['maximum_price'] = $value['budget'] - $value['used_budget'];
-          // $result[$key]['maximum_quantity'] = $value['mtd_quantity'] - $value['mtd_used_quantity'];
-          // $result[$key]['maximum_price'] = $value['mtd_budget'] - $value['mtd_used_budget'];
+            $result[$key]['maximum_quantity'] = $value['quantity'] - $value['used_quantity'];
+            $result[$key]['maximum_price'] = $value['budget'] - $value['used_budget'];
+            $select = array(
+                'tb_capex_monthly_budgets.ytd_quantity',
+                'tb_capex_monthly_budgets.ytd_budget',
+                'tb_capex_monthly_budgets.ytd_used_quantity',
+                'tb_capex_monthly_budgets.ytd_used_budget',
+            );
+
+            $this->connection->select($select);
+            $this->connection->from('tb_capex_monthly_budgets');
+            $this->connection->where('tb_capex_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
+            $this->connection->where('tb_capex_monthly_budgets.product_id', $value['product_id']);
+            $this->connection->where('tb_capex_monthly_budgets.month_number', $this->budget_month);
+            $query_row = $this->connection->get();
+            $row   = $query->unbuffered_row('array');
+            $result[$key]['mtd_quantity'] = $value['ytd_quantity'] - $value['ytd_used_quantity'];
+            $result[$key]['mtd_budget'] = $value['ytd_budget'] - $value['ytd_used_budget'];
         }
         return $result;
     }
@@ -466,10 +498,10 @@ class Capex_Request_Model extends MY_Model
         $cost_center_code     = $_SESSION['capex']['cost_center_code'];
         $cost_center_name     = $_SESSION['capex']['cost_center_name'];
         $annual_cost_center_id     = $_SESSION['capex']['annual_cost_center_id'];
-        if($this->model->isOrderNumberExists($order_number)==false){
-            $order_number       = request_last_number();
-        }
-        $pr_number            = $order_number.$_SESSION['capex']['format_order_number'];
+        // if($this->model->isOrderNumberExists($order_number)==false){
+        //     $order_number       = request_last_number();
+        // }
+        $pr_number            = $order_number.request_format_number($_SESSION['capex']['cost_center_code']);
         $pr_date              = date('Y-m-d');
         $required_date        = $_SESSION['capex']['required_date'];
         $deliver_to           = (empty($_SESSION['capex']['deliver_to'])) ? NULL : $_SESSION['capex']['deliver_to'];
@@ -502,33 +534,79 @@ class Capex_Request_Model extends MY_Model
             $this->connection->set('required_date', $required_date);
             $this->connection->set('suggested_supplier', $suggested_supplier);
             $this->connection->set('deliver_to', $deliver_to);
-            $this->connection->set('status', 'pending');
+            $this->connection->set('status', 'WAITING FOR BUDGETCONTROL');
             $this->connection->set('notes', $notes);
             $this->connection->set('updated_at', date('Y-m-d'));
             $this->connection->set('updated_by', config_item('auth_person_name'));
             $this->connection->where('id', $document_id);
             $this->connection->update('tb_capex_purchase_requisitions');
 
+            $this->connection->select('tb_capex_purchase_requisition_details.*');
+            $this->connection->from('tb_capex_purchase_requisition_details');
+            $this->connection->where('tb_capex_purchase_requisition_details.capex_purchase_requisition_id', $document_id);
+
+            $query  = $this->connection->get();
+            $result = $query->result_array();
+
+            foreach ($result as $data) {
+                $this->connection->from('tb_capex_monthly_budgets');
+                $this->connection->where('id', $data['capex_monthly_budget_id']);
+
+                $query        = $this->connection->get();
+                $budget_monthly = $query->unbuffered_row('array');
+
+                $year = $this->budget_year;
+                $month = $budget_monthly['month_number'];
+                $annual_cost_center_id = $budget_monthly['annual_cost_center_id'];
+                $product_id = $budget_monthly['product_id'];
+
+                for ($i = $month; $i < 13; $i++) {
+                    $this->connection->set('ytd_used_quantity', 'ytd_used_quantity - ' . $data['quantity'], FALSE);
+                    $this->connection->set('ytd_used_budget', 'ytd_used_budget - ' . $data['total'], FALSE);
+                    $this->connection->where('tb_capex_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
+                    $this->connection->where('tb_capex_monthly_budgets.product_id', $product_id);
+                        // $this->connection->where('year_number', $year);
+                    $this->connection->where('tb_capex_monthly_budgets.month_number', $i);
+                    $this->connection->update('tb_capex_monthly_budgets');
+                }
+
+                $this->connection->set('mtd_used_quantity', 'mtd_used_quantity - ' . $data['quantity'], FALSE);
+                $this->connection->set('mtd_used_budget', 'mtd_used_budget +- ' . $data['total'], FALSE);
+                $this->connection->where('id', $data['capex_monthly_budget_id']);
+                $this->connection->update('tb_capex_monthly_budgets');
+            }
+
             $this->connection->where('capex_purchase_requisition_id', $document_id);
             $this->connection->delete('tb_capex_purchase_requisition_details');
 
+            $this->connection->where('pr_number', $pr_number);
+            $this->connection->delete('tb_capex_used_budgets');
+
 
         }
-          // request from budget control
-            foreach ($_SESSION['capex']['items'] as $key => $data) {
+
+        foreach ($_SESSION["capex"]["attachment"] as $key) {
+            $this->connection->set('id_purchase', $order_number);
+            $this->connection->set('file', $key);
+            $this->connection->set('tipe', 'capex');
+            $this->connection->insert('tb_attachment');
+        }
+
+        // request from budget control
+        foreach ($_SESSION['capex']['items'] as $key => $data) {
                 // NEW GROUP
 
-                $data['group_name'] = '1. OFFICE SUPPLIES & CAMPUS EQUIPMENT';
+                // $data['group_name'] = '1. OFFICE SUPPLIES & CAMPUS EQUIPMENT';
                 $this->connection->select('tb_product_groups.id');
                 $this->connection->from('tb_product_groups');
-                $this->connection->where('UPPER(tb_product_groups.group_name)', strtoupper($data['group_name']));
+                $this->connection->where('UPPER(tb_product_groups.group_name)', strtoupper($data['group']));
 
                 $query  = $this->connection->get();
 
                 if ($query->num_rows() == 0) {
                     $this->connection->set('product_category_id', $product_category_id);
-                    $this->connection->set('group_name', $data['group_name']);
-                    $this->connection->set('group_code', strtoupper($data['group_name']));
+                    $this->connection->set('group_name', $data['group']);
+                    $this->connection->set('group_code', strtoupper($data['group']));
                     $this->connection->set('group_type', 'inventory');
                     $this->connection->set('created_at', date('Y-m-d'));
                     $this->connection->set('created_by', config_item('auth_person_name'));
@@ -774,7 +852,7 @@ class Capex_Request_Model extends MY_Model
                     // $this->connection->where('month_number', $month);
 
                     //insert data on used budget 
-                    $this->connection->set('capex_monthly_budget_id', $inventory_monthly_budget_id);
+                    $this->connection->set('capex_monthly_budget_id', $capex_monthly_budget_id);
                     $this->connection->set('capex_purchase_requisition_id', $document_id);
                     $this->connection->set('pr_number', $pr_number);
                     $this->connection->set('cost_center', $cost_center_name);
@@ -810,7 +888,7 @@ class Capex_Request_Model extends MY_Model
                 $this->connection->set('price', floatval($data['price']));
                 $this->connection->set('total', floatval($data['total']));
                 $this->connection->insert('tb_capex_purchase_requisition_details');
-            }
+        }
         
 
         if (($this->connection->trans_status() === FALSE) && ($this->db->trans_status() === FALSE))
