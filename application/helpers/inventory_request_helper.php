@@ -60,10 +60,10 @@ if ( ! function_exists('print_person_name')) {
 }
 
 if ( ! function_exists('request_format_number')) {
-  function request_format_number($cost_center_code)
+  function request_format_number($code)
   {
     
-    $return = '/Cpx/'.$cost_center_code.'/'.date('Y');
+    $return = '/Inv/'.$code.'/'.date('Y');
 
     return $return;
   }
@@ -77,10 +77,8 @@ if ( ! function_exists('request_last_number')) {
     $connection = $CI->load->database('budgetcontrol', TRUE);
 
     $connection->select_max('order_number', 'last_number');
-    $connection->from('tb_capex_purchase_requisitions');
-    // $connection->like('tb_inventory_purchase_requisitions.pr_number', find_budget_setting('Active Year'));
+    $connection->from('tb_inventory_purchase_requisitions');
 
-    // $connection->like('tb_capex_purchase_requisitions.pr_number', date('Y'));
     $query        = $connection->get();
     if($query->num_rows() > 0){      
       $request      = $query->unbuffered_row('array');
@@ -107,6 +105,10 @@ if ( ! function_exists('request_last_number')) {
 
       $query    = $connection->get();
       $cost_center = $query->unbuffered_row('array');
+
+      // $return = '/INV/'. $category['code'] .'/'. find_budget_setting('Active Year');
+
+      //edit
       
 
       return $cost_center;

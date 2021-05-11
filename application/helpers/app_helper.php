@@ -1296,6 +1296,43 @@ if ( ! function_exists('annual_cost_centers')) {
   }
 }
 
+if ( ! function_exists('getCostCenterNameByAnnualCostCenterId')) {
+  function getCostCenterNameByAnnualCostCenterId($id)
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('tb_cost_centers.cost_center_name');
+    $connection->from('tb_cost_centers');
+    $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+    $connection->where('tb_annual_cost_centers.id', $id);
+
+    $query  = $connection->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->cost_center_name;
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('findProductCategoryById')) {
+  function findProductCategoryById($id)
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('category_name,category_code');
+    $connection->from('tb_product_categories');
+    $connection->where('id', $id);
+
+    $query  = $connection->get();
+    $row    = $query->unbuffered_row('array');
+    // $return = $row->category_name;
+
+    return $row;
+  }
+}
+
 }
 
     

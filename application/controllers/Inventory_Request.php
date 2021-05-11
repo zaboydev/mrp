@@ -29,32 +29,30 @@ class Inventory_Request extends MY_Controller
         $entities = $this->model->getIndex();
         $data     = array();
         $no       = $_POST['start'];
-        $quantity = array();
+        $total = array();
 
         foreach ($entities as $row) {
             $no++;
             $col = array();
             $col[] = print_number($no);
             $col[] = print_string($row['pr_number']);
+            $col[] = print_string(strtoupper($row['status']));
+            $col[] = print_string($row['department_name']);
+            $col[] = print_string($row['cost_center_name']);
             $col[] = print_date($row['pr_date']);
             $col[] = print_date($row['required_date']);
-            $col[] = print_string($row['category_name']);
-            $col[] = print_string($row['product_name']);
-            $col[] = print_string($row['product_code']);
-            $col[] = print_string($row['additional_info']);
-            $col[] = print_number($row['quantity'], 2);
-            $col[] = print_string($row['status']);
-            $col[] = print_string($row['suggested_supplier']);
-            $col[] = print_string($row['deliver_to']);
-            $col[] = print_person_name($row['created_by']);
+            $col[] = print_number($row['total_inventory'],2);
             $col[] = $row['notes'];
+            $col[] = $row['approved_notes'];
             $col['DT_RowId'] = 'row_'. $row['id'];
             $col['DT_RowData']['pkey']  = $row['id'];
+            $total[]         = $row['total_inventory'];
 
             if ($this->has_role($this->module, 'info')){
-            $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-            $col['DT_RowAttr']['data-target'] = '#data-modal';
-            $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                $col['DT_RowAttr']['onClick']     = '';
+                $col['DT_RowAttr']['data-id']     = $row['id'];
+                $col['DT_RowAttr']['data-target'] = '#data-modal';
+                $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
             }
 
             $data[] = $col;
@@ -65,6 +63,9 @@ class Inventory_Request extends MY_Controller
             "recordsTotal" => $this->model->countIndex(),
             "recordsFiltered" => $this->model->countIndexFiltered(),
             "data" => $data,
+            "total" => array(
+                7  => print_number(array_sum($total), 2),
+            )
         );
         }
 
@@ -79,21 +80,17 @@ class Inventory_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = NULL;
+        $this->data['grid']['summary_columns']  = array(7);
         $this->data['grid']['order_columns']    = array(
-            0   => array( 0 => 2,  1 => 'desc' ),
-            1   => array( 0 => 3,  1 => 'desc' ),
-            2   => array( 0 => 1,  1 => 'desc' ),
+             // 0   => array( 0 => 2,  1 => 'desc' ),
+            0   => array( 0 => 1,  1 => 'desc' ),
+            1   => array( 0 => 2,  1 => 'desc' ),
+            2   => array( 0 => 3,  1 => 'asc' ),
             3   => array( 0 => 4,  1 => 'asc' ),
             4   => array( 0 => 5,  1 => 'asc' ),
             5   => array( 0 => 6,  1 => 'asc' ),
-            6   => array( 0 => 7,  1 => 'asc' ),
+            6   => array( 0 => 8,  1 => 'asc' ),
             7   => array( 0 => 8,  1 => 'asc' ),
-            8   => array( 0 => 9,  1 => 'asc' ),
-            9   => array( 0 => 10,  1 => 'asc' ),
-            10  => array( 0 => 11,  1 => 'asc' ),
-            11  => array( 0 => 12,  1 => 'asc' ),
-            12  => array( 0 => 13,  1 => 'asc' ),
         );
 
         $this->render_view($this->module['view'] . '/index');
@@ -105,16 +102,33 @@ class Inventory_Request extends MY_Controller
         redirect($this->modules['secure']['route'] . '/denied');
 
         if (is_granted($this->module, 'info') === FALSE) {
-        $return['type'] = 'denied';
-        $return['info'] = "You don't have permission to access this data. You may need to login again.";
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
         } else {
-        $entity = $this->model->findById($id);
+            $entity = $this->model->findById($id);
 
-        $this->data['entity'] = $entity;
+            $this->data['entity'] = $entity;
+
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
+        }
+
+        echo json_encode($return);
+    }
+
+    public function select_category($annual_cost_center_id)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] . '/denied');
+
+        $categories = $this->model->getProductCategories();
+
+        $this->data['entity'] = $categories;
+        $this->data['cost_center_name'] = getCostCenterNameByAnnualCostCenterId($annual_cost_center_id);
+        $this->data['annual_cost_center_id'] = $annual_cost_center_id;
 
         $return['type'] = 'success';
-        $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
-        }
+        $return['info'] = $this->load->view($this->module['view'] . '/select_category', $this->data, TRUE);
 
         echo json_encode($return);
     }
@@ -159,46 +173,49 @@ class Inventory_Request extends MY_Controller
         // $this->render_view($this->module['view'] .'/create');
     }
 
-    public function create($category = NULL)
+    public function create($annual_cost_center_id = NULL,$product_category_id=NULL)
     {
         $this->authorized($this->module, 'document');
 
-        if ($category !== NULL) {
-        $category = urldecode($category);
-        if ($category == 'BAHAN BAKAR') {
-            $target_date = 7;
-            $start_date  = date('Y-m-d');
-            $date        = strtotime('+7 day', strtotime($start_date));
-            $required_date    = date('Y-m-d', $date);
-        } else {
-            $target_date = 30;
-            $start_date  = date('Y-m-d');
-            $date        = strtotime('+30 day', strtotime($start_date));
-            $required_date    = date('Y-m-d', $date);
+        if ($annual_cost_center_id !== NULL && $product_category_id!==NULL){
+          $annual_cost_center_id    = urldecode($annual_cost_center_id);
+          $product_category_id      = urldecode($product_category_id);
+
+          $cost_center              = findCostCenter($annual_cost_center_id);
+          $cost_center_code         = $cost_center['cost_center_code'];
+          $cost_center_name         = $cost_center['cost_center_name'];
+
+
+          $product_category         = findProductCategoryById($product_category_id);
+          $category_name            = $product_category['category_name'];
+          $category_code            = $product_category['category_code'];
+
+          $_SESSION['inventory']['items']                   = array();
+          $_SESSION['inventory']['annual_cost_center_id']   = $annual_cost_center_id;
+          $_SESSION['inventory']['cost_center_id']          = $cost_center_id;
+          $_SESSION['inventory']['cost_center_name']        = $cost_center_name;
+          $_SESSION['inventory']['cost_center_code']        = $cost_center_code;
+          $_SESSION['inventory']['category_name']           = $category_name;
+          $_SESSION['inventory']['category_code']           = $category_code;
+          $_SESSION['inventory']['order_number']            = request_last_number();
+          $_SESSION['inventory']['format_order_number']     = request_format_number($_SESSION['inventory']['category_code']);
+          $_SESSION['inventory']['required_date']           = date('Y-m-d');
+          $_SESSION['inventory']['created_by']              = config_item('auth_person_name');
+          $_SESSION['inventory']['warehouse']               = config_item('auth_warehouse');
+          $_SESSION['inventory']['notes']                   = NULL;
+          $_SESSION['inventory']['suggested_supplier']      = NULL;
+          $_SESSION['inventory']['deliver_to']              = NULL;
+
+          redirect($this->module['route'] .'/create');
         }
 
-        $_SESSION['request']['items']               = array();
-        $_SESSION['request']['category']            = $category;
-        $_SESSION['request']['order_number']        = request_last_number();
-        $_SESSION['request']['pr_number']           = request_last_number() . request_format_number();
-        $_SESSION['request']['pr_date']             = date('Y-m-d');
-        $_SESSION['request']['required_date']       = $required_date;
-        $_SESSION['request']['created_by']          = config_item('auth_person_name');
-        $_SESSION['request']['suggested_supplier']  = NULL;
-        $_SESSION['request']['deliver_to']          = NULL;
-        $_SESSION['request']['notes']               = NULL;
-        $_SESSION['request']['target_date']         = $target_date;
+        if (!isset($_SESSION['inventory']))
+          redirect($this->module['route']);
 
-        redirect($this->module['route'] . '/create');
-        }
+        $this->data['page']['content']    = $this->module['view'] .'/create';
+        $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
 
-        if (!isset($_SESSION['request']))
-        redirect($this->module['route']);
-
-        $this->data['page']['content']    = $this->module['view'] . '/create';
-        $this->data['page']['offcanvas']  = $this->module['view'] . '/create_offcanvas_add_item';
-
-        $this->render_view($this->module['view'] . '/create');
+        $this->render_view($this->module['view'] .'/create');
     }
 
     public function save()
@@ -385,4 +402,6 @@ class Inventory_Request extends MY_Controller
         echo json_encode($return);
         }
     }
+
+    
 }

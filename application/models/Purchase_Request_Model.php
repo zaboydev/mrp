@@ -575,13 +575,6 @@ class Purchase_Request_Model extends MY_Model
       }
     } else {
 
-      // $this->db->select('tb_inventory_purchase_requisition_details.*');
-      // $this->db->from('tb_inventory_purchase_requisition_details');
-      // $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
-
-      // $query_detail    = $this->db->get();
-      // $request_detail  = $query_detail->unbuffered_row();
-
       $this->db->select('tb_inventory_purchase_requisitions.*');
       $this->db->from('tb_inventory_purchase_requisitions');
       $this->db->where('tb_inventory_purchase_requisitions.id', $id);

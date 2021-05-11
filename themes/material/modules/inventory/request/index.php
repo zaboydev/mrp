@@ -8,6 +8,24 @@
 <div id="modal-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-item-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+        <h4 class="modal-title" id="data-modal-label">Select Category</h4>
+      </div>
+
+      <div class="modal-body no-padding"></div>
+
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-select-cateory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-item-label" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
       <!--  -->
 
       <div class="modal-body no-padding"></div>
@@ -47,7 +65,7 @@
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
           <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
             <li>
-              <a href="<?= site_url($module['route'] . '/create/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
+              <a class="btn-create-inventory" data-href="<?= site_url($module['route'] . '/select_category/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
             </li>
           <?php endforeach; ?>
         </ul>
@@ -74,26 +92,15 @@
         <div class="form-group">
           <label for="filter_status">Status</label>
           <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
+            <option value="all">
+              Semua
+            </option>
             <option value="pending">
               Pending
             </option>
             <option value="approved">
               Approved
             </option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="filter_item_category">Category</label>
-          <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
-            <option value="">
-              Not filtered            
-            </option>
-            <?php foreach (config_item('auth_inventory') as $category) : ?>
-              <option value="<?= $category; ?>">
-                <?= $category; ?>
-              </option>
-            <?php endforeach; ?>
           </select>
         </div>
       </div>
@@ -883,6 +890,24 @@
 
             button.attr('disabled', false);
           });
+
+          $('.btn-create-inventory').click(function() {
+            var url = $(this).data('href');
+            $.ajax({
+              url: url,
+              type: 'get',
+              success: function(data) {
+                var dataModal       = $('#modal-select-cateory');
+                var obj = $.parseJSON(data);
+                $( dataModal )
+                .find('.modal-body')
+                .empty()
+                .append(obj.info);
+                $( dataModal ).modal('show');
+              }
+            });
+          });
+
         });
       </script>
 
