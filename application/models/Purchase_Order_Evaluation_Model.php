@@ -304,6 +304,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         $poe['request'][$i]['is_selected'] = $vendor['is_selected'];
       }
       $poe['request'][$i] = $item;
+      $poe['request'][$i]['history']          = $this->getHistory($item['inventory_purchase_request_detail_id']);
       $poe['request'][$i]['vendors'] = array();
 
       $selected_detail = array(
@@ -323,6 +324,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       foreach ($query->result_array() as $d => $detail) {
         $poe['request'][$i]['vendors'][$d] = $detail;
         $poe['request'][$i]['vendors'][$d]['vendor'] = $detail['currency'] . '-' . $detail['vendor'];
+
       }
     }
     $this->db->where('id_poe', $id);
@@ -333,6 +335,52 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     }
     $poe["attachment"] = $attachment;
     return $poe;
+  }
+
+  public function getHistory($inventory_purchase_request_detail_id)
+  {
+
+    $select = array(
+      'tb_inventory_purchase_requisitions.pr_number',
+      'tb_inventory_purchase_requisitions.pr_date',
+      'tb_inventory_purchase_requisitions.created_by',
+      'tb_inventory_purchase_requisition_details.id',
+      'tb_inventory_purchase_requisition_details.quantity',
+      'tb_inventory_purchase_requisition_details.unit',
+      'tb_inventory_purchase_requisition_details.price',
+      'tb_inventory_purchase_requisition_details.total',
+      'sum(case when tb_purchase_order_items.quantity is null then 0.00 else tb_purchase_order_items.quantity end) as "poe_qty"',  
+      'sum(case when tb_purchase_order_items.total_amount is null then 0.00 else tb_purchase_order_items.total_amount end) as "poe_value"',  
+      'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
+      'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
+      'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
+      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
+    );
+
+    $group = array(
+      'tb_inventory_purchase_requisitions.pr_number',
+      'tb_inventory_purchase_requisitions.pr_date',
+      'tb_inventory_purchase_requisitions.created_by',
+      'tb_inventory_purchase_requisition_details.id',
+      'tb_inventory_purchase_requisition_details.quantity',
+      'tb_inventory_purchase_requisition_details.unit',
+      'tb_inventory_purchase_requisition_details.price',
+      'tb_inventory_purchase_requisition_details.total',
+    );
+
+    $this->db->select($select);
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
+    $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+    $this->db->where('tb_inventory_purchase_requisition_details.id', $inventory_purchase_request_detail_id);
+    $this->db->group_by($group);
+    $query  = $this->db->get();
+    $return = $query->result_array();
+
+    return $return;
+        
   }
 
   public function isDocumentNumberExists($document_number)

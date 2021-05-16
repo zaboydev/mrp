@@ -508,11 +508,63 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
         $request['items'][$key]['on_hand_qty'] = $this->tb_on_hand_stock($value['id'])->sum;
+
+        $request['items'][$key]['history']          = $this->getHistory($value['id_cot'],$request['order_number']);
       }
     }
 
 
     return $request;
+  }
+
+  public function getHistory($id_cot,$order_number)
+  {
+
+    if ($_SESSION['request']['request_to'] == 1){
+        $select = array(
+          'tb_inventory_purchase_requisitions.pr_number',
+          'tb_inventory_purchase_requisitions.pr_date',
+          'tb_inventory_purchase_requisitions.created_by',
+          'tb_inventory_purchase_requisition_details.id',
+          'tb_inventory_purchase_requisition_details.quantity',
+          'tb_inventory_purchase_requisition_details.unit',
+          'tb_inventory_purchase_requisition_details.price',
+          'tb_inventory_purchase_requisition_details.total',
+          'sum(case when tb_purchase_order_items.quantity is null then 0.00 else tb_purchase_order_items.quantity end) as "poe_qty"',  
+          'sum(case when tb_purchase_order_items.total_amount is null then 0.00 else tb_purchase_order_items.total_amount end) as "poe_value"',  
+          'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
+          'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
+          'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
+          'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
+        );
+
+        $group = array(
+          'tb_inventory_purchase_requisitions.pr_number',
+          'tb_inventory_purchase_requisitions.pr_date',
+          'tb_inventory_purchase_requisitions.created_by',
+          'tb_inventory_purchase_requisition_details.id',
+          'tb_inventory_purchase_requisition_details.quantity',
+          'tb_inventory_purchase_requisition_details.unit',
+          'tb_inventory_purchase_requisition_details.price',
+          'tb_inventory_purchase_requisition_details.total',
+        );
+
+        $this->db->select($select);
+        $this->db->from('tb_inventory_purchase_requisition_details');
+        $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+        $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
+        $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
+        $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
+        $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+        $this->db->where('tb_budget.id_cot', $id_cot);
+        $this->db->where('tb_inventory_purchase_requisitions.order_number <',$order_number);
+        $this->db->group_by($group);
+        $query  = $this->db->get();
+        $return = $query->result_array();
+
+        return $return;
+    }
+        
   }
 
   public function findPrlById($id)
@@ -634,6 +686,7 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
         $request['items'][$key]['on_hand_qty'] = $this->tb_on_hand_stock($value['id'])->sum;
         $request['items'][$key]['info_on_hand_qty'] = $this->info_on_hand($value['id']);
+        $request['items'][$key]['history']          = $this->getHistory($value['id_cot'],$request['order_number']);
         // $request['items'][$key]['count_info_on_hand_qty'] = $this->info_on_hand($value['id'])->num_rows();
       }
     }
