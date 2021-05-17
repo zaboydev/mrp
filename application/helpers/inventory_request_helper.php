@@ -63,7 +63,8 @@ if ( ! function_exists('request_format_number')) {
   function request_format_number($code)
   {
     
-    $return = '/Inv/'.$code.'/'.date('Y');
+    // $return = '/Inv/'.$code.'/'.date('Y');
+    $return = '/Inv/'.$code.'/'.find_budget_setting('Active Year');
 
     return $return;
   }

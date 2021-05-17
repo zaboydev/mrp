@@ -63,7 +63,8 @@ if ( ! function_exists('request_format_number')) {
   function request_format_number($cost_center_code)
   {
     
-    $return = '/Exp/'.$cost_center_code.'/'.date('Y');
+    // $return = '/Exp/'.$cost_center_code.'/'.date('Y');
+    $return = '/Exp/'.$cost_center_code.'/'.find_budget_setting('Active Year');
 
     return $return;
   }

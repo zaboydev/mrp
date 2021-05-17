@@ -19,8 +19,8 @@
     <th>: <?= print_date($entity['pr_date']); ?></th>
   </tr>
   <tr>
-    <td>Suggested Supplier</td>
-    <th>: <?= print_string($entity['suggested_supplier']); ?></th>
+    <td>Category</td>
+    <th>: <?=print_string($entity['category_name']);?> - <?=print_string($entity['category_code']);?></th>
     <td>Required Date</td>
     <th>: <?= print_date($entity['required_date']); ?></th>
   </tr>
@@ -30,9 +30,9 @@
     <td>Status</td>
     <th>: <?= ($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']); ?></th>
   </tr>
-  <tr>
-    <td></td>
-    <th></th>
+  <tr>    
+    <td>Suggested Supplier</td>
+    <th>: <?= print_string($entity['suggested_supplier']); ?></th>
     <td>Approval Status</td>
     <?php if($entity['status']=='approved') : ?>
       <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?></th>
@@ -151,7 +151,7 @@
       <p>
         Request by:
         <br /><?= print_string($entity['cost_center_name']); ?>
-        <br />&nbsp;<br>
+        <br /><?= print_date($entity['pr_date']) ?><br>
         <?php if ($entity['created_by'] != '') : ?>
           <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
         <?php endif; ?>
@@ -245,7 +245,7 @@
         $total_qty[]        = $history['quantity'];
         $total[]            = $history['total'];
         $total_qty_poe[]    = $history['poe_qty'];
-        $total_value_poe[]  = $history['poe-value'];
+        $total_value_poe[]  = $history['poe_value'];
         $total_qty_po[]     = $history['po_qty'];
         $total_value_po[]   = $history['po_value'];
         $total_qty_grn[]    = $history['grn_qty'];

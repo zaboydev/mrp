@@ -27,6 +27,10 @@
             <div class="pull-left">COST CENTER: </div>
             <div class="pull-right"><?=print_string($entity['cost_center_name']);?></div>
           </div>
+          <div class="clearfix">
+            <div class="pull-left">CATEGORY: </div>
+            <div class="pull-right"><?=print_string($entity['category_name']);?> - <?=print_string($entity['category_code']);?></div>
+          </div>
         </div>
       </div>
 
@@ -215,7 +219,7 @@
                     $total_qty[]        = $history['quantity'];
                     $total[]            = $history['total'];
                     $total_qty_poe[]    = $history['poe_qty'];
-                    $total_value_poe[]  = $history['poe-value'];
+                    $total_value_poe[]  = $history['poe_value'];
                     $total_qty_po[]     = $history['po_qty'];
                     $total_value_po[]   = $history['po_value'];
                     $total_qty_grn[]    = $history['grn_qty'];

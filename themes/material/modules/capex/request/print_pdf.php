@@ -245,7 +245,7 @@
         $total_qty[]        = $history['quantity'];
         $total[]            = $history['total'];
         $total_qty_poe[]    = $history['poe_qty'];
-        $total_value_poe[]  = $history['poe-value'];
+        $total_value_poe[]  = $history['poe_value'];
         $total_qty_po[]     = $history['po_qty'];
         $total_value_po[]   = $history['po_value'];
         $total_qty_grn[]    = $history['grn_qty'];

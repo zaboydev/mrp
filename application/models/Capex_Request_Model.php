@@ -371,7 +371,7 @@ class Capex_Request_Model extends MY_Model
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('head_approved_by',config_item('auth_person_name'));
             if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+                $this->connection->set('approved_notes',$approval_notes.'Head-Dept : '.$notes);
             }
             $this->connection->where('id',$id);
             $this->connection->update('tb_capex_purchase_requisitions');
@@ -884,7 +884,7 @@ class Capex_Request_Model extends MY_Model
                 $this->connection->set('unit', $data['unit']);
                 $this->connection->set('sort_order', floatval($key));
                 $this->connection->set('quantity', floatval($data['quantity']));
-                $this->connection->set('sisa', floatval($data['quantity']));
+                // $this->connection->set('sisa', floatval($data['quantity']));
                 $this->connection->set('price', floatval($data['price']));
                 $this->connection->set('total', floatval($data['total']));
                 $this->connection->insert('tb_capex_purchase_requisition_details');

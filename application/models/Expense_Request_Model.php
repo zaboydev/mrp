@@ -709,7 +709,7 @@ class Expense_Request_Model extends MY_Model
                 $this->connection->set('expense_purchase_requisition_id', $document_id);
                 $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
                 $this->connection->set('sort_order', floatval($key));
-                $this->connection->set('sisa', floatval($data['amount']));
+                // $this->connection->set('sisa', floatval($data['amount']));
                 $this->connection->set('amount', floatval($data['amount']));
                 $this->connection->set('total', floatval($data['amount']));
                 $this->connection->insert('tb_expense_purchase_requisition_details');
