@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Purchase_Order_Evaluation extends MY_Controller
+class Capex_Order_Evaluation extends MY_Controller
 {
   protected $module;
 
@@ -8,16 +8,16 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     parent::__construct();
 
-    $this->module = $this->modules['purchase_order_evaluation'];
+    $this->module = $this->modules['capex_order_evaluation'];
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
     $this->load->library('upload');
     $this->load->helper('string');
     $this->data['module'] = $this->module;
-    if (empty($_SESSION['poe']['source']))
-      $_SESSION['poe']['source'] = 1;
-    if (empty($_SESSION['poe']['attachment']))
-      $_SESSION['poe']['attachment'] = array();
+    if (empty($_SESSION['capex_poe']['source']))
+      $_SESSION['capex_poe']['source'] = 1;
+    if (empty($_SESSION['capex_poe']['attachment']))
+      $_SESSION['capex_poe']['attachment'] = array();
   }
 
   public function set_doc_number()
@@ -30,7 +30,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     else
       $number = $_GET['data'];
 
-    $_SESSION['poe']['document_number'] = $number;
+    $_SESSION['capex_poe']['document_number'] = $number;
   }
 
   public function set_document_date()
@@ -38,7 +38,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['document_date'] = $_GET['data'];
+    $_SESSION['capex_poe']['document_date'] = $_GET['data'];
   }
 
   public function set_created_by()
@@ -46,7 +46,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['created_by'] = $_GET['data'];
+    $_SESSION['capex_poe']['created_by'] = $_GET['data'];
   }
 
   public function set_document_reference()
@@ -54,7 +54,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['document_reference'] = $_GET['data'];
+    $_SESSION['capex_poe']['document_reference'] = $_GET['data'];
   }
 
   public function set_status()
@@ -62,7 +62,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['status'] = $_GET['data'];
+    $_SESSION['capex_poe']['status'] = $_GET['data'];
   }
 
   public function set_approved_by()
@@ -70,7 +70,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['approved_by'] = $_GET['data'];
+    $_SESSION['capex_poe']['approved_by'] = $_GET['data'];
   }
 
   public function set_default_currency()
@@ -78,7 +78,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['default_currency'] = $_GET['data'];
+    $_SESSION['capex_poe']['default_currency'] = $_GET['data'];
   }
 
   public function set_default_approval()
@@ -86,7 +86,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['approval'] = $_GET['data'];
+    $_SESSION['capex_poe']['approval'] = $_GET['data'];
   }
 
   public function set_exchange_rate()
@@ -94,7 +94,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['exchange_rate'] = $_GET['data'];
+    $_SESSION['capex_poe']['exchange_rate'] = $_GET['data'];
   }
 
   public function set_notes()
@@ -102,7 +102,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['notes'] = $_GET['data'];
+    $_SESSION['capex_poe']['notes'] = $_GET['data'];
   }
 
   public function search_request_item()
@@ -110,7 +110,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $category = $_SESSION['poe']['category'];
+    $category = $_SESSION['capex_poe']['category'];
     $entities = $this->model->searchRequestItem($category);
 
     foreach ($entities as $key => $value) {
@@ -133,7 +133,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $category = $_SESSION['poe']['category'];
+    $category = $_SESSION['capex_poe']['category'];
     $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value) {
@@ -141,171 +141,6 @@ class Purchase_Order_Evaluation extends MY_Controller
     }
 
     echo json_encode($entities);
-  }
-
-  public function sendEmail()
-  {
-    $recipientList = $this->model->getNotifRecipient(9);
-    $recipient = array();
-    foreach ($recipientList as $key) {
-      array_push($recipient, $key->email);
-    }
-    $this->load->library('email');
-    $config = array(
-      'protocol' => 'smtp',
-      'smtp_host' => 'smtp.mailtrap.io',
-      'smtp_port' => 2525,
-      'smtp_user' => '8fe5a91a10cc87',
-      'smtp_pass' => '1cd529218bc7b0',
-      'crlf' => "\r\n",
-      'newline' => "\r\n"
-    );
-    $this->email->initialize($config);
-    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-    $this->email->to($recipient);
-    $html = '<html><head>
-    <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
-    <style>
-    .content {
-      max-width: 500px;
-      margin: auto;
-    }
-    .title{
-      width: 60%;
-    }
-    </style></head>
-    <body> 
-    <div class="content">
-    <div bgcolor="#0aa89e">
-    <table align="center" bgcolor="#fff" border="0" cellpadding="0" cellspacing="0" style="background-color:#fff;margin:5% auto;width:100%;max-width:600px">
-    <tbody><tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0aa89e" style="padding:10px 15px;font-size:14px">
-      <tbody><tr>
-      <td width="60%" align="left" style="padding:5px 0 0">
-      <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                BIFA
-                            </span>
-                        </td>
-                        <td width="40%" align="right" style="padding:5px 0 0">
-                            <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                Notification
-                            </span>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>        
-        <tr>
-            <td style="padding:25px 15px 10px">
-                <table width="100%">
-                    <tbody><tr>
-                        <td>
-                            <h1 style="margin:0;font-size:16px;font-weight:bold;line-height:24px;color:rgba(0,0,0,0.70)">Halo Team</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru pada daftar Purchase Order Evaluation silakan di cek</p>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>
-    </tbody></table>
-    <p>&nbsp;<br></p>
-    </div></div>  
-    </body></html>';
-    $this->email->subject('Notification');
-    $this->email->message($html);
-
-    $this->email->send();
-  }
-
-  public function sendEmailHOS()
-  {
-    $recipientList = $this->model->getNotifRecipientHOS();
-    $recipient = array();
-    foreach ($recipientList as $key) {
-      array_push($recipient, $key->email);
-    }
-    $this->load->library('email');
-    $config = array(
-      'protocol' => 'smtp',
-      'smtp_host' => 'smtp.mailtrap.io',
-      'smtp_port' => 2525,
-      'smtp_user' => '8fe5a91a10cc87',
-      'smtp_pass' => '1cd529218bc7b0',
-      'crlf' => "\r\n",
-      'newline' => "\r\n"
-    );
-    $this->email->initialize($config);
-    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-    $this->email->to($recipient);
-    $html = '<html><head> 
-                          <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
-                          <style>
-                              .content {
-                                  max-width: 500px;
-                                  margin: auto;
-                              }
-                              .title{
-                                  width: 60%;
-                              }
-
-                          </style></head>
-                          
-                          <body> 
-                              <div class="content">
-      <div bgcolor="#0aa89e">
-          <table align="center" bgcolor="#fff" border="0" cellpadding="0" cellspacing="0" style="background-color:#fff;margin:5% auto;width:100%;max-width:600px">
-              
-              <tbody><tr>
-                  <td>
-                      <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0aa89e" style="padding:10px 15px;font-size:14px">
-                          <tbody><tr>
-                              <td width="60%" align="left" style="padding:5px 0 0">
-                                  <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                      BIFA
-                                  </span>
-                              </td>
-                              <td width="40%" align="right" style="padding:5px 0 0">
-                                  <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                      Notification
-                                  </span>
-                              </td>
-                          </tr>
-                      </tbody></table>
-                  </td>
-              </tr>        
-              <tr>
-                  <td style="padding:25px 15px 10px">
-                      <table width="100%">
-                          <tbody><tr>
-                              <td>
-                                  <h1 style="margin:0;font-size:16px;font-weight:bold;line-height:24px;color:rgba(0,0,0,0.70)">Halo Team</h1>
-                              </td>
-                          </tr>
-                          <tr>
-                              <td>
-                                  <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru pada daftar Purchase Order  silakan di cek</p>
-                              </td>
-                          </tr>
-                      </tbody></table>
-                  </td>
-              </tr>
-          </tbody></table>
-      <p>&nbsp;<br></p>
-      </div>
-
-                                  </div>  
-                                          
-                              
-      </body></html>';
-    $this->email->subject('Notification Purchase Order');
-    $this->email->message($html);
-
-    $this->email->send();
   }
   
   public function index_data_source()
@@ -438,7 +273,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       $this->data['entity'] = $entity;
 
       $return['type'] = 'success';
-      $return['info'] = $this->load->view($this->module['view'] . '/info-2', $this->data, TRUE);
+      $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
     }
 
     echo json_encode($return);
@@ -522,12 +357,12 @@ class Purchase_Order_Evaluation extends MY_Controller
     $entity = $this->model->findById($id);
     $document_number  = sprintf('%06s', substr($entity['evaluation_number'], 0, 6));
 
-    if (!isset($_SESSION['poe']['request'])) {
-      $_SESSION['poe']                     = $entity;
-      $_SESSION['poe']['id']               = $id;
-      $_SESSION['poe']['edit']             = $entity['evaluation_number'];
-      $_SESSION['poe']['document_number']  = $document_number;
-      $_SESSION['poe']['attachment'] = $entity['attachment'];
+    if (!isset($_SESSION['capex_poe']['request'])) {
+      $_SESSION['capex_poe']                     = $entity;
+      $_SESSION['capex_poe']['id']               = $id;
+      $_SESSION['capex_poe']['edit']             = $entity['evaluation_number'];
+      $_SESSION['capex_poe']['document_number']  = $document_number;
+      $_SESSION['capex_poe']['attachment'] = $entity['attachment'];
     }
 
     redirect($this->module['route'] . '/create');
@@ -540,33 +375,33 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($category !== NULL) {
       $category = urldecode($category);
 
-      $_SESSION['poe']['request']             = array();
-      $_SESSION['poe']['vendors']             = array();
-      $_SESSION['poe']['warehouse']           = config_item('main_warehouse');
-      $_SESSION['poe']['category']            = $category;
-      $_SESSION['poe']['document_number']     = poe_last_number();
-      $_SESSION['poe']['document_date']       = date('Y-m-d');
-      $_SESSION['poe']['created_by']          = config_item('auth_person_name');
-      $_SESSION['poe']['document_reference']  = NULL;
-      $_SESSION['poe']['exchange_rate']       = 1.00;
-      $_SESSION['poe']['default_currency']    = 'IDR';
-      $_SESSION['poe']['approval']            = 'with_approval';
-      $_SESSION['poe']['status']              = 'evaluation';
-      $_SESSION['poe']['approved_by']         = NULL;
-      $_SESSION['poe']['total_quantity']      = NULL;
-      $_SESSION['poe']['total_price']         = NULL;
-      $_SESSION['poe']['grand_total']         = NULL;
-      $_SESSION['poe']['notes']               = NULL;
+      $_SESSION['capex_poe']['request']             = array();
+      $_SESSION['capex_poe']['vendors']             = array();
+      $_SESSION['capex_poe']['warehouse']           = config_item('main_warehouse');
+      $_SESSION['capex_poe']['category']            = $category;
+      $_SESSION['capex_poe']['document_number']     = poe_last_number();
+      $_SESSION['capex_poe']['document_date']       = date('Y-m-d');
+      $_SESSION['capex_poe']['created_by']          = config_item('auth_person_name');
+      $_SESSION['capex_poe']['document_reference']  = NULL;
+      $_SESSION['capex_poe']['exchange_rate']       = 1.00;
+      $_SESSION['capex_poe']['default_currency']    = 'IDR';
+      $_SESSION['capex_poe']['approval']            = 'with_approval';
+      $_SESSION['capex_poe']['status']              = 'evaluation';
+      $_SESSION['capex_poe']['approved_by']         = NULL;
+      $_SESSION['capex_poe']['total_quantity']      = NULL;
+      $_SESSION['capex_poe']['total_price']         = NULL;
+      $_SESSION['capex_poe']['grand_total']         = NULL;
+      $_SESSION['capex_poe']['notes']               = NULL;
 
       redirect($this->module['route'] . '/create');
     }
 
-    if (!isset($_SESSION['poe']))
+    if (!isset($_SESSION['capex_poe']))
       redirect($this->module['route']);
 
     $this->data['page']['content']    = $this->module['view'] . '/create';
 
-    $this->render_view($this->module['view'] . '/create-2');
+    $this->render_view($this->module['view'] . '/create');
   }
 
   public function save()
@@ -578,14 +413,14 @@ class Purchase_Order_Evaluation extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (!isset($_SESSION['poe']['request']) || empty($_SESSION['poe']['request']) || !isset($_SESSION['poe']['vendors']) || empty($_SESSION['poe']['vendors'])) {
+      if (!isset($_SESSION['capex_poe']['request']) || empty($_SESSION['capex_poe']['request']) || !isset($_SESSION['capex_poe']['vendors']) || empty($_SESSION['capex_poe']['vendors'])) {
         $data['success'] = FALSE;
         $data['message'] = 'Please add at least 1 request or vendor!';
       } else {
         $errors = array();
         $has_selected = FALSE;
 
-        foreach ($_SESSION['poe']['request'] as $key => $item) {
+        foreach ($_SESSION['capex_poe']['request'] as $key => $item) {
           foreach ($item['vendors'] as $d => $detail) {
             if ($detail['is_selected'] == 't') {
               $has_selected = TRUE;
@@ -597,15 +432,15 @@ class Purchase_Order_Evaluation extends MY_Controller
           $errors[] = 'No vendor qualified For one of Item! Please approve 1 vendor for 1 Item.';
         }
 
-        $document_number = $_SESSION['poe']['document_number'] . poe_format_number();
+        $document_number = $_SESSION['capex_poe']['document_number'] . poe_format_number();
 
-        if (isset($_SESSION['poe']['edit'])) {
-          if ($_SESSION['poe']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
-            $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
+        if (isset($_SESSION['capex_poe']['edit'])) {
+          if ($_SESSION['capex_poe']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
+            $errors[] = 'Duplicate Document Number: ' . $_SESSION['capex_poe']['document_number'] . ' !';
           }
         } else {
           if ($this->model->isDocumentNumberExists($document_number)) {
-            $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
+            $errors[] = 'Duplicate Document Number: ' . $_SESSION['capex_poe']['document_number'] . ' !';
           }
         }
 
@@ -614,8 +449,8 @@ class Purchase_Order_Evaluation extends MY_Controller
           $data['message'] = implode('<br />', $errors);
         } else {
           if ($this->model->save()) {
-            unset($_SESSION['poe']);
-            $this->sendEmail();
+            unset($_SESSION['capex_poe']);
+            // $this->sendEmail();
             $data['success'] = TRUE;
             $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
           } else {
@@ -633,7 +468,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['source'] = $_GET['data'];
+    $_SESSION['capex_poe']['source'] = $_GET['data'];
     $result['status'] = "success";
     echo json_encode($result);
   }
@@ -641,7 +476,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    $this->data['entities'] = $this->model->listRequest($_SESSION['poe']['category']);
+    $this->data['entities'] = $this->model->listRequest($_SESSION['capex_poe']['category']);
 
     $this->render_view($this->module['view'] . '/add_request');
   }
@@ -656,19 +491,19 @@ class Purchase_Order_Evaluation extends MY_Controller
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
       if (isset($_POST['request_id']) && !empty($_POST['request_id'])) {
-        $_SESSION['poe']['request'] = array();
+        $_SESSION['capex_poe']['request'] = array();
 
         foreach ($_POST['request_id'] as $key => $request_id) {
           $request = $this->model->infoRequest($request_id);
 
-          $_SESSION['poe']['request'][$request_id] = array(
+          $_SESSION['capex_poe']['request'][$request_id] = array(
             'description'             => $request['product_name'],
             'part_number'             => $request['product_code'],
             'alternate_part_number'   => NULL,
             'serial_number'           => NULL,
             'unit'                    => $request['unit'],
-            'quantity'                => floatval($request['sisa']),
-            'sisa'                    => floatval($request['sisa']),
+            'quantity'                => floatval($request['quantity']-$request['process_qty']),
+            'sisa'                    => floatval($request['quantity']-$request['process_qty']),
             'unit_price'              => floatval($request['price']),
             'core_charge'             => floatval(0),
             'total_amount'            => floatval($request['quantity']) * floatval($request['price']),
@@ -681,8 +516,8 @@ class Purchase_Order_Evaluation extends MY_Controller
             'konversi'                => 1,
           );
 
-          $_SESSION['poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
-          $_SESSION['poe']['request'][$request_id]['vendors'] = array();
+          $_SESSION['capex_poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
+          $_SESSION['capex_poe']['request'][$request_id]['vendors'] = array();
         }
 
         $data['success'] = TRUE;
@@ -794,30 +629,30 @@ class Purchase_Order_Evaluation extends MY_Controller
     } else {
       if (isset($_POST['request']) && !empty($_POST['request'])) {
         foreach ($_POST['request'] as $id => $request) {
-          $quantity = floatval($_SESSION['poe']['request'][$id]['quantity_requested']);
+          $quantity = floatval($_SESSION['capex_poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['poe']['request'][$id]['part_number'] = $request['part_number'];
-          $_SESSION['poe']['request'][$id]['quantity']    = $request['quantity'];
-          $_SESSION['poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
-          $_SESSION['poe']['request'][$id]['remarks']     = $request['remarks'];
-          $_SESSION['poe']['request'][$id]['unit']     = $request['unit'];
-          $_SESSION['poe']['request'][$id]['konversi']     = $request['konversi'];
+          $_SESSION['capex_poe']['request'][$id]['part_number'] = $request['part_number'];
+          $_SESSION['capex_poe']['request'][$id]['quantity']    = $request['quantity'];
+          $_SESSION['capex_poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
+          $_SESSION['capex_poe']['request'][$id]['remarks']     = $request['remarks'];
+          $_SESSION['capex_poe']['request'][$id]['unit']     = $request['unit'];
+          $_SESSION['capex_poe']['request'][$id]['konversi']     = $request['konversi'];
 
           foreach ($request['vendors'] as $key => $vendor) {
-            // $_SESSION['poe']['request'][$id]['alternate_part_number'] = $unit_price;
+            // $_SESSION['capex_poe']['request'][$id]['alternate_part_number'] = $unit_price;
 
             $unit_price   = $vendor['unit_price'];
             $core_charge  = $vendor['core_charge'];
             $total_price  = ($unit_price * $request['quantity']) + ($core_charge * $request['quantity']);
 
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['quantity']     = $request['quantity'];
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['core_charge']  = $core_charge;
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['total']        = $total_price;
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['left_received_quantity'] = $request['quantity'];
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_quantity']     = $request['quantity'];
-            $_SESSION['poe']['request'][$id]['vendors'][$key]['left_paid_amount']       = $total_price;
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['quantity']     = $request['quantity'];
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['core_charge']  = $core_charge;
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['total']        = $total_price;
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['left_received_quantity'] = $request['quantity'];
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['left_paid_quantity']     = $request['quantity'];
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['left_paid_amount']       = $total_price;
           }
         }
 
@@ -836,8 +671,8 @@ class Purchase_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if (isset($_SESSION['poe']['request']))
-      unset($_SESSION['poe']['request'][$key]);
+    if (isset($_SESSION['capex_poe']['request']))
+      unset($_SESSION['capex_poe']['request'][$key]);
   }
 
   public function add_vendor()
@@ -857,19 +692,19 @@ class Purchase_Order_Evaluation extends MY_Controller
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
       if (isset($_POST['vendor']) && !empty($_POST['vendor'])) {
-        $_SESSION['poe']['vendors'] = array();
+        $_SESSION['capex_poe']['vendors'] = array();
 
         foreach ($_POST['vendor'] as $key => $vendor) {
           $vendor_currency = $vendor;
           $range_vendor_currency = explode('-', $vendor_currency);
 
-          $_SESSION['poe']['vendors'][$key]['vendor'] = $vendor;
-          $_SESSION['poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
-          $_SESSION['poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
-          $_SESSION['poe']['vendors'][$key]['is_selected'] = 'f';
+          $_SESSION['capex_poe']['vendors'][$key]['vendor'] = $vendor;
+          $_SESSION['capex_poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
+          $_SESSION['capex_poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
+          $_SESSION['capex_poe']['vendors'][$key]['is_selected'] = 'f';
         }
 
-        foreach ($_SESSION['poe']['request'] as $id => $request) {
+        foreach ($_SESSION['capex_poe']['request'] as $id => $request) {
           $min = 0;
           $cheaper = 'f';
           foreach ($_POST['vendor'] as $key => $vendor) {
@@ -879,13 +714,13 @@ class Purchase_Order_Evaluation extends MY_Controller
             // }else{
             //   if($min > $request['unit_price_requested']){
             //     $cheaper = 't';
-            //     $_SESSION['poe']['request'][$id]['vendors'][$key]['is_cheaper']='f';
+            //     $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['is_cheaper']='f';
             //     $min = $request['unit_price_requested'];
             //   }else{
             //     $cheaper = 'f';
             //   }
             // }
-            $_SESSION['poe']['request'][$id]['vendors'][$key] = array(
+            $_SESSION['capex_poe']['request'][$id]['vendors'][$key] = array(
               'vendor'                  => $vendor,
               'is_selected'             => 'f',
               'quantity'                => $request['quantity_requested'],
@@ -916,11 +751,11 @@ class Purchase_Order_Evaluation extends MY_Controller
   // {
   //   $this->authorized($this->module, 'document');
 
-  //   foreach ($_SESSION['poe']['vendors'] as $v => $info){
-  //     $_SESSION['poe']['vendors'][$v]['is_selected'] = 'f';
+  //   foreach ($_SESSION['capex_poe']['vendors'] as $v => $info){
+  //     $_SESSION['capex_poe']['vendors'][$v]['is_selected'] = 'f';
   //   }
 
-  //   $_SESSION['poe']['vendors'][$key]['is_selected'] = 't';
+  //   $_SESSION['capex_poe']['vendors'][$key]['is_selected'] = 't';
 
   //   redirect($this->module['route'] .'/create');
   // }
@@ -930,18 +765,18 @@ class Purchase_Order_Evaluation extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    // foreach ($_SESSION['poe']['request'] as $id => $request) {
-    // foreach ($_SESSION['poe']['vendor'] as $key => $vendor) {
-    //   $_SESSION['poe']['request'][$item]['vendors'][$key]['is_selected'] = 'f';
+    // foreach ($_SESSION['capex_poe']['request'] as $id => $request) {
+    // foreach ($_SESSION['capex_poe']['vendor'] as $key => $vendor) {
+    //   $_SESSION['capex_poe']['request'][$item]['vendors'][$key]['is_selected'] = 'f';
     // }
     // }
 
-    foreach ($_SESSION['poe']['vendors'] as $v => $info) {
-      $_SESSION['poe']['request'][$item]['vendors'][$v]['is_selected'] = 'f';
+    foreach ($_SESSION['capex_poe']['vendors'] as $v => $info) {
+      $_SESSION['capex_poe']['request'][$item]['vendors'][$v]['is_selected'] = 'f';
     }
 
-    // $_SESSION['poe']['vendors'][$key]['is_selected'] = 't';
-    $_SESSION['poe']['request'][$item]['vendors'][$key_item]['is_selected'] = 't';
+    // $_SESSION['capex_poe']['vendors'][$key]['is_selected'] = 't';
+    $_SESSION['capex_poe']['request'][$item]['vendors'][$key_item]['is_selected'] = 't';
 
     redirect($this->module['route'] . '/create');
   }
@@ -949,13 +784,13 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function discard()
   {
     $this->authorized($this->module['permission']['document']);
-    foreach ($_SESSION['poe']["attachment"] as $key) {
+    foreach ($_SESSION['capex_poe']["attachment"] as $key) {
       $url = FCPATH . $key;
       if (is_file($url)) {
         unlink($url);
       }
     }
-    unset($_SESSION['poe']);
+    unset($_SESSION['capex_poe']);
 
     redirect($this->module['route']);
   }

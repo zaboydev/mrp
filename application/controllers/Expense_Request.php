@@ -69,6 +69,10 @@ class Expense_Request extends MY_Controller
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='WAITING FOR HOS REVIEW' && config_item('auth_role')=='HEAD OF SCHOOL'){
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='WAITING FOR COO REVIEW' && config_item('auth_role')=='CHIEF OPERATION OFFICER'){
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{                    
                     $col[] = print_number($no);
                 }

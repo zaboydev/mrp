@@ -12,10 +12,8 @@ $config['module']['capex_request']['helper']         = 'capex_request_helper';
 $config['module']['capex_request']['table']          = 'tb_capex_purchase_requisitions';
 $config['module']['capex_request']['model']          = 'Capex_Request_Model';
 $config['module']['capex_request']['permission']     = array(
-  'index'     => 'SUPER ADMIN,BUDGETCONTROL',
-  'info'      => 'SUPER ADMIN,BUDGETCONTROL',
-  'print'     => 'SUPER ADMIN,BUDGETCONTROL',
-  'document'  => 'SUPER ADMIN',//tambhan supervisor
-  'payment'   => 'SUPER ADMIN',
-  'import'    => 'SUPER ADMIN',//tambhan supervisor
+  'index'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
+  'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
+  'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
+  'document'  => 'SUPER ADMIN,PIC STAFF',
 );

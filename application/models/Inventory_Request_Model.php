@@ -144,10 +144,17 @@ class Inventory_Request_Model extends MY_Model
 
     function getProductCategories()
     {
+    	$category   = array();
+
+		foreach (config_item('auth_inventory') as $inventory) {
+		  	$category[] = strtoupper($inventory);
+		}
+
         $this->connection->select('tb_product_categories.id,tb_product_categories.category_name');
         $this->connection->from('tb_product_categories');
-        $this->connection->join('tb_users_mrp_in_product_categories','tb_users_mrp_in_product_categories.product_category_id=tb_product_categories.id');
-        $this->connection->where('tb_users_mrp_in_product_categories.username', $_SESSION['username']);
+        $this->connection->where_in('UPPER(category_name)', $category);
+        // $this->connection->join('tb_users_mrp_in_product_categories','tb_users_mrp_in_product_categories.product_category_id=tb_product_categories.id');
+        // $this->connection->where('tb_users_mrp_in_product_categories.username', $_SESSION['username']);
 
         $query  = $this->connection->get();
         $result = $query->result_array();

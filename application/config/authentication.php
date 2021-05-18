@@ -45,7 +45,8 @@ $config['levels_and_roles'] = array(
 	'16'	=> 'CHIEF OPERATION OFFICER',
 	'17'	=> 'AP STAFF',
 	'18'	=> 'TELLER',
-	'19'	=> 'BUDGETCONTROL'
+	'19'	=> 'BUDGETCONTROL',
+	'20'	=> 'PIC STAFF'//utk staff budgetcontrol 
 );
 
 /*

@@ -95,8 +95,12 @@ class MY_Controller extends CI_Controller
       return TRUE;
     }
     else{
-      if (config_item('as_head_department')=='yes' && $roles=='index') {
-        return TRUE;
+      if (config_item('as_head_department')=='yes') {
+        if($roles=='index'||$roles=='info'||$roles=='print'){
+          return TRUE;
+        }else{
+          return FALSE;
+        }
       }else{
         return FALSE;
       }

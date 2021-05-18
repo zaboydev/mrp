@@ -187,8 +187,12 @@ if ( ! function_exists('is_granted')) {
     if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) ){
       return TRUE;
     }else{
-      if (config_item('as_head_department')=='yes'&&$roles=='index') {
-        return TRUE;
+      if (config_item('as_head_department')=='yes') {
+        if($roles=='index'||$roles=='info'||$roles=='print'){
+          return TRUE;
+        }else{
+          return FALSE;
+        }
       }else{
         return FALSE;
       }

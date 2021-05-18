@@ -69,6 +69,7 @@ require('modules/budgeting.php');
 
 //CAPEX
 require('modules/capex_request.php');
+require('modules/capex_order_evaluation.php');
 //Inventory
 require('modules/inventory_request.php');
 //Inventory

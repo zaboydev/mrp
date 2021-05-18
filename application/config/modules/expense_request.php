@@ -12,10 +12,9 @@ $config['module']['expense_request']['helper']         = 'expense_request_helper
 $config['module']['expense_request']['table']          = 'tb_expense_purchase_requisitions';
 $config['module']['expense_request']['model']          = 'Expense_Request_Model';
 $config['module']['expense_request']['permission']     = array(
-  'index'     => 'SUPER ADMIN,BUDGETCONTROL,VP FINANCE',
-  'info'      => 'SUPER ADMIN,BUDGETCONTROL,VP FINANCE',
-  'print'     => 'SUPER ADMIN,BUDGETCONTROL,VP FINANCE',
-  'document'  => 'SUPER ADMIN',//tambhan supervisor
-  'payment'   => 'SUPER ADMIN',
-  'import'    => 'SUPER ADMIN',//tambhan supervisor
+  'index'     => 'SUPER ADMIN,BUDGETCONTROL,VP FINANCE,PIC STAFF,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
+  'info'      => 'SUPER ADMIN,BUDGETCONTROL,VP FINANCE,PIC STAFF,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
+  'print'     => 'SUPER ADMIN,BUDGETCONTROL,VP FINANCE,PIC STAFF,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
+  'document'  => 'SUPER ADMIN,PIC STAFF',
+  'approval'  => 'VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER'
 );

@@ -12,10 +12,8 @@ $config['module']['inventory_request']['helper']         = 'inventory_request_he
 $config['module']['inventory_request']['table']          = 'tb_inventory_purchase_requisitions';
 $config['module']['inventory_request']['model']          = 'Inventory_Request_Model';
 $config['module']['inventory_request']['permission']     = array(
-  'index'     => 'SUPER ADMIN,BUDGETCONTROL',
-  'info'      => 'SUPER ADMIN,BUDGETCONTROL',
-  'print'     => 'SUPER ADMIN,BUDGETCONTROL',
-  'document'  => 'SUPER ADMIN',//tambhan supervisor
-  'payment'   => 'SUPER ADMIN',
-  'import'    => 'SUPER ADMIN',//tambhan supervisor
+  'index'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
+  'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
+  'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
+  'document'  => 'SUPER ADMIN,PIC STAFF',
 );
