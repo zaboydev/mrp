@@ -517,6 +517,7 @@ class Capex_Request extends MY_Controller
             'group'                       => $this->input->post('group_name'),
             'mtd_quantity'                => $this->input->post('mtd_quantity'),
             'mtd_budget'                  => $this->input->post('mtd_budget'),
+            'reference_ipc'               => trim($this->input->post('reference_ipc')),
           );
         }
 
@@ -558,6 +559,7 @@ class Capex_Request extends MY_Controller
                 'group'                       => $this->input->post('group_name'),
                 'mtd_quantity'                => $this->input->post('mtd_quantity'),
                 'mtd_budget'                  => $this->input->post('mtd_budget'),
+                'reference_ipc'               => trim($this->input->post('reference_ipc')),
 
             );
         }

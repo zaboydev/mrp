@@ -184,10 +184,6 @@
                       <label for="product_name">Product</label>
                     </div>
                     <div class="form-group">
-                      <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
-                      <label for="additional_info">Additional Info/Remarks</label>
-                    </div>
-                    <div class="form-group">
                       <!-- <input type="text" name="unit" id="unit" class="form-control input-sm"> -->
                       <input type="text" name="unit" id="unit" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" required>
                       <label for="unit">Unit of Measurement</label>
@@ -239,6 +235,18 @@
                 <div class="form-group">
                   <input type="text" name="total" id="total" class="form-control input-sm" value="" readonly="">
                   <label for="total">Total</label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>Additional</legend>
+                <div class="form-group">
+                      <!-- <input type="text" name="unit" id="unit" class="form-control input-sm"> -->
+                  <input type="reference_ipc" name="reference_ipc" id="reference_ipc" data-tag-name="reference_ipc" class="form-control input-sm">
+                  <label for="unit">Reference IPC</label>
+                </div>
+                <div class="form-group">
+                  <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
+                  <label for="additional_info">Additional Info/Remarks</label>
                 </div>
               </fieldset>
             </div>
@@ -595,6 +603,7 @@
           $('#mtd_quantity').val(mtd_quantity);
           $('#mtd_budget').val(mtd_budget);
           $('#quantity').val(response.quantity);
+          $('#reference_ipc').val(response.reference_ipc);
           // $('#total').val(parseFloat(price)).trigger('change');
 
           $('input[id="total"]').attr('data-rule-max', parseFloat(response.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(response.maximum_price));

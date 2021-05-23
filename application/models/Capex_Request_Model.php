@@ -442,9 +442,9 @@ class Capex_Request_Model extends MY_Model
             $this->connection->where('tb_capex_monthly_budgets.product_id', $value['product_id']);
             $this->connection->where('tb_capex_monthly_budgets.month_number', $this->budget_month);
             $query_row = $this->connection->get();
-            $row   = $query->unbuffered_row('array');
-            $result[$key]['mtd_quantity'] = $value['ytd_quantity'] - $value['ytd_used_quantity'];
-            $result[$key]['mtd_budget'] = $value['ytd_budget'] - $value['ytd_used_budget'];
+            $row   = $query_row->unbuffered_row('array');
+            $result[$key]['mtd_quantity'] = $row['ytd_quantity'] - $row['ytd_used_quantity'];
+            $result[$key]['mtd_budget'] = $row['ytd_budget'] - $row['ytd_used_budget'];
         }
         return $result;
     }
@@ -887,6 +887,7 @@ class Capex_Request_Model extends MY_Model
                 // $this->connection->set('sisa', floatval($data['quantity']));
                 $this->connection->set('price', floatval($data['price']));
                 $this->connection->set('total', floatval($data['total']));
+                $this->connection->set('reference_ipc', $data['reference_ipc']);
                 $this->connection->insert('tb_capex_purchase_requisition_details');
         }
         

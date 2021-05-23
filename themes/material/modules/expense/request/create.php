@@ -162,8 +162,12 @@
                   <fieldset>
                     <legend>Balance</legend>
                     <div class="form-group">
+                      <input type="number" name="mtd_budget" id="mtd_budget" value="1" class="form-control input-sm" readonly="readonly">
+                      <label for="mtd_budget">Month to Date Value</label>
+                    </div>
+                    <div class="form-group">
                       <input type="number" name="maximum_price" id="maximum_price" value="1" class="form-control input-sm" readonly="readonly">
-                      <label for="max_value">Max. Value</label>
+                      <label for="max_value">Year to Date Value</label>
                     </div>
                   </fieldset>
                 </div>
@@ -180,6 +184,10 @@
                 <div class="form-group">
                   <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
                   <label for="additional_info">Additional Info/Remarks</label>
+                </div>
+                <div class="form-group">
+                  <input name="reference_ipc" id="reference_ipc" data-tag-name="reference_ipc" class="form-control input-sm"></input>
+                  <label for="reference_ipc">Reference IPC</label>
                 </div>
               </fieldset>
             </div>
@@ -221,6 +229,7 @@
           <input type="hidden" id="unbudgeted_item" name="unbudgeted_item">
           <input type="hidden" id="relocation_item" name="relocation_item">
           <input type="hidden" id="item_source" name="item_source">
+          <input type="hidden" id="expense_monthly_budget_id" name="expense_monthly_budget_id">
           <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
           <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction">
@@ -492,61 +501,30 @@
           var action = "<?= site_url($module['route'] . '/edit_item/') ?>/" + id;
           console.log(JSON.stringify(action));
           console.log(JSON.stringify(response));
-          // var maximum_quantity  = parseInt(response.ytd_quantity) - parseInt(response.ytd_used_quantity);
-          // var maximum_price     = parseInt(response.ytd_budget) - parseInt(response.ytd_used_budget);
+          var maximum_price = parseFloat(response.maximum_price);
+          var mtd_budget = parseFloat(response.mtd_budget);
+              
 
-          var maximum_quantity = parseInt(response.mtd_quantity) - parseInt(response.mtd_used_quantity);
-          var maximum_price = parseInt(response.mtd_budget) - parseInt(response.mtd_used_budget);
-
-
-          $('#product_name').val(response.product_name);
-          $('#part_number').val(response.part_number);
-          $('#group_name').val(response.group_name);
-          $('#unit').val(response.unit);
-          $('#additional_info').val(response.additional_info);
-          $('#inventory_monthly_budget_id').val(response.inventory_monthly_budget_id);
-          $('#item_source').val(response.source);
-          $('#price').val(parseInt(response.price));
-          $('#quantity').val(parseInt(response.quantity));
+          $('#account_id').val(response.account_id);
+          $('#account_name').val(response.account_name);
+          $('#account_code').val(response.account_code);
+          $('#annual_cost_center_id').val(response.annual_cost_center_id);
           $('#maximum_price').val(maximum_price);
-          $('#maximum_quantity').val(maximum_quantity);
-          $('#total').val(parseInt(response.price)).trigger('change');
+          $('#mtd_budget').val(mtd_budget);
+          $('#expense_monthly_budget_id').val(response.expense_monthly_budget_id);
+          $('#additional_info').val(response.additional_info);
+          $('#amount').val(response.amount);
+          $('#reference_ipc').val(response.reference_ipc);
 
-          $('#ytd_quantity').val(response.ytd_quantity);
-          $('#ytd_used_quantity').val(parseInt(response.ytd_used_quantity));
-          $('#ytd_used_budget').val(parseInt(response.ytd_used_budget));
-          $('#ytd_budget').val(response.ytd_budget);
+          $('input[id="amount"]').attr('data-rule-max', parseFloat(response.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(response.maximum_price));
 
-          $('#relocation_item').val(response.relocation_item);
-          $('#need_budget').val(response.need_budget);
-          $('#relocation_budget').val(response.need_budget);
+          // $('#issued_quantity').attr('max', parseInt(ui.item.qty_konvers)).focus();
+          $('#amount').attr('max', parseFloat(response.maximum_price)).focus();
 
-          $('#origin_budget').val(response.part_number_relocation);
-          $('#budget_value').val(response.budget_value_relocation);
+          $('#unbudgeted_item').val(0);
 
-          if (response.relocation_item != '') {
-            $('.form-relokasi').removeClass('hide');
-          }
-
-          // var status = $('#inventory_monthly_budget_id').val();
-
-          // if(status==null){
-          //   $('.form-unbudgeted').removeClass('hide');
-          // }
-
-          $('#mtd_quantity').val(response.mtd_quantity);
-          $('#mtd_used_quantity').val(parseInt(response.mtd_used_quantity));
-          $('#mtd_used_budget').val(parseInt(response.mtd_used_budget));
-          $('#mtd_budget').val(response.mtd_budget);
-
-
-          // $('input[id="quantity"]').attr('data-rule-max', maximum_quantity).attr('data-msg-max', 'max available '+ maximum_quantity);
-
-          // $('input[id="price"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-          // $('input[id="total"]').attr('data-rule-max', maximum_price).attr('data-msg-max', 'max allowed '+ maximum_price);
-
-          // $('#quantity').attr('max', maximum_quantity).focus();
+          $('#account_name').prop("readonly", true);
+          $('#account_code').prop("readonly", true);
 
           $('#modal-add-item form').attr('action', action);
           $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
@@ -607,6 +585,7 @@
             select: function(event, ui) {
               // var maximum_quantity = parseFloat(ui.item.maximum_quantity);
               var maximum_price = parseFloat(ui.item.maximum_price);
+              var mtd_budget = parseFloat(ui.item.mtd_budget);
               
 
               $('#account_id').val(ui.item.account_id);
@@ -614,6 +593,8 @@
               $('#account_code').val(ui.item.account_code);
               $('#annual_cost_center_id').val(ui.item.annual_cost_center_id);
               $('#maximum_price').val(maximum_price);
+              $('#mtd_budget').val(mtd_budget);
+              $('#expense_monthly_budget_id').val(ui.item.expense_monthly_budget_id);
 
               $('input[id="amount"]').attr('data-rule-max', parseFloat(ui.item.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(ui.item.maximum_price));
 

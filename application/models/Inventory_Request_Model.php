@@ -176,7 +176,7 @@ class Inventory_Request_Model extends MY_Model
 
 		$this->searchIndex();
 
-		$column_order = $this-]=>getOrderableColumns();
+		$column_order = $this->getOrderableColumns();
 
 		if (isset($_POST['order'])){
 		  	foreach ($_POST['order'] as $key => $order){
@@ -788,6 +788,7 @@ class Inventory_Request_Model extends MY_Model
 		    $this->connection->set('quantity', floatval($data['quantity']));
 		    $this->connection->set('price', floatval($data['price']));
 		    $this->connection->set('total', floatval($data['total']));
+            $this->connection->set('reference_ipc', $data['reference_ipc']);
 		    $this->connection->insert('tb_inventory_purchase_requisition_details');
 		}
 

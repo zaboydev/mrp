@@ -287,7 +287,7 @@ class Expense_Request extends MY_Controller
     {
         $this->authorized($this->module['permission']['document']);
 
-        unset($_SESSION['request']);
+        unset($_SESSION['expense']);
 
         redirect($this->module['route']);
     }
@@ -433,7 +433,8 @@ class Expense_Request extends MY_Controller
                 $entities[$key]['label'] .= $value['account_code'].'-';
                 $entities[$key]['label'] .= $value['account_name'];
                 $entities[$key]['label'] .= '<small>';
-                $entities[$key]['label'] .= 'Left Plan Budget: <code>' . number_format($value['maximum_price'], 2) . '</code>';
+                $entities[$key]['label'] .= 'Month to Date Plan Budget: <code>' . number_format($value['mtd_budget'], 2) . '| </code>';
+                $entities[$key]['label'] .= 'Year to Date Plan Budget: <code>' . number_format($value['maximum_price'], 2) . '</code>';
                 $entities[$key]['label'] .= '</small>';
             }
             
@@ -450,15 +451,61 @@ class Expense_Request extends MY_Controller
 
           $_SESSION['expense']['items'][] = array(
             'annual_cost_center_id'         => $this->input->post('annual_cost_center_id'),
-            'account_id'                  => $this->input->post('account_id'),
+            'account_id'                    => $this->input->post('account_id'),
             'account_name'                  => $this->input->post('account_name'),
             'account_code'                  => $this->input->post('account_code'),
             'maximum_price'                 => $this->input->post('maximum_price'),
+            'mtd_budget'                    => $this->input->post('mtd_budget'),
             'amount'                        => $this->input->post('amount'),
             'additional_info'               => $this->input->post('additional_info'),
+            'reference_ipc'                 => trim($this->input->post('reference_ipc')),
+            'expense_monthly_budget_id'     => $this->input->post('expense_monthly_budget_id'),
           );
         }
 
         redirect($this->module['route'] . '/create');
+    }
+
+    public function ajax_editItem($key)
+    {
+        $this->authorized($this->module, 'document');    
+
+        $entity = $_SESSION['expense']['items'][$key];
+
+        echo json_encode($entity);
+    }
+
+    public function edit_item($key)
+    {
+        $this->authorized($this->module, 'document');
+
+        // $key=$this->input->post('item_id');
+        if (isset($_POST) && !empty($_POST)){
+          //$receipts_items_id = $this->input->post('item_id')
+            $_SESSION['expense']['items'][$key] = array(        
+                'annual_cost_center_id'         => $this->input->post('annual_cost_center_id'),
+                'account_id'                    => $this->input->post('account_id'),
+                'account_name'                  => $this->input->post('account_name'),
+                'account_code'                  => $this->input->post('account_code'),
+                'maximum_price'                 => $this->input->post('maximum_price'),
+                'mtd_budget'                    => $this->input->post('mtd_budget'),
+                'amount'                        => $this->input->post('amount'),
+                'additional_info'               => $this->input->post('additional_info'),
+                'reference_ipc'                 => trim($this->input->post('reference_ipc')),
+                'expense_monthly_budget_id'     => $this->input->post('expense_monthly_budget_id'),
+
+            );
+        }
+        redirect($this->module['route'] .'/create');
+
+    }
+
+    public function del_item($key)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (isset($_SESSION['expense']['items']))
+            unset($_SESSION['expense']['items'][$key]);
     }
 }

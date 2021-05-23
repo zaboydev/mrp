@@ -78,6 +78,7 @@
               <th align="right" width="1">No</th>
               <th>Description</th>
               <th>Part Number</th>
+              <th>Reference IPC</th>
               <th align="right">Qty</th>
               <th width="1">Unit</th>
               <th align="right">Price</th>
@@ -106,6 +107,9 @@
                   </td>
                   <td>
                     <?=print_string($detail['product_code']);?>
+                  </td>
+                  <td>
+                    <?=print_string($detail['reference_ipc']);?>
                   </td>
                   <td align="right">
                     <?=print_number($detail['quantity'], 2);?>

@@ -267,7 +267,10 @@
                   <div class="col-sm-12 col-lg-12">
                     <fieldset>
                       <legend>Optional</legend>
-
+                      <div class="form-group">
+                        <input type="text" name="reference_ipc" id="reference_ipc" class="form-control input-sm">
+                        <label for="reference_ipc">Reference IPC</label>
+                      </div>
                       <div class="form-group">
                         <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
                         <label for="additional_info">Additional Info/Remarks</label>
@@ -535,6 +538,7 @@ $(function(){
           $('#on_hand_quantity').val( response.on_hand_quantity );
           $('#minimum_quantity').val( response.minimum_quantity );
           $('#product_id').val( response.product_id );
+          $('#reference_ipc').val( response.reference_ipc );
           // $('#total').val(parseFloat(price)).trigger('change');
 
           $('input[id="total"]').attr('data-rule-max', parseFloat(response.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(response.maximum_price));

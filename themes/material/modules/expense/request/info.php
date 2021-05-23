@@ -68,6 +68,7 @@
               <th>Total</th>
               <th>Balance Budget Month to Date</th>
               <th>Balance Budget Year to Date</th>
+              <th>Reference IPC</th>
             </thead>
             <tbody id="table_contents">
               <?php $n = 0; $open=0;?>
@@ -99,6 +100,9 @@
                   </td>
                   <td align="right">
                     <?=print_number($detail['balance_ytd_budget'], 2);?>
+                  </td>
+                  <td align="right">
+                    <?=print_string($detail['reference_ipc'], 2);?>
                   </td>
                   
                 </tr>

@@ -258,6 +258,7 @@ class Inventory_Request extends MY_Controller
             'mtd_quantity'                  => $this->input->post('mtd_quantity'),
             'mtd_budget'                    => $this->input->post('mtd_budget'),
             'product_id'                    => $this->input->post('product_id'),
+            'reference_ipc'                 => trim($this->input->post('reference_ipc')),
           );
         }
 
@@ -298,6 +299,7 @@ class Inventory_Request extends MY_Controller
                 'mtd_quantity'                  => $this->input->post('mtd_quantity'),
                 'mtd_budget'                    => $this->input->post('mtd_budget'),
                 'product_id'                    => $this->input->post('product_id'),
+                'reference_ipc'                 => trim($this->input->post('reference_ipc')),
 
             );
         }

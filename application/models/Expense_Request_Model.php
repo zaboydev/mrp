@@ -407,24 +407,15 @@ class Expense_Request_Model extends MY_Model
     {
         $query = "";
         $this->column_select = array(
-            // 'SUM(tb_expense_monthly_budgets.mtd_quantity) as quantity',
             'SUM(tb_expense_monthly_budgets.mtd_budget) as budget',
-            // 'SUM(tb_expense_monthly_budgets.mtd_used_quantity) as used_quantity',
             'SUM(tb_expense_monthly_budgets.mtd_used_budget) as used_budget',
             'tb_expense_monthly_budgets.account_id',
             'tb_accounts.account_name',
             'tb_accounts.account_code',
-            // 'tb_product_groups.group_name',
-            // 'tb_product_measurements.measurement_symbol',
-            // 'tb_product_purchase_prices.current_price',
             'tb_expense_monthly_budgets.annual_cost_center_id',
         );
 
         $this->column_groupby = array(
-            // 'SUM(tb_capex_monthly_budgets.mtd_quantity) as quantity',
-            // 'SUM(tb_capex_monthly_budgets.mtd_budget) as budget',
-            // 'SUM(tb_capex_monthly_budgets.mtd_used_quantity) as used_quantity',
-            // 'SUM(tb_capex_monthly_budgets.mtd_used_budget) as used_budget',
             'tb_expense_monthly_budgets.account_id',
             'tb_accounts.account_name',
             'tb_accounts.account_code',
@@ -434,10 +425,6 @@ class Expense_Request_Model extends MY_Model
         $this->connection->select($this->column_select);
         $this->connection->from('tb_expense_monthly_budgets');
         $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        // $this->connection->join('tb_product_purchase_prices', 'tb_product_purchase_prices.product_id = tb_products.id');
-        // $this->connection->join('tb_product_measurements', 'tb_product_measurements.id = tb_products.product_measurement_id');
-        // $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
-        // $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
         $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
         $this->connection->group_by($this->column_groupby);
         $this->connection->order_by('tb_accounts.account_code ASC, tb_accounts.account_name ASC');
@@ -445,10 +432,22 @@ class Expense_Request_Model extends MY_Model
 
         $result = $query->result_array();
         foreach ($result as $key => $value) {
-          // $result[$key]['maximum_quantity'] = $value['quantity'] - $value['used_quantity'];
-          $result[$key]['maximum_price'] = $value['budget'] - $value['used_budget'];
-          // $result[$key]['maximum_quantity'] = $value['mtd_quantity'] - $value['mtd_used_quantity'];
-          // $result[$key]['maximum_price'] = $value['mtd_budget'] - $value['mtd_used_budget'];
+            $result[$key]['maximum_price'] = $value['budget'] - $value['used_budget'];
+            $select = array(
+                'tb_expense_monthly_budgets.ytd_budget',
+                'tb_expense_monthly_budgets.ytd_used_budget',
+                'tb_expense_monthly_budgets.id',
+            );
+
+            $this->connection->select($select);
+            $this->connection->from('tb_expense_monthly_budgets');
+            $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
+            $this->connection->where('tb_expense_monthly_budgets.account_id', $value['account_id']);
+            $this->connection->where('tb_expense_monthly_budgets.month_number', $this->budget_month);
+            $query_row = $this->connection->get();
+            $row   = $query_row->unbuffered_row('array');
+            $result[$key]['mtd_budget']                 = $row['ytd_budget'] - $row['ytd_used_budget'];
+            $result[$key]['expense_monthly_budget_id']  = $row['id'];
         }
         return $result;
     }
@@ -712,6 +711,7 @@ class Expense_Request_Model extends MY_Model
                 // $this->connection->set('sisa', floatval($data['amount']));
                 $this->connection->set('amount', floatval($data['amount']));
                 $this->connection->set('total', floatval($data['amount']));
+                $this->connection->set('reference_ipc', $data['reference_ipc']);
                 $this->connection->insert('tb_expense_purchase_requisition_details');
             }
         
