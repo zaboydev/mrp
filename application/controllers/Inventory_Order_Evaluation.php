@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Capex_Order_Evaluation extends MY_Controller
+class Inventory_Order_Evaluation extends MY_Controller
 {
   protected $module;
 
@@ -8,16 +8,16 @@ class Capex_Order_Evaluation extends MY_Controller
   {
     parent::__construct();
 
-    $this->module = $this->modules['capex_order_evaluation'];
+    $this->module = $this->modules['inventory_order_evaluation'];
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
     $this->load->library('upload');
     $this->load->helper('string');
     $this->data['module'] = $this->module;
-    if (empty($_SESSION['capex_poe']['source']))
-      $_SESSION['capex_poe']['source'] = 1;
-    if (empty($_SESSION['capex_poe']['attachment']))
-      $_SESSION['capex_poe']['attachment'] = array();
+    if (empty($_SESSION['inventory_poe']['source']))
+      $_SESSION['inventory_poe']['source'] = 1;
+    if (empty($_SESSION['inventory_poe']['attachment']))
+      $_SESSION['inventory_poe']['attachment'] = array();
   }
 
   public function set_doc_number()
@@ -30,7 +30,7 @@ class Capex_Order_Evaluation extends MY_Controller
     else
       $number = $_GET['data'];
 
-    $_SESSION['capex_poe']['document_number'] = $number;
+    $_SESSION['inventory_poe']['document_number'] = $number;
   }
 
   public function set_document_date()
@@ -38,7 +38,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['document_date'] = $_GET['data'];
+    $_SESSION['inventory_poe']['document_date'] = $_GET['data'];
   }
 
   public function set_created_by()
@@ -46,7 +46,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['created_by'] = $_GET['data'];
+    $_SESSION['inventory_poe']['created_by'] = $_GET['data'];
   }
 
   public function set_document_reference()
@@ -54,7 +54,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['document_reference'] = $_GET['data'];
+    $_SESSION['inventory_poe']['document_reference'] = $_GET['data'];
   }
 
   public function set_status()
@@ -62,7 +62,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['status'] = $_GET['data'];
+    $_SESSION['inventory_poe']['status'] = $_GET['data'];
   }
 
   public function set_approved_by()
@@ -70,7 +70,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['approved_by'] = $_GET['data'];
+    $_SESSION['inventory_poe']['approved_by'] = $_GET['data'];
   }
 
   public function set_default_currency()
@@ -78,7 +78,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['default_currency'] = $_GET['data'];
+    $_SESSION['inventory_poe']['default_currency'] = $_GET['data'];
   }
 
   public function set_default_approval()
@@ -86,7 +86,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['approval'] = $_GET['data'];
+    $_SESSION['inventory_poe']['approval'] = $_GET['data'];
   }
 
   public function set_exchange_rate()
@@ -94,7 +94,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['exchange_rate'] = $_GET['data'];
+    $_SESSION['inventory_poe']['exchange_rate'] = $_GET['data'];
   }
 
   public function set_notes()
@@ -102,7 +102,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['notes'] = $_GET['data'];
+    $_SESSION['inventory_poe']['notes'] = $_GET['data'];
   }
 
   public function search_request_item()
@@ -110,7 +110,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $category = $_SESSION['capex_poe']['category'];
+    $category = $_SESSION['inventory_poe']['category'];
     $entities = $this->model->searchRequestItem($category);
 
     foreach ($entities as $key => $value) {
@@ -133,7 +133,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $category = $_SESSION['capex_poe']['category'];
+    $category = $_SESSION['inventory_poe']['category'];
     $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value) {
@@ -216,32 +216,6 @@ class Capex_Order_Evaluation extends MY_Controller
     echo json_encode($result);
   }
   
-  public function listAttachment($id)
-  {
-    $data = $this->model->listAttachment($id);
-    echo json_encode($data);
-  }
-
-  public function multi_reject()
-  {
-    $str_id_purchase_order = $this->input->post('id_purchase_order');
-    $str_notes = $this->input->post('notes');
-    $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
-    $id_purchase_order = substr($id_purchase_order, 0, -1);
-    $notes = str_replace("|", "", $str_notes);
-    $notes = substr($notes, 0, -3);
-    $id_purchase_order = explode(",", $id_purchase_order);
-    $notes = explode("##,", $notes);
-    $result = $this->model->multi_reject($id_purchase_order, $notes);
-    if ($result) {
-      $return["status"] = "success";
-      echo json_encode($return);
-    } else {
-      $return["status"] = "failed";
-      echo json_encode($return);
-    }
-  }
-  
   public function index()
   {
     $this->authorized($this->module, 'index');
@@ -268,6 +242,34 @@ class Capex_Order_Evaluation extends MY_Controller
     $this->data['grid']['column']           = array_values($grid);
 
     $this->render_view($this->module['view'] . '/index');
+  }
+
+
+  
+  public function listAttachment($id)
+  {
+    $data = $this->model->listAttachment($id);
+    echo json_encode($data);
+  }
+
+  public function multi_reject()
+  {
+    $str_id_purchase_order = $this->input->post('id_purchase_order');
+    $str_notes = $this->input->post('notes');
+    $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
+    $id_purchase_order = substr($id_purchase_order, 0, -1);
+    $notes = str_replace("|", "", $str_notes);
+    $notes = substr($notes, 0, -3);
+    $id_purchase_order = explode(",", $id_purchase_order);
+    $notes = explode("##,", $notes);
+    $result = $this->model->multi_reject($id_purchase_order, $notes);
+    if ($result) {
+      $return["status"] = "success";
+      echo json_encode($return);
+    } else {
+      $return["status"] = "failed";
+      echo json_encode($return);
+    }
   }
 
   public function info($id)
@@ -368,12 +370,12 @@ class Capex_Order_Evaluation extends MY_Controller
     $entity = $this->model->findById($id);
     $document_number  = sprintf('%06s', substr($entity['evaluation_number'], 0, 6));
 
-    if (!isset($_SESSION['capex_poe']['request'])) {
-      $_SESSION['capex_poe']                     = $entity;
-      $_SESSION['capex_poe']['id']               = $id;
-      $_SESSION['capex_poe']['edit']             = $entity['evaluation_number'];
-      $_SESSION['capex_poe']['document_number']  = $document_number;
-      $_SESSION['capex_poe']['attachment'] = $entity['attachment'];
+    if (!isset($_SESSION['inventory_poe']['request'])) {
+      $_SESSION['inventory_poe']                     = $entity;
+      $_SESSION['inventory_poe']['id']               = $id;
+      $_SESSION['inventory_poe']['edit']             = $entity['evaluation_number'];
+      $_SESSION['inventory_poe']['document_number']  = $document_number;
+      $_SESSION['inventory_poe']['attachment'] = $entity['attachment'];
     }
 
     redirect($this->module['route'] . '/create');
@@ -386,28 +388,28 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($category !== NULL) {
       $category = urldecode($category);
 
-      $_SESSION['capex_poe']['request']             = array();
-      $_SESSION['capex_poe']['vendors']             = array();
-      $_SESSION['capex_poe']['warehouse']           = config_item('main_warehouse');
-      $_SESSION['capex_poe']['category']            = $category;
-      $_SESSION['capex_poe']['document_number']     = poe_last_number();
-      $_SESSION['capex_poe']['document_date']       = date('Y-m-d');
-      $_SESSION['capex_poe']['created_by']          = config_item('auth_person_name');
-      $_SESSION['capex_poe']['document_reference']  = NULL;
-      $_SESSION['capex_poe']['exchange_rate']       = 1.00;
-      $_SESSION['capex_poe']['default_currency']    = 'IDR';
-      $_SESSION['capex_poe']['approval']            = 'with_approval';
-      $_SESSION['capex_poe']['status']              = 'evaluation';
-      $_SESSION['capex_poe']['approved_by']         = NULL;
-      $_SESSION['capex_poe']['total_quantity']      = NULL;
-      $_SESSION['capex_poe']['total_price']         = NULL;
-      $_SESSION['capex_poe']['grand_total']         = NULL;
-      $_SESSION['capex_poe']['notes']               = NULL;
+      $_SESSION['inventory_poe']['request']             = array();
+      $_SESSION['inventory_poe']['vendors']             = array();
+      $_SESSION['inventory_poe']['warehouse']           = config_item('main_warehouse');
+      $_SESSION['inventory_poe']['category']            = $category;
+      $_SESSION['inventory_poe']['document_number']     = poe_last_number();
+      $_SESSION['inventory_poe']['document_date']       = date('Y-m-d');
+      $_SESSION['inventory_poe']['created_by']          = config_item('auth_person_name');
+      $_SESSION['inventory_poe']['document_reference']  = NULL;
+      $_SESSION['inventory_poe']['exchange_rate']       = 1.00;
+      $_SESSION['inventory_poe']['default_currency']    = 'IDR';
+      $_SESSION['inventory_poe']['approval']            = 'with_approval';
+      $_SESSION['inventory_poe']['status']              = 'evaluation';
+      $_SESSION['inventory_poe']['approved_by']         = NULL;
+      $_SESSION['inventory_poe']['total_quantity']      = NULL;
+      $_SESSION['inventory_poe']['total_price']         = NULL;
+      $_SESSION['inventory_poe']['grand_total']         = NULL;
+      $_SESSION['inventory_poe']['notes']               = NULL;
 
       redirect($this->module['route'] . '/create');
     }
 
-    if (!isset($_SESSION['capex_poe']))
+    if (!isset($_SESSION['inventory_poe']))
       redirect($this->module['route']);
 
     $this->data['page']['content']    = $this->module['view'] . '/create';
@@ -424,14 +426,14 @@ class Capex_Order_Evaluation extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (!isset($_SESSION['capex_poe']['request']) || empty($_SESSION['capex_poe']['request']) || !isset($_SESSION['capex_poe']['vendors']) || empty($_SESSION['capex_poe']['vendors'])) {
+      if (!isset($_SESSION['inventory_poe']['request']) || empty($_SESSION['inventory_poe']['request']) || !isset($_SESSION['inventory_poe']['vendors']) || empty($_SESSION['inventory_poe']['vendors'])) {
         $data['success'] = FALSE;
         $data['message'] = 'Please add at least 1 request or vendor!';
       } else {
         $errors = array();
         $has_selected = FALSE;
 
-        foreach ($_SESSION['capex_poe']['request'] as $key => $item) {
+        foreach ($_SESSION['inventory_poe']['request'] as $key => $item) {
           foreach ($item['vendors'] as $d => $detail) {
             if ($detail['is_selected'] == 't') {
               $has_selected = TRUE;
@@ -443,15 +445,15 @@ class Capex_Order_Evaluation extends MY_Controller
           $errors[] = 'No vendor qualified For one of Item! Please approve 1 vendor for 1 Item.';
         }
 
-        $document_number = $_SESSION['capex_poe']['document_number'] . poe_format_number();
+        $document_number = $_SESSION['inventory_poe']['document_number'] . poe_format_number();
 
-        if (isset($_SESSION['capex_poe']['edit'])) {
-          if ($_SESSION['capex_poe']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
-            $errors[] = 'Duplicate Document Number: ' . $_SESSION['capex_poe']['document_number'] . ' !';
+        if (isset($_SESSION['inventory_poe']['edit'])) {
+          if ($_SESSION['inventory_poe']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
+            $errors[] = 'Duplicate Document Number: ' . $_SESSION['inventory_poe']['document_number'] . ' !';
           }
         } else {
           if ($this->model->isDocumentNumberExists($document_number)) {
-            $errors[] = 'Duplicate Document Number: ' . $_SESSION['capex_poe']['document_number'] . ' !';
+            $errors[] = 'Duplicate Document Number: ' . $_SESSION['inventory_poe']['document_number'] . ' !';
           }
         }
 
@@ -460,7 +462,7 @@ class Capex_Order_Evaluation extends MY_Controller
           $data['message'] = implode('<br />', $errors);
         } else {
           if ($this->model->save()) {
-            unset($_SESSION['capex_poe']);
+            unset($_SESSION['inventory_poe']);
             // $this->sendEmail();
             $data['success'] = TRUE;
             $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
@@ -479,7 +481,7 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['capex_poe']['source'] = $_GET['data'];
+    $_SESSION['inventory_poe']['source'] = $_GET['data'];
     $result['status'] = "success";
     echo json_encode($result);
   }
@@ -487,7 +489,7 @@ class Capex_Order_Evaluation extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    $this->data['entities'] = $this->model->listRequest($_SESSION['capex_poe']['category']);
+    $this->data['entities'] = $this->model->listRequest($_SESSION['inventory_poe']['category']);
 
     $this->render_view($this->module['view'] . '/add_request');
   }
@@ -502,12 +504,12 @@ class Capex_Order_Evaluation extends MY_Controller
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
       if (isset($_POST['request_id']) && !empty($_POST['request_id'])) {
-        $_SESSION['capex_poe']['request'] = array();
+        $_SESSION['inventory_poe']['request'] = array();
 
         foreach ($_POST['request_id'] as $key => $request_id) {
           $request = $this->model->infoRequest($request_id);
 
-          $_SESSION['capex_poe']['request'][$request_id] = array(
+          $_SESSION['inventory_poe']['request'][$request_id] = array(
             'description'             => $request['product_name'],
             'part_number'             => $request['product_code'],
             'alternate_part_number'   => NULL,
@@ -527,8 +529,8 @@ class Capex_Order_Evaluation extends MY_Controller
             'konversi'                => 1,
           );
 
-          $_SESSION['capex_poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
-          $_SESSION['capex_poe']['request'][$request_id]['vendors'] = array();
+          $_SESSION['inventory_poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
+          $_SESSION['inventory_poe']['request'][$request_id]['vendors'] = array();
         }
 
         $data['success'] = TRUE;
@@ -582,7 +584,7 @@ class Capex_Order_Evaluation extends MY_Controller
 
       $data = array('upload_data' => $this->upload->data());
       $url = $config['upload_path'] . $data['upload_data']['orig_name'];
-      array_push($_SESSION['capex_poe']["attachment"], $url);
+      array_push($_SESSION['inventory_poe']["attachment"], $url);
       $result["status"] = 1;
     }
     echo json_encode($result);
@@ -604,7 +606,7 @@ class Capex_Order_Evaluation extends MY_Controller
     } else {
       $data = array('upload_data' => $this->upload->data());
       $url = $config['upload_path'] . $data['upload_data']['orig_name'];
-      // array_push($_SESSION['capex_poe']["attachment"], $url);
+      // array_push($_SESSION['inventory_poe']["attachment"], $url);
       $this->model->add_attachment_to_db($id_poe, $url);
       $result["status"] = 1;
     }
@@ -613,10 +615,10 @@ class Capex_Order_Evaluation extends MY_Controller
 
   public function delete_attachment($index)
   {
-    $file = FCPATH . $_SESSION['capex_poe']["attachment"][$index];
+    $file = FCPATH . $_SESSION['inventory_poe']["attachment"][$index];
     if (unlink($file)) {
-      unset($_SESSION['capex_poe']["attachment"][$index]);
-      $_SESSION['capex_poe']["attachment"] = array_values($_SESSION['capex_poe']["attachment"]);
+      unset($_SESSION['inventory_poe']["attachment"][$index]);
+      $_SESSION['inventory_poe']["attachment"] = array_values($_SESSION['inventory_poe']["attachment"]);
       redirect($this->module['route'] . "/attachment", 'refresh');
     }
   }
@@ -640,30 +642,30 @@ class Capex_Order_Evaluation extends MY_Controller
     } else {
       if (isset($_POST['request']) && !empty($_POST['request'])) {
         foreach ($_POST['request'] as $id => $request) {
-          $quantity = floatval($_SESSION['capex_poe']['request'][$id]['quantity_requested']);
+          $quantity = floatval($_SESSION['inventory_poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['capex_poe']['request'][$id]['part_number'] = $request['part_number'];
-          $_SESSION['capex_poe']['request'][$id]['quantity']    = $request['quantity'];
-          $_SESSION['capex_poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
-          $_SESSION['capex_poe']['request'][$id]['remarks']     = $request['remarks'];
-          $_SESSION['capex_poe']['request'][$id]['unit']     = $request['unit'];
-          $_SESSION['capex_poe']['request'][$id]['konversi']     = $request['konversi'];
+          $_SESSION['inventory_poe']['request'][$id]['part_number'] = $request['part_number'];
+          $_SESSION['inventory_poe']['request'][$id]['quantity']    = $request['quantity'];
+          $_SESSION['inventory_poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
+          $_SESSION['inventory_poe']['request'][$id]['remarks']     = $request['remarks'];
+          $_SESSION['inventory_poe']['request'][$id]['unit']     = $request['unit'];
+          $_SESSION['inventory_poe']['request'][$id]['konversi']     = $request['konversi'];
 
           foreach ($request['vendors'] as $key => $vendor) {
-            // $_SESSION['capex_poe']['request'][$id]['alternate_part_number'] = $unit_price;
+            // $_SESSION['inventory_poe']['request'][$id]['alternate_part_number'] = $unit_price;
 
             $unit_price   = $vendor['unit_price'];
             $core_charge  = $vendor['core_charge'];
             $total_price  = ($unit_price * $request['quantity']) + ($core_charge * $request['quantity']);
 
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['quantity']     = $request['quantity'];
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['core_charge']  = $core_charge;
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['total']        = $total_price;
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['left_received_quantity'] = $request['quantity'];
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['left_paid_quantity']     = $request['quantity'];
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['left_paid_amount']       = $total_price;
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['quantity']     = $request['quantity'];
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['core_charge']  = $core_charge;
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['total']        = $total_price;
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['left_received_quantity'] = $request['quantity'];
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['left_paid_quantity']     = $request['quantity'];
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['left_paid_amount']       = $total_price;
           }
         }
 
@@ -682,8 +684,8 @@ class Capex_Order_Evaluation extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if (isset($_SESSION['capex_poe']['request']))
-      unset($_SESSION['capex_poe']['request'][$key]);
+    if (isset($_SESSION['inventory_poe']['request']))
+      unset($_SESSION['inventory_poe']['request'][$key]);
   }
 
   public function add_vendor()
@@ -703,19 +705,19 @@ class Capex_Order_Evaluation extends MY_Controller
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
       if (isset($_POST['vendor']) && !empty($_POST['vendor'])) {
-        $_SESSION['capex_poe']['vendors'] = array();
+        $_SESSION['inventory_poe']['vendors'] = array();
 
         foreach ($_POST['vendor'] as $key => $vendor) {
           $vendor_currency = $vendor;
           $range_vendor_currency = explode('-', $vendor_currency);
 
-          $_SESSION['capex_poe']['vendors'][$key]['vendor'] = $vendor;
-          $_SESSION['capex_poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
-          $_SESSION['capex_poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
-          $_SESSION['capex_poe']['vendors'][$key]['is_selected'] = 'f';
+          $_SESSION['inventory_poe']['vendors'][$key]['vendor'] = $vendor;
+          $_SESSION['inventory_poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
+          $_SESSION['inventory_poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
+          $_SESSION['inventory_poe']['vendors'][$key]['is_selected'] = 'f';
         }
 
-        foreach ($_SESSION['capex_poe']['request'] as $id => $request) {
+        foreach ($_SESSION['inventory_poe']['request'] as $id => $request) {
           $min = 0;
           $cheaper = 'f';
           foreach ($_POST['vendor'] as $key => $vendor) {
@@ -725,13 +727,13 @@ class Capex_Order_Evaluation extends MY_Controller
             // }else{
             //   if($min > $request['unit_price_requested']){
             //     $cheaper = 't';
-            //     $_SESSION['capex_poe']['request'][$id]['vendors'][$key]['is_cheaper']='f';
+            //     $_SESSION['inventory_poe']['request'][$id]['vendors'][$key]['is_cheaper']='f';
             //     $min = $request['unit_price_requested'];
             //   }else{
             //     $cheaper = 'f';
             //   }
             // }
-            $_SESSION['capex_poe']['request'][$id]['vendors'][$key] = array(
+            $_SESSION['inventory_poe']['request'][$id]['vendors'][$key] = array(
               'vendor'                  => $vendor,
               'is_selected'             => 'f',
               'quantity'                => $request['quantity_requested'],
@@ -762,11 +764,11 @@ class Capex_Order_Evaluation extends MY_Controller
   // {
   //   $this->authorized($this->module, 'document');
 
-  //   foreach ($_SESSION['capex_poe']['vendors'] as $v => $info){
-  //     $_SESSION['capex_poe']['vendors'][$v]['is_selected'] = 'f';
+  //   foreach ($_SESSION['inventory_poe']['vendors'] as $v => $info){
+  //     $_SESSION['inventory_poe']['vendors'][$v]['is_selected'] = 'f';
   //   }
 
-  //   $_SESSION['capex_poe']['vendors'][$key]['is_selected'] = 't';
+  //   $_SESSION['inventory_poe']['vendors'][$key]['is_selected'] = 't';
 
   //   redirect($this->module['route'] .'/create');
   // }
@@ -776,18 +778,18 @@ class Capex_Order_Evaluation extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    // foreach ($_SESSION['capex_poe']['request'] as $id => $request) {
-    // foreach ($_SESSION['capex_poe']['vendor'] as $key => $vendor) {
-    //   $_SESSION['capex_poe']['request'][$item]['vendors'][$key]['is_selected'] = 'f';
+    // foreach ($_SESSION['inventory_poe']['request'] as $id => $request) {
+    // foreach ($_SESSION['inventory_poe']['vendor'] as $key => $vendor) {
+    //   $_SESSION['inventory_poe']['request'][$item]['vendors'][$key]['is_selected'] = 'f';
     // }
     // }
 
-    foreach ($_SESSION['capex_poe']['vendors'] as $v => $info) {
-      $_SESSION['capex_poe']['request'][$item]['vendors'][$v]['is_selected'] = 'f';
+    foreach ($_SESSION['inventory_poe']['vendors'] as $v => $info) {
+      $_SESSION['inventory_poe']['request'][$item]['vendors'][$v]['is_selected'] = 'f';
     }
 
-    // $_SESSION['capex_poe']['vendors'][$key]['is_selected'] = 't';
-    $_SESSION['capex_poe']['request'][$item]['vendors'][$key_item]['is_selected'] = 't';
+    // $_SESSION['inventory_poe']['vendors'][$key]['is_selected'] = 't';
+    $_SESSION['inventory_poe']['request'][$item]['vendors'][$key_item]['is_selected'] = 't';
 
     redirect($this->module['route'] . '/create');
   }
@@ -795,13 +797,13 @@ class Capex_Order_Evaluation extends MY_Controller
   public function discard()
   {
     $this->authorized($this->module['permission']['document']);
-    foreach ($_SESSION['capex_poe']["attachment"] as $key) {
+    foreach ($_SESSION['inventory_poe']["attachment"] as $key) {
       $url = FCPATH . $key;
       if (is_file($url)) {
         unlink($url);
       }
     }
-    unset($_SESSION['capex_poe']);
+    unset($_SESSION['inventory_poe']);
 
     redirect($this->module['route']);
   }

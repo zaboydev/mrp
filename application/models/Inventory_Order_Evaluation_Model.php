@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Purchase_Order_Evaluation_Model extends MY_Model
+class Inventory_Order_Evaluation_Model extends MY_Model
 {
   protected $connection;
   protected $budget_year;
@@ -22,7 +22,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       'tb_purchase_orders.evaluation_number'        => 'Document Number',
       'tb_purchase_order_items.purchase_request_number'  => 'PR Number',
       'tb_purchase_orders.document_date'            => 'Date',
-      'tb_purchase_orders.category'                 => 'Category',
+      // 'tb_purchase_orders.category'                 => 'Category',
       'tb_purchase_order_items.description'         => 'Description',
       'tb_purchase_order_items.part_number'         => 'Part Number',
       'tb_purchase_order_items.quantity'            => 'Quantity',
@@ -66,13 +66,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
   public function getSearchableColumns()
   {
     return array(
-      'tb_purchase_orders.document_number',
-      'tb_purchase_orders.category',
+      'tb_purchase_orders.evaluation_number',
+      'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_order_items.description',
       'tb_purchase_order_items.part_number',
+      'tb_purchase_order_items.vendor',
       'tb_purchase_orders.status',
-      'tb_purchase_orders.vendor',
-      'tb_purchase_order_items.purchase_request_number',
+      'tb_purchase_orders.notes',
     );
   }
 
@@ -80,33 +80,21 @@ class Purchase_Order_Evaluation_Model extends MY_Model
   {
     return array(
       null,
-      'tb_purchase_orders.document_number',
+      'tb_purchase_orders.evaluation_number',
+      'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.document_date',
-      'tb_purchase_orders.category',
       'tb_purchase_order_items.description',
       'tb_purchase_order_items.part_number',
       'tb_purchase_order_items.quantity',
-      'tb_purchase_orders.vendor',
+      'tb_purchase_order_items.vendor',
       'tb_purchase_order_items.unit_price',
-      'tb_purchase_orders.status',
-      'tb_purchase_order_items.purchase_request_number',
     );
   }
 
   private function searchIndex()
   {
-    if (!empty($_POST['columns'][7]['search']['value'])) {
-      $search_status = $_POST['columns'][7]['search']['value'];
-
-      $this->db->where('tb_purchase_orders.status', $search_status);
-    } else {
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE') {
-        $this->db->where('tb_purchase_orders.status', 'evaluation');
-      }
-    }
-
-    if (!empty($_POST['columns'][2]['search']['value'])) {
-      $search_document_date = $_POST['columns'][2]['search']['value'];
+    if (!empty($_POST['columns'][1]['search']['value'])) {
+      $search_document_date = $_POST['columns'][1]['search']['value'];
       $range_document_date  = explode(' ', $search_document_date);
 
       $this->db->where('tb_purchase_orders.document_date >= ', $range_document_date[0]);
@@ -114,9 +102,13 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     }
 
     if (!empty($_POST['columns'][3]['search']['value'])) {
-      $search_category = $_POST['columns'][3]['search']['value'];
+      $search_status = $_POST['columns'][3]['search']['value'];
 
-      $this->db->where('tb_purchase_orders.category', $search_category);
+      $this->db->where('tb_purchase_orders.status', $search_status);
+    } else {
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+        $this->db->where('tb_purchase_orders.status', 'evaluation');
+      }
     }
 
     $i = 0;
@@ -191,7 +183,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
-    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY MRP');    
+    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY');
     $this->searchIndex();
 
     $column_order = $this->getOrderableColumns();
@@ -235,7 +227,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
-    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY MRP');    
+    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY');
     $this->searchIndex();
 
     // $this->searchIndex();
@@ -262,7 +254,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
-    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY MRP');    
+    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY');
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -425,25 +417,27 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
     // $this->db->trans_begin();
 
-    $document_id          = (isset($_SESSION['poe']['id'])) ? $_SESSION['poe']['id'] : NULL;
-    $document_edit        = (isset($_SESSION['poe']['edit'])) ? $_SESSION['poe']['edit'] : NULL;
-    $document_number      = $_SESSION['poe']['document_number'] . poe_format_number();
-    $document_date        = $_SESSION['poe']['document_date'];
-    $created_by           = (empty($_SESSION['poe']['created_by'])) ? NULL : $_SESSION['poe']['created_by'];
-    $document_reference   = (empty($_SESSION['poe']['document_reference'])) ? NULL : $_SESSION['poe']['document_reference'];
-    $approved_by          = (empty($_SESSION['poe']['approved_by'])) ? NULL : $_SESSION['poe']['approved_by'];
+    $document_id          = (isset($_SESSION['inventory_poe']['id'])) ? $_SESSION['inventory_poe']['id'] : NULL;
+    $document_edit        = (isset($_SESSION['inventory_poe']['edit'])) ? $_SESSION['inventory_poe']['edit'] : NULL;
+    $document_number      = $_SESSION['inventory_poe']['document_number'] . poe_format_number();
+    $document_date        = $_SESSION['inventory_poe']['document_date'];
+    $created_by           = (empty($_SESSION['inventory_poe']['created_by'])) ? NULL : $_SESSION['inventory_poe']['created_by'];
+    $document_reference   = (empty($_SESSION['inventory_poe']['document_reference'])) ? NULL : $_SESSION['inventory_poe']['document_reference'];
+    $approved_by          = (empty($_SESSION['inventory_poe']['approved_by'])) ? NULL : $_SESSION['inventory_poe']['approved_by'];
     $status               = 'evaluation';
-    $warehouse            = $_SESSION['poe']['warehouse'];
-    $category             = $_SESSION['poe']['category'];
-    $default_currency     = $_SESSION['poe']['default_currency'];
-    $approval             = $_SESSION['poe']['approval'];
+    $warehouse            = $_SESSION['inventory_poe']['warehouse'];
+    $category             = $_SESSION['inventory_poe']['category'];
+    $default_currency     = $_SESSION['inventory_poe']['default_currency'];
+    $approval             = $_SESSION['inventory_poe']['approval'];
     if ($approval == 'without_approval') {
       $status               = 'approved';
     }
-    $exchange_rate        = $_SESSION['poe']['exchange_rate'];
-    $notes                = (empty($_SESSION['poe']['notes'])) ? NULL : $_SESSION['poe']['notes'];
+    $exchange_rate        = $_SESSION['inventory_poe']['exchange_rate'];
+    $notes                = (empty($_SESSION['inventory_poe']['notes'])) ? NULL : $_SESSION['inventory_poe']['notes'];
 
     $this->db->trans_begin();
+    
+    $this->connection->trans_begin();
 
     if ($document_id === NULL) {
       $this->db->set('evaluation_number', $document_number);
@@ -455,6 +449,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         $this->db->set('approved_by', $approval);
       }
       $this->db->set('category', $category);
+      $this->db->set('tipe', $category);
       $this->db->set('warehouse', $warehouse);
       $this->db->set('default_currency', $default_currency);
       $this->db->set('exchange_rate', $exchange_rate);
@@ -479,6 +474,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       }
       $this->db->set('warehouse', $warehouse);
       $this->db->set('category', $category);
+      $this->db->set('tipe', $category);
       $this->db->set('default_currency', $default_currency);
       $this->db->set('exchange_rate', $exchange_rate);
       $this->db->set('status', $status);
@@ -498,10 +494,15 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
       foreach ($tb_purchase_order_items as $key) {
         $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
-        $this->db->where('id', $inventory_purchase_request_detail_id);
-        $this->db->set('sisa', '"sisa" + ' . $key->quantity_prl, false);
-        $this->db->update('tb_inventory_purchase_requisition_details');
-      }
+        // $this->db->where('id', $inventory_purchase_request_detail_id);
+        // $this->db->set('sisa', '"sisa" + ' . $key->quantity_prl, false);
+        // $this->db->update('tb_inventory_purchase_requisition_details');
+
+        $this->connection->set('process_qty', '"process_qty" - ' . $key->quantity_prl, false);
+        $this->connection->where('id', $inventory_purchase_request_detail_id);
+        $this->connection->update('tb_capex_purchase_requisition_details');
+      }     
+
       $this->db->where('purchase_order_id', $document_id);
       $this->db->delete('tb_purchase_order_items');
 
@@ -512,7 +513,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     /**
      * PROCESSING VENDORS
      */
-    foreach ($_SESSION['poe']['vendors'] as $key => $vendor) {
+    foreach ($_SESSION['inventory_poe']['vendors'] as $key => $vendor) {
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('vendor', $vendor['vendor_name']);
       $this->db->set('is_selected', false);
@@ -537,7 +538,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       //   $this->db->update('tb_purchase_orders');
       // }
     }
-    foreach ($_SESSION["poe"]["attachment"] as $key) {
+    foreach ($_SESSION['inventory_poe']["attachment"] as $key) {
       $this->db->set('id_poe', $document_id);
       $this->db->set('file', $key);
       $this->db->insert('tb_attachment_poe');
@@ -545,7 +546,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     /**
      * PROCESSING ITEMS
      */
-    foreach ($_SESSION['poe']['request'] as $i => $item) {
+    foreach ($_SESSION['inventory_poe']['request'] as $i => $item) {
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
@@ -564,9 +565,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         $vendor_currency = $detail['vendor'];
         $range_vendor_currency = explode('-', $vendor_currency);
 
-        // $_SESSION['poe']['vendors'][$key]['vendor'] = $vendor;
-        // $_SESSION['poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
-        // $_SESSION['poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
+        // $_SESSION['inventory_poe']['vendors'][$key]['vendor'] = $vendor;
+        // $_SESSION['inventory_poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
+        // $_SESSION['inventory_poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
         // if ($detail['is_selected'] == 't'){
 
         //   $this->db->set('purchase_order_id', $document_id);
@@ -623,9 +624,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
           $this->db->update('tb_purchase_order_items');
           $quantity_prl = floatval($detail['quantity'] * $item['konversi']);
 
-          $this->db->set('sisa', '"sisa" - ' . $quantity_prl, false);
-          $this->db->where('id', $inventory_purchase_request_detail_id);
-          $this->db->update('tb_inventory_purchase_requisition_details');
+          $this->connection->set('process_qty', '"process_qty" + ' . $quantity_prl, false);
+          $this->connection->where('id', $inventory_purchase_request_detail_id);
+          $this->connection->update('tb_capex_purchase_requisition_details');
 
           $this->db->set('is_selected', 't');
           $this->db->where('id', $poe_vendor_id);
@@ -647,16 +648,17 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       }
 
       if ($document_edit === NULL) {
-        $this->db->where('id', $inventory_purchase_request_detail_id);
-        $detail_request = $this->db->get('tb_inventory_purchase_requisition_details')->row();
-        if ($detail_request->sisa <= 0) {
+        $this->connection->where('id', $inventory_purchase_request_detail_id);
+        $detail_request = $this->connection->get('tb_capex_purchase_requisition_details')->row();
+        if ($detail_request->quantity == $detail_request->process_qty) {
 
-          $this->db->set('status', 'closed');
-          $this->db->where('id', $item['inventory_purchase_request_detail_id']);
-          $this->db->update('tb_inventory_purchase_requisition_details');
+          // $this->connection->set('status', 'closed');
+          // $this->connection->where('id', $inventory_purchase_request_detail_id);
+          // $this->connection->update('tb_capex_purchase_requisition_details');
 
           $this->db->set('closing_by', config_item('auth_person_name'));
-          $this->db->set('purchase_request_detail_id', $item['inventory_purchase_request_detail_id']);
+          $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+          $this->db->set('tipe', 'CAPEX');
           $this->db->insert('tb_purchase_request_closures');
         }
       }
@@ -666,8 +668,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
+    // $this->connection->trans_commit();
     if ($approval != 'without_approval') {
-      $this->send_mail($document_id);
+      // $this->send_mail($document_id);
     }
     return TRUE;
   }
@@ -747,12 +750,12 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   public function listRequest($category = NULL)
   {
-    if ($_SESSION['poe']['source'] == 0) {
       $this->connection->select(array(
         'tb_inventory_purchase_requisition_details.id',
         'tb_inventory_purchase_requisition_details.additional_info',
         'tb_inventory_purchase_requisition_details.quantity',
-        'tb_inventory_purchase_requisition_details.sisa',
+        'tb_inventory_purchase_requisition_details.process_qty',
+        'tb_inventory_purchase_requisition_details.unit',
         'tb_product_categories.category_name',
         'tb_products.product_name',
         'tb_products.product_code',
@@ -770,69 +773,18 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
       $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
       $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
-      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
+      $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
       $this->connection->where('tb_inventory_purchase_requisitions.status', 'approved');
-      $this->connection->group_start();
-      $this->connection->where('tb_inventory_purchase_requisition_details.sisa >', 0);
-      $this->connection->where('tb_inventory_purchase_requisition_details.sisa is not null', null, false);
-      $this->connection->group_end();
-
-      if ($category === NULL) {
-        $this->connection->where_in('UPPER(tb_product_categories.category_name)', config_item('auth_inventory'));
-      } else {
-        $this->connection->where('UPPER(tb_product_categories.category_name)', $category);
-      }
-
-      if (empty($this->getDocumentClosures()) === FALSE) {
-        $this->connection->where_not_in('tb_inventory_purchase_requisition_details.id', $this->getDocumentClosures());
-      }
-
-      $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      $this->connection->where('EXTRACT(YEAR FROM tb_inventory_purchase_requisitions.required_date)::integer = ', $this->budget_year);
+      // $this->connection->group_start();
+      // $this->connection->where('tb_inventory_purchase_requisition_details.sisa >', 0);
+      // $this->connection->where('tb_inventory_purchase_requisition_details.sisa is not null', null, false);
+      // $this->connection->group_end();
       $this->connection->order_by('tb_inventory_purchase_requisitions.id', 'desc');
 
       $query = $this->connection->get();
-    } else {
-      // if ( empty($this->getDocumentClosures()) === FALSE ){
-      //   $this->db->where_not_in('tb_inventory_purchase_requisition_details.id', $this->getDocumentClosures());
-      // }
-      $this->db->select(array(
-        'tb_inventory_purchase_requisition_details.id',
-        'tb_inventory_purchase_requisition_details.additional_info',
-        'tb_inventory_purchase_requisition_details.quantity',
-        'tb_inventory_purchase_requisition_details.sisa',
-        'tb_inventory_purchase_requisitions.item_category as "category_name"',
-        'tb_inventory_purchase_requisition_details.product_name as "product_name"',
-        'tb_inventory_purchase_requisition_details.part_number as "product_code"',
-        'tb_inventory_purchase_requisitions.pr_number',
-        'tb_inventory_purchase_requisitions.pr_date',
-        'tb_inventory_purchase_requisitions.required_date',
-        'tb_inventory_purchase_requisitions.status',
-        'tb_inventory_purchase_requisitions.suggested_supplier',
-        'tb_inventory_purchase_requisitions.deliver_to',
-        'tb_inventory_purchase_requisitions.created_by',
-        'tb_inventory_purchase_requisitions.notes'
-      ));
-
-      $this->db->from('tb_inventory_purchase_requisitions');
-      $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
-      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
-      $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
-      $this->db->join('tb_master_items', 'tb_budget_cot.id_item = tb_master_items.id');
-      $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
-      $this->db->where('tb_inventory_purchase_requisition_details.status', 'open');
-      $this->db->group_start();
-      $this->db->where('tb_inventory_purchase_requisition_details.sisa >', 0);
-      $this->db->where('tb_inventory_purchase_requisition_details.sisa is not null', null, false);
-      $this->db->group_end();
-      // if ($category === NULL){
-      //   $this->db->where_in('UPPER(tb_master_item_groups.category)', config_item('auth_inventory'));
-      // } else {
-      //   $this->db->where('UPPER(tb_master_item_groups.category)', $category);
-      // }
-      // $this->db->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-      $this->db->order_by('tb_inventory_purchase_requisitions.id', 'asc');
-      $query = $this->db->get();
-    }
+    
 
 
     return $query->result_array();
@@ -840,13 +792,11 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   public function infoRequest($id)
   {
-    if ($_SESSION['poe']['source'] == 0) {
       $this->connection->select(array(
         'tb_inventory_purchase_requisition_details.id',
         'tb_inventory_purchase_requisition_details.additional_info',
         'tb_inventory_purchase_requisition_details.quantity',
-        'tb_inventory_purchase_requisition_details.sisa',
-        'tb_inventory_purchase_requisition_details.price',
+        'tb_inventory_purchase_requisition_details.process_qty',
         'tb_inventory_purchase_requisition_details.unit',
         'tb_product_categories.category_name',
         'tb_products.product_name',
@@ -861,43 +811,16 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         'tb_inventory_purchase_requisitions.notes'
       ));
 
-      $this->connection->from('tb_inventory_purchase_requisition_details');
-      $this->connection->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+      $this->connection->from('tb_inventory_purchase_requisitions');
+      $this->connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
       $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
       $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
-      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
+      $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
+      $this->connection->where('tb_inventory_purchase_requisitions.status', 'approved');
       $this->connection->where('tb_inventory_purchase_requisition_details.id', $id);
-      $query = $this->connection->get();
-    } else {
-      $this->db->select(array(
-        'tb_inventory_purchase_requisition_details.id',
-        'tb_inventory_purchase_requisition_details.additional_info',
-        'tb_inventory_purchase_requisition_details.quantity',
-        'tb_inventory_purchase_requisition_details.sisa',
-        'tb_inventory_purchase_requisitions.item_category as "category_name"',
-        'tb_inventory_purchase_requisition_details.product_name as "product_name"',
-        'tb_inventory_purchase_requisition_details.part_number as "product_code"',
-        'tb_inventory_purchase_requisitions.pr_number',
-        'tb_inventory_purchase_requisitions.pr_date',
-        'tb_inventory_purchase_requisitions.required_date',
-        'tb_inventory_purchase_requisitions.status',
-        'tb_inventory_purchase_requisitions.suggested_supplier',
-        'tb_inventory_purchase_requisitions.deliver_to',
-        'tb_inventory_purchase_requisitions.created_by',
-        'tb_inventory_purchase_requisitions.notes',
-        'tb_inventory_purchase_requisition_details.unit',
-      ));
-
-      $this->db->from('tb_inventory_purchase_requisitions');
-      $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
-      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
-      $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
-      // $this->db->join('tb_master_items', 'tb_budget_cot.id_item = tb_master_items.id');
-      // $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
-      $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
-      $query = $this->db->get();
-    }
-    return $query->unbuffered_row('array');
+      $query = $this->connection->get(); 
+      return $query->unbuffered_row('array');
   }
 
   public function searchRequestItem($category)

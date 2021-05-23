@@ -176,7 +176,7 @@ class Inventory_Request_Model extends MY_Model
 
 		$this->searchIndex();
 
-		$column_order = $this->getOrderableColumns();
+		$column_order = $this-]=>getOrderableColumns();
 
 		if (isset($_POST['order'])){
 		  	foreach ($_POST['order'] as $key => $order){

@@ -22,7 +22,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
       'tb_purchase_orders.evaluation_number'        => 'Document Number',
       'tb_purchase_order_items.purchase_request_number'  => 'PR Number',
       'tb_purchase_orders.document_date'            => 'Date',
-      'tb_purchase_orders.category'                 => 'Category',
+      // 'tb_purchase_orders.category'                 => 'Category',
       'tb_purchase_order_items.description'         => 'Description',
       'tb_purchase_order_items.part_number'         => 'Part Number',
       'tb_purchase_order_items.quantity'            => 'Quantity',
@@ -66,13 +66,13 @@ class Capex_Order_Evaluation_Model extends MY_Model
   public function getSearchableColumns()
   {
     return array(
-      'tb_purchase_orders.document_number',
-      'tb_purchase_orders.category',
+      'tb_purchase_orders.evaluation_number',
+      'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_order_items.description',
       'tb_purchase_order_items.part_number',
+      'tb_purchase_order_items.vendor',
       'tb_purchase_orders.status',
-      'tb_purchase_orders.vendor',
-      'tb_purchase_order_items.purchase_request_number',
+      'tb_purchase_orders.notes',
     );
   }
 
@@ -80,16 +80,14 @@ class Capex_Order_Evaluation_Model extends MY_Model
   {
     return array(
       null,
-      'tb_purchase_orders.document_number',
+      'tb_purchase_orders.evaluation_number',
+      'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.document_date',
-      'tb_purchase_orders.category',
       'tb_purchase_order_items.description',
       'tb_purchase_order_items.part_number',
       'tb_purchase_order_items.quantity',
-      'tb_purchase_orders.vendor',
+      'tb_purchase_order_items.vendor',
       'tb_purchase_order_items.unit_price',
-      'tb_purchase_orders.status',
-      'tb_purchase_order_items.purchase_request_number',
     );
   }
 
@@ -496,10 +494,15 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
       foreach ($tb_purchase_order_items as $key) {
         $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
-        $this->db->where('id', $inventory_purchase_request_detail_id);
-        $this->db->set('sisa', '"sisa" + ' . $key->quantity_prl, false);
-        $this->db->update('tb_inventory_purchase_requisition_details');
-      }
+        // $this->db->where('id', $inventory_purchase_request_detail_id);
+        // $this->db->set('sisa', '"sisa" + ' . $key->quantity_prl, false);
+        // $this->db->update('tb_inventory_purchase_requisition_details');
+
+        $this->connection->set('process_qty', '"process_qty" - ' . $key->quantity_prl, false);
+        $this->connection->where('id', $inventory_purchase_request_detail_id);
+        $this->connection->update('tb_capex_purchase_requisition_details');
+      }     
+
       $this->db->where('purchase_order_id', $document_id);
       $this->db->delete('tb_purchase_order_items');
 
