@@ -1204,6 +1204,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('status', 'pending');
           $this->db->set('budget_status', 'unbudgeted');
           $this->db->set('budget_id_sementara', $budget_id_sementara);
+          $this->db->set('reference_ipc', $data['reference_ipc']);
           $this->db->insert('tb_inventory_purchase_requisition_details');
           $prl_item_id = $this->db->insert_id();
 
@@ -1237,6 +1238,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('status', 'waiting');
             $this->db->set('budget_status', 'relocation');
             $this->db->set('budget_id_sementara', $budget_id_sementara);
+            $this->db->set('reference_ipc', $data['reference_ipc']);
             $this->db->insert('tb_inventory_purchase_requisition_details');
             $prl_item_id = $this->db->insert_id();
 
@@ -1311,6 +1313,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('price', floatval($data['price']));
             $this->db->set('total', floatval($data['total']));
             $this->db->set('status', 'waiting');
+            $this->db->set('reference_ipc', $data['reference_ipc']);
             $this->db->insert('tb_inventory_purchase_requisition_details');
             $prl_item_id = $this->db->insert_id();
           }

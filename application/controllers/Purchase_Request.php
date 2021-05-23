@@ -656,7 +656,8 @@ class Purchase_Request extends MY_Controller
         'mtd_budget'                  => $this->input->post('mtd_budget'),
         'mtd_used_budget'             => $this->input->post('mtd_used_budget'),
         'part_number_relocation'      => $this->input->post('origin_budget'),
-        'budget_value_relocation'      => $this->input->post('budget_value'),
+        'budget_value_relocation'     => $this->input->post('budget_value'),
+        'reference_ipc'               => trim($this->input->post('reference_ipc')),
         // 'budget_value_relocation'      => $this->input->post('budget_value'),
       );
     }
@@ -838,7 +839,8 @@ class Purchase_Request extends MY_Controller
         'mtd_budget'                  => $this->input->post('mtd_budget'),
         'mtd_used_budget'             => $this->input->post('mtd_used_budget'),
         'part_number_relocation'      => $this->input->post('origin_budget'),
-        'budget_value_relocation'      => $this->input->post('budget_value'),
+        'budget_value_relocation'     => $this->input->post('budget_value'),
+        'reference_ipc'               => trim($this->input->post('reference_ipc')),
       );
     }
 

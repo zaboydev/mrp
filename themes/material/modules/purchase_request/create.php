@@ -275,6 +275,10 @@
                   <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
                   <label for="additional_info">Additional Info/Remarks</label>
                 </div>
+                <div class="form-group">
+                  <input type="text" name="reference_ipc" id="reference_ipc" class="form-control input-sm">
+                  <label for="reference_ipc">Reference IPC</label>
+                </div>
               </fieldset>
             </div>
             <div class="col-sm-12 col-lg-5 hide form-unbudgeted">
@@ -597,6 +601,7 @@
           $('#group_name').val(response.group_name);
           $('#unit').val(response.unit);
           $('#additional_info').val(response.additional_info);
+          $('#reference_ipc').val(response.reference_ipc);
           $('#inventory_monthly_budget_id').val(response.inventory_monthly_budget_id);
           $('#item_source').val(response.source);
           $('#price').val(parseInt(response.price));
