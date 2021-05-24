@@ -508,21 +508,70 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.*',
       'tb_po_item.purchase_request_number',
       'tb_purchase_orders.id as poe_id',
-      'tb_purchase_order_items.id as poe_item_id'
+      'tb_purchase_order_items.id as poe_item_id',
+      'tb_inventory_purchase_requisition_details.reference_ipc',
     );
 
     $this->db->select($select);
     $this->db->from('tb_po_item');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'LEFT');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
+    $this->db->join('tb_inventory_purchase_requisition_details','tb_inventory_purchase_requisition_details.id=tb_purchase_order_items.inventory_purchase_request_detail_id');
     $this->db->where('tb_po_item.purchase_order_id', $poe['id']);
     $query = $this->db->get();
 
     foreach ($query->result_array() as $key => $value) {
       $poe['items'][$key] = $value;
+      $poe['items'][$key]['history']          = $this->getHistory($value['poe_item_id']);
     }
 
     return $poe;
+  }
+
+  public function getHistory($poe_item_id)
+  {
+
+    $select = array(
+      'tb_inventory_purchase_requisitions.pr_number',
+      'tb_inventory_purchase_requisitions.pr_date',
+      'tb_inventory_purchase_requisitions.created_by',
+      'tb_inventory_purchase_requisition_details.id',
+      'tb_inventory_purchase_requisition_details.quantity',
+      'tb_inventory_purchase_requisition_details.unit',
+      'tb_inventory_purchase_requisition_details.price',
+      'tb_inventory_purchase_requisition_details.total',
+      'sum(case when tb_purchase_order_items.quantity is null then 0.00 else tb_purchase_order_items.quantity end) as "poe_qty"',  
+      'sum(case when tb_purchase_order_items.total_amount is null then 0.00 else tb_purchase_order_items.total_amount end) as "poe_value"',  
+      'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
+      'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
+      'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
+      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
+    );
+
+    $group = array(
+      'tb_inventory_purchase_requisitions.pr_number',
+      'tb_inventory_purchase_requisitions.pr_date',
+      'tb_inventory_purchase_requisitions.created_by',
+      'tb_inventory_purchase_requisition_details.id',
+      'tb_inventory_purchase_requisition_details.quantity',
+      'tb_inventory_purchase_requisition_details.unit',
+      'tb_inventory_purchase_requisition_details.price',
+      'tb_inventory_purchase_requisition_details.total',
+    );
+
+    $this->db->select($select);
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
+    $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+    $this->db->where('tb_purchase_order_items.id', $poe_item_id);
+    $this->db->group_by($group);
+    $query  = $this->db->get();
+    $return = $query->result_array();
+
+    return $return;
+        
   }
 
   public function findItemPoe($id)

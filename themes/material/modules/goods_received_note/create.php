@@ -1017,15 +1017,13 @@
                 $('#kode_stok').val(ui.item.kode_stok);
                 if (ui.item.default_currency == 'USD') {
                   $('[name="kurs"]').val('dollar');
-
                 } else {
                   $('[name="kurs"]').val('rupiah');
-
                 }
                 $('#received_unit_value').attr('readonly', true);
                 $('#purchase_order_number').attr('readonly', true);
 
-                $('#quantity_order').data('rule-max', parseInt(ui.item.left_received_quantity)).data('msg-max', 'max available ' + ui.item.left_received_quantity);
+                $('#quantity_order').data('rule-max', parseFloat(ui.item.left_received_quantity)).data('msg-max', 'max available ' + ui.item.left_received_quantity);
 
                 // if (ui.item.serial_number != null){
                 //   $( inputIssuedQuantity ).val(1).attr('readonly', true);

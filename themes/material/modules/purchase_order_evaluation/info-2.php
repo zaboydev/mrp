@@ -29,7 +29,7 @@
           </div>
           <div class="clearfix">
             <div class="pull-left">INVENTORY: </div>
-            <div class="pull-right"><?= print_string($entity['category']); ?></div>
+            <div class="pull-right"><?= print_string($entity['tipe']); ?></div>
           </div>
         </div>
       </div>
@@ -63,6 +63,7 @@
                 <th class="middle-alignment" rowspan="2">Alt. P/N</th>
                 <th class="middle-alignment" rowspan="2">Remarks</th>
                 <th class="middle-alignment" rowspan="2">PR Number</th>
+                <th class="middle-alignment" rowspan="2">Ref. IPC</th>
                 <th class="middle-alignment text-right" rowspan="2">Qty</th>
                 <th class="middle-alignment" rowspan="2">Unit</th>
 
@@ -115,6 +116,9 @@
                     <?= print_string($detail['purchase_request_number']); ?>
                   </td>
                   <td>
+                    <?= print_string($detail['reference_ipc']); ?>
+                  </td>
+                  <td>
                     <?= print_number($detail['quantity'], 2); ?>
                   </td>
                   <td>
@@ -158,7 +162,7 @@
               <th>Purchase Number</th>
               <th>Qty</th>
               <th>Unit</th>
-              <th>Price</th>
+              <!-- <th>Price</th> -->
               <th>Total</th>
               <th>POE Qty</th>
               <th>POE Value</th>
@@ -221,9 +225,7 @@
                   <td>
                     <?=print_string($detail['unit']);?>
                   </td>
-                  <td align="right">
-                    <?=print_number($history['price'], 2);?>
-                  </td>
+                  
                   <td align="right">
                     <?=print_number($history['total'], 2);?>
                   </td>
@@ -255,7 +257,7 @@
                 <th></th>
                 <th></th>
                 <th><?=print_number(array_sum($total_qty), 2);?></th>
-                <th></th>
+                <!-- <th></th> -->
                 <th></th>
                 <th><?=print_number(array_sum($total), 2);?></th>
                 <th><?=print_number(array_sum($total_qty_po), 2);?></th>
@@ -304,11 +306,11 @@
         <?php endif; ?>
       <?php endif; ?>
 
-      <?php if (is_granted($modules['purchase_order_evaluation'], 'document') && $entity['status'] == 'evaluation') : ?>
-        <!-- <a href="<?= site_url($modules['purchase_order_evaluation']['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+      <?php if (is_granted($modules['purchase_order_evaluation'], 'document')) : ?>
+        <a href="<?= site_url($modules['purchase_order_evaluation']['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>
-        </a> -->
+        </a>
       <?php endif; ?>
 
       <?php if (is_granted($module, 'print')) : ?>

@@ -14,7 +14,7 @@
   </tr>
   <tr>
     <td>Inventory</td>
-    <th>: <?= print_string($entity['category']); ?></th>
+    <th>: <?= print_string($entity['tipe']); ?></th>
     <td>Date</td>
     <th>: <?= print_date($entity['document_date']); ?></th>
   </tr>
@@ -22,7 +22,7 @@
     <td></td>
     <th></th>
     <td>Status</td>
-    <th>: <?= ($entity['status'] == 'evaluation') ? 'DRAFT' : strtoupper($entity['status']); ?></th>
+    <th>: <?= ($entity['status'] == 'evaluation') ? 'EVALUATION' : strtoupper($entity['status']); ?></th>
   </tr>
 </table>
 
@@ -35,6 +35,7 @@
       <th class="middle-alignment" align="center" rowspan="2">Description</th>
       <th class="middle-alignment" align="center" rowspan="2">Part Number</th>
       <th class="middle-alignment" align="center" rowspan="2">Alt. Part Number</th>
+      <th class="middle-alignment" align="center" rowspan="2">Ref. IPC</th>
       <th class="middle-alignment" align="right" rowspan="2">Qty</th>
       <th class="middle-alignment" align="center" rowspan="2">Unit</th>
       <th class="middle-alignment" align="center" rowspan="2">Remarks</th>
@@ -68,6 +69,9 @@
         </td>
         <td class="no-space">
           <?= print_string($detail['alternate_part_number']); ?>
+        </td>
+        <td class="no-space">
+          <?= print_string($detail['reference_ipc']); ?>
         </td>
         <td>
           <?= print_number($detail['quantity'], 2); ?>
@@ -152,7 +156,7 @@
       <th>Purchase Number</th>
       <th>Qty</th>
       <th>Unit</th>
-      <th>Price</th>
+      <!-- <th>Price</th> -->
       <th>Total</th>
       <th>POE Qty</th>
       <th>POE Value</th>
@@ -216,9 +220,6 @@
         <?=print_string($detail['unit']);?>
       </td>
       <td align="right">
-        <?=print_number($history['price'], 2);?>
-      </td>
-      <td align="right">
         <?=print_number($history['total'], 2);?>
       </td>
       <td align="right">
@@ -249,7 +250,7 @@
       <th></th>
       <th></th>
       <th style="text-align: right;"><?=print_number(array_sum($total_qty), 2);?></th>
-      <th></th>
+      <!-- <th></th> -->
       <th></th>
       <th style="text-align: right;"><?=print_number(array_sum($total), 2);?></th>
       <th style="text-align: right;"><?=print_number(array_sum($total_qty_po), 2);?></th>
