@@ -16,7 +16,7 @@ $config['module']['inventory_order_evaluation']['permission']     = array(
   'info'      => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
   'print'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
   'document'  => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
-  'approval'  => 'SUPER ADMIN',
+  'approval'  => 'SUPER ADMIN,VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
   'delete'    => 'SUPER ADMIN',
   // 'approval'  => 
 );

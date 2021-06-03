@@ -43,7 +43,7 @@
           <dd><?= strtoupper($entity['status']); ?></dd>
 
           <dt>Approved/Rejected By</dt>
-          <dd><?= $entity['approved_by']; ?></dd>
+          <dd><?= ($entity['approved_by']!=null)? $entity['approved_by']:'N/A'; ?></dd>
 
           <dt>Notes</dt>
           <dd><?= $entity['notes']; ?></dd>
@@ -70,7 +70,7 @@
                   <?php if ($vendor['is_selected'] == 't') : ?>
                     <th class="middle-alignment text-left" colspan="3">
                       <?php if (is_granted($module, 'document') && $entity['status'] == 'approved') : ?>
-                        <a href="<?= site_url('Purchase_Order/create_po/' . $vendor['id']); ?>" class="btn btn-tooltip btn-danger btn-sm ink-reaction">Create PO for <?= $vendor['vendor']; ?>
+                        <a href="<?= site_url('Capex_Purchase_Order/create_po/' . $vendor['id']); ?>" class="btn btn-tooltip btn-danger btn-sm ink-reaction">Create PO for <?= $vendor['vendor']; ?>
                           <small class="top left">Create Purchase</small>
                         </a>
                       <?php else : ?>
@@ -219,7 +219,7 @@
                     <?=print_number($history['quantity'], 2);?>
                   </td>
                   <td>
-                    <?=print_string($detail['unit']);?>
+                    <?=print_string($history['unit']);?>
                   </td>
                   <td align="right">
                     <?=print_number($history['price'], 2);?>
@@ -303,8 +303,8 @@
         <?php endif; ?>
       <?php endif; ?>
 
-      <?php if (is_granted($modules['purchase_order_evaluation'], 'document') && $entity['status'] == 'evaluation') : ?>
-        <a href="<?= site_url($modules['purchase_order_evaluation']['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+      <?php if (is_granted($module, 'document') && $entity['status'] == 'evaluation') : ?>
+        <a href="<?= site_url($module['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>
         </a>
@@ -312,7 +312,7 @@
 
       <?php if (is_granted($module, 'print')) : ?>
         <?php if ($entity['status'] == 'evaluation') : ?>
-          <a href="<?= site_url($modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
+          <a href="<?= site_url($module['route'] . '/print_pdf/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
             <i class="md md-print"></i>
             <small class="top right">print</small>
           </a>

@@ -70,10 +70,12 @@ require('modules/budgeting.php');
 //CAPEX
 require('modules/capex_request.php');
 require('modules/capex_order_evaluation.php');
+require('modules/capex_purchase_order.php');
 //Inventory
 require('modules/inventory_request.php');
 require('modules/inventory_order_evaluation.php');
-//Inventory
+require('modules/inventory_purchase_order.php');
+//expense
 require('modules/expense_request.php');
 
 //PROCUREMENT

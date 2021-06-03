@@ -332,50 +332,47 @@ class Capex_Order_Evaluation_Model extends MY_Model
     return $poe;
   }
 
-  public function getHistory($inventory_purchase_request_detail_id)
+  public function getHistory($id)
   {
+        $select = array(
+          'tb_capex_purchase_requisitions.pr_number',
+          'tb_capex_purchase_requisitions.pr_date',
+          'tb_capex_purchase_requisitions.created_by',
+          'tb_capex_purchase_requisition_details.id',
+          'tb_capex_purchase_requisition_details.quantity',
+          'tb_capex_purchase_requisition_details.unit',
+          'tb_capex_purchase_requisition_details.price',
+          'tb_capex_purchase_requisition_details.total',
+          'sum(case when tb_capex_purchase_requisition_detail_progress.poe_qty is null then 0.00 else tb_capex_purchase_requisition_detail_progress.poe_qty end) as "poe_qty"',  
+          'sum(case when tb_capex_purchase_requisition_detail_progress.poe_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.poe_value end) as "poe_value"', 
+          'sum(case when tb_capex_purchase_requisition_detail_progress.po_qty is null then 0.00 else tb_capex_purchase_requisition_detail_progress.po_qty end) as "po_qty"', 
+          'sum(case when tb_capex_purchase_requisition_detail_progress.po_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.po_value end) as "po_value"',   
+          'sum(case when tb_capex_purchase_requisition_detail_progress.grn_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.grn_value end) as "grn_value"',
+          'sum(case when tb_capex_purchase_requisition_detail_progress.grn_qty is null then 0.00 else tb_capex_purchase_requisition_detail_progress.grn_qty end) as "grn_qty"',        
+        );
 
-    $select = array(
-      'tb_inventory_purchase_requisitions.pr_number',
-      'tb_inventory_purchase_requisitions.pr_date',
-      'tb_inventory_purchase_requisitions.created_by',
-      'tb_inventory_purchase_requisition_details.id',
-      'tb_inventory_purchase_requisition_details.quantity',
-      'tb_inventory_purchase_requisition_details.unit',
-      'tb_inventory_purchase_requisition_details.price',
-      'tb_inventory_purchase_requisition_details.total',
-      'sum(case when tb_purchase_order_items.quantity is null then 0.00 else tb_purchase_order_items.quantity end) as "poe_qty"',  
-      'sum(case when tb_purchase_order_items.total_amount is null then 0.00 else tb_purchase_order_items.total_amount end) as "poe_value"',  
-      'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
-      'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
-      'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
-      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
-    );
+        $group = array(
+          'tb_capex_purchase_requisitions.pr_number',
+          'tb_capex_purchase_requisitions.pr_date',
+          'tb_capex_purchase_requisitions.created_by',
+          'tb_capex_purchase_requisition_details.id',
+          'tb_capex_purchase_requisition_details.quantity',
+          'tb_capex_purchase_requisition_details.unit',
+          'tb_capex_purchase_requisition_details.price',
+          'tb_capex_purchase_requisition_details.total',      
+        );
 
-    $group = array(
-      'tb_inventory_purchase_requisitions.pr_number',
-      'tb_inventory_purchase_requisitions.pr_date',
-      'tb_inventory_purchase_requisitions.created_by',
-      'tb_inventory_purchase_requisition_details.id',
-      'tb_inventory_purchase_requisition_details.quantity',
-      'tb_inventory_purchase_requisition_details.unit',
-      'tb_inventory_purchase_requisition_details.price',
-      'tb_inventory_purchase_requisition_details.total',
-    );
+        $this->connection->select($select);
+        $this->connection->from('tb_capex_purchase_requisition_details');
+        $this->connection->join('tb_capex_purchase_requisitions', 'tb_capex_purchase_requisitions.id = tb_capex_purchase_requisition_details.capex_purchase_requisition_id');
+        $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
+        $this->connection->join('tb_capex_purchase_requisition_detail_progress', 'tb_capex_purchase_requisition_detail_progress.capex_purchase_requisition_detail_id = tb_capex_purchase_requisition_details.id','left');
+        $this->connection->where('tb_capex_purchase_requisition_details.id', $id);
+        $this->connection->group_by($group);
+        $query  = $this->connection->get();
+        $return = $query->result_array();
 
-    $this->db->select($select);
-    $this->db->from('tb_inventory_purchase_requisition_details');
-    $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
-    $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
-    $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
-    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
-    $this->db->where('tb_inventory_purchase_requisition_details.id', $inventory_purchase_request_detail_id);
-    $this->db->group_by($group);
-    $query  = $this->db->get();
-    $return = $query->result_array();
-
-    return $return;
-        
+        return $return;
   }
 
   public function isDocumentNumberExists($document_number)
@@ -501,6 +498,18 @@ class Capex_Order_Evaluation_Model extends MY_Model
         $this->connection->set('process_qty', '"process_qty" - ' . $key->quantity_prl, false);
         $this->connection->where('id', $inventory_purchase_request_detail_id);
         $this->connection->update('tb_capex_purchase_requisition_details');
+
+        //update di capex item progress db budgetcontrol
+        $prl_item_id = $inventory_purchase_request_detail_id;
+        $this->connection->set('capex_purchase_requisition_detail_id',$prl_item_id);
+        $this->connection->set('po_qty',0);
+        $this->connection->set('po_value',0);
+        $this->connection->set('poe_qty',floatval(0-$key->quantity));
+        $this->connection->set('poe_value',floatval(0-$key->total_amount));
+        $this->connection->set('grn_qty',0);
+        $this->connection->set('grn_value',0);
+        $this->connection->insert('tb_capex_purchase_requisition_detail_progress');
+        //end
       }     
 
       $this->db->where('purchase_order_id', $document_id);
@@ -546,6 +555,8 @@ class Capex_Order_Evaluation_Model extends MY_Model
     /**
      * PROCESSING ITEMS
      */
+    $quantity = 0;
+    $total_amount = 0;
     foreach ($_SESSION['capex_poe']['request'] as $i => $item) {
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('description', strtoupper($item['description']));
@@ -632,6 +643,9 @@ class Capex_Order_Evaluation_Model extends MY_Model
           $this->db->where('id', $poe_vendor_id);
           $this->db->update('tb_purchase_order_vendors');
 
+          $quantity = floatval($detail['quantity']);
+          $total_amount = floatval($detail['total']);
+
           // $this->db->select('sisa');
           // $this->db->where('id', $inventory_purchase_request_detail_id);
           // $this->db->from('tb_inventory_purchase_requisition_details');
@@ -662,13 +676,25 @@ class Capex_Order_Evaluation_Model extends MY_Model
           $this->db->insert('tb_purchase_request_closures');
         }
       }
+
+      //update di capex item progress db budgetcontrol
+      $prl_item_id = $item['inventory_purchase_request_detail_id'];
+      $this->connection->set('capex_purchase_requisition_detail_id',$prl_item_id);
+      $this->connection->set('po_qty',0);
+      $this->connection->set('po_value',0);
+      $this->connection->set('poe_qty',$quantity);
+      $this->connection->set('poe_value',$total_amount);
+      $this->connection->set('grn_qty',0);
+      $this->connection->set('grn_value',0);
+      $this->connection->insert('tb_capex_purchase_requisition_detail_progress');
+      //end
     }
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
     $this->db->trans_commit();
-    // $this->connection->trans_commit();
+    $this->connection->trans_commit();
     if ($approval != 'without_approval') {
       // $this->send_mail($document_id);
     }

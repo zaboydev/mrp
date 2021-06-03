@@ -1003,7 +1003,7 @@
                 $('#part_number').val(ui.item.part_number);
                 $('#description').val(ui.item.description);
                 $('#alternate_part_number').val(ui.item.alternate_part_number);
-                $('#group').val(ui.item.group);
+                $('select[id="group"]').val(ui.item.group);
                 $('#received_quantity').val(parseFloat(ui.item.left_received_quantity));
                 $('#quantity_order').val(parseFloat(ui.item.left_received_quantity));
                 $('#unit').val(ui.item.unit);

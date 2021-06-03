@@ -317,7 +317,11 @@ class Capex_Request_Model extends MY_Model
           'tb_capex_purchase_requisition_details.price',
           'tb_capex_purchase_requisition_details.total',
           'sum(case when tb_capex_purchase_requisition_detail_progress.poe_qty is null then 0.00 else tb_capex_purchase_requisition_detail_progress.poe_qty end) as "poe_qty"',  
-          'sum(case when tb_capex_purchase_requisition_detail_progress.poe_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.poe_value end) as "poe_value"',         
+          'sum(case when tb_capex_purchase_requisition_detail_progress.poe_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.poe_value end) as "poe_value"', 
+          'sum(case when tb_capex_purchase_requisition_detail_progress.po_qty is null then 0.00 else tb_capex_purchase_requisition_detail_progress.po_qty end) as "po_qty"', 
+          'sum(case when tb_capex_purchase_requisition_detail_progress.po_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.po_value end) as "po_value"',   
+          'sum(case when tb_capex_purchase_requisition_detail_progress.grn_value is null then 0.00 else tb_capex_purchase_requisition_detail_progress.grn_value end) as "grn_value"',
+          'sum(case when tb_capex_purchase_requisition_detail_progress.grn_qty is null then 0.00 else tb_capex_purchase_requisition_detail_progress.grn_qty end) as "grn_qty"',        
         );
 
         $group = array(
