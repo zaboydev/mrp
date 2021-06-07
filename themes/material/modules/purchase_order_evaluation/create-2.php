@@ -123,7 +123,7 @@
                       <?= $request['description']; ?>
                     </td>
                     <td class="no-space">
-                      <?= $request['part_number']; ?>
+                      <?= $request['part_number']; ?> | S/N : <?=$request['serial_number'];?>
                     </td>
                     <td class="no-space">
                       <?= $request['alternate_part_number']; ?>

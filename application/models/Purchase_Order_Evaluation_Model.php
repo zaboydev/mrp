@@ -383,8 +383,10 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
     $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
     $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
+    $this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id','left');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
     $this->db->where('tb_inventory_purchase_requisition_details.id', $inventory_purchase_request_detail_id);
+    $this->db->where_in('tb_po.status',['PURPOSE','OPEN','ORDER','CLOSE']);
     $this->db->group_by($group);
     $query  = $this->db->get();
     $return = $query->result_array();
@@ -556,6 +558,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
+      $this->db->set('serial_number', strtoupper($item['serial_number']));
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       $this->db->set('quantity_requested', floatval($item['quantity_requested']));
@@ -914,6 +917,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by',
         'tb_inventory_purchase_requisitions.notes',
         'tb_inventory_purchase_requisition_details.unit',
+        'tb_inventory_purchase_requisition_details.serial_number',
       ));
 
       $this->db->from('tb_inventory_purchase_requisitions');

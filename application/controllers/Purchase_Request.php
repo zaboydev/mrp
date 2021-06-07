@@ -192,8 +192,8 @@ class Purchase_Request extends MY_Controller
     $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value) {
-      $entities[$key]['label']  = $value['part_number'];
-      $entities[$key]['label'] .= ' ';
+      $entities[$key]['label']  = $value['part_number'].'| S.N : '.$value['part_number'];
+      $entities[$key]['label'] .= '|';
       $entities[$key]['label'] .= $value['description'];
     }
 
@@ -658,6 +658,7 @@ class Purchase_Request extends MY_Controller
         'part_number_relocation'      => $this->input->post('origin_budget'),
         'budget_value_relocation'     => $this->input->post('budget_value'),
         'reference_ipc'               => trim($this->input->post('reference_ipc')),
+        'serial_number'               => trim($this->input->post('serial_number')),
         // 'budget_value_relocation'      => $this->input->post('budget_value'),
       );
     }
@@ -841,6 +842,7 @@ class Purchase_Request extends MY_Controller
         'part_number_relocation'      => $this->input->post('origin_budget'),
         'budget_value_relocation'     => $this->input->post('budget_value'),
         'reference_ipc'               => trim($this->input->post('reference_ipc')),
+        'serial_number'               => trim($this->input->post('serial_number')),
       );
     }
 

@@ -198,6 +198,11 @@
                     </div>
 
                     <div class="form-group">
+                      <input type="text" name="serial_number" id="serial_number" class="form-control input-sm">
+                      <label for="serial_number">Serial Number</label>
+                    </div>
+
+                    <div class="form-group">
                       <input type="text" name="product_name" id="product_name" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_product_name/'); ?>">
                       <label for="product_name">Description</label>
                     </div>
@@ -598,6 +603,7 @@
 
           $('#product_name').val(response.product_name);
           $('#part_number').val(response.part_number);
+          $('#serial_number').val(response.serial_number);
           $('#group_name').val(response.group_name);
           $('#unit').val(response.unit);
           $('#additional_info').val(response.additional_info);
@@ -874,9 +880,10 @@
 
             select: function(event, ui) {
               $('input[id="part_number"]').val(ui.item.part_number);
+              $('input[id="serial_number"]').val(ui.item.serial_number);
               $('input[id="additional_info"]').val('Alternate P/N: ' + ui.item.alternate_part_number);
               $('input[id="product_name"]').val(ui.item.description);
-              $('input[id="group_name"]').val(ui.item.group);
+              $('select[id="group_name"]').val(ui.item.group);
               $('input[id="unit"]').val(ui.item.unit);
               $('input[id="quantity"]').val();
               $('input[id="minimum_quantity"]').val(ui.item.minimum_quantity);

@@ -174,3 +174,24 @@ if ( ! function_exists('getIdJurnal')) {
   }
 }
 
+if ( ! function_exists('getReferenceIpcByPoItemId')) {
+  function getReferenceIpcByPoItemId($po_item_id)
+  {
+
+    $CI =& get_instance();
+
+    $CI->db->select('reference_ipc');
+    $CI->db->from('tb_inventory_purchase_requisition_details' );
+    $CI->db->join('tb_purchase_order_items','tb_inventory_purchase_requisition_details.id=tb_purchase_order_items.inventory_purchase_request_detail_id');
+    $CI->db->join('tb_po_item', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
+    $CI->db->where('tb_po_item.id', $po_item_id);
+    // $CI->db->where('group', $group);
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->reference_ipc;
+
+    return $return;
+  }
+}
+

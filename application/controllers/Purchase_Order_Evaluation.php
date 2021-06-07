@@ -558,7 +558,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['grand_total']         = NULL;
       $_SESSION['poe']['notes']               = NULL;
 
-      redirect($this->module['route'] . '/create');
+      redirect($this->module['route'] . '/create-2');
     }
 
     if (!isset($_SESSION['poe']))
@@ -665,7 +665,7 @@ class Purchase_Order_Evaluation extends MY_Controller
             'description'             => $request['product_name'],
             'part_number'             => $request['product_code'],
             'alternate_part_number'   => NULL,
-            'serial_number'           => NULL,
+            'serial_number'           => $request['serial_number'],
             'unit'                    => $request['unit'],
             'quantity'                => floatval($request['sisa']),
             'sisa'                    => floatval($request['sisa']),
@@ -796,12 +796,13 @@ class Purchase_Order_Evaluation extends MY_Controller
         foreach ($_POST['request'] as $id => $request) {
           $quantity = floatval($_SESSION['poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['poe']['request'][$id]['part_number'] = $request['part_number'];
-          $_SESSION['poe']['request'][$id]['quantity']    = $request['quantity'];
+          $_SESSION['poe']['request'][$id]['part_number']           = $request['part_number'];
+          $_SESSION['poe']['request'][$id]['serial_number']         = $request['serial_number'];
+          $_SESSION['poe']['request'][$id]['quantity']              = $request['quantity'];
           $_SESSION['poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
-          $_SESSION['poe']['request'][$id]['remarks']     = $request['remarks'];
-          $_SESSION['poe']['request'][$id]['unit']     = $request['unit'];
-          $_SESSION['poe']['request'][$id]['konversi']     = $request['konversi'];
+          $_SESSION['poe']['request'][$id]['remarks']               = $request['remarks'];
+          $_SESSION['poe']['request'][$id]['unit']                  = $request['unit'];
+          $_SESSION['poe']['request'][$id]['konversi']              = $request['konversi'];
 
           foreach ($request['vendors'] as $key => $vendor) {
             // $_SESSION['poe']['request'][$id]['alternate_part_number'] = $unit_price;
