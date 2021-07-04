@@ -6,6 +6,47 @@
 
 <?php startblock('page_body') ?>
 <?php $this->load->view('material/templates/datatable') ?>
+<div id="import-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="import-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <?= form_open_multipart(site_url($module['route'] . '/import'), array('autocomplete' => 'off', 'class' => 'form form-validate form-xhr ui-front')); ?>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+        <h4 class="modal-title" id="import-modal-label">Import Data</h4>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="userfile">CSV File</label>
+
+          <input type="file" name="userfile" id="userfile" required>
+        </div>
+
+        <div class="form-group">
+          <label>Value Delimiter</label>
+
+          <div class="radio">
+            <input type="radio" name="delimiter" id="delimiter_2" value=";">
+            <label for="delimiter_2">Semicolon ( ; )</label>
+          </div>
+
+          <div class="radio">
+            <input type="radio" name="delimiter" id="delimiter_1" value="," checked>
+            <label for="delimiter_1">Comma ( , )</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-block btn-primary ink-reaction">Import Data</button>
+      </div>
+      <?= form_close(); ?>
+    </div>
+  </div>
+</div>
 <div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -44,61 +85,131 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-<?php if (is_granted($module, 'document')) : ?>
-  <div class="section-floating-action-row">
+<div class="section-floating-action-row">
+  <?php if (is_granted($modules['purchase_order'], 'document')) : ?>
     <div class="btn-group dropup">
-      <a href="<?= site_url($module['route'] . '/create/CAPEX'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+      <a type="button" href="<?= site_url($modules['purchase_order']['route'] . '/index_report'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction">
+        <i class="md md-assignment"></i>
+        <small class="top right">Report</small>
+      </a>
+    </div>
+    <div class="btn-group dropup">
+      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
         <i class="md md-add"></i>
         <small class="top right">Create <?= $module['label']; ?></small>
-      </a>
-
-      <!-- <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_inventory') as $category) : ?>
-            <li>
-              <a href="<?= site_url($module['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
-            </li>
-          <?php endforeach; ?>
-        </ul> -->
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <?php foreach (config_item('auth_inventory') as $category) : ?>
+          <li>
+            <a href="<?= site_url($modules['purchase_order']['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
+          </li>
+        <?php endforeach; ?>
+      </ul>
     </div>
-    <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')) : ?>
+    <div class="btn-group dropup">
+      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-import-data" data-toggle="modal" data-target="#import-modal">
+        <i class="md md-attach-file"></i>
+        <small class="top right">Import Data</small>
+      </button>
+    </div>
+  <?php endif ?>
+
+  <?php if (is_granted($modules['purchase_order'], 'approval')) : ?>
+    <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
         <i class="md md-spellcheck"></i>
         <small class="top right">approve</small>
       </button>
-    <?php endif; ?>
-    <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')) : ?>
+    </div>
+  <?php endif; ?>
+  <?php if (is_granted($modules['purchase_order'], 'approval')) : ?>
+    <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-close"></i>
         <small class="top right">reject</small>
       </button>
-    <?php endif; ?>
-
-  </div>
-<?php endif ?>
+    </div>
+  <?php endif; ?>
+  <?php if (is_granted($modules['purchase_order'], 'order')) : ?>
+    <!-- <div class="btn-group dropup">
+      <button type="button" data-source="<?= site_url($module['route'] . '/order/'); ?>" class="btn btn-floating-action btn-lg btn-success btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+        <i class="md md-shopping-cart"></i>
+        <small class="top right">Order</small>
+      </button>
+    </div> -->
+  <?php endif; ?>
+</div>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
 <div class="form force-padding">
   <div class="form-group">
     <label for="filter_received_date">Date</label>
-    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+    <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Supplier</label>
+    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="1">
+      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
+      <?php foreach (available_vendors() as $vendor) : ?>
+        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
+          <?= $vendor; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
   </div>
 
   <div class="form-group">
     <label for="filter_status">Status</label>
-    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_status">
-      <option value="">
-        All
+    <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_status">
+      <?php if ((config_item('auth_role') != 'CHIEF OPERATION OFFICER') && (config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE')) : ?>
+        <option value="">
+          All
+        </option>
+      <?php endif; ?>
+      <option value="review">
+        Review
       </option>
-      <option value="evaluation">
-        Evaluation
-      </option>
-      <option value="approved">
-        Approved
-      </option>
+      <?php if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')) : ?>
+        <option value="review_approved">
+          Approved
+        </option>
+      <?php else : ?>
+        <option value="approved">
+          Approved
+        </option>
+      <?php endif; ?>
       <option value="rejected">
         Rejected
       </option>
+      <option value="order">
+        Order
+      </option>
+      <option value="revisi">
+        Revisi
+      </option>
+      <option value="open">
+        Open
+      </option>
+      <option value="closed">
+        Closed
+      </option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="filter_item_group">Category</label>
+    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
+      <option value="">
+        Not filtered
+      </option>
+
+      <?php foreach (config_item('auth_inventory') as $category) : ?>
+        <option value="<?= $category; ?>">
+          <?= $category; ?>
+        </option>
+      <?php endforeach; ?>
     </select>
   </div>
 </div>
@@ -253,10 +364,16 @@
       .addClass('stripe row-border cell-border order-column nowrap')
       .attr('width', '100%');
 
-    $(datatableElement).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
-    $(datatableElement).find('thead tr:first-child th:first-child').attr('id', 'th1');
-    $(datatableElement).find('table td:first-child').attr('align', 'right');
-
+    <?php
+    if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE')) {
+      ?>
+      $(datatableElement).find('thead tr:first-child th:nth-child(2)').attr('width', 1).text('No.');
+      $(datatableElement).find('table td:nth-child(2)').attr('align', 'right');
+    <?php
+    } else { ?>
+      $(datatableElement).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
+      $(datatableElement).find('table td:first-child').attr('align', 'right');
+    <?php } ?>
     $.fn.dataTable.ext.errMode = 'throw';
 
     var datatable = $(datatableElement).DataTable({
@@ -286,13 +403,14 @@
         url: "<?= $grid['data_source']; ?>",
         type: "POST",
         error: function(xhr, ajaxOptions, thrownError) {
+          console.log(xhr.responseText);
           if (xhr.status == 404) {
             toastr.clear();
             toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
             alert("page not found");
           } else {
             toastr.clear();
-            toastr.error(textStatus + ': ' + errorThrown + '. Report this error!', 'Loading data failed!');
+            toastr.error(xhr.status + ': ' + thrownError + '. Report this error!', 'Loading data failed!');
           }
         }
       },
@@ -315,30 +433,45 @@
         });
 
       },
-
-      columnDefs: [
-        {
-          searchable: false,
-          orderable: false,
-          targets: [0]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [10]
-        },
-        {
-          searchable: true,
-          orderable: false,
-          targets: [11]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [12]
-        }
-      ],
-
+      <?php if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE')) { ?>
+        columnDefs: [{
+            searchable: false,
+            orderable: false,
+            targets: [0]
+          },
+          {
+            searchable: false,
+            orderable: false,
+            visible: false,
+            targets: [21]
+          },
+          {
+            searchable: false,
+            orderable: false,
+            visible: false,
+            targets: [22]
+          }
+        ],
+      <?php } else { ?>
+        columnDefs: [{
+            searchable: false,
+            orderable: false,
+            targets: [0]
+          },
+          {
+            searchable: false,
+            orderable: false,
+            visible: false,
+            targets: [20]
+          },
+          {
+            searchable: false,
+            orderable: false,
+            visible: false,
+            targets: [21]
+          }
+        ],
+      <?php } ?>
       dom: "<'row'<'col-sm-12'tr>>" +
         "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
     });
@@ -434,74 +567,93 @@
         });
       });
     }
-    var notes = "";
-    $("#modal-reject-data-button-multi").click(function() {
-      if (!encodeNotes()) {
-        toastr.options.timeOut = 10000;
-        toastr.options.positionClass = 'toast-top-right';
-        toastr.error('You must filled notes for each item that you want to reject');
-      } else {
+    $(datatableElement).find('tbody').on('click', 'tr', function(e) {
+      console.log(e.target.nodeName);
+      if (e.target.nodeName === "INPUT") {
+        if ($(e.target).attr("type") === "checkbox") {
+          if ($(e.target).prop('checked')) {
+            id_purchase_order += "|" + $(e.target).attr('data-id') + ",";
+          } else {
+            id_purchase_order = id_purchase_order.replace("|" + $(this).attr('data-id') + ",", "");
+          }
+        }
 
-        if (id_purchase_order == "") {
+      } else if (e.target.nodeName === "I") {
+        var id = $(e.target).attr('data-id');
+        getAttachment(id);
+        console.log(id);
+      } else if (e.target.nodeName === "SPAN") {
+        // var a = $(e.target).data('id');
+        // console.log(e.target.nodeName);
+        ///////////////////////////////////////eventdefault
+      } else {
+        $(this).popup();
+      }
+
+    });
+
+    function getAttachment(id) {
+      $.ajax({
+        type: "GET",
+        url: 'purchase_order/listAttachmentpoe/' + id,
+        cache: false,
+        success: function(response) {
+          var data = jQuery.parseJSON(response)
+          $("#listView").html("")
+          $("#attachment_modal").modal("show");
+          $.each(data, function(i, item) {
+            var text = '<tr>' +
+              '<td>' + (i + 1) + '</td>' +
+              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+              '</tr>';
+            $("#listView").append(text);
+          });
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          console.log(xhr.status);
+          console.log(xhr.responseText);
+          console.log(thrownError);
+        }
+      });
+    }
+    var notes = "";
+    $("#modal-approve-data-button-multi").click(function() {
+      var action = $(this).data('source');
+      $(this).attr('disabled', true);
+      if (id_purchase_order !== "") {
+        encodeNotes();
+        $.post(action, {
+          'id_purchase_order': id_purchase_order,
+          'notes': notes
+        }).done(function(data) {
+          console.log(data);
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+          var result = jQuery.parseJSON(data);
+          if (result.status == 'success') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success('Success aprove data the page will reload');
+            window.location.reload();
+          } else {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.danger('Failed aprove data');
+          }
+        }).fail(function() {
+          $("#modal-approve-data-button-multi").attr('disabled', false);
           toastr.options.timeOut = 10000;
           toastr.options.positionClass = 'toast-top-right';
-          toastr.error('You must select item that you want to reject');
-        } else {
-          $.ajax({
-            type: "POST",
-            url: 'purchase_order_evaluation/multi_reject',
-            data: {
-              "id_purchase_order": id_purchase_order,
-              "notes": notes
-            },
-            cache: false,
-            success: function(response) {
-              console.log(response);
-              var data = jQuery.parseJSON(response);
-              if (data.status == "success") {
-                toastr.options.timeOut = 10000;
-                toastr.options.positionClass = 'toast-top-right';
-                toastr.success('Successfully reject item, the page will reload now');
-                window.location.reload();
-              } else {
-                toastr.options.timeOut = 10000;
-                toastr.options.positionClass = 'toast-top-right';
-                toastr.error('Failed rejected item');
-              }
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-              console.log(xhr.status);
-              console.log(xhr.responseText);
-              console.log(thrownError);
-            }
-          });
-        }
+          toastr.error('Delete Failed! This data is still being used by another document.');
+        });
+      } else {
+        $(this).attr('disabled', false);
+        toastr.options.timeOut = 10000;
+        toastr.options.positionClass = 'toast-top-right';
+        toastr.error('Empty selected data');
       }
     });
 
-    function encodeNotes() {
-      new_id_purchase_order = id_purchase_order.replace(/\|/g, "");
-      new_id_purchase_order = new_id_purchase_order.substring(0, new_id_purchase_order.length - 1);
-      arr = new_id_purchase_order.split(",");
-      notes = "";
-      y = 0;
-      $.each(arr, function(i, x) {
-        if ($("#note_" + x).val() != "") {
-          notes = notes + "|" + $("#note_" + x).val() + "##,";
-          y += 1;
-        } else {
-          return false;
-        }
-      });
-      if (y == arr.length) {
-        return true
-      } else {
-        return false
-      }
-
-    }
-    $(datatableElement).find('tbody').on('click', 'td', function(e) {
-
+    $(datatableElement).find('tbody').on('click', 'td', function() {
       datatableOptions.clickCount++;
 
       var modalOpenOnClick = datatable.row(this).data().DT_RowData.modal;
@@ -534,7 +686,7 @@
               .attr('href', obj.link.edit);
 
             $(dataModal)
-              .find('#modal-delete-data-button')
+              .find('#btn-order')
               .attr('href', obj.link.delete);
 
             $(dataModal).modal('show');
@@ -565,52 +717,7 @@
         }
       }
     });
-    $(datatableElement).find('tbody').on('click', 'tr', function(e) {
-      console.log(e.target.nodeName)
-      if (e.target.nodeName === "INPUT") {
-        if ($(e.target).attr("type") === "checkbox") {
-          if ($(e.target).prop('checked')) {
-            id_purchase_order += "|" + $(e.target).attr('data-id') + ",";
-          } else {
-            id_purchase_order = id_purchase_order.replace("|" + $(this).attr('data-id') + ",", "");
-          }
-        }
 
-      } else if (e.target.nodeName === "I") {
-        var id = $(this).attr('data-id');
-        getAttachment(id);
-      } else {
-        $(this).popup();
-      }
-      console.log(id);
-
-    });
-
-    function getAttachment(id) {
-      $.ajax({
-        type: "GET",
-        url: 'capex_order_evaluation/listAttachment/' + id,
-        cache: false,
-        success: function(response) {
-          var data = jQuery.parseJSON(response)
-          $("#listView").html("")
-          $("#attachment_modal").modal("show");
-          $.each(data, function(i, item) {
-            var text = '<tr>' +
-              '<td>' + (i + 1) + '</td>' +
-              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-              '</tr>';
-            $("#listView").append(text);
-          });
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-          console.log(xhr.status);
-          console.log(xhr.responseText);
-          console.log(thrownError);
-        }
-      });
-    }
-    
     $('.filter_numeric_text').on('keyup click', function() {
       var i = $(this).data('column');
       var v = $(this).val();
@@ -679,49 +786,124 @@
         $('.progress-overlay').hide();
       }
     });
-    $("#modal-approve-data-button-multi").click(function() {
-      var action = $(this).data('source');
-      $(this).attr('disabled', true);
-      if (id_purchase_order !== "") {
-        $.post(action, {
-          'id_purchase_order': id_purchase_order
-        }).done(function(data) {
-          console.log(data);
-          $("#modal-approve-data-button-multi").attr('disabled', false);
-          var result = jQuery.parseJSON(data);
-          if (result.status == 'success') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success('Success aprove data the page will reload');
-            window.location.reload();
-          } else {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.danger('Failed aprove data');
-          }
-        }).fail(function() {
-          $("#modal-approve-data-button-multi").attr('disabled', false);
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error('Delete Failed! This data is still being used by another document.');
-        });
-      } else {
-        $(this).attr('disabled', false);
+
+    $("#modal-reject-data-button-multi").click(function() {
+      if (!encodeNotes()) {
         toastr.options.timeOut = 10000;
         toastr.options.positionClass = 'toast-top-right';
-        toastr.error('Empty selected data');
+        toastr.error('You must filled notes for each item that you want to reject');
+      } else {
+
+        if (id_purchase_order == "") {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('You must select item that you want to reject');
+        } else {
+          $.ajax({
+            type: "POST",
+            url: 'purchase_order/multi_reject',
+            data: {
+              "id_purchase_order": id_purchase_order,
+              "notes": notes
+            },
+            cache: false,
+            success: function(response) {
+              console.log(response);
+              var data = jQuery.parseJSON(response);
+              if (data.status == "success") {
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.success('Successfully reject item, the page will reload now');
+                window.location.reload();
+              } else {
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.error('Failed rejected item');
+              }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+              console.log(xhr.status);
+              console.log(xhr.responseText);
+              console.log(thrownError);
+            }
+          });
+        }
       }
     });
+
+    function encodeNotes() {
+      new_id_purchase_order = id_purchase_order.replace(/\|/g, "");
+      new_id_purchase_order = new_id_purchase_order.substring(0, new_id_purchase_order.length - 1);
+      arr = new_id_purchase_order.split(",");
+      notes = "";
+      y = 0;
+      $.each(arr, function(i, x) {
+        if ($("#note_" + x).val() != "") {
+          notes = notes + "|" + $("#note_" + x).val() + "##,";
+          y += 1;
+        } else {
+          return false;
+        }
+      });
+      if (y == arr.length) {
+        return true
+      } else {
+        return false
+      }
+
+    }
     $(document).on('click', '.btn-xhr-delete', function(e) {
       e.preventDefault();
 
       var button = $(this);
       var form = $('.form-xhr');
       var action = button.attr('href');
+      $('#order-modal').show();
 
       button.attr('disabled', true);
 
       if (confirm('Are you sure want to delete this data? Beware of this data can not be restored after it is removed. Continue?')) {
+        $.post(action, form.serialize()).done(function(data) {
+          var obj = $.parseJSON(data);
+          if (obj.type == 'danger') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.info);
+
+            buttonToDelete.attr('disabled', false);
+          } else {
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.info);
+
+            form.reset();
+
+            $('[data-dismiss="modal"]').trigger('click');
+
+            if (datatable) {
+              datatable.ajax.reload(null, false);
+            }
+          }
+        }).fail(function() {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Delete Failed! This data is still being used by another document.');
+        });
+      }
+
+      button.attr('disabled', false);
+    });
+
+    $(document).on('click', '.btn-xhr-order', function(e) {
+      e.preventDefault();
+
+      var button = $(this);
+      var form = $('.form-xhr-order');
+      var action = button.attr('href');
+      // $('#order-modal form').attr('action', button.data('href'));
+      // $('#order-modal').show();
+      button.attr('disabled', true);
+
+      if (confirm('Are you sure want to order this Purchase ? Continue?')) {
         $.post(action, form.serialize()).done(function(data) {
           var obj = $.parseJSON(data);
           if (obj.type == 'danger') {

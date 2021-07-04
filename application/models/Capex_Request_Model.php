@@ -909,4 +909,99 @@ class Capex_Request_Model extends MY_Model
 
         return TRUE;
     }
+
+    public function findPrlByPoeItemid($poe_item_id)
+    {
+        $prl_item_id = getPrlid($poe_item_id);
+
+        $this->connection->select('tb_capex_purchase_requisition_details.capex_purchase_requisition_id');
+        $this->connection->from('tb_capex_purchase_requisition_details');
+        $this->connection->where('tb_capex_purchase_requisition_details.id', $prl_item_id);
+        $query      = $this->connection->get();
+        $poe_item   = $query->unbuffered_row('array');
+        $id         = $poe_item['capex_purchase_requisition_id'];
+
+        $this->connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name,tb_cost_centers.cost_center_code,tb_annual_cost_centers.cost_center_id');
+        $this->connection->from('tb_capex_purchase_requisitions');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->where('tb_capex_purchase_requisitions.id', $id);
+
+        $query    = $this->connection->get();
+        $request  = $query->unbuffered_row('array');
+
+        $select = array(
+            'tb_capex_purchase_requisition_details.*',
+            'tb_products.product_name',
+            'tb_products.product_code as part_number',
+            'tb_product_groups.group_name as group',
+            'tb_capex_monthly_budgets.product_id',
+            'tb_capex_monthly_budgets.ytd_quantity',
+            'tb_capex_monthly_budgets.ytd_budget',
+            'tb_capex_monthly_budgets.ytd_used_quantity',
+            'tb_capex_monthly_budgets.ytd_used_budget',
+        );
+
+        $group_by = array(
+            'tb_capex_purchase_requisition_details.id',
+            'tb_products.product_name',
+            'tb_products.product_code',
+            'tb_capex_monthly_budgets.product_id',
+            'tb_product_groups.group_name',
+            'tb_capex_monthly_budgets.ytd_quantity',
+            'tb_capex_monthly_budgets.ytd_budget',
+            'tb_capex_monthly_budgets.ytd_used_quantity',
+            'tb_capex_monthly_budgets.ytd_used_budget',
+        );
+
+        $this->connection->select($select);
+        $this->connection->from('tb_capex_purchase_requisition_details');
+        $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
+        $this->connection->join('tb_products', 'tb_products.id = tb_capex_monthly_budgets.product_id');
+        // $this->connection->join('tb_product_measurements', 'tb_product_measurements.id = tb_products.product_measurement_id');
+        $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
+        $this->connection->where('tb_capex_purchase_requisition_details.capex_purchase_requisition_id', $id);
+        $this->connection->group_by($group_by);
+
+        $query = $this->connection->get();
+
+        foreach ($query->result_array() as $key => $value){
+            $request['items'][$key] = $value;
+            $request['items'][$key]['balance_mtd_quantity']     = $value['ytd_quantity'] - $value['ytd_used_quantity'];
+            $request['items'][$key]['balance_mtd_budget']       = $value['ytd_budget'] - $value['ytd_used_budget'];
+            $request['items'][$key]['mtd_quantity']     = $value['quantity'] + $value['ytd_quantity'] - $value['ytd_used_quantity'];
+            $request['items'][$key]['mtd_budget']       = $value['total'] + $value['ytd_budget'] - $value['ytd_used_budget'];
+
+            $this->column_select = array(
+                'SUM(tb_capex_monthly_budgets.mtd_quantity) as quantity',
+                'SUM(tb_capex_monthly_budgets.mtd_budget) as budget',
+                'SUM(tb_capex_monthly_budgets.mtd_used_quantity) as used_quantity',
+                'SUM(tb_capex_monthly_budgets.mtd_used_budget) as used_budget',
+                'tb_capex_monthly_budgets.product_id',
+                'tb_capex_monthly_budgets.annual_cost_center_id',
+            );
+
+            $this->column_groupby = array(                
+                'tb_capex_monthly_budgets.product_id',
+                'tb_capex_monthly_budgets.annual_cost_center_id',
+            );
+
+            $this->connection->select($this->column_select);
+            $this->connection->from('tb_capex_monthly_budgets');
+            $this->connection->where('tb_capex_monthly_budgets.annual_cost_center_id', $request['annual_cost_center_id']);
+            $this->connection->where('tb_capex_monthly_budgets.product_id', $value['product_id']);
+            $this->connection->group_by($this->column_groupby);
+
+            $query = $this->connection->get();
+            $row   = $query->unbuffered_row('array');
+
+            $request['items'][$key]['maximum_quantity'] = $value['quantity'] + $row['quantity'] - $row['used_quantity'];
+            $request['items'][$key]['maximum_price']    =  $value['total'] + $row['budget'] - $row['used_budget'];
+            $request['items'][$key]['balance_ytd_quantity']     = $row['quantity'] - $row['used_quantity'];
+            $request['items'][$key]['balance_ytd_budget']       = $row['budget'] - $row['used_budget'];            
+            $request['items'][$key]['history']          = $this->getHistory($request['annual_cost_center_id'],$value['product_id'],$request['order_number']);
+        }
+
+        return $request;
+    }
 }

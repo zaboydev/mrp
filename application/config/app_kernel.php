@@ -62,6 +62,7 @@ require('modules/pesawat.php');
 require('modules/departements.php');
 require('modules/annual_cost_centers.php');
 require('modules/product_category.php');
+require('modules/expense_item.php');
 
 //PLANNING
 require('modules/budget_cot.php');
@@ -77,6 +78,8 @@ require('modules/inventory_order_evaluation.php');
 require('modules/inventory_purchase_order.php');
 //expense
 require('modules/expense_request.php');
+require('modules/expense_order_evaluation.php');
+require('modules/expense_purchase_order.php');
 
 //PROCUREMENT
 require('modules/purchase_request.php');

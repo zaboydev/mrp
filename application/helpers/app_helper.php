@@ -1337,6 +1337,79 @@ if ( ! function_exists('findProductCategoryById')) {
   }
 }
 
+if ( ! function_exists('expense_item_without_po')) {
+  function expense_item_without_po()
+  {
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('account_id');
+    $connection->from('tb_expense_item_without_po');
+
+    $connection->order_by('account_id', 'ASC');
+
+    $query  = $connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['account_id'];
+    }
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getReferenceIpcByPrlItemId')) {
+  function getReferenceIpcByPrlItemId($prl_item_id,$type)
+  {
+
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    if($type='expense'){
+      $connection->select('reference_ipc');
+      $connection->from('tb_expense_purchase_requisition_details' );
+      $connection->where('tb_expense_purchase_requisition_details.id', $prl_item_id);
+    }
+    else if($type='capex'){
+      $connection->select('reference_ipc');
+      $connection->from('tb_capex_purchase_requisition_details' );
+      $connection->where('tb_capex_purchase_requisition_details.id', $prl_item_id);
+    }
+    else if($type='inventory'){
+      $connection->select('reference_ipc');
+      $connection->from('tb_inventory_purchase_requisition_details' );
+      $connection->where('tb_inventory_purchase_requisition_details.id', $prl_item_id);
+    }
+
+    $query  = $connection->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->reference_ipc;
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getPrlid')) {
+  function getPrlid($id)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('inventory_purchase_request_detail_id');
+    $CI->db->from( 'tb_purchase_order_items' );
+    $CI->db->where('tb_purchase_order_items.id', $id);
+
+    $query    = $CI->db->get();
+    $row      = $query->unbuffered_row();
+    $return   = $row->inventory_purchase_request_detail_id;
+
+    return $return;
+  }
+}
+
 }
 
     

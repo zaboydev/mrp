@@ -195,19 +195,4 @@ if ( ! function_exists('getReferenceIpc')) {
   }
 }
 
-if ( ! function_exists('getPrlid')) {
-  function getPrlid($id)
-  {
-    $CI =& get_instance();
 
-    $CI->db->select('inventory_purchase_request_detail_id');
-    $CI->db->from( 'tb_purchase_order_items' );
-    $CI->db->where('tb_purchase_order_items.id', $id);
-
-    $query    = $CI->db->get();
-    $row      = $query->unbuffered_row('array');
-    $return   = $row->inventory_purchase_request_detail_id;
-
-    return $return;
-  }
-}

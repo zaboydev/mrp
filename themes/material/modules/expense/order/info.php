@@ -80,8 +80,8 @@
                 <th class="middle-alignment"></th>
                 <th class="middle-alignment">Description</th>
                 <th class="middle-alignment">Part Number</th>
-                <th class="middle-alignment">Alt. P/N</th>
-                <th class="middle-alignment">Serial Number</th>
+                <!-- <th class="middle-alignment">Alt. P/N</th> -->
+                <!-- <th class="middle-alignment">Serial Number</th> -->
                 <th class="middle-alignment">Remarks</th>
                 <th class="middle-alignment">POE Number</th>
                 <th class="middle-alignment">PR Number</th>
@@ -105,14 +105,9 @@
                   <td>
                     <?= print_string($detail['description']); ?>
                   </td>
+                  
                   <td class="no-space">
                     <?= print_string($detail['part_number']); ?>
-                  </td>
-                  <td class="no-space">
-                    <?= print_string($detail['alternate_part_number']); ?>
-                  </td>
-                  <td class="no-space">
-                    <?= print_string($detail['serial_number']); ?>
                   </td>
                   <td>
                     <?= print_string($detail['remarks']); ?>
@@ -124,7 +119,7 @@
                     <?php if ($detail['poe_item_id'] == null) : ?>
                       <a href="#"><?= print_string($detail['purchase_request_number']); ?></a>
                     <?php else : ?>
-                      <a href="<?= site_url('capex_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                      <a href="<?= site_url('expense_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
                     <?php endif; ?>
                   </td>
                   <td>
@@ -155,8 +150,8 @@
             </tbody>
             <tfoot>
               <tr>
-                <th></th>
-                <th></th>
+                <!-- <th></th> -->
+                <!-- <th></th> -->
                 <th></th>
                 <th></th>
                 <th></th>
@@ -172,8 +167,8 @@
               </tr>
               <?php if ($entity['discount'] > 0) : ?>
                 <tr>
-                  <th></th>
-                  <th></th>
+                  <!-- <th></th> -->
+                <!-- <th></th> -->
                   <th></th>
                   <th></th>
                   <th></th>
@@ -189,8 +184,8 @@
               <?php endif; ?>
               <?php if ($entity['taxes'] > 0) : ?>
                 <tr>
-                  <th></th>
-                  <th></th>
+                  <!-- <th></th> -->
+                <!-- <th></th> -->
                   <th></th>
                   <th></th>
                   <th></th>
@@ -206,8 +201,8 @@
               <?php endif; ?>
               <?php if ($entity['shipping_cost'] > 0) : ?>
                 <tr>
-                  <th></th>
-                  <th></th>
+                  <!-- <th></th> -->
+                <!-- <th></th> -->
                   <th></th>
                   <th></th>
                   <th></th>
@@ -222,8 +217,8 @@
                 </tr>
               <?php endif; ?>
               <tr>
-                <th></th>
-                <th></th>
+                <!-- <th></th> -->
+                <!-- <th></th> -->
                 <th></th>
                 <th></th>
                 <th></th>

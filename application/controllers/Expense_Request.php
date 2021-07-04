@@ -13,8 +13,10 @@ class Expense_Request extends MY_Controller
         $this->load->model($this->module['model'], 'model');
         $this->data['module'] = $this->module;
         $this->load->library('email');
-        // if (empty($_SESSION['request']['request_to']))
-        //   $_SESSION['request']['request_to'] = 1;
+        $this->load->library('upload');
+        $this->load->helper('string');
+        if (empty($_SESSION['expense']['request_to']))
+          $_SESSION['expense']['request_to'] = 1;
     }
 
     public function set_doc_number()
@@ -507,5 +509,66 @@ class Expense_Request extends MY_Controller
 
         if (isset($_SESSION['expense']['items']))
             unset($_SESSION['expense']['items'][$key]);
+    }
+
+    public function attachment()
+    {
+        $this->authorized($this->module, 'document');
+
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function add_attachment()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+        $config['upload_path'] = 'attachment/expense_request/'.$_SESSION['expense']['cost_center_name'].'/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+          $error = array('error' => $this->upload->display_errors());
+        } else {
+
+          $data = array('upload_data' => $this->upload->data());
+          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          array_push($_SESSION["capex"]["attachment"], $url);
+          $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function delete_attachment($index)
+    {
+        $file = FCPATH . $_SESSION["expense"]["attachment"][$index];
+        if (unlink($file)) {
+            unset($_SESSION["expense"]["attachment"][$index]);
+            $_SESSION["expense"]["attachment"] = array_values($_SESSION["expense"]["attachment"]);
+            redirect($this->module['route'] . "/attachment", 'refresh');
+        }
+    }
+
+    public function print_pdf_prl($poe_item_id)
+    {
+        $this->authorized($this->module, 'print');
+
+        $entity = $this->model->findPrlByPoeItemid($poe_item_id);
+
+        $this->data['entity']           = $entity;
+        $this->data['page']['title']    = strtoupper($this->module['label']);
+        $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
+
+        $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+        $pdfFilePath = str_replace('/', '-', $entity['pr_number']) . ".pdf";
+
+        $this->load->library('m_pdf');
+
+        $pdf = $this->m_pdf->load(null, 'A4-L');
+        $pdf->WriteHTML($html);
+        $pdf->Output($pdfFilePath, "I");
     }
 }

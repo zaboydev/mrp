@@ -47,7 +47,7 @@
 <?php if (is_granted($module, 'document')) : ?>
   <div class="section-floating-action-row">
     <div class="btn-group dropup">
-      <a href="<?= site_url($module['route'] . '/create/CAPEX'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+      <a href="<?= site_url($module['route'] . '/create/EXPENSE'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
         <i class="md md-add"></i>
         <small class="top right">Create <?= $module['label']; ?></small>
       </a>
@@ -589,7 +589,7 @@
     function getAttachment(id) {
       $.ajax({
         type: "GET",
-        url: 'capex_order_evaluation/listAttachment/' + id,
+        url: 'expense_order_evaluation/listAttachment/' + id,
         cache: false,
         success: function(response) {
           var data = jQuery.parseJSON(response)

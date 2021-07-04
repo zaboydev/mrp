@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['product_category']['visible']        = TRUE;
+$config['module']['product_category']['visible']        = FALSE;
 $config['module']['product_category']['main_warehouse'] = TRUE;
 $config['module']['product_category']['parent']         = 'master';
 $config['module']['product_category']['label']          = 'Product Category';

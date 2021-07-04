@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Inventory_Purchase_Order extends MY_Controller
+class Expense_Purchase_Order extends MY_Controller
 {
   protected $module;
 
@@ -8,7 +8,7 @@ class Inventory_Purchase_Order extends MY_Controller
   {
     parent::__construct();
 
-    $this->module = $this->modules['inventory_purchase_order'];
+    $this->module = $this->modules['expense_purchase_order'];
     $this->load->helper($this->module['helper']);
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
@@ -69,7 +69,7 @@ class Inventory_Purchase_Order extends MY_Controller
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['inventory_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
         
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
@@ -88,7 +88,7 @@ class Inventory_Purchase_Order extends MY_Controller
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['capex_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
           $col[]  = print_string($row['approval_notes']);
@@ -566,7 +566,7 @@ class Inventory_Purchase_Order extends MY_Controller
       $return['type'] = 'success';
 
       if ($entity['status'] === 'evaluation') {
-        $return['info'] = $this->load->view($this->modules['capex_order_evaluation']['view'] . '/info', $this->data, TRUE);
+        $return['info'] = $this->load->view($this->modules['expense_order_evaluation']['view'] . '/info', $this->data, TRUE);
       } else {
         $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
       }
@@ -1392,7 +1392,7 @@ class Inventory_Purchase_Order extends MY_Controller
         $col[] = print_string($row['description']);
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['alternate_part_number']);
-        $col[] = '<a href="' . site_url($this->modules['capex_order_evaluation']['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+        $col[] = '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
         $col[] = '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
         $col[] = print_string($row['reference_quotation']);
         $col[] = strtoupper($row['vendor']);

@@ -589,7 +589,7 @@
     function getAttachment(id) {
       $.ajax({
         type: "GET",
-        url: 'purchase_order_evaluation/listAttachment/' + id,
+        url: 'capexpurchase_order_evaluation/listAttachment/' + id,
         cache: false,
         success: function(response) {
           var data = jQuery.parseJSON(response)

@@ -50,6 +50,7 @@
                 <tr>
                   <th></th>
                   <th>Akun</th>
+                  <th>Ref. IPC</th>
                   <th>Remarks</th>
                   <th class="text-right">Amount</th>
                 </tr>
@@ -68,6 +69,9 @@
                     </td>
                     <td class="">
                       <?= print_string($items['account_code']); ?> - <?= print_string($items['account_name']); ?>
+                    </td>
+                    <td class="">
+                      <?= print_string($items['reference_ipc']); ?> 
                     </td>
                     <td class="">
                       <?= print_string($items['additional_info']); ?> 
@@ -90,9 +94,15 @@
       </div>
       <div class="card-actionbar">
         <div class="card-actionbar-row">
-          <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
-            Add Item
-          </a>
+          <div class="pull-left">
+            <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
+              Add Item
+            </a>
+            <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+              Attachment
+            </a>
+            </div>
+          
 
           <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
@@ -277,6 +287,30 @@
   Pace.on('done', function() {
     $('.progress-overlay').hide();
   });
+
+  function popup(mylink, windowname) {
+    var height = window.innerHeight;
+    var widht;
+    var href;
+
+    if (screen.availWidth > 768) {
+      width = 769;
+    } else {
+      width = screen.availWidth;
+    }
+
+    var left = (screen.availWidth / 2) - (width / 2);
+    var top = 0;
+    // var top = (screen.availHeight / 2) - (height / 2);
+
+    if (typeof(mylink) == 'string') href = mylink;
+    else href = mylink.href;
+
+    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+
+    if (!window.focus) return true;
+    else return false;
+  }
 
   (function($) {
     $.fn.reset = function() {
