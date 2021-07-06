@@ -66,6 +66,7 @@
                   <th></th>
                   <th>Description</th>
                   <th>P/N</th>
+                  <th>S/N</th>
                   <th>Additional Info</th>
                   <th class="text-right">Qty</th>
                   <th>Unit</th>
@@ -91,6 +92,9 @@
                       <?= print_string($items['part_number']); ?>
                     </td>
                     <td class="no-space">
+                      <?= print_string($items['serial_number']); ?>
+                    </td>
+                    <td class="no-space">
                       <?= print_string($items['additional_info']); ?>
                     </td>
                     <td>
@@ -105,6 +109,7 @@
               <tfoot>
                 <th></th>
                 <th>Total</th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th><?= print_number(array_sum($total_quantity), 2); ?></th>
@@ -198,7 +203,7 @@
                     </div>
 
                     <div class="form-group">
-                      <input type="text" name="serial_number" id="serial_number" class="form-control input-sm">
+                      <input type="text" name="serial_number" id="serial_number" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_serial_number/'); ?>">
                       <label for="serial_number">Serial Number</label>
                     </div>
 
@@ -866,6 +871,67 @@
       success: function(resource) {
         console.log(resource);
         $('input[id="part_number"]').autocomplete({
+            autoFocus: true,
+            minLength: 2,
+
+            source: function(request, response) {
+              var results = $.ui.autocomplete.filter(resource, request.term);
+              response(results.slice(0, 5));
+            },
+
+            focus: function(event, ui) {
+              return false;
+            },
+
+            select: function(event, ui) {
+              $('input[id="part_number"]').val(ui.item.part_number);
+              $('input[id="serial_number"]').val(ui.item.serial_number);
+              $('input[id="additional_info"]').val('Alternate P/N: ' + ui.item.alternate_part_number);
+              $('input[id="product_name"]').val(ui.item.description);
+              $('select[id="group_name"]').val(ui.item.group);
+              $('input[id="unit"]').val(ui.item.unit);
+              $('input[id="quantity"]').val();
+              $('input[id="minimum_quantity"]').val(ui.item.minimum_quantity);
+              $('input[id="on_hand_quantity"]').val(ui.item.on_hand_quantity);
+              $('input[id="price"]').val(ui.item.price);
+              $('input[id="total"]').val(ui.item.price).trigger('change');
+
+              $('#maximum_price').val(0);
+              $('#maximum_quantity').val(0);
+
+              $('#ytd_quantity').val(0);
+              $('#ytd_used_quantity').val(parseInt(0));
+              $('#ytd_used_budget').val(parseInt(0));
+              $('#ytd_budget').val(0);
+
+              $('#mtd_quantity').val(0);
+              $('#mtd_used_quantity').val(parseInt(0));
+              $('#mtd_used_budget').val(parseInt(0));
+              $('#mtd_budget').val(0);
+
+              $('#inventory_monthly_budget_id').val('');
+
+              $('input[id="quantity"]').focus();
+
+              return false;
+            }
+          })
+          .data("ui-autocomplete")._renderItem = function(ul, item) {
+            $(ul).addClass('list divider-full-bleed');
+
+            return $("<li class='tile'>")
+              .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
+              .appendTo(ul);
+          };
+      }
+    });
+
+    $.ajax({
+      url: $('input[id="serial_number"]').data('source'),
+      dataType: "json",
+      success: function(resource) {
+        console.log(resource);
+        $('input[id="serial_number"]').autocomplete({
             autoFocus: true,
             minLength: 2,
 

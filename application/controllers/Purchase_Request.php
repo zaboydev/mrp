@@ -192,8 +192,25 @@ class Purchase_Request extends MY_Controller
     $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value) {
-      $entities[$key]['label']  = $value['part_number'].'| S.N : '.$value['part_number'];
-      $entities[$key]['label'] .= '|';
+      $entities[$key]['label']  = $value['part_number'].'| S.N : '.$value['serial_number'];
+      $entities[$key]['label'] .= ' | ';
+      $entities[$key]['label'] .= $value['description'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function search_items_by_serial_number()
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    $category = $_SESSION['request']['category'];
+    $entities = $this->model->searchItemsByPartNumber($category);
+
+    foreach ($entities as $key => $value) {
+      $entities[$key]['label']  = 'S.N : '.$value['serial_number'].'| P/N : '.$value['part_number'];
+      $entities[$key]['label'] .= ' | ';
       $entities[$key]['label'] .= $value['description'];
     }
 
