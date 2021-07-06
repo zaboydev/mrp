@@ -52,6 +52,7 @@
       <th align="right" width="1">No</th>
       <th width="10">Description</th>
       <th width="10">Part Number</th>
+      <th width="10">Serial Number</th>
       <th align="right" width="1">Qty</th>
       <th width="1">Unit</th>
       <th align="right" width="10">On Hand Stock</th>
@@ -76,6 +77,9 @@
         </td>
         <td>
           <?= print_string($detail['part_number']); ?>
+        </td>
+        <td>
+          <?= print_string($detail['serial_number']); ?>
         </td>
         <td align="right">
           <?= print_number($detail['quantity'], 2); ?>
