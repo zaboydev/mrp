@@ -100,8 +100,15 @@ class Expense_Request_Model extends MY_Model
             }            
         }
 
-        // if (!empty($_POST['columns'][3]['search']['value'])){
-        //     $search_category = $_POST['columns'][3]['search']['value'];
+        if (!empty($_POST['columns'][3]['search']['value'])){
+            $search_cost_center = $_POST['columns'][3]['search']['value'];
+            if($search_cost_center!='all'){
+                $this->connection->where('tb_cost_centers.cost_center_name', $search_cost_center);
+            }            
+        }
+
+        // if (!empty($_POST['columns'][4]['search']['value'])){
+        //     $search_category = $_POST['columns'][4]['search']['value'];
 
         //     $this->connection->where('UPPER(tb_product_categories.category_name)', strtoupper($search_category));
         // }
