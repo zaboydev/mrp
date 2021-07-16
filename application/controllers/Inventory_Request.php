@@ -43,6 +43,7 @@ class Inventory_Request extends MY_Controller
             }
             $col[] = print_string($row['pr_number']);
             $col[] = print_string(strtoupper($row['status']));
+            $col[] = print_string($row['category_name']);
             $col[] = print_string($row['department_name']);
             $col[] = print_string($row['cost_center_name']);
             $col[] = print_date($row['pr_date']);
@@ -76,7 +77,7 @@ class Inventory_Request extends MY_Controller
             "recordsFiltered" => $this->model->countIndexFiltered(),
             "data" => $data,
             "total" => array(
-                7  => print_number(array_sum($total), 2),
+                8  => print_number(array_sum($total), 2),
             )
         );
         }
@@ -92,7 +93,7 @@ class Inventory_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(7);
+        $this->data['grid']['summary_columns']  = array(8);
         $this->data['grid']['order_columns']    = array(
              // 0   => array( 0 => 2,  1 => 'desc' ),
             0   => array( 0 => 1,  1 => 'desc' ),
