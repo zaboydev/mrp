@@ -340,6 +340,7 @@ class Purchase_Order_Evaluation extends MY_Controller
         $col[] = print_string($row['category']);
         $col[] = print_string($row['description']);
         $col[] = print_string($row['part_number']);
+        $col[] = print_string($row['serial_number']);
         $col[] = print_number($row['quantity'], 2);
         $col[] = print_string($row['vendor']);
         $col[] = print_number($row['unit_price'], 2);

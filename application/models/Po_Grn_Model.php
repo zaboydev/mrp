@@ -22,6 +22,7 @@ class Po_Grn_Model extends MY_Model
       'tb_po.document_number as "po_number"'                => 'PO Number',
       'tb_po.vendor'                                        => 'Vendor',
       'tb_po_item.part_number'                              => 'Part Number',
+      'tb_po_item.serial_number'                              => 'Serial Number',
       'tb_po_item.description'                              => 'Description',
       'tb_po.default_currency'                              => 'Currency',
       'tb_po_item.quantity as "po_qty"'                     => 'Qty Order',

@@ -15,7 +15,7 @@
       <div class="col-sm-12 col-md-4 col-md-push-8">
         <div class="well">
           <div class="clearfix">
-            <div class="pull-left">DOCUMENT  NO.: </div>
+            <div class="pull-left">DOCUMENT NO.: </div>
             <div class="pull-right"><?=print_string($entity['pr_number']);?></div>
           </div>
           <div class="clearfix">
@@ -29,6 +29,18 @@
           <div class="clearfix">
             <div class="pull-left">COST CENTER: </div>
             <div class="pull-right"><?=print_string($entity['cost_center_name']);?></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">CLOSING DATE: </div>
+            <div class="pull-right"><?=print_string($entity['closing_date']);?></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">CLOSING BY: </div>
+            <div class="pull-right"><?=print_string($entity['closing_by']);?></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">ACCOUNT: </div>
+            <div class="pull-right"><?=print_string($entity['account']);?> <?=print_string($account->group);?></div>
           </div>
         </div>
       </div>
@@ -51,7 +63,10 @@
           <dd><?=($entity['deliver_to']==null)? 'N/A':print_string($entity['deliver_to']);?></dd>
 
           <dt>Notes</dt>
-          <dd><?=$entity['notes'];?></dd>
+          <dd><?=($entity['notes']==null)? 'N/A':print_string($entity['notes']);?></dd>
+
+          <dt>Closing Notes</dt>
+          <dd><?=($entity['closing_notes']==null)? 'N/A':print_string($entity['closing_notes']);?></dd>
         </dl>
       </div>
     </div>
@@ -66,8 +81,6 @@
               <th>Account Code</th>
               <th>Amount</th>
               <th>Total</th>
-              <th>Balance Budget Month to Date</th>
-              <th>Balance Budget Year to Date</th>
               <th>Reference IPC</th>
             </thead>
             <tbody id="table_contents">
@@ -96,12 +109,6 @@
                     <?=print_number($detail['total'], 2);?>
                   </td>
                   <td align="right">
-                    <?=print_number($detail['balance_mtd_budget'], 2);?>
-                  </td>
-                  <td align="right">
-                    <?=print_number($detail['balance_ytd_budget'], 2);?>
-                  </td>
-                  <td align="right">
                     <?=print_string($detail['reference_ipc'], 2);?>
                   </td>
                   
@@ -115,7 +122,6 @@
                 <th></th>
                 <th></th>
                 <th><?=print_number(array_sum($total), 2);?></th>
-                <th></th>
                 <th></th>
               </tr>
             </tfoot>
@@ -222,12 +228,6 @@
           <i class="md md-cancel"></i>
           <small class="top right">Cancel</small>
         </a> -->
-      <?php endif;?>
-      <?php if ($entity['with_po'] == 'f'):?>
-        <a href="<?= site_url($modules['expense_closing_payment']['route'] . '/create/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-approval-data-button">
-          <i class="md md-check"></i>
-          <small class="top right">Closing Request</small>
-        </a>
       <?php endif;?>
       <?php if (is_granted($module, 'print')):?>
         <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">

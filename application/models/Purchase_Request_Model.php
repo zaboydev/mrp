@@ -1143,7 +1143,7 @@ class Purchase_Request_Model extends MY_Model
         $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
         if (isItemExists($data['part_number'], $serial_number) === FALSE) {
           $this->db->set('part_number', strtoupper($data['part_number']));
-          // $this->db->set('serial_number', strtoupper($serial_number);
+          $this->db->set('serial_number', $serial_number);
           // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
           $this->db->set('description', strtoupper($data['product_name']));
           $this->db->set('group', strtoupper($data['group_name']));

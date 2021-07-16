@@ -24,86 +24,33 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-
 <div class="section-floating-action-row">
-  <?php if (config_item('as_head_department')=='yes' || config_item('auth_role')=='BUDGETCONTROL' || config_item('auth_role')=='VP FINANCE') : ?>
-    <div class="btn-group dropup">
-      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
-        <i class="md md-clear"></i>
-        <small class="top right">reject</small>
-      </button>
-      <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
-        <i class="md md-spellcheck"></i>
-        <small class="top right">approve</small>
-      </button>
-    </div>
-    <?php endif ?>
-    <?php if (is_granted($module, 'document')) : ?>
-      <div class="btn-group dropup">
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-          <i class="md md-add"></i>
-          <small class="top right">Create <?= $module['label']; ?></small>
-        </button>
 
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
-            <li>
-              <a href="<?= site_url($module['route'] . '/create/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
-            </li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
-    <?php endif ?>
-    <?php if (is_granted($module, 'closing')) : ?>
-      <div class="btn-group dropup">
-        <button type="button" data-source="<?= site_url($module['route'] . '/multi_closing/'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction" id="modal-close-data-button-multi">
-          <i class="md md-check"></i>
-          <small class="top right">Close</small>
-        </button>
-      </div>
-      <?php endif ?>
-      <?php endblock() ?>
+</div>
+<?php endblock() ?>
 
-      <?php startblock('datafilter') ?>
+<?php startblock('datafilter') ?>
       <div class="form force-padding">
         <div class="form-group" style="margin-top: 40px">
-          <label for="filter_required_date">Required Date</label>
+          <label for="filter_required_date">Date</label>
           <input class="form-control input-sm filter_daterange" data-column="1" id="filter_required_date" readonly>
         </div>
 
         <div class="form-group">
-          <label for="filter_status">Status</label>
-          <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
+          <label for="filter_item_category">Cost Center</label>
+          <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_item_category">
             <option value="all">
-              All Status
-            </option>
-            <option value="pending">
-              Pending
-            </option>
-            <option value="approved">
-              Approved
-            </option>
-            <option value="rejected">
-              Rejected
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="filter_item_category">Category</label>
-          <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
-            <option value="">
               Not filtered            
             </option>
-            <?php foreach (config_item('auth_inventory') as $category) : ?>
-              <option value="<?= $category; ?>">
-                <?= $category; ?>
+            <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
+              <option value="<?= $annual_cost_center['cost_center_name']; ?>">
+                <?= $annual_cost_center['cost_center_name'] ?>
               </option>
             <?php endforeach; ?>
           </select>
         </div>
       </div>
-      <?php endblock() ?>
+<?php endblock() ?>
 
       <?php startblock('scripts') ?>
       <?= html_script('vendors/pace/pace.min.js') ?>

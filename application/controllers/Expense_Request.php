@@ -17,6 +17,8 @@ class Expense_Request extends MY_Controller
         $this->load->helper('string');
         if (empty($_SESSION['expense']['request_to']))
           $_SESSION['expense']['request_to'] = 1;
+        if (empty($_SESSION['expense']['attachment']))
+          $_SESSION['expense']['attachment'] = array();
     }
 
     public function set_doc_number()
@@ -38,6 +40,16 @@ class Expense_Request extends MY_Controller
           redirect($this->modules['secure']['route'] . '/denied');
 
         $_SESSION['expense']['required_date'] = $_GET['data'];
+    }
+
+    public function set_with_po()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['receipt']['with_po'] = $_GET['data'];
+
+        //redirect($this->module['route'] .'/create');
     }
 
     public function set_notes()
@@ -221,6 +233,7 @@ class Expense_Request extends MY_Controller
           $_SESSION['expense']['created_by']       = config_item('auth_person_name');
           $_SESSION['expense']['warehouse']        = config_item('auth_warehouse');
           $_SESSION['expense']['notes']            = NULL;
+          $_SESSION['expense']['with_po']          = NULL;
           // $_SESSION['expense']['suggested_supplier'] = NULL;
           // $_SESSION['expense']['deliver_to']          = NULL;
 
@@ -427,7 +440,8 @@ class Expense_Request extends MY_Controller
             redirect($this->modules['secure']['route'] . '/denied');
 
         $annual_cost_center_id = $_SESSION['expense']['annual_cost_center_id'];
-        $entities = $this->model->searchBudget($annual_cost_center_id);
+        $with_po   = (empty($_SESSION['expense']['with_po'])) ? NULL : $_SESSION['expense']['with_po'];
+        $entities = $this->model->searchBudget($annual_cost_center_id,$with_po);
 
         foreach ($entities as $key => $value) {
             if($value['maximum_price']>0){
@@ -451,18 +465,24 @@ class Expense_Request extends MY_Controller
 
         if (isset($_POST) && !empty($_POST)) {
 
-          $_SESSION['expense']['items'][] = array(
-            'annual_cost_center_id'         => $this->input->post('annual_cost_center_id'),
-            'account_id'                    => $this->input->post('account_id'),
-            'account_name'                  => $this->input->post('account_name'),
-            'account_code'                  => $this->input->post('account_code'),
-            'maximum_price'                 => $this->input->post('maximum_price'),
-            'mtd_budget'                    => $this->input->post('mtd_budget'),
-            'amount'                        => $this->input->post('amount'),
-            'additional_info'               => $this->input->post('additional_info'),
-            'reference_ipc'                 => trim($this->input->post('reference_ipc')),
-            'expense_monthly_budget_id'     => $this->input->post('expense_monthly_budget_id'),
-          );
+            $_SESSION['expense']['items'][] = array(
+                'annual_cost_center_id'         => $this->input->post('annual_cost_center_id'),
+                'account_id'                    => $this->input->post('account_id'),
+                'account_name'                  => $this->input->post('account_name'),
+                'account_code'                  => $this->input->post('account_code'),
+                'maximum_price'                 => $this->input->post('maximum_price'),
+                'mtd_budget'                    => $this->input->post('mtd_budget'),
+                'amount'                        => $this->input->post('amount'),
+                'additional_info'               => $this->input->post('additional_info'),
+                'reference_ipc'                 => trim($this->input->post('reference_ipc')),
+                'expense_monthly_budget_id'     => $this->input->post('expense_monthly_budget_id'),
+            );
+
+            if (empty($_SESSION['expense']['with_po'])){
+                $account_id = $this->input->post('account_id');
+                $item_status = getStatusItemExpense($account_id);
+                $_SESSION['expense']['with_po'] = $item_status;
+            }
         }
 
         redirect($this->module['route'] . '/create');
@@ -535,7 +555,7 @@ class Expense_Request extends MY_Controller
 
           $data = array('upload_data' => $this->upload->data());
           $url = $config['upload_path'] . $data['upload_data']['orig_name'];
-          array_push($_SESSION["capex"]["attachment"], $url);
+          array_push($_SESSION["expense"]["attachment"], $url);
           $result["status"] = 1;
         }
         echo json_encode($result);
