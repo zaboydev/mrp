@@ -459,6 +459,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->trans_begin();
 
     if ($document_id === NULL) {
+      /**
+       * CREATE DOCUMENT
+       */
       $this->db->set('evaluation_number', $document_number);
       $this->db->set('document_reference', $document_reference);
       $this->db->set('document_date', $document_date);
@@ -480,9 +483,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
       $document_id = $this->db->insert_id();
     } else {
-      /**
-       * CREATE DOCUMENT
-       */
+      $status_poe = getStatusPOE($document_number);
       $this->db->set('evaluation_number', $document_number);
       $this->db->set('document_date', $document_date);
       $this->db->set('document_reference', $document_reference);
@@ -494,7 +495,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('category', $category);
       $this->db->set('default_currency', $default_currency);
       $this->db->set('exchange_rate', $exchange_rate);
-      $this->db->set('status', $status);
+      $this->db->set('status', $status_poe);
       $this->db->set('notes', $notes);
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
@@ -640,8 +641,8 @@ class Purchase_Order_Evaluation_Model extends MY_Model
           $this->db->set('sisa', '"sisa" - ' . $quantity_prl, false);
           $this->db->where('id', $inventory_purchase_request_detail_id);
           $this->db->update('tb_inventory_purchase_requisition_details');
-
-          $this->db->set('is_selected', 't');
+            
+          $this->db->set('is_selected', 't');       
           $this->db->where('id', $poe_vendor_id);
           $this->db->update('tb_purchase_order_vendors');
 
@@ -680,7 +681,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
-    if ($approval != 'without_approval') {
+    if ($approval != 'without_approval' && $document_id === NULL) {
       $this->send_mail($document_id);
     }
     return TRUE;
@@ -1162,5 +1163,16 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->from('tb_auth_users');
     $this->db->where('person_name', $name);
     return $this->db->get('')->result();
+  }
+
+  public function getStatusEditPoe($id)
+  {
+    
+    $this->db->from('tb_purchase_order_vendors');
+    $this->db->where('purchase_order_id', $id);
+    $this->db->where('is_selected', 't');
+    $num_rows = $this->db->count_all_results();
+
+    return ($num_rows > 0) ? 'yes' : 'no';
   }
 }

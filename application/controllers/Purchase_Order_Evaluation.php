@@ -437,6 +437,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       $entity = $this->model->findById($id);
 
       $this->data['entity'] = $entity;
+      $this->data['edit'] = $this->model->getStatusEditPoe($id);
 
       $return['type'] = 'success';
       $return['info'] = $this->load->view($this->module['view'] . '/info-2', $this->data, TRUE);
