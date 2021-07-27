@@ -1410,6 +1410,61 @@ if ( ! function_exists('getPrlid')) {
   }
 }
 
+if ( ! function_exists('getStatusItemExpense')) {
+  function getStatusItemExpense($account_id)
+  {
+
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('account_id');
+    $connection->from('tb_expense_item_without_po' );
+    $connection->where('tb_expense_item_without_po.account_id', $account_id);
+
+    $num_rows = $connection->count_all_results();
+
+    return ($num_rows > 0) ? FALSE : TRUE;
+  }
+}
+
+if ( ! function_exists('getAccount')) {
+  function getAccount($currency=NULL)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('group,coa');
+    $CI->db->from( 'tb_master_coa' );
+    if($currency!=NULL){
+      $CI->db->like('group', $currency);
+    }    
+    $CI->db->where('category', "Bank");
+    $CI->db->order_by('coa', "asc");
+
+    $query    = $CI->db->get();
+    $return = $query->result_array();
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getAccountByCode')) {
+  function getAccountByCode($code)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('group,coa');
+    $CI->db->from( 'tb_master_coa' ); 
+    $CI->db->where('coa', $code);
+
+    $query    = $CI->db->get();
+    $row      = $query->unbuffered_row();
+    $return   = $row;
+
+    return $return;
+  }
+}
+
 }
 
     

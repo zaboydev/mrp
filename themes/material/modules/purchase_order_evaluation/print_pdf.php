@@ -35,6 +35,7 @@
       <th class="middle-alignment" align="center" rowspan="2">Description</th>
       <th class="middle-alignment" align="center" rowspan="2">Part Number</th>
       <th class="middle-alignment" align="center" rowspan="2">Alt. Part Number</th>
+      <th class="middle-alignment" align="center" rowspan="2">Serial Number</th>
       <th class="middle-alignment" align="center" rowspan="2">Ref. IPC</th>
       <th class="middle-alignment" align="right" rowspan="2">Qty</th>
       <th class="middle-alignment" align="center" rowspan="2">Unit</th>
@@ -69,6 +70,9 @@
         </td>
         <td class="no-space">
           <?= print_string($detail['alternate_part_number']); ?>
+        </td>
+        <td class="no-space">
+          <?= print_string($detail['serial_number']); ?>
         </td>
         <td class="no-space">
           <?= print_string($detail['reference_ipc']); ?>

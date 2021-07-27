@@ -61,6 +61,7 @@
                 <th class="middle-alignment" rowspan="2">Description</th>
                 <th class="middle-alignment" rowspan="2">P/N</th>
                 <th class="middle-alignment" rowspan="2">Alt. P/N</th>
+                <th class="middle-alignment" rowspan="2">S/N</th>
                 <th class="middle-alignment" rowspan="2">Remarks</th>
                 <th class="middle-alignment" rowspan="2">PR Number</th>
                 <th class="middle-alignment" rowspan="2">Ref. IPC</th>
@@ -108,6 +109,9 @@
                   </td>
                   <td class="no-space">
                     <?= print_string($detail['alternate_part_number']); ?>
+                  </td>
+                  <td class="no-space">
+                    <?= print_string($detail['serial_number']); ?>
                   </td>
                   <td>
                     <?= print_string($detail['remarks']); ?>

@@ -23,6 +23,7 @@ class Inventory_Request_Model extends MY_Model
 			'tb_inventory_purchase_requisitions.id'                         			=> NULL,
             'tb_inventory_purchase_requisitions.pr_number'                  			=> 'Document Number',
             'tb_inventory_purchase_requisitions.status'                     			=> 'Status',
+            'tb_product_categories.category_name'		                     			=> 'Category',
             'tb_departments.department_name'                            				=> 'Department Name',
             'tb_cost_centers.cost_center_name'                          				=> 'Cost Center',
             'tb_inventory_purchase_requisitions.pr_date'                    			=> 'Document Date',
@@ -38,7 +39,8 @@ class Inventory_Request_Model extends MY_Model
         return array(
             'tb_inventory_purchase_requisitions.id',
             'tb_inventory_purchase_requisitions.pr_number',
-            'tb_inventory_purchase_requisitions.status',
+			'tb_inventory_purchase_requisitions.status',
+			'tb_product_categories.category_name',
             'tb_cost_centers.cost_center_name',
             'tb_inventory_purchase_requisitions.pr_date',
             'tb_inventory_purchase_requisitions.required_date',
@@ -55,6 +57,7 @@ class Inventory_Request_Model extends MY_Model
 			// 'tb_capex_purchase_requisitions.id',
             'tb_inventory_purchase_requisitions.pr_number',
             'tb_inventory_purchase_requisitions.status',
+			'tb_product_categories.category_name',
             'tb_cost_centers.cost_center_name',
             // 'tb_capex_purchase_requisitions.pr_date',
             // 'tb_capex_purchase_requisitions.required_date',
@@ -70,6 +73,7 @@ class Inventory_Request_Model extends MY_Model
 			null,
             'tb_inventory_purchase_requisitions.pr_number',
             'tb_inventory_purchase_requisitions.status',
+			'tb_product_categories.category_name',
             'tb_departments.department_name',
             'tb_cost_centers.cost_center_name',
             'tb_inventory_purchase_requisitions.pr_date',
@@ -97,6 +101,19 @@ class Inventory_Request_Model extends MY_Model
                 $this->connection->where('tb_inventory_purchase_requisitions.status', $search_status);
             } 
 		}
+
+		if (!empty($_POST['columns'][3]['search']['value'])){
+            $search_cost_center = $_POST['columns'][3]['search']['value'];
+            if($search_cost_center!='all'){
+                $this->connection->where('tb_cost_centers.cost_center_name', $search_cost_center);
+            }            
+		}
+		
+		if (!empty($_POST['columns'][4]['search']['value'])){
+            $search_category = $_POST['columns'][4]['search']['value'];
+
+            $this->connection->where('UPPER(tb_product_categories.category_name)', strtoupper($search_category));
+        }
 
 
 		$i = 0;
@@ -170,8 +187,10 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
         $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-		// $this->connection->where_in('tb_product_categories.id', $this->categories);
+        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+		$this->connection->where_in('tb_inventory_purchase_requisitions.product_category_id', $this->categories);
         $this->connection->group_by($this->getGroupedColumns());
 
 		$this->searchIndex();
@@ -208,8 +227,10 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
         $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-		// $this->connection->where_in('tb_product_categories.id', $this->categories);
+        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+		$this->connection->where_in('tb_inventory_purchase_requisitions.product_category_id', $this->categories);
         $this->connection->group_by($this->getGroupedColumns());
 
 		$this->searchIndex();
@@ -227,8 +248,10 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
         $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-		// $this->connection->where_in('tb_product_categories.id', $this->categories);
+        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+		$this->connection->where_in('tb_inventory_purchase_requisitions.product_category_id', $this->categories);
         $this->connection->group_by($this->getGroupedColumns());
 
 		$query = $this->connection->get();

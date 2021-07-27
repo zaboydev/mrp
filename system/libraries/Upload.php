@@ -1001,14 +1001,27 @@ class CI_Upload {
 
 		if ( ! is_dir($this->upload_path))
 		{
-			$this->set_error('upload_no_filepath', 'error');
-			return FALSE;
+			// $this->set_error('upload_no_filepath', 'error');
+			// return FALSE;
+
+			// EDIT: make directory and try again
+            if ( ! mkdir ($this->upload_path, 0777, TRUE))
+            {
+                $this->set_error('upload_no_filepath', 'error');
+                return FALSE;
+            }
 		}
 
 		if ( ! is_really_writable($this->upload_path))
 		{
-			$this->set_error('upload_not_writable', 'error');
-			return FALSE;
+			// $this->set_error('upload_not_writable', 'error');
+			// return FALSE;
+			// EDIT: change directory mode
+            if ( ! chmod($this->upload_path, 0777))
+            {
+                $this->set_error('upload_not_writable', 'error');
+                return FALSE;
+            }
 		}
 
 		$this->upload_path = preg_replace('/(.+?)\/*$/', '\\1/',  $this->upload_path);

@@ -99,6 +99,13 @@ class Capex_Request_Model extends MY_Model
             }            
         }
 
+        if (!empty($_POST['columns'][3]['search']['value'])){
+            $search_cost_center = $_POST['columns'][3]['search']['value'];
+            if($search_cost_center!='all'){
+                $this->connection->where('tb_cost_centers.cost_center_name', $search_cost_center);
+            }            
+        }
+
         // if (!empty($_POST['columns'][3]['search']['value'])){
         //     $search_category = $_POST['columns'][3]['search']['value'];
 
@@ -157,6 +164,7 @@ class Capex_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
+        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
@@ -194,6 +202,7 @@ class Capex_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
+        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
@@ -212,6 +221,7 @@ class Capex_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
+        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         $this->connection->group_by($this->getGroupedColumns());
 
         $query = $this->connection->get();

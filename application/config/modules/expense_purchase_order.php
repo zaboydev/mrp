@@ -3,8 +3,8 @@
 $config['module']['expense_purchase_order']['visible']        = TRUE;
 $config['module']['expense_purchase_order']['main_warehouse'] = TRUE;
 $config['module']['expense_purchase_order']['parent']         = 'expense';
-$config['module']['expense_purchase_order']['label']          = 'expense Purchase Order';
-$config['module']['expense_purchase_order']['name']           = 'expense Purchase Order';
+$config['module']['expense_purchase_order']['label']          = 'Expense Purchase Order';
+$config['module']['expense_purchase_order']['name']           = 'Expense Purchase Order';
 $config['module']['expense_purchase_order']['route']          = 'expense_purchase_order';
 $config['module']['expense_purchase_order']['view']           = config_item('module_path') .'expense/order/';
 $config['module']['expense_purchase_order']['language']       = 'account_payable_lang';

@@ -16,36 +16,46 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['expense']['pr_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
+                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['expense_closing']['document__number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
                     <label for="pr_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon"><?= request_format_number($_SESSION['expense']['cost_center_code']); ?></span>
+                  <span class="input-group-addon"></span>
                 </div>
               </div>
 
               <div class="form-group">
-                <input type="text" name="required_date" id="required_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['expense']['required_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_required_date'); ?>" required>
-                <label for="required_date">Required Date</label>
+                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['expense_closing']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_date'); ?>" required>
+                <label for="date">Closing Date</label>
               </div>
-
               
             </div>
 
-            <div class="col-sm-12 col-lg-5">
+            <div class="col-sm-12 col-lg-4">
+              <div class="form-group">
+                <select name="account" id="account" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account'); ?>" required>
+                  <option value="">No Account</option>
+                  <?php foreach (getAccount() as $key):?>
+                  <option value="<?= $key['coa'] ?>" <?= ($_SESSION['expense_closing']['account'] == $key['coa']) ? 'selected' : ''; ?>><?= $key['coa'] ?> - <?= $key['group'] ?></option>
+                  <?php endforeach;?>
+                </select>
+                <label for="account">Account</label>
+              </div>
               
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['capex']['notes']; ?></textarea>
+                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['expense_closing']['closing_notes']; ?></textarea>
                 <label for="notes">Notes</label>
               </div>
+            </div>
+            <div class="col-sm-12 col-lg-4">
               <div class="form-group">
-                <input type="text" name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>">   
-                <label for="notes">With PO</label>
+                <p class="form-control"><?= $_SESSION['expense_closing']['notes']; ?></p>
+                <label for="notes">Expense Request Notes</label>
               </div>
             </div>
           </div>
         </div>
 
-        <?php if (isset($_SESSION['expense']['items'])) : ?>
+        <?php if (isset($_SESSION['expense_closing']['items'])) : ?>
           <?php $grand_total = array(); ?>
           <?php $total_quantity = array(); ?>
           <div class="document-data table-responsive">
@@ -60,16 +70,11 @@
                 </tr>
               </thead>
               <tbody>
-                <?php foreach ($_SESSION['expense']['items'] as $i => $items) : ?>
+                <?php foreach ($_SESSION['expense_closing']['items'] as $i => $items) : ?>
                   <?php $grand_total[] = $items['amount']; ?>
                   <tr id="row_<?= $i; ?>">
                     <td width="100">
-                      <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
-                        <i class="fa fa-trash"></i>
-                      </a>
-                      <a class="btn btn-icon-toggle btn-primary btn-sm btn_edit_document_item" data-todo='{"todo":<?= $i; ?>}'>
-                        <i class="fa fa-edit"></i>
-                      </a>
+                      
                     </td>
                     <td class="">
                       <?= print_string($items['account_code']); ?> - <?= print_string($items['account_name']); ?>
@@ -90,6 +95,7 @@
                 <th></th>
                 <th>Total</th>
                 <th></th>
+                <th></th>
                 <th><?= print_number(array_sum($grand_total), 2); ?></th>
               </tfoot>
             </table>
@@ -99,13 +105,8 @@
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
-            <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
-              Add Item
-            </a>
-            <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
-              Attachment
-            </a>
-            </div>
+            
+          </div>
           
 
           <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
@@ -117,146 +118,6 @@
     <?= form_close(); ?>
   </div>
 
-  <div id="modal-add-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-add-item-label" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header style-primary-dark">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="modal-add-item-label">Add Item</h4>
-        </div>
-
-        <?= form_open(site_url($module['route'] . '/add_item'), array(
-          'autocomplete' => 'off',
-          'id'    => 'ajax-form-create-document',
-          'class' => 'form form-validate ui-front',
-          'role'  => 'form'
-        )); ?>
-
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-xs-12">
-              <div class="row">
-                <div class="col-xs-12">
-                  <div class="form-group">
-                    <div class="input-group">
-                      <div class="input-group-content">
-                        <input type="text" id="search_budget" class="form-control" data-target="<?= site_url($module['route'] . '/search_budget/'); ?>">
-                        <label for="search_budget">Search item Budgeted</label>
-                      </div>
-                      <span class="input-group-addon">
-                        <i class="md md-search"></i>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-sm-12 col-lg-7">
-              <div class="row">
-                <div class="col-sm-6 col-lg-6">
-                  <fieldset>
-                    <legend>General</legend>
-
-                    <div class="form-group">
-                      <input type="text" name="account_code" id="account_code" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_account_code/'); ?>">
-                      <label for="account_code">Account Code</label>
-                    </div>
-                    <div class="form-group">
-                      <input type="text" name="account_name" id="account_name" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_account_name/'); ?>">
-                      <label for="account_name">Account Name</label>
-                    </div>
-                  </fieldset>
-                </div>
-                <div class="col-sm-6 col-lg-6">
-                  <fieldset>
-                    <legend>Balance</legend>
-                    <div class="form-group">
-                      <input type="number" name="mtd_budget" id="mtd_budget" value="1" class="form-control input-sm" readonly="readonly">
-                      <label for="mtd_budget">Month to Date Value</label>
-                    </div>
-                    <div class="form-group">
-                      <input type="number" name="maximum_price" id="maximum_price" value="1" class="form-control input-sm" readonly="readonly">
-                      <label for="max_value">Year to Date Value</label>
-                    </div>
-                  </fieldset>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-sm-12 col-lg-5">
-              <fieldset>
-                <legend>Required</legend>
-                <div class="form-group">
-                  <input type="text" name="amount" id="amount" class="form-control input-sm" value="0" required>
-                  <label for="amount">Amount</label>
-                </div>
-                <div class="form-group">
-                  <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
-                  <label for="additional_info">Additional Info/Remarks</label>
-                </div>
-                <div class="form-group">
-                  <input name="reference_ipc" id="reference_ipc" data-tag-name="reference_ipc" class="form-control input-sm"></input>
-                  <label for="reference_ipc">Reference IPC</label>
-                </div>
-              </fieldset>
-            </div>
-            <div class="col-sm-12 col-lg-5 hide form-unbudgeted">
-              <fieldset>
-                <legend>Unbudgeted</legend>
-
-                <div class="form-group">
-                  <input name="xx" id="xx" data-tag-name="xx" class="form-control input-sm" value="Unbudgeted" readonly="readonly"></input>
-                  <label for="additional_info">Unbudgeted</label>
-                </div>
-              </fieldset>
-            </div>
-            <div class="col-sm-12 col-lg-5 hide form-relokasi">
-              <fieldset>
-                <legend>Relocation Form</legend>
-
-                <div class="form-group">
-                  <input name="origin_budget" id="origin_budget" data-tag-name="origin_budget" class="form-control input-sm"></input>
-                  <label for="additional_info">Origin Budget</label>
-                </div>
-                <div class="form-group">
-                  <input name="budget_value" id="budget_value" data-tag-name="budget_value" class="form-control input-sm" readonly="readonly"></input>
-                  <label for="budget_value">Budget Value</label>
-                </div>
-                <div class="form-group">
-                  <input name="relocation_budget" id="relocation_budget" data-tag-name="relocation_budget" class="form-control input-sm" readonly="readonly"></input>
-                  <input type="hidden" name="need_budget" id="need_budget" data-tag-name="need_budget" class="form-control input-sm"></input>
-                  <label for="additional_info">Relocation Value</label>
-                </div>
-              </fieldset>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <input type="hidden" id="account_id" name="account_id">
-          <input type="hidden" id="annual_cost_center_id" name="annual_cost_center_id">
-          <input type="hidden" id="unbudgeted_item" name="unbudgeted_item">
-          <input type="hidden" id="relocation_item" name="relocation_item">
-          <input type="hidden" id="item_source" name="item_source">
-          <input type="hidden" id="expense_monthly_budget_id" name="expense_monthly_budget_id">
-          <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
-
-          <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction">
-            Add Item
-          </button>
-
-          <input type="reset" name="reset" class="sr-only">
-        </div>
-
-        <?= form_close(); ?>
-      </div>
-    </div>
-  </div>
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">

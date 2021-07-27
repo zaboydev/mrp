@@ -8,24 +8,6 @@
 <div id="modal-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-item-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-
-        <h4 class="modal-title" id="data-modal-label">Select Category</h4>
-      </div>
-
-      <div class="modal-body no-padding"></div>
-
-      <div class="modal-footer"></div>
-    </div>
-  </div>
-</div>
-
-<div id="modal-select-cateory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-item-label" aria-hidden="true">
-  <div class="modal-dialog modal-md" role="document">
-    <div class="modal-content">
       <!--  -->
 
       <div class="modal-body no-padding"></div>
@@ -42,80 +24,21 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-
 <div class="section-floating-action-row">
-  <?php if (config_item('as_head_department')=='yes' || config_item('auth_role')=='BUDGETCONTROL') : ?>
-    <div class="btn-group dropup">
-      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
-        <i class="md md-clear"></i>
-        <small class="top right">reject</small>
-      </button>
-      <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
-        <i class="md md-spellcheck"></i>
-        <small class="top right">approve</small>
-      </button>
-    <?php endif ?>
-    <?php if (is_granted($module, 'document')) : ?>
-      <div class="btn-group dropup">
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-          <i class="md md-add"></i>
-          <small class="top right">Create <?= $module['label']; ?></small>
-        </button>
 
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
-            <li>
-              <a class="btn-create-inventory" data-href="<?= site_url($module['route'] . '/select_category/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
-            </li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
-    <?php endif ?>
-    <?php if (is_granted($module, 'closing')) : ?>
-      <div class="btn-group dropup">
-        <button type="button" data-source="<?= site_url($module['route'] . '/multi_closing/'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction" id="modal-close-data-button-multi">
-          <i class="md md-check"></i>
-          <small class="top right">Close</small>
-        </button>
-      <?php endif ?>
+</div>
+<?php endblock() ?>
 
-      </div>
-      <?php endblock() ?>
-
-      <?php startblock('datafilter') ?>
+<?php startblock('datafilter') ?>
       <div class="form force-padding">
         <div class="form-group" style="margin-top: 40px">
-          <label for="filter_required_date">Required Date</label>
+          <label for="filter_required_date">Date</label>
           <input class="form-control input-sm filter_daterange" data-column="1" id="filter_required_date" readonly>
         </div>
 
         <div class="form-group">
-          <label for="filter_status">Status</label>
-          <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
-            <option value="all">
-              All Status
-            </option>
-            <option value="WAITING FOR BUDGETCONTROL" <?php (config_item('auth_role')=='BUDGETCONTROL')?'selected':''?>>
-              WAITING FOR BUDGETCONTROL
-            </option>
-            <option value="WAITING FOR HEAD DEPT" <?php (config_item('as_head_department')=='yes')?'selected':''?>>
-              WAITING FOR HEAD DEPT
-            </option>
-            <option value="approved">
-              APPROVED
-            </option>
-            <option value="rejected">
-              REJECTED
-            </option>
-            <option value="cancel">
-              CANCELED
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group">
           <label for="filter_item_category">Cost Center</label>
-          <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
+          <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_item_category">
             <option value="all">
               Not filtered            
             </option>
@@ -126,23 +49,8 @@
             <?php endforeach; ?>
           </select>
         </div>
-
-        <div class="form-group">
-          <label for="filter_item_category">Category</label>
-          <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_item_category">
-            <option value="">
-              Not filtered            
-            </option>
-            <?php foreach (config_item('auth_inventory') as $category) : ?>
-              <option value="<?= $category; ?>">
-                <?= $category; ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-
       </div>
-      <?php endblock() ?>
+<?php endblock() ?>
 
       <?php startblock('scripts') ?>
       <?= html_script('vendors/pace/pace.min.js') ?>
@@ -571,16 +479,15 @@
 
           $("#modal-approve-data-button-multi").click(function() {
             var action = $(this).data('source');
-            encodeNotes();
-            // if (!encodePrice()) {
-            //   toastr.options.timeOut = 10000;
-            //   toastr.options.positionClass = 'toast-top-right';
-            //   toastr.error('You must filled Price for each item that you want to approve');
-            // } else {
+            if (!encodeNotes()) {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.error('You must filled Price for each item that you want to approve');
+            } else {
               $(this).attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
-                  'id_inventory_request': id_purchase_order,
+                  'id_expense_request': id_purchase_order,
                   'notes': notes
                 }).done(function(data) {
                   console.log(data);
@@ -608,7 +515,7 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            // }
+            }
 
           });
 
@@ -840,6 +747,16 @@
             locale: {
               cancelLabel: 'Clear'
             },
+            ranges: {
+              'Today': [moment(), moment()],
+              'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+              'This Month': [moment().startOf('month'), moment().endOf('month')],
+              'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+              'Last 3 Months': [moment().subtract(2, 'month').startOf('month'), moment().subtract('month').endOf('month')]
+            },
+            showCustomRangeLabel: false
           }).on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
             var i = $(this).data('column');
@@ -919,24 +836,6 @@
 
             button.attr('disabled', false);
           });
-
-          $('.btn-create-inventory').click(function() {
-            var url = $(this).data('href');
-            $.ajax({
-              url: url,
-              type: 'get',
-              success: function(data) {
-                var dataModal       = $('#modal-select-cateory');
-                var obj = $.parseJSON(data);
-                $( dataModal )
-                .find('.modal-body')
-                .empty()
-                .append(obj.info);
-                $( dataModal ).modal('show');
-              }
-            });
-          });
-
         });
       </script>
 

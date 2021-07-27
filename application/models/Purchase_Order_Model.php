@@ -275,6 +275,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
     // $this->db->where('tb_po.review_status','!=','REVISI');
     $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     $this->db->group_by($this->getGroupedColumns());
 
     // if (config_item('auth_role') == 'FINANCE'){
@@ -316,6 +317,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     // $this->db->where('tb_po.status', 'approved');
     $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     $this->db->group_by($this->getGroupedColumns());
 
     $this->searchIndex();
@@ -334,6 +336,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     // $this->db->where('tb_po.status', 'approved');
     $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     $this->db->group_by($this->getGroupedColumns());
 
     $query = $this->db->get();
@@ -1180,6 +1183,18 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('status_item', 'closed');
       $this->db->where('id', $item['purchase_order_evaluation_items_vendors_id']);
       $this->db->update('tb_purchase_order_items');
+
+      
+      $this->db->set('quantity', floatval($item['quantity']));
+      $this->db->set('unit_price', $item['unit_price']);
+      $this->db->set('total', floatval($item['total_amount']));
+      $this->db->set('core_charge', $item['core_charge']);
+      $this->db->set('left_received_quantity', floatval($item['quantity']));
+      $this->db->set('left_paid_quantity', floatval($item['quantity']));
+      $this->db->set('left_paid_amount', floatval($item['total_amount']));
+      $this->db->where('purchase_order_item_id', $item['purchase_order_evaluation_items_vendors_id']);
+      $this->db->where('is_selected', 't');
+      $this->db->update('tb_purchase_order_items_vendors');
 
       // $this->db->where('id', $item['purchase_order_evaluation_items_vendors_id']);
       // $detail_request = $this->db->get('tb_purchase_order_items')->row();

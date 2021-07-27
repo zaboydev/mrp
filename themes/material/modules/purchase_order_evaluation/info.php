@@ -61,6 +61,7 @@
                 <th class="middle-alignment" rowspan="2">Description</th>
                 <th class="middle-alignment" rowspan="2">P/N</th>                
                 <th class="middle-alignment" rowspan="2">Alt. P/N</th>
+                <th class="middle-alignment" rowspan="2">S/N</th> 
                 <th class="middle-alignment" rowspan="2">Remarks</th>
                 <th class="middle-alignment" rowspan="2">PR Number</th>
                 <th class="middle-alignment" rowspan="2">Qty</th>
@@ -83,6 +84,9 @@
                   </td>
                   <td rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=print_string($detail['alternate_part_number']);?>
+                  </td>
+                  <td rowspan="<?=$rowspan;?>" class="middle-alignment">
+                    <?=print_string($detail['serial_number']);?>
                   </td>
                   <td rowspan="<?=$rowspan;?>" class="middle-alignment">
                     <?=print_string($detail['remarks']);?>

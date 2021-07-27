@@ -94,6 +94,20 @@
             </option>
           </select>
         </div>
+
+        <div class="form-group">
+          <label for="filter_item_category">Cost Center</label>
+          <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
+            <option value="all">
+              Not filtered            
+            </option>
+            <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
+              <option value="<?= $annual_cost_center['cost_center_name']; ?>">
+                <?= $annual_cost_center['cost_center_name'] ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
       </div>
       <?php endblock() ?>
 
@@ -795,16 +809,6 @@
             locale: {
               cancelLabel: 'Clear'
             },
-            ranges: {
-              'Today': [moment(), moment()],
-              'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-              'This Month': [moment().startOf('month'), moment().endOf('month')],
-              'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-              'Last 3 Months': [moment().subtract(2, 'month').startOf('month'), moment().subtract('month').endOf('month')]
-            },
-            showCustomRangeLabel: false
           }).on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
             var i = $(this).data('column');

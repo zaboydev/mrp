@@ -36,6 +36,7 @@ class Po_Grn extends MY_Controller
         $col[] = print_string($row['po_number']);
         $col[] = print_string($row['vendor']);
         $col[] = print_string($row['part_number']);
+        $col[] = print_string($row['serial_number']);
         $col[] = print_string($row['description']);
         $col[] = print_string($row['default_currency']);
         $col[] = print_number($row['po_qty'], 2);
