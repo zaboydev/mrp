@@ -14,170 +14,109 @@ class Purchase_Order_Report extends MY_Controller
         $this->data['module'] = $this->module;
     }
 
-    //   public function index()
-    //   {
-    //     $this->authorized($this->module, 'index');
+    public function index()
+    {
+        $this->authorized($this->module, 'index');
+        if (isset($_POST['vendor']) && $_POST['vendor'] !== NULL) {
+            $vendor = $_POST['vendor'];
+        } else {
+            $vendor = 'all';
+        }
 
-    //     $this->data['page']['title']            = $this->module['label'];
-    //     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    //     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
-    //     $this->data['grid']['fixed_columns']    = 3;
-    //     if ((config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE')) {
-    //       $this->data['grid']['summary_columns']  = array(12, 15);
-    //     } else {
-    //       $this->data['grid']['summary_columns']  = array(12, 15);
-    //     }
-    //     $this->data['grid']['order_columns']    = array();
-    //     $this->render_view($this->module['view'] . '/index');
-    //   }
+        $this->data['selected_vendor'] = $vendor;
 
-    //   public function index_data_source()
-    //   {
-    //     // if ($this->input->is_ajax_request() === FALSE)
-    //     //   redirect($this->modules['secure']['route'] .'/denied');
+        $this->data['page']['title']            = $this->module['label'];
+        $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsReport());
+        $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
+        $this->data['grid']['fixed_columns']    = 3;
+        $this->data['grid']['summary_columns']  = array(12, 15);
+        $this->data['grid']['order_columns']    = array();
+        $this->render_view($this->module['view'] . '/index_report');
+    }
 
-    //     if (is_granted($this->module, 'index') === FALSE) {
-    //       $return['type'] = 'danger';
-    //       $return['info'] = "You don't have permission to access this page!";
-    //     } else {
-    //       $entities     = $this->model->getIndex();
-    //       $data         = array();
-    //       $no           = $_POST['start'];
-    //       $quantity     = array();
-    //       $total_amount = array();
-    //       $amount_paid  = array();
+    public function index_data_source()
+    {
+        // if ($this->input->is_ajax_request() === FALSE)
+        //   redirect($this->modules['secure']['route'] .'/denied');
 
-    //       foreach ($entities as $row) {
-    //         $no++;
-    //         $col = array();
+        if (is_granted($this->module, 'index') === FALSE) {
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to access this page!";
+        } else {
+            $entities     = $this->model->getIndexReport();
+            $data         = array();
+            $no           = $_POST['start'];
+            $quantity     = array();
+            $total_amount = array();
+            $amount_paid  = array();
 
-    //         if ((config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
-    //           if ((config_item('auth_role') == 'FINANCE MANAGER') && ($row['review_status'] == strtoupper("waiting for finance review"))) {
-    //             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-    //           } else if ((config_item('auth_role') == 'HEAD OF SCHOOL') && ($row['review_status'] == strtoupper("waiting for hos review"))) {
-    //             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-    //           } else if ((config_item('auth_role') == 'CHIEF OF FINANCE') && ($row['review_status'] == strtoupper("waiting for cfo review"))) {
-    //             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-    //           } else if ((config_item('auth_role') == 'VP FINANCE') && ($row['review_status'] == strtoupper("waiting for vp finance review"))) {
-    //             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-    //           } else if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER') && ($row['review_status'] == strtoupper("waiting for coo review"))) {
-    //             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-    //           } else {
-    //             $col[] = '';
-    //           }
-    //         }
-    //         // if ((config_item('auth_role') == 'PROCUREMENT') || (config_item('auth_role') == 'SUPER ADMIN')) {
-    //         //   if ($row['review_status'] == strtoupper("approved")) {
-    //         //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-    //         //   } else {
-    //         //     $col[] = '';
-    //         //   }
-    //         // }
-    //         $col[] = print_number($no);
-    //         $col[] = print_string($row['document_number'], 'N/A');
-    //         $col[] = print_string($row['review_status']);
-    //         if ((config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE') && (config_item('auth_role') != 'CHIEF OPERATION OFFICER')) {
+            foreach ($entities as $row) {
+                $no++;
+                $col = array();
+                $col[] = print_number($no);
+                $col[] = print_string($row['document_number'], 'N/A');
+                $col[] = print_string($row['status']);
+                $col[] = print_date($row['document_date']);
+                // $col[] = print_string($row['category']);
+                $col[] = print_string($row['description']);
+                $col[] = print_string($row['part_number']);
+                $col[] = print_string($row['serial_number']);
+                $col[] = print_string($row['alternate_part_number']);
+                // $col[] = '<a href="' . site_url($this->modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+                // $col[] = '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
+                $col[] = print_string($row['poe_number']);
+                $col[] = print_string($row['purchase_request_number']);
+                $col[] = print_string($row['reference_quotation']);
+                $col[] = strtoupper($row['vendor']);
+                $col[] = print_number($row['quantity'], 2);
+                $col[] = print_number($row['unit_price'], 2);
+                $col[] = print_number($row['core_charge'], 2);
+                $col[] = print_number($row['total_amount'], 2);
+                $col[] = print_number($row['quantity_received'], 2);
+                $col[] = print_number($row['left_received_quantity'], 2);
+                // $col[] = print_number($row['amount_paid'], 2);   
+                $col[] = print_string($row['notes']);
+                // $col[] = null;
+                // $col[] = null;
+                // $col[] = null;
 
-    //           $col[] = print_string($row['status']);
-    //         }
-    //         $col[] = print_date($row['document_date']);
-    //         // $col[] = print_string($row['category']);
-    //         $col[] = print_string($row['description']);
-    //         $col[] = print_string($row['part_number']);
-    //         $col[] = print_string($row['alternate_part_number']);
-    //         $col[] = $row['poe_id']==null? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
-    //         $col[] = $row['poe_item_id']==null? '<a>' . print_string($row['purchase_request_number']) . '</a>': '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
-    //         $col[] = print_string($row['reference_quotation']);
-    //         $col[] = strtoupper($row['vendor']);
-    //         if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
-    //           $col[] = print_number($row['quantity'], 2);
-    //           $col[] = print_number($row['unit_price'], 2);
-    //           $col[] = print_number($row['core_charge'], 2);
-    //           $col[] = print_number($row['total_amount'], 2);
-    //           if ($row['review_status'] === "APPROVED") {
-    //             $col[] = print_string($row['notes']);
-    //           } else {
-    //             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-    //           }
-    //           $col[] = null;
-    //           $col[] = null;
-    //           // $col[] = null;
-    //           // $col[] = null;
-    //           // $col[] = null;
-    //           // $col[] = null;
-    //         } else {
-    //           $col[] = print_number($row['quantity'], 2);
-    //           $col[] = print_number($row['unit_price'], 2);
-    //           $col[] = print_number($row['core_charge'], 2);
-    //           $col[] = print_number($row['total_amount'], 2);
-    //           $col[] = print_number($row['quantity_received'], 2);
-    //           $col[] = print_number($row['left_received_quantity'], 2);
-    //           // $col[] = print_number($row['amount_paid'], 2);   
-    //           if ($row['review_status'] === "APPROVED") {
-    //             $col[] = print_string($row['notes']);
-    //           } else {
-    //             if ($row['document_number'] == null) {
-    //               $col[] = '';
-    //             } else {
-    //               if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE')) {
-    //                 $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-    //               } else {
-    //                 $col[] = print_string($row['notes']);
-    //               }
-    //             }
-    //           }
-    //           $col[] = null;
-    //           $col[] = null;
-    //           // $col[] = null;
-    //           // $col[] = null;
-    //           // $col[] = null;
-    //         }
+                $col['DT_RowId'] = 'row_' . $row['id'];
+                $col['DT_RowData']['pkey']  = $row['id'];
 
-    //         $col['DT_RowId'] = 'row_' . $row['id'];
-    //         $col['DT_RowData']['pkey']  = $row['id'];
+                if ($this->has_role($this->module, 'info')) {
+                    $col['DT_RowAttr']['onClick']     = '';
+                    $col['DT_RowAttr']['data-id']     = $row['id'];
+                    $col['DT_RowAttr']['data-target'] = '#data-modal';
+                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id'] . '/report');
+                }
 
-    //         if ($this->has_role($this->module, 'info')) {
-    //           $col['DT_RowAttr']['onClick']     = '';
-    //           $col['DT_RowAttr']['data-id']     = $row['id'];
-    //           $col['DT_RowAttr']['data-target'] = '#data-modal';
-    //           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id'].'/list');
-    //         }
+                // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
+                //   $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+                //   $col['DT_RowAttr']['data-target'] = '#data-modal';
+                //   $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
+                // }
 
-    //         // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
-    //         //   $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-    //         //   $col['DT_RowAttr']['data-target'] = '#data-modal';
-    //         //   $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
-    //         // }
+                $quantity[]     = $row['quantity'];
+                $total_amount[] = $row['total_amount'];
+                $amount_paid[]  = $row['amount_paid'];
+                $data[]         = $col;
+            }
 
-    //         $quantity[]     = $row['quantity'];
-    //         $total_amount[] = $row['total_amount'];
-    //         $amount_paid[]  = $row['amount_paid'];
-    //         $data[]         = $col;
-    //       }
+            $result = array(
+                "draw" => $_POST['draw'],
+                "recordsTotal" => $this->model->countIndexReport(),
+                "recordsFiltered" => $this->model->countIndexFilteredReport(),
+                "data" => $data,
+                "total" => array(
+                    12 => print_number(array_sum($quantity), 2),
+                    15 => print_number(array_sum($total_amount), 2),
+                    // 19 => print_number(array_sum($amount_paid),2),
+                )
+            );
+        }
 
-    //       $result = array(
-    //         "draw" => $_POST['draw'],
-    //         "recordsTotal" => $this->model->countIndex(),
-    //         "recordsFiltered" => $this->model->countIndexFiltered(),
-    //         "data" => $data,
-    //         "total" => array(
-    //           // 13 => print_number(array_sum($quantity),2),
-    //           // 16 => print_number(array_sum($total_amount),2),
-    //           // 19 => print_number(array_sum($amount_paid),2),
-    //         )
-    //       );
-    //       if ((config_item('auth_role') == 'VP FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE')) {
-    //         // $result['total'][17] = print_number(array_sum($unit_value), 2);
-    //         $result['total'][12] = print_number(array_sum($quantity), 2);
-    //         $result['total'][15] = print_number(array_sum($total_amount), 2);
-    //       } else {
-    //         $result['total'][12] = print_number(array_sum($quantity), 2);
-    //         $result['total'][15] = print_number(array_sum($total_amount), 2);
-    //       }
-    //     }
-
-    //     echo json_encode($result);
-    //   }
+        echo json_encode($result);
+    }
 
     public function set_doc_number()
     {
@@ -1368,109 +1307,6 @@ class Purchase_Order_Report extends MY_Controller
             );
         }
         redirect($this->module['route'] . '/edit/' . $_SESSION['order']['id_po']);
-    }
-
-    public function index()
-    {
-        $this->authorized($this->module, 'index');
-        if (isset($_POST['vendor']) && $_POST['vendor'] !== NULL) {
-            $vendor = $_POST['vendor'];
-        } else {
-            $vendor = 'all';
-        }
-
-        $this->data['selected_vendor'] = $vendor;
-
-        $this->data['page']['title']            = $this->module['label'];
-        $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsReport());
-        $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
-        $this->data['grid']['fixed_columns']    = 3;
-        $this->data['grid']['summary_columns']  = array(11, 14);
-        $this->data['grid']['order_columns']    = array();
-        $this->render_view($this->module['view'] . '/index_report');
-    }
-
-    public function index_data_source()
-    {
-        // if ($this->input->is_ajax_request() === FALSE)
-        //   redirect($this->modules['secure']['route'] .'/denied');
-
-        if (is_granted($this->module, 'index') === FALSE) {
-            $return['type'] = 'danger';
-            $return['info'] = "You don't have permission to access this page!";
-        } else {
-            $entities     = $this->model->getIndexReport();
-            $data         = array();
-            $no           = $_POST['start'];
-            $quantity     = array();
-            $total_amount = array();
-            $amount_paid  = array();
-
-            foreach ($entities as $row) {
-                $no++;
-                $col = array();
-                $col[] = print_number($no);
-                $col[] = print_string($row['document_number'], 'N/A');
-                $col[] = print_string($row['status']);
-                $col[] = print_date($row['document_date']);
-                // $col[] = print_string($row['category']);
-                $col[] = print_string($row['description']);
-                $col[] = print_string($row['part_number']);
-                $col[] = print_string($row['alternate_part_number']);
-                // $col[] = '<a href="' . site_url($this->modules['purchase_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
-                // $col[] = '<a href="' . site_url($this->modules['purchase_request']['route'] . '/print_pdf_prl/' . $row['poe_item_id']) . '" target="_blank" >' . print_string($row['purchase_request_number']) . '</a>';
-                $col[] = print_string($row['poe_number']);
-                $col[] = print_string($row['purchase_request_number']);
-                $col[] = print_string($row['reference_quotation']);
-                $col[] = strtoupper($row['vendor']);
-                $col[] = print_number($row['quantity'], 2);
-                $col[] = print_number($row['unit_price'], 2);
-                $col[] = print_number($row['core_charge'], 2);
-                $col[] = print_number($row['total_amount'], 2);
-                $col[] = print_number($row['quantity_received'], 2);
-                $col[] = print_number($row['left_received_quantity'], 2);
-                // $col[] = print_number($row['amount_paid'], 2);   
-                $col[] = print_string($row['notes']);
-                // $col[] = null;
-                // $col[] = null;
-                // $col[] = null;
-
-                $col['DT_RowId'] = 'row_' . $row['id'];
-                $col['DT_RowData']['pkey']  = $row['id'];
-
-                if ($this->has_role($this->module, 'info')) {
-                    $col['DT_RowAttr']['onClick']     = '';
-                    $col['DT_RowAttr']['data-id']     = $row['id'];
-                    $col['DT_RowAttr']['data-target'] = '#data-modal';
-                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id'] . '/report');
-                }
-
-                // if ($this->has_role($this->module, 'payment') && $row['status'] == 'ORDER') {
-                //   $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-                //   $col['DT_RowAttr']['data-target'] = '#data-modal';
-                //   $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/payment/' . $row['id']);
-                // }
-
-                $quantity[]     = $row['quantity'];
-                $total_amount[] = $row['total_amount'];
-                $amount_paid[]  = $row['amount_paid'];
-                $data[]         = $col;
-            }
-
-            $result = array(
-                "draw" => $_POST['draw'],
-                "recordsTotal" => $this->model->countIndexReport(),
-                "recordsFiltered" => $this->model->countIndexFilteredReport(),
-                "data" => $data,
-                "total" => array(
-                    11 => print_number(array_sum($quantity), 2),
-                    14 => print_number(array_sum($total_amount), 2),
-                    // 19 => print_number(array_sum($amount_paid),2),
-                )
-            );
-        }
-
-        echo json_encode($result);
     }
 
     public function order()

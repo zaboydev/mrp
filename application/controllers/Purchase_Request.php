@@ -192,8 +192,25 @@ class Purchase_Request extends MY_Controller
     $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value) {
-      $entities[$key]['label']  = $value['part_number'];
-      $entities[$key]['label'] .= ' ';
+      $entities[$key]['label']  = $value['part_number'].'| S.N : '.$value['serial_number'];
+      $entities[$key]['label'] .= ' | ';
+      $entities[$key]['label'] .= $value['description'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function search_items_by_serial_number()
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    $category = $_SESSION['request']['category'];
+    $entities = $this->model->searchItemsByPartNumber($category);
+
+    foreach ($entities as $key => $value) {
+      $entities[$key]['label']  = 'S.N : '.$value['serial_number'].'| P/N : '.$value['part_number'];
+      $entities[$key]['label'] .= ' | ';
       $entities[$key]['label'] .= $value['description'];
     }
 
@@ -290,6 +307,7 @@ class Purchase_Request extends MY_Controller
         $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name'] : $row['product_name']);
         // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
         $col[] = '<a data-id="item" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info/' . $row['id']) . '">' . print_string($row['product_code']) . '</a>';
+        $col[] = print_string($row['serial_number']);
         $col[] = print_number(search_min_qty($row['product_code']), 2);
         // $col[] = print_number($row['min_qty'], 2);
         $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id']), 2) . '</a>';
@@ -656,7 +674,9 @@ class Purchase_Request extends MY_Controller
         'mtd_budget'                  => $this->input->post('mtd_budget'),
         'mtd_used_budget'             => $this->input->post('mtd_used_budget'),
         'part_number_relocation'      => $this->input->post('origin_budget'),
-        'budget_value_relocation'      => $this->input->post('budget_value'),
+        'budget_value_relocation'     => $this->input->post('budget_value'),
+        'reference_ipc'               => trim($this->input->post('reference_ipc')),
+        'serial_number'               => trim($this->input->post('serial_number')),
         // 'budget_value_relocation'      => $this->input->post('budget_value'),
       );
     }
@@ -838,7 +858,9 @@ class Purchase_Request extends MY_Controller
         'mtd_budget'                  => $this->input->post('mtd_budget'),
         'mtd_used_budget'             => $this->input->post('mtd_used_budget'),
         'part_number_relocation'      => $this->input->post('origin_budget'),
-        'budget_value_relocation'      => $this->input->post('budget_value'),
+        'budget_value_relocation'     => $this->input->post('budget_value'),
+        'reference_ipc'               => trim($this->input->post('reference_ipc')),
+        'serial_number'               => trim($this->input->post('serial_number')),
       );
     }
 

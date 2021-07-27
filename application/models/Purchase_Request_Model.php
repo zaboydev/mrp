@@ -49,9 +49,10 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.pr_number'                => 'Document Number',
         'tb_inventory_purchase_requisitions.pr_date'                  => 'Document Date',
         'tb_inventory_purchase_requisitions.required_date'            => 'Required Date',
-        'tb_inventory_purchase_requisitions.item_category'                         => 'Category',
-        'tb_inventory_purchase_requisition_details.product_name'                                    => 'Description',
-        'tb_inventory_purchase_requisition_details.part_number as product_code'                                    => 'Part Number',
+        'tb_inventory_purchase_requisitions.item_category'            => 'Category',
+        'tb_inventory_purchase_requisition_details.product_name'      => 'Description',
+        'tb_inventory_purchase_requisition_details.part_number as product_code'     => 'Part Number',
+        'tb_inventory_purchase_requisition_details.serial_number'     => 'Serial Number',
         // 'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
         'tb_master_items.minimum_quantity as min_qty'                                    => 'Min. Qty',
         'tb_inventory_purchase_requisitions.notes as pr_notes'                                    => 'On Hand. Qty',
@@ -98,6 +99,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.item_category',
         'tb_inventory_purchase_requisition_details.product_name',
         'tb_inventory_purchase_requisition_details.part_number',
+        'tb_inventory_purchase_requisition_details.serial_number',
         'tb_inventory_purchase_requisition_details.budget_status',
         'tb_inventory_purchase_requisitions.created_by',
         'tb_inventory_purchase_requisition_details.notes',
@@ -134,6 +136,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.item_category',
         'tb_inventory_purchase_requisition_details.product_name',
         'tb_inventory_purchase_requisition_details.part_number',
+        'tb_inventory_purchase_requisition_details.serial_number',
         'tb_inventory_purchase_requisition_details.additional_info',
         'tb_inventory_purchase_requisition_details.quantity',
         '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa)',
@@ -508,11 +511,63 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_used_quantity'] = $row['ytd_used_quantity'];
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
         $request['items'][$key]['on_hand_qty'] = $this->tb_on_hand_stock($value['id'])->sum;
+      
+        $request['items'][$key]['history']          = $this->getHistory($value['id_cot'],$request['order_number']);
       }
     }
 
 
     return $request;
+  }
+
+  public function getHistory($id_cot,$order_number)
+  {
+
+    // if ($_SESSION['request']['request_to'] == 1){
+        $select = array(
+          'tb_inventory_purchase_requisitions.pr_number',
+          'tb_inventory_purchase_requisitions.pr_date',
+          'tb_inventory_purchase_requisitions.created_by',
+          'tb_inventory_purchase_requisition_details.id',
+          'tb_inventory_purchase_requisition_details.quantity',
+          'tb_inventory_purchase_requisition_details.unit',
+          'tb_inventory_purchase_requisition_details.price',
+          'tb_inventory_purchase_requisition_details.total',
+          'sum(case when tb_purchase_order_items.quantity is null then 0.00 else tb_purchase_order_items.quantity end) as "poe_qty"',  
+          'sum(case when tb_purchase_order_items.total_amount is null then 0.00 else tb_purchase_order_items.total_amount end) as "poe_value"',  
+          'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
+          'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
+          'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
+          'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
+        );
+
+        $group = array(
+          'tb_inventory_purchase_requisitions.pr_number',
+          'tb_inventory_purchase_requisitions.pr_date',
+          'tb_inventory_purchase_requisitions.created_by',
+          'tb_inventory_purchase_requisition_details.id',
+          'tb_inventory_purchase_requisition_details.quantity',
+          'tb_inventory_purchase_requisition_details.unit',
+          'tb_inventory_purchase_requisition_details.price',
+          'tb_inventory_purchase_requisition_details.total',
+        );
+
+        $this->db->select($select);
+        $this->db->from('tb_inventory_purchase_requisition_details');
+        $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+        $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
+        $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
+        $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
+        $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+        $this->db->where('tb_budget.id_cot', $id_cot);
+        $this->db->where('tb_inventory_purchase_requisitions.order_number <',$order_number);
+        $this->db->group_by($group);
+        $query  = $this->db->get();
+        $return = $query->result_array();
+
+        return $return;
+    // }
+        
   }
 
   public function findPrlById($id)
@@ -641,6 +696,7 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
         $request['items'][$key]['on_hand_qty'] = $this->tb_on_hand_stock($value['id'])->sum;
         $request['items'][$key]['info_on_hand_qty'] = $this->info_on_hand($value['id']);
+        $request['items'][$key]['history']          = $this->getHistory($value['id_cot'],$request['order_number']);
         // $request['items'][$key]['count_info_on_hand_qty'] = $this->info_on_hand($value['id'])->num_rows();
       }
     }
@@ -1093,10 +1149,10 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('updated_by', config_item('auth_person_name'));
           $this->db->insert('tb_master_item_units');
         }
-        $serial_number = NULL;
+        $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
         if (isItemExists($data['part_number'], $serial_number) === FALSE) {
           $this->db->set('part_number', strtoupper($data['part_number']));
-          // $this->db->set('serial_number', strtoupper($serial_number);
+          $this->db->set('serial_number', $serial_number);
           // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
           $this->db->set('description', strtoupper($data['product_name']));
           $this->db->set('group', strtoupper($data['group_name']));
@@ -1128,7 +1184,8 @@ class Purchase_Request_Model extends MY_Model
           $this->db->where('id', $part_number_id);
           $this->db->update('tb_master_part_number');
         }
-        if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL) {
+        if (empty($data['inventory_monthly_budget_id']) || $data['inventory_monthly_budget_id'] == NULL) 
+        {
           $unbudgeted++;
           //input ke tb_unbudgeted
           $this->db->set('year_number', date('Y'));
@@ -1147,6 +1204,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('inventory_purchase_requisition_id', $document_id);
           // $this->db->set('budget_id', $inventory_monthly_budget_id);
           $this->db->set('part_number', $data['part_number']);
+          $this->db->set('serial_number', trim($serial_number));
           $this->db->set('product_name', $data['product_name']);
           $this->db->set('additional_info', $data['additional_info']);
           $this->db->set('unit', $data['unit']);
@@ -1158,6 +1216,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('status', 'pending');
           $this->db->set('budget_status', 'unbudgeted');
           $this->db->set('budget_id_sementara', $budget_id_sementara);
+          $this->db->set('reference_ipc', $data['reference_ipc']);
           $this->db->insert('tb_inventory_purchase_requisition_details');
           $prl_item_id = $this->db->insert_id();
 
@@ -1180,6 +1239,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('inventory_purchase_requisition_id', $document_id);
             $this->db->set('budget_id', $inventory_monthly_budget_id);
             $this->db->set('part_number', $data['part_number']);
+            $this->db->set('serial_number', trim($serial_number));
             $this->db->set('product_name', $data['product_name']);
             $this->db->set('additional_info', $data['additional_info']);
             $this->db->set('unit', $data['unit']);
@@ -1191,6 +1251,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('status', 'waiting');
             $this->db->set('budget_status', 'relocation');
             $this->db->set('budget_id_sementara', $budget_id_sementara);
+            $this->db->set('reference_ipc', $data['reference_ipc']);
             $this->db->insert('tb_inventory_purchase_requisition_details');
             $prl_item_id = $this->db->insert_id();
 
@@ -1256,6 +1317,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('inventory_purchase_requisition_id', $document_id);
             $this->db->set('budget_id', $inventory_monthly_budget_id);
             $this->db->set('part_number', strtoupper($data['part_number']));
+            $this->db->set('serial_number', trim($serial_number));
             $this->db->set('product_name', strtoupper($data['product_name']));
             $this->db->set('additional_info', $data['additional_info']);
             $this->db->set('unit', $data['unit']);
@@ -1265,6 +1327,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('price', floatval($data['price']));
             $this->db->set('total', floatval($data['total']));
             $this->db->set('status', 'waiting');
+            $this->db->set('reference_ipc', $data['reference_ipc']);
             $this->db->insert('tb_inventory_purchase_requisition_details');
             $prl_item_id = $this->db->insert_id();
           }
@@ -1302,7 +1365,7 @@ class Purchase_Request_Model extends MY_Model
         //tambahan
         $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
         $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
-        $this->db->group_by('tb_master_items.part_number,tb_stock_in_stores.warehouse');
+        $this->db->group_by('tb_master_items.part_number,tb_stock_in_stores.warehouse,tb_master_items.unit');
         //tambahan
         $this->db->where('tb_master_items.part_number', $data['part_number']);
         $query =  $this->db->get();
@@ -1650,6 +1713,7 @@ class Purchase_Request_Model extends MY_Model
       'tb_master_items.group',
       'tb_master_items.description',
       'tb_master_items.part_number',
+      'tb_master_items.serial_number',
       'tb_master_items.alternate_part_number',
       'tb_master_items.minimum_quantity',
       'tb_master_items.unit',
@@ -2750,7 +2814,7 @@ class Purchase_Request_Model extends MY_Model
     $select_prl_item = array(
       'tb_inventory_purchase_requisition_details.part_number',
       'tb_inventory_purchase_requisition_details.product_name',
-      'tb_inventory_purchase_requisition_details.unit',
+      'tb_master_items.unit',
       'tb_inventory_purchase_requisitions.pr_number',
       'tb_master_items.minimum_quantity',
       // 'tb_purchase_order_items.ttd_issued_by'
@@ -2779,7 +2843,8 @@ class Purchase_Request_Model extends MY_Model
     $prl_item['items_count'] = $query->num_rows();
 
     foreach ($query->result_array() as $key => $value) {
-      $prl_item['items'][$key] = $value;
+      $prl_item['items'][$key] = $value;      
+      $prl_item['items'][$key]['unit'] = $prl_item['unit'];
     }
 
 

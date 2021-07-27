@@ -134,7 +134,7 @@ if ( ! function_exists('request_last_number')) {
       // $return = sprintf('%06s', $next);
     }else{
       $CI =& get_instance();
-      $CI->db->select_max('pr_number', 'last_number');
+      $CI->db->select_max('order_number', 'last_number');
       $CI->db->from('tb_inventory_purchase_requisitions');
       // $CI->db->like('tb_inventory_purchase_requisitions.pr_number', $format, 'before');
 

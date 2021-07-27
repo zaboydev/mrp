@@ -508,21 +508,72 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.*',
       'tb_po_item.purchase_request_number',
       'tb_purchase_orders.id as poe_id',
-      'tb_purchase_order_items.id as poe_item_id'
+      'tb_purchase_order_items.id as poe_item_id',
+      'tb_inventory_purchase_requisition_details.reference_ipc',
     );
 
     $this->db->select($select);
     $this->db->from('tb_po_item');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'LEFT');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
+    $this->db->join('tb_inventory_purchase_requisition_details','tb_inventory_purchase_requisition_details.id=tb_purchase_order_items.inventory_purchase_request_detail_id', 'LEFT');
     $this->db->where('tb_po_item.purchase_order_id', $poe['id']);
     $query = $this->db->get();
 
     foreach ($query->result_array() as $key => $value) {
       $poe['items'][$key] = $value;
+      $poe['items'][$key]['history']          = $this->getHistory($value['poe_item_id']);
     }
 
     return $poe;
+  }
+
+  public function getHistory($poe_item_id)
+  {
+
+    $select = array(
+      'tb_inventory_purchase_requisitions.pr_number',
+      'tb_inventory_purchase_requisitions.pr_date',
+      'tb_inventory_purchase_requisitions.created_by',
+      'tb_inventory_purchase_requisition_details.id',
+      'tb_inventory_purchase_requisition_details.quantity',
+      'tb_inventory_purchase_requisition_details.unit',
+      'tb_inventory_purchase_requisition_details.price',
+      'tb_inventory_purchase_requisition_details.total',
+      'sum(case when tb_purchase_order_items.quantity is null then 0.00 else tb_purchase_order_items.quantity end) as "poe_qty"',  
+      'sum(case when tb_purchase_order_items.total_amount is null then 0.00 else tb_purchase_order_items.total_amount end) as "poe_value"',  
+      'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
+      'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
+      'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
+      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
+    );
+
+    $group = array(
+      'tb_inventory_purchase_requisitions.pr_number',
+      'tb_inventory_purchase_requisitions.pr_date',
+      'tb_inventory_purchase_requisitions.created_by',
+      'tb_inventory_purchase_requisition_details.id',
+      'tb_inventory_purchase_requisition_details.quantity',
+      'tb_inventory_purchase_requisition_details.unit',
+      'tb_inventory_purchase_requisition_details.price',
+      'tb_inventory_purchase_requisition_details.total',
+    );
+
+    $this->db->select($select);
+    $this->db->from('tb_inventory_purchase_requisition_details');
+    $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
+    $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
+    $this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id','left');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+    $this->db->where('tb_purchase_order_items.id', $poe_item_id);
+    $this->db->where_in('tb_po.status',['PURPOSED','OPEN','ORDER','CLOSE']);
+    $this->db->group_by($group);
+    $query  = $this->db->get();
+    $return = $query->result_array();
+
+    return $return;
+        
   }
 
   public function findItemPoe($id)
@@ -1572,29 +1623,24 @@ class Purchase_Order_Model extends MY_Model
     return array(
       // "''".' as "temp"' => "Act.", 
       'tb_po.id' => NULL,
-      'tb_po.document_number'              => 'Document Number',
-      'tb_po.status'                => 'Status',
-      'tb_po.document_date'                => 'Date',
-      // 'tb_master_items_groups.category'        => 'Category',
-      'tb_po_item.description'             => 'Description',
-      'tb_po_item.part_number'             => 'Part Number',
-      'tb_po_item.alternate_part_number'   => 'Alt. Part Number',
-      'tb_po_item.poe_number'            => 'Ref. POE',
-      'tb_po_item.purchase_request_number' => 'Ref. PR',
-      'tb_po.reference_quotation'          => 'Ref. Quotation',
-      'tb_po.vendor'                       => 'Vendor',
-      'tb_po_item.quantity'                => 'Order Qty',
-      'tb_po_item.unit_price'              => 'Unit Price',
-      'tb_po_item.core_charge'             => 'Core Charge',
-      'tb_po_item.total_amount'            => 'Total Amount',
+      'tb_po.document_number'               => 'Document Number',
+      'tb_po.status'                        => 'Status',
+      'tb_po.document_date'                 => 'Date',
+      'tb_po_item.description'              => 'Description',
+      'tb_po_item.part_number'              => 'Part Number',
+      'tb_po_item.serial_number'            => 'Serial Number',
+      'tb_po_item.alternate_part_number'    => 'Alt. Part Number',
+      'tb_po_item.poe_number'               => 'Ref. POE',
+      'tb_po_item.purchase_request_number'  => 'Ref. PR',
+      'tb_po.reference_quotation'           => 'Ref. Quotation',
+      'tb_po.vendor'                        => 'Vendor',
+      'tb_po_item.quantity'                 => 'Order Qty',
+      'tb_po_item.unit_price'               => 'Unit Price',
+      'tb_po_item.core_charge'              => 'Core Charge',
+      'tb_po_item.total_amount'             => 'Total Amount',
       '(tb_po_item.quantity - tb_po_item.left_received_quantity) AS quantity_received' => 'Received Qty',
-      'tb_po_item.left_received_quantity'      => 'Left Qty',
-      // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid' => 'Paid Amount',
-      'tb_po.notes'                        => 'Notes',
-      // 'tb_po.approved_by_hos'              => null,
-      // 'tb_po.approved_by_cof'              => null,
-      // 'tb_purchase_orders.id as poe_id'              => null,
-      // 'tb_purchase_order_items.id as poe_item_id'              => null
+      'tb_po_item.left_received_quantity'   => 'Left Qty',
+      'tb_po.notes'                         => 'Notes',
 
     );
   }
@@ -1603,9 +1649,9 @@ class Purchase_Order_Model extends MY_Model
   {
     return array(
       'tb_po.document_number',
-      // 'tb_po.category',
       'tb_po_item.description',
       'tb_po_item.part_number',
+      'tb_po_item.serial_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.poe_number',
       'tb_po_item.purchase_request_number',
@@ -1624,9 +1670,9 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.document_number',
       'tb_po.review_status',
       'tb_po.document_date',
-      // 'tb_po.category',
       'tb_po_item.description',
       'tb_po_item.part_number',
+      'tb_po_item.serial_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.evaluation_number',
       'tb_po_item.purchase_request_number',
@@ -1638,7 +1684,6 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.unit_price',
       'tb_po_item.core_charge',
       'tb_po_item.total_amount',
-      // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid',
       'tb_po.notes',
 
     );
@@ -1651,9 +1696,9 @@ class Purchase_Order_Model extends MY_Model
       'tb_po.document_number',
       'tb_po.status',
       'tb_po.document_date',
-      // 'tb_master_items_groups.category'        => 'Category',
       'tb_po_item.description',
       'tb_po_item.part_number',
+      'tb_po_item.serial_number',
       'tb_po_item.alternate_part_number',
       'tb_po_item.poe_number',
       'tb_po_item.purchase_request_number',
@@ -1663,25 +1708,14 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.unit_price',
       'tb_po_item.core_charge',
       'tb_po_item.total_amount',
-      // '(tb_po_item.quantity - tb_po_item.left_received_quantity) AS quantity_received',
       'tb_po_item.left_received_quantity',
-      // '(tb_po_item.total_amount - tb_po_item.left_paid_amount) AS amount_paid' => 'Paid Amount',
       'tb_po.notes',
-      // 'tb_po.approved_by_hos'              => null,
-      // 'tb_po.approved_by_cof'              => null,
-      // 'tb_purchase_orders.id as poe_id'              => null,
-      // 'tb_purchase_order_items.id as poe_item_id'              => null
     );
   }
 
 
   private function searchIndexReport()
   {
-    // if (!empty($_POST['columns'][3]['search']['value'])) {
-    //   $search_category = $_POST['columns'][3]['search']['value'];
-
-    //   $this->db->where('tb_po.category', $search_category);
-    // }
 
     if (!empty($_POST['columns'][2]['search']['value'])) {
       $search_document_date = $_POST['columns'][2]['search']['value'];
@@ -1705,9 +1739,7 @@ class Purchase_Order_Model extends MY_Model
     }else{
       $this->db->where_not_in('tb_po.status', ['REVISI']);
     }
-    // else{
-    //   $this->db->like('tb_po.review_status', 'WAITING');
-    // }
+
     if (!empty($_POST['columns'][1]['search']['value'])) {
       $vendor = $_POST['columns'][1]['search']['value'];
       if ($vendor != 'all') {
@@ -1753,13 +1785,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number','LEFT');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
-    // $this->db->where('tb_po.review_status','!=','REVISI');
-    // $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumnsReport());
-
-    // if (config_item('auth_role') == 'FINANCE'){
-    //   $this->db->where('tb_purchase_order_items.left_paid_amount > ', 0);
-    // }
 
     $this->searchIndexReport();
 
@@ -1796,9 +1822,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'LEFT');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
-    // $this->db->where('tb_po.review_status','!=','REVISI');
-    // $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
-    $this->db->group_by($this->getGroupedColumnsReport());
+   $this->db->group_by($this->getGroupedColumnsReport());
 
     $this->searchIndexReport();
 
@@ -1816,8 +1840,6 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number', 'LEFT');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group', 'LEFT');
-    // $this->db->where('tb_po.review_status','!=','REVISI');
-    // $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumnsReport());
 
     $query = $this->db->get();

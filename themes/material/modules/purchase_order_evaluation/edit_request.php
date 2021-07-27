@@ -16,9 +16,10 @@
                 <th class="middle-alignment" rowspan="2">Description</th>
                 <th class="middle-alignment" rowspan="2">Part Number</th>
                 <th class="middle-alignment" rowspan="2">Alt. P/N</th>
+                <th class="middle-alignment text-right" rowspan="2">S/N</th>
                 <th class="middle-alignment text-right" rowspan="2">Qty</th>
                 <th class="middle-alignment text-right" rowspan="2">Unit</th>
-                <th class="middle-alignment text-right" rowspan="2">Konversi</th>
+                <th class="middle-alignment text-right hide" rowspan="2">Konversi</th>
                 <th class="middle-alignment text-right" rowspan="2">Remarks</th>
 
                 <?php foreach ($_SESSION['poe']['vendors'] as $key => $vendor) : ?>
@@ -49,14 +50,17 @@
                   </td>
                   <td>
                     <input type="text" rel="alternate_part_number" name="request[<?= $id; ?>][alternate_part_number]" value="<?= $_SESSION['poe']['request'][$id]['alternate_part_number']; ?>" class="form-control">
+                  </td>                                   
+                  <td class="no-space">
+                    <input type="text" rel="serial_number" name="request[<?= $id; ?>][serial_number]" value="<?= $_SESSION['poe']['request'][$id]['serial_number']; ?>" class="form-control">
                   </td>
                   <td>
                     <input type="number" rel="quantity" name="request[<?= $id; ?>][quantity]" value="<?= $_SESSION['poe']['request'][$id]['quantity']; ?>" class="form-control">
                   </td>
                   <td>
-                    <input type="text" rel="unit" name="request[<?= $id; ?>][unit]" value="<?= $_SESSION['poe']['request'][$id]['unit']; ?>" class="form-control">
+                    <input type="text" rel="unit" name="request[<?= $id; ?>][unit]" value="<?= $_SESSION['poe']['request'][$id]['unit']; ?>" class="form-control" readonly>
                   </td>
-                  <td>
+                  <td class="hide">
                     <input type="number" rel="konversi" name="request[<?= $id; ?>][konversi]" value="<?= $_SESSION['poe']['request'][$id]['konversi']; ?>" class="form-control">
                   </td>
                   <td>

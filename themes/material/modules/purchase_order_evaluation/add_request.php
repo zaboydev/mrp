@@ -8,14 +8,14 @@
   <form id="form_add_request" class="form" role="form" method="post" action="<?= site_url($module['route'] . '/add_selected_request'); ?>">
     <div class="row">
       <div class="col-sm-12">
-        <div class="col-md-12" style="margin-top: 10px;">
+        <!-- <div class="col-md-12" style="margin-top: 10px;"> -->
 
-          <label class="radio-inline">
+          <label class="radio-inline hide">
             <input type="radio" <?= $_SESSION['poe']['source'] == 0 ? "checked" : ""  ?> name="source" style="display:inline;" value="0" data-source="<?= site_url($module['route'] . '/set_source'); ?>">Budget Control</label>
           <label class="radio-inline">
             <input type="radio" <?= $_SESSION['poe']['source'] == 1 ? "checked" : ""  ?> value="1" style="display: inline;" name="source" data-source="<?= site_url($module['route'] . '/set_source'); ?>">MRP
           </label>
-        </div>
+        <!-- </div> -->
         <div class="table-responsive">
           <table class="table table-hover" id="tbl_prl">
             <thead>
@@ -36,6 +36,9 @@
                   Quantity
                 </th>
                 <th>Remaining Request Quantity</th>
+                <th>POE Quantity</th>
+                <th>PO Quantity</th>
+                <th>GRN Quantity</th>
                 <th>
                   Required Date
                 </th>
@@ -88,6 +91,21 @@
                   <td>
                     <label for="request_id_<?= $e; ?>">
                       <?= print_number($entity['sisa'], 2); ?>
+                    </label>
+                  </td>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_number($entity['poe_qty'], 2); ?>
+                    </label>
+                  </td>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_number($entity['po_qty'], 2); ?>
+                    </label>
+                  </td>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_number($entity['grn_qty'], 2); ?>
                     </label>
                   </td>
                   <td>

@@ -52,6 +52,7 @@
       <th align="right" width="1">No</th>
       <th width="10">Description</th>
       <th width="10">Part Number</th>
+      <th width="10">Serial Number</th>
       <th align="right" width="1">Qty</th>
       <th width="1">Unit</th>
       <th align="right" width="10">On Hand Stock</th>
@@ -76,6 +77,9 @@
         </td>
         <td>
           <?= print_string($detail['part_number']); ?>
+        </td>
+        <td>
+          <?= print_string($detail['serial_number']); ?>
         </td>
         <td align="right">
           <?= print_number($detail['quantity'], 2); ?>
@@ -229,7 +233,7 @@
               <?= print_number($info['on_hand_stock'], 2); ?>
             </td>
             <td>
-              <?= print_string($detail['unit']); ?>
+              <?= print_string($info['unit']); ?>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -241,4 +245,119 @@
     <?php endforeach; ?>
 
   </tbody>
+</table>
+<h5 class="new-page">History Purchase</h5>
+<table class="table table-striped table-nowrap">
+  <thead id="table_header">
+    <tr>
+      <th>No</th>
+      <th>Tanggal</th>
+      <th>Purchase Number</th>
+      <th>Qty</th>
+      <th>Unit</th>
+      <th>Price</th>
+      <th>Total</th>
+      <th>POE Qty</th>
+      <th>POE Value</th>
+      <th>PO Qty</th>
+      <th>PO Value</th>
+      <th>GRN Qty</th>
+      <th>GRN Value</th>
+    </tr>
+  </thead>
+  <tbody id="table_contents">
+    <?php $n = 0;?>
+              
+    <?php foreach ($entity['items'] as $i => $detail):?>
+    <?php 
+      $n++;
+    ?>
+    <tr>
+      <td align="right">
+        <?=print_number($n);?>
+      </td>
+      <td colspan="12">
+        <?=print_string($detail['product_name']);?>
+      </td>
+    </tr>
+    <?php 
+      $total_qty        = array();
+      $total            = array();
+      $total_qty_poe    = array();
+      $total_value_poe  = array();
+      $total_qty_po     = array();
+      $total_value_po   = array();
+      $total_qty_grn    = array();
+      $total_value_grn  = array();
+    ?>
+    <?php foreach ($detail['history'] as $i => $history):?>
+    <tr>
+      <?php 
+        $total_qty[]        = $history['quantity'];
+        $total[]            = $history['total'];
+        $total_qty_poe[]    = $history['poe_qty'];
+        $total_value_poe[]  = $history['poe_value'];
+        $total_qty_po[]     = $history['po_qty'];
+        $total_value_po[]   = $history['po_value'];
+        $total_qty_grn[]    = $history['grn_qty'];
+        $total_value_grn[]  = $history['grn_value'];
+      ?>
+      <td></td>
+      <td>
+        <?=print_date($history['pr_date']);?>
+      </td>
+      <td>
+        <?=print_string($history['pr_number']);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['quantity'], 2);?>
+      </td>
+      <td>
+        <?=print_string($detail['unit']);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['price'], 2);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['total'], 2);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['poe_qty'], 2);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['poe_value'], 2);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['po_qty'], 2);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['po_value'], 2);?>
+      </td>     
+      <td align="right">
+        <?=print_number($history['grn_qty'], 2);?>
+      </td>
+      <td align="right">
+        <?=print_number($history['grn_value'], 2);?>
+      </td>               
+    </tr>                
+    <?php endforeach;?>
+    <?php endforeach;?>
+  </tbody>
+  <tfoot>
+    <tr>
+      <th>Total</th>
+      <th></th>
+      <th></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total_qty), 2);?></th>
+      <th></th>
+      <th></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total), 2);?></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total_qty_po), 2);?></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total_value_poe), 2);?></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total_qty_po), 2);?></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total_value_po), 2);?></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total_qty_grn), 2);?></th>
+      <th style="text-align: right;"><?=print_number(array_sum($total_value_grn), 2);?></th>
+    </tr>
+  </tfoot>
 </table>
