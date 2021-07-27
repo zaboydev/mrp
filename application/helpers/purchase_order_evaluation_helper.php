@@ -123,3 +123,28 @@ if ( ! function_exists('poe_last_number')) {
     return $return;
   }
 }
+
+if ( ! function_exists('getStatusPOE')) {
+  function getStatusPOE($document_number)
+  {
+    
+    $CI =& get_instance();
+    
+    $CI->db->from('tb_po_item');
+    $CI->db->where('tb_po_item.poe_number', $document_number);
+    $num_rows = $CI->db->count_all_results();
+    if($num_rows>0){
+      $status = 'approved';
+    }else{
+      $CI->db->select('status');
+      $CI->db->from('tb_purchase_orders');
+      $CI->db->where('tb_purchase_orders.evaluation_number', $document_number);
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $status = $row->status;
+    }
+
+    return $status;
+  }
+}
