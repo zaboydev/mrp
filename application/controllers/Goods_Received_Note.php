@@ -486,7 +486,7 @@ class Goods_Received_Note extends MY_Controller
         'unit_pakai'              => trim($this->input->post('unit_pakai')),
         'isi'                     => trim($this->input->post('isi')),
         'quantity_order'          => $this->input->post('quantity_order'),
-        'value_order'          => $this->input->post('value_order'),
+        'value_order'             => $this->input->post('value_order'),
         'no_expired_date'         => $this->input->post('no_expired_date'),
 
       );

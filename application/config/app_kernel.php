@@ -33,6 +33,15 @@ $config['parent']['finance']['icon']   = 'md md-payment';
 $config['parent']['procurement']['label']  = 'Procurement';
 $config['parent']['procurement']['icon']   = 'md md-assignment';
 
+$config['parent']['capex']['label']  = 'Capex';
+$config['parent']['capex']['icon']   = 'fa fa-car';
+
+$config['parent']['inventory']['label']  = 'Inventory';
+$config['parent']['inventory']['icon']   = 'fa fa-cubes';
+
+$config['parent']['expense']['label']  = 'Expense';
+$config['parent']['expense']['icon']   = 'fa fa-money';
+
 $config['module'] = array();
 
 
@@ -50,10 +59,27 @@ require('modules/vendor.php');
 require('modules/warehouse.php');
 require('modules/kurs.php');
 require('modules/pesawat.php');
+require('modules/departements.php');
+require('modules/annual_cost_centers.php');
+require('modules/product_category.php');
+require('modules/expense_item.php');
 
 //PLANNING
 require('modules/budget_cot.php');
 require('modules/budgeting.php');
+
+//CAPEX
+require('modules/capex_request.php');
+require('modules/capex_order_evaluation.php');
+require('modules/capex_purchase_order.php');
+//Inventory
+require('modules/inventory_request.php');
+require('modules/inventory_order_evaluation.php');
+require('modules/inventory_purchase_order.php');
+//expense
+require('modules/expense_request.php');
+require('modules/expense_order_evaluation.php');
+require('modules/expense_purchase_order.php');
 
 //PROCUREMENT
 require('modules/purchase_request.php');

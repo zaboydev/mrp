@@ -221,6 +221,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     $this->email->send();
   }
+
   public function sendEmailHOS()
   {
     $recipientList = $this->model->getNotifRecipientHOS();
@@ -306,6 +307,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     $this->email->send();
   }
+  
   public function index_data_source()
   {
     // if ($this->input->is_ajax_request() === FALSE)
@@ -404,6 +406,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       echo json_encode($return);
     }
   }
+  
   public function index()
   {
     $this->authorized($this->module, 'index');

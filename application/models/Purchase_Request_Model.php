@@ -25,11 +25,9 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.pr_number'                => 'Document Number',
         'tb_inventory_purchase_requisitions.pr_date'                  => 'Document Date',
         'tb_inventory_purchase_requisitions.required_date'            => 'Required Date',
-        // 'tb_product_categories.category_name'                         => 'Category',
         'tb_products.product_name'                                    => 'Description',
         'tb_products.product_code'                                    => 'Part Number',
-        // 'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
-        'tb_products.part_number as min_qty'                                    => 'Min. Qty',
+        'tb_products.part_number as min_qty'                          => 'Min. Qty',
         null                                    => 'On Hand. Qty',
         'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity Request',
         '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Quantity POE',
@@ -54,8 +52,8 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisition_details.part_number as product_code'     => 'Part Number',
         'tb_inventory_purchase_requisition_details.serial_number'     => 'Serial Number',
         // 'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
-        'tb_master_items.minimum_quantity as min_qty'                                    => 'Min. Qty',
-        'tb_inventory_purchase_requisitions.notes as pr_notes'                                    => 'On Hand. Qty',
+        'tb_master_items.minimum_quantity as min_qty'                  => 'Min. Qty',
+        'tb_inventory_purchase_requisitions.notes as pr_notes'         => 'On Hand. Qty',
         'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity Request',
         '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Quantity POE',
         'tb_inventory_purchase_requisition_details.status'                   => 'Status',
@@ -629,13 +627,6 @@ class Purchase_Request_Model extends MY_Model
         $request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
       }
     } else {
-
-      // $this->db->select('tb_inventory_purchase_requisition_details.*');
-      // $this->db->from('tb_inventory_purchase_requisition_details');
-      // $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
-
-      // $query_detail    = $this->db->get();
-      // $request_detail  = $query_detail->unbuffered_row();
 
       $this->db->select('tb_inventory_purchase_requisitions.*');
       $this->db->from('tb_inventory_purchase_requisitions');
@@ -1358,7 +1349,8 @@ class Purchase_Request_Model extends MY_Model
         $this->db->select(
           array(
             'tb_stock_in_stores.warehouse',
-            'sum(quantity) as qty'
+            'sum(quantity) as qty',
+            'tb_master_items.unit'
           )
         );
         $this->db->from('tb_stock_in_stores');
@@ -1375,6 +1367,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('prl_item_id', $prl_item_id);
           $this->db->set('warehouse', $data['warehouse']);
           $this->db->set('on_hand_stock', $data['qty']);
+          // $this->db->set('unit', $data['unit']);
           $this->db->insert('tb_purchase_request_items_on_hand_stock');
         }
       }

@@ -184,10 +184,21 @@ if ( ! function_exists('print_date')) {
 if ( ! function_exists('is_granted')) {
   function is_granted($module, $roles)
   {
-    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) )
+    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) ){
       return TRUE;
+    }else{
+      if (config_item('as_head_department')=='yes') {
+        if($roles=='index'||$roles=='info'||$roles=='print'){
+          return TRUE;
+        }else{
+          return FALSE;
+        }
+      }else{
+        return FALSE;
+      }
+    }
 
-    return FALSE;
+    
   }
 }
 
@@ -624,6 +635,7 @@ if ( ! function_exists('available_modules')) {
   {
     $modules    = config_item('module');
     $permission = config_item('auth_role');
+    $head_dept  = config_item('as_head_department');
     $results    = array();
 
     foreach ($modules as $key => $module){
@@ -635,6 +647,13 @@ if ( ! function_exists('available_modules')) {
       if (in_array($permission, (array)$roles) && $visible == TRUE){
         if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
           $results[$module['parent']][] = $module;
+      }else{
+        if($head_dept=='yes'){
+          if($key=='capex_request'||$key=='expense_request'||$key=='inventory_request'){
+            if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
+              $results[$module['parent']][] = $module;
+          }
+        }
       }
     }
 
@@ -1166,6 +1185,231 @@ if ( ! function_exists('month')) {
       return $query->result_array();
     }
   }
+
+  if ( ! function_exists('get_divisions')) {
+    function get_divisions()
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->from('tb_divisions');
+      // $connection->where('setting_name', $name);
+
+      $query    = $connection->get();
+
+      return $query->result_array();
+    }
+  }
+
+  if ( ! function_exists('user_in_head_department')) {
+  function user_in_head_department($department_id)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('username');
+    $CI->db->from('tb_head_department');
+
+    if (is_array($category)){
+      $CI->db->where_in('department_id', $department_id);
+    } else {
+      $CI->db->where('department_id', $department_id);
+    }
+
+    $CI->db->where('status', 'active');
+
+    $CI->db->order_by('username', 'ASC');
+
+    $query  = $CI->db->get();
+    $result = $query->unbuffered_row('array');
+    $return = $result['username'];
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('user_in_annual_cost_centers_list')) {
+  function user_in_annual_cost_centers_list($annual_cost_center_id)
+  {
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('username');
+    $connection->from('tb_users_mrp_in_annual_cost_centers');
+
+    if (is_array($annual_cost_center_id)){
+      $connection->where_in('annual_cost_center_id', $annual_cost_center_id);
+    } else {
+      $connection->where('annual_cost_center_id', $annual_cost_center_id);
+    }
+
+    $connection->order_by('username', 'ASC');
+
+    $query  = $connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['username'];
+    }
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('available_cost_centers')) {
+  function available_cost_centers($select = NULL)
+  {
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    if ($select !== NULL){
+      $connection->select($select);
+    }
+    $connection->from('tb_cost_centers');
+    $connection->order_by('cost_center_name', 'ASC');
+
+    $query = $connection->get();
+
+    return $query->result_array();
+  }
+}
+
+if ( ! function_exists('annual_cost_centers')) {
+  function annual_cost_centers($year)
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('cost_center_id');
+    $connection->from('tb_annual_cost_centers');
+    $connection->where('year_number', $year);
+    $connection->order_by('id', 'ASC');
+
+    $query  = $connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['cost_center_id'];
+    }
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getCostCenterNameByAnnualCostCenterId')) {
+  function getCostCenterNameByAnnualCostCenterId($id)
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('tb_cost_centers.cost_center_name');
+    $connection->from('tb_cost_centers');
+    $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+    $connection->where('tb_annual_cost_centers.id', $id);
+
+    $query  = $connection->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->cost_center_name;
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('findProductCategoryById')) {
+  function findProductCategoryById($id)
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('category_name,category_code');
+    $connection->from('tb_product_categories');
+    $connection->where('id', $id);
+
+    $query  = $connection->get();
+    $row    = $query->unbuffered_row('array');
+    // $return = $row->category_name;
+
+    return $row;
+  }
+}
+
+if ( ! function_exists('expense_item_without_po')) {
+  function expense_item_without_po()
+  {
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('account_id');
+    $connection->from('tb_expense_item_without_po');
+
+    $connection->order_by('account_id', 'ASC');
+
+    $query  = $connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['account_id'];
+    }
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getReferenceIpcByPrlItemId')) {
+  function getReferenceIpcByPrlItemId($prl_item_id,$type)
+  {
+
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    if($type='expense'){
+      $connection->select('reference_ipc');
+      $connection->from('tb_expense_purchase_requisition_details' );
+      $connection->where('tb_expense_purchase_requisition_details.id', $prl_item_id);
+    }
+    else if($type='capex'){
+      $connection->select('reference_ipc');
+      $connection->from('tb_capex_purchase_requisition_details' );
+      $connection->where('tb_capex_purchase_requisition_details.id', $prl_item_id);
+    }
+    else if($type='inventory'){
+      $connection->select('reference_ipc');
+      $connection->from('tb_inventory_purchase_requisition_details' );
+      $connection->where('tb_inventory_purchase_requisition_details.id', $prl_item_id);
+    }
+
+    $query  = $connection->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->reference_ipc;
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getPrlid')) {
+  function getPrlid($id)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('inventory_purchase_request_detail_id');
+    $CI->db->from( 'tb_purchase_order_items' );
+    $CI->db->where('tb_purchase_order_items.id', $id);
+
+    $query    = $CI->db->get();
+    $row      = $query->unbuffered_row();
+    $return   = $row->inventory_purchase_request_detail_id;
+
+    return $return;
+  }
+}
+
 }
 
     

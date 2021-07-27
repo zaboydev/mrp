@@ -8,6 +8,7 @@ class MY_Controller extends CI_Controller
   protected $login_theme;
   protected $base_theme;
   protected $modules;
+  protected $connection;
 
   public $data = array();
 
@@ -23,7 +24,7 @@ class MY_Controller extends CI_Controller
 
     // $this->is_logged_in();
     
-
+    $this->connection   = $this->load->database('budgetcontrol', TRUE);
     $this->config->load('app_config');
     $this->config->load('app_kernel');
     $this->config->load('tables');
@@ -55,6 +56,7 @@ class MY_Controller extends CI_Controller
     $this->config->set_item('main_warehouse', $this->main_warehouse);
     $this->config->set_item('auth_warehouses', $this->auth_warehouses());
     $this->config->set_item('auth_inventory', $this->auth_inventory());
+    $this->config->set_item('auth_annual_cost_centers', $this->auth_annual_cost_centers());
     $this->config->set_item('period_year', get_setting('ACTIVE_YEAR'));
     $this->config->set_item('period_month', get_setting('ACTIVE_MONTH'));
     $this->config->set_item('auth_role', $this->get_auth_role());
@@ -64,6 +66,8 @@ class MY_Controller extends CI_Controller
     $this->config->set_item('auth_level', $_SESSION['auth_level']);
     $this->config->set_item('auth_warehouse', $_SESSION['warehouse']);
     $this->config->set_item('auth_email', $_SESSION['email']);
+    $this->config->set_item('as_head_department', $this->as_head_department());
+    $this->config->set_item('head_department', $this->head_department());
   }
 
   public function get_auth_role()
@@ -87,10 +91,20 @@ class MY_Controller extends CI_Controller
 
   public function has_role($module, $roles)
   {
-    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) )
+    if ( isset($module['permission'][$roles]) && in_array(config_item('auth_role'), (array)explode(',', $module['permission'][$roles])) ){
       return TRUE;
-
-    return FALSE;
+    }
+    else{
+      if (config_item('as_head_department')=='yes') {
+        if($roles=='index'||$roles=='info'||$roles=='print'){
+          return TRUE;
+        }else{
+          return FALSE;
+        }
+      }else{
+        return FALSE;
+      }
+    }
   }
 
   public function authorized($module, $roles = NULL)
@@ -187,6 +201,41 @@ class MY_Controller extends CI_Controller
     return $return;
   }
 
+  protected function as_head_department()
+  {
+    $this->db->select('department_id');
+    $this->db->from('tb_head_department');
+    $this->db->where('username',$_SESSION['username']);
+    $this->db->where('status','active');
+    $query  = $this->db->get();
+    
+    return ( $query->num_rows() > 0 ) ? 'yes' : 'no';
+  }
+
+  protected function head_department()
+  {
+    $this->db->select('department_id');
+    $this->db->from('tb_head_department');
+    $this->db->where('username',$_SESSION['username']);
+    $this->db->where('status','active');
+    $query  = $this->db->get();
+    if($query->num_rows() > 0){      
+      $result = $query->unbuffered_row('array');
+      $department_id = $result['department_id'];
+
+      $this->connection->select('department_name');
+      $this->connection->from('tb_departments');
+      $this->connection->where('id',$department_id);
+      $query  = $this->connection->get();
+      $result = $query->unbuffered_row('array');
+      $department_name = $result['department_name'];
+    }else{
+      $department_name = 'no_head_department';
+    }
+
+    return $department_name;
+  }
+
   protected function auth_inventory()
   {
     if ($_SESSION['auth_level'] > 5){
@@ -206,6 +255,48 @@ class MY_Controller extends CI_Controller
     foreach ($result as $row) {
       $return[] = $row['category'];
     }
+
+    return $return;
+  }
+
+  protected function auth_annual_cost_centers()
+  {
+    $year = $this->find_budget_setting('Active Year');
+    if ($_SESSION['auth_level'] > 5){
+      $this->connection->select(array('cost_center_name','tb_annual_cost_centers.id'));
+      $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+      $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
+      $this->connection->where('tb_annual_cost_centers.year_number', $year);
+    } else {
+      $this->connection->select(array('cost_center_name','tb_annual_cost_centers.id'));
+      $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+      $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $this->connection->order_by('cost_center_name', 'ASC');
+    }
+
+    $query  = $this->connection->get();
+    $result = $query->result_array();
+    // $return = array();
+
+    // foreach ($result as $row) {
+    //   $return[] = $row['cost_center_name'];
+    // }
+
+    return $result;
+  }
+
+  protected function find_budget_setting($name)
+  {
+
+    $this->connection->from('tb_settings');
+    $this->connection->where('setting_name', $name);
+
+    $query    = $this->connection->get();
+    $setting  = $query->unbuffered_row('array');
+    $return   = $setting['setting_value'];
 
     return $return;
   }

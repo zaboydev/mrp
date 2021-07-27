@@ -128,8 +128,9 @@ if ( ! function_exists('order_last_number')) {
 
     return $return;
   }
+}
 
-  if (!function_exists('tgl_kurs')) {
+if (!function_exists('tgl_kurs')) {
     function tgl_kurs($date)
     {
 
@@ -165,5 +166,33 @@ if ( ! function_exists('order_last_number')) {
 
       return $kurs_dollar;
     }
+}
+
+if ( ! function_exists('getReferenceIpc')) {
+  function getReferenceIpc($id,$tipe)
+  {
+    $CI =& get_instance();
+
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('reference_ipc');
+    if($tipe=='capex'){
+      $connection->from('tb_capex_purchase_requisition_details');
+    }
+    if($tipe=='inventory'){
+      $connection->from('tb_inventory_purchase_requisition_details');
+    }
+    if($tipe=='expense'){
+      $connection->from('tb_expense_purchase_requisition_details');
+    }
+    $connection->where('id', $id);
+
+    $query  = $connection->get();
+    $row    = $query->unbuffered_row();
+    $return = $row->reference_ipc;
+
+    return $return;
   }
 }
+
+

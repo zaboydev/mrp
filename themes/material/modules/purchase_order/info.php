@@ -131,6 +131,9 @@
                     <?php endif; ?>
                   </td>
                   <td>
+                    <?= print_string($detail['reference_ipc']); ?>
+                  </td>
+                  <td>
                     <?= print_number($detail['quantity'], 2); ?>
                   </td>
                   <td>

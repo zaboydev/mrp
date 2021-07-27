@@ -47,7 +47,7 @@
                   </td>
                   <td class="no-space">
                     <input type="text" rel="part_number" name="request[<?= $id; ?>][part_number]" value="<?= $_SESSION['poe']['request'][$id]['part_number']; ?>" class="form-control">
-                  </td>
+                  </td> 
                   <td>
                     <input type="text" rel="alternate_part_number" name="request[<?= $id; ?>][alternate_part_number]" value="<?= $_SESSION['poe']['request'][$id]['alternate_part_number']; ?>" class="form-control">
                   </td>                                   

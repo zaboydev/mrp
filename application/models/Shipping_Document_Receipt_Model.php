@@ -329,7 +329,7 @@ class Shipping_Document_Receipt_Model extends MY_Model
     // $this->db->set('received_by', $received_by);
     // $this->db->where('id', $id);
     // $this->db->update('tb_issuances');
-	$id_tb_issuances = $id;
+	  $id_tb_issuances = $id;
     if ($this->model->isDocumentReceiptExists($document_number)){
       $this->db->set('document_number', $document_number);
       $this->db->set('received_from', $received_from);

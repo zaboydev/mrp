@@ -191,6 +191,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
+    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY MRP');    
     $this->searchIndex();
 
     $column_order = $this->getOrderableColumns();
@@ -234,6 +235,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
+    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY MRP');    
     $this->searchIndex();
 
     // $this->searchIndex();
@@ -260,6 +262,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
+    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY MRP');    
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -838,8 +841,8 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"', 
       ));
 
-      $this->db->from('tb_inventory_purchase_requisitions');
-      $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
       $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id');
       $this->db->join('tb_budget_cot', 'tb_budget_cot.id = tb_budget.id_cot');
       $this->db->join('tb_master_items', 'tb_budget_cot.id_item = tb_master_items.id');

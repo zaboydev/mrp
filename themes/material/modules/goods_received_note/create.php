@@ -1003,7 +1003,7 @@
                 $('#part_number').val(ui.item.part_number);
                 $('#description').val(ui.item.description);
                 $('#alternate_part_number').val(ui.item.alternate_part_number);
-                $('#group').val(ui.item.group);
+                $('select[id="group"]').val(ui.item.group);
                 $('#received_quantity').val(parseFloat(ui.item.left_received_quantity));
                 $('#quantity_order').val(parseFloat(ui.item.left_received_quantity));
                 $('#unit').val(ui.item.unit);
@@ -1017,10 +1017,8 @@
                 $('#kode_stok').val(ui.item.kode_stok);
                 if (ui.item.default_currency == 'USD') {
                   $('[name="kurs"]').val('dollar');
-
                 } else {
                   $('[name="kurs"]').val('rupiah');
-
                 }
                 $('#received_unit_value').attr('readonly', true);
                 $('#purchase_order_number').attr('readonly', true);
