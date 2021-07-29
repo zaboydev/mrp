@@ -1465,6 +1465,80 @@ if ( ! function_exists('getAccountByCode')) {
   }
 }
 
+if ( ! function_exists('getMonthName')) {
+  function getMonthName($month, $case = NULL)
+  {
+    $month = intval($month);
+
+    switch ($month) {
+      case 1:
+      case 01:
+        $print = 'Jan';
+        break;
+
+      case 2:
+      case 02:
+        $print = 'Feb';
+        break;
+
+      case 3:
+      case 03:
+        $print = 'Mar';
+        break;
+
+      case 4:
+      case 04:
+        $print = 'Apr';
+        break;
+
+      case 5:
+      case 05:
+        $print = 'May';
+        break;
+
+      case 6:
+      case 06:
+        $print = 'Jun';
+        break;
+
+      case 7:
+      case 07:
+        $print = 'Jul';
+        break;
+
+      case 8:
+      case 08:
+        $print = 'Aug';
+        break;
+
+      case 9:
+      case 09:
+        $print = 'Sep';
+        break;
+
+      case 10:
+        $print = 'Oct';
+        break;
+
+      case 11:
+        $print = 'Nov';
+        break;
+
+      case 12:
+        $print = 'Dec';
+        break;
+    }
+
+    if ($case == 'uppercase'){
+      $print = strtoupper($print);
+    } else if ($case == 'lowercase') {
+      $print = strtolower($print);
+    }
+
+    return $print;
+  }
+}
+
 }
 
     

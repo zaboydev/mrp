@@ -46,7 +46,8 @@ $config['levels_and_roles'] = array(
 	'17'	=> 'AP STAFF',
 	'18'	=> 'TELLER',
 	'19'	=> 'BUDGETCONTROL',
-	'20'	=> 'PIC STAFF'//utk staff budgetcontrol 
+	'20'	=> 'PIC STAFF',//utk staff budgetcontrol 
+	'21'	=> 'PROCUREMENT MANAGER'
 );
 
 /*

@@ -670,10 +670,10 @@ class Capex_Order_Evaluation_Model extends MY_Model
           // $this->connection->where('id', $inventory_purchase_request_detail_id);
           // $this->connection->update('tb_capex_purchase_requisition_details');
 
-          $this->db->set('closing_by', config_item('auth_person_name'));
-          $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
-          $this->db->set('tipe', 'CAPEX');
-          $this->db->insert('tb_purchase_request_closures');
+          // $this->db->set('closing_by', config_item('auth_person_name'));
+          // $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+          // $this->db->set('tipe', 'CAPEX');
+          // $this->db->insert('tb_purchase_request_closures');
         }
       }
 
