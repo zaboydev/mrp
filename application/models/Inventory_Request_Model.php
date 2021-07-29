@@ -24,7 +24,7 @@ class Inventory_Request_Model extends MY_Model
             'tb_inventory_purchase_requisitions.pr_number'                  			=> 'Document Number',
             'tb_inventory_purchase_requisitions.status'                     			=> 'Status',
             'tb_product_categories.category_name'		                     			=> 'Category',
-            'tb_departments.department_name'                            				=> 'Department Name',
+            // 'tb_departments.department_name'                            				=> 'Department Name',
             'tb_cost_centers.cost_center_name'                          				=> 'Cost Center',
             'tb_inventory_purchase_requisitions.pr_date'                    			=> 'Document Date',
             'tb_inventory_purchase_requisitions.required_date'              			=> 'Required Date',
@@ -45,7 +45,7 @@ class Inventory_Request_Model extends MY_Model
             'tb_inventory_purchase_requisitions.pr_date',
             'tb_inventory_purchase_requisitions.required_date',
             'tb_inventory_purchase_requisitions.notes',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_inventory_purchase_requisitions.approved_notes'
             // 'SUM(tb_capex_purchase_requisition_detail.total) as total_capex'
         );
@@ -62,7 +62,7 @@ class Inventory_Request_Model extends MY_Model
             // 'tb_capex_purchase_requisitions.pr_date',
             // 'tb_capex_purchase_requisitions.required_date',
             'tb_inventory_purchase_requisitions.notes',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_inventory_purchase_requisitions.approved_notes'
 		);
 	}
@@ -74,7 +74,7 @@ class Inventory_Request_Model extends MY_Model
             'tb_inventory_purchase_requisitions.pr_number',
             'tb_inventory_purchase_requisitions.status',
 			'tb_product_categories.category_name',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_cost_centers.cost_center_name',
             'tb_inventory_purchase_requisitions.pr_date',
             'tb_inventory_purchase_requisitions.required_date',
