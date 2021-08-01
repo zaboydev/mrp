@@ -1,224 +1,217 @@
 <?php include 'themes/material/template.php' ?>
 
 <?php startblock('content') ?>
-<style>
-    .float {
-        position: fixed;
-        width: 60px;
-        height: 60px;
-        bottom: 40px;
-        right: 40px;
-        border-radius: 50px;
-        text-align: center;
-        box-shadow: 2px 2px 3px #999;
-        z-index: 100000;
-    }
-
-    .my-float {
-        margin-top: 22px;
-    }
-
-    .tg {
-        border-collapse: collapse;
-        border-spacing: 0;
-        border-color: #ccc;
-        width: 100%;
-    }
-
-    .tg td {
-        font-family: "Arial", Helvetica, sans-serif !important;
-        font-size: 10px;
-        padding: 3px 3px;
-        border-style: solid;
-        border-width: 1px;
-        overflow: hidden;
-        word-break: normal;
-        border-color: #000;
-        color: #333;
-        background-color: #fff;
-
-    }
-
-    .tg th {
-        font-family: "Arial", Helvetica, sans-serif !important;
-        font-size: 11px;
-        font-weight: bold;
-        padding: 3px 3px;
-        border-style: solid;
-        border-width: 1px;
-        overflow: hidden;
-        word-break: normal;
-        border-color: #000;
-        color: #333;
-        background-color: #f0f0f0;
-        text-align: center;
-    }
-
-    .tg .tg-3wr7 {
-        font-weight: bold;
-        font-size: 12px;
-        font-family: "Arial", Helvetica, sans-serif !important;
-        ;
-        text-align: center
-    }
-
-    .tg .tg-ti5e {
-        font-size: 10px;
-        font-family: "Arial", Helvetica, sans-serif !important;
-        ;
-        text-align: center
-    }
-
-    .tg .tg-rv4w {
-        font-size: 10px;
-        font-family: "Arial", Helvetica, sans-serif !important;
-    }
-
-    .box {
-        background-color: white;
-        width: auto;
-        height: auto;
-        border: 1px solid black;
-        padding: 5px;
-        margin: 2px;
-    }
-
-    .tt td {
-        font-family: Arial;
-        font-size: 10px;
-        padding: 3px 3px;
-        border-width: 1px;
-        overflow: hidden;
-        word-break: normal;
-        border-color: #000;
-        color: #333;
-        background-color: #fff;
-    }
-
-    .tt th {
-        font-family: Arial;
-        font-size: 11px;
-        font-weight: bold;
-        padding: 3px 3px;
-        border-width: 1px;
-        overflow: hidden;
-        word-break: normal;
-        border-color: #000;
-        color: #333;
-        background-color: #f0f0f0;
-    }
-
-    .view-data {
-        /* width:100%; */
-        overflow-y:auto;
-        overflow-x:scroll;
-    }
-
-    @media print {
-
-        html,
-        body {
-            display: block;
-            font-family: "Tahoma";
-            margin: 0px 0px 0px 0px;
+    <style>
+        .float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            border-radius: 50px;
+            text-align: center;
+            box-shadow: 2px 2px 3px #999;
+            z-index: 100000;
         }
 
-        /*@page {
+        .my-float {
+            margin-top: 22px;
+        }
+
+        .tg {
+            border-collapse: collapse;
+            border-spacing: 0;
+            border-color: #ccc;
+            width: 100%;
+        }
+
+        .tg td {
+            font-family: Tahoma;
+            font-size: 13px;
+            padding: 3px 3px;
+            border-style: solid;
+            border-width: 1px;
+            overflow: hidden;
+            word-break: normal;
+            border-color: #000;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .tg th {
+            font-family: Tahoma;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 3px 3px;
+            border-style: solid;
+            border-width: 1px;
+            overflow: hidden;
+            word-break: normal;
+            border-color: #000;
+            color: #333;
+            background-color: #f0f0f0;
+        }
+
+        .tg .tg-3wr7 {
+            font-weight: bold;
+            font-size: 12px;
+            font-family: "Tahoma" !important;
+            text-align: center
+        }
+
+        .tg .tg-ti5e {
+            font-size: 10px;
+            font-family: "Tahoma" !important;
+            text-align: center
+        }
+
+        .tg .tg-rv4w {
+            font-size: 10px;
+            font-family: "Tahoma" !important;
+        }
+
+        .box {
+            background-color: white;
+            width: auto;
+            height: auto;
+            border: 1px solid black;
+            padding: 5px;
+            margin: 2px;
+        }
+
+        .tt td {
+            font-family: Tahoma;
+            font-size: 12px;
+            padding: 3px 3px;
+            border-width: 1px;
+            overflow: hidden;
+            word-break: normal;
+            border-color: #000;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .tt th {
+            font-family: Tahoma;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 3px 3px;
+            border-width: 1px;
+            overflow: hidden;
+            word-break: normal;
+            border-color: #000;
+            color: #333;
+            background-color: #f0f0f0;
+        }
+        .title {
+            font-family:"Tahoma";
+        }
+
+        @media print {
+
+            html,
+            body {
+                display: block;
+                font-family: "Tahoma";
+                margin: 0px 0px 0px 0px;
+            }
+
+            /*@page {
                 size: Faktur Besar;
                 }*/
-        #footer {
-            position: fixed;
-            bottom: 0;
+            #footer {
+                position: fixed;
+                bottom: 0;
+            }
+
         }
+    </style>
+    <section class="has-actions style-default">
+        <div class="section-body">
 
-    }
-</style>
-<section class="has-actions style-default">
-    <div class="section-body">
+            <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form_approval')); ?>
 
-        <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form_approval')); ?>
+            <div class="card">
+                <div class="card-head style-primary-dark">
+                    <header><?= PAGE_TITLE; ?></header>
+                </div>
 
-        <div class="card">
-            <div class="card-head style-primary-dark">
-                <header><?= PAGE_TITLE; ?></header>
-            </div>
+                <div class="card-body no-padding">
+                    <?php
+                    if ($this->session->flashdata('alert'))
+                        render_alert($this->session->flashdata('alert')['info'], $this->session->flashdata('alert')['type']);
+                    ?>
 
-            <div class="card-body no-padding">
-                <?php
-                if ($this->session->flashdata('alert'))
-                    render_alert($this->session->flashdata('alert')['info'], $this->session->flashdata('alert')['type']);
-                ?>
-
-                <div class="document-header force-padding">
-                    <div class="row">
-                        <div class="newoverlay" id="loadingScreen2" style="display: none;">
-                            <i class="fa fa-refresh fa-spin"></i>
-                        </div>
-                        <div class="col-xs-12">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div class="row">
-                                        <div class="col-xs-12 col-md-12">
-                                            <div class="pull-right">
-                                                <button type="button" class="btn btn-sm btn-primary btn-show-report" data-tipe="print">Show </button>
-                                                <button type="button" class="btn btn-sm btn-danger btn-print-report" data-tipe="print">Print</button>
-                                                <button type="button" class="btn btn-sm btn-info btn-print-report" data-tipe="excel">Excel</button>
+                    <div class="document-header force-padding">
+                        <div class="row">
+                            <div class="newoverlay" id="loadingScreen2" style="display: none;">
+                                <i class="fa fa-refresh fa-spin"></i>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-md-12">
+                                                <div class="pull-right">
+                                                    <button type="button" class="btn btn-sm btn-primary btn-show-report" data-tipe="print">Show </button>
+                                                    <button type="button" class="btn btn-sm btn-danger btn-print-report" data-tipe="print">Print</button>
+                                                    <button type="button" class="btn btn-sm btn-info btn-print-report" data-tipe="excel">Excel</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <hr>
+                                <div class="row">
+                                    <!-- <div class="table-responsive" id="view_data"> -->
+                                        <h3 style="text-align:center;"><?= $page['title'] ?></h3>
+                                        <div class="table-responsive">
+                                        <table class="tg" id="table-document">
+                                            <thead>
+                                                <tr>
+                                                    <th rowspan="2">CC Code</th>
+                                                    <th rowspan="2">CC Name</th>
+                                                    <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
+                                                    <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
+                                                    <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
+                                                    <th colspan="2">A vs B</th>
+                                                    <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
+                                                    <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
+                                                    <th colspan="2">A vs B</th>
+                                                    <?php endfor; ?>
+                                                    <th rowspan="2"><?= find_budget_setting('Active Year'); ?> (B)</th>
+                                                    <th colspan="2">Rest Of Budget</th>
+                                                </tr>
+                                                <tr>
+                                                    <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
+                                                    <th>Rp</th>
+                                                    <th>%</th>
+                                                    <th>Rp</th>
+                                                    <th>%</th>                                             
+                                                    <?php endfor; ?>
+                                                    <th>Rp</th>
+                                                    <th>%</th>    
+                                                </tr>
+                                            </thead>
+                                            <tbody id="listView">
+
+                                            </tbody>
+
+                                        </table>
+                                        </div>
+                                    <!-- </div> -->
+                                </div>
+
+
                             </div>
-                            <hr>
-                            <div class="row">
-                                <!-- <div class="table-responsive" id="view_data"> -->
-                                    <h3 style="text-align:center;"><?= $page['title'] ?></h3>
-                                    <div class="table-responsive">
-                                    <table class="tg" id="table-document">
-                                        <thead>
-                                            <tr>
-                                                <th rowspan="2">CC Code</th>
-                                                <th rowspan="2">CC Name</th>
-                                                <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
-                                                <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
-                                                <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                <th colspan="2">A vs B</th>
-                                                <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
-                                                <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                <th colspan="2">A vs B</th>
-                                                <?php endfor; ?>
-                                                <th rowspan="2"><?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                <th colspan="2">Rest Of Budget</th>
-                                            </tr>
-                                            <tr>
-                                                <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
-                                                <th>Rp</th>
-                                                <th>%</th>
-                                                <th>Rp</th>
-                                                <th>%</th>                                             
-                                                <?php endfor; ?>
-                                                <th>Rp</th>
-                                                <th>%</th>    
-                                            </tr>
-                                        </thead>
-                                        <tbody id="listView">
-
-                                        </tbody>
-
-                                    </table>
-                                    </div>
-                                <!-- </div> -->
-                            </div>
-
-
                         </div>
+                        <?= form_close(); ?>
                     </div>
-                    <?= form_close(); ?>
+                    
                 </div>
-                
             </div>
-        </div>
 
-</section>
+    </section>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
@@ -390,35 +383,13 @@
     }
 
     function get_po_for_print() {
-        // $("#loadingScreen2").attr("style", "display:block");
-
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: '<?= base_url() . "purchase_supplier_summary/get_po_for_print" ?>',
-        //     data: {
-        //         'currency': currency,
-        //         'vendor': suplier,
-        //         'date': date,
-        //         'tipe': tipe
-        //     },
-        //     cache: false,
-        //     success: function(response) {
-        //         // $("#loadingScreen2").attr("style", "display:none");
-        //         var data = jQuery.parseJSON(response);
-        //         window.open(data.info);
-        //     }
-        // });
 
         var data = {
-            'currency': currency,
-            'vendor': suplier,
-            'date': date,
             'tipe': tipe
 
         };
 
-        var urlPrint = '<?= base_url() ?>' + 'purchase_supplier_summary/get_po_for_print/' + tipe + '/' + currency + '/' + suplier + '/' + date;
+        var urlPrint = '<?= base_url() ?>' + 'expense_report_konsolidasi/get_data_for_print/'+tipe;
         window.open(urlPrint);
 
     }
