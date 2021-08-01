@@ -50,16 +50,4 @@ class Expense_Report_Konsolidasi extends MY_Controller
         $this->render_view($this->module['view'] . '/print', $this->data);
 
     }
-
-    public function print_report()
-    {
-        $vendor = $this->input->post('vendor');
-        $currency = $this->input->post('currency');
-        $date = $this->input->post('date');
-        $tipe = $this->input->post('tipe');
-        $items = $items = $this->model->getPurchaseItem($vendor, $currency, $date);
-        $this->data['items'] = $items;
-        $this->data['tipe'] = $tipe;
-        $this->load->view($this->module['view'] . '/print', $this->data);
-    }
 }

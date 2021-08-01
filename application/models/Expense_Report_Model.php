@@ -68,14 +68,55 @@ class Expense_Report_Model extends MY_Model
         }
 
         $query  = $this->connection->get('')->row()->sum;
-        // $row    = $query->unbuffered_row();
-        // if($select=='mtd_budget'){
-        //     $return = $row->mtd_budget;
-        // }elseif($select='ytd_budget'){
-        //     $return = $row->ytd_budget;
-        // }
 
         return $query;
+    }
+
+    function getExpenseBudgetDetail($annual_cost_center_id,$account_id, $month, $year,$select){
+        $this->connection->select('sum(mtd_budget)');
+        $this->connection->from('tb_expense_monthly_budgets');        
+        $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id); 
+        $this->connection->where('tb_expense_monthly_budgets.account_id', $account_id); 
+        if($select=='mtd_budget'){       
+            $this->connection->where('tb_expense_monthly_budgets.month_number', $month);
+        }elseif($select=='ytd_budget'){
+            $this->connection->where('tb_expense_monthly_budgets.month_number <=',$month);
+        }
+
+        $query  = $this->connection->get('')->row()->sum;
+
+        return $query;
+    }
+
+    public function getReportKonsolidasiDetail($year,$month,$view)
+    {
+        $accounts = $this->getAccounts();
+        $month = $month;
+        $year = $year;
+        
+        foreach ($accounts as $key => $account) {
+            $account_id = $account['id'];
+            $accounts[$key]['annual_cost_centers'] = get_annual_cost_centers($year,$view);
+            // $annual_cost_centers = get_annual_cost_centers($active_year,$view);
+            foreach ($accounts[$key]['annual_cost_centers'] as $i => $annual_cost_center) {
+                // $accounts[$key]['annual_cost_centers'][$i] = $annual_cost_center;
+                $annual_cost_center_id = $annual_cost_center['id'];                
+                $accounts[$key]['annual_cost_centers'][$i]['ytd_budget'] = $this->getExpenseBudgetDetail($annual_cost_center_id,$account_id,$month,$year,'ytd_budget');
+                $accounts[$key]['annual_cost_centers'][$i]['ytd_actual'] = 0;
+                // $accounts[$key]['annual_cost_centers'][$i]['ytd_budget'] = 99;
+            }
+        }
+
+        return $accounts;
+    }
+
+    public function getAccounts(){
+        $this->connection->select('*');
+        $this->connection->from('tb_accounts');
+        $this->connection->order_by('tb_accounts.account_code','asc');
+        $query = $this->connection->get();
+
+        return $query->result_array();
     }
 
 

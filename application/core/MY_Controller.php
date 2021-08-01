@@ -429,7 +429,7 @@ class MY_Controller extends CI_Controller
         break;
 
       case 3:
-      case 04:
+      case 03:
         $print = 'March';
         break;
 

@@ -50,6 +50,7 @@
             border-color: #000;
             color: #333;
             background-color: #f0f0f0;
+            text-align:center;
         }
 
         .tg .tg-3wr7 {
@@ -169,28 +170,26 @@
                                         <table class="tg" id="table-document">
                                             <thead>
                                                 <tr>
-                                                    <th rowspan="2">CC Code</th>
-                                                    <th rowspan="2">CC Name</th>
-                                                    <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
-                                                    <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
-                                                    <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                    <th colspan="2">A vs B</th>
-                                                    <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
-                                                    <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                    <th colspan="2">A vs B</th>
-                                                    <?php endfor; ?>
-                                                    <th rowspan="2"><?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                    <th colspan="2">Rest Of Budget</th>
+                                                    <th rowspan="3">Code</th>
+                                                    <th rowspan="3">Account Name</th>
+                                                    <th colspan="<?=$colspan;?>">YTD <?= getMonthName($month);?> <?= $year;?> (A)</th>
+                                                    <th colspan="<?=$colspan;?>">YTD <?= getMonthName($month);?> <?= $year;?> (B)</th>
                                                 </tr>
                                                 <tr>
-                                                    <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
-                                                    <th>Rp</th>
-                                                    <th>%</th>
-                                                    <th>Rp</th>
-                                                    <th>%</th>                                             
-                                                    <?php endfor; ?>
-                                                    <th>Rp</th>
-                                                    <th>%</th>    
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['cost_center_code']?></th>
+                                                    <?php endforeach; ?>
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['cost_center_code']?></th>
+                                                    <?php endforeach; ?>
+                                                </tr>
+                                                <tr>
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['department_code']?></th>
+                                                    <?php endforeach; ?>
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['department_code']?></th>
+                                                    <?php endforeach; ?>
                                                 </tr>
                                             </thead>
                                             <tbody id="listView">
@@ -360,7 +359,7 @@
         $("#loadingScreen2").attr("style", "display:block");
         $.ajax({
             type: "POST",
-            url: '<?= base_url() . "expense_report_konsolidasi/get_data" ?>',
+            url: '<?= base_url() . "expense_report_konsolidasi_detail/get_data" ?>',
             data: {
                 'currency': currency,
                 'vendor': suplier,
@@ -389,7 +388,7 @@
 
         };
 
-        var urlPrint = '<?= base_url() ?>' + 'expense_report_konsolidasi/get_data_for_print/'+tipe;
+        var urlPrint = '<?= base_url() ?>' + 'expense_report_konsolidasi_detail/get_data_for_print/'+tipe;
         window.open(urlPrint);
 
     }
