@@ -108,6 +108,12 @@
         background-color: #f0f0f0;
     }
 
+    .view-data {
+        /* width:100%; */
+        overflow-y:auto;
+        overflow-x:scroll;
+    }
+
     @media print {
 
         html,
@@ -164,9 +170,10 @@
                             </div>
                             <hr>
                             <div class="row">
-                                <div class=" document-data table-responsive" id="view_data">
+                                <!-- <div class="table-responsive" id="view_data"> -->
                                     <h3 style="text-align:center;"><?= $page['title'] ?></h3>
-                                    <table class="tg" id="table-document" width="100%">
+                                    <div class="table-responsive">
+                                    <table class="tg" id="table-document">
                                         <thead>
                                             <tr>
                                                 <th rowspan="2">CC Code</th>
@@ -198,7 +205,8 @@
                                         </tbody>
 
                                     </table>
-                                </div>
+                                    </div>
+                                <!-- </div> -->
                             </div>
 
 
