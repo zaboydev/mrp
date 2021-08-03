@@ -105,30 +105,43 @@ class Goods_Received_Note_Model extends MY_Model
 
   private function searchIndex()
   {
-    if (!empty($_POST['columns'][2]['search']['value'])) {
-      $search_received_date = $_POST['columns'][2]['search']['value'];
+    if (!empty($_POST['columns'][1]['search']['value'])) {
+      $search_received_date = $_POST['columns'][1]['search']['value'];
       $range_received_date  = explode(' ', $search_received_date);
 
       $this->db->where('tb_receipts.received_date >= ', $range_received_date[0]);
       $this->db->where('tb_receipts.received_date <= ', $range_received_date[1]);
     }
 
-    if (!empty($_POST['columns'][3]['search']['value'])) {
-      $search_category = $_POST['columns'][3]['search']['value'];
+    if (!empty($_POST['columns'][2]['search']['value'])) {
+      $search_category = $_POST['columns'][2]['search']['value'];
 
       $this->db->where('tb_receipts.category', $search_category);
     }
 
-    if (!empty($_POST['columns'][4]['search']['value'])) {
-      $search_warehouse = $_POST['columns'][4]['search']['value'];
+    if (!empty($_POST['columns'][3]['search']['value'])) {
+      $search_warehouse = $_POST['columns'][3]['search']['value'];
 
       $this->db->where('tb_receipts.warehouse', $search_warehouse);
     }
 
-    if (!empty($_POST['columns'][5]['search']['value'])) {
-      $search_description = $_POST['columns'][5]['search']['value'];
+    if (!empty($_POST['columns'][4]['search']['value'])) {
+      $search_description = $_POST['columns'][4]['search']['value'];
 
       $this->db->like('UPPER(tb_master_items.description)', strtoupper($search_description));
+    }
+
+    if (!empty($_POST['columns'][5]['search']['value'])) {
+      $reference_po = $_POST['columns'][5]['search']['value'];
+      if($reference_po!='all'){
+        if($reference_po=='yes'){
+          $where = "tb_receipt_items.purchase_order_item_id is NOT NULL";
+          $this->db->where($where);
+        }else{
+          $where = "tb_receipt_items.purchase_order_item_id is NULL";
+          $this->db->where($where);
+        }
+      }
     }
 
     if (!empty($_POST['columns'][6]['search']['value'])) {
@@ -137,14 +150,14 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->like('UPPER(tb_master_items.part_number)', strtoupper($search_part_number));
     }
 
-    if (!empty($_POST['columns'][9]['search']['value'])) {
-      $search_condition = $_POST['columns'][9]['search']['value'];
+    if (!empty($_POST['columns'][7]['search']['value'])) {
+      $search_condition = $_POST['columns'][7]['search']['value'];
 
       $this->db->like('UPPER(tb_stocks.condition)', strtoupper($search_condition));
     }
 
-    if (!empty($_POST['columns'][15]['search']['value'])) {
-      $search_received_from = $_POST['columns'][15]['search']['value'];
+    if (!empty($_POST['columns'][8]['search']['value'])) {
+      $search_received_from = $_POST['columns'][8]['search']['value'];
 
       $this->db->like('UPPER(tb_receipts.received_from)', strtoupper($search_received_from));
     }
