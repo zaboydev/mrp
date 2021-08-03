@@ -24,11 +24,11 @@
                 <div class="input-group">
                   <!--<span class="input-group-addon" name="document_number"><?= order_format_number(); ?></span>-->
                   <div class="input-group-content">
-                    <input type="text" name="format_number" id="format_number" class="form-control" maxlength="6" value="<?= $_SESSION['order']['format_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_format_number'); ?>" required>
+                    <input readonly type="text" name="format_number" id="format_number" class="form-control" maxlength="6" value="<?= $_SESSION['order']['format_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_format_number'); ?>" required>
                     <label for="document_number">Document No.</label>
                   </div>
                   <div class="input-group-content">
-                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="7" value="<?= $_SESSION['order']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
+                    <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="7" value="<?= $_SESSION['order']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
                     <!-- <label for="document_number">Document No.</label> -->
                   </div>
 

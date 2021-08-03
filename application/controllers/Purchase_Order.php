@@ -480,7 +480,7 @@ class Purchase_Order extends MY_Controller
       $x++;
     }
     if ($success > 0) {
-      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+      // $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
         'info' => $success . " data has been update!"
@@ -764,13 +764,19 @@ class Purchase_Order extends MY_Controller
     // if ($category !== NULL){
     $item       = $this->model->findItemPoe($vendor_id);
     $order      = $this->model->findPoe($vendor_id);
+    $deliver    = getDefaultDeliveryTo();
+
     $category   = urldecode('SPARE PART');
-    $company    = find_budget_setting('Company Name', 'head company');
-    $address    = nl2br(find_budget_setting('Address', 'head company'));
-    $country    = 'INDONESIA';
+    $deliver_company    = $deliver['warehouse'];
+    $deliver_address = $deliver['address'];
+    $deliver_country = $deliver['country'];
+
+    $bill       = getDefaultBillTo();
+    $bill_company    = nl2br($bill['warehouse']);
+    $bill_address    = nl2br($bill['address']);
+    $bill_country    = $bill['country'];
     $phone      = find_budget_setting('Phone No', 'head company');
     $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
-    $deliver_address = 'Bandara Letkol Wisnu Desa Sumberkima, Gerokgak, Singaraja, Bali 80111';
 
     if (isset($_SESSION['order']) === FALSE) {
       $_SESSION['order']['items']               = $item;
@@ -779,7 +785,7 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
       $_SESSION['order']['format_number']       = order_format_number();
-      $_SESSION['order']['document_number']     = order_last_number($_SESSION['order']['format_number']);
+      $_SESSION['order']['document_number']     = order_last_number('POM');
       $_SESSION['order']['wom_document_number']     = order_last_number('WOM');
       $_SESSION['order']['pom_document_number']     = order_last_number('POM');
       $_SESSION['order']['document_date']       = date('Y-m-d');
@@ -788,14 +794,14 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['vendor_country']      = $order['vendor_country'];
       $_SESSION['order']['vendor_phone']        = $order['vendor_phone'];
       $_SESSION['order']['vendor_attention']    = $order['vendor_attention'];
-      $_SESSION['order']['deliver_company']     = $company;
+      $_SESSION['order']['deliver_company']     = $deliver_company;
       $_SESSION['order']['deliver_address']     = $deliver_address;
-      $_SESSION['order']['deliver_country']     = 'INDONESIA';
+      $_SESSION['order']['deliver_country']     = $deliver_country;
       $_SESSION['order']['deliver_phone']       = $phone;
       $_SESSION['order']['deliver_attention']   = $attention;
-      $_SESSION['order']['bill_company']        = $company;
-      $_SESSION['order']['bill_address']        = $address;
-      $_SESSION['order']['bill_country']        = 'INDONESIA';
+      $_SESSION['order']['bill_company']        = $bill_company;
+      $_SESSION['order']['bill_address']        = $bill_address;
+      $_SESSION['order']['bill_country']        = $bill_country;
       $_SESSION['order']['bill_phone']          = $phone;
       $_SESSION['order']['bill_attention']      = $attention;
       $_SESSION['order']['reference_quotation'] = NULL;
@@ -822,6 +828,7 @@ class Purchase_Order extends MY_Controller
     //   redirect($this->module['route']);
 
     // $this->data['page']['content'] = $this->module['view'] .'/create';
+    $this->data['page']['title']            = "Create Purchase Order";
 
     $this->render_view($this->module['view'] . '/create');
   }
@@ -935,10 +942,10 @@ class Purchase_Order extends MY_Controller
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
       if($_SESSION['order']['format_number']=='POM') {
-        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
+        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
       }
       if ($_SESSION['order']['format_number'] == 'WOM') {
-        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
+        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
       }
 
 

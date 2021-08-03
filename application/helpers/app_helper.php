@@ -1594,6 +1594,83 @@ if ( ! function_exists('getYearNumber')) {
   }
 }
 
+if ( ! function_exists('getDeliveryTo')) {
+  function getDeliveryTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select(array('warehouse','address','country'));
+    $CI->db->from('tb_delivery_to');
+    $CI->db->where('status','AVAILABLE');
+
+    $query = $CI->db->get();
+    $result = $query->result_array();
+
+    return $result;
+  }
+}
+
+if ( ! function_exists('getWarehouseByName')) {
+  function getWarehouseByName($warehouse)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('*');
+    $CI->db->from( 'tb_master_warehouses' );
+    $CI->db->where('tb_master_warehouses.warehouse', $warehouse);
+
+    $query    = $CI->db->get();
+    $warehosue = $query->unbuffered_row('array');
+    return $warehosue;
+  }
+}
+
+if ( ! function_exists('getBillTo')) {
+  function getBillTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select(array('warehouse','address','country'));
+    $CI->db->from('tb_bill_to');
+    $CI->db->where('status','AVAILABLE');
+
+    $query = $CI->db->get();
+    $result = $query->result_array();
+
+    return $result;
+  }
+}
+
+if ( ! function_exists('getDefaultDeliveryTo')) {
+  function getDefaultDeliveryTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('*');
+    $CI->db->from( 'tb_delivery_to' );
+    $CI->db->where('tb_delivery_to.is_default', 'yes');
+
+    $query    = $CI->db->get();
+    $warehosue = $query->unbuffered_row('array');
+    return $warehosue;
+  }
+}
+
+if ( ! function_exists('getDefaultBillTo')) {
+  function getDefaultBillTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('*');
+    $CI->db->from( 'tb_bill_to' );
+    $CI->db->where('tb_bill_to.is_default', 'yes');
+
+    $query    = $CI->db->get();
+    $warehosue = $query->unbuffered_row('array');
+    return $warehosue;
+  }
+}
+
 }
 
     
