@@ -41,12 +41,12 @@
 <div class="form force-padding">
   <div class="form-group">
     <label for="filter_received_date">Received Date</label>
-    <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
+    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
   </div>
 
   <div class="form-group">
     <label for="filter_item_group">Category</label>
-    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
+    <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_item_category">
       <option value="">
         Not filtered
       </option>
@@ -61,7 +61,7 @@
 
   <div class="form-group">
     <label for="filter_warehouse">Base</label>
-    <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_warehouse">
+    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_warehouse">
       <option value="">
         Not filtered
       </option>
@@ -76,7 +76,7 @@
 
   <div class="form-group">
     <label for="filter_condition">Condition</label>
-    <select class="form-control input-sm filter_dropdown" data-column="9" id="filter_condition">
+    <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_condition">
       <option value="">
         SERVICEABLE
       </option>
@@ -92,18 +92,33 @@
   </div>
 
   <div class="form-group">
+    <label for="filter_condition">Reference PO/WO ?</label>
+    <select class="form-control input-sm filter_dropdown" data-column="5" id="filter_condition">
+      <option value="all">
+        All
+      </option>
+      <option value="yes">
+        Yes
+      </option>
+      <option value="no">
+        No
+      </option>      
+    </select>
+  </div>
+
+  <div class="form-group">
     <label for="filter_description">Description</label>
-    <input type="text" class="form-control input-sm filter_numeric_text" data-column="5" id="filter_description">
+    <input type="text" class="form-control input-sm filter_numeric_text" data-column="6" id="filter_description">
   </div>
 
   <div class="form-group">
     <label for="filter_part_number">Part Number</label>
-    <input type="text" class="form-control input-sm filter_numeric_text" data-column="6" id="filter_part_number">
+    <input type="text" class="form-control input-sm filter_numeric_text" data-column="7" id="filter_part_number">
   </div>
 
   <div class="form-group">
     <label for="filter_received_from">Received From</label>
-    <input type="text" class="form-control input-sm filter_numeric_text" data-column="15" id="filter_received_from">
+    <input type="text" class="form-control input-sm filter_numeric_text" data-column="8" id="filter_received_from">
   </div>
 </div>
 <?php endblock() ?>
