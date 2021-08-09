@@ -841,10 +841,10 @@ class Inventory_Purchase_Order_Model extends MY_Model
   public function save_po()
   {
     if ($_SESSION['order']['format_number'] == 'POM') {
-      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
     }
     if ($_SESSION['order']['format_number'] == 'WOM') {
-      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
     }
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];

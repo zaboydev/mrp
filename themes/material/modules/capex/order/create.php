@@ -140,7 +140,14 @@
 
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
-                <input type="text" name="deliver_company" id="deliver_company" class="form-control" value="<?= $_SESSION['order']['deliver_company']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_deliver_company'); ?>" required>
+                <select name="deliver_company" id="deliver_company" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_deliver_company/'); ?>" required>
+                  <option value="">-- SELECT DELIVER TO</option>
+                  <?php foreach (getDeliveryTo() as $base) : ?>
+                    <option data-country="<?= $base['country']; ?>" data-address="<?= $base['address']; ?>" value="<?= $base['warehouse']; ?>" <?= ($base['warehouse'] == $_SESSION['order']['deliver_company']) ? 'selected' : ''; ?>>
+                      <?= $base['warehouse']; ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
                 <label for="deliver_company">Deliver To</label>
               </div>
 
@@ -170,7 +177,14 @@
 
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
-                <input type="text" name="bill_company" id="bill_company" class="form-control" value="<?= $_SESSION['order']['bill_company']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_bill_company'); ?>" required>
+                <select name="bill_company" id="bill_company" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_bill_company/'); ?>" required>
+                  <option value="">-- SELECT DELIVER TO</option>
+                  <?php foreach (getBillTo() as $bill) : ?>
+                    <option data-country="<?= $bill['country']; ?>" data-address="<?= $bill['address']; ?>" value="<?= $bill['warehouse']; ?>" <?= ($bill['warehouse'] == $_SESSION['order']['bill_company']) ? 'selected' : ''; ?>>
+                      <?= $bill['warehouse']; ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
                 <label for="bill_company">Bill To</label>
               </div>
 
@@ -755,13 +769,29 @@
       var format = $(this).val();
       if (format == 'POM') {
         var number = $('#pom_number').val();
-        <?php $_SESSION['order']['document_number'] = $_SESSION['order']['pom_document_number']; ?>
       }
       if(format == 'WOM') {
         var number = $('#wom_number').val();
-        <?php $_SESSION['order']['document_number'] = $_SESSION['order']['wom_document_number']; ?>
       }
-      $('#document_number').val(number);
+      $('#document_number').val(number).trigger('change');
+
+    });
+
+    $('#deliver_company').on('change', function() {
+      var base = $(this).val();
+      var address = $('[name="deliver_company"] option:selected').data('address');
+      var country = $('[name="deliver_company"] option:selected').data('country');
+      $('#deliver_address').val(address).trigger('change');
+      $('#deliver_country').val(country).trigger('change');
+
+    });
+
+    $('#bill_company').on('change', function() {
+      var base = $(this).val();
+      var address = $('[name="bill_company"] option:selected').data('address');
+      var country = $('[name="bill_company"] option:selected').data('country');
+      $('#bill_address').val(address).trigger('change');
+      $('#bill_country').val(country).trigger('change');
 
     });
 
