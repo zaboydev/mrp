@@ -71,8 +71,9 @@
 
               <div class="form-group">
                 <select name="default_currency" id="default_currency" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_default_currency'); ?>" required>
-                  <option value="USD" <?= ('USD' == $_SESSION['order']['default_currency']) ? 'selected' : ''; ?>>USD (US Dolar)</option>
-                  <option value="IDR" <?= ('IDR' == $_SESSION['order']['default_currency']) ? 'selected' : ''; ?>>IDR (Indonesian Rupiah)</option>
+                  <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+                  <option value="<?=$key?>" <?= ($key == $_SESSION['order']['default_currency']) ? 'selected' : ''; ?>><?=$value?></option>
+                  <?php endforeach; ?>
                 </select>
                 <label for="default_currency">Currency</label>
               </div>

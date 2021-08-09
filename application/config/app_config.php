@@ -12,7 +12,7 @@ $config['condition'] = array(
   'UNSERVICEABLE',
   'REJECTED',
   // 'ALL'       => 'All Condition',
-  );
+);
 
 $config['document_type'] = array(
   'GRN'   => 'Goods Received Note',
@@ -24,3 +24,10 @@ $config['document_type'] = array(
   'PO'    => 'Purchase Order',
   'POE'   => 'Purchase Order Evaluation',
   );
+
+$config['currency'] = array(
+  'USD' => 'USD',
+  'IDR' => 'IDR',
+  'AUD' => 'AUD',
+  // 'ALL'       => 'All Condition',
+);
