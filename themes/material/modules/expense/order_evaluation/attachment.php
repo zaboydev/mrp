@@ -2,7 +2,7 @@
 <?php startblock('body') ?>
 <div class="container">
 
-  <h4 class="page-header">Attachment</h4>
+  <h4 class="page-header">Attachment Contoh Barang</h4>
   
   <form id="form_add_vendor" id="inputForm" class="form" role="form" method="post" enctype="multipart/form-data" action="<?=site_url($module['route'] .'/add_attachment');?>">
     <div class="row">

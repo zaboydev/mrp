@@ -102,7 +102,7 @@ class Capex_Request extends MY_Controller
                 }
                 $col[] = print_string($row['pr_number']);
                 $col[] = print_string(strtoupper($row['status']));
-                $col[] = print_string($row['department_name']);
+                // $col[] = print_string($row['department_name']);
                 $col[] = print_string($row['cost_center_name']);
                 $col[] = print_date($row['pr_date']);
                 $col[] = print_date($row['required_date']);
@@ -162,7 +162,7 @@ class Capex_Request extends MY_Controller
             3   => array( 0 => 4,  1 => 'asc' ),
             4   => array( 0 => 5,  1 => 'asc' ),
             5   => array( 0 => 6,  1 => 'asc' ),
-            6   => array( 0 => 8,  1 => 'asc' ),
+            // 6   => array( 0 => 8,  1 => 'asc' ),
             // 7   => array( 0 => 8,  1 => 'asc' ),
             
         );

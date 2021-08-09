@@ -100,7 +100,7 @@
         <div class="card-actionbar-row">
           <div class="pull-left">
             <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
-              Add Item
+              Add Akun
             </a>
             <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
               Attachment

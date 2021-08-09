@@ -23,7 +23,7 @@ class Capex_Request_Model extends MY_Model
             'tb_capex_purchase_requisitions.id'                         => NULL,
             'tb_capex_purchase_requisitions.pr_number'                  => 'Document Number',
             'tb_capex_purchase_requisitions.status'                     => 'Status',
-            'tb_departments.department_name'                            => 'Department Name',
+            // 'tb_departments.department_name'                            => 'Department Name',
             'tb_cost_centers.cost_center_name'                          => 'Cost Center',
             'tb_capex_purchase_requisitions.pr_date'                    => 'Document Date',
             'tb_capex_purchase_requisitions.required_date'              => 'Required Date',
@@ -44,7 +44,7 @@ class Capex_Request_Model extends MY_Model
             'tb_capex_purchase_requisitions.pr_date',
             'tb_capex_purchase_requisitions.required_date',
             'tb_capex_purchase_requisitions.notes',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_capex_purchase_requisitions.approved_notes'
             // 'SUM(tb_capex_purchase_requisition_detail.total) as total_capex'
         );
@@ -60,7 +60,7 @@ class Capex_Request_Model extends MY_Model
             // 'tb_capex_purchase_requisitions.pr_date',
             // 'tb_capex_purchase_requisitions.required_date',
             'tb_capex_purchase_requisitions.notes',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_capex_purchase_requisitions.approved_notes'
         );
     }
@@ -71,7 +71,7 @@ class Capex_Request_Model extends MY_Model
             null,
             'tb_capex_purchase_requisitions.pr_number',
             'tb_capex_purchase_requisitions.status',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_cost_centers.cost_center_name',
             'tb_capex_purchase_requisitions.pr_date',
             'tb_capex_purchase_requisitions.required_date',

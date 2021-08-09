@@ -1539,6 +1539,138 @@ if ( ! function_exists('getMonthName')) {
   }
 }
 
+if ( ! function_exists('get_annual_cost_centers')) {
+  function get_annual_cost_centers($year,$tipe)
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    if ($tipe!='all'){
+      $connection->select(array('tb_annual_cost_centers.id','tb_cost_centers.cost_center_name','tb_cost_centers.cost_center_code','tb_departments.department_code'));
+      $connection->from('tb_users_mrp_in_annual_cost_centers');
+      $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+      $connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $connection->join('tb_departments','tb_cost_centers.department_id=tb_departments.id');
+      $connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
+      $connection->where('tb_annual_cost_centers.year_number', $year);
+      $connection->order_by('tb_cost_centers.id', 'ASC');
+    } else {
+      $connection->select(array('tb_annual_cost_centers.id','tb_cost_centers.cost_center_name','tb_cost_centers.cost_center_code','tb_departments.department_code'));
+      $connection->from('tb_annual_cost_centers');
+      // $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+      $connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $connection->join('tb_departments','tb_cost_centers.department_id=tb_departments.id');
+      $connection->where('tb_annual_cost_centers.year_number', $year);
+      $connection->order_by('tb_cost_centers.id', 'ASC');
+    }
+
+    $query  = $connection->get();
+    $return = $query->result_array();
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getYearNumber')) {
+  function getYearNumber()
+  {
+    $CI =& get_instance();
+    $connection = $CI->load->database('budgetcontrol', TRUE);
+
+    $connection->select('year_number');
+    $connection->from('tb_annual_cost_centers');
+    $connection->group_by('year_number');
+    $connection->order_by('year_number','asc');
+
+    $query  = $connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['year_number'];
+    }
+
+    return $return;
+  }
+}
+
+if ( ! function_exists('getDeliveryTo')) {
+  function getDeliveryTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select(array('warehouse','address','country'));
+    $CI->db->from('tb_delivery_to');
+    $CI->db->where('status','AVAILABLE');
+
+    $query = $CI->db->get();
+    $result = $query->result_array();
+
+    return $result;
+  }
+}
+
+if ( ! function_exists('getWarehouseByName')) {
+  function getWarehouseByName($warehouse)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('*');
+    $CI->db->from( 'tb_master_warehouses' );
+    $CI->db->where('tb_master_warehouses.warehouse', $warehouse);
+
+    $query    = $CI->db->get();
+    $warehosue = $query->unbuffered_row('array');
+    return $warehosue;
+  }
+}
+
+if ( ! function_exists('getBillTo')) {
+  function getBillTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select(array('warehouse','address','country'));
+    $CI->db->from('tb_bill_to');
+    $CI->db->where('status','AVAILABLE');
+
+    $query = $CI->db->get();
+    $result = $query->result_array();
+
+    return $result;
+  }
+}
+
+if ( ! function_exists('getDefaultDeliveryTo')) {
+  function getDefaultDeliveryTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('*');
+    $CI->db->from( 'tb_delivery_to' );
+    $CI->db->where('tb_delivery_to.is_default', 'yes');
+
+    $query    = $CI->db->get();
+    $warehosue = $query->unbuffered_row('array');
+    return $warehosue;
+  }
+}
+
+if ( ! function_exists('getDefaultBillTo')) {
+  function getDefaultBillTo()
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('*');
+    $CI->db->from( 'tb_bill_to' );
+    $CI->db->where('tb_bill_to.is_default', 'yes');
+
+    $query    = $CI->db->get();
+    $warehosue = $query->unbuffered_row('array');
+    return $warehosue;
+  }
+}
+
 }
 
     

@@ -174,52 +174,58 @@ if ($tipe == 'excel') {
                 <div class="portlet light ">
                     <table class="tg" width="100%">
                         <thead>
-                                            <tr>
-                                                <th rowspan="2">CC Code</th>
-                                                <th rowspan="2">CC Name</th>
-                                                <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
-                                                <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
-                                                <th rowspan="2"><?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                <th colspan="2">A vs B</th>
-                                                <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (A)</th>
-                                                <th rowspan="2">Ytd <?= getMonthName($i);?> <?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                <th colspan="2">A vs B</th>
-                                                <?php endfor; ?>
-                                                <th rowspan="2"><?= find_budget_setting('Active Year'); ?> (B)</th>
-                                                <th colspan="2">Rest Of Budget</th>
-                                            </tr>
-                                            <tr>
-                                                <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>
-                                                <th>Rp</th>
-                                                <th>%</th>
-                                                <th>Rp</th>
-                                                <th>%</th>                                             
-                                                <?php endfor; ?>
-                                                <th>Rp</th>
-                                                <th>%</th>    
-                                            </tr>
+                                                <tr>
+                                                    <th rowspan="3">Code</th>
+                                                    <th rowspan="3">Account Name</th>
+                                                    <th colspan="<?=$colspan;?>">YTD <?= getMonthName($month);?> <?= $year;?> (A)</th>
+                                                    <th colspan="<?=$colspan;?>">YTD <?= getMonthName($month);?> <?= $year;?> (B)</th>
+                                                </tr>
+                                                <tr>
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['cost_center_code']?></th>
+                                                    <?php endforeach; ?>
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['cost_center_code']?></th>
+                                                    <?php endforeach; ?>
+                                                </tr>
+                                                <tr>
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['department_code']?></th>
+                                                    <?php endforeach; ?>
+                                                    <?php foreach ($cost_centers as $key => $cost_center) : ?>
+                                                    <th><?=$cost_center['department_code']?></th>
+                                                    <?php endforeach; ?>
+                                                </tr>
                         </thead>
                         <tbody id="listView">
-                            <?php foreach ($items as $i => $cost_center) : ?>
+                            <?php foreach ($items as $i => $account) : ?>
                             <tr>
-                                <td><?= $cost_center['cc_code'];?></td>
-                                <td><?= $cost_center['cost_center_name'];?></td>
-                                <?php for ($i=1;$i<=find_budget_setting('Active Month');$i++) : ?>    
-                                <td><?= print_number($cost_center[$i.'-actual']);?></td>
-                                <td><?= print_number($cost_center[$i.'-budget']);?></td> 
-                                <td><?= print_number($cost_center[$i.'-mtd-ab-rp']);?></td> 
-                                <td><?= print_number($cost_center[$i.'-mtd-ab-persen']);?>%</td> 
-                                <td><?= print_number($cost_center[$i.'-ytd-actual']);?></td> 
-                                <td><?= print_number($cost_center[$i.'-ytd-budget']);?></td> 
-                                <td><?= print_number($cost_center[$i.'-ytd-ab-rp']);?></td> 
-                                <td><?= print_number($cost_center[$i.'-ytd-ab-persen']);?>%</td> 
-                                <?php endfor; ?>
-                                <td><?= print_number($cost_center['budget_year']);?></td>
-                                <td><?= print_number($cost_center['budget_rest']);?></td>
-                                <td><?= print_number($cost_center['budget_rest_persen']);?>%</td>
+                                <td><?= $account['account_code'];?></td>
+                                <td><?= $account['account_name'];?></td>
+                                <?php foreach ($account['annual_cost_centers'] as $i => $cost_center) : ?>
+                                <td><?= print_number($cost_center['ytd_actual']);?></td>
+                                <?php
+                                    $total_actual[$cost_center['id']][] = $cost_center['ytd_actual'];
+                                ?>
+                                <?php endforeach; ?>
+                                <?php foreach ($account['annual_cost_centers'] as $i => $cost_center) : ?>
+                                <td><?= print_number($cost_center['ytd_budget']);?></td>
+                                <?php
+                                    $total_budget[$cost_center['id']][] = $cost_center['ytd_budget'];
+                                ?>
+                                <?php endforeach; ?>
                             </tr>
-
                             <?php endforeach; ?>
+
+                            <tr>
+                                <th colspan="2">Total</th>
+                                <?php foreach ($account['annual_cost_centers'] as $i => $cost_center) : ?>
+                                <th><?= print_number(array_sum($total_actual[$cost_center['id']]))?></th>
+                                <?php endforeach; ?>
+                                <?php foreach ($account['annual_cost_centers'] as $i => $cost_center) : ?>
+                                <th><?= print_number(array_sum($total_budget[$cost_center['id']]))?></th>
+                                <?php endforeach; ?>
+                            </tr>
                         </tbody>
 
                     </table>

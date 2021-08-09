@@ -82,6 +82,7 @@ require('modules/expense_order_evaluation.php');
 require('modules/expense_purchase_order.php');
 require('modules/expense_closing_payment.php');
 require('modules/expense_report_konsolidasi.php');
+require('modules/expense_report_konsolidasi_detail.php');
 
 //PROCUREMENT
 require('modules/purchase_request.php');

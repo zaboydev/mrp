@@ -23,7 +23,7 @@ class Expense_Request_Model extends MY_Model
             'tb_expense_purchase_requisitions.id'                               => NULL,
             'tb_expense_purchase_requisitions.pr_number'                        => 'Document Number',
             'tb_expense_purchase_requisitions.status'                           => 'Status',
-            'tb_departments.department_name'                                    => 'Department Name',
+            // 'tb_departments.department_name'                                    => 'Department Name',
             'tb_cost_centers.cost_center_name'                                  => 'Cost Center',
             'tb_expense_purchase_requisitions.pr_date'                          => 'Pr Date',
             'tb_expense_purchase_requisitions.required_date'                    => 'Required Date',
@@ -45,7 +45,7 @@ class Expense_Request_Model extends MY_Model
             // 'tb_expense_purchase_requisition_details.total',
             'tb_expense_purchase_requisitions.notes',
             'tb_expense_purchase_requisitions.status',
-            'tb_departments.department_name'
+            // 'tb_departments.department_name'
         );
     }
 
@@ -61,7 +61,7 @@ class Expense_Request_Model extends MY_Model
             // 'tb_expense_purchase_requisition_detail.total',
             'tb_expense_purchase_requisitions.notes',
             'tb_expense_purchase_requisitions.status',
-            'tb_departments.department_name'
+            // 'tb_departments.department_name'
         );
     }
 
@@ -72,7 +72,7 @@ class Expense_Request_Model extends MY_Model
             // 'tb_expense_purchase_requisitions.id',
             'tb_expense_purchase_requisitions.pr_number',
             'tb_expense_purchase_requisitions.status',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_cost_centers.cost_center_name',
             'tb_expense_purchase_requisitions.pr_date',
             'tb_expense_purchase_requisitions.required_date',

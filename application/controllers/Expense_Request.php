@@ -92,7 +92,7 @@ class Expense_Request extends MY_Controller
                 }
                 $col[] = print_string($row['pr_number']);
                 $col[] = print_string(strtoupper($row['status']));
-                $col[] = print_string(strtoupper($row['department_name']));
+                // $col[] = print_string(strtoupper($row['department_name']));
                 $col[] = print_string($row['cost_center_name']);
                 $col[] = print_date($row['pr_date']);
                 $col[] = print_date($row['required_date']);
@@ -120,7 +120,7 @@ class Expense_Request extends MY_Controller
                 "recordsFiltered" => $this->model->countIndexFiltered(),
                 "data" => $data,
                 "total" => array(
-                    7  => print_number(array_sum($total), 2),
+                    6  => print_number(array_sum($total), 2),
                 )
             );
         }
@@ -136,7 +136,7 @@ class Expense_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(7);
+        $this->data['grid']['summary_columns']  = array(6);
         $this->data['grid']['order_columns']    = array(
             0   => array( 0 => 1,  1 => 'desc' ),
             1   => array( 0 => 2,  1 => 'desc' ),
@@ -145,7 +145,7 @@ class Expense_Request extends MY_Controller
             4   => array( 0 => 5,  1 => 'asc' ),
             5   => array( 0 => 6,  1 => 'asc' ),
             6   => array( 0 => 7,  1 => 'asc' ),
-            7   => array( 0 => 8,  1 => 'asc' ),
+            // 7   => array( 0 => 8,  1 => 'asc' ),
             // 7   => array( 0 => 8,  1 => 'asc' ),
             
         );
