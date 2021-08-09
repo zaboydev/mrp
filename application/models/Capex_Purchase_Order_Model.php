@@ -208,6 +208,13 @@ class Capex_Purchase_Order_Model extends MY_Model
       }
     }
 
+    if (!empty($_POST['columns'][5]['search']['value'])) {
+      $currency = $_POST['columns'][5]['search']['value'];
+      if ($currency != 'all') {
+        $this->db->where('tb_po.default_currency', $currency);
+      }
+    }
+
     $i = 0;
 
     foreach ($this->getSearchableColumns() as $item) {

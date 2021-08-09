@@ -769,11 +769,9 @@
       var format = $(this).val();
       if (format == 'POM') {
         var number = $('#pom_number').val();
-        <?php $_SESSION['order']['document_number'] = $_SESSION['order']['pom_document_number']; ?>
       }
       if(format == 'WOM') {
         var number = $('#wom_number').val();
-        <?php $_SESSION['order']['document_number'] = $_SESSION['order']['wom_document_number']; ?>
       }
       $('#document_number').val(number).trigger('change');
 
