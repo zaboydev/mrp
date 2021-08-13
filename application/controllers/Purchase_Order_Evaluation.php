@@ -475,13 +475,15 @@ class Purchase_Order_Evaluation extends MY_Controller
       }
     }
     if ($success > 0) {
+      if($this->config->item('access_from')!='localhost'){
+        $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+      }
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
         'info' => $success . " data has been update!"
       ));
     }
     if ($failed > 0) {
-      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
         'type' => 'danger',
         'info' => "There are " . $failed . " errors"
@@ -644,6 +646,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     $this->authorized($this->module, 'document');
 
     $this->data['entities'] = $this->model->listRequest($_SESSION['poe']['category']);
+    $this->data['page']['title']            = 'Add Request';
 
     $this->render_view($this->module['view'] . '/add_request');
   }
@@ -846,6 +849,7 @@ class Purchase_Order_Evaluation extends MY_Controller
   public function add_vendor()
   {
     $this->authorized($this->module, 'document');
+    $this->data['page']['title']            = 'Add Vendor';
 
     $this->render_view($this->module['view'] . '/add_vendor');
   }

@@ -31,3 +31,6 @@ $config['currency'] = array(
   'AUD' => 'AUD',
   // 'ALL'       => 'All Condition',
 );
+
+
+$config['access_from']  = 'localhost';
