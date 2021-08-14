@@ -107,6 +107,10 @@ class Expense_Request_Model extends MY_Model
             if($search_status!='all'){
                 $this->connection->where('tb_expense_purchase_requisitions.status', $search_status);
             }            
+        }else{
+            if(config_item('auth_role') == 'BUDGETCONTROL'){
+                $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
+            } 
         }
 
         if (!empty($_POST['columns'][3]['search']['value'])){

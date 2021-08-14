@@ -112,9 +112,7 @@ class Capex_Request_Model extends MY_Model
             if(config_item('auth_role') == 'BUDGETCONTROL'){
                 $this->connection->where('tb_capex_purchase_requisitions.status', 'pending');
             } 
-            if(config_item('as_head_department')=='yes') {
-                $this->connection->where('tb_capex_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
-            }
+            
         }
 
         if (!empty($_POST['columns'][3]['search']['value'])){
