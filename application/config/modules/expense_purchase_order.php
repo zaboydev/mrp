@@ -12,9 +12,9 @@ $config['module']['expense_purchase_order']['helper']         = 'purchase_order_
 $config['module']['expense_purchase_order']['table']          = 'tb_po';
 $config['module']['expense_purchase_order']['model']          = 'Expense_Purchase_Order_Model';
 $config['module']['expense_purchase_order']['permission']     = array(
-  'index'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
-  'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
-  'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
+  'index'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PROCUREMENT MANAGER',
+  'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PROCUREMENT MANAGER',
+  'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PROCUREMENT MANAGER',
   'document'  => 'SUPER ADMIN,PIC STAFF',  
-  'approval'  => 'SUPER ADMIN,VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
+  'approval'  => 'SUPER ADMIN,VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER,PROCUREMENT MANAGER',
 );

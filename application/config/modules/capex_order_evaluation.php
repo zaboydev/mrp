@@ -12,11 +12,11 @@ $config['module']['capex_order_evaluation']['helper']         = 'purchase_order_
 $config['module']['capex_order_evaluation']['table']          = 'tb_capex_purchase_requisitions';
 $config['module']['capex_order_evaluation']['model']          = 'Capex_Order_Evaluation_Model';
 $config['module']['capex_order_evaluation']['permission']     = array(
-  'index'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
-  'info'      => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
-  'print'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
+  'index'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT,PROCUREMENT MANAGER',
+  'info'      => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT,PROCUREMENT MANAGER',
+  'print'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT,PROCUREMENT MANAGER',
   'document'  => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
-  'approval'  => 'SUPER ADMIN,VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
+  'approval'  => 'SUPER ADMIN,VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER,PROCUREMENT MANAGER',
   'delete'    => 'SUPER ADMIN',
   // 'approval'  => 
 );
