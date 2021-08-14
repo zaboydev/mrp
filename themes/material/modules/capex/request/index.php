@@ -77,10 +77,12 @@
             <option value="all">
               All Status
             </option>
-            <option value="WAITING FOR BUDGETCONTROL" <?php (config_item('auth_role')=='BUDGETCONTROL')?'selected':''?>>
+            <option value="pending" 
+            <?php if ((config_item('auth_role') == 'BUDGETCONTROL')):echo 'selected'; endif;?>>
               WAITING FOR BUDGETCONTROL
             </option>
-            <option value="WAITING FOR HEAD DEPT" <?php (config_item('as_head_department')=='yes')?'selected':''?>>
+            <option value="WAITING FOR HEAD DEPT" 
+            <?php if (config_item('as_head_department')=='yes'):echo 'selected'; endif;?>>
               WAITING FOR HEAD DEPT
             </option>
             <option value="approved">

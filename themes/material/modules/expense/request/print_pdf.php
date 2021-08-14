@@ -28,22 +28,22 @@
     <td>Deliver to</td>
     <th>: <?= print_string($entity['deliver_to']); ?></th>
     <td>Status</td>
-    <th>: BUDGETED</th>
+    <th>: <?= ($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']); ?></th>
   </tr>
   <tr>
     <td></td>
     <th></th>
     <td>Approval Status</td>
     <?php if($entity['status']=='approved') : ?>
-      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?></th>
+      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?> as Head Dept</th>
     <?php elseif($entity['status']=='rejected') : ?>
       <th>: REJECTED by <?=print_person_name($entity['rejected_by']);?></th>
     <?php elseif ($entity['canceled_date'] != null) : ?>
       <th>: CANCELED by <?= print_person_name($entity['canceled_by']); ?></th>
     <?php elseif($entity['status']=='WAITING FOR HEAD DEPT') : ?>
       <th>: BUDGETCONTROL APPROVED by <?=print_person_name($entity['approved_by']); ?></th>
-    <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL') : ?>
-      <th>: WAITING FOR BUDGETCONTROL</th>
+    <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL' || $entity['status']=='pending') : ?>
+      <th>: WAITING FOR REVIEW BUDGETCONTROL</th>
     <?php endif; ?>
   </tr>
 </table>
@@ -121,10 +121,15 @@
 <?php endif; ?>
 
 <div class="clear"></div>
+<?php if ($entity['approved_by'] != '') : ?>
+Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($entity['approved_date']) ?>
+<?php endif; ?>
+<div class="clear"></div>
 
+<?php if($entity['with_po']=='t'):?>
 <table class="condensed" style="margin-top: 20px;" width="100%">
   <tr>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+    <td width="50%" valign="top" align="center">
       <p>
         Request by:
         <br /><?= print_string($entity['cost_center_name']); ?>
@@ -136,19 +141,8 @@
         <br /><?= $entity['created_by']; ?>
       </p>
     </td>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
-      <p>
-        Checked by:
-        <br />Budgetcontrol
-        <?php if ($entity['approved_by'] != '') : ?>
-          <br /><?= print_date($entity['approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['approved_by']; ?>
-      </p>
-    </td>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+    
+    <td width="50%" valign="top" align="center">
       <p>
         Approved by:
         <br /><?= print_string($entity['cost_center_name']); ?> Head Dept.
@@ -160,7 +154,37 @@
         <br /><?= $entity['head_approved_by']; ?>
       </p>
     </td>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+  </tr>
+</table>
+<?php else: ?>
+<table class="condensed" style="margin-top: 20px;" width="100%">
+  <tr>
+    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
+      <p>
+        Request by:
+        <br /><?= print_string($entity['cost_center_name']); ?>
+        <br />&nbsp;<br>
+        <?php if ($entity['created_by'] != '') : ?>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['created_by']; ?>
+      </p>
+    </td>
+    
+    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
+      <p>
+        Approved by:
+        <br /><?= print_string($entity['cost_center_name']); ?> Head Dept.
+        <?php if ($entity['head_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['head_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['head_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['head_approved_by']; ?>
+      </p>
+    </td>
+    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
       <p>
         Approved by:
         <br />Finance
@@ -173,7 +197,7 @@
       </p>
     </td>
 
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
       <p>
         Approved by:
         <br />Head of School
@@ -186,7 +210,7 @@
       </p>
     </td>
     <?php  if (array_sum($total)>15000000) :  ?>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
+    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
       <p>
         Approved by:
         <br />Chief Operation Officer
@@ -201,6 +225,7 @@
     <?php endif; ?>
   </tr>
 </table>
+<?php endif; ?>
 
 <h5 class="new-page">History Purchase</h5>
 <table class="table table-striped table-nowrap">

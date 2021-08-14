@@ -405,6 +405,9 @@ class Expense_Order_Evaluation_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
+    if($this->config->item('access_from')!='localhost'){
+      $this->send_mail($id);
+    }
     return TRUE;
   }
 
@@ -804,6 +807,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
       // $this->connection->group_end();
       $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
       $this->connection->where('tb_expense_purchase_requisitions.status','approved');
+      $this->connection->where('tb_expense_purchase_requisitions.with_po','t');
       $this->connection->where_not_in('tb_accounts.id',$item_unselect);
       $this->connection->order_by('tb_expense_purchase_requisitions.id', 'desc');
 
@@ -907,7 +911,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $query = $this->db->get();
     $row = $query->unbuffered_row('array');
 
-    $recipientList = $this->getNotifRecipient(9);
+    $recipientList = $this->getNotifRecipient(21);
     $recipient = array();
     foreach ($recipientList as $key) {
       array_push($recipient, $key->email);

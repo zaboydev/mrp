@@ -33,4 +33,4 @@ $config['currency'] = array(
 );
 
 
-$config['access_from']  = 'localhost';
+$config['access_from']  = 'server_mrp';

@@ -81,7 +81,7 @@ class Expense_Request extends MY_Controller
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
+                }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='FINANCE MANAGER'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else if($row['status']=='WAITING FOR HOS REVIEW' && config_item('auth_role')=='HEAD OF SCHOOL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -92,13 +92,15 @@ class Expense_Request extends MY_Controller
                 }
                 $col[] = print_string($row['pr_number']);
                 $col[] = print_string(strtoupper($row['status']));
-                // $col[] = print_string(strtoupper($row['department_name']));
                 $col[] = print_string($row['cost_center_name']);
                 $col[] = print_date($row['pr_date']);
                 $col[] = print_date($row['required_date']);
                 // $col[] = print_string($row['account_name']);
                 $col[] = print_number($row['total_expense'],2);
                 $col[] = $row['notes'];
+                if (config_item('as_head_department')=='yes'){
+                    $col[] = print_string(strtoupper($row['department_name']));
+                }
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
 
@@ -145,8 +147,6 @@ class Expense_Request extends MY_Controller
             4   => array( 0 => 5,  1 => 'asc' ),
             5   => array( 0 => 6,  1 => 'asc' ),
             6   => array( 0 => 7,  1 => 'asc' ),
-            // 7   => array( 0 => 8,  1 => 'asc' ),
-            // 7   => array( 0 => 8,  1 => 'asc' ),
             
         );
 

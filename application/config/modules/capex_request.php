@@ -16,4 +16,5 @@ $config['module']['capex_request']['permission']     = array(
   'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
   'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF',
   'document'  => 'SUPER ADMIN,PIC STAFF',
+  'approval'  => 'BUDGETCONTROL'
 );

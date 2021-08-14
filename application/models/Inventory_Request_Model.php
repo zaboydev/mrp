@@ -819,6 +819,11 @@ class Inventory_Request_Model extends MY_Model
 		  	return FALSE;
 
 		$this->connection->trans_commit();
+
+        if($this->config->item('access_from')!='localhost'){
+            $this->send_mail($document_id, 19);
+        }
+
 		return TRUE;
   	}
 
@@ -1074,8 +1079,9 @@ class Inventory_Request_Model extends MY_Model
         $query    = $this->connection->get();
         $request  = $query->unbuffered_row('array');
         $approval_notes = $request['approval_notes'];
+        $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
 
-        if(config_item('auth_role')=='BUDGETCONTROL'){
+        if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
             $this->connection->set('status','WAITING FOR HEAD DEPT');
             $this->connection->set('approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('approved_by',config_item('auth_person_name'));
@@ -1084,7 +1090,8 @@ class Inventory_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
-        }else{
+            $level = -1;
+        }else if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
             $this->connection->set('status','approved');
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('head_approved_by',config_item('auth_person_name'));
@@ -1093,6 +1100,7 @@ class Inventory_Request_Model extends MY_Model
             }
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
+            $level = 0;
         }
 
         
@@ -1101,6 +1109,140 @@ class Inventory_Request_Model extends MY_Model
             return FALSE;
 
         $this->connection->trans_commit();
+        if($level>0){
+            if($this->config->item('access_from')!='localhost'){
+                $this->send_mail($id, $level);
+            }
+        }
+        if($level<0){
+            if($this->config->item('access_from')!='localhost'){
+                $this->send_mail_to_head_dept($id);
+            }
+        }
         return TRUE;
+    }
+
+    public function send_mail($doc_id, $level)
+    {
+        $this->connection->from('tb_inventory_purchase_requisitions');
+        $this->connection->where('id', $doc_id);
+        $query = $this->connection->get();
+        $row = $query->unbuffered_row('array');
+
+        $recipientList = $this->getNotifRecipient($level);
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key->email);
+        }
+
+        $from_email = "bifa.acd@gmail.com";
+        $to_email = "aidanurul99@rocketmail.com";
+        $ket_level = '';
+        // if ($level == 14) {
+        //   $ket_level = 'Finance Manager';
+        // } elseif ($level == 10) {
+        //   $ket_level = 'Head Of School';
+        // } elseif ($level == 11) {
+        //   $ket_level = 'Chief Of Finance';
+        // } elseif ($level == 3) {
+        //   $ket_level = 'VP Finance';
+        // }elseif ($level == 16) {
+        //   $ket_level = 'CHIEF OPERATION OFFICER';
+        // }
+
+        $levels_and_roles = config_item('levels_and_roles');
+        $ket_level = $levels_and_roles[$level];
+
+        //Load email library 
+        $this->load->library('email');
+        $this->email->set_newline("\r\n");
+        $message = "<p>Dear " . $ket_level . "</p>";
+        $message .= "<p>Berikut permintaan Persetujuan untuk Expense Request :</p>";
+        $message .= "<ul>";
+        $message .= "</ul>";
+        $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
+        $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>Thanks and regards</p>";
+        $this->email->from($from_email, 'Material Resource Planning');
+        $this->email->to($recipient);
+        $this->email->subject('Permintaan Approval Expense Request No : ' . $row['pr_number']);
+        $this->email->message($message);
+
+        //Send mail 
+        if ($this->email->send())
+          return true;
+        else
+          return $this->email->print_debugger();
+    }
+
+    public function send_mail_to_head_dept($doc_id)
+    {
+        $this->connection->select('tb_inventory_purchase_requisitions.*');
+        $this->connection->from('tb_inventory_purchase_requisitions');
+        $this->connection->where('tb_inventory_purchase_requisitions.id',$doc_id);
+        $query = $this->connection->get();
+        $row = $query->unbuffered_row('array');
+        $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
+        $head_department_username = getHeadDeptByDeptid($department['id']);
+
+        $recipientList = $this->getNotifRecipientByUsername($head_department_username);
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key->email);
+        }
+
+        $from_email = "bifa.acd@gmail.com";
+        $to_email = "aidanurul99@rocketmail.com";
+        $ket_level = '';
+        // if ($level == 14) {
+        //   $ket_level = 'Finance Manager';
+        // } elseif ($level == 10) {
+        //   $ket_level = 'Head Of School';
+        // } elseif ($level == 11) {
+        //   $ket_level = 'Chief Of Finance';
+        // } elseif ($level == 3) {
+        //   $ket_level = 'VP Finance';
+        // }elseif ($level == 16) {
+        //   $ket_level = 'CHIEF OPERATION OFFICER';
+        // }
+
+        //Load email library 
+        $this->load->library('email');
+        $this->email->set_newline("\r\n");
+        $message = "<p>Dear Head Dept : " . $department['department_name'] . "</p>";
+        $message .= "<p>Berikut permintaan Persetujuan untuk Expense Request :</p>";
+        $message .= "<ul>";
+        $message .= "</ul>";
+        $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
+        $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>Thanks and regards</p>";
+        $this->email->from($from_email, 'Material Resource Planning');
+        $this->email->to($recipient);
+        $this->email->subject('Permintaan Approval Expense Request No : ' . $row['pr_number']);
+        $this->email->message($message);
+
+        //Send mail 
+        if ($this->email->send())
+          return true;
+        else
+          return $this->email->print_debugger();
+    }
+
+    public function getNotifRecipient($level)
+    {
+        $this->db->select('email');
+        $this->db->from('tb_auth_users');
+        $this->db->where('auth_level', $level);
+        return $this->db->get('')->result();
+    }
+
+    public function getNotifRecipientByUsername($username)
+    {
+        $this->db->select('email');
+        $this->db->from('tb_auth_users');
+        $this->db->where('username', $username);
+        return $this->db->get('')->result();
     }
 }

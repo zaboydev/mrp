@@ -42,7 +42,7 @@
       <th>: CANCELED by <?= print_person_name($entity['canceled_by']); ?></th>
     <?php elseif($entity['status']=='WAITING FOR HEAD DEPT') : ?>
       <th>: BUDGETCONTROL APPROVED by <?=print_person_name($entity['approved_by']); ?></th>
-    <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL') : ?>
+    <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL'||$entity['status']=='pending') : ?>
       <th>: WAITING FOR BUDGETCONTROL</th>
     <?php endif; ?>
   </tr>
@@ -142,7 +142,10 @@
 <?php elseif ($entity['canceled_date'] != null) : ?>
   <?= (empty($entity['canceled_notes'])) ? '' : '<p>Note: ' . nl2br($entity['canceled_notes']) . '</p>'; ?>
 <?php endif; ?>
-
+<div class="clear"></div>
+<?php if ($entity['approved_by'] != '') : ?>
+Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($entity['approved_date']) ?>
+<?php endif; ?>
 <div class="clear"></div>
 
 <table class="condensed" style="margin-top: 20px;">

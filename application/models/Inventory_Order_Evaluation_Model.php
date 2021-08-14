@@ -406,6 +406,9 @@ class Inventory_Order_Evaluation_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
+    if($this->config->item('access_from')!='localhost'){
+      $this->send_mail($id);
+    }
     return TRUE;
   }
 
@@ -911,7 +914,7 @@ class Inventory_Order_Evaluation_Model extends MY_Model
     $query = $this->db->get();
     $row = $query->unbuffered_row('array');
 
-    $recipientList = $this->getNotifRecipient(9);
+    $recipientList = $this->getNotifRecipient(21);
     $recipient = array();
     foreach ($recipientList as $key) {
       array_push($recipient, $key->email);

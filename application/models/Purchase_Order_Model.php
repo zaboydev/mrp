@@ -14,10 +14,12 @@ class Purchase_Order_Model extends MY_Model
     $this->budget_year  = find_budget_setting('Active Year');
     $this->budget_month = find_budget_setting('Active Month');
   }
+  
   public function loadBase()
   {
     return $this->db->get('tb_master_warehouses')->result();
   }
+
   public function getSelectedColumns()
   {
     if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')  || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {

@@ -95,7 +95,7 @@ class Capex_Request extends MY_Controller
                 $col = array();
                 if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR BUDGETCONTROL' && config_item('auth_role')=='BUDGETCONTROL'){
+                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{                    
                     $col[] = print_number($no);
@@ -114,6 +114,9 @@ class Capex_Request extends MY_Controller
                     $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                 }else{                    
                     $col[] = $row['approved_notes'];
+                }
+                if (config_item('as_head_department')=='yes'){
+                    $col[] = print_string(strtoupper($row['department_name']));
                 }
 
                 $col['DT_RowId'] = 'row_'. $row['id'];

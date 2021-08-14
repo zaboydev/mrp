@@ -26,7 +26,7 @@
 <?php startblock('actions_right') ?>
 
 <div class="section-floating-action-row">
-  <?php if (config_item('as_head_department')=='yes' || config_item('auth_role')=='BUDGETCONTROL' || config_item('auth_role')=='VP FINANCE') : ?>
+  <?php if (config_item('as_head_department')=='yes' || is_granted($module, 'approval')) : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-clear"></i>
@@ -74,6 +74,7 @@
         <div class="form-group">
           <label for="filter_status">Status</label>
           <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
+            <option></option>
             <option value="all">
               All Status
             </option>
@@ -340,11 +341,13 @@
 
             },
 
-            columnDefs: [{
-              searchable: false,
-              orderable: false,
-              targets: [0]
-            }],
+            columnDefs: [
+              {
+                searchable: false,
+                orderable: false,
+                targets: [0]
+              }
+            ],
 
             dom: "<'row'<'col-sm-12'tr>>" +
               "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",

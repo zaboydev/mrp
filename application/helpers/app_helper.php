@@ -188,7 +188,7 @@ if ( ! function_exists('is_granted')) {
       return TRUE;
     }else{
       if (config_item('as_head_department')=='yes') {
-        if($roles=='index'||$roles=='info'||$roles=='print'){
+        if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
           return TRUE;
         }else{
           return FALSE;
@@ -1687,6 +1687,48 @@ if (!function_exists('currency_for_vendor_list')) {
 
       foreach ($result as $row) {
         $return[] = $row['inventory_purchase_request_detail_id'];
+      }
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getDepartmentByAnnualCostCenterId')) {
+    function getDepartmentByAnnualCostCenterId($annual_cost_center_id)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('tb_departments.*');
+      $connection->from('tb_departments');
+      $connection->join('tb_cost_centers', 'tb_departments.id = tb_cost_centers.department_id');
+      $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.cost_center_id = tb_cost_centers.id');
+      $connection->where('tb_annual_cost_centers.id',$annual_cost_center_id);
+      $query  = $connection->get();
+      $result = $query->unbuffered_row('array');
+
+      
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getHeadDeptByDeptid')) {
+    function getHeadDeptByDeptid($department_id)
+    {
+      $CI =& get_instance();
+      // $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $CI->db->select('username');
+      $CI->db->from('tb_head_department');
+      $CI->db->where('department_id',$department_id);
+      $CI->db->where('status','active');
+      $query  = $CI->db->get();
+      if($query->num_rows()>0){
+        $result = $query->unbuffered_row('array');
+        $return = $result['username'];
+      }else{
+        $return = 'aidanurul';
       }
 
       return $return;

@@ -188,6 +188,9 @@ class Annual_Cost_Centers_Model extends MY_Model
   {
     $this->connection->trans_begin();
 
+    $this->connection->where('annual_cost_center_id', $id);
+    $this->connection->delete('tb_users_mrp_in_annual_cost_centers');
+
     if ($this->input->post('user')){
       foreach ($this->input->post('user') as $key => $user){
         $this->connection->set('annual_cost_center_id', $id);
