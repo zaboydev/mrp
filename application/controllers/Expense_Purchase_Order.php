@@ -60,6 +60,14 @@ class Expense_Purchase_Order extends MY_Controller
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else if ((config_item('auth_role') == 'SUPER ADMIN')) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ((config_item('auth_role') == 'PROCUREMENT MANAGER')&& ($row['review_status'] == strtoupper("waiting for proc mng review"))) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ((config_item('auth_role') == 'FINANCE MANAGER')&& ($row['review_status'] == strtoupper("waiting for finance review"))) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ((config_item('auth_role') == 'CHIEF OF FINANCE')&& ($row['review_status'] == strtoupper("waiting for cfo review"))) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else{
+            $col[] = '';
           }
           $col[]  = print_string($no);
           $col[]  = '<a href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
@@ -787,10 +795,10 @@ class Expense_Purchase_Order extends MY_Controller
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
-      $_SESSION['order']['format_number']       = order_format_number();
-      $_SESSION['order']['document_number']     = order_last_number('POM');
-      $_SESSION['order']['wom_document_number']     = order_last_number('WOM');
-      $_SESSION['order']['pom_document_number']     = order_last_number('POM');
+      $_SESSION['order']['format_number']       = order_format_number_local();
+      $_SESSION['order']['document_number']     = order_last_number('POL');
+      $_SESSION['order']['wom_document_number']     = order_last_number('WOL');
+      $_SESSION['order']['pom_document_number']     = order_last_number('POL');
       $_SESSION['order']['document_date']       = date('Y-m-d');
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['vendor_address']      = $order['vendor_address'];
@@ -944,13 +952,8 @@ class Expense_Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if($_SESSION['order']['format_number']=='POM') {
-        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
-      }
-      if ($_SESSION['order']['format_number'] == 'WOM') {
-        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
-      }
-      // $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
+      
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
 
 
       $errors = array();

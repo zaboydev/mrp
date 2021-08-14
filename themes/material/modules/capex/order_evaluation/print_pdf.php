@@ -119,8 +119,8 @@
     <td width="50%" valign="top" align="center">
       <p>
         Prepared by:
-        <br>
-        <br>
+        <br>Procurement
+        <br><?= print_date($entity['created_at']); ?>
         <br>
         <?php if ($entity['created_by'] != '') : ?>
           <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
@@ -131,8 +131,8 @@
     </td>
     <td width="50%" valign="top" align="center">
       <p>Approved by:
-        <br>
-        <?= print_date($entity['updated_at']); ?>
+        <br>Procurement Manager
+        <br><?= print_date($entity['updated_at']); ?>
         <br>
         <?php if ($entity['approved_by'] != '' & $entity['approved_by'] != 'without_approval') : ?>
           <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">

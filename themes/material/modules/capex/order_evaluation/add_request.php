@@ -35,6 +35,9 @@
                 <th>
                   Quantity
                 </th>
+                <th>
+                  Estimation Price
+                </th>
                 <th>Remaining Request Quantity</th>
                 <th>
                   Required Date
@@ -84,6 +87,11 @@
                   <td>
                     <label for="request_id_<?= $e; ?>">
                       <?= print_number($entity['quantity'], 2); ?>
+                    </label>
+                  </td>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_number($entity['price'], 2); ?>
                     </label>
                   </td>
                   <td>

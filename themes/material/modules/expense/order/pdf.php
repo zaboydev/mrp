@@ -271,23 +271,36 @@
 
 			<div class="clear"></div>
 
-			<?php if ($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000) : ?>
-				<table class="condensed" style="margin-top: 20px;">
+				<table class="condensed" style="margin-top: 20px;" width="100%">
 					<tr>
 						<!-- <td width="2%" valign="top" align="center">&nbsp;</td> -->
-						<td width="16%" valign="top" align="center">
+						<td valign="top" align="center">
 							<p>
 								Issued by,
 								<br />Procurement
 								<br />
 								<?php if ($entity['issued_by'] != '') : ?>
+									<?= print_date($entity['created_at']); ?><br />
 									<img src="<?= base_url('ttd_user/' . get_ttd($entity['issued_by'])); ?>" width="auto" height="50">
 								<?php endif; ?>
 								<br />
 								<br /><?= $entity['issued_by']; ?>
 							</p>
 						</td>
-						<td width="16%" valign="top" align="center">
+						<td valign="top" align="center">
+							<p>
+								Review by,
+								<br />Procurement Manager
+								<br />
+								<?php if ($entity['proc_manager_review_by'] != '') : ?>
+									<?= print_date($entity['proc_manager_review_at']); ?><br />
+									<img src="<?= base_url('ttd_user/' . get_ttd($entity['proc_manager_review_by'])); ?>" width="auto" height="50">
+								<?php endif; ?>
+								<br />
+								<br /><?= $entity['proc_manager_review_by']; ?>
+							</p>
+						</td>
+						<td valign="top" align="center">
 							<p>
 								Checked by,
 								<br />Finance
@@ -300,7 +313,7 @@
 								<br /><?= $entity['checked_by']; ?>
 							</p>
 						</td>
-						<td width="16%" valign="top" align="center">
+						<td valign="top" align="center">
 							<p>
 								Knowledge by,
 								<br />HOS
@@ -313,7 +326,8 @@
 								<br /><?= $entity['known_by']; ?>
 							</p>
 						</td>
-						<td width="16%" valign="top" align="center">
+						<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
+						<td valign="top" align="center">
 							<p>
 								Approved by,
 								<br />COO
@@ -326,7 +340,8 @@
 								<br /><?= $entity['coo_review']; ?>
 							</p>
 						</td>
-						<td width="16%" valign="top" align="center">
+						<?php endif; ?>
+						<td valign="top" align="center">
 							<p>
 								Knowledge by,
 								<br />VP Finance
@@ -339,7 +354,8 @@
 								<br /><?= $entity['check_review_by']; ?>
 							</p>
 						</td>
-						<td width="16%" valign="top" align="center">
+						<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
+						<td valign="top" align="center">
 							<p>
 								Approved by,
 								<br />CFO
@@ -352,150 +368,10 @@
 								<br /><?= $entity['approved_by']; ?>
 							</p>
 						</td>
+						<?php endif; ?>
 						<!-- <td width="2%" valign="top" align="center">&nbsp</td> -->
 					</tr>
 				</table>
-			<?php elseif ($entity['default_currency'] == 'USD' && $grandtotal >= 1500) : ?>
-				<table class="condensed" style="margin-top: 20px;">
-					<tr>
-						<!-- <td width="2%" valign="top" align="center">&nbsp;</td> -->
-						<td width="16%" valign="top" align="center">
-							<p>
-								Issued by,
-								<br />Procurement
-								<br />
-								<?php if ($entity['issued_by'] != '') : ?>
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['issued_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['issued_by']; ?>
-							</p>
-						</td>
-						<td width="16%" valign="top" align="center">
-							<p>
-								Checked by,
-								<br />Finance
-								<br />
-								<?php if ($entity['checked_by'] != '') : ?>
-									<?= print_date($entity['checked_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['checked_by']; ?>
-							</p>
-						</td>
-						<td width="16%" valign="top" align="center">
-							<p>
-								Knowledge by,
-								<br />HOS
-								<br />
-								<?php if ($entity['known_by'] != '') : ?>
-									<?= print_date($entity['known_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['known_by']; ?>
-							</p>
-						</td>
-						<td width="16%" valign="top" align="center">
-							<p>
-								Approved by,
-								<br />COO
-								<br />
-								<?php if ($entity['coo_review'] != '') : ?>
-									<?= print_date($entity['coo_review_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['coo_review'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['coo_review']; ?>
-							</p>
-						</td>
-						<td width="16%" valign="top" align="center">
-							<p>
-								Knowledge by,
-								<br />VP Finance
-								<br />
-								<?php if ($entity['check_review_by'] != '') : ?>
-									<?= print_date($entity['check_review_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['check_review_by']; ?>
-							</p>
-						</td>
-						<td width="16%" valign="top" align="center">
-							<p>
-								Approved by,
-								<br />CFO
-								<br />
-								<?php if ($entity['approved_by'] != '') : ?>
-									<?= print_date($entity['approved_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['approved_by']; ?>
-							</p>
-						</td>
-						<!-- <td width="2%" valign="top" align="center">&nbsp</td> -->
-					</tr>
-				</table>
-			<?php else : ?>
-				<table class="condensed" style="margin-top: 20px;">
-					<tr>
-						<td width="25%" valign="top" align="center">
-							<p>
-								Issued by,
-								<br />Procurement
-								<br />
-								<?php if ($entity['issued_by'] != '') : ?>
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['issued_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['issued_by']; ?>
-							</p>
-						</td>
-						<td width="25%" valign="top" align="center">
-							<p>
-								Checked by,
-								<br />Finance
-								<br />
-								<?php if ($entity['checked_by'] != '') : ?>
-									<?= print_date($entity['checked_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['checked_by']; ?>
-							</p>
-						</td>
-						<td width="25%" valign="top" align="center">
-							<p>
-								Approved by,
-								<br />HOS
-								<br />
-								<?php if ($entity['known_by'] != '') : ?>
-									<?= print_date($entity['known_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['known_by']; ?>
-							</p>
-						</td>
-						<td width="25%" valign="top" align="center">
-							<p>
-								Checked by,
-								<br />VP Finance
-								<br />
-								<?php if ($entity['check_review_by'] != '') : ?>
-									<?= print_date($entity['check_review_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['check_review_by']; ?>
-							</p>
-						</td>
-					</tr>
-				</table>
-			<?php endif; ?>
 
 			<h5 class="new-page">History Purchase</h5>
 			<table class="table table-striped table-nowrap">

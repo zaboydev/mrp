@@ -405,9 +405,9 @@ class Expense_Order_Evaluation_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
-    if($this->config->item('access_from')!='localhost'){
-      $this->send_mail($id);
-    }
+    // if($this->config->item('access_from')!='localhost'){
+    //   $this->send_mail($id);
+    // }
     return TRUE;
   }
 
@@ -698,7 +698,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $this->db->trans_commit();
     $this->connection->trans_commit();
     if ($approval != 'without_approval') {
-      // $this->send_mail($document_id);
+      $this->send_mail($document_id,21);
     }
     return TRUE;
   }
@@ -808,7 +808,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
       $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
       $this->connection->where('tb_expense_purchase_requisitions.status','approved');
       $this->connection->where('tb_expense_purchase_requisitions.with_po','t');
-      $this->connection->where_not_in('tb_accounts.id',$item_unselect);
+      // $this->connection->where_not_in('tb_accounts.id',$item_unselect);
       $this->connection->order_by('tb_expense_purchase_requisitions.id', 'desc');
 
       $query = $this->connection->get();
@@ -904,14 +904,14 @@ class Expense_Order_Evaluation_Model extends MY_Model
     return TRUE;
   }
 
-  public function send_mail($doc_id)
+  public function send_mail($doc_id,$level)
   {
     $this->db->from('tb_purchase_orders');
     $this->db->where('id', $doc_id);
     $query = $this->db->get();
     $row = $query->unbuffered_row('array');
 
-    $recipientList = $this->getNotifRecipient(21);
+    $recipientList = $this->getNotifRecipient($level);
     $recipient = array();
     foreach ($recipientList as $key) {
       array_push($recipient, $key->email);
@@ -919,6 +919,8 @@ class Expense_Order_Evaluation_Model extends MY_Model
 
     $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com";
+    $levels_and_roles = config_item('levels_and_roles');
+    $ket_level = $levels_and_roles[$level];
 
     //Load email library 
     $this->load->library('email');
@@ -932,11 +934,11 @@ class Expense_Order_Evaluation_Model extends MY_Model
     // $config['mailtype']         = 'html';
     // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
-    $message = "<p>Dear Chief of Maintenance</p>";
-    $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order Evaluation :</p>";
+    $message = "<p>Dear ".$ket_level."</p>";
+    $message .= "<p>Berikut permintaan Persetujuan untuk Expense Order Evaluation :</p>";
     $message .= "<ul>";
     $message .= "</ul>";
-    $message .= "<p>No Purchase Request : " . $row['evaluation_number'] . "</p>";
+    $message .= "<p>No Expense Order Evaluation : " . $row['evaluation_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order_evaluation/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
@@ -966,23 +968,23 @@ class Expense_Order_Evaluation_Model extends MY_Model
     foreach ($id as $key) {
       $this->db->select(
         array(
-          'tb_po.document_number',
-          'tb_po_item.description',
-          'tb_po_item.part_number',
-          'tb_po_item.quantity',
-          'tb_po_item.total_amount',
-          'tb_po_item.unit',
+          'tb_purchase_orders.document_number',
+          'tb_purchase_order_items.description',
+          'tb_purchase_order_items.part_number',
+          'tb_purchase_order_items.quantity',
+          'tb_purchase_order_items.total_amount',
+          'tb_purchase_order_items.unit',
         )
       );
-      $this->db->from('tb_po_item');
-      $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
-      $this->db->where('tb_po.id', $key);
+      $this->db->from('tb_purchase_order_items');
+      $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id=tb_purchase_order_items.purchase_order_id');
+      $this->db->where('tb_purchase_orders.id', $key);
       $query = $this->db->get();
       $row = $query->result_array();
 
       foreach ($row as $item) {
         $item_message .= "<tr>";
-        $item_message .= "<td>" . $item['document_number'] . "</td>";
+        $item_message .= "<td>" . $item['evaluation_number'] . "</td>";
         $item_message .= "<td>" . $item['part_number'] . "</td>";
         $item_message .= "<td>" . $item['description'] . "</td>";
         $item_message .= "<td>" . print_number($item['quantity'], 2) . "</td>";
@@ -992,12 +994,12 @@ class Expense_Order_Evaluation_Model extends MY_Model
       }
 
 
-      $this->db->select('issued_by');
-      $this->db->from('tb_po');
+      $this->db->select('created_by');
+      $this->db->from('tb_purchase_orders');
       $this->db->where('id', $key);
       $query_po = $this->db->get();
       $row_po   = $query_po->unbuffered_row('array');
-      $issued_by = $row_po['issued_by'];
+      $issued_by = $row_po['created_by'];
 
       $recipientList = $this->getNotifRecipient_approval($issued_by);
       $recipient = array();
@@ -1026,15 +1028,6 @@ class Expense_Order_Evaluation_Model extends MY_Model
 
     //Load email library 
     $this->load->library('email');
-    // $config = array();
-    // $config['protocol'] = 'mail';
-    // $config['smtp_host'] = 'smtp.live.com';
-    // $config['smtp_user'] = 'bifa.acd@gmail.com';
-    // $config['smtp_pass'] = 'b1f42019';
-    // $config['smtp_port'] = 587;
-    // $config['smtp_auth']        = true;
-    // $config['mailtype']         = 'html';
-    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Hello</p>";
     $message .= "<p>Item Berikut telah " . $ket_level . " oleh " . $by . "</p>";

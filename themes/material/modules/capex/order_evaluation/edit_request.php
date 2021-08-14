@@ -17,7 +17,8 @@
                 <th class="middle-alignment" rowspan="2">Part Number</th>
                 <th class="middle-alignment" rowspan="2">Alt. P/N</th>
                 <th class="middle-alignment text-right" rowspan="2">Qty</th>
-                <th class="middle-alignment text-right" rowspan="2">Unit</th>
+                <th class="middle-alignment text-right" rowspan="2">Price Requested</th>
+                <!-- <th class="middle-alignment text-right" rowspan="2">Unit</th> -->
                 <th class="middle-alignment text-right" rowspan="2">Konversi</th>
                 <th class="middle-alignment text-right" rowspan="2">Remarks</th>
 
@@ -54,6 +55,9 @@
                     <input type="number" rel="quantity" name="request[<?= $id; ?>][quantity]" value="<?= $_SESSION['capex_poe']['request'][$id]['quantity']; ?>" class="form-control">
                   </td>
                   <td>
+                    <input readonly="true" type="number" rel="quantity" name="request[<?= $id; ?>][unit_price_requested]" value="<?= $_SESSION['capex_poe']['request'][$id]['unit_price_requested']; ?>" class="form-control">
+                  </td>
+                  <td class="hide">
                     <input type="text" rel="unit" name="request[<?= $id; ?>][unit]" value="<?= $_SESSION['capex_poe']['request'][$id]['unit']; ?>" class="form-control">
                   </td>
                   <td>

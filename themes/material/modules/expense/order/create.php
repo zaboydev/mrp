@@ -29,8 +29,8 @@
                 <div class="row">
                   <div class="col-xs-6">
                     <select name="format_number" id="format_number" class="form-control" value="<?= $_SESSION['order']['format_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_format_number'); ?>" required>
-                      <option value="POM" <?= ('POM' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>POM</option>
-                      <option value="WOM" <?= ('WOM' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>WOM</option>
+                      <option value="POL" <?= ('POL' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>POL</option>
+                      <option value="WOL" <?= ('WOL' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>WOL</option>
                     </select>
 
                   </div>
@@ -768,10 +768,10 @@
 
     $('#format_number').on('change', function() {
       var format = $(this).val();
-      if (format == 'POM') {
+      if (format == 'POL') {
         var number = $('#pom_number').val();
       }
-      if(format == 'WOM') {
+      if(format == 'WOL') {
         var number = $('#wom_number').val();
       }
       $('#document_number').val(number).trigger('change');

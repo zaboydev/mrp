@@ -161,7 +161,7 @@ class Inventory_Order_Evaluation extends MY_Controller
         $no++;
         $col = array();
         if (strtoupper($row['status']) == "EVALUATION") {
-          if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+          if (config_item('auth_role') == 'PROCUREMENT MANAGER' || config_item('auth_role') == 'SUPER ADMIN') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = print_number($no);
@@ -321,13 +321,13 @@ class Inventory_Order_Evaluation extends MY_Controller
       }
     }
     if ($success > 0) {
+      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
         'info' => $success . " data has been update!"
       ));
     }
     if ($failed > 0) {
-      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       $this->session->set_flashdata('alert', array(
         'type' => 'danger',
         'info' => "There are " . $failed . " errors"
