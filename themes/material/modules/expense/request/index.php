@@ -16,6 +16,38 @@
     </div>
   </div>
 </div>
+
+<div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+        <h4 class="modal-title" id="import-modal-label">Attachment</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <table style="width: 100%">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Link</th>
+                </tr>
+              </thead>
+              <tbody id="listView">
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?php $this->load->view('material/templates/datatable') ?>
 <?php endblock() ?>
 
@@ -26,7 +58,7 @@
 <?php startblock('actions_right') ?>
 
 <div class="section-floating-action-row">
-  <?php if (config_item('as_head_department')=='yes' || config_item('auth_role')=='BUDGETCONTROL' || config_item('auth_role')=='VP FINANCE') : ?>
+  <?php if (config_item('as_head_department')=='yes' || is_granted($module, 'approval')) : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-clear"></i>
@@ -74,14 +106,15 @@
         <div class="form-group">
           <label for="filter_status">Status</label>
           <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
+            <option></option>
             <option value="all">
               All Status
             </option>
             <option value="WAITING FOR BUDGETCONTROL" <?php (config_item('auth_role')=='BUDGETCONTROL')?'selected':''?>>
-              WAITING FOR BUDGETCONTROL
+              Pending
             </option>
             <option value="WAITING FOR HEAD DEPT" <?php (config_item('as_head_department')=='yes')?'selected':''?>>
-              WAITING FOR HEAD DEPT
+              Waiting For head Dept.
             </option>
             <option value="approved">
               APPROVED
@@ -340,11 +373,13 @@
 
             },
 
-            columnDefs: [{
-              searchable: false,
-              orderable: false,
-              targets: [0]
-            }],
+            columnDefs: [
+              {
+                searchable: false,
+                orderable: false,
+                targets: [0]
+              }
+            ],
 
             dom: "<'row'<'col-sm-12'tr>>" +
               "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
@@ -731,11 +766,39 @@
               console.log(e.target.nodeName);
               // console.log(price);
               ///////////////////////////////////////eventdefault
+            }else if (e.target.nodeName === "I") {
+              var id = $(this).attr('data-id');
+              getAttachment(id);
             } else {
               $(this).popup();
             }
 
           });
+
+          function getAttachment(id) {
+            $.ajax({
+              type: "GET",
+              url: 'expense_request/listAttachment/' + id,
+              cache: false,
+              success: function(response) {
+                var data = jQuery.parseJSON(response)
+                $("#listView").html("")
+                $("#attachment_modal").modal("show");
+                $.each(data, function(i, item) {
+                  var text = '<tr>' +
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+                    '</tr>';
+                  $("#listView").append(text);
+                });
+              },
+              error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+                console.log(thrownError);
+              }
+            });
+          }
           
           $(datatableElement).find('tbody').on('click', 'a', function(e) {
             e.preventDefault();

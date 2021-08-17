@@ -426,6 +426,11 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $this->db->where('purchase_order_id', $id);
     $this->db->update('tb_purchase_order_items');
 
+    $request_item_ids = getRequestItemIdsByPoeId($id);
+    $this->db->set('last_activity', 'POE Approved, waiting for PO');
+    $this->db->where_in('tb_inventory_purchase_requisition_details.id', $request_item_ids);
+    $this->db->update('tb_inventory_purchase_requisition_details');
+
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
@@ -639,6 +644,11 @@ class Purchase_Order_Evaluation_Model extends MY_Model
           $quantity_prl = floatval($detail['quantity'] * $item['konversi']);
 
           $this->db->set('sisa', '"sisa" - ' . $quantity_prl, false);
+          if ($approval == 'without_approval') {
+            $this->db->set('last_activity', 'POE Approved '.$document_number,', waiting for PO');
+          }else{
+            $this->db->set('last_activity', 'POE Created '.$document_number.' waiting approval');
+          }
           $this->db->where('id', $inventory_purchase_request_detail_id);
           $this->db->update('tb_inventory_purchase_requisition_details');
             
@@ -1026,7 +1036,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order Evaluation :</p>";
     $message .= "<ul>";
     $message .= "</ul>";
-    $message .= "<p>No Purchase Request : " . $row['evaluation_number'] . "</p>";
+    $message .= "<p>No Purchase Order Evaluation : " . $row['evaluation_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order_evaluation/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";

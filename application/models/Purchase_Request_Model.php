@@ -1208,6 +1208,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('budget_status', 'unbudgeted');
           $this->db->set('budget_id_sementara', $budget_id_sementara);
           $this->db->set('reference_ipc', $data['reference_ipc']);
+          $this->db->set('last_activity', 'purchase created');
           $this->db->insert('tb_inventory_purchase_requisition_details');
           $prl_item_id = $this->db->insert_id();
 
@@ -1243,6 +1244,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('budget_status', 'relocation');
             $this->db->set('budget_id_sementara', $budget_id_sementara);
             $this->db->set('reference_ipc', $data['reference_ipc']);
+            $this->db->set('last_activity', 'purchase created');
             $this->db->insert('tb_inventory_purchase_requisition_details');
             $prl_item_id = $this->db->insert_id();
 
@@ -1319,6 +1321,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('total', floatval($data['total']));
             $this->db->set('status', 'waiting');
             $this->db->set('reference_ipc', $data['reference_ipc']);
+            $this->db->set('last_activity', 'purchase created');
             $this->db->insert('tb_inventory_purchase_requisition_details');
             $prl_item_id = $this->db->insert_id();
           }
@@ -1378,10 +1381,12 @@ class Purchase_Request_Model extends MY_Model
 
     $this->connection->trans_commit();
     $this->db->trans_commit();
-    if ($unbudgeted > 0) {
-      $this->send_mail_finance($document_id);
-    } else {
-      $this->send_mail($document_id);
+    if($this->config->item('access_from')!='localhost'){
+      if ($unbudgeted > 0) {
+        $this->send_mail_finance($document_id);
+      } else {
+        $this->send_mail($document_id);
+      }
     }
 
     return TRUE;

@@ -86,9 +86,9 @@
 
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
-  <?php if (is_granted($modules['capex_purchase_order'], 'document')) : ?>
+  <?php if (is_granted($modules['expense_purchase_order'], 'document')) : ?>
     <!-- <div class="btn-group dropup">
-      <a type="button" href="<?= site_url($modules['capex_purchase_order']['route'] . '/index_report'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction">
+      <a type="button" href="<?= site_url($modules['expense_purchase_order']['route'] . '/index_report'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction">
         <i class="md md-assignment"></i>
         <small class="top right">Report</small>
       </a>
@@ -101,7 +101,7 @@
       <ul class="dropdown-menu dropdown-menu-right" role="menu">
         <?php foreach (config_item('auth_inventory') as $category) : ?>
           <li>
-            <a href="<?= site_url($modules['capex_purchase_order']['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
+            <a href="<?= site_url($modules['expense_purchase_order']['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
           </li>
         <?php endforeach; ?>
       </ul>
@@ -114,7 +114,7 @@
     </div>
   <?php endif ?>
 
-  <?php if (is_granted($modules['capex_purchase_order'], 'approval')) : ?>
+  <?php if (is_granted($modules['expense_purchase_order'], 'approval')) : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
         <i class="md md-spellcheck"></i>
@@ -122,7 +122,7 @@
       </button>
     </div>
   <?php endif; ?>
-  <?php if (is_granted($modules['capex_purchase_order'], 'approval')) : ?>
+  <?php if (is_granted($modules['expense_purchase_order'], 'approval')) : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-close"></i>
@@ -130,7 +130,7 @@
       </button>
     </div>
   <?php endif; ?>
-  <?php if (is_granted($modules['capex_purchase_order'], 'order')) : ?>
+  <?php if (is_granted($modules['expense_purchase_order'], 'order')) : ?>
     <!-- <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/order/'); ?>" class="btn btn-floating-action btn-lg btn-success btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-shopping-cart"></i>
@@ -198,6 +198,20 @@
       <option value="closed">
         Closed
       </option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="filter_item_group">Currency</label>
+    <select class="form-control input-sm filter_dropdown" data-column="5" id="filter_item_category">
+      <option value="all">
+        Not filtered
+      </option>
+      <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+        <option value="<?= $key; ?>">
+          <?= $value; ?>
+        </option>
+      <?php endforeach; ?>
     </select>
   </div>
 

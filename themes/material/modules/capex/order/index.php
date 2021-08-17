@@ -215,6 +215,20 @@
       <?php endforeach; ?>
     </select>
   </div>
+
+  <div class="form-group">
+    <label for="filter_item_group">Currency</label>
+    <select class="form-control input-sm filter_dropdown" data-column="5" id="filter_item_category">
+      <option value="all">
+        Not filtered
+      </option>
+      <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+        <option value="<?= $key; ?>">
+          <?= $value; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
 </div>
 <?php endblock() ?>
 

@@ -104,6 +104,29 @@ if ( ! function_exists('order_format_number')) {
   }
 }
 
+if ( ! function_exists('order_format_number_local')) {
+  function order_format_number_local($category = NULL)
+  {
+    $CI =& get_instance();
+
+    if ($category === NULL){
+      $category = $_SESSION['order']['category'];
+    }
+
+    $CI->db->select('code');
+    $CI->db->from( 'tb_master_item_categories' );
+    $CI->db->where('tb_master_item_categories.category', $category);
+
+    $query    = $CI->db->get();
+    $category = $query->unbuffered_row('array');
+
+    // $return = '/PO/'. $category['code'] .'/'. find_budget_setting('Active Year');
+    $return = 'POL';
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('order_last_number')) {
   function order_last_number($format,$category = NULL)
   {

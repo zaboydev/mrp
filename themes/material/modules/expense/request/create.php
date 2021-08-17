@@ -37,7 +37,7 @@
                 <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['capex']['notes']; ?></textarea>
                 <label for="notes">Notes</label>
               </div>
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="text" name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>">   
                 <label for="notes">With PO</label>
               </div>
@@ -100,7 +100,7 @@
         <div class="card-actionbar-row">
           <div class="pull-left">
             <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
-              Add Item
+              Add Akun
             </a>
             <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
               Attachment

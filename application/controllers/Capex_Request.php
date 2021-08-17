@@ -95,14 +95,14 @@ class Capex_Request extends MY_Controller
                 $col = array();
                 if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR BUDGETCONTROL' && config_item('auth_role')=='BUDGETCONTROL'){
+                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{                    
                     $col[] = print_number($no);
                 }
                 $col[] = print_string($row['pr_number']);
                 $col[] = print_string(strtoupper($row['status']));
-                $col[] = print_string($row['department_name']);
+                // $col[] = print_string($row['department_name']);
                 $col[] = print_string($row['cost_center_name']);
                 $col[] = print_date($row['pr_date']);
                 $col[] = print_date($row['required_date']);
@@ -114,6 +114,12 @@ class Capex_Request extends MY_Controller
                     $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                 }else{                    
                     $col[] = $row['approved_notes'];
+                }
+                $col[] = isAttachementExists($row['id'],'capex') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
+                if (config_item('as_head_department')=='yes'){
+                    $col[] = print_string(strtoupper($row['department_name']));
                 }
 
                 $col['DT_RowId'] = 'row_'. $row['id'];
@@ -162,7 +168,7 @@ class Capex_Request extends MY_Controller
             3   => array( 0 => 4,  1 => 'asc' ),
             4   => array( 0 => 5,  1 => 'asc' ),
             5   => array( 0 => 6,  1 => 'asc' ),
-            6   => array( 0 => 8,  1 => 'asc' ),
+            // 6   => array( 0 => 8,  1 => 'asc' ),
             // 7   => array( 0 => 8,  1 => 'asc' ),
             
         );
@@ -635,5 +641,11 @@ class Capex_Request extends MY_Controller
         $pdf = $this->m_pdf->load(null, 'A4-L');
         $pdf->WriteHTML($html);
         $pdf->Output($pdfFilePath, "I");
+    }
+
+    public function listAttachment($id)
+    {
+        $data = $this->model->listAttachment($id);
+        echo json_encode($data);
     }
 }

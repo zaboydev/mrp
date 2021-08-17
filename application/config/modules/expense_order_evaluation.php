@@ -12,11 +12,11 @@ $config['module']['expense_order_evaluation']['helper']         = 'purchase_orde
 $config['module']['expense_order_evaluation']['table']          = 'tb_expense_purchase_requisitions';
 $config['module']['expense_order_evaluation']['model']          = 'Expense_Order_Evaluation_Model';
 $config['module']['expense_order_evaluation']['permission']     = array(
-  'index'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
-  'info'      => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
-  'print'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
+  'index'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT,PROCUREMENT MANAGER',
+  'info'      => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT,PROCUREMENT MANAGER',
+  'print'     => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT,PROCUREMENT MANAGER',
   'document'  => 'SUPER ADMIN,PROCUREMENT,PIC PROCUREMENT',
-  'approval'  => 'SUPER ADMIN,VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
+  'approval'  => 'SUPER ADMIN,PROCUREMENT MANAGER',
   'delete'    => 'SUPER ADMIN',
   // 'approval'  => 
 );

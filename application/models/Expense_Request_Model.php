@@ -19,18 +19,22 @@ class Expense_Request_Model extends MY_Model
 
     public function getSelectedColumns()
     {
-        return array(
+        $return = array(
             'tb_expense_purchase_requisitions.id'                               => NULL,
             'tb_expense_purchase_requisitions.pr_number'                        => 'Document Number',
             'tb_expense_purchase_requisitions.status'                           => 'Status',
-            'tb_departments.department_name'                                    => 'Department Name',
             'tb_cost_centers.cost_center_name'                                  => 'Cost Center',
             'tb_expense_purchase_requisitions.pr_date'                          => 'Pr Date',
             'tb_expense_purchase_requisitions.required_date'                    => 'Required Date',
             // 'tb_accounts.account_name'                                           => 'Account',
             'SUM(tb_expense_purchase_requisition_details.total) as total_expense'  => 'Total',
             'tb_expense_purchase_requisitions.notes'                            => 'Notes',
+            NULL                                                                => 'Attachment',
         );
+        if (config_item('as_head_department')=='yes') {
+            $return['tb_departments.department_name']  = 'Dept. Name';
+        }
+        return $return;
     }
 
     public function getGroupedColumns()
@@ -61,13 +65,13 @@ class Expense_Request_Model extends MY_Model
             // 'tb_expense_purchase_requisition_detail.total',
             'tb_expense_purchase_requisitions.notes',
             'tb_expense_purchase_requisitions.status',
-            'tb_departments.department_name'
+            // 'tb_departments.department_name'
         );
     }
 
     public function getOrderableColumns()
     {
-        return array(
+        $return = array(
             null,
             // 'tb_expense_purchase_requisitions.id',
             'tb_expense_purchase_requisitions.pr_number',
@@ -79,7 +83,13 @@ class Expense_Request_Model extends MY_Model
             // 'tb_accounts.account_name',
             null,
             'tb_expense_purchase_requisitions.notes',
+            null
         );
+        if (config_item('as_head_department')=='yes') {
+            $return[]  = 'tb_departments.department_name';
+        }
+        return $return;
+
     }
 
     private function searchIndex()
@@ -98,6 +108,13 @@ class Expense_Request_Model extends MY_Model
             if($search_status!='all'){
                 $this->connection->where('tb_expense_purchase_requisitions.status', $search_status);
             }            
+        }else{
+            if(config_item('auth_role') == 'BUDGETCONTROL'){
+                $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
+            } 
+            if (config_item('as_head_department')=='yes'){
+                $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+            }
         }
 
         if (!empty($_POST['columns'][3]['search']['value'])){
@@ -167,7 +184,9 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        if(config_item('auth_role') == 'PIC STAFF' || config_item('auth_role') == 'SUPER ADMIN'){
+            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        }
         $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
@@ -208,7 +227,9 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        if(config_item('auth_role') == 'PIC STAFF' || config_item('auth_role') == 'SUPER ADMIN'){
+            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        }
         $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
@@ -229,7 +250,9 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        if(config_item('auth_role') == 'PIC STAFF' || config_item('auth_role') == 'SUPER ADMIN'){
+            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        }
         $this->connection->group_by($this->getGroupedColumns());
 
         $query = $this->connection->get();
@@ -278,7 +301,6 @@ class Expense_Request_Model extends MY_Model
         foreach ($query->result_array() as $key => $value){
             $request['items'][$key] = $value;
             $request['items'][$key]['balance_mtd_budget']       = $value['ytd_budget'] - $value['ytd_used_budget'];
-
             $this->column_select = array(
                 'SUM(tb_expense_monthly_budgets.mtd_budget) as budget',
                 'SUM(tb_expense_monthly_budgets.mtd_used_budget) as used_budget',
@@ -339,9 +361,12 @@ class Expense_Request_Model extends MY_Model
         $query    = $this->connection->get();
         $request  = $query->unbuffered_row('array');
         $approval_notes = $request['approval_notes'];
+        $with_po = $request['with_po'];
         $total = $this->countTotalExpense($id);
+        $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
+        $cost_center = getCostCenterByAnnualCostCenterId($request['annual_cost_center_id']);
 
-        if(config_item('auth_role')=='BUDGETCONTROL'){
+        if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
             $this->connection->set('status','WAITING FOR HEAD DEPT');
             $this->connection->set('approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('approved_by',config_item('auth_person_name'));
@@ -350,20 +375,41 @@ class Expense_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_expense_purchase_requisitions');
+            $level = -1;
         }
-        if(config_item('as_head_department')=='yes'){
-            $this->connection->set('status','WAITING FOR FINANCE REVIEW');
-            $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
-            $this->connection->set('head_approved_by',config_item('auth_person_name'));
-            if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+        if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
+            if($with_po=='t'){
+                $this->connection->set('status','approved');
+                $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+                $this->connection->set('head_approved_by',config_item('auth_person_name'));
+                if($notes!=''){
+                    $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+                }
+                $this->connection->where('id',$id);
+                $this->connection->update('tb_expense_purchase_requisitions');
+                $level = 0;
+            }else{
+                $this->connection->set('status','WAITING FOR FINANCE REVIEW');
+                $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+                $this->connection->set('head_approved_by',config_item('auth_person_name'));
+                if($notes!=''){
+                    $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+                }
+                $this->connection->where('id',$id);
+                $this->connection->update('tb_expense_purchase_requisitions');
+                $level = 14;
             }
-            $this->connection->where('id',$id);
-            $this->connection->update('tb_expense_purchase_requisitions');
+            
         }
 
-        if(config_item('auth_role')=='VP FINANCE'){
-            $this->connection->set('status','WAITING FOR HOS REVIEW');
+        if(config_item('auth_role')=='FINANCE MANAGER' && $request['status']=='WAITING FOR FINANCE REVIEW'){
+            if($cost_center['id']==$this->config->item('head_office_cost_center_id')){
+                $this->connection->set('status','WAITING FOR VP FINANCE REVIEW');                
+                $level = 3;
+            }else{
+                $this->connection->set('status','WAITING FOR HOS REVIEW');
+                $level = 10;
+            }
             $this->connection->set('finance_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('finance_approved_by',config_item('auth_person_name'));
             if($notes!=''){
@@ -371,13 +417,16 @@ class Expense_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_expense_purchase_requisitions');
+            
         }
 
-        if(config_item('auth_role')=='HEAD OF SCHOOL'){
+        if(config_item('auth_role')=='HEAD OF SCHOOL' && $request['status']=='WAITING FOR HOS REVIEW'){
             if($total>15000000){
                 $this->connection->set('status','WAITING FOR COO REVIEW');
+                $level = 16;
             }else{
                 $this->connection->set('status','approved');
+                $level = 0;
             }            
             $this->connection->set('hos_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('hos_approved_by',config_item('auth_person_name'));
@@ -388,7 +437,7 @@ class Expense_Request_Model extends MY_Model
             $this->connection->update('tb_expense_purchase_requisitions');
         }
 
-        if(config_item('auth_role')=='CHIEF OPERATION OFFICER'){
+        if(config_item('auth_role')=='CHIEF OPERATION OFFICER' && $request['status']=='WAITING FOR COO REVIEW'){
             $this->connection->set('status','approved');
             $this->connection->set('ceo_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('ceo_approved_by',config_item('auth_person_name'));
@@ -397,6 +446,36 @@ class Expense_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_expense_purchase_requisitions');
+            $level = 0;
+        }
+
+        if(config_item('auth_role')=='VP FINANCE' && $request['status']=='WAITING FOR VP FINANCE REVIEW'){
+            if($total>15000000){
+                $this->connection->set('status','WAITING FOR CFO REVIEW');
+                $level = 11;
+            }else{
+                $this->connection->set('status','approved');
+                $level = 0;
+            }            
+            $this->connection->set('hos_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('hos_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'VP FINANCE : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_expense_purchase_requisitions');
+        }
+
+        if(config_item('auth_role')=='CHIEF OF FINANCE' && $request['status']=='WAITING FOR CFO REVIEW'){
+            $this->connection->set('status','approved');
+            $this->connection->set('ceo_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('ceo_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'CFO : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_expense_purchase_requisitions');
+            $level = 0;
         }
 
         // $this->connection->set('status','approved');
@@ -410,6 +489,17 @@ class Expense_Request_Model extends MY_Model
             return FALSE;
 
         $this->connection->trans_commit();
+
+        if($level>0){
+            if($this->config->item('access_from')!='localhost'){
+                $this->send_mail($id, $level);
+            }
+        }
+        if($level<0){
+            if($this->config->item('access_from')!='localhost'){
+                $this->send_mail_to_head_dept($id);
+            }
+        }
         return TRUE;
     }
 
@@ -738,14 +828,12 @@ class Expense_Request_Model extends MY_Model
 
         if(!empty($_SESSION['expense']['attachment'])){
             foreach ($_SESSION["expense"]["attachment"] as $key) {
-                $this->connection->set('id_purchase', $order_number);
+                $this->connection->set('id_purchase', $document_id);
                 $this->connection->set('file', $key);
                 $this->connection->set('tipe', 'expense');
                 $this->connection->insert('tb_attachment');
             }
-        }
-
-        
+        }        
         
 
         if (($this->connection->trans_status() === FALSE) && ($this->db->trans_status() === FALSE))
@@ -753,11 +841,10 @@ class Expense_Request_Model extends MY_Model
 
         $this->connection->trans_commit();
         $this->db->trans_commit();
-        // if ($unbudgeted > 0) {
-        //   $this->send_mail_finance($document_id);
-        // } else {
-        //   $this->send_mail($document_id);
-        // }
+        
+        if($this->config->item('access_from')!='localhost'){
+            $this->send_mail($document_id, 19);
+        }
 
         return TRUE;
     }
@@ -864,5 +951,136 @@ class Expense_Request_Model extends MY_Model
         }
 
         return $expense_item_no_po;
+    }
+
+    public function send_mail($doc_id, $level)
+    {
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->where('id', $doc_id);
+        $query = $this->connection->get();
+        $row = $query->unbuffered_row('array');
+
+        $recipientList = $this->getNotifRecipient($level);
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key->email);
+        }
+
+        $from_email = "bifa.acd@gmail.com";
+        $to_email = "aidanurul99@rocketmail.com";
+        $ket_level = '';
+        // if ($level == 14) {
+        //   $ket_level = 'Finance Manager';
+        // } elseif ($level == 10) {
+        //   $ket_level = 'Head Of School';
+        // } elseif ($level == 11) {
+        //   $ket_level = 'Chief Of Finance';
+        // } elseif ($level == 3) {
+        //   $ket_level = 'VP Finance';
+        // }elseif ($level == 16) {
+        //   $ket_level = 'CHIEF OPERATION OFFICER';
+        // }
+
+        $levels_and_roles = config_item('levels_and_roles');
+        $ket_level = $levels_and_roles[$level];
+
+        //Load email library 
+        $this->load->library('email');
+        $this->email->set_newline("\r\n");
+        $message = "<p>Dear " . $ket_level . "</p>";
+        $message .= "<p>Berikut permintaan Persetujuan untuk Expense Request :</p>";
+        $message .= "<ul>";
+        $message .= "</ul>";
+        $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
+        $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>Thanks and regards</p>";
+        $this->email->from($from_email, 'Material Resource Planning');
+        $this->email->to($recipient);
+        $this->email->subject('Permintaan Approval Expense Request No : ' . $row['pr_number']);
+        $this->email->message($message);
+
+        //Send mail 
+        if ($this->email->send())
+          return true;
+        else
+          return $this->email->print_debugger();
+    }
+
+    public function send_mail_to_head_dept($doc_id)
+    {
+        $this->connection->select('tb_expense_purchase_requisitions.*');
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->where('tb_expense_purchase_requisitions.id',$doc_id);
+        $query = $this->connection->get();
+        $row = $query->unbuffered_row('array');
+        $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
+        $head_department_username = getHeadDeptByDeptid($department['id']);
+
+        $recipientList = $this->getNotifRecipientByUsername($head_department_username);
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key->email);
+        }
+
+        $from_email = "bifa.acd@gmail.com";
+        $to_email = "aidanurul99@rocketmail.com";
+        $ket_level = '';
+        // if ($level == 14) {
+        //   $ket_level = 'Finance Manager';
+        // } elseif ($level == 10) {
+        //   $ket_level = 'Head Of School';
+        // } elseif ($level == 11) {
+        //   $ket_level = 'Chief Of Finance';
+        // } elseif ($level == 3) {
+        //   $ket_level = 'VP Finance';
+        // }elseif ($level == 16) {
+        //   $ket_level = 'CHIEF OPERATION OFFICER';
+        // }
+
+        //Load email library 
+        $this->load->library('email');
+        $this->email->set_newline("\r\n");
+        $message = "<p>Dear Head Dept : " . $department['department_name'] . "</p>";
+        $message .= "<p>Berikut permintaan Persetujuan untuk Expense Request :</p>";
+        $message .= "<ul>";
+        $message .= "</ul>";
+        $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
+        $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>Thanks and regards</p>";
+        $this->email->from($from_email, 'Material Resource Planning');
+        $this->email->to($recipient);
+        $this->email->subject('Permintaan Approval Expense Request No : ' . $row['pr_number']);
+        $this->email->message($message);
+
+        //Send mail 
+        if ($this->email->send())
+          return true;
+        else
+          return $this->email->print_debugger();
+    }
+
+    public function getNotifRecipient($level)
+    {
+        $this->db->select('email');
+        $this->db->from('tb_auth_users');
+        $this->db->where('auth_level', $level);
+        return $this->db->get('')->result();
+    }
+
+    public function getNotifRecipientByUsername($username)
+    {
+        $this->db->select('email');
+        $this->db->from('tb_auth_users');
+        $this->db->where('username', $username);
+        return $this->db->get('')->result();
+    }
+
+    public function listAttachment($id)
+    {
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'expense');
+        return $this->connection->get('tb_attachment')->result();
     }
 }

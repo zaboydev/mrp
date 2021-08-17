@@ -14,10 +14,12 @@ class Purchase_Order_Model extends MY_Model
     $this->budget_year  = find_budget_setting('Active Year');
     $this->budget_month = find_budget_setting('Active Month');
   }
+  
   public function loadBase()
   {
     return $this->db->get('tb_master_warehouses')->result();
   }
+
   public function getSelectedColumns()
   {
     if ((config_item('auth_role') == 'HEAD OF SCHOOL') || (config_item('auth_role') == 'CHIEF OF FINANCE') || (config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'VP FINANCE')  || (config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
@@ -247,6 +249,13 @@ class Purchase_Order_Model extends MY_Model
       }
     }
 
+    if (!empty($_POST['columns'][5]['search']['value'])) {
+      $currency = $_POST['columns'][5]['search']['value'];
+      if ($currency != 'all') {
+        $this->db->where('tb_po.default_currency', $currency);
+      }
+    }
+
     $i = 0;
 
     foreach ($this->getSearchableColumns() as $item) {
@@ -351,6 +360,8 @@ class Purchase_Order_Model extends MY_Model
 
   public function approve($id,$note)
   {
+    $this->db->trans_begin();
+
     $this->db->from('tb_po');
     $this->db->where('id', $id);
 
@@ -371,11 +382,13 @@ class Purchase_Order_Model extends MY_Model
           $this->db->set('review_status', strtoupper("waiting for coo review"));
           $this->db->set('known_by', config_item('auth_person_name'));
           $this->db->set('known_at', date('Y-m-d'));
+          $status_prl = 'approved by HOS,waiting for coo review';
         } else {
           $level = 3;
           $this->db->set('review_status', strtoupper("waiting for vp finance review"));
           $this->db->set('known_by', config_item('auth_person_name'));
           $this->db->set('known_at', date('Y-m-d'));
+          $status_prl = 'approved by HOS,waiting for vp finance review';
         }
       } else {
         if ($grandtotal >= 1500) {
@@ -383,11 +396,13 @@ class Purchase_Order_Model extends MY_Model
           $this->db->set('review_status', strtoupper("waiting for coo review"));
           $this->db->set('known_by', config_item('auth_person_name'));
           $this->db->set('known_at', date('Y-m-d'));
+          $status_prl = 'approved by HOS,waiting for coo review';
         } else {
           $level = 3;
           $this->db->set('review_status', strtoupper("waiting for vp finance review"));
           $this->db->set('known_by', config_item('auth_person_name'));
-          $this->db->set('known_at', date('Y-m-d'));
+          $this->db->set('known_at', date('Y-m-d'));          
+          $status_prl = 'approved by HOS,waiting for vp finance review';
         }
       }
     }
@@ -395,21 +410,24 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('review_status', strtoupper("approved"));
       // $this->db->set('status', strtoupper("order"));
       $this->db->set('approved_by', config_item('auth_person_name'));
-      $this->db->set('approved_at', date('Y-m-d'));
+      $this->db->set('approved_at', date('Y-m-d'));          
+      $status_prl = 'PO Approved, waiting for order';
     }
 
     if ((config_item('auth_role') == 'FINANCE MANAGER')) {
       $level = 10;
       $this->db->set('review_status', strtoupper("waiting for hos review"));
       $this->db->set('checked_by', config_item('auth_person_name'));
-      $this->db->set('checked_at', date('Y-m-d'));
+      $this->db->set('checked_at', date('Y-m-d'));         
+      $status_prl = 'PO Approved by Finance Manager, waiting for hos review';
     }
 
     if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
       $level = 3;
       $this->db->set('review_status', strtoupper("waiting for vp finance review"));
       $this->db->set('coo_review', config_item('auth_person_name'));
-      $this->db->set('coo_review_at', date('Y-m-d'));
+      $this->db->set('coo_review_at', date('Y-m-d'));         
+      $status_prl = 'PO Approved by CHIEF OPERATION OFFICER, waiting for vp finance review';
     }
 
     if ((config_item('auth_role') == 'VP FINANCE')) {
@@ -418,13 +436,15 @@ class Purchase_Order_Model extends MY_Model
           $level = 11;
           $this->db->set('review_status', strtoupper("waiting for cfo review"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
-          $this->db->set('check_review_at', date('Y-m-d'));
+          $this->db->set('check_review_at', date('Y-m-d'));   
+          $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
         } else {
           $level = 0;
           $this->db->set('review_status', strtoupper("approved"));
           // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
-          $this->db->set('check_review_at', date('Y-m-d'));
+          $this->db->set('check_review_at', date('Y-m-d'));        
+          $status_prl = 'PO Approved, waiting for order';
         }
       } else {
         if ($grandtotal >= 1500) {
@@ -432,22 +452,49 @@ class Purchase_Order_Model extends MY_Model
           $this->db->set('review_status', strtoupper("waiting for cfo review"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
           $this->db->set('check_review_at', date('Y-m-d'));
+          $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
         } else {
           $level = 0;
           $this->db->set('review_status', strtoupper("approved"));
           // $this->db->set('status', strtoupper("order"));
           $this->db->set('check_review_by', config_item('auth_person_name'));
-          $this->db->set('check_review_at', date('Y-m-d'));
+          $this->db->set('check_review_at', date('Y-m-d'));        
+          $status_prl = 'PO Approved, waiting for order';
         }
       }
     }
-
-    if($level!=0){
-      $this->send_mail($id, $level);
-    }
+    
     $this->db->set('approval_notes', $po_note);
     $this->db->where('id', $id);
-    return $this->db->update('tb_po');
+    $this->db->update('tb_po');
+
+    $this->db->select('tb_po_item.poe_item_id, tb_po_item.id');
+    $this->db->from('tb_po_item');
+    $this->db->where('tb_po_item.purchase_order_id', $id);
+    $query  = $this->db->get();
+    $result = $query->result_array();
+
+    foreach ($result as $data) {
+      $poe_item_id = $data['poe_item_id'];
+      $request_item_id = getPrlid($poe_item_id);
+      $this->db->set('last_activity', $status_prl);
+      $this->db->where('tb_inventory_purchase_requisition_details.id', $request_item_id);
+      $this->db->update('tb_inventory_purchase_requisition_details');
+    }
+
+    if($this->config->item('access_from')!='localhost'){
+      if($level!=0){
+        $this->send_mail($id, $level);
+      }
+    }
+
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    
+    return TRUE;
   }
 
 
@@ -892,10 +939,10 @@ class Purchase_Order_Model extends MY_Model
   public function save_po()
   {
     if ($_SESSION['order']['format_number'] == 'POM') {
-      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
     }
     if ($_SESSION['order']['format_number'] == 'WOM') {
-      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
     }
     $document_date        = $_SESSION['order']['document_date'];
     $reference_quotation  = (empty($_SESSION['order']['reference_quotation'])) ? NULL : $_SESSION['order']['reference_quotation'];
@@ -1020,6 +1067,10 @@ class Purchase_Order_Model extends MY_Model
       $this->db->where('id', $item['purchase_order_evaluation_items_vendors_id']);
       $this->db->update('tb_purchase_order_items');
 
+      $this->db->set('evaluation_number',$item['evaluation_number']);
+      $this->db->where('id',$id_po);
+      $this->db->update('tb_po');
+
       $this->db->where('id', $item['purchase_order_evaluation_items_vendors_id']);
       $detail_request = $this->db->get('tb_purchase_order_items')->row();
       if ($detail_request->sisa == 0) {
@@ -1027,6 +1078,11 @@ class Purchase_Order_Model extends MY_Model
         $this->db->where('id', $item['purchase_order_evaluation_items_vendors_id']);
         $this->db->update('tb_purchase_order_items');
       }
+
+      $request_item_id = getPrlid($item['purchase_order_evaluation_items_vendors_id']);
+      $this->db->set('last_activity', 'PO Created, waiting for finance review');
+      $this->db->where('tb_inventory_purchase_requisition_details.id', $request_item_id);
+      $this->db->update('tb_inventory_purchase_requisition_details');
     }
 
     $after_discount = $total_value - $discount;
@@ -1043,11 +1099,16 @@ class Purchase_Order_Model extends MY_Model
     $this->db->where('id', $id_po);
     $this->db->update('tb_po');
 
+    if($this->config->item('access_from')!='localhost'){
+      $this->send_mail($id_po, 14);
+    }
+
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
     $this->db->trans_commit();
-    $this->send_mail($id_po, 14);
+    
+    
     return TRUE;
   }
 
@@ -1179,6 +1240,10 @@ class Purchase_Order_Model extends MY_Model
       $total_qty = $total_qty + $item['quantity'];
       $total_value = $total_value + $item['total_amount'];
 
+      $this->db->set('evaluation_number',$item['evaluation_number']);
+      $this->db->where('id',$id_po);
+      $this->db->update('tb_po');
+
       $this->db->set('quantity_received', $item['quantity']);
       $this->db->set('unit_price', $item['unit_price']);
       $this->db->set('core_charge', $item['core_charge']);
@@ -1222,12 +1287,13 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('remaining_payment', floatval($grandtotal));
     $this->db->where('id', $id_po);
     $this->db->update('tb_po');
+    
+    $this->send_mail($id_po, 14,'revisi');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
     $this->db->trans_commit();
-    $this->send_mail($id_po, 14);
     return TRUE;
   }
 
@@ -1338,7 +1404,7 @@ class Purchase_Order_Model extends MY_Model
     return $this->db->get('tb_attachment_poe')->result();
   }
 
-  public function send_mail($doc_id, $level)
+  public function send_mail($doc_id, $level,$tipe=null)
   {
     $this->db->from('tb_po');
     $this->db->where('id', $doc_id);
@@ -1368,21 +1434,20 @@ class Purchase_Order_Model extends MY_Model
 
     //Load email library 
     $this->load->library('email');
-    // $config = array();
-    // $config['protocol'] = 'mail';
-    // $config['smtp_host'] = 'smtp.live.com';
-    // $config['smtp_user'] = 'bifa.acd@gmail.com';
-    // $config['smtp_pass'] = 'b1f42019';
-    // $config['smtp_port'] = 587;
-    // $config['smtp_auth']        = true;
-    // $config['mailtype']         = 'html';
-    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
     $message = "<p>Dear " . $ket_level . "</p>";
-    $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order :</p>";
+    if($tipe!=null){
+      $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order Yang Direvisi :</p>";
+    }else{
+      $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order Baru :</p>";
+    }    
     $message .= "<ul>";
     $message .= "</ul>";
     $message .= "<p>No Purchase Order : " . $row['document_number'] . "</p>";
+    if($tipe!=null){
+      $message .= "<p>POE dibawah ini Otomatis Terevisi </p>";
+      $message .= "<p>No Purchase Order Evaluation : " . $row['evaluation_number'] . "</p>";
+    }
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
     $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";

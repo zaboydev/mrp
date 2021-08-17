@@ -13,8 +13,13 @@ class Inventory_Request extends MY_Controller
         $this->load->model($this->module['model'], 'model');
         $this->data['module'] = $this->module;
         $this->load->library('email');
+        $this->load->library('upload');
         // if (empty($_SESSION['request']['request_to']))
         //   $_SESSION['request']['request_to'] = 1;
+
+        if (empty($_SESSION['inventory']['attachment']))
+          $_SESSION['inventory']['attachment'] = array();
+    
     }
 
     public function index_data_source()
@@ -36,7 +41,7 @@ class Inventory_Request extends MY_Controller
             $col = array();
             if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
                 $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-            }else if($row['status']=='WAITING FOR BUDGETCONTROL' && config_item('auth_role')=='BUDGETCONTROL'){
+            }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                 $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
             }else{                    
                 $col[] = print_number($no);
@@ -44,7 +49,7 @@ class Inventory_Request extends MY_Controller
             $col[] = print_string($row['pr_number']);
             $col[] = print_string(strtoupper($row['status']));
             $col[] = print_string($row['category_name']);
-            $col[] = print_string($row['department_name']);
+            // $col[] = print_string($row['department_name']);
             $col[] = print_string($row['cost_center_name']);
             $col[] = print_date($row['pr_date']);
             $col[] = print_date($row['required_date']);
@@ -57,6 +62,10 @@ class Inventory_Request extends MY_Controller
             }else{                    
                 $col[] = $row['approved_notes'];
             }
+            $col[] = isAttachementExists($row['id'],'inventory') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
+            $col[] = print_string($row['department_name']);
             $col['DT_RowId'] = 'row_'. $row['id'];
             $col['DT_RowData']['pkey']  = $row['id'];
             $total[]         = $row['total_inventory'];
@@ -77,7 +86,7 @@ class Inventory_Request extends MY_Controller
             "recordsFiltered" => $this->model->countIndexFiltered(),
             "data" => $data,
             "total" => array(
-                8  => print_number(array_sum($total), 2),
+                7  => print_number(array_sum($total), 2),
             )
         );
         }
@@ -93,7 +102,7 @@ class Inventory_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(8);
+        $this->data['grid']['summary_columns']  = array(7);
         $this->data['grid']['order_columns']    = array(
              // 0   => array( 0 => 2,  1 => 'desc' ),
             0   => array( 0 => 1,  1 => 'desc' ),
@@ -595,6 +604,42 @@ class Inventory_Request extends MY_Controller
         }
 
         echo json_encode($entities);
+    }
+
+    public function listAttachment($id)
+    {
+        $data = $this->model->listAttachment($id);
+        echo json_encode($data);
+    }
+
+    public function attachment()
+    {
+        $this->authorized($this->module, 'document');
+
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function add_attachment()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+        $config['upload_path'] = 'attachment/inventory_request/'.$_SESSION['inventory']['cost_center_name'].'/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+          $error = array('error' => $this->upload->display_errors());
+        } else {
+
+          $data = array('upload_data' => $this->upload->data());
+          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          array_push($_SESSION["inventory"]["attachment"], $url);
+          $result["status"] = 1;
+        }
+        echo json_encode($result);
     }
 
     

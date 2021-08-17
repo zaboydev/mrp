@@ -1015,7 +1015,7 @@
                 $('#purchase_order_item_id').val(ui.item.id);
                 $('#purchase_order_number').val(ui.item.document_number);
                 $('#kode_stok').val(ui.item.kode_stok);
-                if (ui.item.default_currency == 'USD') {
+                if (ui.item.default_currency == 'USD' || ui.item.default_currency == 'AUD') {
                   $('[name="kurs"]').val('dollar');
                 } else {
                   $('[name="kurs"]').val('rupiah');

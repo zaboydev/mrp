@@ -97,7 +97,7 @@ class MY_Controller extends CI_Controller
     }
     else{
       if (config_item('as_head_department')=='yes') {
-        if($roles=='index'||$roles=='info'||$roles=='print'){
+        if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
           return TRUE;
         }else{
           return FALSE;
@@ -233,6 +233,19 @@ class MY_Controller extends CI_Controller
     }else{
       $department_name = 'no_head_department';
     }
+
+    // $result = $query->result_array();
+    // $department_name = array();
+
+    // foreach ($result as $row) {
+    //   $department_id = $row['department_id'];
+    //   $this->connection->select('department_name');
+    //   $this->connection->from('tb_departments');
+    //   $this->connection->where('id',$department_id);
+    //   $query  = $this->connection->get();
+    //   $resultquery = $query->unbuffered_row('array');
+    //   $department_name[] = $resultquery['department_name'];
+    // }
 
     return $department_name;
   }
@@ -429,7 +442,7 @@ class MY_Controller extends CI_Controller
         break;
 
       case 3:
-      case 04:
+      case 03:
         $print = 'March';
         break;
 

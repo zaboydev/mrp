@@ -6,6 +6,7 @@ class Inventory_Request_Model extends MY_Model
 	protected $categories;
 	protected $budget_year;
 	protected $budget_month;
+    protected $modules;
 
 	public function __construct()
 	{
@@ -15,23 +16,30 @@ class Inventory_Request_Model extends MY_Model
 		$this->categories   = $this->getCategories();
 		$this->budget_year  = find_budget_setting('Active Year');
 		$this->budget_month = find_budget_setting('Active Month');
+        $this->modules        = config_item('module');
+        $this->data['modules']        = $this->modules;
 	}
 
 	public function getSelectedColumns()
 	{
-		return array(
-			'tb_inventory_purchase_requisitions.id'                         			=> NULL,
-            'tb_inventory_purchase_requisitions.pr_number'                  			=> 'Document Number',
-            'tb_inventory_purchase_requisitions.status'                     			=> 'Status',
-            'tb_product_categories.category_name'		                     			=> 'Category',
-            'tb_departments.department_name'                            				=> 'Department Name',
-            'tb_cost_centers.cost_center_name'                          				=> 'Cost Center',
-            'tb_inventory_purchase_requisitions.pr_date'                    			=> 'Document Date',
-            'tb_inventory_purchase_requisitions.required_date'              			=> 'Required Date',
-            'SUM(tb_inventory_purchase_requisition_details.total) as total_inventory'  	=> 'Total',
-            'tb_inventory_purchase_requisitions.notes'                      				=> 'Requisitions Notes',
-            'tb_inventory_purchase_requisitions.approved_notes'             				=> 'Notes',
-		);
+        $return = array(
+            'tb_inventory_purchase_requisitions.id'                                     => NULL,
+            'tb_inventory_purchase_requisitions.pr_number'                              => 'Document Number',
+            'tb_inventory_purchase_requisitions.status'                                 => 'Status',
+            'tb_product_categories.category_name'                                       => 'Category',
+            // 'tb_departments.department_name'                                         => 'Department Name',
+            'tb_cost_centers.cost_center_name'                                          => 'Cost Center',
+            'tb_inventory_purchase_requisitions.pr_date'                                => 'Document Date',
+            'tb_inventory_purchase_requisitions.required_date'                          => 'Required Date',
+            'SUM(tb_inventory_purchase_requisition_details.total) as total_inventory'   => 'Total',
+            'tb_inventory_purchase_requisitions.notes'                                      => 'Requisitions Notes',
+            'tb_inventory_purchase_requisitions.approved_notes'                             => 'Notes',
+            NULL                                                                            => 'Attachment',
+        );
+		if (config_item('as_head_department')=='yes') {
+            $return['tb_departments.department_name']  = 'Dept. Name';
+        }
+        return $return;
 	}
 
 	public function getGroupedColumns()
@@ -62,26 +70,31 @@ class Inventory_Request_Model extends MY_Model
             // 'tb_capex_purchase_requisitions.pr_date',
             // 'tb_capex_purchase_requisitions.required_date',
             'tb_inventory_purchase_requisitions.notes',
-            'tb_departments.department_name',
+            // 'tb_departments.department_name',
             'tb_inventory_purchase_requisitions.approved_notes'
 		);
 	}
 
 	public function getOrderableColumns()
 	{
-		return array(
-			null,
+        $return = array(
+            null,
             'tb_inventory_purchase_requisitions.pr_number',
             'tb_inventory_purchase_requisitions.status',
-			'tb_product_categories.category_name',
-            'tb_departments.department_name',
+            'tb_product_categories.category_name',
+            // 'tb_departments.department_name',
             'tb_cost_centers.cost_center_name',
             'tb_inventory_purchase_requisitions.pr_date',
             'tb_inventory_purchase_requisitions.required_date',
             NULL,
             'tb_inventory_purchase_requisitions.notes',
             NULL
-		);
+        );
+
+        if (config_item('as_head_department')=='yes') {
+            $return[]  = 'tb_departments.department_name';
+        }
+        return $return;
 	}
 
   	private function searchIndex()
@@ -100,7 +113,15 @@ class Inventory_Request_Model extends MY_Model
 		  	if($search_status!='all'){
                 $this->connection->where('tb_inventory_purchase_requisitions.status', $search_status);
             } 
-		}
+		}else{
+            if(config_item('auth_role') == 'BUDGETCONTROL'){
+                $this->connection->where('tb_inventory_purchase_requisitions.status', 'pending');
+            } 
+            if (config_item('as_head_department')=='yes'){
+                $this->connection->where('tb_inventory_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+            }
+            
+        }
 
 		if (!empty($_POST['columns'][3]['search']['value'])){
             $search_cost_center = $_POST['columns'][3]['search']['value'];
@@ -189,8 +210,9 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
         $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
-		$this->connection->where_in('tb_inventory_purchase_requisitions.product_category_id', $this->categories);
+		if (is_granted($this->data['modules']['inventory_request'], 'approval') === FALSE) {
+            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        }
         $this->connection->group_by($this->getGroupedColumns());
 
 		$this->searchIndex();
@@ -229,8 +251,9 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
         $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
-		$this->connection->where_in('tb_inventory_purchase_requisitions.product_category_id', $this->categories);
+		if (is_granted($this->data['modules']['inventory_request'], 'approval') === FALSE) {
+            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        }
         $this->connection->group_by($this->getGroupedColumns());
 
 		$this->searchIndex();
@@ -250,8 +273,9 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
         $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-        $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
-		$this->connection->where_in('tb_inventory_purchase_requisitions.product_category_id', $this->categories);
+		if (is_granted($this->data['modules']['inventory_request'], 'approval') === FALSE) {
+            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        }
         $this->connection->group_by($this->getGroupedColumns());
 
 		$query = $this->connection->get();
@@ -485,7 +509,7 @@ class Inventory_Request_Model extends MY_Model
 		  	$this->connection->set('required_date', $required_date);
 		  	$this->connection->set('suggested_supplier', $suggested_supplier);
 		  	$this->connection->set('deliver_to', $deliver_to);
-		  	$this->connection->set('status', 'WAITING FOR BUDGETCONTROL');
+		  	$this->connection->set('status', 'pending');
 		  	$this->connection->set('notes', $notes);
 		  	$this->connection->set('created_by', $created_by);
 		  	$this->connection->set('updated_by', config_item('auth_person_name'));
@@ -499,7 +523,7 @@ class Inventory_Request_Model extends MY_Model
 		  	$this->connection->set('required_date', $required_date);
 		  	$this->connection->set('suggested_supplier', $suggested_supplier);
 		  	$this->connection->set('deliver_to', $deliver_to);
-		  	$this->connection->set('status', 'WAITING FOR BUDGETCONTROL');
+		  	$this->connection->set('status', 'pending');
 		  	$this->connection->set('notes', $notes);
 		  	$this->connection->set('updated_at', date('Y-m-d'));
 		  	$this->connection->set('updated_by', config_item('auth_person_name'));
@@ -815,10 +839,24 @@ class Inventory_Request_Model extends MY_Model
 		    $this->connection->insert('tb_inventory_purchase_requisition_details');
 		}
 
+        if(!empty($_SESSION['inventory']['attachment'])){
+            foreach ($_SESSION["inventory"]["attachment"] as $key) {
+                $this->connection->set('id_purchase', $document_id);
+                $this->connection->set('file', $key);
+                $this->connection->set('tipe', 'inventory');
+                $this->connection->insert('tb_attachment');
+            }
+        }     
+
 		if ($this->connection->trans_status() === FALSE)
 		  	return FALSE;
 
 		$this->connection->trans_commit();
+
+        if($this->config->item('access_from')!='localhost'){
+            $this->send_mail($document_id, 19);
+        }
+
 		return TRUE;
   	}
 
@@ -1074,8 +1112,9 @@ class Inventory_Request_Model extends MY_Model
         $query    = $this->connection->get();
         $request  = $query->unbuffered_row('array');
         $approval_notes = $request['approval_notes'];
+        $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
 
-        if(config_item('auth_role')=='BUDGETCONTROL'){
+        if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
             $this->connection->set('status','WAITING FOR HEAD DEPT');
             $this->connection->set('approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('approved_by',config_item('auth_person_name'));
@@ -1084,7 +1123,8 @@ class Inventory_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
-        }else{
+            $level = -1;
+        }else if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
             $this->connection->set('status','approved');
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('head_approved_by',config_item('auth_person_name'));
@@ -1093,6 +1133,7 @@ class Inventory_Request_Model extends MY_Model
             }
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
+            $level = 0;
         }
 
         
@@ -1101,6 +1142,147 @@ class Inventory_Request_Model extends MY_Model
             return FALSE;
 
         $this->connection->trans_commit();
+        if($level>0){
+            if($this->config->item('access_from')!='localhost'){
+                $this->send_mail($id, $level);
+            }
+        }
+        if($level<0){
+            if($this->config->item('access_from')!='localhost'){
+                $this->send_mail_to_head_dept($id);
+            }
+        }
         return TRUE;
+    }
+
+    public function send_mail($doc_id, $level)
+    {
+        $this->connection->from('tb_inventory_purchase_requisitions');
+        $this->connection->where('id', $doc_id);
+        $query = $this->connection->get();
+        $row = $query->unbuffered_row('array');
+
+        $recipientList = $this->getNotifRecipient($level);
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key->email);
+        }
+
+        $from_email = "bifa.acd@gmail.com";
+        $to_email = "aidanurul99@rocketmail.com";
+        $ket_level = '';
+        // if ($level == 14) {
+        //   $ket_level = 'Finance Manager';
+        // } elseif ($level == 10) {
+        //   $ket_level = 'Head Of School';
+        // } elseif ($level == 11) {
+        //   $ket_level = 'Chief Of Finance';
+        // } elseif ($level == 3) {
+        //   $ket_level = 'VP Finance';
+        // }elseif ($level == 16) {
+        //   $ket_level = 'CHIEF OPERATION OFFICER';
+        // }
+
+        $levels_and_roles = config_item('levels_and_roles');
+        $ket_level = $levels_and_roles[$level];
+
+        //Load email library 
+        $this->load->library('email');
+        $this->email->set_newline("\r\n");
+        $message = "<p>Dear " . $ket_level . "</p>";
+        $message .= "<p>Berikut permintaan Persetujuan untuk Inventory Request Non-Sparepart Pesawat :</p>";
+        $message .= "<ul>";
+        $message .= "</ul>";
+        $message .= "<p>No Inventory Request Non-Sparepart Pesawat : " . $row['pr_number'] . "</p>";
+        $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>Thanks and regards</p>";
+        $this->email->from($from_email, 'Material Resource Planning');
+        $this->email->to($recipient);
+        $this->email->subject('Permintaan Approval Inventory Request Non-Sparepart Pesawat No : ' . $row['pr_number']);
+        $this->email->message($message);
+
+        //Send mail 
+        if ($this->email->send())
+          return true;
+        else
+          return $this->email->print_debugger();
+    }
+
+    public function send_mail_to_head_dept($doc_id)
+    {
+        $this->connection->select('tb_inventory_purchase_requisitions.*');
+        $this->connection->from('tb_inventory_purchase_requisitions');
+        $this->connection->where('tb_inventory_purchase_requisitions.id',$doc_id);
+        $query = $this->connection->get();
+        $row = $query->unbuffered_row('array');
+        $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
+        $head_department_username = getHeadDeptByDeptid($department['id']);
+
+        $recipientList = $this->getNotifRecipientByUsername($head_department_username);
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key->email);
+        }
+
+        $from_email = "bifa.acd@gmail.com";
+        $to_email = "aidanurul99@rocketmail.com";
+        $ket_level = '';
+        // if ($level == 14) {
+        //   $ket_level = 'Finance Manager';
+        // } elseif ($level == 10) {
+        //   $ket_level = 'Head Of School';
+        // } elseif ($level == 11) {
+        //   $ket_level = 'Chief Of Finance';
+        // } elseif ($level == 3) {
+        //   $ket_level = 'VP Finance';
+        // }elseif ($level == 16) {
+        //   $ket_level = 'CHIEF OPERATION OFFICER';
+        // }
+
+        //Load email library 
+        $this->load->library('email');
+        $this->email->set_newline("\r\n");
+        $message = "<p>Dear Head Dept : " . $department['department_name'] . "</p>";
+        $message .= "<p>Berikut permintaan Persetujuan untuk Inventory Request Non-Sparepart Pesawat :</p>";
+        $message .= "<ul>";
+        $message .= "</ul>";
+        $message .= "<p>No Inventory Request Non-Sparepart Pesawat : " . $row['pr_number'] . "</p>";
+        $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>Thanks and regards</p>";
+        $this->email->from($from_email, 'Material Resource Planning');
+        $this->email->to($recipient);
+        $this->email->subject('Permintaan Approval Inventory Request Non-Sparepart Pesawat No : ' . $row['pr_number']);
+        $this->email->message($message);
+
+        //Send mail 
+        if ($this->email->send())
+          return true;
+        else
+          return $this->email->print_debugger();
+    }
+
+    public function getNotifRecipient($level)
+    {
+        $this->db->select('email');
+        $this->db->from('tb_auth_users');
+        $this->db->where('auth_level', $level);
+        return $this->db->get('')->result();
+    }
+
+    public function getNotifRecipientByUsername($username)
+    {
+        $this->db->select('email');
+        $this->db->from('tb_auth_users');
+        $this->db->where('username', $username);
+        return $this->db->get('')->result();
+    }
+
+    public function listAttachment($id)
+    {
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'inventory');
+        return $this->connection->get('tb_attachment')->result();
     }
 }

@@ -60,6 +60,14 @@ class Expense_Purchase_Order extends MY_Controller
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else if ((config_item('auth_role') == 'SUPER ADMIN')) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ((config_item('auth_role') == 'PROCUREMENT MANAGER')&& ($row['review_status'] == strtoupper("waiting for proc mng review"))) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ((config_item('auth_role') == 'FINANCE MANAGER')&& ($row['review_status'] == strtoupper("waiting for finance review"))) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ((config_item('auth_role') == 'CHIEF OF FINANCE')&& ($row['review_status'] == strtoupper("waiting for cfo review"))) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else{
+            $col[] = '';
           }
           $col[]  = print_string($no);
           $col[]  = '<a href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
@@ -768,12 +776,18 @@ class Expense_Purchase_Order extends MY_Controller
     $item       = $this->model->findItemPoe($vendor_id);
     $order      = $this->model->findPoe($vendor_id);
     $category   = urldecode('SPARE PART');
-    $company    = find_budget_setting('Company Name', 'head company');
-    $address    = nl2br(find_budget_setting('Address', 'head company'));
-    $country    = 'INDONESIA';
+
+    $deliver    = getDefaultDeliveryTo();
+    $deliver_company    = $deliver['warehouse'];
+    $deliver_address = $deliver['address'];
+    $deliver_country = $deliver['country'];
+
+    $bill       = getDefaultBillTo();
+    $bill_company    = nl2br($bill['warehouse']);
+    $bill_address    = nl2br($bill['address']);
+    $bill_country    = $bill['country'];
     $phone      = find_budget_setting('Phone No', 'head company');
     $attention  = 'Attn. Umar Satrio, Mobile. +62 081333312392';
-    $deliver_address = 'Bandara Letkol Wisnu Desa Sumberkima, Gerokgak, Singaraja, Bali 80111';
 
     if (isset($_SESSION['order']) === FALSE) {
       $_SESSION['order']['items']               = $item;
@@ -781,24 +795,24 @@ class Expense_Purchase_Order extends MY_Controller
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
-      $_SESSION['order']['format_number']       = order_format_number();
-      $_SESSION['order']['document_number']     = order_last_number($_SESSION['order']['format_number']);
-      $_SESSION['order']['wom_document_number']     = order_last_number('WOM');
-      $_SESSION['order']['pom_document_number']     = order_last_number('POM');
+      $_SESSION['order']['format_number']       = order_format_number_local();
+      $_SESSION['order']['document_number']     = order_last_number('POL');
+      $_SESSION['order']['wom_document_number']     = order_last_number('WOL');
+      $_SESSION['order']['pom_document_number']     = order_last_number('POL');
       $_SESSION['order']['document_date']       = date('Y-m-d');
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['vendor_address']      = $order['vendor_address'];
       $_SESSION['order']['vendor_country']      = $order['vendor_country'];
       $_SESSION['order']['vendor_phone']        = $order['vendor_phone'];
       $_SESSION['order']['vendor_attention']    = $order['vendor_attention'];
-      $_SESSION['order']['deliver_company']     = $company;
+      $_SESSION['order']['deliver_company']     = $deliver_company;
       $_SESSION['order']['deliver_address']     = $deliver_address;
-      $_SESSION['order']['deliver_country']     = 'INDONESIA';
+      $_SESSION['order']['deliver_country']     = $deliver_country;
       $_SESSION['order']['deliver_phone']       = $phone;
       $_SESSION['order']['deliver_attention']   = $attention;
-      $_SESSION['order']['bill_company']        = $company;
-      $_SESSION['order']['bill_address']        = $address;
-      $_SESSION['order']['bill_country']        = 'INDONESIA';
+      $_SESSION['order']['bill_company']        = $bill_company;
+      $_SESSION['order']['bill_address']        = $bill_address;
+      $_SESSION['order']['bill_country']        = $bill_country;
       $_SESSION['order']['bill_phone']          = $phone;
       $_SESSION['order']['bill_attention']      = $attention;
       $_SESSION['order']['reference_quotation'] = NULL;
@@ -825,6 +839,7 @@ class Expense_Purchase_Order extends MY_Controller
     //   redirect($this->module['route']);
 
     // $this->data['page']['content'] = $this->module['view'] .'/create';
+    $this->data['page']['title']            = "Create Purchase Order";
 
     $this->render_view($this->module['view'] . '/create');
   }
@@ -937,13 +952,8 @@ class Expense_Purchase_Order extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if($_SESSION['order']['format_number']=='POM') {
-        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['pom_document_number'];
-      }
-      if ($_SESSION['order']['format_number'] == 'WOM') {
-        $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['wom_document_number'];
-      }
-      // $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
+      
+      $document_number = strtoupper($_SESSION['order']['format_number']) . $_SESSION['order']['document_number'];
 
 
       $errors = array();

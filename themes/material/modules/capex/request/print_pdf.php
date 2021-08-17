@@ -28,24 +28,30 @@
     <td>Deliver to</td>
     <th>: <?= print_string($entity['deliver_to']); ?></th>
     <td>Status</td>
-    <th>: <?= ($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']); ?></th>
+    <th>
+      : <?= ($entity['status'] != 'pending') ? 'BUDGETED' : 'BUDGETED'; ?> 
+      <?php if($entity['status']!='pending') : ?>
+        Budgetcontrol Review by : <?= $entity['approved_by']; ?> at : <?= print_date($entity['approved_date']) ?>
+      <?php endif; ?>
+    </th>
   </tr>
   <tr>
     <td></td>
     <th></th>
     <td>Approval Status</td>
     <?php if($entity['status']=='approved') : ?>
-      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?></th>
+      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?> as Head Department</th>
     <?php elseif($entity['status']=='rejected') : ?>
       <th>: REJECTED by <?=print_person_name($entity['rejected_by']);?></th>
     <?php elseif ($entity['canceled_date'] != null) : ?>
       <th>: CANCELED by <?= print_person_name($entity['canceled_by']); ?></th>
     <?php elseif($entity['status']=='WAITING FOR HEAD DEPT') : ?>
       <th>: BUDGETCONTROL APPROVED by <?=print_person_name($entity['approved_by']); ?></th>
-    <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL') : ?>
+    <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL'||$entity['status']=='pending') : ?>
       <th>: WAITING FOR BUDGETCONTROL</th>
     <?php endif; ?>
   </tr>
+  
 </table>
 
 <div class="clear"></div>
@@ -163,18 +169,7 @@
     <td width="5%" valign="top" align="center">
       &nbsp;
     </td>
-    <td width="30%" valign="top" align="center">
-      <p>
-        Checked by:
-        <br />Budgetcontrol
-        <?php if ($entity['approved_by'] != '') : ?>
-          <br /><?= print_date($entity['approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['approved_by']; ?>
-      </p>
-    </td>
+    
 
     <td width="5%" valign="top" align="center">
       &nbsp;

@@ -81,7 +81,7 @@ class Expense_Request extends MY_Controller
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
+                }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='FINANCE MANAGER'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else if($row['status']=='WAITING FOR HOS REVIEW' && config_item('auth_role')=='HEAD OF SCHOOL'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -92,13 +92,18 @@ class Expense_Request extends MY_Controller
                 }
                 $col[] = print_string($row['pr_number']);
                 $col[] = print_string(strtoupper($row['status']));
-                $col[] = print_string(strtoupper($row['department_name']));
                 $col[] = print_string($row['cost_center_name']);
                 $col[] = print_date($row['pr_date']);
                 $col[] = print_date($row['required_date']);
                 // $col[] = print_string($row['account_name']);
                 $col[] = print_number($row['total_expense'],2);
                 $col[] = $row['notes'];
+                $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
+                if (config_item('as_head_department')=='yes'){
+                    $col[] = print_string(strtoupper($row['department_name']));
+                }
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
 
@@ -120,7 +125,7 @@ class Expense_Request extends MY_Controller
                 "recordsFiltered" => $this->model->countIndexFiltered(),
                 "data" => $data,
                 "total" => array(
-                    7  => print_number(array_sum($total), 2),
+                    6  => print_number(array_sum($total), 2),
                 )
             );
         }
@@ -136,7 +141,7 @@ class Expense_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(7);
+        $this->data['grid']['summary_columns']  = array(6);
         $this->data['grid']['order_columns']    = array(
             0   => array( 0 => 1,  1 => 'desc' ),
             1   => array( 0 => 2,  1 => 'desc' ),
@@ -145,8 +150,6 @@ class Expense_Request extends MY_Controller
             4   => array( 0 => 5,  1 => 'asc' ),
             5   => array( 0 => 6,  1 => 'asc' ),
             6   => array( 0 => 7,  1 => 'asc' ),
-            7   => array( 0 => 8,  1 => 'asc' ),
-            // 7   => array( 0 => 8,  1 => 'asc' ),
             
         );
 
@@ -181,6 +184,7 @@ class Expense_Request extends MY_Controller
         // $on_hand_stock = $this->model->findPrlById($id);
 
         $this->data['entity']           = $entity;
+        $this->data['cost_center']           = getCostCenterByAnnualCostCenterId($entity['annual_cost_center_id']);;
         $this->data['page']['title']    = strtoupper($this->module['label']);
         $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
@@ -590,5 +594,11 @@ class Expense_Request extends MY_Controller
         $pdf = $this->m_pdf->load(null, 'A4-L');
         $pdf->WriteHTML($html);
         $pdf->Output($pdfFilePath, "I");
+    }
+
+    public function listAttachment($id)
+    {
+        $data = $this->model->listAttachment($id);
+        echo json_encode($data);
     }
 }
