@@ -3,18 +3,18 @@
 <?php startblock('actions_right') ?>
   <div class="section-floating-action-row">
     <?php if (is_granted($module, 'import')):?>
-      <div class="btn-group dropup">
+      <!-- <div class="btn-group dropup">
         <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-import-data" data-toggle="modal" data-target="#import-modal">
           <i class="md md-attach-file"></i>
           <small class="top right">Import Data</small>
         </button>
-      </div>
+      </div> -->
     <?php endif ?>
 
     <?php if (is_granted($module, 'create')):?>
-      <button class="btn btn-floating-action btn-lg btn-danger ink-reaction" id="btn-create-data" onclick="$(this).popup()" data-source="<?=site_url($module['route'] .'/create')?>" data-target="#data-modal">
+      <!-- <button class="btn btn-floating-action btn-lg btn-danger ink-reaction" id="btn-create-data" onclick="$(this).popup()" data-source="<?=site_url($module['route'] .'/create')?>" data-target="#data-modal">
         <i class="md md-add"></i>
-      </button>
+      </button> -->
     <?php endif ?>
   </div>
 <?php endblock() ?>

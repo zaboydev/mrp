@@ -29,6 +29,7 @@ class Expense_Request_Model extends MY_Model
             // 'tb_accounts.account_name'                                           => 'Account',
             'SUM(tb_expense_purchase_requisition_details.total) as total_expense'  => 'Total',
             'tb_expense_purchase_requisitions.notes'                            => 'Notes',
+            NULL                                                                => 'Attachment',
         );
         if (config_item('as_head_department')=='yes') {
             $return['tb_departments.department_name']  = 'Dept. Name';
@@ -111,6 +112,9 @@ class Expense_Request_Model extends MY_Model
             if(config_item('auth_role') == 'BUDGETCONTROL'){
                 $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
             } 
+            if (config_item('as_head_department')=='yes'){
+                $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+            }
         }
 
         if (!empty($_POST['columns'][3]['search']['value'])){
@@ -360,6 +364,7 @@ class Expense_Request_Model extends MY_Model
         $with_po = $request['with_po'];
         $total = $this->countTotalExpense($id);
         $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
+        $cost_center = getCostCenterByAnnualCostCenterId($request['annual_cost_center_id']);
 
         if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
             $this->connection->set('status','WAITING FOR HEAD DEPT');
@@ -398,7 +403,13 @@ class Expense_Request_Model extends MY_Model
         }
 
         if(config_item('auth_role')=='FINANCE MANAGER' && $request['status']=='WAITING FOR FINANCE REVIEW'){
-            $this->connection->set('status','WAITING FOR HOS REVIEW');
+            if($cost_center['id']==$this->config->item('head_office_cost_center_id')){
+                $this->connection->set('status','WAITING FOR VP FINANCE REVIEW');                
+                $level = 3;
+            }else{
+                $this->connection->set('status','WAITING FOR HOS REVIEW');
+                $level = 10;
+            }
             $this->connection->set('finance_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('finance_approved_by',config_item('auth_person_name'));
             if($notes!=''){
@@ -406,7 +417,7 @@ class Expense_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_expense_purchase_requisitions');
-            $level = 10;
+            
         }
 
         if(config_item('auth_role')=='HEAD OF SCHOOL' && $request['status']=='WAITING FOR HOS REVIEW'){
@@ -432,6 +443,35 @@ class Expense_Request_Model extends MY_Model
             $this->connection->set('ceo_approved_by',config_item('auth_person_name'));
             if($notes!=''){
                 $this->connection->set('approved_notes',$approval_notes.'COO : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_expense_purchase_requisitions');
+            $level = 0;
+        }
+
+        if(config_item('auth_role')=='VP FINANCE' && $request['status']=='WAITING FOR VP FINANCE REVIEW'){
+            if($total>15000000){
+                $this->connection->set('status','WAITING FOR CFO REVIEW');
+                $level = 11;
+            }else{
+                $this->connection->set('status','approved');
+                $level = 0;
+            }            
+            $this->connection->set('hos_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('hos_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'VP FINANCE : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_expense_purchase_requisitions');
+        }
+
+        if(config_item('auth_role')=='CHIEF OF FINANCE' && $request['status']=='WAITING FOR CFO REVIEW'){
+            $this->connection->set('status','approved');
+            $this->connection->set('ceo_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('ceo_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'CFO : '.$notes);
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_expense_purchase_requisitions');
@@ -788,7 +828,7 @@ class Expense_Request_Model extends MY_Model
 
         if(!empty($_SESSION['expense']['attachment'])){
             foreach ($_SESSION["expense"]["attachment"] as $key) {
-                $this->connection->set('id_purchase', $order_number);
+                $this->connection->set('id_purchase', $document_id);
                 $this->connection->set('file', $key);
                 $this->connection->set('tipe', 'expense');
                 $this->connection->insert('tb_attachment');
@@ -1035,5 +1075,12 @@ class Expense_Request_Model extends MY_Model
         $this->db->from('tb_auth_users');
         $this->db->where('username', $username);
         return $this->db->get('')->result();
+    }
+
+    public function listAttachment($id)
+    {
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'expense');
+        return $this->connection->get('tb_attachment')->result();
     }
 }

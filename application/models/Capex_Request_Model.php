@@ -33,6 +33,7 @@ class Capex_Request_Model extends MY_Model
             'SUM(tb_capex_purchase_requisition_details.total) as total_capex'  => 'Total',
             'tb_capex_purchase_requisitions.notes'                      => 'Requisitions Notes',
             'tb_capex_purchase_requisitions.approved_notes'             => 'Notes',
+            NULL                    => 'Attachment',
         );
         if (config_item('as_head_department')=='yes') {
             $return['tb_departments.department_name']  = 'Dept. Name';
@@ -112,6 +113,9 @@ class Capex_Request_Model extends MY_Model
             if(config_item('auth_role') == 'BUDGETCONTROL'){
                 $this->connection->where('tb_capex_purchase_requisitions.status', 'pending');
             } 
+            if (config_item('as_head_department')=='yes'){
+                $this->connection->where('tb_capex_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+            }
             
         }
 
@@ -634,11 +638,13 @@ class Capex_Request_Model extends MY_Model
 
         }
 
-        foreach ($_SESSION["capex"]["attachment"] as $key) {
-            $this->connection->set('id_purchase', $order_number);
-            $this->connection->set('file', $key);
-            $this->connection->set('tipe', 'capex');
-            $this->connection->insert('tb_attachment');
+        if(!empty($_SESSION['capex']['attachment'])){
+            foreach ($_SESSION["capex"]["attachment"] as $key) {
+                $this->connection->set('id_purchase', $document_id);
+                $this->connection->set('file', $key);
+                $this->connection->set('tipe', 'capex');
+                $this->connection->insert('tb_attachment');
+            }
         }
 
         // request from budget control
@@ -1170,5 +1176,12 @@ class Capex_Request_Model extends MY_Model
         $this->db->from('tb_auth_users');
         $this->db->where('username', $username);
         return $this->db->get('')->result();
+    }
+
+    public function listAttachment($id)
+    {
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'capex');
+        return $this->connection->get('tb_attachment')->result();
     }
 }

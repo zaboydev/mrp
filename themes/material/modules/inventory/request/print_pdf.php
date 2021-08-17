@@ -28,14 +28,19 @@
     <td>Deliver to</td>
     <th>: <?= print_string($entity['deliver_to']); ?></th>
     <td>Status</td>
-    <th>: <?= ($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']); ?></th>
+    <th>
+      : <?= ($entity['status'] != 'pending') ? 'BUDGETED' : 'BUDGETED'; ?> 
+      <?php if($entity['status']!='pending') : ?>
+        Budgetcontrol Review by : <?= $entity['approved_by']; ?> at : <?= print_date($entity['approved_date']) ?>
+      <?php endif; ?>
+    </th>
   </tr>
   <tr>    
     <td>Suggested Supplier</td>
     <th>: <?= print_string($entity['suggested_supplier']); ?></th>
     <td>Approval Status</td>
     <?php if($entity['status']=='approved') : ?>
-      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?></th>
+      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?> as Head Department</th>
     <?php elseif($entity['status']=='rejected') : ?>
       <th>: REJECTED by <?=print_person_name($entity['rejected_by']);?></th>
     <?php elseif ($entity['canceled_date'] != null) : ?>

@@ -13,8 +13,13 @@ class Inventory_Request extends MY_Controller
         $this->load->model($this->module['model'], 'model');
         $this->data['module'] = $this->module;
         $this->load->library('email');
+        $this->load->library('upload');
         // if (empty($_SESSION['request']['request_to']))
         //   $_SESSION['request']['request_to'] = 1;
+
+        if (empty($_SESSION['inventory']['attachment']))
+          $_SESSION['inventory']['attachment'] = array();
+    
     }
 
     public function index_data_source()
@@ -57,6 +62,9 @@ class Inventory_Request extends MY_Controller
             }else{                    
                 $col[] = $row['approved_notes'];
             }
+            $col[] = isAttachementExists($row['id'],'inventory') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
             $col[] = print_string($row['department_name']);
             $col['DT_RowId'] = 'row_'. $row['id'];
             $col['DT_RowData']['pkey']  = $row['id'];
@@ -596,6 +604,42 @@ class Inventory_Request extends MY_Controller
         }
 
         echo json_encode($entities);
+    }
+
+    public function listAttachment($id)
+    {
+        $data = $this->model->listAttachment($id);
+        echo json_encode($data);
+    }
+
+    public function attachment()
+    {
+        $this->authorized($this->module, 'document');
+
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function add_attachment()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+        $config['upload_path'] = 'attachment/inventory_request/'.$_SESSION['inventory']['cost_center_name'].'/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+          $error = array('error' => $this->upload->display_errors());
+        } else {
+
+          $data = array('upload_data' => $this->upload->data());
+          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          array_push($_SESSION["inventory"]["attachment"], $url);
+          $result["status"] = 1;
+        }
+        echo json_encode($result);
     }
 
     

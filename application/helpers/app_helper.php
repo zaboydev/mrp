@@ -1735,4 +1735,37 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getCostCenterByAnnualCostCenterId')) {
+    function getCostCenterByAnnualCostCenterId($annual_cost_center_id)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('tb_cost_centers.*');
+      $connection->from('tb_cost_centers');
+      $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.cost_center_id = tb_cost_centers.id');
+      $connection->where('tb_annual_cost_centers.id',$annual_cost_center_id);
+      $query  = $connection->get();
+      $result = $query->unbuffered_row('array');     
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('isAttachementExists')) {
+    function isAttachementExists($request_id,$tipe)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->from('tb_attachment');
+      $connection->where('id_purchase', $request_id);
+      $connection->where('tipe', $tipe);
+
+      $num_rows = $connection->count_all_results();
+
+      return $num_rows;
+    }
+  }
+
     

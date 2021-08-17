@@ -115,6 +115,9 @@ class Capex_Request extends MY_Controller
                 }else{                    
                     $col[] = $row['approved_notes'];
                 }
+                $col[] = isAttachementExists($row['id'],'capex') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
                 if (config_item('as_head_department')=='yes'){
                     $col[] = print_string(strtoupper($row['department_name']));
                 }
@@ -638,5 +641,11 @@ class Capex_Request extends MY_Controller
         $pdf = $this->m_pdf->load(null, 'A4-L');
         $pdf->WriteHTML($html);
         $pdf->Output($pdfFilePath, "I");
+    }
+
+    public function listAttachment($id)
+    {
+        $data = $this->model->listAttachment($id);
+        echo json_encode($data);
     }
 }

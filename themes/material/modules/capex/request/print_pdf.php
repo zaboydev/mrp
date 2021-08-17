@@ -28,7 +28,12 @@
     <td>Deliver to</td>
     <th>: <?= print_string($entity['deliver_to']); ?></th>
     <td>Status</td>
-    <th>: <?= ($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']); ?></th>
+    <th>
+      : <?= ($entity['status'] != 'pending') ? 'BUDGETED' : 'BUDGETED'; ?> 
+      <?php if($entity['status']!='pending') : ?>
+        Budgetcontrol Review by : <?= $entity['approved_by']; ?> at : <?= print_date($entity['approved_date']) ?>
+      <?php endif; ?>
+    </th>
   </tr>
   <tr>
     <td></td>
@@ -46,6 +51,7 @@
       <th>: WAITING FOR BUDGETCONTROL</th>
     <?php endif; ?>
   </tr>
+  
 </table>
 
 <div class="clear"></div>
@@ -144,11 +150,6 @@
 <?php endif; ?>
 
 <div class="clear"></div>
-<?php if ($entity['approved_by'] != '') : ?>
-Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($entity['approved_date']) ?>
-<?php endif; ?>
-<div class="clear"></div>
-
 
 <table class="condensed" style="margin-top: 20px;">
   <tr>

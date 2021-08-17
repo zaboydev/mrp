@@ -98,6 +98,9 @@ class Expense_Request extends MY_Controller
                 // $col[] = print_string($row['account_name']);
                 $col[] = print_number($row['total_expense'],2);
                 $col[] = $row['notes'];
+                $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                       <i class="fa fa-eye"></i>
+                     </a>';
                 if (config_item('as_head_department')=='yes'){
                     $col[] = print_string(strtoupper($row['department_name']));
                 }
@@ -181,6 +184,7 @@ class Expense_Request extends MY_Controller
         // $on_hand_stock = $this->model->findPrlById($id);
 
         $this->data['entity']           = $entity;
+        $this->data['cost_center']           = getCostCenterByAnnualCostCenterId($entity['annual_cost_center_id']);;
         $this->data['page']['title']    = strtoupper($this->module['label']);
         $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
@@ -590,5 +594,11 @@ class Expense_Request extends MY_Controller
         $pdf = $this->m_pdf->load(null, 'A4-L');
         $pdf->WriteHTML($html);
         $pdf->Output($pdfFilePath, "I");
+    }
+
+    public function listAttachment($id)
+    {
+        $data = $this->model->listAttachment($id);
+        echo json_encode($data);
     }
 }

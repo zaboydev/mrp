@@ -28,22 +28,25 @@
     <td>Deliver to</td>
     <th>: <?= print_string($entity['deliver_to']); ?></th>
     <td>Status</td>
-    <th>: <?= ($entity['status'] == 'approved') ? 'BUDGETED' : strtoupper($entity['status']); ?></th>
+    <th>
+      : <?= ($entity['status'] != 'pending') ? 'BUDGETED' : 'BUDGETED'; ?> 
+      <?php if($entity['status']!='pending') : ?>
+        Budgetcontrol Review by : <?= $entity['approved_by']; ?> at : <?= print_date($entity['approved_date']) ?>
+      <?php endif; ?>
+    </th>
   </tr>
-  <tr>
+  <tr>    
     <td></td>
     <th></th>
     <td>Approval Status</td>
-    <?php if($entity['status']=='approved') : ?>
-      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?> as Head Dept</th>
-    <?php elseif($entity['status']=='rejected') : ?>
+    <?php if($entity['status']=='rejected') : ?>
       <th>: REJECTED by <?=print_person_name($entity['rejected_by']);?></th>
     <?php elseif ($entity['canceled_date'] != null) : ?>
       <th>: CANCELED by <?= print_person_name($entity['canceled_by']); ?></th>
-    <?php elseif($entity['status']=='WAITING FOR HEAD DEPT') : ?>
-      <th>: BUDGETCONTROL APPROVED by <?=print_person_name($entity['approved_by']); ?></th>
     <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL' || $entity['status']=='pending') : ?>
       <th>: WAITING FOR REVIEW BUDGETCONTROL</th>
+    <?php else : ?>
+      <th>: <?=strtoupper($entity['status']); ?></th>
     <?php endif; ?>
   </tr>
 </table>
@@ -126,13 +129,12 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
 <?php endif; ?>
 <div class="clear"></div>
 
-<?php if($entity['with_po']=='t'):?>
 <table class="condensed" style="margin-top: 20px;" width="100%">
   <tr>
-    <td width="50%" valign="top" align="center">
+    <td valign="top" align="center">
       <p>
         Request by:
-        <br /><?= print_string($entity['cost_center_name']); ?>
+        <br />PIC <?= print_string($entity['cost_center_name']); ?>
         <br />&nbsp;<br>
         <?php if ($entity['created_by'] != '') : ?>
           <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
@@ -142,7 +144,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
     
-    <td width="50%" valign="top" align="center">
+    <td valign="top" align="center">
       <p>
         Approved by:
         <br /><?= print_string($entity['cost_center_name']); ?> Head Dept.
@@ -154,37 +156,9 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['head_approved_by']; ?>
       </p>
     </td>
-  </tr>
-</table>
-<?php else: ?>
-<table class="condensed" style="margin-top: 20px;" width="100%">
-  <tr>
-    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
-      <p>
-        Request by:
-        <br /><?= print_string($entity['cost_center_name']); ?>
-        <br />&nbsp;<br>
-        <?php if ($entity['created_by'] != '') : ?>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['created_by']; ?>
-      </p>
-    </td>
-    
-    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
-      <p>
-        Approved by:
-        <br /><?= print_string($entity['cost_center_name']); ?> Head Dept.
-        <?php if ($entity['head_approved_by'] != '') : ?>
-          <br /><?= print_date($entity['head_approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['head_approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['head_approved_by']; ?>
-      </p>
-    </td>
-    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
+
+    <?php if($entity['with_po']=='f'):?>
+    <td valign="top" align="center">
       <p>
         Approved by:
         <br />Finance
@@ -196,8 +170,10 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['finance_approved_by']; ?>
       </p>
     </td>
+    <?php endif; ?>
 
-    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
+    <?php if($entity['with_po']=='f' && $cost_center['id']!=$this->config->item('head_office_cost_center_id')):?>      
+    <td valign="top" align="center">
       <p>
         Approved by:
         <br />Head of School
@@ -209,8 +185,9 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['hos_approved_by']; ?>
       </p>
     </td>
-    <?php  if (array_sum($total)>15000000) :  ?>
-    <td width="<?php (array_sum($total)<15000000)? '25%':'20%' ?>" valign="top" align="center">
+    <?php endif; ?>
+    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000 && $cost_center['id']!=$this->config->item('head_office_cost_center_id')) :  ?>
+    <td valign="top" align="center">
       <p>
         Approved by:
         <br />Chief Operation Officer
@@ -223,9 +200,36 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
     <?php endif; ?>
+    <?php if($entity['with_po']=='f' && $cost_center['id']==$this->config->item('head_office_cost_center_id')):?>      
+    <td valign="top" align="center">
+      <p>
+        Approved by:
+        <br />VP Finance
+        <?php if ($entity['hos_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['hos_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['hos_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['hos_approved_by']; ?>
+      </p>
+    </td>
+    <?php endif; ?>
+    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000 && $cost_center['id']==$this->config->item('head_office_cost_center_id')) :  ?>
+    <td valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Chief Of Finance
+        <?php if ($entity['ceo_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['ceo_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['ceo_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['ceo_approved_by']; ?>
+      </p>
+    </td>
+    <?php endif; ?>
   </tr>
 </table>
-<?php endif; ?>
 
 <h5 class="new-page">History Purchase</h5>
 <table class="table table-striped table-nowrap">

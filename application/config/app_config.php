@@ -34,3 +34,4 @@ $config['currency'] = array(
 
 
 $config['access_from']  = 'server_mrp';
+$config['head_office_cost_center_id']  = 26;
