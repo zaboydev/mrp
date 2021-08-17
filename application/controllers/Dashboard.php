@@ -102,4 +102,15 @@ class Dashboard extends MY_Controller
 
     echo json_encode($entities);
   }
+
+  public function test_send_email()
+  {
+    if ($this->model->send_mail()) {
+      $result['status'] = 'success';
+    } else {
+      
+      $result['status'] = 'failed';
+    }
+    echo json_encode($result);
+  }
 }
