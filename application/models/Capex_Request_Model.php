@@ -1218,6 +1218,7 @@ class Capex_Request_Model extends MY_Model
                 $oldBudget =  $query->row();
                 $month_number = $oldBudget->month_number;
                 $annual_cost_center_id = $oldBudget->annual_cost_center_id;
+                $product_id = $oldBudget->product_id;
                 $this->connection->set('mtd_used_budget', 'mtd_used_budget - ' . $row['total'], FALSE);
                 $this->connection->set('mtd_used_quantity', 'mtd_used_quantity - ' . $row['quantity'], FALSE);
                 $this->connection->where('id', $row['capex_monthly_budget_id']);
@@ -1227,6 +1228,7 @@ class Capex_Request_Model extends MY_Model
                     $this->connection->set('ytd_used_quantity', 'ytd_used_quantity - ' . $row['quantity'], FALSE);
                     $this->connection->where('month_number', $i);
                     $this->connection->where('annual_cost_center_id', $annual_cost_center_id);
+                    $this->connection->where('product_id', $product_id);
                     $this->connection->update('tb_capex_monthly_budgets');
                 }
                 $this->connection->where('capex_purchase_requisition_id', $row['id']);
