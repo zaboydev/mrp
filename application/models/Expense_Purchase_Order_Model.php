@@ -340,7 +340,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     if ((config_item('auth_role') == 'ASSISTANT HOS')
      && $row['review_status']=='WAITING FOR AHOS REVIEW') {
       $level = 21;
-      $this->db->set('review_status', strtoupper("waiting for finance review"));
+      $this->db->set('review_status', strtoupper("waiting for PROC MNG review"));
       $this->db->set('check_review_by', config_item('auth_person_name'));
       $this->db->set('check_review_at', date('Y-m-d'));
       $status_prl = 'PO Approved by ASSISTANT HOS, waiting for PROCUREMENT MANAGER review';
@@ -985,7 +985,11 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->set('status', strtoupper('purposed'));
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
-    $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    if($base=='JAKARTA' || $base=='WISNU'){
+      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    }else{
+      $this->db->set('review_status', strtoupper('waiting for ahos review'));
+    }
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('tipe_po', 'EXPENSE');
     $this->db->set('base', $base);
@@ -1154,7 +1158,11 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
-    $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    if($base=='JAKARTA' || $base=='WISNU'){
+      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    }else{
+      $this->db->set('review_status', strtoupper('waiting for ahos review'));
+    }
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('tipe_po', 'expense');
     // $this->db->where('id', $id);
