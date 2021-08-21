@@ -1133,7 +1133,7 @@ class Inventory_Request_Model extends MY_Model
             }
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
-            $level = 0;
+            $level = 8;
         }
 
         
@@ -1144,7 +1144,7 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->trans_commit();
         if($level>0){
             if($this->config->item('access_from')!='localhost'){
-                $this->send_mail($id, $level);
+                $this->send_mail($id, $level,'approved');
             }
         }
         if($level<0){
@@ -1155,7 +1155,7 @@ class Inventory_Request_Model extends MY_Model
         return TRUE;
     }
 
-    public function send_mail($doc_id, $level)
+    public function send_mail($doc_id, $level, $tipe=null)
     {
         $this->connection->from('tb_inventory_purchase_requisitions');
         $this->connection->where('id', $doc_id);
@@ -1190,10 +1190,17 @@ class Inventory_Request_Model extends MY_Model
         $this->load->library('email');
         $this->email->set_newline("\r\n");
         $message = "<p>Dear " . $ket_level . "</p>";
-        $message .= "<p>Berikut permintaan Persetujuan untuk Inventory Request Non-Sparepart Pesawat :</p>";
-        $message .= "<ul>";
-        $message .= "</ul>";
-        $message .= "<p>No Inventory Request Non-Sparepart Pesawat : " . $row['pr_number'] . "</p>";
+        if($tipe!=null){
+            $message .= "<p>Inventory Request Non-Sparepart Dibawah ini Sudah Terapproved. Silahkan Proses ke Inventory Order Evaluation:</p>";
+            $message .= "<ul>";
+            $message .= "</ul>";
+            $message .= "<p>No Inventory Request Non-Sparepart : " . $row['pr_number'] . "</p>";
+        }else{
+            $message .= "<p>Berikut permintaan Persetujuan untuk Inventory Request Non-Sparepart :</p>";
+            $message .= "<ul>";
+            $message .= "</ul>";
+            $message .= "<p>No Inventory Request Non-Sparepart : " . $row['pr_number'] . "</p>";
+        }
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
         $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";

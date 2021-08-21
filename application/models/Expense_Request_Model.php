@@ -387,7 +387,7 @@ class Expense_Request_Model extends MY_Model
                 }
                 $this->connection->where('id',$id);
                 $this->connection->update('tb_expense_purchase_requisitions');
-                $level = 0;
+                $level = 8;
             }else{
                 $this->connection->set('status','WAITING FOR FINANCE REVIEW');
                 $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
@@ -953,7 +953,7 @@ class Expense_Request_Model extends MY_Model
         return $expense_item_no_po;
     }
 
-    public function send_mail($doc_id, $level)
+    public function send_mail($doc_id, $level,$tipe=null)
     {
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->where('id', $doc_id);
@@ -988,10 +988,17 @@ class Expense_Request_Model extends MY_Model
         $this->load->library('email');
         $this->email->set_newline("\r\n");
         $message = "<p>Dear " . $ket_level . "</p>";
-        $message .= "<p>Berikut permintaan Persetujuan untuk Expense Request :</p>";
-        $message .= "<ul>";
-        $message .= "</ul>";
-        $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
+        if($id==8){
+            $message .= "<p>Expense Request Dibawah ini Sudah Terapproved. Silahkan Proses ke Expense Order Evaluation:</p>";
+            $message .= "<ul>";
+            $message .= "</ul>";
+            $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
+        }else{
+            $message .= "<p>Berikut permintaan Persetujuan untuk Expense Request :</p>";
+            $message .= "<ul>";
+            $message .= "</ul>";
+            $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
+        }
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
         $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";
