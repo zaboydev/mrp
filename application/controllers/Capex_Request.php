@@ -409,7 +409,7 @@ class Capex_Request extends MY_Controller
             //     $id_role = 15;
             //     $this->model->send_mail_next_approval($id_purchase_order, $id_role);
             // }
-            // $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+            $this->model->send_mail_approval($id_capex_request, 'approve', config_item('auth_person_name'));
 
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
@@ -443,12 +443,12 @@ class Capex_Request extends MY_Controller
         $notes = explode("##,", $notes);
         $result = $this->model->multi_reject($id_purchase_order, $notes);
         if ($result) {
-        $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'));
-        $return["status"] = "success";
-        echo json_encode($return);
+            $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'));
+            $return["status"] = "success";
+            echo json_encode($return);
         } else {
-        $return["status"] = "failed";
-        echo json_encode($return);
+            $return["status"] = "failed";
+            echo json_encode($return);
         }
     }
 
