@@ -39,6 +39,25 @@ class Dashboard extends MY_Controller
     $this->data['count_prl']    = $this->model->count_prl(config_item('auth_role'));
     $this->data['count_poe']    = $this->model->count_poe(config_item('auth_role'));
     $this->data['count_po']    = $this->model->count_po(config_item('auth_role'));
+    $this->data['count_capex_req']            = $this->model->count_capex_req(config_item('auth_role'));
+    $this->data['count_capex_evaluation']     = $this->model->count_poe_local(config_item('auth_role'),'capex');
+    $this->data['count_capex_order']          = $this->model->count_po_local(config_item('auth_role'),'capex');
+    $this->data['count_inventory_req']            = $this->model->count_inventory_req(config_item('auth_role'));
+    $this->data['count_inventory_evaluation']     = $this->model->count_poe_local(config_item('auth_role'),'inventory');
+    $this->data['count_inventory_order']          = $this->model->count_po_local(config_item('auth_role'),'inventory');
+    $this->data['count_expense_req']            = $this->model->count_expense_req(config_item('auth_role'));
+    $this->data['count_expense_evaluation']     = $this->model->count_poe_local(config_item('auth_role'),'expense');
+    $this->data['count_expense_order']          = $this->model->count_po_local(config_item('auth_role'),'expense');
+
+    $this->data['count_capex_req_not_approved']            = $this->model->count_prl_local_not_approved('capex');
+    $this->data['count_capex_evaluation_not_approved']     = $this->model->count_poe_local_not_approved('capex');
+    $this->data['count_capex_order_not_approved']          = $this->model->count_po_local_not_approved('capex');
+    $this->data['count_inventory_req_not_approved']            = $this->model->count_prl_local_not_approved('inventory');
+    $this->data['count_inventory_evaluation_not_approved']     = $this->model->count_poe_local_not_approved('inventory');
+    $this->data['count_inventory_order_not_approved']          = $this->model->count_po_local_not_approved('inventory');
+    $this->data['count_expense_req_not_approved']            = $this->model->count_prl_local_not_approved('expense');
+    $this->data['count_expense_evaluation_not_approved']     = $this->model->count_poe_local_not_approved('expense');
+    $this->data['count_expense_order_not_approved']          = $this->model->count_po_local_not_approved('expense');
 
     $this->base_theme = $this->module['view'] .'/other';
     $this->render_view();
