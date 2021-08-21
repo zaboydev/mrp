@@ -575,11 +575,12 @@
 
           $("#modal-approve-data-button-multi").click(function() {
             var action = $(this).data('source');
-            if (!encodeNotes()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
-            } else {
+            encodeNotes()
+            // if (!encodeNotes()) {
+            //   toastr.options.timeOut = 10000;
+            //   toastr.options.positionClass = 'toast-top-right';
+            //   toastr.error('You must filled Notes for each item that you want to approve');
+            // } else {
               $(this).attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
@@ -611,7 +612,7 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            }
+            // }
 
           });
 
@@ -706,11 +707,13 @@
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
               toastr.error('You must filled notes for each item that you want to reject');
-            } else if (!encodePrice()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
-            } else {
+            } 
+            // else if (!encodePrice()) {
+            //   toastr.options.timeOut = 10000;
+            //   toastr.options.positionClass = 'toast-top-right';
+            //   toastr.error('You must filled Price for each item that you want to approve');
+            // } 
+            else {
 
               if (id_purchase_order == "") {
                 toastr.options.timeOut = 10000;
@@ -719,7 +722,7 @@
               } else {
                 $.ajax({
                   type: "POST",
-                  url: 'purchase_request/multi_reject',
+                  url: 'expense_request/multi_reject',
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,

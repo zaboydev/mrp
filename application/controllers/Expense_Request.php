@@ -98,6 +98,13 @@ class Expense_Request extends MY_Controller
                 // $col[] = print_string($row['account_name']);
                 $col[] = print_number($row['total_expense'],2);
                 $col[] = $row['notes'];
+                if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
+                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                }else{                    
+                    $col[] = $row['approved_notes'];
+                }
                 $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
                        <i class="fa fa-eye"></i>
                      </a>';
@@ -357,7 +364,7 @@ class Expense_Request extends MY_Controller
         $failed = sizeof($id_expense_request);
         $x = 0;
         foreach ($id_expense_request as $key) {
-            if ($this->model->approve($key, $price[$x])) {
+            if ($this->model->approve($key, $notes[$x])) {
                 $total++;
                 $success++;
                 $failed--;
@@ -366,16 +373,7 @@ class Expense_Request extends MY_Controller
             $x++;
         }
         if ($success > 0) {
-            // // $id_role = 13;
-            // if ((config_item('auth_role') == 'FINANCE MANAGER')) {
-            //     $id_role = 9;
-            //     $this->model->send_mail_next_approval($id_purchase_order, $id_role);
-            // }
-            // if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')) {
-            //     $id_role = 15;
-            //     $this->model->send_mail_next_approval($id_purchase_order, $id_role);
-            // }
-            // $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+            $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
                 'info' => $success . " data has been update!"
@@ -408,12 +406,12 @@ class Expense_Request extends MY_Controller
         $notes = explode("##,", $notes);
         $result = $this->model->multi_reject($id_purchase_order, $notes);
         if ($result) {
-        $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'));
-        $return["status"] = "success";
-        echo json_encode($return);
+            $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'), $notes);
+            $return["status"] = "success";
+            echo json_encode($return);
         } else {
-        $return["status"] = "failed";
-        echo json_encode($return);
+            $return["status"] = "failed";
+            echo json_encode($return);
         }
     }
 
