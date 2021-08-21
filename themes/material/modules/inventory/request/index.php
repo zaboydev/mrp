@@ -747,7 +747,7 @@
               } else {
                 $.ajax({
                   type: "POST",
-                  url: 'purchase_request/multi_reject',
+                  url: 'inventory_request/multi_reject',
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,
