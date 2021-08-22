@@ -134,29 +134,32 @@ class Inventory_Order_Evaluation_Model extends MY_Model
 
   function multi_reject($id_purchase_order, $notes)
   {
+    // $this->connection->trans_begin();
+    $this->db->trans_begin();
     $x = 0;
     $return = 0;
     foreach ($id_purchase_order as $id) {
       $this->db->where('purchase_order_id', $id);
       $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
-      foreach ($tb_purchase_order_items as $key) {
-        $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
-        $this->db->where('id', $inventory_purchase_request_detail_id);
-        $this->db->set('sisa', '"sisa" + ' . $key->quantity, false);
-        $this->db->update('tb_inventory_purchase_requisition_details');
+      $this->db->from('tb_purchase_orders');
+      $this->db->where('id', $id);
+      $query  = $this->db->get();
+      $row    = $query->unbuffered_row('array');
+      // foreach ($tb_purchase_order_items as $key) {
+      //   $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
+      //   $this->connection->where('id', $inventory_purchase_request_detail_id);
+      //   $this->connection->set('process_qty', '"process_qty" - ' . $key->quantity, false);
+      //   $this->connection->update('tb_inventory_purchase_requisition_details');
 
-        // $this->db->where('id', $inventory_purchase_request_detail_id);
-        // $detail_request = $this->db->get('tb_inventory_purchase_requisition_details')->row();
-        // if($detail_request->sisa == 0){
-        // $this->db->set('closing_by', config_item('auth_person_name'));
-
-        //deletetb_purchase_request_closures
-        $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
-        $this->db->delete('tb_purchase_request_closures');
-        // }
-      }
+      //   //deletetb_purchase_request_closures
+      //   $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+      //   $this->db->where('tipe','INVENTORY');
+      //   $this->db->delete('tb_purchase_request_closures');
+      //   // }
+      // }
+      $notes_poe = $row['notes'];
       $this->db->set('status', 'rejected');
-      $this->db->set('notes', $notes[$x]);
+      $this->db->set('notes', $notes_poe.' Rejection Notes : '.$notes[$x]);
       $this->db->set('approved_by', config_item('auth_person_name'));
       $this->db->where('id', $id);
       $check = $this->db->update('tb_purchase_orders');
@@ -165,11 +168,19 @@ class Inventory_Order_Evaluation_Model extends MY_Model
       }
       $x++;
     }
-    if (($return == $x) && ($return > 0)) {
-      return true;
-    } else {
-      return false;
-    }
+    // if (($return == $x) && ($return > 0)) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+
+    // if ($this->connection->trans_status() === FALSE && $this->db->trans_status() === FALSE)
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    // $this->connection->trans_commit();
+    $this->db->trans_commit();
+    return TRUE;
   }
 
   function getIndex($return = 'array')
@@ -957,9 +968,10 @@ class Inventory_Order_Evaluation_Model extends MY_Model
     return $this->db->get('')->result();
   }
 
-  public function send_mail_approval($id, $ket, $by)
+  public function send_mail_approval($id, $ket, $by,$notes)
   {
     $item_message = '<tbody>';
+    $x=0;
     foreach ($id as $key) {
       $this->db->select(
         array(
@@ -985,6 +997,9 @@ class Inventory_Order_Evaluation_Model extends MY_Model
         $item_message .= "<td>" . print_number($item['quantity'], 2) . "</td>";
         $item_message .= "<td>" . $item['unit'] . "</td>";
         $item_message .= "<td>" . print_number($item['total_amount'], 2) . "</td>";
+        if($ket!='approve'){
+          $item_message .= "<td>" . $notes[$x] . "</td>";
+        }
         $item_message .= "</tr>";
       }
 
@@ -1027,6 +1042,9 @@ class Inventory_Order_Evaluation_Model extends MY_Model
     $message .= "<th>Qty Order</th>";
     $message .= "<th>Unit</th>";
     $message .= "<th>Total Val. Order</th>";
+    if($ket!='approve'){
+      $message .= "<th>Rejection Notes</th>";
+    }
     $message .= "</tr>";
     $message .= "</thead>";
     $message .= $item_message;
@@ -1037,7 +1055,7 @@ class Inventory_Order_Evaluation_Model extends MY_Model
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
-    $this->email->subject('Notification Approval');
+    $this->email->subject('Notification '.$ket_level);
     $this->email->message($message);
 
     //Send mail 

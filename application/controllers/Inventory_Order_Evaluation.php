@@ -186,7 +186,7 @@ class Inventory_Order_Evaluation extends MY_Controller
         //                <i class="fa fa-eye"></i>
         //             </a>';
         $col[] = print_string($row['notes']);
-        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))) {
+        if (strtoupper($row['status']) == "EVALUATION" && (config_item('auth_role') == 'PROCUREMENT MANAGER'|| config_item('auth_role') == 'SUPER ADMIN')) {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         } else {
           $col[] = null;
@@ -258,12 +258,15 @@ class Inventory_Order_Evaluation extends MY_Controller
     $str_notes = $this->input->post('notes');
     $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
     $id_purchase_order = substr($id_purchase_order, 0, -1);
+    $id_purchase_order = explode(",", $id_purchase_order);
+
     $notes = str_replace("|", "", $str_notes);
     $notes = substr($notes, 0, -3);
-    $id_purchase_order = explode(",", $id_purchase_order);
     $notes = explode("##,", $notes);
+
     $result = $this->model->multi_reject($id_purchase_order, $notes);
     if ($result) {
+      $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'), $notes);
       $return["status"] = "success";
       echo json_encode($return);
     } else {
@@ -310,6 +313,11 @@ class Inventory_Order_Evaluation extends MY_Controller
     $id_purchase_order = str_replace("|", "", $id_purchase_order);
     $id_purchase_order = substr($id_purchase_order, 0, -1);
     $id_purchase_order = explode(",", $id_purchase_order);
+
+    $notes = str_replace("|", "", $str_notes);
+    $notes = substr($notes, 0, -3);
+    $notes = explode("##,", $notes);
+
     $total = 0;
     $success = 0;
     $failed = sizeof($id_purchase_order);
@@ -321,7 +329,7 @@ class Inventory_Order_Evaluation extends MY_Controller
       }
     }
     if ($success > 0) {
-      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'),$notes);
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
         'info' => $success . " data has been update!"

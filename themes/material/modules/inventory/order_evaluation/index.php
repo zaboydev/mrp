@@ -447,7 +447,7 @@
         } else {
           $.ajax({
             type: "POST",
-            url: 'purchase_order_evaluation/multi_reject',
+            url: 'inventory_order_evaluation/multi_reject',
             data: {
               "id_purchase_order": id_purchase_order,
               "notes": notes
@@ -682,7 +682,8 @@
       $(this).attr('disabled', true);
       if (id_purchase_order !== "") {
         $.post(action, {
-          'id_purchase_order': id_purchase_order
+          'id_purchase_order': id_purchase_order,
+          'notes':notes
         }).done(function(data) {
           console.log(data);
           $("#modal-approve-data-button-multi").attr('disabled', false);
