@@ -186,7 +186,7 @@ class Capex_Order_Evaluation extends MY_Controller
         //                <i class="fa fa-eye"></i>
         //             </a>';
         $col[] = print_string($row['notes']);
-        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE')) || config_item('auth_role') == 'SUPER ADMIN') {
+        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')) || config_item('auth_role') == 'SUPER ADMIN') {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         } else {
           $col[] = null;

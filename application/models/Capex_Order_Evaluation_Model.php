@@ -141,6 +141,10 @@ class Capex_Order_Evaluation_Model extends MY_Model
     foreach ($id_purchase_order as $id) {
       $this->db->where('purchase_order_id', $id);
       $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
+      $this->db->from('tb_purchase_orders');
+      $this->db->where('id', $id);
+      $query  = $this->db->get();
+      $row    = $query->unbuffered_row('array');
       // foreach ($tb_purchase_order_items as $key) {
       //   $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
       //   $this->connection->where('id', $inventory_purchase_request_detail_id);
@@ -153,8 +157,9 @@ class Capex_Order_Evaluation_Model extends MY_Model
       //   $this->db->delete('tb_purchase_request_closures');
       //   // }
       // }
+      $notes_poe = $row['notes'];
       $this->db->set('status', 'rejected');
-      $this->db->set('notes', $notes[$x]);
+      $this->db->set('notes', $notes_poe.' Rejection Notes : '.$notes[$x]);
       $this->db->set('approved_by', config_item('auth_person_name'));
       $this->db->where('id', $id);
       $check = $this->db->update('tb_purchase_orders');
