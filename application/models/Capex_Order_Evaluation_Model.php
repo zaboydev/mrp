@@ -572,6 +572,49 @@ class Capex_Order_Evaluation_Model extends MY_Model
     $quantity = 0;
     $total_amount = 0;
     foreach ($_SESSION['capex_poe']['request'] as $i => $item) {
+      $serial_number = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
+      $unit = trim($item['unit']);
+      $group = 'CAPEX';
+
+      if (!empty($unit)) {
+        if (isItemUnitExists($unit) === FALSE) {
+          $this->db->set('unit', strtoupper($unit));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_units');
+        }
+      }
+
+      if (!empty($group)) {
+        if (isItemGroupExists($group) === FALSE) {
+          $this->db->set('group', strtoupper($group));
+          $this->db->set('category', 'CAPEX');
+          $this->db->set('status', 'AVAILABLE');
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_groups');
+        }
+      }
+
+      if (isItemExists($item['part_number'], $serial_number) === FALSE) {
+        $this->db->set('part_number', strtoupper($item['part_number']));
+        $this->db->set('serial_number', strtoupper($serial_number));
+        $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
+        $this->db->set('description', strtoupper($item['description']));
+        $this->db->set('group', strtoupper($group));
+        $this->db->set('minimum_quantity', floatval(1));
+        // $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('kode_stok', null);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('unit', strtoupper($unit));
+        $this->db->set('unit_pakai', strtoupper($unit));
+        $this->db->set('qty_konversi', 1);
+        $this->db->set('current_price', floatval($item['unit_price_requested']));
+        $this->db->insert('tb_master_items');
+        $item_id = $this->db->insert_id();
+      }
+
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
@@ -581,6 +624,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $this->db->set('unit_price_requested', floatval($item['unit_price_requested']));
       $this->db->set('total_amount_requested', floatval($item['total_amount_requested']));
       $this->db->set('unit', trim($item['unit']));
+      $this->db->set('group', $group);
       $this->db->set('inventory_purchase_request_detail_id', $item['inventory_purchase_request_detail_id']);
       $this->db->insert('tb_purchase_order_items');
       $inventory_purchase_request_detail_id = $item['inventory_purchase_request_detail_id'];
@@ -849,7 +893,8 @@ class Capex_Order_Evaluation_Model extends MY_Model
         'tb_capex_purchase_requisitions.suggested_supplier',
         'tb_capex_purchase_requisitions.deliver_to',
         'tb_capex_purchase_requisitions.created_by',
-        'tb_capex_purchase_requisitions.notes'
+        'tb_capex_purchase_requisitions.notes',
+        'tb_product_groups.group_name'
       ));
 
       $this->connection->from('tb_capex_purchase_requisitions');

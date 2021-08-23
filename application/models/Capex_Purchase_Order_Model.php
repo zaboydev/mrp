@@ -615,6 +615,7 @@ class Capex_Purchase_Order_Model extends MY_Model
       'tb_purchase_order_items.core_charge',
       'tb_purchase_order_items.total_amount',
       'tb_purchase_order_items.unit',
+      'tb_purchase_order_items.group',
       'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.evaluation_number',
     );
@@ -1005,6 +1006,49 @@ class Capex_Purchase_Order_Model extends MY_Model
     }
 
     foreach ($_SESSION['order']['items'] as $key => $item) {
+      $serial_number = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
+      $unit = trim($item['unit']);
+      $group = 'CAPEX';
+
+      if (!empty($unit)) {
+        if (isItemUnitExists($unit) === FALSE) {
+          $this->db->set('unit', strtoupper($unit));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_units');
+        }
+      }
+
+      if (!empty($group)) {
+        if (isItemGroupExists($group) === FALSE) {
+          $this->db->set('group', strtoupper($group));
+          $this->db->set('category', 'CAPEX');
+          $this->db->set('status', 'AVAILABLE');
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_groups');
+        }
+      }
+
+      if (isItemExists($item['part_number'], $serial_number) === FALSE) {
+        $this->db->set('part_number', strtoupper($item['part_number']));
+        $this->db->set('serial_number', strtoupper($serial_number));
+        $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
+        $this->db->set('description', strtoupper($item['description']));
+        $this->db->set('group', strtoupper($group));
+        $this->db->set('minimum_quantity', floatval(1));
+        // $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('kode_stok', null);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('unit', strtoupper($unit));
+        $this->db->set('unit_pakai', strtoupper($unit));
+        $this->db->set('qty_konversi', 1);
+        $this->db->set('current_price', floatval($item['unit_price_requested']));
+        $this->db->insert('tb_master_items');
+        $item_id = $this->db->insert_id();
+      }
+      
       $this->db->set('purchase_order_id', $id_po);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
@@ -1020,7 +1064,8 @@ class Capex_Purchase_Order_Model extends MY_Model
       $this->db->set('core_charge', floatval($item['core_charge']));
       $this->db->set('total_amount', floatval($item['total_amount']));
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
-      $this->db->set('poe_number', $item['evaluation_number']);      
+      $this->db->set('poe_number', $item['evaluation_number']);
+      $this->db->set('group', $item['group']);            
       $this->db->set('purchase_request_number', $item['purchase_request_number']);
       $this->db->insert('tb_po_item');
       $total_qty = $total_qty + $item['quantity'];
@@ -1196,6 +1241,48 @@ class Capex_Purchase_Order_Model extends MY_Model
     $total_value = 0;
 
     foreach ($_SESSION['order']['items'] as $key => $item) {
+      $serial_number = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
+      $unit = trim($item['unit']);
+      $group = 'CAPEX';
+
+      if (!empty($unit)) {
+        if (isItemUnitExists($unit) === FALSE) {
+          $this->db->set('unit', strtoupper($unit));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_units');
+        }
+      }
+
+      if (!empty($group)) {
+        if (isItemGroupExists($group) === FALSE) {
+          $this->db->set('group', strtoupper($group));
+          $this->db->set('category', 'CAPEX');
+          $this->db->set('status', 'AVAILABLE');
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_groups');
+        }
+      }
+
+      if (isItemExists($item['part_number'], $serial_number) === FALSE) {
+        $this->db->set('part_number', strtoupper($item['part_number']));
+        $this->db->set('serial_number', strtoupper($serial_number));
+        $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
+        $this->db->set('description', strtoupper($item['description']));
+        $this->db->set('group', strtoupper($group));
+        $this->db->set('minimum_quantity', floatval(1));
+        // $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('kode_stok', null);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('unit', strtoupper($unit));
+        $this->db->set('unit_pakai', strtoupper($unit));
+        $this->db->set('qty_konversi', 1);
+        $this->db->set('current_price', floatval($item['unit_price_requested']));
+        $this->db->insert('tb_master_items');
+        $item_id = $this->db->insert_id();
+      }
       $this->db->set('purchase_order_id', $id_po);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
@@ -1213,6 +1300,7 @@ class Capex_Purchase_Order_Model extends MY_Model
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
       $this->db->set('purchase_request_number', $item['purchase_request_number']);
       $this->db->set('poe_number', $item['evaluation_number']);
+      $this->db->set('group', $item['group']);
       $this->db->insert('tb_po_item');
       $total_qty = $total_qty + $item['quantity'];
       $total_value = $total_value + $item['total_amount'];

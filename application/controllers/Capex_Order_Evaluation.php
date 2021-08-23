@@ -531,6 +531,7 @@ class Capex_Order_Evaluation extends MY_Controller
             'remarks'                 => $request['remarks'],
             'purchase_request_number' => $request['pr_number'],
             'konversi'                => 1,
+            'group'                   => $request['group_name'],
           );
 
           $_SESSION['capex_poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
