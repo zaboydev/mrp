@@ -401,25 +401,43 @@ class Inventory_Order_Evaluation_Model extends MY_Model
   {
     $this->db->trans_begin();
 
-    $this->db->set('status', 'approved');
-    $this->db->set('review_status', strtoupper("waiting for purchase"));
-    $this->db->set('updated_at', date('Y-m-d'));
-    $this->db->set('updated_by', config_item('auth_person_name'));
-    $this->db->set('approved_by', config_item('auth_person_name'));
-    $this->db->where('id', $id);
-    $this->db->update('tb_purchase_orders');
+    if(config_item('auth_role')=='PROCUREMENT MANAGER' && $request['status']=='evaluation'){
+      $this->db->set('status', strtoupper("waiting for vp finance review"));
+      // $this->db->set('review_status', strtoupper("waiting for purchase"));
+      $this->db->set('checked_at', date('Y-m-d'));
+      // $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->set('checked_by', config_item('auth_person_name'));
+      $this->db->where('id', $id);
+      $this->db->update('tb_purchase_orders');
+      $level = 3;
+    }
 
-    $this->db->set('status_item', 'open');
-    $this->db->where('purchase_order_id', $id);
-    $this->db->update('tb_purchase_order_items');
+    if(config_item('auth_role')=='VP FINANCE' && $request['status']=='WAITING FOR VP FINANCE REVIEW'){
+      $this->db->set('status', 'approved');
+      $this->db->set('review_status', strtoupper("waiting for purchase"));
+      $this->db->set('approved_at', date('Y-m-d'));
+      // $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->set('approved_by', config_item('auth_person_name'));
+      $this->db->where('id', $id);
+      $this->db->update('tb_purchase_orders');
+
+      $this->db->set('status_item', 'open');
+      $this->db->where('purchase_order_id', $id);
+      $this->db->update('tb_purchase_order_items');
+      $level = 0;
+    }    
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
     $this->db->trans_commit();
-    // if($this->config->item('access_from')!='localhost'){
-    //   $this->send_mail($id);
-    // }
+
+    if($this->config->item('access_from')!='localhost'){
+      if($level>0){
+        $this->send_mail($id,$level);
+      }      
+    }
+    
     return TRUE;
   }
 

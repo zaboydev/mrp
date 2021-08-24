@@ -166,6 +166,12 @@ class Expense_Order_Evaluation extends MY_Controller
           } else {
             $col[] = print_number($no);
           }
+        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase")) {
+          if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          } else {
+            $col[] = print_number($no);
+          }
         } else {
           $col[] = print_number($no);
         }
@@ -187,6 +193,8 @@ class Expense_Order_Evaluation extends MY_Controller
         //             </a>';
         $col[] = print_string($row['notes']);
         if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')||(config_item('auth_role') == 'SUPER ADMIN'))) {
+          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase") && (config_item('auth_role') == 'VP FINANCE'|| config_item('auth_role') == 'SUPER ADMIN')) {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         } else {
           $col[] = null;
