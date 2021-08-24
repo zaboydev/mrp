@@ -66,6 +66,8 @@ class Capex_Purchase_Order extends MY_Controller
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }else if ((config_item('auth_role') == 'CHIEF OF FINANCE')&& ($row['review_status'] == strtoupper("waiting for cfo review"))) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ((config_item('auth_role') == 'ASSISTANT HOS')&& ($row['review_status'] == strtoupper("waiting for ahos review"))) {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }else{
             $col[] = '';
           }
