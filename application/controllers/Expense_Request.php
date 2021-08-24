@@ -87,6 +87,10 @@ class Expense_Request extends MY_Controller
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else if($row['status']=='WAITING FOR COO REVIEW' && config_item('auth_role')=='CHIEF OPERATION OFFICER'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='WAITING FOR VP FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='WAITING FOR CFO REVIEW' && config_item('auth_role')=='CHIEF OF FINANCE'){
+                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{                    
                     $col[] = print_number($no);
                 }
@@ -98,9 +102,7 @@ class Expense_Request extends MY_Controller
                 // $col[] = print_string($row['account_name']);
                 $col[] = print_number($row['total_expense'],2);
                 $col[] = $row['notes'];
-                if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
-                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
+                if (is_granted($this->module, 'approval') === TRUE) {
                     $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                 }else{                    
                     $col[] = $row['approved_notes'];

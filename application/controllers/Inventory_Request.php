@@ -461,7 +461,7 @@ class Inventory_Request extends MY_Controller
             //     $id_role = 15;
             //     $this->model->send_mail_next_approval($id_purchase_order, $id_role);
             // }
-            $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'),$notes);
+            $this->model->send_mail_approval($id_inventory_request, 'approve', config_item('auth_person_name'),$notes);
 
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
