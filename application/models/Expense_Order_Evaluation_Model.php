@@ -427,12 +427,20 @@ class Expense_Order_Evaluation_Model extends MY_Model
         }  
       }
       $this->db->set('status', $status);
-      // $this->db->set('review_status', strtoupper("waiting for purchase"));
+      if($status=='approved'){
+        $this->db->set('review_status', strtoupper("waiting for purchase"));
+      }
       $this->db->set('checked_at', date('Y-m-d'));
       // $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->set('checked_by', config_item('auth_person_name'));
       $this->db->where('id', $id);
       $this->db->update('tb_purchase_orders');
+
+      if($status=='approved'){
+        $this->db->set('status_item', 'open');
+        $this->db->where('purchase_order_id', $id);
+        $this->db->update('tb_purchase_order_items');
+      }
     }
 
     if(config_item('auth_role')=='VP FINANCE' && $row['status']=='WAITING FOR VP FINANCE REVIEW'){
