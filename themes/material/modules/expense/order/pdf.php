@@ -287,6 +287,23 @@
 								<br /><?= $entity['issued_by']; ?>
 							</p>
 						</td>
+
+						<?php if (($entity['base'] != 'JAKARTA' && $entity['base'] != 'WISNU')) : ?>
+						<td valign="top" align="center">
+							<p>
+								Review by,
+								<br />Assistan HOS
+								<br />
+								<?php if ($entity['check_review_by'] != '') : ?>
+									<?= print_date($entity['check_review_at']); ?><br />
+									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
+								<?php endif; ?>
+								<br />
+								<br /><?= $entity['check_review_by']; ?>
+							</p>
+						</td>
+						<?php endif; ?>
+
 						<td valign="top" align="center">
 							<p>
 								Review by,
@@ -313,9 +330,14 @@
 								<br /><?= $entity['checked_by']; ?>
 							</p>
 						</td>
+						<?php if (($entity['base'] != 'JAKARTA')) : ?>
 						<td valign="top" align="center">
 							<p>
+								<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
 								Knowledge by,
+								<?php else: ?>
+								Approved By,
+								<?php endif; ?>
 								<br />HOS
 								<br />
 								<?php if ($entity['known_by'] != '') : ?>
@@ -326,7 +348,28 @@
 								<br /><?= $entity['known_by']; ?>
 							</p>
 						</td>
+						<?php else: ?>
+						<td valign="top" align="center">
+							<p>
+								<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
+								Knowledge by,
+								<?php else: ?>
+								Approved By,
+								<?php endif; ?>
+								<br />VP Finance
+								<br />
+								<?php if ($entity['check_review_by'] != '') : ?>
+									<?= print_date($entity['check_review_at']); ?><br />
+									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
+								<?php endif; ?>
+								<br />
+								<br /><?= $entity['check_review_by']; ?>
+							</p>
+						</td>
+						<?php endif; ?>
+
 						<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
+						<?php if (($entity['base'] != 'JAKARTA')) : ?>
 						<td valign="top" align="center">
 							<p>
 								Approved by,
@@ -340,21 +383,7 @@
 								<br /><?= $entity['coo_review']; ?>
 							</p>
 						</td>
-						<?php endif; ?>
-						<td valign="top" align="center">
-							<p>
-								Knowledge by,
-								<br />VP Finance
-								<br />
-								<?php if ($entity['check_review_by'] != '') : ?>
-									<?= print_date($entity['check_review_at']); ?><br />
-									<img src="<?= base_url('ttd_user/' . get_ttd($entity['check_review_by'])); ?>" width="auto" height="50">
-								<?php endif; ?>
-								<br />
-								<br /><?= $entity['check_review_by']; ?>
-							</p>
-						</td>
-						<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
+						<?php else: ?>
 						<td valign="top" align="center">
 							<p>
 								Approved by,
@@ -367,9 +396,9 @@
 								<br />
 								<br /><?= $entity['approved_by']; ?>
 							</p>
-						</td>
+						</td>	
 						<?php endif; ?>
-						<!-- <td width="2%" valign="top" align="center">&nbsp</td> -->
+						<?php endif; ?>
 					</tr>
 				</table>
 

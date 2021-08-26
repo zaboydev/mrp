@@ -114,14 +114,14 @@ class Expense_Order_Evaluation extends MY_Controller
     $entities = $this->model->searchRequestItem($category);
 
     foreach ($entities as $key => $value) {
-      $entities[$key]['label'] = $value['product_name'];
-      $entities[$key]['label'] .= ' || PN: ';
-      $entities[$key]['label'] .= $value['part_number'];
+      $entities[$key]['label'] = $value['account_name'];
+      $entities[$key]['label'] .= ' || Account Code: ';
+      $entities[$key]['label'] .= $value['account_code'];
       $entities[$key]['label'] .= '<small>';
       $entities[$key]['label'] .= 'PR number: ' . $value['pr_number'] . ' || ';
       $entities[$key]['label'] .= 'PR date: ' . date('d/m/Y', strtotime($value['pr_date'])) . ' || ';
       $entities[$key]['label'] .= 'Required date: ' . date('d/m/Y', strtotime($value['required_date'])) . ' || ';
-      $entities[$key]['label'] .= 'Quantity: <code>' . number_format($value['quantity']) . '</code>';
+      $entities[$key]['label'] .= 'Amount: <code>' . number_format($value['total']-$value['process_amount']) . '</code>';
       $entities[$key]['label'] .= '</small>';
     }
 
@@ -166,6 +166,12 @@ class Expense_Order_Evaluation extends MY_Controller
           } else {
             $col[] = print_number($no);
           }
+        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase")) {
+          if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          } else {
+            $col[] = print_number($no);
+          }
         } else {
           $col[] = print_number($no);
         }
@@ -186,7 +192,9 @@ class Expense_Order_Evaluation extends MY_Controller
         //                <i class="fa fa-eye"></i>
         //             </a>';
         $col[] = print_string($row['notes']);
-        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))) {
+        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')||(config_item('auth_role') == 'SUPER ADMIN'))) {
+          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase") && (config_item('auth_role') == 'VP FINANCE'|| config_item('auth_role') == 'SUPER ADMIN')) {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         } else {
           $col[] = null;
@@ -228,12 +236,15 @@ class Expense_Order_Evaluation extends MY_Controller
     $str_notes = $this->input->post('notes');
     $id_purchase_order = str_replace("|", "", $str_id_purchase_order);
     $id_purchase_order = substr($id_purchase_order, 0, -1);
+    $id_purchase_order = explode(",", $id_purchase_order);
+    
     $notes = str_replace("|", "", $str_notes);
     $notes = substr($notes, 0, -3);
-    $id_purchase_order = explode(",", $id_purchase_order);
     $notes = explode("##,", $notes);
+
     $result = $this->model->multi_reject($id_purchase_order, $notes);
     if ($result) {
+      $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'), $notes);
       $return["status"] = "success";
       echo json_encode($return);
     } else {
@@ -311,6 +322,10 @@ class Expense_Order_Evaluation extends MY_Controller
     $total = 0;
     $success = 0;
     $failed = sizeof($id_purchase_order);
+
+    $notes = str_replace("|", "", $str_notes);
+    $notes = substr($notes, 0, -3);
+    $notes = explode("##,", $notes);
     foreach ($id_purchase_order as $key) {
       if ($this->model->approve($key)) {
         $total++;
@@ -319,7 +334,7 @@ class Expense_Order_Evaluation extends MY_Controller
       }
     }
     if ($success > 0) {
-      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'),$notes);
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
         'info' => $success . " data has been update!"
@@ -657,12 +672,12 @@ class Expense_Order_Evaluation extends MY_Controller
           foreach ($request['vendors'] as $key => $vendor) {
             // $_SESSION['expense_poe']['request'][$id]['alternate_part_number'] = $unit_price;
 
-            $unit_price   = $vendor['unit_price'];
-            $core_charge  = $vendor['core_charge'];
+            $unit_price   = ($vendor['unit_price']!='')?$vendor['unit_price']:0;
+            $core_charge  = ($vendor['core_charge']!='')?$vendor['core_charge']:0;
             $total_price  = ($unit_price * $request['quantity']) + ($core_charge * $request['quantity']);
 
             $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
-            $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
+            // $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['unit_price']   = $unit_price;
             $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['quantity']     = $request['quantity'];
             $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['core_charge']  = $core_charge;
             $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['total']        = $total_price;
@@ -838,5 +853,45 @@ class Expense_Order_Evaluation extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function add_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    if (isset($_POST) && !empty($_POST)) {
+          $request_id = $this->input->post('inventory_purchase_request_detail_id');
+          $_SESSION['expense_poe']['request'][] = array(
+            'description'             => $this->input->post('description'),
+            'part_number'             => $this->input->post('part_number'),
+            'alternate_part_number'   => NULL,
+            'serial_number'           => NULL,
+            'unit'                    => $this->input->post('unit'),
+            'group'                    => $this->input->post('group'),
+            'quantity'                => $this->input->post('quantity'),
+            'sisa'                    => $this->input->post('quantity'),
+            'unit_price'              => $this->input->post('price'),
+            'amount'                  => $this->input->post('total'),
+            'core_charge'             => floatval(0),
+            'total_amount'            => $this->input->post('total'),
+            'quantity_requested'      => $this->input->post('quantity'),
+            'unit_price_requested'    => $this->input->post('price'),
+            'total_amount_requested'  => $this->input->post('total'),
+            'remarks'                 => $this->input->post('remarks'),
+            'purchase_request_number' => $this->input->post('purchase_request_number'),
+            'konversi'                => 1,
+            'inventory_purchase_request_detail_id' => $this->input->post('inventory_purchase_request_detail_id'),
+            'vendors'                 => array()
+          );
+
+          // $_SESSION['expense_poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
+          // $_SESSION['expense_poe']['request'][$request_id]['vendors'] = array();
+    }
+
+    if(count($_SESSION['expense_poe']['request'])==1){
+      $_SESSION['expense_poe']['vendors'] = array();
+    }
+
+    redirect($this->module['route'] . '/create');
   }
 }

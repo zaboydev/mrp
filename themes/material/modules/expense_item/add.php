@@ -23,6 +23,14 @@
         <div class="col-sm-12">
           <label>Account's List</label>
           <div class="row">
+            <div class="col-xs-12 col-md-12">
+              <div class="pull-left">
+                <button type="button" class="btn btn-sm btn-primary btn-show-report" id="selectAll">Select All </button>
+                <button type="button" class="btn btn-sm btn-primary btn-show-report" id="deselectAll">Deselect All </button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
             <?php foreach ($entity['accounts'] as $i => $account):?>
             <div class="col-sm-4">
               <div class="checkbox">
@@ -62,3 +70,15 @@
   </div>
 
 <?=form_close();?>
+
+<script>
+  $(document).ready(function () {
+    $("#selectAll").click(function(){
+      $('input[name="account[]"]').prop('checked', true);
+    });
+
+    $("#deselectAll").click(function(){
+      $('input[name="account[]"]').prop('checked', false);
+    });
+  });
+</script>

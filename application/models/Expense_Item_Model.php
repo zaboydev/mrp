@@ -192,8 +192,8 @@ class Expense_Item_Model extends MY_Model
     $this->connection->trans_begin();
 
     $year = $this->input->post('year');
-    // $this->connection->where('year_number', $year);
-    // $this->connection->delete('tb_annual_cost_centers');
+    $this->connection->where('id >',0);
+    $this->connection->delete('tb_expense_item_without_po');
     
     if ($this->input->post('account')){
       foreach ($this->input->post('account') as $key => $account){

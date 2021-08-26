@@ -1133,7 +1133,7 @@ class Inventory_Request_Model extends MY_Model
             }
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
-            $level = 0;
+            $level = 8;
         }
 
         
@@ -1144,7 +1144,7 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->trans_commit();
         if($level>0){
             if($this->config->item('access_from')!='localhost'){
-                $this->send_mail($id, $level);
+                $this->send_mail($id, $level,'approved');
             }
         }
         if($level<0){
@@ -1155,7 +1155,7 @@ class Inventory_Request_Model extends MY_Model
         return TRUE;
     }
 
-    public function send_mail($doc_id, $level)
+    public function send_mail($doc_id, $level, $tipe=null)
     {
         $this->connection->from('tb_inventory_purchase_requisitions');
         $this->connection->where('id', $doc_id);
@@ -1190,10 +1190,17 @@ class Inventory_Request_Model extends MY_Model
         $this->load->library('email');
         $this->email->set_newline("\r\n");
         $message = "<p>Dear " . $ket_level . "</p>";
-        $message .= "<p>Berikut permintaan Persetujuan untuk Inventory Request Non-Sparepart Pesawat :</p>";
-        $message .= "<ul>";
-        $message .= "</ul>";
-        $message .= "<p>No Inventory Request Non-Sparepart Pesawat : " . $row['pr_number'] . "</p>";
+        if($tipe!=null){
+            $message .= "<p>Inventory Request Non-Sparepart Dibawah ini Sudah Terapproved. Silahkan Proses ke Inventory Order Evaluation:</p>";
+            $message .= "<ul>";
+            $message .= "</ul>";
+            $message .= "<p>No Inventory Request Non-Sparepart : " . $row['pr_number'] . "</p>";
+        }else{
+            $message .= "<p>Berikut permintaan Persetujuan untuk Inventory Request Non-Sparepart :</p>";
+            $message .= "<ul>";
+            $message .= "</ul>";
+            $message .= "<p>No Inventory Request Non-Sparepart : " . $row['pr_number'] . "</p>";
+        }
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
         $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";
@@ -1284,5 +1291,159 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->where('id_purchase', $id);
         $this->connection->where('tipe', 'inventory');
         return $this->connection->get('tb_attachment')->result();
+	}
+	
+	function multi_reject($id_purchase_order, $notes)
+    {
+        $this->connection->trans_begin();
+        $x = 0;
+        $return = 0;
+        $rejected_note = '';
+        foreach ($id_purchase_order as $id) {
+
+            $this->connection->from('tb_inventory_purchase_requisition_details');
+            $this->connection->where('inventory_purchase_requisition_id', $id);
+
+            $query  = $this->connection->get();
+            $items    = $query->result_array();
+
+            foreach ($items as $row) {
+                $this->connection->where('id', $row['inventory_monthly_budget_id']);
+                $query = $this->connection->get('tb_inventory_monthly_budgets');
+                $oldBudget =  $query->row();
+                $month_number = $oldBudget->month_number;
+                $product_id = $oldBudget->product_id;
+                $year_number = $oldBudget->year_number;
+                $this->connection->set('mtd_used_budget', 'mtd_used_budget - ' . $row['total'], FALSE);
+                $this->connection->set('mtd_used_quantity', 'mtd_used_quantity - ' . $row['quantity'], FALSE);
+                $this->connection->where('id', $row['inventory_monthly_budget_id']);
+                $this->connection->update('tb_inventory_monthly_budgets');
+                for ($i = $month_number; $i < 13; $i++) {                    
+                    $this->connection->set('ytd_used_budget', 'ytd_used_budget - ' . $row['total'], FALSE);
+                    $this->connection->set('ytd_used_quantity', 'ytd_used_quantity - ' . $row['quantity'], FALSE);
+                    $this->connection->where('month_number', $i);
+                    $this->connection->where('product_id', $product_id);
+                    $this->connection->where('year_number', $year_number);
+                    $this->connection->update('tb_inventory_monthly_budgets');
+                }
+                $this->connection->where('inventory_purchase_requisition_id', $row['id']);
+                $this->connection->delete('tb_inventory_used_budgets');
+            }
+
+            $this->connection->set('status', 'rejected');
+            $this->connection->set('rejected_by', config_item('auth_person_name'));
+            $this->connection->set('rejected_date', date('Y-m-d H:i:s'));
+            $this->connection->set('rejected_notes', $notes[$x]);
+            // $this->db->set('approved_by', config_item('auth_person_name'));
+            $this->connection->where('id', $id);
+            $check = $this->connection->update('tb_inventory_purchase_requisitions');            
+
+            if ($check) {
+                $return++;
+            }
+            $x++;
+            // $this->send_mail_approved($id,'rejected');
+        }
+
+        // if(($return == $x)&&($return > 0)){
+        //   return true;
+        // }else{
+        //   return false;
+        // }
+
+        if ($this->connection->trans_status() === FALSE)
+        return FALSE;
+
+        $this->connection->trans_commit();
+        return TRUE;
+    }
+
+    public function send_mail_approval($id, $ket, $by, $notes)
+    {
+		$item_message = '<tbody>';
+		$x = 0;
+        foreach ($id as $key) {
+            $this->connection->from('tb_inventory_purchase_requisitions');
+            $this->connection->where('tb_inventory_purchase_requisitions.id', $key);
+            $query = $this->connection->get();
+            $row = $query->unbuffered_row('array');
+            
+            $item_message .= "<tr>";
+            $item_message .= "<td>" . $row['pr_number'] . "</td>";
+			$item_message .= "<td>" . $row['notes'] . "</td>";
+			if($ket!='approve'){
+				$item_message .= "<td>" . $notes[$x] . "</td>";
+			}
+            $item_message .= "</tr>";
+
+            $issued_by = $row['created_by'];
+
+            $recipientList = $this->getNotifRecipient_approval($issued_by);
+            $recipient = array("aidanurul99@rocketmail.com");
+            foreach ($recipientList as $key) {
+                array_push($recipient, $key->email);
+			}
+			$x++;
+        }
+        $item_message .= '</tbody>';
+
+        $from_email = "bifa.acd@gmail.com";
+        $to_email = "aidanurul99@rocketmail.com";
+        if ($ket == 'approve') {
+			$ket_level = 'Disetujui';
+			$tindakan = 'Approval';
+        } else {
+			$ket_level = 'Ditolak';
+			$tindakan = 'Rejection';
+        }
+
+        //Load email library 
+        $this->load->library('email');
+        // $config = array();
+        // $config['protocol'] = 'mail';
+        // $config['smtp_host'] = 'smtp.live.com';
+        // $config['smtp_user'] = 'bifa.acd@gmail.com';
+        // $config['smtp_pass'] = 'b1f42019';
+        // $config['smtp_port'] = 587;
+        // $config['smtp_auth']        = true;
+        // $config['mailtype']         = 'html';
+        // $this->email->initialize($config);
+        $this->email->set_newline("\r\n");
+        $message = "<p>Hello</p>";
+        $message .= "<p>Inventory Request Berikut telah " . $ket_level . " oleh " . $by . "</p>";
+        $message .= "<table>";
+        $message .= "<thead>";
+        $message .= "<tr>";
+        $message .= "<th>No. Request.</th>";
+		$message .= "<th>Notes</th>";
+		if($ket!='approve'){
+			$message .= "<th>".ucwords($ket)." Notes</th>";
+		}        
+        $message .= "</tr>";
+        $message .= "</thead>";
+        $message .= $item_message;
+        $message .= "</table>";
+        // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
+        $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>Thanks and regards</p>";
+        $this->email->from($from_email, 'Material Resource Planning');
+        $this->email->to($recipient);
+        $this->email->subject('Notification '.$tindakan);
+        $this->email->message($message);
+
+        //Send mail 
+        if ($this->email->send())
+            return true;
+        else
+            return $this->email->print_debugger();
+    }
+
+    public function getNotifRecipient_approval($name)
+    {
+        $this->db->select('email');
+        $this->db->from('tb_auth_users');
+        $this->db->where('person_name', $name);
+        return $this->db->get('')->result();
     }
 }

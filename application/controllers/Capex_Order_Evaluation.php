@@ -166,6 +166,12 @@ class Capex_Order_Evaluation extends MY_Controller
           } else {
             $col[] = print_number($no);
           }
+        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase")) {
+          if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          } else {
+            $col[] = print_number($no);
+          }
         } else {
           $col[] = print_number($no);
         }
@@ -186,7 +192,9 @@ class Capex_Order_Evaluation extends MY_Controller
         //                <i class="fa fa-eye"></i>
         //             </a>';
         $col[] = print_string($row['notes']);
-        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))) {
+        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')) || config_item('auth_role') == 'SUPER ADMIN') {
+          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase") && (config_item('auth_role') == 'VP FINANCE'|| config_item('auth_role') == 'SUPER ADMIN')) {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         } else {
           $col[] = null;
@@ -234,6 +242,7 @@ class Capex_Order_Evaluation extends MY_Controller
     $notes = explode("##,", $notes);
     $result = $this->model->multi_reject($id_purchase_order, $notes);
     if ($result) {
+      $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'), $notes);
       $return["status"] = "success";
       echo json_encode($return);
     } else {
@@ -311,6 +320,11 @@ class Capex_Order_Evaluation extends MY_Controller
     $total = 0;
     $success = 0;
     $failed = sizeof($id_purchase_order);
+
+    $str_notes = $this->input->post('notes');
+    $notes = str_replace("|", "", $str_notes);
+    $notes = substr($price, 0, -3);
+    $notes = explode("##,", $notes);
     foreach ($id_purchase_order as $key) {
       if ($this->model->approve($key)) {
         $total++;
@@ -319,7 +333,7 @@ class Capex_Order_Evaluation extends MY_Controller
       }
     }
     if ($success > 0) {
-      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
+      $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'),$notes);
       
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
@@ -525,6 +539,7 @@ class Capex_Order_Evaluation extends MY_Controller
             'remarks'                 => $request['remarks'],
             'purchase_request_number' => $request['pr_number'],
             'konversi'                => 1,
+            'group'                   => $request['group_name'],
           );
 
           $_SESSION['capex_poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;

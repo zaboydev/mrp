@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['expense_order_evaluation']['visible']        = TRUE;
-$config['module']['expense_order_evaluation']['main_warehouse'] = TRUE;
+$config['module']['expense_order_evaluation']['main_warehouse'] = FALSE;
 $config['module']['expense_order_evaluation']['parent']         = 'expense';
 $config['module']['expense_order_evaluation']['label']          = 'Expense Order Evaluation';
 $config['module']['expense_order_evaluation']['name']           = 'Expense Order Evaluation';

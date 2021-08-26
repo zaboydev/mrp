@@ -7,14 +7,105 @@
       <div class="row">
       </div>
 
-      <?php if (is_granted($module, 'approval')){?>
+      
         <div class="row">
+        <?php if (is_granted($module, 'approval')):?>
           <div class="col-md-4">
             <div class="card">
               <div class="card-head style-primary">
                 <header>Approval Procurement</header>
               </div>
-              <?php if (is_granted($modules['purchase_request'], 'approval')):?>
+                <?php if (is_granted($modules['capex_request'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_request']['route']);?>">
+                        Capex Requests (<strong><font color="red"><?=$count_capex_req;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['capex_order_evaluation'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_order_evaluation']['route']);?>">
+                        Capex Order Evaluation (<strong><font color="red"><?=$count_capex_evaluation;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['capex_purchase_order'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_purchase_order']['route']);?>">
+                        Capex Purchase Order (<strong><font color="red"><?=$count_capex_order;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['inventory_request'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['inventory_request']['route']);?>">
+                        Inventory Requests (<strong><font color="red"><?=$count_inventory_req;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['inventory_order_evaluation'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['inventory_order_evaluation']['route']);?>">
+                        Inventory Order Evaluation (<strong><font color="red"><?=$count_inventory_evaluation;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['inventory_purchase_order'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['inventory_purchase_order']['route']);?>">
+                        Inventory Purchase Order (<strong><font color="red"><?=$count_inventory_order;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['expense_request'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_request']['route']);?>">
+                        Expense Requests (<strong><font color="red"><?=$count_expense_req;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['expense_order_evaluation'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_order_evaluation']['route']);?>">
+                        Expense Order Evaluation (<strong><font color="red"><?=$count_expense_evaluation;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['expense_purchase_order'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_purchase_order']['route']);?>">
+                        Expense Purchase Order (<strong><font color="red"><?=$count_expense_order;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['purchase_request'], 'approval')):?>
                   <div class="card-head collapsed">
                     <header>
                       <a href="<?=site_url($modules['purchase_request']['route']);?>">
@@ -44,480 +135,575 @@
                   </div>
                 <?php endif;?>
             </div>
-          </div>        
-        </div>
-      <?php } else { ?>
-      <div class="row">
-        <div class="col-sm-4">
-          <div class="card">
-            <div class="card-head style-primary">
-              <header>Search Items in Stores</header>
-            </div>
-
-            <div class="card-body">
-              <form id="form_search" class="form-search" method="get" action="<?=site_url('search');?>">
-                <div class="form-group">
-                  <label for="warehouse" class="">Base</label>
-                  <select class="form-control input-lg" id="warehouse" name="warehouse">
-                    <option value="ALL BASE">ALL BASE</option>
-                    <?php foreach (config_item('auth_warehouses') as $base):?>
-                      <option value="<?=$base;?>"><?=$base;?></option>
-                    <?php endforeach;?>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="keywords" class="">Keywords</label>
-                  <input type="text" name="keywords" id="keywords" class="form-control input-lg" maxlength="255" placeholder="Part No / Serial No / Description" required autocomplete="off" autofocus>
-                </div>
-                <div class="form-group">
-                  <button class="btn btn-block btn-primary" id="search-button">SEARCH</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-4">
-          <div class="panel-group" id="document_accordion">
-            <div class="card panel">
+          </div>          
+        <?php else: ?>  
+          <div class="col-sm-4">
+            <div class="card">
               <div class="card-head style-primary">
-                <header>Documents</header>
+                <header>Search Items in Stores</header>
               </div>
 
-              
-
-              <?php if (is_granted($modules['purchase_request'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['purchase_request']['route']);?>">
-                      Purchase Requests
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['purchase_request']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
-
-                    <?php if (is_granted($modules['purchase_request'], 'document')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#purchase_request"><i class="fa fa-plus"></i></a>
-                    <?php endif;?>
-                  </div>
-                </div>
-
-                <?php if (is_granted($modules['purchase_request'], 'document')):?>
-                  <div id="purchase_request" class="collapse">
-                    <ul class="list">
-                      <?php foreach (config_item('auth_inventory') as $category):?>
-                        <li class="tile">
-                          <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['purchase_request']['route'] .'/create/'. $category);?>">
-                            <div class="tile-text">
-                              <i class="fa fa-edit"></i>
-                              <?=$category;?>
-                              <!-- <small>Last visit: Today</small> -->
-                            </div>
-                          </a>
-                        </li>
+              <div class="card-body">
+                <form id="form_search" class="form-search" method="get" action="<?=site_url('search');?>">
+                  <div class="form-group">
+                    <label for="warehouse" class="">Base</label>
+                    <select class="form-control input-lg" id="warehouse" name="warehouse">
+                      <option value="ALL BASE">ALL BASE</option>
+                      <?php foreach (config_item('auth_warehouses') as $base):?>
+                        <option value="<?=$base;?>"><?=$base;?></option>
                       <?php endforeach;?>
-                    </ul>
+                    </select>
                   </div>
-                <?php endif;?>
-              <?php endif;?>
-
-              <?php if (is_granted($modules['purchase_order_evaluation'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['purchase_order_evaluation']['route']);?>">
-                      Purchase Order Evaluations
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['purchase_order_evaluation']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
-
-                    <?php if (is_granted($modules['purchase_order_evaluation'], 'document')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#purchase_order_evaluation"><i class="fa fa-plus"></i></a>
-                    <?php endif;?>
+                  <div class="form-group">
+                    <label for="keywords" class="">Keywords</label>
+                    <input type="text" name="keywords" id="keywords" class="form-control input-lg" maxlength="255" placeholder="Part No / Serial No / Description" required autocomplete="off" autofocus>
                   </div>
-                </div>
-
-                <?php if (is_granted($modules['purchase_order_evaluation'], 'document')):?>
-                  <div id="purchase_order_evaluation" class="collapse">
-                    <ul class="list">
-                      <?php foreach (config_item('auth_inventory') as $category):?>
-                        <li class="tile">
-                          <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['purchase_order_evaluation']['route'] .'/create/'. $category);?>">
-                            <div class="tile-text">
-                              <i class="fa fa-edit"></i>
-                              <?=$category;?>
-                              <!-- <small>Last visit: Today</small> -->
-                            </div>
-                          </a>
-                        </li>
-                      <?php endforeach;?>
-                    </ul>
+                  <div class="form-group">
+                    <button class="btn btn-block btn-primary" id="search-button">SEARCH</button>
                   </div>
-                <?php endif;?>
-              <?php endif;?>
-
-              <?php if (is_granted($modules['goods_received_note'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['goods_received_note']['route']);?>">
-                      Goods Received Notes
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['goods_received_note']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
-
-                    <?php if (is_granted($modules['goods_received_note'], 'document')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#goods_received_note"><i class="fa fa-plus"></i></a>
-                    <?php endif;?>
-                  </div>
-                </div>
-
-                <?php if (is_granted($modules['goods_received_note'], 'document')):?>
-                  <div id="goods_received_note" class="collapse">
-                    <ul class="list">
-                      <?php foreach (config_item('auth_inventory') as $category):?>
-                        <li class="tile">
-                          <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['goods_received_note']['route'] .'/create/'. $category);?>">
-                            <div class="tile-text">
-                              <i class="fa fa-edit"></i>
-                              <?=$category;?>
-                              <!-- <small>Last visit: Today</small> -->
-                            </div>
-                          </a>
-                        </li>
-                      <?php endforeach;?>
-                    </ul>
-                  </div>
-                <?php endif;?>
-              <?php endif;?>
-
-              <?php if (is_granted($modules['material_slip'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['material_slip']['route']);?>">
-                      Material Slips
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['material_slip']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
-
-                    <?php if (is_granted($modules['material_slip'], 'document')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#material_slip"><i class="fa fa-plus"></i></a>
-                    <?php endif;?>
-                  </div>
-                </div>
-
-                <?php if (is_granted($modules['material_slip'], 'document')):?>
-                  <div id="material_slip" class="collapse">
-                    <ul class="list">
-                      <?php foreach (config_item('auth_inventory') as $category):?>
-                        <li class="tile">
-                          <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['material_slip']['route'] .'/create/'. $category);?>">
-                            <div class="tile-text">
-                              <i class="fa fa-edit"></i>
-                              <?=$category;?>
-                              <!-- <small>Last visit: Today</small> -->
-                            </div>
-                          </a>
-                        </li>
-                      <?php endforeach;?>
-                    </ul>
-                  </div>
-                <?php endif;?>
-              <?php endif;?>
-
-              <?php if (is_granted($modules['internal_delivery'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['internal_delivery']['route']);?>">
-                      Internal Delivery
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['internal_delivery']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
-
-                    <?php if (is_granted($modules['internal_delivery'], 'document')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#internal_delivery"><i class="fa fa-plus"></i></a>
-                    <?php endif;?>
-                  </div>
-                </div>
-
-                <?php if (is_granted($modules['internal_delivery'], 'document')):?>
-                  <div id="internal_delivery" class="collapse">
-                    <ul class="list">
-                      <?php foreach (config_item('auth_inventory') as $category):?>
-                        <li class="tile">
-                          <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['internal_delivery']['route'] .'/create/'. $category);?>">
-                            <div class="tile-text">
-                              <i class="fa fa-edit"></i>
-                              <?=$category;?>
-                              <!-- <small>Last visit: Today</small> -->
-                            </div>
-                          </a>
-                        </li>
-                      <?php endforeach;?>
-                    </ul>
-                  </div>
-                <?php endif;?>
-              <?php endif;?>
-
-              <?php if (is_granted($modules['shipping_document'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['shipping_document']['route']);?>">
-                      Shipping Documents
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['shipping_document']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
-
-                    <?php if (is_granted($modules['shipping_document'], 'document')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#shipping_document"><i class="fa fa-plus"></i></a>
-                    <?php endif;?>
-                  </div>
-                </div>
-
-                <?php if (is_granted($modules['shipping_document'], 'document')):?>
-                  <div id="shipping_document" class="collapse">
-                    <ul class="list">
-                      <?php foreach (config_item('auth_inventory') as $category):?>
-                        <li class="tile">
-                          <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['shipping_document']['route'] .'/create/'. $category);?>">
-                            <div class="tile-text">
-                              <i class="fa fa-edit"></i>
-                              <?=$category;?>
-                              <!-- <small>Last visit: Today</small> -->
-                            </div>
-                          </a>
-                        </li>
-                      <?php endforeach;?>
-                    </ul>
-                  </div>
-                <?php endif;?>
-              <?php endif;?>
-
-              <?php if (is_granted($modules['commercial_invoice'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['commercial_invoice']['route']);?>">
-                      Return & Service
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['commercial_invoice']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
-
-                    <?php if (is_granted($modules['commercial_invoice'], 'document')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#commercial_invoice"><i class="fa fa-plus"></i></a>
-                    <?php endif;?>
-                  </div>
-                </div>
-
-                <?php if (is_granted($modules['commercial_invoice'], 'document')):?>
-                  <div id="commercial_invoice" class="collapse">
-                    <ul class="list">
-                      <?php foreach (config_item('auth_inventory') as $category):?>
-                        <li class="tile">
-                          <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['commercial_invoice']['route'] .'/create/'. $category);?>">
-                            <div class="tile-text">
-                              <i class="fa fa-edit"></i>
-                              <?=$category;?>
-                              <!-- <small>Last visit: Today</small> -->
-                            </div>
-                          </a>
-                        </li>
-                      <?php endforeach;?>
-                    </ul>
-                  </div>
-                <?php endif;?>
-              <?php endif;?>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-sm-4">
-          <div class="card">
-            <div class="card-head style-primary">
-              <header>MATERIAL STOCK</header>
-            </div>
-
-            <div class="card-head">
-              <header>
-                <a href="<?=site_url($modules['stock_general']['route']);?>">
-                  General Stock
-                </a>
-              </header>
-              <div class="tools">
-                <a href="<?=site_url($modules['stock_general']['route']);?>" class="btn btn-icon-toggle">
-                  <i class="fa fa-list"></i>
-                </a>
-              </div>
-            </div>
-
-            <div class="card-head">
-              <header>
-                <a href="<?=site_url($modules['stock']['route']);?>">
-                  Stock In Stores
-                </a>
-              </header>
-              <div class="tools">
-                <a href="<?=site_url($modules['stock']['route']);?>" class="btn btn-icon-toggle">
-                  <i class="fa fa-list"></i>
-                </a>
-              </div>
-            </div>
-
-            <div class="card-head">
-              <header>
-                <a href="<?=site_url($modules['low_stock']['route']);?>">
-                  Low Stock
-                </a>
-              </header>
-              <div class="tools">
-                <a href="<?=site_url($modules['stock_low']['route']);?>" class="btn btn-icon-toggle">
-                  <i class="fa fa-list"></i>
-                </a>
-              </div>
-            </div>
-
-            <div class="card-head">
-              <header>
-                <a href="<?=site_url($modules['stock_opname']['route']);?>">
-                  Stock Opname Report
-                </a>
-              </header>
-              <div class="tools">
-                <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
-                  <i class="fa fa-list"></i>
-                </a>
-              </div>
-            </div>
-
-            <div class="card-head">
-              <header>
-                <a href="<?=site_url($modules['stock_opname']['route']);?>">
-                  Summary Stock Report
-                </a>
-              </header>
-              <div class="tools">
-                <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
-                  <i class="fa fa-list"></i>
-                </a>
-              </div>
-            </div>
-
-            <div class="card-head">
-              <header>
-                <a href="<?=site_url($modules['stock_adjustment']['route']);?>">
-                  Stock Adjustment
-                </a>
-              </header>
-              <div class="tools">
-                <a href="<?=site_url($modules['stock_adjustment']['route']);?>" class="btn btn-icon-toggle">
-                  <i class="fa fa-list"></i>
-                </a>
+                </form>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <?php } ?>
-      <?php if (is_granted($modules['permintaan_adjustment'], 'index')):?>
-      <div class="row">
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-head style-primary">
-              <header>Permintaan Adjustment</header>
-            </div>
-            <div class="card-head">
-              <header>
-                <a href="<?=site_url($modules['permintaan_adjustment']['route']);?>">
-                  Permintaan Adjustment (<strong><font color="red"><?=$count_adjustmnet;?></font></strong>)
-                </a>
-              </header>
-              <div class="tools">
-                <a href="<?=site_url($modules['permintaan_adjustment']['route']);?>" class="btn btn-icon-toggle">
-                  <i class="fa fa-list"></i>
-                </a>
+          <div class="col-sm-4">
+            <div class="panel-group" id="document_accordion">
+              <div class="card panel">
+                <div class="card-head style-primary">
+                  <header>Documents</header>
+                </div>
+
+                <?php if (is_granted($modules['capex_request'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_request']['route']);?>">
+                        Capex Requests (<strong><font color="red"><?=$count_capex_req_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['capex_order_evaluation'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_order_evaluation']['route']);?>">
+                        Capex Order Evaluation (<strong><font color="red"><?=$count_capex_evaluation_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['capex_purchase_order'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_purchase_order']['route']);?>">
+                        Capex Purchase Order (<strong><font color="red"><?=$count_capex_order_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['inventory_request'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['inventory_request']['route']);?>">
+                        Inventory Requests (<strong><font color="red"><?=$count_inventory_req_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['inventory_order_evaluation'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['inventory_order_evaluation']['route']);?>">
+                        Inventory Order Evaluation (<strong><font color="red"><?=$count_inventory_evaluation_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['inventory_purchase_order'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['inventory_purchase_order']['route']);?>">
+                        Inventory Purchase Order (<strong><font color="red"><?=$count_inventory_order_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['expense_request'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_request']['route']);?>">
+                        Expense Requests (<strong><font color="red"><?=$count_expense_req_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['expense_order_evaluation'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_order_evaluation']['route']);?>">
+                        Expense Order Evaluation (<strong><font color="red"><?=$count_expense_evaluation_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['expense_purchase_order'], 'document')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_purchase_order']['route']);?>">
+                        Expense Purchase Order (<strong><font color="red"><?=$count_expense_order_not_approved;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>              
+
+                <?php if (is_granted($modules['purchase_request'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['purchase_request']['route']);?>">
+                        Purchase Requests
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['purchase_request']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['purchase_request'], 'document')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#purchase_request"><i class="fa fa-plus"></i></a>
+                      <?php endif;?>
+                    </div>
+                  </div>
+
+                  <?php if (is_granted($modules['purchase_request'], 'document')):?>
+                    <div id="purchase_request" class="collapse">
+                      <ul class="list">
+                        <?php foreach (config_item('auth_inventory') as $category):?>
+                          <li class="tile">
+                            <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['purchase_request']['route'] .'/create/'. $category);?>">
+                              <div class="tile-text">
+                                <i class="fa fa-edit"></i>
+                                <?=$category;?>
+                                <!-- <small>Last visit: Today</small> -->
+                              </div>
+                            </a>
+                          </li>
+                        <?php endforeach;?>
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['purchase_order_evaluation'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['purchase_order_evaluation']['route']);?>">
+                        Purchase Order Evaluations
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['purchase_order_evaluation']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['purchase_order_evaluation'], 'document')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#purchase_order_evaluation"><i class="fa fa-plus"></i></a>
+                      <?php endif;?>
+                    </div>
+                  </div>
+
+                  <?php if (is_granted($modules['purchase_order_evaluation'], 'document')):?>
+                    <div id="purchase_order_evaluation" class="collapse">
+                      <ul class="list">
+                        <?php foreach (config_item('auth_inventory') as $category):?>
+                          <li class="tile">
+                            <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['purchase_order_evaluation']['route'] .'/create/'. $category);?>">
+                              <div class="tile-text">
+                                <i class="fa fa-edit"></i>
+                                <?=$category;?>
+                                <!-- <small>Last visit: Today</small> -->
+                              </div>
+                            </a>
+                          </li>
+                        <?php endforeach;?>
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['goods_received_note'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['goods_received_note']['route']);?>">
+                        Goods Received Notes
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['goods_received_note']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['goods_received_note'], 'document')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#goods_received_note"><i class="fa fa-plus"></i></a>
+                      <?php endif;?>
+                    </div>
+                  </div>
+
+                  <?php if (is_granted($modules['goods_received_note'], 'document')):?>
+                    <div id="goods_received_note" class="collapse">
+                      <ul class="list">
+                        <?php foreach (config_item('auth_inventory') as $category):?>
+                          <li class="tile">
+                            <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['goods_received_note']['route'] .'/create/'. $category);?>">
+                              <div class="tile-text">
+                                <i class="fa fa-edit"></i>
+                                <?=$category;?>
+                                <!-- <small>Last visit: Today</small> -->
+                              </div>
+                            </a>
+                          </li>
+                        <?php endforeach;?>
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['material_slip'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['material_slip']['route']);?>">
+                        Material Slips
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['material_slip']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['material_slip'], 'document')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#material_slip"><i class="fa fa-plus"></i></a>
+                      <?php endif;?>
+                    </div>
+                  </div>
+
+                  <?php if (is_granted($modules['material_slip'], 'document')):?>
+                    <div id="material_slip" class="collapse">
+                      <ul class="list">
+                        <?php foreach (config_item('auth_inventory') as $category):?>
+                          <li class="tile">
+                            <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['material_slip']['route'] .'/create/'. $category);?>">
+                              <div class="tile-text">
+                                <i class="fa fa-edit"></i>
+                                <?=$category;?>
+                                <!-- <small>Last visit: Today</small> -->
+                              </div>
+                            </a>
+                          </li>
+                        <?php endforeach;?>
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['internal_delivery'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['internal_delivery']['route']);?>">
+                        Internal Delivery
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['internal_delivery']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['internal_delivery'], 'document')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#internal_delivery"><i class="fa fa-plus"></i></a>
+                      <?php endif;?>
+                    </div>
+                  </div>
+
+                  <?php if (is_granted($modules['internal_delivery'], 'document')):?>
+                    <div id="internal_delivery" class="collapse">
+                      <ul class="list">
+                        <?php foreach (config_item('auth_inventory') as $category):?>
+                          <li class="tile">
+                            <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['internal_delivery']['route'] .'/create/'. $category);?>">
+                              <div class="tile-text">
+                                <i class="fa fa-edit"></i>
+                                <?=$category;?>
+                                <!-- <small>Last visit: Today</small> -->
+                              </div>
+                            </a>
+                          </li>
+                        <?php endforeach;?>
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['shipping_document'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['shipping_document']['route']);?>">
+                        Shipping Documents
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['shipping_document']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['shipping_document'], 'document')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#shipping_document"><i class="fa fa-plus"></i></a>
+                      <?php endif;?>
+                    </div>
+                  </div>
+
+                  <?php if (is_granted($modules['shipping_document'], 'document')):?>
+                    <div id="shipping_document" class="collapse">
+                      <ul class="list">
+                        <?php foreach (config_item('auth_inventory') as $category):?>
+                          <li class="tile">
+                            <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['shipping_document']['route'] .'/create/'. $category);?>">
+                              <div class="tile-text">
+                                <i class="fa fa-edit"></i>
+                                <?=$category;?>
+                                <!-- <small>Last visit: Today</small> -->
+                              </div>
+                            </a>
+                          </li>
+                        <?php endforeach;?>
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['commercial_invoice'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['commercial_invoice']['route']);?>">
+                        Return & Service
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['commercial_invoice']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['commercial_invoice'], 'document')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#commercial_invoice"><i class="fa fa-plus"></i></a>
+                      <?php endif;?>
+                    </div>
+                  </div>
+
+                  <?php if (is_granted($modules['commercial_invoice'], 'document')):?>
+                    <div id="commercial_invoice" class="collapse">
+                      <ul class="list">
+                        <?php foreach (config_item('auth_inventory') as $category):?>
+                          <li class="tile">
+                            <a class="tile-content ink-reaction" target="_blank" href="<?=site_url($modules['commercial_invoice']['route'] .'/create/'. $category);?>">
+                              <div class="tile-text">
+                                <i class="fa fa-edit"></i>
+                                <?=$category;?>
+                                <!-- <small>Last visit: Today</small> -->
+                              </div>
+                            </a>
+                          </li>
+                        <?php endforeach;?>
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
               </div>
             </div>
           </div>
-        </div>        
-      </div>
-    <?php endif;?>
-    <?php if(is_granted($modules['expired_stock'], 'index')) { ?>
-    <div class="row">
-      <div class="col-sm-5">
-          <div class="panel-group" id="document_accordion">
-            <div class="card panel">
+          <?php if (is_granted($modules['stock_general'], 'index')||is_granted($modules['stock'], 'index')
+          ||is_granted($modules['low_stock'], 'index')||is_granted($modules['stock_opname'], 'index')||is_granted($modules['stock_adjustment'], 'index')):?>                
+          <div class="col-sm-4">
+            <div class="card">
               <div class="card-head style-primary">
-                <header>Stock Expired</header>
+                <header>MATERIAL STOCK</header>
               </div>
 
-              <?php if (is_granted($modules['expired_stock'], 'index')):?>
-                <div class="card-head collapsed">
-                  <header>
-                    <a href="<?=site_url($modules['expired_stock']['route']);?>">
-                      Stock Yang Akan Expired (<strong><font color="red"><?=$count_expired_stock;?></font></strong>)
-                    </a>
-                  </header>
-                  <div class="tools">
-                    <a href="<?=site_url($modules['purchase_request']['route']);?>" class="btn btn-icon-toggle">
-                      <i class="fa fa-list"></i>
-                    </a>
+              <?php if (is_granted($modules['stock_general'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_general']['route']);?>">
+                    General Stock
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_general']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>
+              <?php endif;?>
 
-                    <?php if (is_granted($modules['purchase_request'], 'index')):?>
-                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#expired_stock"><i class="fa fa-external-link"></i></a>
-                    <?php endif;?>
-                  </div>
+              <?php if (is_granted($modules['stock'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock']['route']);?>">
+                    Stock In Stores
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['low_stock'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['low_stock']['route']);?>">
+                    Low Stock
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_low']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['stock_opname'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>">
+                    Stock Opname Report
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['stock_opname'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>">
+                    Summary Stock Report
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['stock_adjustment'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_adjustment']['route']);?>">
+                    Stock Adjustment
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_adjustment']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+            </div>
+          </div> 
+          <?php endif;?> 
+        <?php endif; ?> 
+        <?php if (is_granted($modules['permintaan_adjustment'], 'index')):?> 
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>Permintaan Adjustment</header>
+              </div>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['permintaan_adjustment']['route']);?>">
+                    Permintaan Adjustment (<strong><font color="red"><?=$count_adjustmnet;?></font></strong>)
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['permintaan_adjustment']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>   
+        <?php endif;?> 
+        <?php if(is_granted($modules['expired_stock'], 'index')): ?>
+        <div class="col-sm-5">
+            <div class="panel-group" id="document_accordion">
+              <div class="card panel">
+                <div class="card-head style-primary">
+                  <header>Stock Expired</header>
                 </div>
 
                 <?php if (is_granted($modules['expired_stock'], 'index')):?>
-                  <div id="expired_stock" class="collapse">
-                    <table class="tg">
-                      <thead>
-                        <tr>
-                          <th>Part Number</th>
-                          <th>Serial Number</th>
-                          <th>Description</th>
-                          <th>Expired Date</th>
-                        </tr>                        
-                      </thead>
-                      <tbody>
-                        <?php foreach ($expired_stock as $ex):?>
-                          <tr>
-                            <td><?=$ex['part_number'];?></td>
-                            <td><?=$ex['part_number'];?></td>
-                            <td><?=$ex['description'];?></td>
-                            <td><?=print_date($ex['expired_date'],'d F Y');?></td>
-                          </tr>
-                      <?php endforeach;?>
-                      </tbody>
-                    </table>
-                    <ul class="list">
-                      
-                    </ul>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expired_stock']['route']);?>">
+                        Stock Yang Akan Expired (<strong><font color="red"><?=$count_expired_stock;?></font></strong>)
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['purchase_request']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+
+                      <?php if (is_granted($modules['purchase_request'], 'index')):?>
+                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#expired_stock"><i class="fa fa-external-link"></i></a>
+                      <?php endif;?>
+                    </div>
                   </div>
+
+                  <?php if (is_granted($modules['expired_stock'], 'index')):?>
+                    <div id="expired_stock" class="collapse">
+                      <table class="tg">
+                        <thead>
+                          <tr>
+                            <th>Part Number</th>
+                            <th>Serial Number</th>
+                            <th>Description</th>
+                            <th>Expired Date</th>
+                          </tr>                        
+                        </thead>
+                        <tbody>
+                          <?php foreach ($expired_stock as $ex):?>
+                            <tr>
+                              <td><?=$ex['part_number'];?></td>
+                              <td><?=$ex['part_number'];?></td>
+                              <td><?=$ex['description'];?></td>
+                              <td><?=print_date($ex['expired_date'],'d F Y');?></td>
+                            </tr>
+                        <?php endforeach;?>
+                        </tbody>
+                      </table>
+                      <ul class="list">
+                        
+                      </ul>
+                    </div>
+                  <?php endif;?>
                 <?php endif;?>
-              <?php endif;?>
+              </div>
             </div>
-          </div>
-      </div>
-    </div>
-    <?php } ?>
+        </div>
+        <?php endif;?>
+        </div>     
 
     </div>
   </section>

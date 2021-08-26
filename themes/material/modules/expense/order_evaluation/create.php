@@ -93,7 +93,8 @@
                   <!-- <th class="middle-alignment" rowspan="2">Alt. P/N</th> -->
                   <th class="middle-alignment" rowspan="2">Remarks</th>
                   <th class="middle-alignment" rowspan="2">PR Number</th>
-                  <th class="middle-alignment text-right" rowspan="2">Amount</th>
+                  <th class="middle-alignment text-right" rowspan="2">Quantity</th>
+                  <th class="middle-alignment text-right hide" rowspan="2">Amount</th>
 
 
                   <?php foreach ($_SESSION['expense_poe']['vendors'] as $key => $vendor) : ?>
@@ -135,28 +136,21 @@
                       <?= $request['purchase_request_number']; ?>
                     </td>
                     <td>
-                      <?= number_format($request['amount'], 2); ?>
+                      <?= number_format($request['quantity'], 2); ?>
                     </td>
-                    <?php $price = array(); ?>
+                    <td class="hide">
+                      <?= number_format($request['total_amount_requested'], 2); ?>
+                    </td>
                     <?php foreach ($_SESSION['expense_poe']['vendors'] as $key => $vendor) : ?>
-                      <?php $price[] = $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['total']; ?>
                     <?php endforeach; ?>
-                    <?php $min = min($price); ?>
                     <?php foreach ($_SESSION['expense_poe']['vendors'] as $key => $vendor) : ?>
                       <?php
-                            if ($min == $_SESSION['expense_poe']['request'][$id]['vendors'][$key]['total']) {
-                              $style = 'background-color: blue; color: white';
-                            } else {
-                              $style = '';
-                            }
-                            ?>
-                      <?php
-                            if ($_SESSION['expense_poe']['request'][$id]['vendors'][$key]['is_selected'] == 't') {
-                              $style = 'background-color: green; color: white';
-                            } else {
-                              $style = '';
-                            }
-                            ?>
+                        if ($_SESSION['expense_poe']['request'][$id]['vendors'][$key]['is_selected'] == 't') {
+                          $style = 'background-color: green; color: white';
+                        } else {
+                          $style = '';
+                        }
+                      ?>
 
                       <td style="<?= $style; ?>">
                         <?= anchor($module['route'] . '/set_selected_vendor/' . $id . '/' . $key, number_format($_SESSION['expense_poe']['request'][$id]['vendors'][$key]['unit_price'], 2), 'style="color: black"'); ?>
@@ -181,7 +175,10 @@
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
-            <a href="<?= site_url($module['route'] . '/add_request'); ?>" onClick="return popup(this, 'add_request')" class="btn btn-primary ink-reaction">
+            <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas">
+              Add Item
+            </a>
+            <a href="<?= site_url($module['route'] . '/add_request'); ?>" onClick="return popup(this, 'add_request')" class="btn btn-primary ink-reaction hide">
               Select Request
             </a>
 
@@ -207,6 +204,143 @@
     </div>
     <?= form_close(); ?>
   </div>
+
+  <div id="modal-add-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-add-item-label" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header style-primary-dark">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="modal-add-item-label">Add Item</h4>
+          </div>
+
+        <?=form_open(site_url($module['route'] .'/add_item'), array(
+          'autocomplete' => 'off',
+          'id'    => 'ajax-form-create-document',
+          'class' => 'form form-validate ui-front',
+          'role'  => 'form'
+        ));?>
+
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-xs-12">
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-content">
+                      <input type="text" id="search_request_item" class="form-control" data-target="<?=site_url($module['route'] .'/search_request_item/');?>">
+                      <label for="search_request_item">Search Expense Request Items</label>
+                    </div>
+                    <span class="input-group-addon">
+                      <i class="md md-search"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12 col-lg-8">
+                <div class="row">
+                  <div class="col-sm-6 col-lg-8">
+                    <fieldset>
+                      <legend>General</legend>
+
+                      <div class="form-group">
+                        <input type="text" name="group" id="group" class="form-control input-sm" readonly>
+                        <label for="group">Group</label>
+                      </div>
+
+                      <div class="form-group">
+                        <input type="text" name="part_number" id="part_number" class="form-control input-sm" data-source="<?=site_url($module['route'] .'/search_items_by_part_number/');?>" required>
+                        <label for="part_number">Part Number</label>
+                      </div>
+
+                      <div class="form-group">
+                        <input type="text" name="description" id="description" class="form-control input-sm" data-source="<?= site_url($modules['ajax']['route'] . '/json_item_description/' . $_SESSION['expense_poe']['category']); ?>" required>
+                        <label for="description">Description</label>
+                      </div>
+
+                      <div class="form-group">
+                        <input type="text" name="unit" id="unit" class="form-control input-sm" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" required>
+                        <label for="unit">Unit</label>
+                      </div>
+
+                      <div class="form-group hide">
+                        <input type="text" name="on_hand_quantity" id="on_hand_quantity" class="form-control input-sm" value="1" readonly>
+                        <label for="on_hand_quantity">On Hand Quantity</label>
+                      </div>
+
+                      <div class="form-group hide">
+                        <input type="text" name="minimum_quantity" id="minimum_quantity" class="form-control input-sm" value="1" readonly>
+                        <label for="minimum_quantity">Min. Quantity</label>
+                      </div>
+                    </fieldset>
+                  </div>
+                  <div class="col-sm-6 col-lg-4">
+                    <div class="row">
+                      <div class="col-sm-12 col-lg-12">
+                        <fieldset>
+                          <legend>Balance</legend>
+
+                          <div class="form-group">
+                            <input type="text" name="total" id="total_request" class="form-control input-sm" value="0" readonly>
+                            <label for="total">Total Request</label>
+                          </div>                          
+                        </fieldset>
+                      </div>
+                    </div>                    
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-12 col-lg-4">
+                <div class="row">
+                  <div class="col-sm-12 col-lg-12">
+                    <fieldset>
+                      <legend>Order</legend>
+
+                      <div class="form-group">
+                        <input type="text" name="quantity" id="quantity" class="form-control input-sm" value="1" required>
+                        <label for="quantity">Quantity</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="text" name="price" id="price" class="form-control input-sm" value="0" required>
+                        <label for="quantity">Price</label>
+                      </div>
+                      <div class="form-group">
+                        <input type="text" name="total" id="total" class="form-control input-sm" value="0" readonly="readonly">
+                        <label for="quantity">Total</label>
+                      </div>
+
+                      <div class="form-group">
+                        <textarea name="remarks" id="remarks" data-tag-name="remarks" class="form-control input-sm"></textarea>
+                        <label for="remarks">Additional Info/Remarks</label>
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>                
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <input type="text" id="inventory_purchase_request_detail_id" name="inventory_purchase_request_detail_id">
+            <input typ="text" id="purchase_request_number" name="purchase_request_number"> 
+
+            <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
+
+            <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction" disabled>
+              Add Item
+            </button>
+
+            <input type="reset" name="reset" class="sr-only">
+          </div>
+
+        <?=form_close();?>
+        </div>
+      </div>
+    </div>
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
@@ -490,7 +624,7 @@
       success: function(resource) {
         $('#search_request_item').autocomplete({
             autoFocus: true,
-            minLength: 3,
+            minLength: 1,
 
             source: function(request, response) {
               var results = $.ui.autocomplete.filter(resource, request.term);
@@ -502,15 +636,19 @@
             },
 
             select: function(event, ui) {
-              $('#part_number').val(ui.item.part_number);
-              $('#description').val(ui.item.product_name);
-              $('#additional_info').val(ui.item.additional_info);
-              $('#quantity').val(ui.item.quantity);
-              $('#price').val(ui.item.price);
-              $('#total').val(ui.item.total);
-              $('#unit').val(ui.item.unit);
+              var sisa_request = parseFloat(ui.item.total)-parseFloat(ui.item.process_amount);
+              // $('#part_number').val(ui.item.account_code);
+              // $('#description').val(ui.item.account_name);
+              $('#group').val(ui.item.account_name);
+              $('#additional_info').val("");
+              $('#quantity').val(0);
+              $('#price').val(0);
+              $('#total').val(0);
+              $('#total_request').val(parseFloat(sisa_request));
+              $('#unit').val("");
               $('#pr_number').val(ui.item.pr_number);
               $('#inventory_purchase_request_detail_id').val(ui.item.id);
+              $('#purchase_request_number').val(ui.item.pr_number);
 
               $('input[rel="unit_price"]').val(ui.item.price);
 
@@ -528,6 +666,86 @@
               .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
               .appendTo(ul);
           };
+      }
+    });
+
+    $.ajax({
+      url: $('input[id="description"]').data('source'),
+      dataType: "json",
+      success: function(data) {
+        $('input[id="description"]').autocomplete({
+          source: function(request, response) {
+            var results = $.ui.autocomplete.filter(data, request.term);
+            response(results.slice(0, 10));
+          }
+        });
+      }
+    });
+
+    $.ajax({
+      url: $('input[id="unit"]').data('source'),
+      dataType: "json",
+      success: function(data) {
+        $('input[id="unit"]').autocomplete({
+          source: function(request, response) {
+            var results = $.ui.autocomplete.filter(data, request.term);
+            response(results.slice(0, 10));
+          }
+        });
+      }
+    });
+
+    $.ajax({
+      url: $('input[id="part_number"]').data('source'),
+      dataType: "json",
+      success: function(resource) {
+        $('input[id="part_number"]').autocomplete({
+            autoFocus: true,
+            minLength: 2,
+
+            source: function(request, response) {
+              var results = $.ui.autocomplete.filter(resource, request.term);
+              response(results.slice(0, 5));
+            },
+
+            focus: function(event, ui) {
+              return false;
+            },
+
+            select: function(event, ui) {
+              $('input[id="part_number"]').val(ui.item.part_number);
+              $('input[id="description"]').val(ui.item.description);
+              $('input[id="unit"]').val(ui.item.unit);
+              $('input[id="minimum_quantity"]').val(ui.item.minimum_quantity);
+
+              return false;
+            }
+          })
+          .data("ui-autocomplete")._renderItem = function(ul, item) {
+            $(ul).addClass('list divider-full-bleed');
+
+            return $("<li class='tile'>")
+              .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
+              .appendTo(ul);
+          };
+      }
+    });
+
+    $('input[id="quantity"],input[id="price"]').on('change', function (e) {
+      sum();
+    });
+
+    function sum(){
+      var total = parseFloat($("#quantity").val()) * parseFloat($("#price").val());
+
+      $("#total").val(total).trigger("change");
+    }
+
+    $("#total").on("change", function(){
+      if(parseFloat($(this).val()) >0){
+        $("#modal-add-item-submit").prop("disabled", false);
+      }else{
+        $("#modal-add-item-submit").prop("disabled", true);
       }
     });
   });

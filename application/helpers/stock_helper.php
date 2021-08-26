@@ -14,6 +14,21 @@ if ( ! function_exists('isItemUnitExists')) {
   }
 }
 
+if ( ! function_exists('isitemGroupExists')) {
+  function isItemGroupExists($group)
+  {
+    $CI =& get_instance();
+
+    $CI->db->from('tb_master_item_groups');
+    $CI->db->where('group', strtoupper($group));
+
+    $num_rows = $CI->db->count_all_results();
+
+    return ($num_rows > 0) ? TRUE : FALSE;
+  }
+}
+
+
 if ( ! function_exists('isStoresExists')) {
   function isStoresExists($stores, $category = NULL)
   {

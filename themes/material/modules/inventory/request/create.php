@@ -685,7 +685,7 @@ $(function(){
           $('#inventory_monthly_budget_id').val( ui.item.inventory_monthly_budget_id );
           $('#product_id').val( ui.item.product_id );
 
-          $('#price').val( parseFloat(ui.item.price) );
+          $('#price').val( parseFloat(ui.item.current_price) );
           $('#maximum_price').val( maximum_price );
           $('#maximum_quantity').val( maximum_quantity );
           $('#mtd_quantity').val(parseFloat(ui.item.mtd_quantity));

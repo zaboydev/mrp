@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['inventory_order_evaluation']['visible']        = TRUE;
-$config['module']['inventory_order_evaluation']['main_warehouse'] = TRUE;
+$config['module']['inventory_order_evaluation']['main_warehouse'] = FALSE;
 $config['module']['inventory_order_evaluation']['parent']         = 'inventory';
 $config['module']['inventory_order_evaluation']['label']          = 'Inventory Order Evaluation';
 $config['module']['inventory_order_evaluation']['name']           = 'Inventory Order Evaluation';

@@ -331,6 +331,15 @@ class Capex_Purchase_Order_Model extends MY_Model
       $po_note  = $row['approval_notes']. config_item('auth_role').':'. $note . ',';
     }
 
+    if ((config_item('auth_role') == 'ASSISTANT HOS')
+     && $row['review_status']=='WAITING FOR AHOS REVIEW') {
+      $level = 21;
+      $this->db->set('review_status', strtoupper("waiting for PROC MNG review"));
+      $this->db->set('check_review_by', config_item('auth_person_name'));
+      $this->db->set('check_review_at', date('Y-m-d'));
+      $status_prl = 'PO Approved by ASSISTANT HOS, waiting for PROCUREMENT MANAGER review';
+    }
+
     if ((config_item('auth_role') == 'PROCUREMENT MANAGER')
      && $row['review_status']=='WAITING FOR PROC MNG REVIEW') {
       $level = 14;
@@ -342,15 +351,23 @@ class Capex_Purchase_Order_Model extends MY_Model
 
     if ((config_item('auth_role') == 'FINANCE MANAGER')
      && $row['review_status']==strtoupper('waiting for finance review')) {
-      $level = 10;
-      $this->db->set('review_status', strtoupper("waiting for hos review"));
-      $this->db->set('checked_by', config_item('auth_person_name'));
-      $this->db->set('checked_at', date('Y-m-d'));         
+      if($row['base']=='JAKARTA'){
+        $level = 3;
+        $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+        $this->db->set('checked_by', config_item('auth_person_name'));
+        $this->db->set('checked_at', date('Y-m-d'));
+      }else{
+        $level = 10;
+        $this->db->set('review_status', strtoupper("waiting for hos review"));
+        $this->db->set('checked_by', config_item('auth_person_name'));
+        $this->db->set('checked_at', date('Y-m-d'));         
+      
+      }
       $status_prl = 'PO Approved by Finance Manager, waiting for hos review';
     }
 
     if ((config_item('auth_role') == 'HEAD OF SCHOOL')
-     && $row['review_status']==strtoupper('waiting for hos review')) {
+     && $row['review_status']==strtoupper('waiting for hos review') && $row['base']!='JAKARTA') {
       if ($currency == 'IDR') {
         if ($grandtotal >= 15000000) {
           $level = 16;
@@ -358,8 +375,8 @@ class Capex_Purchase_Order_Model extends MY_Model
           $this->db->set('known_by', config_item('auth_person_name'));
           $this->db->set('known_at', date('Y-m-d'));
         } else {
-          $level = 3;
-          $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+          $level = 0;
+          $this->db->set('review_status', strtoupper("approved"));
           $this->db->set('known_by', config_item('auth_person_name'));
           $this->db->set('known_at', date('Y-m-d'));
         }
@@ -370,23 +387,23 @@ class Capex_Purchase_Order_Model extends MY_Model
           $this->db->set('known_by', config_item('auth_person_name'));
           $this->db->set('known_at', date('Y-m-d'));
         } else {
-          $level = 3;
-          $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+          $level = 0;
+          $this->db->set('review_status', strtoupper("approved"));
           $this->db->set('known_by', config_item('auth_person_name'));
           $this->db->set('known_at', date('Y-m-d'));
         }
       }
     }
 
-    if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
-      $level = 3;
-      $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+    if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER') && $row['base']!='JAKARTA') {
+      $level = 0;
+      $this->db->set('review_status', strtoupper("approved"));
       $this->db->set('coo_review', config_item('auth_person_name'));
       $this->db->set('coo_review_at', date('Y-m-d'));
     }
 
     if ((config_item('auth_role') == 'VP FINANCE')
-     && $row['review_status']==strtoupper('waiting for vp finance review')) {
+     && $row['review_status']==strtoupper('waiting for vp finance review') && $row['base']=='JAKARTA') {
       if ($currency == 'IDR') {
         if ($grandtotal >= 15000000) {
           $level = 11;
@@ -421,7 +438,7 @@ class Capex_Purchase_Order_Model extends MY_Model
       
     }
 
-    if ((config_item('auth_role') == 'CHIEF OF FINANCE')) {
+    if ((config_item('auth_role') == 'CHIEF OF FINANCE') && $row['base']=='JAKARTA') {
       $this->db->set('review_status', strtoupper("approved"));
       // $this->db->set('status', strtoupper("order"));
       $this->db->set('approved_by', config_item('auth_person_name'));
@@ -598,6 +615,7 @@ class Capex_Purchase_Order_Model extends MY_Model
       'tb_purchase_order_items.core_charge',
       'tb_purchase_order_items.total_amount',
       'tb_purchase_order_items.unit',
+      'tb_purchase_order_items.group',
       'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.evaluation_number',
     );
@@ -921,6 +939,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $term_payment             = $_SESSION['order']['term_payment'];
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
     $vendor_po               = $_SESSION['order']['vendor_po'];
+    $base                 = strtoupper(config_item('auth_warehouse'));
 
     $this->db->trans_begin();
     $this->connection->trans_begin();
@@ -958,9 +977,15 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->set('status', strtoupper('purposed'));
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
-    $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    if($base=='JAKARTA' || $base=='WISNU'){
+      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    }else{
+      $this->db->set('review_status', strtoupper('waiting for ahos review'));
+    }
+    
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('tipe_po', 'CAPEX');
+    $this->db->set('base', $base);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
 
@@ -981,6 +1006,49 @@ class Capex_Purchase_Order_Model extends MY_Model
     }
 
     foreach ($_SESSION['order']['items'] as $key => $item) {
+      $serial_number = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
+      $unit = trim($item['unit']);
+      $group = 'CAPEX';
+
+      if (!empty($unit)) {
+        if (isItemUnitExists($unit) === FALSE) {
+          $this->db->set('unit', strtoupper($unit));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_units');
+        }
+      }
+
+      if (!empty($group)) {
+        if (isItemGroupExists($group) === FALSE) {
+          $this->db->set('group', strtoupper($group));
+          $this->db->set('category', 'CAPEX');
+          $this->db->set('status', 'AVAILABLE');
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_groups');
+        }
+      }
+
+      if (isItemExists($item['part_number'], $serial_number) === FALSE) {
+        $this->db->set('part_number', strtoupper($item['part_number']));
+        $this->db->set('serial_number', strtoupper($serial_number));
+        $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
+        $this->db->set('description', strtoupper($item['description']));
+        $this->db->set('group', strtoupper($group));
+        $this->db->set('minimum_quantity', floatval(1));
+        // $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('kode_stok', null);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('unit', strtoupper($unit));
+        $this->db->set('unit_pakai', strtoupper($unit));
+        $this->db->set('qty_konversi', 1);
+        $this->db->set('current_price', floatval($item['unit_price_requested']));
+        $this->db->insert('tb_master_items');
+        $item_id = $this->db->insert_id();
+      }
+      
       $this->db->set('purchase_order_id', $id_po);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
@@ -996,7 +1064,8 @@ class Capex_Purchase_Order_Model extends MY_Model
       $this->db->set('core_charge', floatval($item['core_charge']));
       $this->db->set('total_amount', floatval($item['total_amount']));
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
-      $this->db->set('poe_number', $item['evaluation_number']);      
+      $this->db->set('poe_number', $item['evaluation_number']);
+      $this->db->set('group', $item['group']);            
       $this->db->set('purchase_request_number', $item['purchase_request_number']);
       $this->db->insert('tb_po_item');
       $total_qty = $total_qty + $item['quantity'];
@@ -1047,7 +1116,11 @@ class Capex_Purchase_Order_Model extends MY_Model
 
     $this->db->trans_commit();
     $this->connection->trans_commit();
-    $this->send_mail($id_po, 21);
+    if($base=='JAKARTA' || $base=='WISNU'){
+      $this->send_mail($id_po, 21);
+    }else{
+      $this->send_mail($id_po, 22);
+    }
     return TRUE;
   }
 
@@ -1086,6 +1159,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
     $vendor_po            = $_SESSION['order']['vendor_po'];
     $id_po_lama           = $_SESSION['order']['id_po'];
+    $base                 = strtoupper(config_item('auth_warehouse'));
 
     $this->db->trans_begin();
     $this->connection->trans_begin();
@@ -1122,9 +1196,14 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
-    $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    if($base=='JAKARTA' || $base=='WISNU'){
+      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    }else{
+      $this->db->set('review_status', strtoupper('waiting for ahos review'));
+    }
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('tipe_po', 'CAPEX');
+    $this->db->set('base', $base);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
     $id_po = $this->db->insert_id();
@@ -1162,6 +1241,48 @@ class Capex_Purchase_Order_Model extends MY_Model
     $total_value = 0;
 
     foreach ($_SESSION['order']['items'] as $key => $item) {
+      $serial_number = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
+      $unit = trim($item['unit']);
+      $group = 'CAPEX';
+
+      if (!empty($unit)) {
+        if (isItemUnitExists($unit) === FALSE) {
+          $this->db->set('unit', strtoupper($unit));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_units');
+        }
+      }
+
+      if (!empty($group)) {
+        if (isItemGroupExists($group) === FALSE) {
+          $this->db->set('group', strtoupper($group));
+          $this->db->set('category', 'CAPEX');
+          $this->db->set('status', 'AVAILABLE');
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->insert('tb_master_item_groups');
+        }
+      }
+
+      if (isItemExists($item['part_number'], $serial_number) === FALSE) {
+        $this->db->set('part_number', strtoupper($item['part_number']));
+        $this->db->set('serial_number', strtoupper($serial_number));
+        $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
+        $this->db->set('description', strtoupper($item['description']));
+        $this->db->set('group', strtoupper($group));
+        $this->db->set('minimum_quantity', floatval(1));
+        // $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('kode_stok', null);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('unit', strtoupper($unit));
+        $this->db->set('unit_pakai', strtoupper($unit));
+        $this->db->set('qty_konversi', 1);
+        $this->db->set('current_price', floatval($item['unit_price_requested']));
+        $this->db->insert('tb_master_items');
+        $item_id = $this->db->insert_id();
+      }
       $this->db->set('purchase_order_id', $id_po);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
@@ -1179,6 +1300,7 @@ class Capex_Purchase_Order_Model extends MY_Model
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
       $this->db->set('purchase_request_number', $item['purchase_request_number']);
       $this->db->set('poe_number', $item['evaluation_number']);
+      $this->db->set('group', $item['group']);
       $this->db->insert('tb_po_item');
       $total_qty = $total_qty + $item['quantity'];
       $total_value = $total_value + $item['total_amount'];
@@ -1212,7 +1334,11 @@ class Capex_Purchase_Order_Model extends MY_Model
 
     $this->db->trans_commit();
     $this->connection->trans_commit();
-    // $this->send_mail($id_po, 14);
+    if($base=='JAKARTA' || $base=='WISNU'){
+      $this->send_mail($id_po, 21);
+    }else{
+      $this->send_mail($id_po, 22);
+    }
     return TRUE;
   }
 

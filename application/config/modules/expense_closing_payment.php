@@ -12,9 +12,9 @@ $config['module']['expense_closing_payment']['helper']         = 'purchase_order
 $config['module']['expense_closing_payment']['table']          = 'tb_po';
 $config['module']['expense_closing_payment']['model']          = 'Expense_Closing_Payment_Model';
 $config['module']['expense_closing_payment']['permission']     = array(
-  'index'     => 'SUPER ADMIN,BUDGETCONTROL,TELLER,AP STAFF',
-  'info'      => 'SUPER ADMIN,BUDGETCONTROL,TELLER,AP STAFF',
-  'print'     => 'SUPER ADMIN,BUDGETCONTROL,TELLER,AP STAFF',
+  'index'     => 'SUPER ADMIN,TELLER,AP STAFF',
+  'info'      => 'SUPER ADMIN,TELLER,AP STAFF',
+  'print'     => 'SUPER ADMIN,TELLER,AP STAFF',
   'document'  => 'SUPER ADMIN,TELLER,AP STAFF',  
   'approval'  => 'SUPER ADMIN,VP FINANCE,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
 );

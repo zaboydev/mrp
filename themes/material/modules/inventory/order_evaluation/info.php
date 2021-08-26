@@ -303,7 +303,7 @@
         <?php endif; ?>
       <?php endif; ?>
 
-      <?php if (is_granted($modules['purchase_order_evaluation'], 'document') && $entity['status'] == 'evaluation') : ?>
+      <?php if (is_granted($modules['purchase_order_evaluation'], 'document') && ($entity['status'] == 'evaluation' || $entity['status'] == 'rejected')) : ?>
         <a href="<?= site_url($module['route'] . '/edit/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>

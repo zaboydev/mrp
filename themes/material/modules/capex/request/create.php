@@ -685,7 +685,7 @@
               $('#unit').val(ui.item.measurement_symbol);
               $('#group_name').val(ui.item.group_name);
               $('#annual_cost_center_id').val(ui.item.annual_cost_center_id);
-              $('#price').val(parseFloat(ui.item.current_price));
+              $('#price').val(parseFloat(price));
               $('#maximum_price').val(maximum_price);
               $('#maximum_quantity').val(maximum_quantity);
               $('#mtd_budget').val(mtd_budget);
