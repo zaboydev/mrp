@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['inventory_request']['visible']        = TRUE;
-$config['module']['inventory_request']['main_warehouse'] = TRUE;
+$config['module']['inventory_request']['main_warehouse'] = FALSE;
 $config['module']['inventory_request']['parent']         = 'inventory';
 $config['module']['inventory_request']['label']          = 'Inventory Request';
 $config['module']['inventory_request']['name']           = 'Inventory Request';

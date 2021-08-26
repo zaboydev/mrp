@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['expense_request']['visible']        = TRUE;
-$config['module']['expense_request']['main_warehouse'] = TRUE;
+$config['module']['expense_request']['main_warehouse'] = FALSE;
 $config['module']['expense_request']['parent']         = 'expense';
 $config['module']['expense_request']['label']          = 'Expense Request';
 $config['module']['expense_request']['name']           = 'Expense Request';

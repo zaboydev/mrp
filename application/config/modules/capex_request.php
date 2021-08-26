@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['capex_request']['visible']        = TRUE;
-$config['module']['capex_request']['main_warehouse'] = TRUE;
+$config['module']['capex_request']['main_warehouse'] = FALSE;
 $config['module']['capex_request']['parent']         = 'capex';
 $config['module']['capex_request']['label']          = 'Capex Request';
 $config['module']['capex_request']['name']           = 'Capex Request';

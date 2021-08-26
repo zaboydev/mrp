@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['capex_order_evaluation']['visible']        = TRUE;
-$config['module']['capex_order_evaluation']['main_warehouse'] = TRUE;
+$config['module']['capex_order_evaluation']['main_warehouse'] = FALSE;
 $config['module']['capex_order_evaluation']['parent']         = 'capex';
 $config['module']['capex_order_evaluation']['label']          = 'Capex Order Evaluation';
 $config['module']['capex_order_evaluation']['name']           = 'Capex Order Evaluation';
