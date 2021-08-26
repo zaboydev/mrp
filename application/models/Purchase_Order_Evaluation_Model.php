@@ -1065,23 +1065,23 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     foreach ($id as $key) {
       $this->db->select(
         array(
-          'tb_po.document_number',
-          'tb_po_item.description',
-          'tb_po_item.part_number',
-          'tb_po_item.quantity',
-          'tb_po_item.total_amount',
-          'tb_po_item.unit',
+          'tb_purchase_orders.document_number',
+          'tb_purchase_order_items.description',
+          'tb_purchase_order_items.part_number',
+          'tb_purchase_order_items.quantity',
+          'tb_purchase_order_items.total_amount',
+          'tb_purchase_order_items.unit',
         )
       );
-      $this->db->from('tb_po_item');
-      $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
-      $this->db->where('tb_po.id', $key);
+      $this->db->from('tb_purchase_order_items');
+      $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id=tb_purchase_order_items.purchase_order_id');
+      $this->db->where('tb_purchase_orders.id', $key);
       $query = $this->db->get();
       $row = $query->result_array();
 
       foreach ($row as $item) {
         $item_message .= "<tr>";
-        $item_message .= "<td>" . $item['document_number'] . "</td>";
+        $item_message .= "<td>" . $item['evaluation_number'] . "</td>";
         $item_message .= "<td>" . $item['part_number'] . "</td>";
         $item_message .= "<td>" . $item['description'] . "</td>";
         $item_message .= "<td>" . print_number($item['quantity'], 2) . "</td>";
@@ -1091,12 +1091,12 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       }
 
 
-      $this->db->select('issued_by');
-      $this->db->from('tb_po');
+      $this->db->select('created_by');
+      $this->db->from('tb_purchase_orders');
       $this->db->where('id', $key);
       $query_po = $this->db->get();
       $row_po   = $query_po->unbuffered_row('array');
-      $issued_by = $row_po['issued_by'];
+      $issued_by = $row_po['created_by'];
 
       $recipientList = $this->getNotifRecipient_approval($issued_by);
       $recipient = array();
