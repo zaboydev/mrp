@@ -1371,7 +1371,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     $row = $query->unbuffered_row('array');
 
     $recipientList = $this->getNotifRecipient($level);
-    $recipient = array();
+    $recipient = array('aidanurul99@rocketmail.com');
     foreach ($recipientList as $key) {
       array_push($recipient, $key->email);
     }
@@ -1931,6 +1931,8 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->set('due_date', $due_payment);
     $this->db->where('id', $id);
     $this->db->update('tb_po');
+
+    //kirim notif email ke AP STAFF
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

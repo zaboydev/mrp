@@ -14,10 +14,10 @@
               <tr>
                 <th class="middle-alignment" rowspan="2">PR Number</th>
                 <th class="middle-alignment" rowspan="2">Description</th>
-                <!-- <th class="middle-alignment" rowspan="2">Part Number</th> -->
+                <th class="middle-alignment" rowspan="2">Part Number</th>
                 <!-- <th class="middle-alignment" rowspan="2">Alt. P/N</th> -->
-                <th class="middle-alignment text-right" rowspan="2">Amount</th>
-                <!-- <th class="middle-alignment text-right" rowspan="2">Unit</th> -->
+                <th class="middle-alignment text-right" rowspan="2">Qty</th>
+                <th class="middle-alignment text-right" rowspan="2">Unit</th>
                 <!-- <th class="middle-alignment text-right" rowspan="2">Konversi</th> -->
                 <th class="middle-alignment text-right" rowspan="2">Remarks</th>
 
@@ -44,17 +44,17 @@
                   <td>
                     <?= $request['description']; ?>
                   </td>
-                  <td class="no-space hide">
+                  <td class="no-space">
                     <input type="text" rel="part_number" name="request[<?= $id; ?>][part_number]" value="<?= $_SESSION['expense_poe']['request'][$id]['part_number']; ?>" class="form-control">
                   </td>
                   <td class="hide">
                     <input type="text" rel="alternate_part_number" name="request[<?= $id; ?>][alternate_part_number]" value="<?= $_SESSION['expense_poe']['request'][$id]['alternate_part_number']; ?>" class="form-control">
                   </td>
                   <td>
-                    <input type="hidden" rel="quantity" name="request[<?= $id; ?>][quantity]" value="<?= $_SESSION['expense_poe']['request'][$id]['quantity']; ?>" class="form-control">
-                    <input type="number" rel="amount" name="request[<?= $id; ?>][amount]" value="<?= $_SESSION['expense_poe']['request'][$id]['amount']; ?>" class="form-control">
+                    <input type="number" rel="quantity" name="request[<?= $id; ?>][quantity]" value="<?= $_SESSION['expense_poe']['request'][$id]['quantity']; ?>" class="form-control">
+                    <input type="hidden" rel="amount" name="request[<?= $id; ?>][amount]" value="<?= $_SESSION['expense_poe']['request'][$id]['total_amount_requested']; ?>" class="form-control">
                   </td>
-                  <td class="hide">
+                  <td class="">
                     <input type="text" rel="unit" name="request[<?= $id; ?>][unit]" value="<?= $_SESSION['expense_poe']['request'][$id]['unit']; ?>" class="form-control">
                   </td>
                   <td class="hide">
