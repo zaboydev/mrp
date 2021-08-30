@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Deliver_Model extends MY_Model
+class Bill_Model extends MY_Model
 {
   protected $module;
 
@@ -8,7 +8,7 @@ class Deliver_Model extends MY_Model
   {
     parent::__construct();
 
-    $this->module = config_item('module')['deliver'];
+    $this->module = config_item('module')['bill'];
   }
 
   public function getSelectedColumns()
@@ -64,7 +64,7 @@ class Deliver_Model extends MY_Model
   function getIndex($return = 'array')
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
-    $this->db->from('tb_delivery_to');
+    $this->db->from('tb_bill_to');
 
     $this->searchIndex();
 
@@ -94,7 +94,7 @@ class Deliver_Model extends MY_Model
 
   function countIndexFiltered()
   {
-    $this->db->from('tb_delivery_to');
+    $this->db->from('tb_bill_to');
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -104,7 +104,7 @@ class Deliver_Model extends MY_Model
 
   public function countIndex()
   {
-    $this->db->from('tb_delivery_to');
+    $this->db->from('tb_bill_to');
 
     $query = $this->db->get();
 
@@ -114,7 +114,7 @@ class Deliver_Model extends MY_Model
   public function findById($id)
   {
     $this->db->where('id', $id);
-    $query = $this->db->get('tb_delivery_to');
+    $query = $this->db->get('tb_bill_to');
 
     return $query->row_array();
   }
@@ -130,7 +130,7 @@ class Deliver_Model extends MY_Model
     $this->db->set('country', $this->input->post('country'));
     $this->db->set('created_by', config_item('auth_username'));
     $this->db->set('updated_by', config_item('auth_username'));
-    $this->db->insert('tb_delivery_to');
+    $this->db->insert('tb_bill_to');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
@@ -159,7 +159,7 @@ class Deliver_Model extends MY_Model
     $this->db->set('updated_at', date('Y-m-d H:i:s'));
     $this->db->set('updated_by', config_item('auth_username'));
     $this->db->where('id', $id);
-    $this->db->update('tb_delivery_to');
+    $this->db->update('tb_bill_to');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
@@ -179,7 +179,7 @@ class Deliver_Model extends MY_Model
       $this->db->set('notes', $data['notes']);
       $this->db->set('created_by', config_item('auth_username'));
       $this->db->set('updated_by', config_item('auth_username'));
-      $this->db->insert('tb_delivery_to');
+      $this->db->insert('tb_bill_to');
     }
 
     if ($this->db->trans_status() === FALSE)
@@ -192,7 +192,7 @@ class Deliver_Model extends MY_Model
   public function findByIds($ids)
   {
     $this->db->where_in('id', $ids);
-    $query = $this->db->get('tb_delivery_to');
+    $query = $this->db->get('tb_bill_to');
 
     return $query->result_array();
   }
@@ -204,7 +204,7 @@ class Deliver_Model extends MY_Model
     $id = $this->input->post('id');
 
     $this->db->where('id', $id);
-    $this->db->delete('tb_delivery_to');
+    $this->db->delete('tb_bill_to');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

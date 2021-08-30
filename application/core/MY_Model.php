@@ -496,6 +496,22 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isBillToExists($warehouse, $status = NULL, $warehouse_exception = NULL)
+  {
+    $this->db->from(config_item('module')['deliver']['table']);
+    $this->db->where('warehouse', strtoupper($warehouse));
+
+    if ($warehouse_exception !== NULL)
+      $this->db->where('warehouse != ', $warehouse_exception);
+
+    if ($status !== NULL)
+      $this->db->where('status', $status);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
   
 
 }
