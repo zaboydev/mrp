@@ -750,14 +750,14 @@ class Purchase_Request extends MY_Controller
     if ($success > 0) {
       // $id_role = 13;
       if($this->config->item('access_from')!='localhost'){
-        if ((config_item('auth_role') == 'FINANCE MANAGER')) {
-          $id_role = 9;
-          $this->model->send_mail_next_approval($id_purchase_order, $id_role);
-        }
-        if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')) {
-          $id_role = 15;
-          $this->model->send_mail_next_approval($id_purchase_order, $id_role);
-        }
+        // if ((config_item('auth_role') == 'FINANCE MANAGER')) {
+        //   $id_role = 9;
+        //   $this->model->send_mail_next_approval($id_purchase_order, $id_role);
+        // }
+        // if ((config_item('auth_role') == 'CHIEF OF MAINTANCE')) {
+        //   $id_role = 15;
+        //   $this->model->send_mail_next_approval($id_purchase_order, $id_role);
+        // }
         $this->model->send_mail_approval($id_purchase_order, 'approve', config_item('auth_person_name'));
       }
       $this->session->set_flashdata('alert', array(
