@@ -17,4 +17,4 @@ $config['module']['warehouse']['permission']      = array(
   'info'    => 'PROCUREMENT,ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
   'save'    => 'PROCUREMENT,ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
   'delete'  => 'ADMIN,SUPERVISOR,VP FINANCE,SUPER ADMIN',
-  );
+);
