@@ -642,8 +642,46 @@ class Expense_Request_Model extends MY_Model
             $this->connection->where('id', $document_id);
             $this->connection->update('tb_expense_purchase_requisitions');
 
+            $this->connection->select('tb_expense_purchase_requisition_details.*');
+            $this->connection->from('tb_expense_purchase_requisition_details');
+            $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $document_id);
+
+            $query  = $this->connection->get();
+            $result = $query->result_array();
+
+            foreach ($result as $data) {
+                $this->connection->from('tb_expense_monthly_budgets');
+                $this->connection->where('id', $data['expense_monthly_budget_id']);
+
+                $query        = $this->connection->get();
+                $budget_monthly = $query->unbuffered_row('array');
+
+                $year = $this->budget_year;
+                $month = $budget_monthly['month_number'];
+                $annual_cost_center_id = $budget_monthly['annual_cost_center_id'];
+                $account_id = $budget_monthly['account_id'];
+
+                for ($i = $month; $i < 13; $i++) {
+                    // $this->connection->set('ytd_used_quantity', 'ytd_used_quantity - ' . $data['quantity'], FALSE);
+                    $this->connection->set('ytd_used_budget', 'ytd_used_budget - ' . $data['total'], FALSE);
+                    $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
+                    $this->connection->where('tb_expense_monthly_budgets.account_id', $account_id);
+                        // $this->connection->where('year_number', $year);
+                    $this->connection->where('tb_capex_monthly_budgets.month_number', $i);
+                    $this->connection->update('tb_capex_monthly_budgets');
+                }
+
+                // $this->connection->set('mtd_used_quantity', 'mtd_used_quantity - ' . $data['quantity'], FALSE);
+                $this->connection->set('mtd_used_budget', 'mtd_used_budget +- ' . $data['total'], FALSE);
+                $this->connection->where('id', $data['expense_monthly_budget_id']);
+                $this->connection->update('tb_expense_monthly_budgets');
+            }
+
             $this->connection->where('expense_purchase_requisition_id', $document_id);
             $this->connection->delete('tb_expense_purchase_requisition_details');
+
+            $this->connection->where('pr_number', $pr_number);
+            $this->connection->delete('tb_expense_used_budgets');
         }
           // request from budget control
             foreach ($_SESSION['expense']['items'] as $key => $data) {
