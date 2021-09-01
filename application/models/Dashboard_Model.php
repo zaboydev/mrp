@@ -417,7 +417,7 @@ class Dashboard_Model extends MY_Model
   }
 
   public function count_prl_local_not_approved($tipe){
-    $status =['approved'];
+    $status =['approved','rejected','canceled'];
 
     if($tipe=='capex'){
       $this->connection->select('*');
