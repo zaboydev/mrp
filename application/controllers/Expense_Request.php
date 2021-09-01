@@ -218,7 +218,7 @@ class Expense_Request extends MY_Controller
         // if (!isset($_SESSION['request'])){
         $_SESSION['expense']              = $entity;
         $_SESSION['expense']['id']        = $id;
-        $_SESSION['expense']['edit']      = $entity['pr_number'];
+        $_SESSION['expense']['edit']      = $entity['order_number'];
         $_SESSION['expense']['pr_number']        = $entity['order_number'];
         // $_SESSION['request']['category']  = $entity['category_name'];
         $_SESSION['expense']['annual_cost_center_id']   = $entity['annual_cost_center_id'];

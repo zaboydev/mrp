@@ -667,8 +667,8 @@ class Expense_Request_Model extends MY_Model
                     $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
                     $this->connection->where('tb_expense_monthly_budgets.account_id', $account_id);
                         // $this->connection->where('year_number', $year);
-                    $this->connection->where('tb_capex_monthly_budgets.month_number', $i);
-                    $this->connection->update('tb_capex_monthly_budgets');
+                    $this->connection->where('tb_expense_monthly_budgets.month_number', $i);
+                    $this->connection->update('tb_expense_monthly_budgets');
                 }
 
                 // $this->connection->set('mtd_used_quantity', 'mtd_used_quantity - ' . $data['quantity'], FALSE);
