@@ -302,6 +302,21 @@ class Dashboard_Model extends MY_Model
     if($role=='BUDGETCONTROL'){
       $status = ['pending'];
     }
+    if($role=='FINANCE MANAGER'){
+      $status = ['WAITING FOR FINANCE REVIEW'];
+    }
+    if($role=='HEAD OF SCHOOL'){
+      $status = ['WAITING FOR HOS REVIEW'];
+    }
+    if($role=='VP FINANCE'){
+      $status = ['WAITING FOR VP FINANCE REVIEW'];
+    }
+    if($role=='CHIEF OF FINANCE'){
+      $status = ['WAITING FOR CFO REVIEW'];
+    }
+    if($role=='CHIEF OPERATION OFFICER'){
+      $status = ['WAITING FOR COO REVIEW'];
+    }
     if(config_item('as_head_department')=='yes'){
       $status = ['WAITING FOR HEAD DEPT'];
     }
