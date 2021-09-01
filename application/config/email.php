@@ -1,8 +1,15 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed.');
+// $config['protocol'] = 'smtp';
+// $config['smtp_host'] = 'smtp.mailtrap.io';
+// $config['smtp_user'] = 'e592022115d8cf';
+// $config['smtp_pass'] = '985a48027f6577';
+// $config['smtp_port'] = 2525;
+// $config['smtp_auth']        = true;
+// $config['mailtype']         = 'html';
 $config['protocol'] = 'mail';
 $config['smtp_host'] = 'smtp.live.com';
 $config['smtp_user'] = 'bifa.acd@gmail.com';
-$config['smtp_pass'] = 'b1f42019';
+$config['smtp_pass'] = 'b1f42021';
 $config['smtp_port'] = 587;
 $config['smtp_auth']        = true;
 $config['mailtype']         = 'html';
