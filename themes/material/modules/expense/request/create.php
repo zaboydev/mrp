@@ -16,7 +16,7 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['expense']['pr_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
+                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['expense']['pr_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
                     <label for="pr_number">Document No.</label>
                   </div>
                   <span class="input-group-addon"><?= request_format_number($_SESSION['expense']['cost_center_code']); ?></span>
@@ -34,7 +34,7 @@
             <div class="col-sm-12 col-lg-5">
               
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['capex']['notes']; ?></textarea>
+                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['expense']['notes']; ?></textarea>
                 <label for="notes">Notes</label>
               </div>
               <div class="form-group hide">
