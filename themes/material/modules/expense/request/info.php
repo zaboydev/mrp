@@ -211,11 +211,13 @@
 
   <div class="card-foot">
     <div class="pull-right">
-      <?php if (is_granted($module, 'document') && $entity['rejected_date']!=null):?>
-        <!-- <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+      <?php if (is_granted($module, 'document')):?>
+        <?php if ($entity['status']=='rejected' || $entity['status']=='pending'):?>
+        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>
-        </a> -->
+        </a>
+        <?php endif;?>
       <?php endif;?>
        <?php if (is_granted($module, 'document') && $open==0 && $entity['rejected_date']==null):?>
         <!-- <a href="<?=site_url($module['route'] .'/cancel/'. $entity['id']);?>" class="btn btn-floating-action btn-danger btn-tooltip ink-reaction" id="modal-edit-data-button">
