@@ -212,14 +212,16 @@ class Expense_Request extends MY_Controller
     {
         $this->authorized($this->module, 'document');
 
-        // $entity   = $this->model->findById($id);
-        $entity   = $this->model->findPrlById($id);
+        $entity   = $this->model->findById($id);
+        // $entity   = $this->model->findPrlById($id);
 
         // if (!isset($_SESSION['request'])){
-        $_SESSION['request']              = $entity;
-        $_SESSION['request']['id']        = $id;
-        $_SESSION['request']['edit']      = $entity['pr_number'];
-        $_SESSION['request']['category']  = $entity['category_name'];
+        $_SESSION['expense']              = $entity;
+        $_SESSION['expense']['id']        = $id;
+        $_SESSION['expense']['edit']      = $entity['pr_number'];
+        // $_SESSION['request']['category']  = $entity['category_name'];
+        $_SESSION['expense']['annual_cost_center_id']   = $entity['annual_cost_center_id'];
+        
         // }
 
         redirect($this->module['route'] . '/create');
