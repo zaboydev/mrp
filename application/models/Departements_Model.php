@@ -170,7 +170,7 @@ class Departements_Model extends MY_Model
   {
     $this->connection->trans_begin();
 
-    $this->connection->set('department_name', strtoupper($this->input->post('department_name')));
+    $this->connection->set('department_name', $this->input->post('department_name'));
     $this->connection->set('department_code', $this->input->post('department_code'));
     $this->connection->set('notes', $this->input->post('notes'));
     $this->connection->set('division_id', $this->input->post('division_id'));
