@@ -417,14 +417,15 @@ class Dashboard_Model extends MY_Model
   }
 
   public function count_prl_local_not_approved($tipe){
-    $status =['pending','WAITING FOR HEAD DEPT'];
+    $status =['approved'];
 
     if($tipe=='capex'){
       $this->connection->select('*');
       $this->connection->from('tb_capex_purchase_requisitions');
       $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
       $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
-      $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
+      $this->connection->where_not_in('tb_capex_purchase_requisitions.status', $status);      
+      $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
       if (count(config_item('auth_annual_cost_centers_name'))>0) {
         $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
       }else{
@@ -439,7 +440,8 @@ class Dashboard_Model extends MY_Model
       $this->connection->from('tb_inventory_purchase_requisitions');
       $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
       $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
-      $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
+      $this->connection->where_not_in('tb_inventory_purchase_requisitions.status', $status);      
+      $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
       if (count(config_item('auth_annual_cost_centers_name'))>0) {
         $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
       }else{
@@ -454,7 +456,8 @@ class Dashboard_Model extends MY_Model
       $this->connection->from('tb_expense_purchase_requisitions');
       $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
       $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
-      $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
+      $this->connection->where_not_in('tb_expense_purchase_requisitions.status', $status);      
+      $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
       if (count(config_item('auth_annual_cost_centers_name'))>0) {
         $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
       }else{
