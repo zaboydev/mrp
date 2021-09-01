@@ -704,11 +704,9 @@
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
               toastr.error('You must filled notes for each item that you want to reject');
-            } else if (!encodePrice()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
-            } else {
+            } 
+            
+            else {
 
               if (id_purchase_order == "") {
                 toastr.options.timeOut = 10000;
@@ -721,7 +719,7 @@
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,
-                    "price": price
+                    // "price": price
                   },
                   cache: false,
                   success: function(response) {

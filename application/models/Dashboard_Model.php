@@ -8,6 +8,8 @@ class Dashboard_Model extends MY_Model
   {
     parent::__construct();
     $this->connection   = $this->load->database('budgetcontrol', TRUE);
+    $this->budget_year  = find_budget_setting('Active Year');
+    $this->budget_month = find_budget_setting('Active Month');
   }
 
   public function find_item_in_stores($warehouse, $term)
@@ -262,6 +264,7 @@ class Dashboard_Model extends MY_Model
     $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
     $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
     $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
+    $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
     if(config_item('as_head_department')=='yes'){
       $this->connection->where('tb_departments.department_name', config_item('head_department'));
     }
@@ -285,6 +288,7 @@ class Dashboard_Model extends MY_Model
     $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
     $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
     $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
+    $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
     if(config_item('as_head_department')=='yes'){
       $this->connection->where('tb_departments.department_name', config_item('head_department'));
     }
@@ -308,6 +312,7 @@ class Dashboard_Model extends MY_Model
     $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
     $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
     $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
+    $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
     if(config_item('as_head_department')=='yes'){
       $this->connection->where('tb_departments.department_name', config_item('head_department'));
     }

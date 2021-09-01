@@ -107,8 +107,13 @@
           <label for="filter_status">Status</label>
           <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
             <option></option>
+            <?php if ((config_item('auth_role') != 'CHIEF OPERATION OFFICER') && (config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE')) : ?>
             <option value="all">
               All Status
+            </option>
+            <?php endif; ?>
+            <option value="review">
+              Review
             </option>
             <option value="WAITING FOR BUDGETCONTROL" <?php (config_item('auth_role')=='BUDGETCONTROL')?'selected':''?>>
               Pending
@@ -726,7 +731,7 @@
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,
-                    "price": price
+                    // "price": price
                   },
                   cache: false,
                   success: function(response) {

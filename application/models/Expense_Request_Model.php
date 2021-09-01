@@ -110,14 +110,57 @@ class Expense_Request_Model extends MY_Model
             $search_status = $_POST['columns'][2]['search']['value'];
 
             if($search_status!='all'){
-                $this->connection->where('tb_expense_purchase_requisitions.status', $search_status);
+                if($search_status=='review'){
+                    if(config_item('auth_role') == 'BUDGETCONTROL'){
+                        $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
+                    } 
+                    if (config_item('auth_role') == 'FINANCE MANAGER') {
+                        $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR FINANCE');
+                    }
+                    if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+                        $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR HOS');
+                    }
+                    if (config_item('auth_role') == 'VP FINANCE') {
+                        $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR VP FINANCE');
+                    }
+                    if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+                        $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR CFO');
+                    }
+                    if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
+                        $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR COO');
+                    }
+                    if (config_item('as_head_department')=='yes'){
+                        $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+                        $this->connection->where('tb_departments.department_name', config_item('as_head_department'));
+                    }
+                }else{
+                    $this->connection->where('tb_expense_purchase_requisitions.status', $search_status);
+                }
+                
             }            
-        }else{
+        }else{            
+            
             if(config_item('auth_role') == 'BUDGETCONTROL'){
                 $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
             } 
+            if (config_item('auth_role') == 'FINANCE MANAGER') {
+                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR FINANCE');
+            }
+            if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR HOS');
+            }
+            if (config_item('auth_role') == 'VP FINANCE') {
+                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR VP FINANCE');
+            }
+            if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR CFO');
+            }
+            if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
+                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR COO');
+            }
             if (config_item('as_head_department')=='yes'){
                 $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+                $this->connection->where('tb_departments.department_name', config_item('as_head_department'));
             }
         }
 
