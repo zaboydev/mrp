@@ -237,7 +237,7 @@ class Dashboard_Model extends MY_Model
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($to_email);
-    $this->email->subject('TEST SENDING EMAIL');
+    $this->email->subject('TEST SENDING EMAIL Dari SERVER');
     $this->email->message($message);
 
         //Send mail 
