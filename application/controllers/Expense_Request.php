@@ -604,4 +604,37 @@ class Expense_Request extends MY_Controller
         $data = $this->model->listAttachment($id);
         echo json_encode($data);
     }
+
+    public function manage_attachment($id)
+    {
+        $this->authorized($this->module, 'document');
+
+        $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
+        $this->data['id'] = $id;
+        $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function add_attachment_to_db($id)
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+        $cost_center = getCostCenterByIdRequest($id,'expense');
+        $config['upload_path'] = 'attachment/capex_request/'.$cost_center['cost_center_name'].'/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+        $error = array('error' => $this->upload->display_errors());
+        } else {
+        $data = array('upload_data' => $this->upload->data());
+        $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+        // array_push($_SESSION["poe"]["attachment"], $url);
+        $this->model->add_attachment_to_db($id, $url);
+        $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
 }
