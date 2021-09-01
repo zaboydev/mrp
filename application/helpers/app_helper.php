@@ -1772,4 +1772,22 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('find_budget_setting')) {
+    function find_budget_setting($name)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->from('tb_settings');
+      $connection->where('setting_name', $name);
+
+      $query    = $connection->get();
+      $setting  = $query->unbuffered_row('array');
+      $return   = $setting['setting_value'];
+
+      return $return;
+    }
+  }
+
     
