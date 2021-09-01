@@ -1790,4 +1790,35 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getCostCenterByIdRequest')) {
+    function getCostCenterByIdRequest($id,$tipe)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('cost_center_code','cost_center_name'));
+      $connection->from( 'tb_cost_centers' );
+      $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+      if($tipe=="capex"){
+        $connection->join('tb_capex_purchase_requisitions','tb_capex_purchase_requisitions.annual_cost_center_id=tb_annual_cost_centers.id');
+        $connection->where('tb_capex_purchase_requisitions.id', $id);
+      }
+      if($tipe=="expense"){
+        $connection->join('tb_expense_purchase_requisitions','tb_expense_purchase_requisitions.annual_cost_center_id=tb_annual_cost_centers.id');
+        $connection->where('tb_expense_purchase_requisitions.id', $id);
+      }
+      if($tipe=="inventory"){
+        $connection->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.annual_cost_center_id=tb_annual_cost_centers.id');
+        $connection->where('tb_inventory_purchase_requisitions.id', $id);
+      }
+
+      $query    = $connection->get();
+      $cost_center = $query->unbuffered_row('array');
+      
+
+      return $cost_center;
+    }
+  }
+
     

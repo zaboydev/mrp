@@ -1291,7 +1291,30 @@ class Inventory_Request_Model extends MY_Model
         $this->connection->where('id_purchase', $id);
         $this->connection->where('tipe', 'inventory');
         return $this->connection->get('tb_attachment')->result();
-	}
+    }
+    
+    public function listAttachment_2($id)
+    {
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'inventory');
+        return $this->connection->get('tb_attachment')->result_array();
+    }
+
+    function add_attachment_to_db($id, $url)
+    {
+        $this->connection->trans_begin();
+
+        $this->connection->set('id_purchase', $id);
+        $this->connection->set('tipe', 'inventory');
+        $this->connection->set('file', $url);
+        $this->connection->insert('tb_attachment');
+
+        if ($this->connection->trans_status() === FALSE)
+        return FALSE;
+
+        $this->connection->trans_commit();
+        return TRUE;
+    }
 	
 	function multi_reject($id_purchase_order, $notes)
     {
