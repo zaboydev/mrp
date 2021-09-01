@@ -266,7 +266,7 @@ class Expense_Request_Model extends MY_Model
 
     public function findById($id)
     {
-        $this->connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name');
+        $this->connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code');
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');

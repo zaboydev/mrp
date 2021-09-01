@@ -229,7 +229,8 @@ class Capex_Request extends MY_Controller
         $_SESSION['capex']              = $entity;
         $_SESSION['capex']['id']        = $id;
         $_SESSION['capex']['edit']      = $entity['pr_number'];
-        $_SESSION['capex']['annual_cost_center_id']   = $entity['annual_cost_center_id'];
+        $_SESSION['capex']['annual_cost_center_id']   = $entity['annual_cost_center_id'];        
+        $_SESSION['capex']['pr_number']        = $entity['order_number'];
         // $_SESSION['capex']['items']            = array();
         
         // }

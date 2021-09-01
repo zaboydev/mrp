@@ -190,6 +190,7 @@ class Inventory_Request extends MY_Controller
         $_SESSION['inventory']['edit']      = $entity['pr_number'];
         $_SESSION['inventory']['annual_cost_center_id']     = $entity['annual_cost_center_id'];
         $_SESSION['inventory']['category_id']               = $entity['product_category_id'];
+        $_SESSION['inventory']['pr_number']        = $entity['order_number'];
         // $_SESSION['capex']['items']            = array();
         
         // }
