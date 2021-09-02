@@ -380,7 +380,7 @@ class Dashboard_Model extends MY_Model
     $this->db->select('*');
     $this->db->from('tb_po');
     $this->db->where_in('tb_po.review_status', $status);
-    $this->db->where('tb_po.tipe', strtoupper($tipe));
+    $this->db->where('tb_po.tipe_po', strtoupper($tipe));
     $query = $this->db->get();
 
     return $query->num_rows();
