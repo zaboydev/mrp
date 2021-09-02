@@ -87,6 +87,14 @@ class Account_Payable_Model extends MY_Model
       }
     }
 
+    if (!empty($_POST['columns'][4]['search']['value'])) {
+      $tipe_po = $_POST['columns'][4]['search']['value'];
+
+      if($status != 'all'){
+        $this->db->where('tb_po.tipe_po', $tipe_po);
+      }
+    }
+
     $i = 0;
     foreach ($this->getSearchableColumns() as $item) {
       if ($_POST['search']['value']) {

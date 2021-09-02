@@ -12,10 +12,10 @@ $config['module']['account_payable']['helper']         = 'material_slip_helper';
 $config['module']['account_payable']['table']          = 'tb_hutang';
 $config['module']['account_payable']['model']          = 'Account_Payable_Model';
 $config['module']['account_payable']['permission']     = array(
-  'index'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'info'      => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'print'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'document'  => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',//tambhan supervisor
-  'payment'   => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'import'    => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',//tambhan supervisor
+  'index'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'info'      => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'print'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'document'  => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',//tambhan supervisor
+  'payment'   => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'import'    => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',//tambhan supervisor
 );
