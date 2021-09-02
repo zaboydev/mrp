@@ -99,10 +99,10 @@ $db['default'] = array(
 $db['budgetcontrol'] = array(
 	// 'dsn'	=> 'pgsql:host=119.252.163.205;port=5432;dbname=BUDGETCONTROL2;user=postgres;password=b1f42015',
 	'dsn'	=> '',
-	'hostname' => 'localhost', // 119.252.163.205
+	'hostname' => '10.104.178.3', // 119.252.163.205
 	'username' => 'postgres',
-	'password' => 'bifa2016', // b1f42015
-	'database' => 'db_budgetcontrol', //BUDGETCONTROL2
+	'password' => 'b1f42015', // b1f42015
+	'database' => 'BUDGETCONTROL2', //BUDGETCONTROL2
 	'dbdriver' => 'postgre',
     'port'     => 5432,
 	'dbprefix' => '',

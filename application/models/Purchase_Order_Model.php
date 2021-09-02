@@ -288,6 +288,7 @@ class Purchase_Order_Model extends MY_Model
     // $this->db->where('tb_po.review_status','!=','REVISI');
     $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     // $this->db->where('tb_po.status', '!=', 'CANCELED');
+    $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     $this->db->group_by($this->getGroupedColumns());
 
     // if (config_item('auth_role') == 'FINANCE'){
@@ -331,6 +332,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     // $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     // $this->db->where('tb_po.status', '!=', 'CANCELED');
+    $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     $this->db->group_by($this->getGroupedColumns());
 
     $this->searchIndex();
@@ -349,8 +351,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     // $this->db->where('tb_po.status', 'approved');
     $this->db->where_in('tb_po.category', config_item('auth_inventory'));
-    // $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
-    // $this->db->where('tb_po.status', '!=', 'CANCELED');
+    $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     $this->db->group_by($this->getGroupedColumns());
 
     $query = $this->db->get();

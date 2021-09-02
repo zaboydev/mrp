@@ -1429,7 +1429,7 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $num_rows = $connection->count_all_results();
 
-      return ($num_rows > 0) ? FALSE : TRUE;
+      return ($num_rows > 0) ? 'f' : 't';
     }
   }
 

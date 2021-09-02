@@ -9,7 +9,7 @@
 $config['protocol'] = 'mail';
 $config['smtp_host'] = 'smtp.live.com';
 $config['smtp_user'] = 'bifa.acd@gmail.com';
-$config['smtp_pass'] = 'b1f42021';
+$config['smtp_pass'] = 'bifa2021!';
 $config['smtp_port'] = 587;
 $config['smtp_auth']        = true;
 $config['mailtype']         = 'html';

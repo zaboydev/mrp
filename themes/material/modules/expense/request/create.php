@@ -37,7 +37,7 @@
                 <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['expense']['notes']; ?></textarea>
                 <label for="notes">Notes</label>
               </div>
-              <div class="form-group hide">
+              <div class="form-group">
                 <input type="text" name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>">   
                 <label for="notes">With PO</label>
               </div>

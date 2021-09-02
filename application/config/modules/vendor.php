@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['vendor']['visible']     = TRUE;
-$config['module']['vendor']['main_warehouse']   = TRUE;
+$config['module']['vendor']['main_warehouse']   = FALSE;
 $config['module']['vendor']['parent']      = 'master';
 $config['module']['vendor']['label']       = 'Vendor';
 $config['module']['vendor']['name']        = 'vendor';

@@ -106,7 +106,16 @@ class Capex_Request_Model extends MY_Model
             $search_status = $_POST['columns'][2]['search']['value'];
 
             if($search_status!='all'){
-                $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
+                if($search_status=='WAITING FOR HEAD DEPT'){
+                    if (config_item('as_head_department')=='yes'){
+                        $this->connection->where('tb_capex_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+                        $this->connection->where('tb_departments.department_name', config_item('head_department'));
+                    }else{
+                        $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
+                    }
+                }else{
+                    $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
+                }                
             }    
                 
         }else{
@@ -115,6 +124,7 @@ class Capex_Request_Model extends MY_Model
             } 
             if (config_item('as_head_department')=='yes'){
                 $this->connection->where('tb_capex_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+                $this->connection->where('tb_departments.department_name', config_item('head_department'));
             }
             
         }

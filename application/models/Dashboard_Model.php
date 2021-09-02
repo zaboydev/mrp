@@ -345,7 +345,7 @@ class Dashboard_Model extends MY_Model
     $this->db->select('*');
     $this->db->from('tb_purchase_orders');
     $this->db->where_in('tb_purchase_orders.status', $status);
-    $this->db->where('tb_purchase_orders.tipe', $tipe);
+    $this->db->where('tb_purchase_orders.tipe',strtoupper($tipe));
     $query = $this->db->get();
 
     return $query->num_rows();
@@ -376,9 +376,9 @@ class Dashboard_Model extends MY_Model
     }
 
     $this->db->select('*');
-    $this->db->from('tb_purchase_orders');
-    $this->db->where_in('tb_purchase_orders.status', $status);
-    $this->db->where('tb_purchase_orders.tipe', $tipe);
+    $this->db->from('tb_po');
+    $this->db->where_in('tb_po.status', $status);
+    $this->db->where('tb_po.tipe', strtoupper($tipe));
     $query = $this->db->get();
 
     return $query->num_rows();
@@ -390,7 +390,7 @@ class Dashboard_Model extends MY_Model
     $this->db->select('*');
     $this->db->from('tb_purchase_orders');
     $this->db->where_in('tb_purchase_orders.status', $status);
-    $this->db->where('tb_purchase_orders.tipe', $tipe);
+    $this->db->where('tb_purchase_orders.tipe', strtoupper($tipe));
     $query = $this->db->get();
 
     return $query->num_rows();
@@ -410,7 +410,7 @@ class Dashboard_Model extends MY_Model
     $this->db->select('*');
     $this->db->from('tb_purchase_orders');
     $this->db->where_in('tb_purchase_orders.status', $status);
-    $this->db->where('tb_purchase_orders.tipe', $tipe);
+    $this->db->where('tb_purchase_orders.tipe', strtoupper($tipe));
     $query = $this->db->get();
 
     return $query->num_rows();
