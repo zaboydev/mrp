@@ -190,6 +190,7 @@ class Dashboard_Model extends MY_Model
     $this->db->select('*');
     $this->db->from('tb_purchase_order_items');
     $this->db->join('tb_purchase_orders','tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id','left');
+    $this->db->where('tb_purchase_orders.tipe', 'INVENTORY MRP');
     $this->db->where_in('tb_purchase_orders.status', $status);
     $query = $this->db->get();
 
@@ -200,6 +201,7 @@ class Dashboard_Model extends MY_Model
     $this->db->select('*');
     $this->db->from('tb_po_item');
     $this->db->join('tb_po','tb_po.id=tb_po_item.purchase_order_id');
+    $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
     $this->db->like('tb_po.review_status', 'WAITING');
     if($role == 'FINANCE MANAGER'){
       $this->db->like('tb_po.review_status', 'WAITING FOR FINANCE');
