@@ -6,6 +6,7 @@ class Expense_Request_Model extends MY_Model
     protected $categories;
     protected $budget_year;
     protected $budget_month;
+    protected $modules;
 
     public function __construct()
     {
@@ -15,6 +16,8 @@ class Expense_Request_Model extends MY_Model
         $this->categories   = $this->getCategories();
         $this->budget_year  = find_budget_setting('Active Year');
         $this->budget_month = find_budget_setting('Active Month');
+        $this->modules        = config_item('module');
+        $this->data['modules']        = $this->modules;
     }
 
     public function getSelectedColumns()
@@ -133,35 +136,64 @@ class Expense_Request_Model extends MY_Model
                         $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
                         $this->connection->where('tb_departments.department_name', config_item('as_head_department'));
                     }
+                }elseif($search_status=='review_approved'){
+                    if(config_item('auth_role') == 'BUDGETCONTROL'){
+                        $status = ['WAITING FOR HEAD DEPT','WAITING FOR FINANCE','WAITING FOR HOS','WAITING FOR COO','WAITING FOR VP FINANCE','WAITING FOR CFO','approved'];
+                        
+                    } 
+                    if (config_item('auth_role') == 'FINANCE MANAGER') {
+                        $status = ['WAITING FOR HOS','WAITING FOR COO','WAITING FOR VP FINANCE','WAITING FOR CFO','approved'];
+                        
+                    }
+                    if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+                        $status = ['WAITING FOR COO','WAITING FOR VP FINANCE','WAITING FOR CFO','approved'];
+                    }
+                    if (config_item('auth_role') == 'VP FINANCE') {
+                        $status = ['WAITING FOR CFO','approved'];
+                    }
+                    if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+                        $status = ['approved'];
+                    }
+                    if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
+                        $status = ['WAITING FOR VP FINANCE','WAITING FOR CFO','approved'];
+                    }
+                    if (config_item('as_head_department')=='yes'){
+                        $status = ['WAITING FOR FINANCE','WAITING FOR HOS','WAITING FOR COO','WAITING FOR VP FINANCE','WAITING FOR CFO','approved'];
+                        $this->connection->where('tb_departments.department_name', config_item('head_department'));
+                    }
+                    $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
                 }else{
                     $this->connection->where('tb_expense_purchase_requisitions.status', $search_status);
                 }
                 
             }            
-        }else{            
+        }else{    
+            if (is_granted($this->data['modules']['expense_request'], 'approval')){
+                if(config_item('auth_role') == 'BUDGETCONTROL'){
+                    $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
+                } 
+                if (config_item('auth_role') == 'FINANCE MANAGER') {
+                    $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR FINANCE');
+                }
+                if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+                    $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR HOS');
+                }
+                if (config_item('auth_role') == 'VP FINANCE') {
+                    $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR VP FINANCE');
+                }
+                if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+                    $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR CFO');
+                }
+                if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
+                    $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR COO');
+                }
+                if (config_item('as_head_department')=='yes'){
+                    $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
+                    $this->connection->where('tb_departments.department_name', config_item('head_department'));
+                }
+            }        
             
-            if(config_item('auth_role') == 'BUDGETCONTROL'){
-                $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
-            } 
-            if (config_item('auth_role') == 'FINANCE MANAGER') {
-                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR FINANCE');
-            }
-            if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR HOS');
-            }
-            if (config_item('auth_role') == 'VP FINANCE') {
-                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR VP FINANCE');
-            }
-            if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR CFO');
-            }
-            if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
-                $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR COO');
-            }
-            if (config_item('as_head_department')=='yes'){
-                $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
-                $this->connection->where('tb_departments.department_name', config_item('as_head_department'));
-            }
+            
         }
 
         if (!empty($_POST['columns'][3]['search']['value'])){
@@ -575,7 +607,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
         if ($with_po !== NULL || !empty($with_po)) {
-            if($with_po=='no'){
+            if($with_po=='f'){
                 $this->connection->where_in('tb_accounts.id',$item_no_po);
             }else{
                 $this->connection->where_not_in('tb_accounts.id',$item_no_po);
@@ -944,7 +976,7 @@ class Expense_Request_Model extends MY_Model
 
     public function findPrlByPoeItemid($poe_item_id)
     {
-        $prl_item_id = getPrlid($poe_item_id);
+        $prl_item_id = getPrlid($poe_item_id);//perbaikan di app helper
 
         $this->connection->select('tb_expense_purchase_requisition_details.expense_purchase_requisition_id');
         $this->connection->from('tb_expense_purchase_requisition_details');
@@ -1283,7 +1315,7 @@ class Expense_Request_Model extends MY_Model
             $issued_by = $row['created_by'];
 
             $recipientList = $this->getNotifRecipient_approval($issued_by);
-            $recipient = array("aidanurul99@rocketmail.com");
+            $recipient = array();
             foreach ($recipientList as $key) {
                 array_push($recipient, $key->email);
 			}

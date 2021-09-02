@@ -106,29 +106,28 @@
         <div class="form-group">
           <label for="filter_status">Status</label>
           <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
-            <option></option>
-            <?php if ((config_item('auth_role') != 'CHIEF OPERATION OFFICER') && (config_item('auth_role') != 'HEAD OF SCHOOL') && (config_item('auth_role') != 'CHIEF OF FINANCE') && (config_item('auth_role') != 'FINANCE MANAGER') && (config_item('auth_role') != 'VP FINANCE')) : ?>
+            <?php if (!is_granted($module, 'approval')) : ?>
             <option value="all">
               All Status
             </option>
             <?php endif; ?>
-            <option value="review">
+            <option value="pending" <?php if (is_granted($module, 'approval')):echo 'selected'; endif;?>>
               Review
             </option>
-            <option value="WAITING FOR BUDGETCONTROL" <?php (config_item('auth_role')=='BUDGETCONTROL')?'selected':''?>>
-              Pending
+            <?php if (!is_granted($module, 'approval')) : ?>
+            <option value="review_approved">
+              Approved
             </option>
-            <option value="WAITING FOR HEAD DEPT" <?php (config_item('as_head_department')=='yes')?'selected':''?>>
-              Waiting For head Dept.
-            </option>
+            <?php else: ?>
             <option value="approved">
-              APPROVED
+              Approved
             </option>
+            <?php endif; ?>
             <option value="rejected">
-              REJECTED
+              Rejected
             </option>
             <option value="cancel">
-              CANCELED
+              Canceled
             </option>
           </select>
         </div>

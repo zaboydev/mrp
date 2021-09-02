@@ -114,15 +114,17 @@ class Expense_Order_Evaluation extends MY_Controller
     $entities = $this->model->searchRequestItem($category);
 
     foreach ($entities as $key => $value) {
-      $entities[$key]['label'] = $value['account_name'];
-      $entities[$key]['label'] .= ' || Account Code: ';
-      $entities[$key]['label'] .= $value['account_code'];
-      $entities[$key]['label'] .= '<small>';
-      $entities[$key]['label'] .= 'PR number: ' . $value['pr_number'] . ' || ';
-      $entities[$key]['label'] .= 'PR date: ' . date('d/m/Y', strtotime($value['pr_date'])) . ' || ';
-      $entities[$key]['label'] .= 'Required date: ' . date('d/m/Y', strtotime($value['required_date'])) . ' || ';
-      $entities[$key]['label'] .= 'Amount: <code>' . number_format($value['total']-$value['process_amount']) . '</code>';
-      $entities[$key]['label'] .= '</small>';
+      if($value['total']-$value['process_amount']>0){
+        $entities[$key]['label'] = $value['account_name'];
+        $entities[$key]['label'] .= ' || Account Code: ';
+        $entities[$key]['label'] .= $value['account_code'];
+        $entities[$key]['label'] .= '<small>';
+        $entities[$key]['label'] .= 'PR number: ' . $value['pr_number'] . ' || ';
+        $entities[$key]['label'] .= 'PR date: ' . date('d/m/Y', strtotime($value['pr_date'])) . ' || ';
+        $entities[$key]['label'] .= 'Required date: ' . date('d/m/Y', strtotime($value['required_date'])) . ' || ';
+        $entities[$key]['label'] .= 'Amount: <code>' . number_format($value['total']-$value['process_amount']) . '</code>';
+        $entities[$key]['label'] .= '</small>';
+      }
     }
 
     echo json_encode($entities);

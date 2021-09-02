@@ -380,7 +380,7 @@ class Inventory_Request extends MY_Controller
     {
         $this->authorized($this->module['permission']['document']);
 
-        unset($_SESSION['request']);
+        unset($_SESSION['inventory']);
 
         redirect($this->module['route']);
     }

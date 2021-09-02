@@ -297,7 +297,7 @@ class Expense_Request extends MY_Controller
                     $data['message'] = implode('<br />', $errors);
                 } else {
                     if ($this->model->save()) {
-                        unset($_SESSION['request']);
+                        unset($_SESSION['expense']);
 
                         // SEND EMAIL NOTIFICATION HERE
                         // $this->send_mail();
@@ -453,10 +453,10 @@ class Expense_Request extends MY_Controller
         foreach ($entities as $key => $value) {
             if($value['maximum_price']>0){
                 $entities[$key]['label'] = ' Account : ';
-                $entities[$key]['label'] .= $value['account_code'].'-';
+                $entities[$key]['label'] .= $value['account_code'].' - ';
                 $entities[$key]['label'] .= $value['account_name'];
                 $entities[$key]['label'] .= '<small>';
-                $entities[$key]['label'] .= 'Month to Date Plan Budget: <code>' . number_format($value['mtd_budget'], 2) . '| </code>';
+                $entities[$key]['label'] .= 'Month to Date Plan Budget: <code>' . number_format($value['mtd_budget'], 2) . ' | </code>';
                 $entities[$key]['label'] .= 'Year to Date Plan Budget: <code>' . number_format($value['maximum_price'], 2) . '</code>';
                 $entities[$key]['label'] .= '</small>';
             }

@@ -124,12 +124,9 @@ class Dashboard extends MY_Controller
 
   public function test_send_email()
   {
-    if ($this->model->send_mail()) {
-      $result['status'] = 'success';
-    } else {
-      
-      $result['status'] = 'failed';
-    }
+    $send = $this->model->send_mail();
+    
+    $result['status'] = $send;
     echo json_encode($result);
   }
 }
