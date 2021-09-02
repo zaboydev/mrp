@@ -10,6 +10,7 @@ class Expense_Purchase_Order extends MY_Controller
 
     $this->module = $this->modules['expense_purchase_order'];
     $this->load->helper($this->module['helper']);
+    $this->load->library('upload');
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
   }
@@ -58,9 +59,8 @@ class Expense_Purchase_Order extends MY_Controller
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER') && ($row['review_status'] == strtoupper("waiting for coo review"))) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else if ((config_item('auth_role') == 'SUPER ADMIN')) {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          }else if ((config_item('auth_role') == 'PROCUREMENT MANAGER')&& ($row['review_status'] == strtoupper("waiting for proc mng review"))) {
+          } 
+          else if ((config_item('auth_role') == 'PROCUREMENT MANAGER')&& ($row['review_status'] == strtoupper("waiting for proc mng review"))) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }else if ((config_item('auth_role') == 'FINANCE MANAGER')&& ($row['review_status'] == strtoupper("waiting for finance review"))) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -1504,5 +1504,37 @@ class Expense_Purchase_Order extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function manage_attachment($id)
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
+    $this->data['id'] = $id;
+    $this->render_view($this->module['view'] . '/manage_attachment');
+  }
+
+  public function add_attachment_to_db($id)
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'attachment/expense_purchase_order/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+
+    $this->upload->initialize($config);
+
+    if (!$this->upload->do_upload('attachment')) {
+      $error = array('error' => $this->upload->display_errors());
+    } else {
+      $data = array('upload_data' => $this->upload->data());
+      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      // array_push($_SESSION["poe"]["attachment"], $url);
+      $this->model->add_attachment_to_db($id, $url);
+      $result["status"] = 1;
+    }
+    echo json_encode($result);
   }
 }

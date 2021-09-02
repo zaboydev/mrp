@@ -40,12 +40,14 @@ class Purchase_Order_Evaluation_Model extends MY_Model
   public function listAttachment($id)
   {
     $this->db->where('id_poe', $id);
+    $this->db->where('tipe', 'POE');
     return $this->db->get('tb_attachment_poe')->result();
   }
 
   public function listAttachment_2($id)
   {
     $this->db->where('id_poe', $id);
+    $this->db->where('tipe', 'POE');
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 

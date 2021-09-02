@@ -658,7 +658,7 @@ class Inventory_Request extends MY_Controller
         $date = new DateTime();
         // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
         $cost_center = getCostCenterByIdRequest($id,'inventory');
-        $config['upload_path'] = 'attachment/capex_request/'.$cost_center['cost_center_name'].'/';
+        $config['upload_path'] = 'attachment/inventory_request/'.$cost_center['cost_center_name'].'/';
         $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
         $config['max_size']  = 2000;
 
