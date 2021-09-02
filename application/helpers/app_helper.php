@@ -189,7 +189,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'){
+          if($module['route']=='dashboard'||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'){
             return TRUE;
           }else{
             return FALSE;
