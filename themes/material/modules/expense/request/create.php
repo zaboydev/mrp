@@ -38,12 +38,30 @@
                 <label for="notes">Notes</label>
               </div>
               <div class="form-group">
-                <input type="text" name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>">   
+                <input readonly type="text" name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>">   
                 <label for="notes">With PO</label>
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-sm-12 col-lg-12">
+              <div class="form-group">
+                <div class="input-group">
+                  <?php if (!empty($_SESSION['expense']['with_po'])):?>
+                  <?php if ($_SESSION['expense']['with_po']=='f'):?>
+                  <span class="input-group-addon">Expense Request ini merupakasn expense request tanpa PO. Item yang muncul sekarang merupakan item yang terdaftar di Master Data -> Expense Item Without PO</span>
+                  <?php endif;?>
+                  <?php if ($_SESSION['expense']['with_po']=='t'):?>
+                  <span class="input-group-addon">Expense Request ini merupakasn expense request dengan PO. Item yang muncul sekarang merupakan item yang tidak terdaftar di Master Data -> Expense Item Without PO</span>
+                  <?php endif;?>
+                  <?php endif;?>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        
 
         <?php if (isset($_SESSION['expense']['items'])) : ?>
           <?php $grand_total = array(); ?>

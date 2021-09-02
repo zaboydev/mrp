@@ -52,6 +52,14 @@
 
           <dt>Notes</dt>
           <dd><?=$entity['notes'];?></dd>
+          <dd>
+          <?php if ($entity['with_po']=='f'):?>
+            Expense Request ini merupakasn expense request tanpa PO.
+          <?php endif;?>
+          <?php if ($entity['with_po']=='t'):?>
+            Expense Request ini merupakasn expense request dengan PO.
+          <?php endif;?>
+          </dd>
         </dl>
       </div>
     </div>
@@ -102,7 +110,7 @@
                     <?=print_number($detail['balance_ytd_budget'], 2);?>
                   </td>
                   <td align="right">
-                    <?=print_string($detail['reference_ipc'], 2);?>
+                    <?=print_string($detail['reference_ipc']);?>
                   </td>
                   
                 </tr>
