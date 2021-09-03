@@ -114,12 +114,12 @@
             <option value="pending" <?php if (is_granted($module, 'approval')):echo 'selected'; endif;?>>
               Review
             </option>
-            <?php if (!is_granted($module, 'approval')) : ?>
+            <?php if (is_granted($module, 'approval')) : ?>
             <option value="review_approved">
               Approved
             </option>
             <?php else: ?>
-            <option value="approved">
+            <option value="approved" <?php if (config_item('auth_role') == 'PIC PROCUREMENT'):echo 'selected'; endif;?>>
               Approved
             </option>
             <?php endif; ?>

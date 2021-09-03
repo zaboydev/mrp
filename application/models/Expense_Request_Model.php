@@ -191,6 +191,10 @@ class Expense_Request_Model extends MY_Model
                     $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
                     $this->connection->where('tb_departments.department_name', config_item('head_department'));
                 }
+            }else{
+                if(config_item('auth_role') == 'PIC PROCUREMENT'){
+                    $this->connection->where('tb_expense_purchase_requisitions.status', 'approved');
+                }
             }        
             
             
