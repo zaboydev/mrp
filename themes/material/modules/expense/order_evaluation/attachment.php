@@ -35,10 +35,10 @@
           </tr>
         </thead>
         <tbody>
-          <?php if(sizeof($_SESSION['capex_poe']["attachment"])>0) {
+          <?php if(sizeof($_SESSION['expense_poe']["attachment"])>0) {
               $x=0; 
               $y=0;
-              foreach ($_SESSION['capex_poe']["attachment"] as $key) {
+              foreach ($_SESSION['expense_poe']["attachment"] as $key) {
                     $x++;
                   ?>
                   <tr>
