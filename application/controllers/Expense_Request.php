@@ -75,63 +75,66 @@ class Expense_Request extends MY_Controller
             $total = array();
 
             foreach ($entities as $row) {
-                $no++;
-                $col = array();
-                if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='FINANCE MANAGER'){
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR HOS REVIEW' && config_item('auth_role')=='HEAD OF SCHOOL'){
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR COO REVIEW' && config_item('auth_role')=='CHIEF OPERATION OFFICER'){
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR VP FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else if($row['status']=='WAITING FOR CFO REVIEW' && config_item('auth_role')=='CHIEF OF FINANCE'){
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else{                    
-                    $col[] = print_number($no);
-                }
-                $col[] = print_string($row['pr_number']);
-                $col[] = print_string(strtoupper($row['status']));
-                $col[] = print_string($row['cost_center_name']);
-                $col[] = print_date($row['pr_date']);
-                $col[] = print_date($row['required_date']);
-                // $col[] = print_string($row['account_name']);
-                $col[] = print_number($row['total_expense'],2);
-                $col[] = $row['notes'];
-                if (is_granted($this->module, 'approval') === TRUE) {
-                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                }else{                    
-                    $col[] = $row['approved_notes'];
-                }
-                $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
-                       <i class="fa fa-eye"></i>
-                     </a>';
-                if (config_item('as_head_department')=='yes'){
-                    $col[] = print_string(strtoupper($row['department_name']));
-                }
-                $col['DT_RowId'] = 'row_'. $row['id'];
-                $col['DT_RowData']['pkey']  = $row['id'];
+                if (viewOrNot($row['status'],$row['department_name'])) {                
+                    $no++;
+                    $col = array();
+                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='FINANCE MANAGER'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR HOS REVIEW' && config_item('auth_role')=='HEAD OF SCHOOL'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR COO REVIEW' && config_item('auth_role')=='CHIEF OPERATION OFFICER'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR VP FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR CFO REVIEW' && config_item('auth_role')=='CHIEF OF FINANCE'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else{                    
+                        $col[] = print_number($no);
+                    }
+                    $col[] = print_string($row['pr_number']);
+                    $col[] = print_string(strtoupper($row['status']));
+                    $col[] = print_string($row['cost_center_name']);
+                    $col[] = print_date($row['pr_date']);
+                    $col[] = print_date($row['required_date']);
+                    // $col[] = print_string($row['account_name']);
+                    $col[] = print_number($row['total_expense'],2);
+                    $col[] = $row['notes'];
+                    if (is_granted($this->module, 'approval') === TRUE) {
+                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                    }else{                    
+                        $col[] = $row['approved_notes'];
+                    }
+                    $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                        <i class="fa fa-eye"></i>
+                        </a>';
+                    if (config_item('as_head_department')=='yes'){
+                        $col[] = print_string(strtoupper($row['department_name']));
+                    }
+                    $col['DT_RowId'] = 'row_'. $row['id'];
+                    $col['DT_RowData']['pkey']  = $row['id'];
 
-                $total[]         = $row['total_expense'];
+                    $total[]         = $row['total_expense'];
 
-                if ($this->has_role($this->module, 'info')){
-                    $col['DT_RowAttr']['onClick']     = '';
-                    $col['DT_RowAttr']['data-id']     = $row['id'];
-                    $col['DT_RowAttr']['data-target'] = '#data-modal';
-                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                    if ($this->has_role($this->module, 'info')){
+                        $col['DT_RowAttr']['onClick']     = '';
+                        $col['DT_RowAttr']['data-id']     = $row['id'];
+                        $col['DT_RowAttr']['data-target'] = '#data-modal';
+                        $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                    }
+
+                    $data[] = $col;
                 }
-
-                $data[] = $col;
             }
 
             $result = array(
                 "draw" => $_POST['draw'],
                 "recordsTotal" => $this->model->countIndex(),
-                "recordsFiltered" => $this->model->countIndexFiltered(),
+                // "recordsFiltered" => $this->model->countIndexFiltered(),
+                "recordsFiltered"   => $no,
                 "data" => $data,
                 "total" => array(
                     6  => print_number(array_sum($total), 2),

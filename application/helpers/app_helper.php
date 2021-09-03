@@ -1821,4 +1821,19 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('viewOrNot')) {
+    function viewOrNot($status,$department_request)
+    {
+      if($status=='WAITING FOR HEAD DEPT'){
+        if($department_request==config_item('head_dept')){
+          return true;
+        }else{
+          return false;
+        }
+      }else{
+        return true;
+      }
+    }
+  }
+
     
