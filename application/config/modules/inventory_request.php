@@ -16,5 +16,6 @@ $config['module']['inventory_request']['permission']     = array(
   'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
   'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
   'document'  => 'SUPER ADMIN,PIC STAFF',
+  'closing'   => 'SUPER ADMIN,PIC PROCUREMENT',
   'approval'  => 'BUDGETCONTROL',
 );
