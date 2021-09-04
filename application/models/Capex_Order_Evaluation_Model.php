@@ -576,6 +576,15 @@ class Capex_Order_Evaluation_Model extends MY_Model
         $this->connection->set('grn_value',0);
         $this->connection->insert('tb_capex_purchase_requisition_detail_progress');
         //end
+
+        $this->connection->where('id', $inventory_purchase_request_detail_id);
+        $detail_request = $this->connection->get('tb_capex_purchase_requisition_details')->row();
+        if ($detail_request->quantity > $detail_request->process_qty) {
+          $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+          $this->db->where('tipe', 'CAPEX');
+          $this->db->delete('tb_purchase_request_closures');
+        }
+
         if(!$this->closingRequest($prl_item_id)){
           $request_id = $this->getRequestIdByItemId($prl_item_id);
           $this->connection->set('status','approved');
@@ -782,16 +791,16 @@ class Capex_Order_Evaluation_Model extends MY_Model
       if ($document_edit === NULL) {
         $this->connection->where('id', $inventory_purchase_request_detail_id);
         $detail_request = $this->connection->get('tb_capex_purchase_requisition_details')->row();
-        if ($detail_request->quantity == $detail_request->process_qty) {
+        if ($detail_request->quantity <= $detail_request->process_qty) {
 
           // $this->connection->set('status', 'closed');
           // $this->connection->where('id', $inventory_purchase_request_detail_id);
           // $this->connection->update('tb_capex_purchase_requisition_details');
 
-          // $this->db->set('closing_by', config_item('auth_person_name'));
-          // $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
-          // $this->db->set('tipe', 'CAPEX');
-          // $this->db->insert('tb_purchase_request_closures');
+          $this->db->set('closing_by', config_item('auth_person_name'));
+          $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+          $this->db->set('tipe', 'CAPEX');
+          $this->db->insert('tb_purchase_request_closures');
         }
       }
 

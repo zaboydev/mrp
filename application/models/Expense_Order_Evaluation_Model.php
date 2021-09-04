@@ -576,6 +576,14 @@ class Expense_Order_Evaluation_Model extends MY_Model
         $this->connection->insert('tb_expense_purchase_requisition_detail_progress');
         //end
 
+        $this->connection->where('id', $inventory_purchase_request_detail_id);
+        $detail_request = $this->connection->get('tb_expense_purchase_requisition_details')->row();
+        if ($detail_request->total > $detail_request->process_amount) {
+          $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+          $this->db->where('tipe', 'EXPENSE');
+          $this->db->delete('tb_purchase_request_closures');
+        }
+
         if(!$this->closingExpenseRequest($prl_item_id)){
           $request_id = $this->getRequestIdByItemId($prl_item_id);
           $this->connection->set('status','approved');
@@ -774,7 +782,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
         if ($detail_request->total <= $detail_request->process_amount) {
           $this->db->set('closing_by', config_item('auth_person_name'));
           $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
-          $this->db->set('tipe', 'expense');
+          $this->db->set('tipe', 'EXPENSE');
           $this->db->insert('tb_purchase_request_closures');
         }
       }
