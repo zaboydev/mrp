@@ -74,9 +74,9 @@ class Expense_Request extends MY_Controller
             $no       = $_POST['start'];
             $total = array();
 
-            foreach ($entities as $row) {
-                if (viewOrNot($row['status'],$row['department_name'])) {                
-                    $no++;
+            foreach ($entities as $row) {   
+                if (viewOrNot($row['status'],$row['department_name'])) {                               
+                    $no++;    
                     $col = array();
                     if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -125,16 +125,19 @@ class Expense_Request extends MY_Controller
                         $col['DT_RowAttr']['data-target'] = '#data-modal';
                         $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
                     }
-
-                    $data[] = $col;
                 }
+                
+                if(!empty($col)){
+                    $data[] = $col;
+                }               
+                
             }
 
             $result = array(
                 "draw" => $_POST['draw'],
                 "recordsTotal" => $this->model->countIndex(),
-                // "recordsFiltered" => $this->model->countIndexFiltered(),
-                "recordsFiltered"   => $no,
+                "recordsFiltered" => $this->model->countIndexFiltered(),
+                // "recordsFiltered"   => $no,
                 "data" => $data,
                 "total" => array(
                     6  => print_number(array_sum($total), 2),

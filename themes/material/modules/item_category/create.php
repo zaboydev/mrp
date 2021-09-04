@@ -25,7 +25,7 @@
             <div class="col-sm-6 col-lg-4">
               <label>Person in Charge</label>
 
-              <?php foreach (available_user(array('person_name', 'username'), array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)) as $i => $user):?>
+              <?php foreach (available_user(array('person_name', 'username')) as $i => $user):?>
                 <div class="checkbox">
                   <input type="checkbox" name="user[]" id="user[<?=$i;?>]" value="<?=$user['username'];?>">
                   <label for="user[<?=$i;?>]">

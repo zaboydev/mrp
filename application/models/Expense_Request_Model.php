@@ -170,32 +170,40 @@ class Expense_Request_Model extends MY_Model
             }            
         }else{    
             if (is_granted($this->data['modules']['expense_request'], 'approval')){
+                $status = array();
                 if(config_item('auth_role') == 'BUDGETCONTROL'){
-                    $status = ['pending'];
+                    // $status = ['pending'];
+                    array_push($status,'pending');
                     // $this->connection->where('tb_expense_purchase_requisitions.status', 'pending');
                 } 
                 if (config_item('auth_role') == 'FINANCE MANAGER') {
-                    $status = ['WAITING FOR FINANCE REVIEW'];
+                    // $status = ['WAITING FOR FINANCE REVIEW'];
+                    array_push($status,'WAITING FOR FINANCE REVIEW');
                     // $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR FINANCE');
                 }
                 if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-                    $status = ['WAITING FOR HOS REVIEW'];
+                    // $status = ['WAITING FOR HOS REVIEW'];
+                    array_push($status,'WAITING FOR HOS REVIEW');
                     // $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR HOS');
                 }
                 if (config_item('auth_role') == 'VP FINANCE') {
-                    $status = ['WAITING FOR VP FINANCE REVIEW'];
+                    // $status = ['WAITING FOR VP FINANCE REVIEW'];
+                    array_push($status,'WAITING FOR VP FINANCE REVIEW');
                     // $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR VP FINANCE');
                 }
                 if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-                    $status = ['WAITING FOR CFO REVIEW'];
+                    // $status = ['WAITING FOR CFO REVIEW'];
+                    array_push($status,'WAITING FOR CFO REVIEW');
                     // $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR CFO');
                 }
                 if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {                    
-                    $status = ['WAITING FOR COO REVIEW'];
+                    // $status = ['WAITING FOR COO REVIEW'];
+                    array_push($status,'WAITING FOR COO REVIEW');
                     // $this->connection->like('tb_expense_purchase_requisitions.status', 'WAITING FOR COO');
                 }
                 if (config_item('as_head_department')=='yes'){                   
-                    $status = ['WAITING FOR HEAD DEPT'];
+                    // $status = ['WAITING FOR HEAD DEPT'];
+                    array_push($status,'WAITING FOR HEAD DEPT');
                     // $this->connection->where('tb_expense_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
                     // $this->connection->where('tb_departments.department_name', config_item('head_department'));
                 }
