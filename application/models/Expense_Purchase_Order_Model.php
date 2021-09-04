@@ -140,6 +140,9 @@ class Expense_Purchase_Order_Model extends MY_Model
         }
         if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
           $this->db->like('tb_po.review_status', 'WAITING FOR COO');
+        }
+        if (config_item('auth_role') == 'ASSISTANT HOS') {
+          $this->db->like('tb_po.review_status', 'WAITING FOR AHOS');
         }else{
           $this->db->like('tb_po.review_status', 'WAITING');
         }
@@ -192,8 +195,9 @@ class Expense_Purchase_Order_Model extends MY_Model
       }
       if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
         $this->db->like('tb_po.review_status', 'WAITING FOR COO');
-      }else{
-        $this->db->where_not_in('tb_po.status', ['REVISI']);
+      }
+      if (config_item('auth_role') == 'ASSISTANT HOS') {
+        $this->db->like('tb_po.review_status', 'WAITING FOR AHOS');
       }
       
       // else{
@@ -248,9 +252,10 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'LEFT');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
     $this->db->where('tb_po.tipe_po','EXPENSE');
-    if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
-      $this->db->where_in('tb_po.category', config_item('auth_inventory'));
-    }
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
+    // if (is_granted($this->data['modules']['expense_purchase_order'], 'document') === FALSE) {
+    //   $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // }
     $this->db->group_by($this->getGroupedColumns());
 
     // if (config_item('auth_role') == 'FINANCE'){
@@ -291,9 +296,10 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->where('tb_po.tipe_po','EXPENSE');
-    if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
-      $this->db->where_in('tb_po.category', config_item('auth_inventory'));
-    }
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
+    // if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
+    //   $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // }
     $this->db->group_by($this->getGroupedColumns());
 
     $this->searchIndex();
@@ -311,9 +317,10 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->where('tb_po.tipe_po','EXPENSE');
-    if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
-      $this->db->where_in('tb_po.category', config_item('auth_inventory'));
-    }
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
+    // if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
+    //   $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // }
     $this->db->group_by($this->getGroupedColumns());
 
     $query = $this->db->get();
