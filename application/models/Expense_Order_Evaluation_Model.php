@@ -667,6 +667,19 @@ class Expense_Order_Evaluation_Model extends MY_Model
         $item_id = $this->db->insert_id();
       }
 
+      if (isPartNumberExists(strtoupper($item['part_number'])) == FALSE) {
+        $this->db->set('group', strtoupper($group));
+        $this->db->set('description', strtoupper($item['description']));
+        $this->db->set('part_number', strtoupper($item['part_number']));
+        $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
+        $this->db->set('min_qty', floatval(1));
+        $this->db->set('unit', strtoupper($unit));
+        // $this->db->set('kode_pemakaian', $data['kode_pemakaian']);
+        $this->db->set('current_price', floatval($item['unit_price_requested']));
+        $this->db->set('kode_stok', $data['kode_stok']);
+        $this->db->insert('tb_master_part_number');
+      }
+
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
@@ -685,18 +698,6 @@ class Expense_Order_Evaluation_Model extends MY_Model
       foreach ($item['vendors'] as $d => $detail) {
         $vendor_currency = $detail['vendor'];
         $range_vendor_currency = explode('-', $vendor_currency);
-
-        // $_SESSION['expense_poe']['vendors'][$key]['vendor'] = $vendor;
-        // $_SESSION['expense_poe']['vendors'][$key]['vendor_currency'] = $range_vendor_currency[0];
-        // $_SESSION['expense_poe']['vendors'][$key]['vendor_name'] = $range_vendor_currency[1];
-        // if ($detail['is_selected'] == 't'){
-
-        //   $this->db->set('purchase_order_id', $document_id);
-        //   $this->db->set('vendor', $detail['vendor']);
-        //   $this->db->set('is_selected', $detail['is_selected']);
-        //   $this->db->insert('tb_purchase_order_vendors');
-        // } 
-        // $purchase_order_vendors_id = $this->db->insert_id();
 
         $this->db->from('tb_purchase_order_vendors');
         $this->db->where('tb_purchase_order_vendors.vendor', $range_vendor_currency[1]);
@@ -755,31 +756,13 @@ class Expense_Order_Evaluation_Model extends MY_Model
 
           $quantity = floatval($detail['quantity']);
           $total_amount = floatval($detail['total']);
-
-          // $this->db->select('sisa');
-          // $this->db->where('id', $inventory_purchase_request_detail_id);
-          // $this->db->from('tb_inventory_purchase_requisition_details');
-          // $query = $this->db->get();
-          // $result = $query->unbuffered_row('array');
-          // if($result==0){
-          //   $this->db->set('status','closed');
-          //   $this->db->where('id', $inventory_purchase_request_detail_id);
-          //   $this->db->update('tb_inventory_purchase_requisition_details');
-          // }
-
-
         }
       }
 
       if ($document_edit === NULL) {
         $this->connection->where('id', $inventory_purchase_request_detail_id);
         $detail_request = $this->connection->get('tb_expense_purchase_requisition_details')->row();
-        if ($detail_request->total == $detail_request->process_amount) {
-
-          // $this->connection->set('status', 'closed');
-          // $this->connection->where('id', $inventory_purchase_request_detail_id);
-          // $this->connection->update('tb_expense_purchase_requisition_details');
-
+        if ($detail_request->total <= $detail_request->process_amount) {
           $this->db->set('closing_by', config_item('auth_person_name'));
           $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
           $this->db->set('tipe', 'expense');
@@ -798,6 +781,14 @@ class Expense_Order_Evaluation_Model extends MY_Model
       $this->connection->set('grn_value',0);
       $this->connection->insert('tb_expense_purchase_requisition_detail_progress');
       //end
+      if($this->closingExpenseRequest($prl_item_id)){
+        $request_id = $this->getRequestIdByItemId($prl_item_id);
+        $this->connection->set('status','close');
+        $this->connection->set('closing_date',date('Y-m-d H:i:s'));
+        $this->connection->set('closing_by',config_item('auth_person_name'));
+        $this->connection->where('id',$request_id);
+        $this->connection->update('tb_expense_purchase_requisitions');
+      }
     }
 
     if ($this->db->trans_status() === FALSE)
@@ -1259,5 +1250,39 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $result = $query->result_array();
 
     return $result;
+  }
+
+  public function closingExpenseRequest($prl_item_id)
+  {
+    $request_id = $this->getRequestIdByItemId($prl_item_id);
+    //count total expense
+    $this->connection->select('sum(total)');
+    $this->connection->from('tb_expense_purchase_requisition_details');
+    $this->connection->where('expense_purchase_requisition_id',$request_id);
+    $query_total = $this->connection->get('')->row();
+    $total = $query_total->sum;
+
+    //count total proses expense
+    $this->connection->select('sum(process_amount)');
+    $this->connection->from('tb_expense_purchase_requisition_details');
+    $this->connection->where('expense_purchase_requisition_id',$request_id);
+    $query_total_proses = $this->connection->get('')->row();
+    $total_proses = $query_total_proses->sum;
+
+    if($total<=$total_proses){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  public function getRequestIdByItemId($prl_item_id)
+  {
+    // $this->connection->from('tb_expense_purchase_requisition_details');
+    $this->connection->where('id',$prl_item_id);
+    $query  = $this->connection->get('tb_expense_purchase_requisition_details');
+    $result = $query->unbuffered_row('array');
+
+    return $result['expense_purchase_requisition_id'];
   }
 }

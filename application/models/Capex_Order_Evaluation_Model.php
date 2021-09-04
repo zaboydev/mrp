@@ -798,6 +798,15 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $this->connection->set('grn_value',0);
       $this->connection->insert('tb_capex_purchase_requisition_detail_progress');
       //end
+
+      if($this->closingExpenseRequest($prl_item_id)){
+        $request_id = $this->getRequestIdByItemId($prl_item_id);
+        $this->connection->set('status','close');
+        $this->connection->set('closing_date',date('Y-m-d H:i:s'));
+        $this->connection->set('closing_by',config_item('auth_person_name'));
+        $this->connection->where('id',$request_id);
+        $this->connection->update('tb_capex_purchase_requisitions');
+      }
     }
 
     if ($this->db->trans_status() === FALSE)
@@ -1180,5 +1189,39 @@ class Capex_Order_Evaluation_Model extends MY_Model
     $this->db->from('tb_auth_users');
     $this->db->where('person_name', $name);
     return $this->db->get('')->result();
+  }
+
+  public function closingExpenseRequest($prl_item_id)
+  {
+    $request_id = $this->getRequestIdByItemId($prl_item_id);
+    //count total expense
+    $this->connection->select('sum(quantity)');
+    $this->connection->from('tb_capex_purchase_requisition_details');
+    $this->connection->where('capex_purchase_requisition_id',$request_id);
+    $query_total = $this->connection->get('')->row();
+    $total = $query_total->sum;
+
+    //count total proses expense
+    $this->connection->select('sum(process_qty)');
+    $this->connection->from('tb_capex_purchase_requisition_details');
+    $this->connection->where('capex_purchase_requisition_id',$request_id);
+    $query_total_proses = $this->connection->get('')->row();
+    $total_proses = $query_total_proses->sum;
+
+    if($total<=$total_proses){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  public function getRequestIdByItemId($prl_item_id)
+  {
+    // $this->connection->from('tb_expense_purchase_requisition_details');
+    $this->connection->where('id',$prl_item_id);
+    $query  = $this->connection->get('tb_capex_purchase_requisition_details');
+    $result = $query->unbuffered_row('array');
+
+    return $result['capex_purchase_requisition_id'];
   }
 }
