@@ -576,15 +576,6 @@ class Inventory_Order_Evaluation_Model extends MY_Model
         $this->connection->set('grn_value',0);
         $this->connection->insert('tb_inventory_purchase_requisition_detail_progress');
         //end
-
-        if($this->closingExpenseRequest($prl_item_id)){
-          $request_id = $this->getRequestIdByItemId($prl_item_id);
-          $this->connection->set('status','close');
-          $this->connection->set('closing_date',date('Y-m-d H:i:s'));
-          $this->connection->set('closing_by',config_item('auth_person_name'));
-          $this->connection->where('id',$request_id);
-          $this->connection->update('tb_inventory_purchase_requisitions');
-        }
       }     
 
       $this->db->where('purchase_order_id', $document_id);
@@ -761,6 +752,15 @@ class Inventory_Order_Evaluation_Model extends MY_Model
       $this->connection->set('grn_value',0);
       $this->connection->insert('tb_inventory_purchase_requisition_detail_progress');
       //end
+
+      if($this->closingExpenseRequest($prl_item_id)){
+        $request_id = $this->getRequestIdByItemId($prl_item_id);
+        $this->connection->set('status','close');
+        $this->connection->set('closing_date',date('Y-m-d H:i:s'));
+        $this->connection->set('closing_by',config_item('auth_person_name'));
+        $this->connection->where('id',$request_id);
+        $this->connection->update('tb_inventory_purchase_requisitions');
+      }
     }
 
     if ($this->db->trans_status() === FALSE||$this->connection->trans_status() === FALSE)
