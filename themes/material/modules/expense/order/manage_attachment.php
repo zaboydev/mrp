@@ -19,8 +19,7 @@
         <button type="submit" class="btn btn-primary">Add Attachment</button>
       </div>
     </div>
-    <?Php endif;?>
-
+    <?php endif;?>
     
   </form>
   <div class="clearfix"></div>
