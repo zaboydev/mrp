@@ -152,8 +152,7 @@ class Expense_Request_Model extends MY_Model
                         $status = ['WAITING FOR HEAD DEPT','WAITING FOR FINANCE REVIEW','WAITING FOR HOS REVIEW','WAITING FOR COO REVIEW','WAITING FOR VP FINANCE REVIEW','WAITING FOR CFO REVIEW','approved'];
                     }
                     if (config_item('auth_role') == 'FINANCE MANAGER') {
-                        $status = ['WAITING FOR HOS REVIEW','WAITING FOR COO REVIEW','WAITING FOR VP FINANCE REVIEW','WAITING FOR CFO REVIEW','approved'];
-                        
+                        $status = ['WAITING FOR HOS REVIEW','WAITING FOR COO REVIEW','WAITING FOR VP FINANCE REVIEW','WAITING FOR CFO REVIEW','approved'];    
                     }
                     if (config_item('auth_role') == 'HEAD OF SCHOOL') {
                         $status = ['WAITING FOR COO REVIEW','WAITING FOR VP FINANCE REVIEW','WAITING FOR CFO REVIEW','approved'];
@@ -465,7 +464,14 @@ class Expense_Request_Model extends MY_Model
         $cost_center = getCostCenterByAnnualCostCenterId($request['annual_cost_center_id']);
 
         if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
-            $this->connection->set('status','WAITING FOR HEAD DEPT');
+            if($request['base']=='BANYUWANGI'){
+                $this->connection->set('status','WAITING FOR AHOS REVIEW');
+                $level = 22;
+            }else{
+                $this->connection->set('status','WAITING FOR HEAD DEPT');
+                $level = -1;
+            }
+            
             $this->connection->set('approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('approved_by',config_item('auth_person_name'));
             if($notes!=''){
@@ -473,7 +479,20 @@ class Expense_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_expense_purchase_requisitions');
+            
+        }
+
+        if(config_item('auth_role')=='ASSISTANT HOS' && $request['status']=='WAITING FOR AHOS REVIEW'){
+            $this->connection->set('status','WAITING FOR HEAD DEPT');
+            $this->connection->set('ahos_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('ahos_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'AHOS : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_expense_purchase_requisitions');
             $level = -1;
+            
         }
         if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
             if($with_po=='t'){
@@ -713,13 +732,12 @@ class Expense_Request_Model extends MY_Model
             // $this->connection->set('deliver_to', $deliver_to);
             $this->connection->set('status', 'pending');
             $this->connection->set('notes', $notes);
-            $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->set('created_by', $created_by);
             $this->connection->set('updated_by', config_item('auth_person_name'));
-            $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->set('created_at', date('Y-m-d H:i:s'));
             $this->connection->set('updated_at', date('Y-m-d H:i:s'));
             $this->connection->set('with_po', $with_po);
+            $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->insert('tb_expense_purchase_requisitions');
 
             $document_id = $this->connection->insert_id();
