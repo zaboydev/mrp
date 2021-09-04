@@ -428,7 +428,13 @@ class Capex_Request_Model extends MY_Model
         $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
 
         if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
-            $this->connection->set('status','WAITING FOR HEAD DEPT');
+            if($request['base']=='BANYUWANGI'){
+                $this->connection->set('status','WAITING FOR AHOS REVIEW');
+                $level = 22;
+            }else{
+                $this->connection->set('status','WAITING FOR HEAD DEPT');
+                $level = -1;
+            }
             $this->connection->set('approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('approved_by',config_item('auth_person_name'));
             if($notes!=''){
@@ -436,7 +442,6 @@ class Capex_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_capex_purchase_requisitions');
-            $level = -1;
         }else if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
             $this->connection->set('status','approved');
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
@@ -447,6 +452,17 @@ class Capex_Request_Model extends MY_Model
             $this->connection->where('id',$id);
             $this->connection->update('tb_capex_purchase_requisitions');
             $level = 8;
+        }elseif(config_item('auth_role')=='ASSISTANT HOS' && $request['status']=='WAITING FOR AHOS REVIEW'){
+            $this->connection->set('status','WAITING FOR HEAD DEPT');
+            $this->connection->set('ahos_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('ahos_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'AHOS : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_capex_purchase_requisitions');
+            $level = -1;
+            
         }
 
         
