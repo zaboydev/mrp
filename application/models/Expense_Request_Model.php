@@ -714,10 +714,10 @@ class Expense_Request_Model extends MY_Model
             // $this->connection->set('deliver_to', $deliver_to);
             $this->connection->set('status', 'pending');
             $this->connection->set('notes', $notes);
-            $this->connection->set('base', config_item('main_warehouse'));
+            $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->set('created_by', $created_by);
             $this->connection->set('updated_by', config_item('auth_person_name'));
-            $this->connection->set('base', config_item('main_warehouse'));
+            $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->set('created_at', date('Y-m-d H:i:s'));
             $this->connection->set('updated_at', date('Y-m-d H:i:s'));
             $this->connection->set('with_po', $with_po);
@@ -729,7 +729,7 @@ class Expense_Request_Model extends MY_Model
             // $this->connection->set('suggested_supplier', $suggested_supplier);
             // $this->connection->set('deliver_to', $deliver_to);
             $this->connection->set('status', 'pending');
-            $this->connection->set('base', config_item('main_warehouse'));
+            $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->set('notes', $notes);
             $this->connection->set('updated_at', date('Y-m-d'));
             $this->connection->set('updated_by', config_item('auth_person_name'));
