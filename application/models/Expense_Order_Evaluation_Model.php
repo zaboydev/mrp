@@ -575,6 +575,15 @@ class Expense_Order_Evaluation_Model extends MY_Model
         $this->connection->set('grn_value',0);
         $this->connection->insert('tb_expense_purchase_requisition_detail_progress');
         //end
+
+        if(!$this->closingExpenseRequest($prl_item_id)){
+          $request_id = $this->getRequestIdByItemId($prl_item_id);
+          $this->connection->set('status','approved');
+          $this->connection->set('closing_date',null);
+          $this->connection->set('closing_by',null);
+          $this->connection->where('id',$request_id);
+          $this->connection->update('tb_expense_purchase_requisitions');
+        }
       }     
 
       $this->db->where('purchase_order_id', $document_id);

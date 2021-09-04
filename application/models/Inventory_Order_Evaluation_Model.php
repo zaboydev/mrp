@@ -576,6 +576,14 @@ class Inventory_Order_Evaluation_Model extends MY_Model
         $this->connection->set('grn_value',0);
         $this->connection->insert('tb_inventory_purchase_requisition_detail_progress');
         //end
+        if(!$this->closingRequest($prl_item_id)){
+          $request_id = $this->getRequestIdByItemId($prl_item_id);
+          $this->connection->set('status','approved');
+          $this->connection->set('closing_date',null);
+          $this->connection->set('closing_by',null);
+          $this->connection->where('id',$request_id);
+          $this->connection->update('tb_inventory_purchase_requisitions');
+        }
       }     
 
       $this->db->where('purchase_order_id', $document_id);
@@ -1134,7 +1142,7 @@ class Inventory_Order_Evaluation_Model extends MY_Model
     return $this->db->get('')->result();
   }
 
-  public function closingExpenseRequest($prl_item_id)
+  public function closingRequest($prl_item_id)
     {
         $request_id = $this->getRequestIdByItemId($prl_item_id);
         //count total expense
