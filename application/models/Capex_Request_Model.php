@@ -106,12 +106,22 @@ class Capex_Request_Model extends MY_Model
             $search_status = $_POST['columns'][2]['search']['value'];
 
             if($search_status!='all'){
-                if($search_status=='WAITING FOR HEAD DEPT'){
-                    if (config_item('as_head_department')=='yes'){
-                        $this->connection->where('tb_capex_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
-                        $this->connection->where('tb_departments.department_name', config_item('head_department'));
-                    }else{
-                        $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
+                if($search_status=='review'){                    
+                    if (is_granted($this->data['modules']['expense_request'], 'approval')){
+                        $status = [];
+                        if(config_item('auth_role') == 'BUDGETCONTROL'){
+                            $status[] = 'pending';
+                        } 
+                        if(config_item('auth_role') == 'ASSISTANT HOS'){
+                            $status[] = 'WAITING FOR AHOS REVIEW';
+                        } 
+                        if (config_item('as_head_department')=='yes'){
+                            $status[] = 'WAITING FOR HEAD DEPT';
+                        }                
+                        $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
+                    }  else{
+                        $status = ['pending','WAITING FOR AHOS REVIEW','WAITING FOR HEAD DEPT'];
+                        $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
                     }
                 }else{
                     $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
@@ -119,13 +129,19 @@ class Capex_Request_Model extends MY_Model
             }    
                 
         }else{
-            if(config_item('auth_role') == 'BUDGETCONTROL'){
-                $this->connection->where('tb_capex_purchase_requisitions.status', 'pending');
-            } 
-            if (config_item('as_head_department')=='yes'){
-                $this->connection->where('tb_capex_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
-                $this->connection->where('tb_departments.department_name', config_item('head_department'));
-            }
+            $status = [];
+            if (is_granted($this->data['modules']['expense_request'], 'approval')){
+                if(config_item('auth_role') == 'BUDGETCONTROL'){
+                    $status[] = 'pending';
+                } 
+                if(config_item('auth_role') == 'ASSISTANT HOS'){
+                    $status[] = 'WAITING FOR AHOS REVIEW';
+                } 
+                if (config_item('as_head_department')=='yes'){
+                    $status[] = 'WAITING FOR HEAD DEPT';
+                }                
+                $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
+            }            
             
         }
 
@@ -197,6 +213,7 @@ class Capex_Request_Model extends MY_Model
         if (is_granted($this->data['modules']['capex_request'], 'approval') === FALSE) {
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
+        $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
         $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
@@ -236,7 +253,9 @@ class Capex_Request_Model extends MY_Model
         $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
         if (is_granted($this->data['modules']['capex_request'], 'approval') === FALSE) {
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
-        }$this->connection->group_by($this->getGroupedColumns());
+        }
+        $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
+        $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
 
@@ -257,6 +276,7 @@ class Capex_Request_Model extends MY_Model
         if (is_granted($this->data['modules']['capex_request'], 'approval') === FALSE) {
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
+        $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
         $this->connection->group_by($this->getGroupedColumns());
 
         $query = $this->connection->get();

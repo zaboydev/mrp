@@ -108,13 +108,9 @@
             <option value="all">
               All Status
             </option>
-            <option value="pending" 
-            <?php if ((config_item('auth_role') == 'BUDGETCONTROL')):echo 'selected'; endif;?>>
-              Pending
-            </option>
-            <option value="WAITING FOR HEAD DEPT" 
-            <?php if (config_item('as_head_department')=='yes'):echo 'selected'; endif;?>>
-              Waiting For Head Dept.
+            <option value="review" 
+            <?php if (is_granted($module,'approval')):echo 'selected'; endif;?>>
+              Review
             </option>
             <option value="approved">
               APPROVED

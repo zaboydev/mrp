@@ -12,9 +12,9 @@ $config['module']['capex_request']['helper']         = 'capex_request_helper';
 $config['module']['capex_request']['table']          = 'tb_capex_purchase_requisitions';
 $config['module']['capex_request']['model']          = 'Capex_Request_Model';
 $config['module']['capex_request']['permission']     = array(
-  'index'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT',
-  'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT',
-  'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT',
+  'index'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
+  'info'      => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
+  'print'     => 'SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
   'document'  => 'SUPER ADMIN,PIC STAFF',
-  'approval'  => 'BUDGETCONTROL'
+  'approval'  => 'BUDGETCONTROL,ASSISTANT HOS'
 );
