@@ -1825,7 +1825,7 @@ if (!function_exists('currency_for_vendor_list')) {
     function viewOrNot($status,$department_request)
     {
       if($status=='WAITING FOR HEAD DEPT'){
-        if($department_request==config_item('head_dept')){
+        if($department_request==config_item('head_department')){
           return true;
         }else{
           return false;
