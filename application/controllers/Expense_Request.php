@@ -125,7 +125,10 @@ class Expense_Request extends MY_Controller
                         $col['DT_RowAttr']['data-target'] = '#data-modal';
                         $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
                     }
+                    
+                }
 
+                if(!empty($col)){
                     $data[] = $col;
                 }
             }
@@ -133,8 +136,8 @@ class Expense_Request extends MY_Controller
             $result = array(
                 "draw" => $_POST['draw'],
                 "recordsTotal" => $this->model->countIndex(),
-                // "recordsFiltered" => $this->model->countIndexFiltered(),
-                "recordsFiltered"   => $no,
+                "recordsFiltered" => $this->model->countIndexFiltered(),
+                // "recordsFiltered"   => $no,
                 "data" => $data,
                 "total" => array(
                     6  => print_number(array_sum($total), 2),

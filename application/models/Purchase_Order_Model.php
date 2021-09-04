@@ -228,7 +228,7 @@ class Purchase_Order_Model extends MY_Model
       if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
         $this->db->like('tb_po.review_status', 'WAITING FOR COO');
       }else{
-        $this->db->where_not_in('tb_po.status', ['REVISI']);
+        $this->db->where_not_in('tb_po.review_status', ['REVISI']);
       }
       
       // else{
