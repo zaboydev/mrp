@@ -1411,4 +1411,57 @@ class Expense_Request_Model extends MY_Model
         $this->db->where('person_name', $name);
         return $this->db->get('')->result();
     }
+
+    function multi_closing($id_purchase_order, $notes)
+    {
+        $this->connection->trans_begin();
+        $this->db->trans_begin();
+        $x = 0;
+        $return = 0;
+        $rejected_note = '';
+        foreach ($id_purchase_order as $id) {
+            $this->connection->from('tb_expense_purchase_requisition_details');
+            $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $id);
+            $query = $this->connection->get();
+
+            foreach ($query->result_array() as $key => $value){
+                $this->connection->set('process_amount', $value['total']);
+                $this->connection->where('id', $value['id']);
+                $this->connection->update('tb_expense_purchase_requisition_details');
+
+                if(!isItemRequestAlreadyInClosures($value['id'],'EXPENSE')){
+                    $this->db->set('closing_by', config_item('auth_person_name'));
+                    $this->db->set('notes', $notes[$x]);
+                    $this->db->set('tipe', 'EXPENSE');
+                    $this->db->set('purchase_request_detail_id', $value['id']);
+                    $this->db->insert('tb_purchase_request_closures');
+                }                
+            }        
+            
+            $this->connection->set('status','close');
+            $this->connection->set('closing_date',date('Y-m-d H:i:s'));
+            $this->connection->set('closing_by',config_item('auth_person_name'));
+            $this->connection->set('closing_notes',$notes[$x]);
+            $this->connection->where('id',$id);
+            $check = $this->connection->update('tb_expense_purchase_requisitions');
+
+            if ($check) {
+                $return++;
+            }
+            $x++;
+        }
+
+        // if(($return == $x)&&($return > 0)){
+        //   return true;
+        // }else{
+        //   return false;
+        // }
+
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        $this->connection->trans_commit();
+        return TRUE;
+    }
 }

@@ -626,7 +626,8 @@
             if (!encodeNotes()) {
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled notes for each item that you want to reject');
+              toastr.error('You must filled notes for each item that you want to close');
+              $("#modal-close-data-button-multi").attr('disabled', false);
             } else {
               if (id_purchase_order !== "") {
                 $.post(action, {
@@ -644,13 +645,13 @@
                   } else {
                     toastr.options.timeOut = 10000;
                     toastr.options.positionClass = 'toast-top-right';
-                    toastr.danger('Failed close data');
+                    toastr.danger('Failed close data Please Contact the Operator and Try Again Later');
                   }
                 }).fail(function() {
                   $("#modal-close-data-button-multi").attr('disabled', false);
                   toastr.options.timeOut = 10000;
                   toastr.options.positionClass = 'toast-top-right';
-                  toastr.error('Delete Failed! This data is still being used by another document.');
+                  toastr.error('Closing Failed! Please Contact the Operator and Try Again Later.');
                 });
               } else {
                 $(this).attr('disabled', false);
