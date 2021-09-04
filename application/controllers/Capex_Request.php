@@ -99,6 +99,12 @@ class Capex_Request extends MY_Controller
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else if($row['status']=='WAITING FOR AHOS REVIEW' && config_item('auth_role')=='ASSISTANT HOS'){
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                }else if($row['status']=='approved'){
+                    if(is_granted($this->module, 'closing') === TRUE){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else{
+                        $col[] = print_number($no);
+                    }
                 }else{                    
                     $col[] = print_number($no);
                 }
@@ -110,13 +116,20 @@ class Capex_Request extends MY_Controller
                 $col[] = print_date($row['required_date']);
                 $col[] = print_number($row['total_capex'],2);
                 $col[] = $row['notes'];
-                if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
-                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
-                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                }else{                    
+                if($row['status']=='close'){
                     $col[] = $row['approved_notes'];
+                }else{
+                    if (is_granted($this->module, 'approval') === TRUE) {
+                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                    }else{  
+                        if (is_granted($this->module, 'closing') === TRUE) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                        }  else{                                         
+                            $col[] = $row['approved_notes'];
+                        }   
+                    }
                 }
+                
                 $col[] = isAttachementExists($row['id'],'capex') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
                        <i class="fa fa-eye"></i>
                      </a>';
@@ -467,12 +480,12 @@ class Capex_Request extends MY_Controller
         $notes = explode("##,", $notes);
         $result = $this->model->multi_closing($id_purchase_order, $notes);
         if ($result) {
-        // $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'));
-        $return["status"] = "success";
-        echo json_encode($return);
+            // $this->model->send_mail_approval($id_purchase_order, 'rejected', config_item('auth_person_name'));
+            $return["status"] = "success";
+            echo json_encode($return);
         } else {
-        $return["status"] = "failed";
-        echo json_encode($return);
+            $return["status"] = "failed";
+            echo json_encode($return);
         }
     }
 
