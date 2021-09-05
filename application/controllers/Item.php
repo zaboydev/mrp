@@ -573,7 +573,8 @@ class Item extends MY_Controller
               $errors[] = 'Line ' . $row . ': Unit is null!';
 
             if ($this->model->isItemUnitExists($unit) == FALSE)
-              $errors[] = 'Line ' . $row . ': Unknown unit ' . $unit;
+              $this->model->insertItemUnit($unit);
+              // $errors[] = 'Line ' . $row . ': Unknown unit ' . $unit;
 
             $group = trim(strtoupper($col[3]));
             $data[$row]['group'] = $group;
