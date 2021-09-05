@@ -203,12 +203,10 @@ class Expense_Request_Model extends MY_Model
                 }
                 $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
             }else{
-                if(config_item('auth_role') == 'PIC PROCUREMENT'){
+                if(config_item('auth_role') == 'PIC PROCUREMENT'||config_item('auth_role') == 'AP STAFF'){
                     $this->connection->where('tb_expense_purchase_requisitions.status', 'approved');
                 }
-            }        
-            
-            
+            }   
         }
 
         if (!empty($_POST['columns'][3]['search']['value'])){
