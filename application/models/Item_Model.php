@@ -389,6 +389,21 @@ class Item_Model extends MY_Model
 
         $item_id = $this->db->insert_id();
       }
+
+      if (isItemExists(strtoupper($data['part_number'])) == FALSE) {
+        $this->db->set('group', strtoupper($data['group']));
+        $this->db->set('description', strtoupper($data['description']));
+        $this->db->set('part_number', strtoupper($data['part_number']));
+        $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+        $this->db->set('minimum_quantity', strtoupper($data['minimum_quantity']));
+        $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('kode_pemakaian', $data['kode_pemakaian']);
+        $this->db->set('current_price', $data['current_price']);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->insert('tb_master_items');
+      }
+
+      
     }
 
     if ($this->db->trans_status() === FALSE)
