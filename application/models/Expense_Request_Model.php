@@ -226,7 +226,12 @@ class Expense_Request_Model extends MY_Model
 
         foreach ($this->getSearchableColumns() as $item){
             if ($_POST['search']['value']){
+                $term = strtoupper($_POST['search']['value']);
+
+                if ($i === 0){
+                    $this->connection->group_start();
                     $this->connection->like('UPPER('.$item.')', $term);
+                } else {
                     $this->connection->or_like('UPPER('.$item.')', $term);
                 }
 
@@ -305,7 +310,6 @@ class Expense_Request_Model extends MY_Model
 
     function countIndexFiltered()
     {
-        $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
