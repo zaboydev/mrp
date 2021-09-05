@@ -153,9 +153,9 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
 <?php endif; ?>
 <div class="clear"></div>
 
-<table class="condensed" style="margin-top: 20px;">
+<table class="condensed" style="margin-top: 20px;" width="100%">
   <tr>
-    <td width="30%" valign="top" align="center">
+    <td valign="top" align="center">
       <p>
         Request by:
         <br /><?= print_string($entity['cost_center_name']); ?>
@@ -168,10 +168,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
 
-    <td width="5%" valign="top" align="center">
-      &nbsp;
-    </td>
-    <td width="30%" valign="top" align="center">
+    <td valign="top" align="center">
       <p>
         Checked by:
         <br />Budgetcontrol
@@ -184,11 +181,22 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
 
-    <td width="5%" valign="top" align="center">
-      &nbsp;
+    <?php if($entity['base']=='BANYUWANGI'):?>
+    <td valign="top" align="center">
+      <p>
+        Known by:
+        <br />Assistant HOS
+        <?php if ($entity['ahos_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['ahos_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['ahos_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['ahos_approved_by']; ?>
+      </p>
     </td>
+    <?php endif;?>
 
-    <td width="30%" valign="top" align="center">
+    <td valign="top" align="center">
       <p>
         Approved by:
         <br /><?= print_string($entity['cost_center_name']); ?> Head Dept.
