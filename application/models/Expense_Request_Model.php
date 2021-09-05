@@ -311,7 +311,6 @@ class Expense_Request_Model extends MY_Model
     function countIndexFiltered()
     {
         $this->connection->select(array_keys($this->getSelectedColumns()));
-        $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
         $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');

@@ -143,6 +143,21 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['created_by']; ?>
       </p>
     </td>
+
+    <?php if($entity['base']=='BANYUWANGI'):?>
+    <td valign="top" align="center">
+      <p>
+        Known by:
+        <br />Assistant HOS
+        <?php if ($entity['ahos_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['ahos_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['ahos_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['ahos_approved_by']; ?>
+      </p>
+    </td>
+    <?php endif;?>
     
     <td valign="top" align="center">
       <p>
