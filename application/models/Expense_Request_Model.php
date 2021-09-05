@@ -114,31 +114,31 @@ class Expense_Request_Model extends MY_Model
 
             if($search_status!='all'){
                 if($search_status=='review'){
-                    $status = array();
+                    $status = [];
                     if(is_granted($this->data['modules']['expense_request'], 'approval')){
                         if(config_item('auth_role') == 'BUDGETCONTROL'){
-                            array_push($status,'pending');
+                            $status[] = 'pending';
                         } 
                         if (config_item('auth_role') == 'ASSISTANT HOS') {
-                            array_push($status,'WAITING FOR AHOS REVIEW');
+                            $status[] = 'WAITING FOR AHOS REVIEW';
                         }
                         if (config_item('auth_role') == 'FINANCE MANAGER') {
-                            array_push($status,'WAITING FOR FINANCE REVIEW');
+                            $status[] = 'WAITING FOR FINANCE REVIEW';
                         }
                         if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-                            array_push($status,'WAITING FOR HOS REVIEW');
+                            $status[] = 'WAITING FOR HOS REVIEW';
                         }
                         if (config_item('auth_role') == 'VP FINANCE') {
-                            array_push($status,'WAITING FOR VP FINANCE REVIEW');
+                            $status[] = 'WAITING FOR VP FINANCE REVIEW';
                         }
                         if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-                            array_push($status,'WAITING FOR CFO REVIEW');
+                            $status[] = 'WAITING FOR CFO REVIEW';
                         }
-                        if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {   
-                            array_push($status,'WAITING FOR COO REVIEW');
+                        if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {  
+                            $status[] = 'WAITING FOR COO REVIEW';
                         }
-                        if (config_item('as_head_department')=='yes'){     
-                            array_push($status,'WAITING FOR HEAD DEPT');
+                        if (config_item('as_head_department')=='yes'){  
+                            $status[] = 'WAITING FOR HEAD DEPT';
                         }
                         $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
                     }else{
@@ -175,31 +175,31 @@ class Expense_Request_Model extends MY_Model
                 }                
             }            
         }else{    
-            if (is_granted($this->data['modules']['expense_request'], 'approval')){
-                $status = array();
+            $status = [];
+            if(is_granted($this->data['modules']['expense_request'], 'approval')){
                 if(config_item('auth_role') == 'BUDGETCONTROL'){
-                    array_push($status,'pending');
+                    $status[] = 'pending';
                 } 
+                if (config_item('auth_role') == 'ASSISTANT HOS') {
+                    $status[] = 'WAITING FOR AHOS REVIEW';
+                }
                 if (config_item('auth_role') == 'FINANCE MANAGER') {
-                    array_push($status,'WAITING FOR FINANCE REVIEW');
+                    $status[] = 'WAITING FOR FINANCE REVIEW';
                 }
                 if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-                    array_push($status,'WAITING FOR HOS REVIEW');
+                    $status[] = 'WAITING FOR HOS REVIEW';
                 }
                 if (config_item('auth_role') == 'VP FINANCE') {
-                    array_push($status,'WAITING FOR VP FINANCE REVIEW');
+                    $status[] = 'WAITING FOR VP FINANCE REVIEW';
                 }
                 if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-                    array_push($status,'WAITING FOR CFO REVIEW');
+                    $status[] = 'WAITING FOR CFO REVIEW';
                 }
-                if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {   
-                    array_push($status,'WAITING FOR COO REVIEW');
+                if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {  
+                    $status[] = 'WAITING FOR COO REVIEW';
                 }
-                if (config_item('as_head_department')=='yes'){     
-                    array_push($status,'WAITING FOR HEAD DEPT');
-                }
-                if (config_item('auth_role') == 'ASSISTANT HOS') {   
-                    array_push($status,'WAITING FOR AHOS REVIEW');
+                if (config_item('as_head_department')=='yes'){  
+                    $status[] = 'WAITING FOR HEAD DEPT';
                 }
                 $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
             }else{
@@ -1461,5 +1461,63 @@ class Expense_Request_Model extends MY_Model
         $this->db->trans_commit();
         $this->connection->trans_commit();
         return TRUE;
+    }
+
+    public function count_expense_req($role){
+        $status =['all'];
+        if($role=='BUDGETCONTROL'){
+        $status[] = 'pending';
+        }
+        if($role=='ASSISTANT HOS'){
+        $status[] = 'WAITING FOR AHOS REVIEW';
+        }  
+        if($role=='FINANCE MANAGER'){
+        $status[] = 'WAITING FOR FINANCE REVIEW';
+        }
+        if($role=='HEAD OF SCHOOL'){
+        $status[] = 'WAITING FOR HOS REVIEW';
+        }
+        if($role=='VP FINANCE'){
+        $status[] = 'WAITING FOR VP FINANCE REVIEW';
+        }
+        if($role=='CHIEF OF FINANCE'){
+        $status[] = 'WAITING FOR CFO REVIEW';
+        }
+        if($role=='CHIEF OPERATION OFFICER'){
+        $status[] = 'WAITING FOR COO REVIEW';
+        }
+
+        $this->connection->select('*');
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
+        $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
+        $query = $this->connection->get();
+        $count = $query->num_rows();
+
+        $count_as_head_dept = 0;
+        if(config_item('as_head_department')=='yes'){
+        $status = 'WAITING FOR HEAD DEPT';
+        $this->connection->select('*');
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $this->connection->where('tb_expense_purchase_requisitions.status', $status);
+        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
+        $this->connection->where('tb_departments.department_name', config_item('head_department'));
+        $query = $this->connection->get();
+        $count_as_head_dept = $query->num_rows();
+        }
+
+        return $count+$count_as_head_dept;
     }
 }

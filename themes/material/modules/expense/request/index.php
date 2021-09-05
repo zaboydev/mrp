@@ -111,7 +111,7 @@
               All Status
             </option>
             <?php endif; ?>
-            <option value="pending" <?php if (is_granted($module, 'approval')):echo 'selected'; endif;?>>
+            <option value="review" <?php if (is_granted($module, 'approval')):echo 'selected'; endif;?>>
               Review
             </option>
             <?php if (is_granted($module, 'approval')) : ?>

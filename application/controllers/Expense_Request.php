@@ -142,24 +142,28 @@ class Expense_Request extends MY_Controller
                         $col['DT_RowAttr']['data-target'] = '#data-modal';
                         $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
                     }
-                    
-                }
 
-                if(!empty($col)){
+                    // if(!empty($col)){
                     $data[] = $col;
-                }
+                    // }
+                    
+                }                
             }
 
             $result = array(
                 "draw" => $_POST['draw'],
                 "recordsTotal" => $this->model->countIndex(),
                 "recordsFiltered" => $this->model->countIndexFiltered(),
-                // "recordsFiltered"   => $no,
+                // "recordsFiltered"   => count($data),
                 "data" => $data,
                 "total" => array(
                     6  => print_number(array_sum($total), 2),
                 )
             );
+
+            // if (is_granted($this->module, 'approval') === TRUE){
+            //     $result['recordsFiltered'] = $this->model->count_expense_req(config_item('auth_role'));
+            // }
         }
 
         echo json_encode($result);
