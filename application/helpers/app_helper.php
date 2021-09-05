@@ -1825,14 +1825,55 @@ if (!function_exists('currency_for_vendor_list')) {
     function viewOrNot($status,$department_request)
     {
       if($status=='WAITING FOR HEAD DEPT'){
-        if($department_request==config_item('head_department')){
-          return true;
+        if(config_item('as_head_department')=='yes'){
+          if($department_request==config_item('head_department')){
+            return true;
+          }else{
+            return false;
+          }
         }else{
-          return false;
+          return true;
         }
       }else{
         return true;
       }
+    }
+  }
+
+  if ( ! function_exists('readyToCloseRequest')) {
+    function readyToCloseRequest($purchase_request_id,$tipe)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+      
+      if($tipe=='expense'){
+        $connection->from('tb_expense_purchase_requisitions');
+        $connection->where('id',$purchase_request_id);
+        $query    = $connection->get();
+        $request  = $query->unbuffered_row('array');
+        
+        if($request['with_po']=='t'){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    }
+  }
+
+  if ( ! function_exists('isItemRequestAlreadyInClosures')) {
+    function isItemRequestAlreadyInClosures($purchase_request_detail_id,$tipe)
+    {
+      $CI =& get_instance();
+
+      $CI->db->from('tb_purchase_request_closures');
+      $CI->db->where('purchase_request_detail_id',$purchase_request_detail_id);
+      $CI->db->where('tipe',$tipe);
+
+      $query = $CI->db->get();
+
+      return ( $query->num_rows() > 0 ) ? true : false;
     }
   }
 

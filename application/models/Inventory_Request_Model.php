@@ -108,28 +108,45 @@ class Inventory_Request_Model extends MY_Model
 		}
 
 		if (!empty($_POST['columns'][2]['search']['value'])){
-		  	$search_status = $_POST['columns'][2]['search']['value'];
+            $search_status = $_POST['columns'][2]['search']['value'];
 
-		  	if($search_status!='all'){
-                if($search_status=='WAITING FOR HEAD DEPT'){
-                    if (config_item('as_head_department')=='yes'){
-                        $this->connection->where('tb_inventory_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
-                        $this->connection->where('tb_departments.department_name', config_item('head_department'));
-                    }else{
-                        $this->connection->where('tb_inventory_purchase_requisitions.status', $search_status);
+            if($search_status!='all'){
+                if($search_status=='review'){                    
+                    if (is_granted($this->data['modules']['expense_request'], 'approval')){
+                        $status = [];
+                        if(config_item('auth_role') == 'BUDGETCONTROL'){
+                            $status[] = 'pending';
+                        } 
+                        if(config_item('auth_role') == 'ASSISTANT HOS'){
+                            $status[] = 'WAITING FOR AHOS REVIEW';
+                        } 
+                        if (config_item('as_head_department')=='yes'){
+                            $status[] = 'WAITING FOR HEAD DEPT';
+                        }                
+                        $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
+                    }  else{
+                        $status = ['pending','WAITING FOR AHOS REVIEW','WAITING FOR HEAD DEPT'];
+                        $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
                     }
                 }else{
-                    $this->connection->where('tb_capex_purchase_requisitions.status', $search_status);
-                }       
-            } 
-		}else{
-            if(config_item('auth_role') == 'BUDGETCONTROL'){
-                $this->connection->where('tb_inventory_purchase_requisitions.status', 'pending');
-            } 
-            if (config_item('as_head_department')=='yes'){
-                $this->connection->where('tb_inventory_purchase_requisitions.status', 'WAITING FOR HEAD DEPT');
-                $this->connection->where('tb_departments.department_name', config_item('head_department'));
-            }
+                    $this->connection->where('tb_inventory_purchase_requisitions.status', $search_status);
+                }                
+            }    
+                
+        }else{
+            $status = [];
+            if (is_granted($this->data['modules']['expense_request'], 'approval')){
+                if(config_item('auth_role') == 'BUDGETCONTROL'){
+                    $status[] = 'pending';
+                } 
+                if(config_item('auth_role') == 'ASSISTANT HOS'){
+                    $status[] = 'WAITING FOR AHOS REVIEW';
+                } 
+                if (config_item('as_head_department')=='yes'){
+                    $status[] = 'WAITING FOR HEAD DEPT';
+                }                
+                $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
+            }            
             
         }
 
@@ -223,6 +240,7 @@ class Inventory_Request_Model extends MY_Model
 		if (is_granted($this->data['modules']['inventory_request'], 'approval') === FALSE) {
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
+        $this->connection->where_in('tb_inventory_purchase_requisitions.base', config_item('auth_warehouses'));
         $this->connection->group_by($this->getGroupedColumns());
 
 		$this->searchIndex();
@@ -264,6 +282,7 @@ class Inventory_Request_Model extends MY_Model
 		if (is_granted($this->data['modules']['inventory_request'], 'approval') === FALSE) {
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
+        $this->connection->where_in('tb_inventory_purchase_requisitions.base', config_item('auth_warehouses'));
         $this->connection->group_by($this->getGroupedColumns());
 
 		$this->searchIndex();
@@ -286,6 +305,7 @@ class Inventory_Request_Model extends MY_Model
 		if (is_granted($this->data['modules']['inventory_request'], 'approval') === FALSE) {
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
+        $this->connection->where_in('tb_inventory_purchase_requisitions.base', config_item('auth_warehouses'));
         $this->connection->group_by($this->getGroupedColumns());
 
 		$query = $this->connection->get();
@@ -1125,7 +1145,13 @@ class Inventory_Request_Model extends MY_Model
         $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
 
         if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
-            $this->connection->set('status','WAITING FOR HEAD DEPT');
+            if($request['base']=='BANYUWANGI'){
+                $this->connection->set('status','WAITING FOR AHOS REVIEW');
+                $level = 22;
+            }else{
+                $this->connection->set('status','WAITING FOR HEAD DEPT');
+                $level = -1;
+            }
             $this->connection->set('approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('approved_by',config_item('auth_person_name'));
             if($notes!=''){
@@ -1133,7 +1159,6 @@ class Inventory_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
-            $level = -1;
         }else if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
             $this->connection->set('status','approved');
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
@@ -1144,6 +1169,17 @@ class Inventory_Request_Model extends MY_Model
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
             $level = 8;
+        }elseif(config_item('auth_role')=='ASSISTANT HOS' && $request['status']=='WAITING FOR AHOS REVIEW'){
+            $this->connection->set('status','WAITING FOR HEAD DEPT');
+            $this->connection->set('ahos_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('ahos_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'AHOS : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_inventory_purchase_requisitions');
+            $level = -1;
+            
         }
 
         
@@ -1478,5 +1514,58 @@ class Inventory_Request_Model extends MY_Model
         $this->db->from('tb_auth_users');
         $this->db->where('person_name', $name);
         return $this->db->get('')->result();
+    }
+
+    function multi_closing($id_purchase_order, $notes)
+    {
+        $this->connection->trans_begin();
+        $this->db->trans_begin();
+        $x = 0;
+        $return = 0;
+        $rejected_note = '';
+        foreach ($id_purchase_order as $id) {
+            $this->connection->from('tb_inventory_purchase_requisition_details');
+            $this->connection->where('tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id', $id);
+            $query = $this->connection->get();
+
+            foreach ($query->result_array() as $key => $value){
+                $this->connection->set('process_qty', $value['quantity']);
+                $this->connection->where('id', $value['id']);
+                $this->connection->update('tb_inventory_purchase_requisition_details');
+
+                if(!isItemRequestAlreadyInClosures($value['id'],'INVENTORY')){
+                    $this->db->set('closing_by', config_item('auth_person_name'));
+                    $this->db->set('notes', $notes[$x]);
+                    $this->db->set('tipe', 'INVENTORY');
+                    $this->db->set('purchase_request_detail_id', $value['id']);
+                    $this->db->insert('tb_purchase_request_closures');
+                }                
+            }        
+            
+            $this->connection->set('status','close');
+            $this->connection->set('closing_date',date('Y-m-d H:i:s'));
+            $this->connection->set('closing_by',config_item('auth_person_name'));
+            $this->connection->set('closing_notes',$notes[$x]);
+            $this->connection->where('id',$id);
+            $check = $this->connection->update('tb_inventory_purchase_requisitions');
+
+            if ($check) {
+                $return++;
+            }
+            $x++;
+        }
+
+        // if(($return == $x)&&($return > 0)){
+        //   return true;
+        // }else{
+        //   return false;
+        // }
+
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        $this->connection->trans_commit();
+        return TRUE;
     }
 }

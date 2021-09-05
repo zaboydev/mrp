@@ -90,8 +90,12 @@ class Account_Payable_Model extends MY_Model
     if (!empty($_POST['columns'][4]['search']['value'])) {
       $tipe_po = $_POST['columns'][4]['search']['value'];
 
-      if($status != 'all'){
-        $this->db->where('tb_po.tipe_po', $tipe_po);
+      if($tipe_po != 'all'){
+        if($tipe_po=='po_local'){
+          $this->db->where_in('tb_po.tipe_po', ['INVENTORY','CAPEX','EXPENSE']);
+        }else{
+          $this->db->where('tb_po.tipe_po', $tipe_po);
+        }        
       }
     }
 

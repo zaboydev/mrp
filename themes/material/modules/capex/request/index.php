@@ -108,13 +108,9 @@
             <option value="all">
               All Status
             </option>
-            <option value="pending" 
-            <?php if ((config_item('auth_role') == 'BUDGETCONTROL')):echo 'selected'; endif;?>>
-              Pending
-            </option>
-            <option value="WAITING FOR HEAD DEPT" 
-            <?php if (config_item('as_head_department')=='yes'):echo 'selected'; endif;?>>
-              Waiting For Head Dept.
+            <option value="review" 
+            <?php if (is_granted($module,'approval')):echo 'selected'; endif;?>>
+              Review
             </option>
             <option value="approved">
               APPROVED
@@ -616,11 +612,12 @@
             var action = $(this).data('source');
             $(this).attr('disabled', true);
             encodeNotes();
-            // if (!encodeNotes()) {
-            //   toastr.options.timeOut = 10000;
-            //   toastr.options.positionClass = 'toast-top-right';
-            //   toastr.error('You must filled notes for each item that you want to reject');
-            // } else {
+            if (!encodeNotes()) {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.error('You must filled notes for each item that you want to close');
+              $("#modal-close-data-button-multi").attr('disabled', false);
+            } else {
               if (id_purchase_order !== "") {
                 $.post(action, {
                   'id_purchase_order': id_purchase_order,
@@ -637,13 +634,13 @@
                   } else {
                     toastr.options.timeOut = 10000;
                     toastr.options.positionClass = 'toast-top-right';
-                    toastr.danger('Failed close data');
+                    toastr.danger('Failed close data Please Contact the Operator and Try Again Later');
                   }
                 }).fail(function() {
                   $("#modal-close-data-button-multi").attr('disabled', false);
                   toastr.options.timeOut = 10000;
                   toastr.options.positionClass = 'toast-top-right';
-                  toastr.error('Delete Failed! This data is still being used by another document.');
+                  toastr.danger('Failed close data Please Contact the Operator and Try Again Later');
                 });
               } else {
                 $(this).attr('disabled', false);
@@ -651,7 +648,7 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            // }
+            }
 
           });
 

@@ -58,6 +58,7 @@
       <option value="CAPEX">Capex Purchase Order</option>
       <option value="EXPENSE">Expense Purchase Order</option>
       <option value="INVENTORY">Inventory Non Pesawat Purchase Order</option>
+      <option value="po_local">All Purchase Order Local (Capex,Expense,Inventory Non Pesawat)</option>
       <option value="INVENTORY MRP">Inventory Pesawat Purchase Order</option>
     </select>
   </div>

@@ -187,6 +187,8 @@ class MY_Controller extends CI_Controller
 
     if ($this->get_auth_role() == 'PIC STOCK'){
       $return[] = $_SESSION['warehouse'];
+    } elseif ($this->get_auth_role() == 'ASSISTANT HOS'){
+      $return[] = $_SESSION['warehouse'];
     } else {
       $this->db->select('warehouse');
       $this->db->from('tb_master_warehouses');

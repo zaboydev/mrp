@@ -252,90 +252,141 @@ class Dashboard_Model extends MY_Model
   }
 
   public function count_capex_req($role){
-    $status =['WAITING FOR HEAD DEPT','pending'];
+    $status = ['all'];
     if($role=='BUDGETCONTROL'){
-      $status = ['pending'];
+      $status[] = 'pending';
     }
-    if(config_item('as_head_department')=='yes'){
-      $status = ['WAITING FOR HEAD DEPT'];
-    }
+    if($role=='ASSISTANT HOS'){
+      $status[] = 'WAITING FOR AHOS REVIEW';
+    }    
 
     $this->connection->select('*');
     $this->connection->from('tb_capex_purchase_requisitions');
     $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
     $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
     $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-    $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
     $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
-    if(config_item('as_head_department')=='yes'){
-      $this->connection->where('tb_departments.department_name', config_item('head_department'));
-    }
+    $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
+    $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
     $query = $this->connection->get();
+    $count = $query->num_rows();
 
-    return $query->num_rows();
+    $count_as_head_dept = 0;
+    if(config_item('as_head_department')=='yes'){
+      $status = 'WAITING FOR HEAD DEPT';
+      $this->connection->select('*');
+      $this->connection->from('tb_capex_purchase_requisitions');
+      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+      $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+      $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
+      $this->connection->where('tb_capex_purchase_requisitions.status', $status);
+      $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
+      $this->connection->where('tb_departments.department_name', config_item('head_department'));
+      $query_as_head_dept = $this->connection->get();
+      $count_as_head_dept = $query_as_head_dept->num_rows();
+    }
+
+
+    return $count+$count_as_head_dept;
   }
 
   public function count_inventory_req($role){
-    $status =['WAITING FOR HEAD DEPT','pending'];
+    $status = ['all'];
     if($role=='BUDGETCONTROL'){
-      $status = ['pending'];
+      $status[] = 'pending';
     }
-    if(config_item('as_head_department')=='yes'){
-      $status = ['WAITING FOR HEAD DEPT'];
-    }
+    if($role=='ASSISTANT HOS'){
+      $status[] = 'WAITING FOR AHOS REVIEW';
+    }    
 
     $this->connection->select('*');
     $this->connection->from('tb_inventory_purchase_requisitions');
     $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
     $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
     $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-    $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
     $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
-    if(config_item('as_head_department')=='yes'){
-      $this->connection->where('tb_departments.department_name', config_item('head_department'));
-    }
+    $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
+    $this->connection->where_in('tb_inventory_purchase_requisitions.base', config_item('auth_warehouses'));
     $query = $this->connection->get();
+    $count = $query->num_rows();
 
-    return $query->num_rows();
+    $count_as_head_dept = 0;
+    if(config_item('as_head_department')=='yes'){
+      $status = 'WAITING FOR HEAD DEPT';
+      $this->connection->select('*');
+      $this->connection->from('tb_inventory_purchase_requisitions');
+      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+      $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+      $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+      $this->connection->where('tb_inventory_purchase_requisitions.status', $status);
+      $this->connection->where_in('tb_inventory_purchase_requisitions.base', config_item('auth_warehouses'));
+      $this->connection->where('tb_departments.department_name', config_item('head_department'));
+      $query_as_head_dept = $this->connection->get();
+      $count_as_head_dept = $query_as_head_dept->num_rows();
+    }
+
+
+    return $count+$count_as_head_dept;
   }
 
   public function count_expense_req($role){
-    $status =['WAITING FOR HEAD DEPT','pending'];
+    $status =['all'];
     if($role=='BUDGETCONTROL'){
-      $status = ['pending'];
+      $status[] = 'pending';
     }
+    if($role=='ASSISTANT HOS'){
+      $status[] = 'WAITING FOR AHOS REVIEW';
+    }  
     if($role=='FINANCE MANAGER'){
-      $status = ['WAITING FOR FINANCE REVIEW'];
+      $status[] = 'WAITING FOR FINANCE REVIEW';
     }
     if($role=='HEAD OF SCHOOL'){
-      $status = ['WAITING FOR HOS REVIEW'];
+      $status[] = 'WAITING FOR HOS REVIEW';
     }
     if($role=='VP FINANCE'){
-      $status = ['WAITING FOR VP FINANCE REVIEW'];
+      $status[] = 'WAITING FOR VP FINANCE REVIEW';
     }
     if($role=='CHIEF OF FINANCE'){
-      $status = ['WAITING FOR CFO REVIEW'];
+      $status[] = 'WAITING FOR CFO REVIEW';
     }
     if($role=='CHIEF OPERATION OFFICER'){
-      $status = ['WAITING FOR COO REVIEW'];
-    }
-    if(config_item('as_head_department')=='yes'){
-      $status = ['WAITING FOR HEAD DEPT'];
+      $status[] = 'WAITING FOR COO REVIEW';
     }
 
     $this->connection->select('*');
     $this->connection->from('tb_expense_purchase_requisitions');
-    $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+    $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+    $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+    $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
     $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
     $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-    $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
     $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-    if(config_item('as_head_department')=='yes'){
-      $this->connection->where('tb_departments.department_name', config_item('head_department'));
-    }
+    $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
+    $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
     $query = $this->connection->get();
+    $count = $query->num_rows();
 
-    return $query->num_rows();
+    $count_as_head_dept = 0;
+    if(config_item('as_head_department')=='yes'){
+      $status = 'WAITING FOR HEAD DEPT';
+      $this->connection->select('*');
+      $this->connection->from('tb_expense_purchase_requisitions');
+      $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+      $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+      $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+      $this->connection->where('tb_expense_purchase_requisitions.status', $status);
+      $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+      $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
+      $this->connection->where('tb_departments.department_name', config_item('head_department'));
+      $query = $this->connection->get();
+      $count_as_head_dept = $query->num_rows();
+    }
+
+    return $count+$count_as_head_dept;
   }
 
   public function count_poe_local($role,$tipe){
@@ -381,6 +432,7 @@ class Dashboard_Model extends MY_Model
     $this->db->from('tb_po');
     $this->db->where_in('tb_po.review_status', $status);
     $this->db->where('tb_po.tipe_po', strtoupper($tipe));
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
     $query = $this->db->get();
 
     return $query->num_rows();
@@ -456,7 +508,9 @@ class Dashboard_Model extends MY_Model
     if($tipe=='expense'){
       $this->connection->select('*');
       $this->connection->from('tb_expense_purchase_requisitions');
-      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+      $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+      $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
       $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
       $this->connection->where_not_in('tb_expense_purchase_requisitions.status', $status);      
       $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);

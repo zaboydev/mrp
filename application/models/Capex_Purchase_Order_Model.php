@@ -248,6 +248,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'LEFT');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
     $this->db->where('tb_po.tipe_po','CAPEX');
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
     // $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumns());
 
@@ -289,6 +290,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->where('tb_po.tipe_po','CAPEX');
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
     // $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumns());
 
@@ -307,6 +309,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->where('tb_po.tipe_po','CAPEX');
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
     // $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     $this->db->group_by($this->getGroupedColumns());
 

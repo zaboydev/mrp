@@ -261,6 +261,7 @@ class Inventory_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'LEFT');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id', 'LEFT');
     $this->db->where('tb_po.tipe_po','INVENTORY');
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
     if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
       $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     }
@@ -304,6 +305,7 @@ class Inventory_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->where('tb_po.tipe_po','INVENTORY');
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
     if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
       $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     }
@@ -324,6 +326,7 @@ class Inventory_Purchase_Order_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
     $this->db->where('tb_po.tipe_po','INVENTORY');
+    $this->db->where_in('tb_po.base', config_item('auth_warehouses'));
     if (is_granted($this->data['modules']['inventory_purchase_order'], 'approval') === FALSE) {
       $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     }
