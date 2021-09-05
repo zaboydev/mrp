@@ -446,4 +446,22 @@ class Item_Model extends MY_Model
     //   $this->db->insert('tb_purchase_request_items_on_hand_stock');
     // }
   }
+
+  public function insertItemUnit($unit)
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('unit', strtoupper($unit));
+    $this->db->set('description', null);
+    $this->db->set('notes', null);
+    $this->db->set('created_by', config_item('auth_person_name'));
+    // $this->db->set('updated_by', config_item('auth_person_name'));
+    $this->db->insert('tb_master_item_units');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
 }
