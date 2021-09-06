@@ -1541,7 +1541,7 @@ class Expense_Request_Model extends MY_Model
 
         $this->connection->trans_begin();
 
-        $this->connection->set('id_purchase', $id_att);
+        $this->connection->where('id', $id_att);
         $this->connection->delete('tb_attachment');
 
         if ($this->connection->trans_status() === FALSE)

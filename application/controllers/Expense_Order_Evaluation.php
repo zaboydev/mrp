@@ -392,6 +392,7 @@ class Expense_Order_Evaluation extends MY_Controller
       $_SESSION['expense_poe']['edit']             = $entity['evaluation_number'];
       $_SESSION['expense_poe']['document_number']  = $document_number;
       $_SESSION['expense_poe']['attachment'] = $entity['attachment'];
+      $_SESSION['expense_poe']['approval'] = $entity['approved_by']=='without_approval'? 'without_approval':'with_approval';
     }
 
     redirect($this->module['route'] . '/create');
