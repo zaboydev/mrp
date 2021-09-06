@@ -496,6 +496,8 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('created_by', $created_by);
       if ($approval == 'without_approval') {
         $this->db->set('approved_by', $approval);
+      }else{
+        $this->db->set('approved_by', null);
       }
       $this->db->set('warehouse', $warehouse);
       $this->db->set('category', $category);
