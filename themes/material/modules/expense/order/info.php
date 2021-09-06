@@ -361,7 +361,7 @@
       <?= form_open(current_url(), array(
           'class' => 'form-xhr-order pull-left',
         )); ?>
-      <div class="form-group col-xs-3">
+      <div class="form-group">
         <div class="input-group">
           <span class="input-group-addon">Term of Payment</span>
           <div class="input-group-content">

@@ -589,7 +589,7 @@ class Item extends MY_Controller
             // if ($alternate_part_number == '')
             //   $errors[] = 'Line ' . $row . ': alternate_part_number is null!';
 
-            $minimum_quantity = trim(strtoupper($col[5]));
+            $minimum_quantity = trim($col[5]);
             $data[$row]['minimum_quantity'] = $minimum_quantity;
 
             if ($minimum_quantity == '')
@@ -601,7 +601,7 @@ class Item extends MY_Controller
             // if ($kode_pemakaian == '')
             //   $errors[] = 'Line ' . $row . ': kode_pemakaian is null!';
 
-            $current_price = trim(strtoupper($col[7]));
+            $current_price = trim($col[7]);
             $data[$row]['current_price'] = $current_price;
 
             // if ($current_price == '')

@@ -1508,7 +1508,7 @@ class Expense_Purchase_Order extends MY_Controller
 
   public function manage_attachment($id)
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'document');
 
     $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
     $this->data['id'] = $id;

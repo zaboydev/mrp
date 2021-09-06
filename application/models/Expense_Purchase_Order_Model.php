@@ -1129,6 +1129,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
     $vendor_po            = $_SESSION['order']['vendor_po'];
     $id_po_lama           = $_SESSION['order']['id_po'];
+    $base = config_item('auth_warehouse');
 
     $this->db->trans_begin();
     $this->connection->trans_begin();
@@ -1140,7 +1141,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->set('checked_by', $checked_by);
     $this->db->set('approved_by', $approved_by);
     $this->db->set('warehouse', $warehouse);
-    $this->db->set('category', $category);
+    $this->db->set('category', 'EXPENSE');
     $this->db->set('vendor', $vendor);
     $this->db->set('vendor_address', $vendor_address);
     $this->db->set('vendor_country', $vendor_country);
@@ -1171,7 +1172,8 @@ class Expense_Purchase_Order_Model extends MY_Model
       $this->db->set('review_status', strtoupper('waiting for ahos review'));
     }
     $this->db->set('tipe', strtoupper($payment_type));
-    $this->db->set('tipe_po', 'expense');
+    $this->db->set('tipe_po', 'EXPENSE');
+    $this->db->set('base', $base);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
     $id_po = $this->db->insert_id();

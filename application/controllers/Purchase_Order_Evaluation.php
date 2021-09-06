@@ -532,6 +532,8 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['edit']             = $entity['evaluation_number'];
       $_SESSION['poe']['document_number']  = $document_number;
       $_SESSION['poe']['attachment'] = $entity['attachment'];
+      
+      $_SESSION['poe']['approval'] = $entity['approved_by']=='without_approval'? 'without_approval':'with_approval';
     }
 
     redirect($this->module['route'] . '/create');
