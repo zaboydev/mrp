@@ -172,7 +172,10 @@ class Expense_Request_Model extends MY_Model
                     $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
                 }else{
                     $this->connection->where('tb_expense_purchase_requisitions.status', $search_status);
-                }                
+                }
+                if(config_item('auth_role') == 'AP STAFF'){
+                    $this->connection->where('tb_expense_purchase_requisitions.with_po', 'f');
+                }              
             }            
         }else{    
             $status = [];
@@ -205,6 +208,9 @@ class Expense_Request_Model extends MY_Model
             }else{
                 if(config_item('auth_role') == 'PIC PROCUREMENT'||config_item('auth_role') == 'AP STAFF'){
                     $this->connection->where('tb_expense_purchase_requisitions.status', 'approved');
+                    if(config_item('auth_role') == 'AP STAFF'){
+                        $this->connection->where('tb_expense_purchase_requisitions.with_po', 'f');
+                    }
                 }
             }   
         }
