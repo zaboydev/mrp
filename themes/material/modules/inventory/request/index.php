@@ -351,7 +351,11 @@
               [10, 50, 100, -1],
               [10, 50, 100, "All"]
             ],
+            <?php if (config_item('as_head_department')=='yes') {?>
+            pageLength: -1,
+            <?php }else {?>
             pageLength: 10,
+            <?php }?>
             pagingType: 'full',
 
             order: <?= json_encode($grid['order_columns']); ?>,
