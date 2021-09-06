@@ -941,7 +941,7 @@
         }).fail(function() {
           toastr.options.timeOut = 10000;
           toastr.options.positionClass = 'toast-top-right';
-          toastr.error('Delete Failed! This data is still being used by another document.');
+          toastr.error('Order Failed! Please fill the term of payment or contact the operator.');
         });
       }
 
