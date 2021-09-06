@@ -378,7 +378,7 @@ class Item_Model extends MY_Model
         $this->db->set('description', strtoupper($data['description']));
         $this->db->set('part_number', strtoupper($data['part_number']));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-        $this->db->set('min_qty', strtoupper($data['minimum_quantity']));
+        $this->db->set('min_qty', 1);
         $this->db->set('unit', strtoupper($data['unit']));
         $this->db->set('kode_pemakaian', $data['kode_pemakaian']);
         $this->db->set('current_price', $data['current_price']);
@@ -395,7 +395,7 @@ class Item_Model extends MY_Model
         $this->db->set('description', strtoupper($data['description']));
         $this->db->set('part_number', strtoupper($data['part_number']));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-        $this->db->set('minimum_quantity', strtoupper($data['minimum_quantity']));
+        $this->db->set('minimum_quantity', 1);
         $this->db->set('unit', strtoupper($data['unit']));
         $this->db->set('kode_pemakaian', $data['kode_pemakaian']);
         $this->db->set('current_price', $data['current_price']);

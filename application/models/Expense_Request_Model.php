@@ -1519,4 +1519,29 @@ class Expense_Request_Model extends MY_Model
 
         return $count+$count_as_head_dept;
     }
+
+    function delete_attachment_in_db($id_att)
+    {
+        // $this->db->trans_begin();
+
+        // $this->db->where('id', $id_att);
+        // $this->db->delete('tb_attachment_poe');
+
+        // if ($this->db->trans_status() === FALSE)
+        //   return FALSE;
+
+        // $this->db->trans_commit();
+        // return TRUE;
+
+        $this->connection->trans_begin();
+
+        $this->connection->where('id', $id_att);
+        $this->connection->delete('tb_attachment');
+
+        if ($this->connection->trans_status() === FALSE)
+        return FALSE;
+
+        $this->connection->trans_commit();
+        return TRUE;
+    }
 }

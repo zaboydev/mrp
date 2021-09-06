@@ -490,7 +490,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
       $document_id = $this->db->insert_id();
     } else {
-      $status_poe = getStatusPOE($document_number);
+      // $status_poe = getStatusPOE($document_number);
       $this->db->set('evaluation_number', $document_number);
       $this->db->set('document_date', $document_date);
       $this->db->set('document_reference', $document_reference);
@@ -502,7 +502,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('category', $category);
       $this->db->set('default_currency', $default_currency);
       $this->db->set('exchange_rate', $exchange_rate);
-      $this->db->set('status', $status_poe);
+      $this->db->set('status', $status);
       $this->db->set('notes', $notes);
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
@@ -693,7 +693,10 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       return FALSE;
 
     $this->db->trans_commit();
-    if ($approval != 'without_approval' && $document_id === NULL) {
+    // if ($approval != 'without_approval' && $document_id === NULL) {
+    //   $this->send_mail($document_id);
+    // }
+    if ($approval != 'without_approval') {
       $this->send_mail($document_id);
     }
     return TRUE;

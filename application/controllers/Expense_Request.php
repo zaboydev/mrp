@@ -664,4 +664,12 @@ class Expense_Request extends MY_Controller
         }
         echo json_encode($result);
     }
+
+    public function delete_attachment_in_db($id_att, $id_poe)
+    {
+        $this->model->delete_attachment_in_db($id_att);
+
+        redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+        // echo json_encode($result);
+    }
 }
