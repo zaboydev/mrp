@@ -119,7 +119,7 @@
               Approved
             </option>
             <?php else: ?>
-            <option value="approved" <?php if (config_item('auth_role') == 'PIC PROCUREMENT'):echo 'selected'; endif;?>>
+            <option value="approved" <?php if (config_item('auth_role') == 'PIC PROCUREMENT'||config_item('auth_role') == 'AP STAFF'):echo 'selected'; endif;?>>
               Approved
             </option>
             <?php endif; ?>
@@ -328,7 +328,11 @@
               [10, 50, 100, -1],
               [10, 50, 100, "All"]
             ],
+            <?php if (config_item('as_head_department')=='yes') {?>
+            pageLength: -1,
+            <?php }else {?>
             pageLength: 10,
+            <?php }?>
             pagingType: 'full',
 
             order: <?= json_encode($grid['order_columns']); ?>,

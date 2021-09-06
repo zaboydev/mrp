@@ -548,7 +548,7 @@ class Purchase_Order_Evaluation extends MY_Controller
 
       $_SESSION['poe']['request']             = array();
       $_SESSION['poe']['vendors']             = array();
-      $_SESSION['poe']['warehouse']           = config_item('main_warehouse');
+      $_SESSION['poe']['warehouse']           = config_item('auth_warehouse');
       $_SESSION['poe']['category']            = $category;
       $_SESSION['poe']['document_number']     = poe_last_number();
       $_SESSION['poe']['document_date']       = date('Y-m-d');
