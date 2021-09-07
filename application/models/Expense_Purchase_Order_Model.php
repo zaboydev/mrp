@@ -2130,5 +2130,19 @@ class Expense_Purchase_Order_Model extends MY_Model
     return TRUE;
   }
 
+  function delete_attachment_in_db($id_att)
+  {
+    $this->db->trans_begin();
+
+    $this->db->where('id', $id_att);
+    $this->db->delete('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
   
 }
