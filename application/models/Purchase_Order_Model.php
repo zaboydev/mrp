@@ -2114,5 +2114,42 @@ class Purchase_Order_Model extends MY_Model
     return $this->db->get()->row();
   }
 
+  public function listAttachment_2($id)
+  {
+    $this->db->where('id_poe', $id);
+    $this->db->where('tipe', 'PO');
+    return $this->db->get('tb_attachment_poe')->result_array();
+  }
+
+  function add_attachment_to_db($id_poe, $url)
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('id_poe', $id_poe);
+    $this->db->set('file', $url);
+    $this->db->set('tipe', 'PO');
+    $this->db->insert('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function delete_attachment_in_db($id_att)
+  {
+    $this->db->trans_begin();
+
+    $this->db->where('id', $id_att);
+    $this->db->delete('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
   
 }
