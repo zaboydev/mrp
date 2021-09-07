@@ -628,6 +628,7 @@ class Expense_Purchase_Order_Model extends MY_Model
       'tb_purchase_order_items.unit',
       'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.evaluation_number',
+      'tb_purchase_orders.group',
     );
 
     $this->db->select($select);
@@ -1027,6 +1028,7 @@ class Expense_Purchase_Order_Model extends MY_Model
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       $this->db->set('unit', strtoupper($item['unit']));
+      $this->db->set('group', strtoupper($item['group']));
       $this->db->set('poe_item_id', $item['purchase_order_evaluation_items_vendors_id']);
       $this->db->set('quantity', floatval($item['quantity']));
       $this->db->set('quantity_received', floatval(0));

@@ -652,6 +652,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_purchase_order_items.unit',
       'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.evaluation_number',
+      'tb_purchase_order_items.group',
     );
 
     $this->db->select($select);
@@ -1045,6 +1046,7 @@ class Purchase_Order_Model extends MY_Model
       // $this->db->set('unit_price_requested', floatval($item['unit_price_requested']));
       // $this->db->set('total_amount_requested', floatval($item['total_amount_requested']));
       $this->db->set('unit', trim($item['unit']));
+      $this->db->set('group', trim($item['group']));
       $this->db->set('poe_item_id', $item['purchase_order_evaluation_items_vendors_id']);
       // $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
       // $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
