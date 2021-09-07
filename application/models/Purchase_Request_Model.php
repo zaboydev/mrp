@@ -1197,6 +1197,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->set('part_number', $data['part_number']);
           $this->db->set('serial_number', trim($serial_number));
           $this->db->set('product_name', $data['product_name']);
+          $this->db->set('group_name', strtoupper($data['group_name']));
           $this->db->set('additional_info', $data['additional_info']);
           $this->db->set('unit', $data['unit']);
           $this->db->set('sort_order', floatval($key));
@@ -1232,7 +1233,8 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('budget_id', $inventory_monthly_budget_id);
             $this->db->set('part_number', $data['part_number']);
             $this->db->set('serial_number', trim($serial_number));
-            $this->db->set('product_name', $data['product_name']);
+            $this->db->set('product_name', $data['product_name']);            
+            $this->db->set('group_name', strtoupper($data['group_name']));
             $this->db->set('additional_info', $data['additional_info']);
             $this->db->set('unit', $data['unit']);
             $this->db->set('sort_order', floatval($key));
@@ -1311,6 +1313,7 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('budget_id', $inventory_monthly_budget_id);
             $this->db->set('part_number', strtoupper($data['part_number']));
             $this->db->set('serial_number', trim($serial_number));
+            $this->db->set('group_name', strtoupper($data['group_name']));
             $this->db->set('product_name', strtoupper($data['product_name']));
             $this->db->set('additional_info', $data['additional_info']);
             $this->db->set('unit', $data['unit']);
