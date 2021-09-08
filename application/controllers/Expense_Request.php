@@ -634,7 +634,7 @@ class Expense_Request extends MY_Controller
 
     public function manage_attachment($id)
     {
-        $this->authorized($this->module, 'document');
+        $this->authorized($this->module, 'index');
 
         $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
         $this->data['id'] = $id;
