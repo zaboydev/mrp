@@ -187,7 +187,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
     </td>
     <?php endif; ?>
 
-    <?php if($entity['with_po']=='f' && $cost_center['id']!=$this->config->item('head_office_cost_center_id')):?>      
+    <?php if($entity['with_po']=='f' && !in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))):?>      
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -201,7 +201,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
     <?php endif; ?>
-    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000 && $cost_center['id']!=$this->config->item('head_office_cost_center_id')) :  ?>
+    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000 && !in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))) :  ?>
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -215,7 +215,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
     <?php endif; ?>
-    <?php if($entity['with_po']=='f' && $cost_center['id']==$this->config->item('head_office_cost_center_id')):?>      
+    <?php if($entity['with_po']=='f' && in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))):?>      
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -229,7 +229,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
     <?php endif; ?>
-    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000 && $cost_center['id']==$this->config->item('head_office_cost_center_id')) :  ?>
+    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000 && in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))) :  ?>
     <td valign="top" align="center">
       <p>
         Approved by:

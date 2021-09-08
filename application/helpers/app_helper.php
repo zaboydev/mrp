@@ -1768,6 +1768,16 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $num_rows = $connection->count_all_results();
 
+      if($tipe=='POE'||$tipe=='PO'){
+        $CI =& get_instance();
+        $CI->db->from( 'tb_attachment_poe' );
+        $CI->db->where('id_poe', $request_id);
+        $CI->db->where('tipe', $tipe);
+
+        $num_rows = $CI->db->count_all_results();
+        // $num_rows = 2;
+      }
+
       return $num_rows;
     }
   }

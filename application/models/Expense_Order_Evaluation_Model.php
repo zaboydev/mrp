@@ -108,7 +108,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
 
       $this->db->where('tb_purchase_orders.status', $search_status);
     } else {
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+      if (config_item('auth_role') == 'PROCUREMENT MANAGER') {
         $this->db->where('tb_purchase_orders.status', 'evaluation');
       }
     }
@@ -746,7 +746,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
           $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
           $this->db->set('is_selected', $detail['is_selected']);
           $this->db->insert('tb_purchase_order_items_vendors');
-        }
+        }        
 
         if ($is_selected == 't') {
           $item_status = 'closed';

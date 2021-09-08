@@ -648,6 +648,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
         $this->db->from('tb_purchase_order_vendors');
         $this->db->where('tb_purchase_order_vendors.vendor', $range_vendor_currency[1]);
+        $this->db->where('tb_purchase_order_vendors.currency', $range_vendor_currency[0]);
         $this->db->where('tb_purchase_order_vendors.purchase_order_id', $document_id);
 
         $query  = $this->db->get();

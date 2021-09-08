@@ -44,6 +44,8 @@ class Account_Payable extends MY_Controller
       foreach ($entities as $row) {
         $no++;
         $col = array();
+        $evaluation_number = $this->model->getEvaluationNumber($row['id']);
+        $poe_id = $this->model->getEvaluationId($row['id']);
         $col[]  = print_number($no);
         $col[]  = print_date($row['document_date']);
         $col[]  = print_string($row['document_number']);
@@ -52,6 +54,11 @@ class Account_Payable extends MY_Controller
         $col[]  = print_number($row['payment'], 2);
         $col[]  = print_number($row['remaining_payment'], 2);
         $col[]  = print_string($row['status']);
+        $col[]  = '<a>'.$evaluation_number.'</a>';
+        $col[]  = isAttachementExists($poe_id,'POE') ==0 ? '' : '<a href="#" class="btn btn-icon-toggle btn-info btn-sm ">
+                        <i class="fa fa-eye" data-id="' . $poe_id . '"></i>
+                        </a>';
+        
         $total_value[] = $row['grand_total'];
         $total_bayar[] = $row['payment'];
         $total_sisa[] = $row['remaining_payment'];
@@ -61,8 +68,8 @@ class Account_Payable extends MY_Controller
 
         if ($this->has_role($this->module, 'info')) {
           // $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
-          // $col['DT_RowAttr']['data-id'] = $row['id'];
-          $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+          $col['DT_RowAttr']['data-id'] = $row['id'];
+          $col['DT_RowAttr']['onClick']     = '';
           $col['DT_RowAttr']['data-target'] = '#data-modal';
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
         }
@@ -121,5 +128,19 @@ class Account_Payable extends MY_Controller
     }
 
     echo json_encode($return);
+  }
+
+  public function print_prl($request_id,$tipe)
+  {
+    if($tipe=='EXPENSE'){
+      redirect('expense_request/print_pdf/'.$request_id);
+    }elseif($tipe=='CAPEX'){
+      redirect('capex_request/print_pdf/'.$request_id);
+    }elseif($tipe=='INVENTORY'){
+      redirect('inventory_request/print_pdf/'.$request_id);
+    }elseif($tipe=='INVENTORY MRP'){
+      redirect('purchase_request/print_pdf/'.$request_id);
+    }
+    
   }
 }
