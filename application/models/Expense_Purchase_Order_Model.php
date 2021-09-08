@@ -628,7 +628,7 @@ class Expense_Purchase_Order_Model extends MY_Model
       'tb_purchase_order_items.unit',
       'tb_purchase_order_items.purchase_request_number',
       'tb_purchase_orders.evaluation_number',
-      'tb_purchase_orders.group',
+      'tb_purchase_order_items.group',
     );
 
     $this->db->select($select);
