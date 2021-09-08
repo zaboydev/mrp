@@ -3,10 +3,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Account_Payable_Model extends MY_Model
 {
+  protected $connection;
+
   public function __construct()
   {
     parent::__construct();
     //Do your magic here
+    $this->connection   = $this->load->database('budgetcontrol', TRUE);
   }
   public function getSelectedColumns()
   {
@@ -18,8 +21,10 @@ class Account_Payable_Model extends MY_Model
       'tb_po.vendor'                       => 'Vendor',
       'tb_po.grand_total'                  => 'Total Amount',
       'tb_po.payment'                      => 'Amount Due',
-      'tb_po.remaining_payment'                      => 'Remaining Payment',
+      'tb_po.remaining_payment'            => 'Remaining Payment',
       'tb_po.status'                       => 'Review Status',
+      NULL                                 => 'Evaluation Number',
+      'tb_po.evaluation_number'            => 'Evaluation Att',
       // 'tb_po.category'        => 'Category',
 
 
@@ -181,17 +186,22 @@ class Account_Payable_Model extends MY_Model
 
     $select = array(
       'tb_po_item.*',
+      'tb_po_item.purchase_request_number',
+      'tb_purchase_order_items.id as poe_item_id',
+      'tb_purchase_order_items.inventory_purchase_request_detail_id as request_item_id',
       
     );
 
     $this->db->select($select);
-    $this->db->from('tb_po_item');    
+    $this->db->from('tb_po_item');
+    $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_po_item.poe_item_id', 'LEFT');    
     $this->db->where('tb_po_item.purchase_order_id', $po['id']);
 
     $query = $this->db->get();
 
     foreach ($query->result_array() as $key => $value) {
       $po['items'][$key] = $value;
+      $po['items'][$key]['request_id'] = $this->getRequestId($value['request_item_id'],$po['tipe_po']);
     }
 
     $select_payment = array(
@@ -228,6 +238,66 @@ class Account_Payable_Model extends MY_Model
     $this->db->from('tb_auth_users');
     $this->db->where('auth_level', 2);
     return $this->db->get('')->result();
+  }
+
+  public function getEvaluationNumber($po_id)
+  {
+    $this->db->select('poe_number');
+    $this->db->where('purchase_order_id', $po_id);
+    $query    = $this->db->get('tb_po_item');
+    $item_po = $query->unbuffered_row('array');
+    return $item_po['poe_number'];
+  }
+
+  public function getEvaluationId($po_id)
+  {
+    $no_evaluasi = $this->getEvaluationNumber($po_id);
+    $this->db->select('id');
+    $this->db->where('evaluation_number', $no_evaluasi);
+    $query    = $this->db->get('tb_purchase_orders');
+    $evaluation = $query->unbuffered_row();
+    return $evaluation->id;
+  }
+
+  public function getRequestId($request_item_id,$tipe)
+  {
+    $return = 0;
+    if($tipe=='INVENTORY MRP'){
+      $this->db->select('inventory_purchase_requisition_id');
+      $this->db->where('id', $request_item_id);
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $query    = $this->db->get();
+      $request = $query->unbuffered_row();
+      $return = $request->inventory_purchase_requisition_id;
+    }
+
+    if($tipe=='INVENTORY'){
+      $this->connection->select('inventory_purchase_requisition_id');
+      $this->connection->where('id', $request_item_id);
+      $this->connection->from('tb_inventory_purchase_requisition_details');
+      $query    = $this->connection->get();
+      $request = $query->unbuffered_row();
+      $return = $request->inventory_purchase_requisition_id;
+    }
+
+    if($tipe=='EXPENSE'){
+      $this->connection->select('expense_purchase_requisition_id');
+      $this->connection->where('id', $request_item_id);
+      $this->connection->from('tb_expense_purchase_requisition_details');
+      $query    = $this->connection->get();
+      $request = $query->unbuffered_row();
+      $return = $request->expense_purchase_requisition_id;
+    }
+
+    if($tipe=='CAPEX'){
+      $this->connection->select('capex_purchase_requisition_id');
+      $this->connection->where('id', $request_item_id);
+      $this->connection->from('tb_capex_purchase_requisition_details');
+      $query    = $this->connection->get();
+      $request = $query->unbuffered_row();
+      $return = $request->capex_purchase_requisition_id;
+    }
+    return $return;
   }
 }
 

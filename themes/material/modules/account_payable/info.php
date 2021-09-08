@@ -69,6 +69,7 @@
                 <th class="middle-alignment">Description</th>
                 <th class="middle-alignment">Part Number</th>
                 <th class="middle-alignment">Alt. P/N</th>
+                <th class="middle-alignment">Request Number</th>
                 <th class="middle-alignment" colspan="2">Quantity</th>
                 <th class="middle-alignment">Total Amount <?= $entity['default_currency']; ?></th>
               </tr>
@@ -91,6 +92,9 @@
                   </td>
                   <td class="no-space">
                     <?= print_string($detail['alternate_part_number']); ?>
+                  </td>
+                  <td class="no-space">
+                    <a href="<?= site_url('account_payable/print_prl/' . $detail['request_id'].'/'.$entity['tipe_po']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
                   </td>
                   <td>
                     <?= print_number($detail['quantity'], 2); ?>
@@ -116,11 +120,13 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
                 <th style="background-color: #eee;">Subtotal <?= $entity['default_currency']; ?></th>
                 <th style="background-color: #eee;"><?= print_number($subtotal, 2); ?></th>
               </tr>
               <?php if ($entity['discount'] > 0) : ?>
                 <tr>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -137,6 +143,7 @@
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                   <th style="background-color: #eee;">VAT <?= $entity['taxes']; ?> %</th>
                   <th style="background-color: #eee;"><?= print_number($total_taxes, 2); ?></th>
                 </tr>
@@ -148,11 +155,13 @@
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                   <th style="background-color: #eee;">Shipping Cost</th>
                   <th style="background-color: #eee;"><?= print_number($entity['shipping_cost'], 2); ?></th>
                 </tr>
               <?php endif; ?>
               <tr>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
