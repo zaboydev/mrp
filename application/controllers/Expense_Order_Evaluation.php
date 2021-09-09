@@ -139,7 +139,24 @@ class Expense_Order_Evaluation extends MY_Controller
     $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value) {
-      $entities[$key]['label'] = $value['part_number'];
+      $entities[$key]['label'] = 'PN : '.$value['part_number'];
+      $entities[$key]['label'] .= ' | Desc : '.$value['part_number'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function search_items_by_description()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $category = $_SESSION['expense_poe']['category'];
+    $entities = $this->model->searchItemsByDescription($category);
+
+    foreach ($entities as $key => $value) {
+      $entities[$key]['label'] = 'PN : '.$value['part_number'];
+      $entities[$key]['label'] .= ' | Desc : '.$value['part_number'];
     }
 
     echo json_encode($entities);

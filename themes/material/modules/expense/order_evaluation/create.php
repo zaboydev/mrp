@@ -257,7 +257,7 @@
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="description" id="description" class="form-control input-sm" data-source="<?= site_url($modules['ajax']['route'] . '/json_item_description/' . $_SESSION['expense_poe']['category']); ?>" required>
+                        <input type="text" name="description" id="description" class="form-control input-sm" data-source="<?= site_url($modules['route'] . '/search_items_by_part_number/'); ?>" required>
                         <label for="description">Description</label>
                       </div>
 
@@ -674,9 +674,25 @@
       dataType: "json",
       success: function(data) {
         $('input[id="description"]').autocomplete({
+          autoFocus: true,
+          minLength: 2,
+          
           source: function(request, response) {
             var results = $.ui.autocomplete.filter(data, request.term);
             response(results.slice(0, 10));
+          },
+
+          focus: function(event, ui) {
+            return false;
+          },
+
+          select: function(event, ui) {
+            $('input[id="part_number"]').val(ui.item.part_number);
+            $('input[id="description"]').val(ui.item.description);
+            $('input[id="unit"]').val(ui.item.unit);
+            $('input[id="minimum_quantity"]').val(ui.item.minimum_quantity);
+
+            return false;
           }
         });
       }
