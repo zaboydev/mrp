@@ -23,7 +23,7 @@ class Account_Payable_Model extends MY_Model
       'tb_po.payment'                      => 'Amount Due',
       'tb_po.remaining_payment'            => 'Remaining Payment',
       'tb_po.status'                       => 'Review Status',
-      NULL                                 => 'Evaluation Number',
+      'tb_po.tipe_po'                                 => 'Evaluation Number',
       'tb_po.evaluation_number'            => 'Evaluation Att',
       // 'tb_po.category'        => 'Category',
 
@@ -298,6 +298,87 @@ class Account_Payable_Model extends MY_Model
       $return = $request->capex_purchase_requisition_id;
     }
     return $return;
+  }
+
+  public function getSelectedPoe($poe_id)
+  {
+    // $no_evaluasi = $this->getEvaluationNumber($po_id);
+    $this->db->select('*');
+    $this->db->where('id', $poe_id);
+    $query    = $this->db->get('tb_purchase_orders');
+    $evaluation = $query->unbuffered_row();
+    return $evaluation;
+  }
+
+  public function listAttachmentPoePo($id,$tipe)
+  {
+    $this->db->where('id_poe', $id);
+    $this->db->where('tipe', $tipe);
+    return $this->db->get('tb_attachment_poe')->result();
+  }
+
+  public function listAttachmentRequest($poe_id,$tipe)
+  {
+    $this->db->select('inventory_purchase_request_detail_id');
+    $this->db->where('purchase_order_id', $poe_id);
+    $query    = $this->db->get('tb_purchase_order_items');    
+    $result = $query->result_array();
+    $request_item_id = array();
+
+    foreach ($result as $row) {
+      $request_item_id[] = $row['inventory_purchase_request_detail_id'];
+    }
+
+    //get request id
+    if($tipe=='EXPENSE'){
+      $this->connection->select('expense_purchase_requisition_id');
+      $this->connection->where_in('id', $request_item_id);
+      $queryrequest_id    = $this->connection->get('tb_expense_purchase_requisition_details');    
+      $resultrequest_id = $queryrequest_id->result_array();
+      $request_id = array();
+
+      foreach ($resultrequest_id as $row) {
+        $request_id[] = $row['expense_purchase_requisition_id'];
+      }
+      $tipe_request = 'expense';
+
+    }
+    if($tipe=='CAPEX'){
+      $this->connection->select('capex_purchase_requisition_id');
+      $this->connection->where_in('id', $request_item_id);
+      $queryrequest_id    = $this->connection->get('tb_capex_purchase_requisition_details');    
+      $resultrequest_id = $queryrequest_id->result_array();
+      $request_id = array();
+
+      foreach ($resultrequest_id as $row) {
+        $request_id[] = $row['capex_purchase_requisition_id'];
+      }
+      $tipe_request = 'capex';
+
+    }
+
+    if($tipe=='INVENTORY'){
+      $this->connection->select('inventory_purchase_requisition_id');
+      $this->connection->where_in('id', $request_item_id);
+      $queryrequest_id    = $this->connection->get('tb_inventory_purchase_requisition_details');    
+      $resultrequest_id = $queryrequest_id->result_array();
+      $request_id = array();
+
+      foreach ($resultrequest_id as $row) {
+        $request_id[] = $row['inventory_purchase_requisition_id'];
+      }
+      $tipe_request = 'inventory';
+
+    }
+
+    if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
+      $this->connection->where_in('id_purchase', $request_id);
+      $this->connection->where('tipe', $tipe_request);
+      return $this->connection->get('tb_attachment')->result();
+    }else{
+      return [];
+    }
+    
   }
 }
 
