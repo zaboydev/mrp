@@ -202,6 +202,7 @@ class Account_Payable_Model extends MY_Model
     foreach ($query->result_array() as $key => $value) {
       $po['items'][$key] = $value;
       $po['items'][$key]['request_id'] = $this->getRequestId($value['request_item_id'],$po['tipe_po']);
+      $po['items'][$key]['receipts'] = $this->getReceiptItems($value['id']);
     }
 
     $select_payment = array(
@@ -225,6 +226,28 @@ class Account_Payable_Model extends MY_Model
 
     return $po;
   }
+
+  public function getReceiptItems($purchase_order_item_id){
+    $select = array(
+      'tb_receipts.document_number',
+      'tb_receipts.received_date',
+      'tb_receipts.received_by',
+      'tb_receipt_items.received_quantity',
+      'tb_receipt_items.received_unit_value',
+      'tb_receipt_items.received_total_value',
+      
+    );
+
+    $this->db->select($select);
+    $this->db->from('tb_receipt_items');
+    $this->db->join('tb_receipts', 'tb_receipts.document_number = tb_receipt_items.document_number');    
+    $this->db->where('tb_receipt_items.purchase_order_item_id', $purchase_order_item_id);
+
+    $query = $this->db->get();
+
+    return $query->result_array();
+  }
+
   public function urgent($id)
   {
     $this->db->where('id', $id);
