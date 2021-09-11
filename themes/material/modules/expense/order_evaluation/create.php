@@ -88,7 +88,7 @@
               <thead>
                 <tr>
                   <th class="middle-alignment" rowspan="2"></th>
-                  <th class="middle-alignment" rowspan="2">Description</th>
+                  <th class="middle-alignment" rowspan="2">Item</th>
                   <!-- <th class="middle-alignment" rowspan="2">P/N</th> -->
                   <!-- <th class="middle-alignment" rowspan="2">Alt. P/N</th> -->
                   <th class="middle-alignment" rowspan="2">Remarks</th>
@@ -121,7 +121,7 @@
                       </a>
                     </td>
                     <td>
-                      <?= $request['description']; ?>
+                      P/N : <?= $request['part_number']; ?> <?= $request['description']; ?>
                     </td>
                     <td class="no-space hide">
                       <?= $request['part_number']; ?>
@@ -257,7 +257,7 @@
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="description" id="description" class="form-control input-sm" data-source="<?= site_url($modules['route'] . '/search_items_by_part_number/'); ?>" required>
+                        <input type="text" name="description" id="description" class="form-control input-sm" data-source="<?= site_url($module['route'] . '/search_items_by_part_number/'); ?>" required>
                         <label for="description">Description</label>
                       </div>
 
@@ -325,8 +325,8 @@
           </div>
 
           <div class="modal-footer">
-            <input type="text" id="inventory_purchase_request_detail_id" name="inventory_purchase_request_detail_id">
-            <input typ="text" id="purchase_request_number" name="purchase_request_number"> 
+            <input type="hidden" id="inventory_purchase_request_detail_id" name="inventory_purchase_request_detail_id">
+            <input type="hidden" id="purchase_request_number" name="purchase_request_number"> 
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 

@@ -140,7 +140,7 @@ class Expense_Order_Evaluation extends MY_Controller
 
     foreach ($entities as $key => $value) {
       $entities[$key]['label'] = 'PN : '.$value['part_number'];
-      $entities[$key]['label'] .= ' | Desc : '.$value['part_number'];
+      $entities[$key]['label'] .= ' | Desc : '.$value['description'];
     }
 
     echo json_encode($entities);
@@ -152,11 +152,11 @@ class Expense_Order_Evaluation extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
 
     $category = $_SESSION['expense_poe']['category'];
-    $entities = $this->model->searchItemsByDescription($category);
+    $entities = $this->model->searchItemsByPartNumber($category);
 
     foreach ($entities as $key => $value) {
       $entities[$key]['label'] = 'PN : '.$value['part_number'];
-      $entities[$key]['label'] .= ' | Desc : '.$value['part_number'];
+      $entities[$key]['label'] .= ' | Desc : '.$value['description'];
     }
 
     echo json_encode($entities);
