@@ -54,9 +54,9 @@ class Account_Payable extends MY_Controller
         $col[]  = print_number($row['payment'], 2);
         $col[]  = print_number($row['remaining_payment'], 2);
         $col[]  = print_string($row['status']);
-        $col[]  = '<a>'.$evaluation_number.'</a>';
-        $col[]  = isAttachementExists($poe_id,'POE') ==0 ? '' : '<a href="#" class="btn btn-icon-toggle btn-info btn-sm ">
-                        <i class="fa fa-eye" data-id="' . $poe_id . '"></i>
+        $col[]  = '<a href='.site_url($this->module['route'] . '/print_poe/' . $poe_id).' target="_blank" >'.$evaluation_number.'</a>';
+        $col[]  = '<a href="#" class="btn btn-icon-toggle btn-info btn-sm ">
+                        <i class="fa fa-eye" data-id="' . $row['id'] . '"></i>
                         </a>';
         
         $total_value[] = $row['grand_total'];
@@ -142,5 +142,41 @@ class Account_Payable extends MY_Controller
       redirect('purchase_request/print_pdf/'.$request_id);
     }
     
+  }
+
+  public function print_poe($poe_id)
+  {
+    $selectedPoe = $this->model->getSelectedPoe($poe_id);
+    $tipe = $selectedPoe->tipe;
+    if($tipe=='EXPENSE'){
+      redirect('expense_order_evaluation/print_pdf/'.$poe_id);
+    }elseif($tipe=='CAPEX'){
+      redirect('capex_order_evaluation/print_pdf/'.$poe_id);
+    }elseif($tipe=='INVENTORY'){
+      redirect('inventory_order_evaluation/print_pdf/'.$poe_id);
+    }elseif($tipe=='INVENTORY MRP'){
+      redirect('purchase_order_evaluation/print_pdf/'.$poe_id);
+    }
+    
+  }
+
+  public function listAttachment($po_id)
+  {
+    $data = [];
+    //get attachent PO
+    $selectedPo  = $this->model->findById($po_id);
+    $data['no_po']  = $selectedPo['document_number'];
+    $data['att_po'] = $this->model->listAttachmentPoePo($po_id,'PO');
+
+    //get attachment POE
+    $poe_id = $this->model->getEvaluationId($po_id);
+    $selectedPoe = $this->model->getSelectedPoe($poe_id);
+    $tipe = $selectedPoe->tipe;
+    $data['no_poe']   = $selectedPoe->evaluation_number;
+    $data['att_poe'] = $this->model->listAttachmentPoePo($poe_id,'POE');
+
+    //get attchment request
+    $data['att_request'] = $this->model->listAttachmentRequest($poe_id,$tipe);
+    echo json_encode($data);
   }
 }

@@ -28,6 +28,7 @@
                 <tr>
                   <th>No</th>
                   <th>Link</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody id="listView">
@@ -472,8 +473,8 @@
           }
         }
       } else if (e.target.nodeName === "SPAN") {
-        var a = $(e.target).data('id');
-        console.log(e.target.nodeName);
+        // var a = $(e.target).data('id');
+        // console.log(e.target.nodeName);
         // console.log(price);
         ///////////////////////////////////////eventdefault
       }else if (e.target.nodeName === "I") {
@@ -487,18 +488,36 @@
     function getAttachment(id) {
       $.ajax({
         type: "GET",
-        url: 'purchase_order_evaluation/listAttachment/' + id,
+        url: 'account_payable/listAttachment/' + id,
         cache: false,
         success: function(response) {
           var data = jQuery.parseJSON(response)
           $("#listView").html("")
           $("#attachment_modal").modal("show");
-          $.each(data, function(i, item) {
-            var text = '<tr>' +
+          // var text = '<tr><td>'+data.no_po+'</td><td></td></tr>';$("#listView").append(text);
+          $.each(data.att_po, function(i, item) {
+            var text_att_po = '<tr>' +
+              '<td>' + (i + 1) + '</td>' +
+              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+              '<td>'+data.no_po+'</td>' +
+              '</tr>';
+            $("#listView").append(text_att_po);
+          });
+          // var text = '<tr><td>'+data.no_poe+'</td><td></td></tr>';$("#listView").append(text);
+          $.each(data.att_poe, function(i, item) {
+            var text_att_po = '<tr>' +
+              '<td>' + (i + 1) + '</td>' +
+              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+              '<td>'+data.no_poe+'</td>' +
+              '</tr>';
+            $("#listView").append(text_att_po);
+          });
+          $.each(data.att_request, function(i, item) {
+            var text_att_requeat = '<tr>' +
               '<td>' + (i + 1) + '</td>' +
               '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
               '</tr>';
-            $("#listView").append(text);
+            $("#listView").append(text_att_requeat);
           });
         },
         error: function(xhr, ajaxOptions, thrownError) {

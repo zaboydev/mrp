@@ -630,7 +630,7 @@
 
             source: function(request, response) {
               var results = $.ui.autocomplete.filter(resource, request.term);
-              response(results.slice(0, 5));
+              response(results.slice(0, 10));
               console.log(results);
             },
 

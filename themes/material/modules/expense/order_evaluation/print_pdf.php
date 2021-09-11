@@ -132,15 +132,15 @@
         <br>
         <?= print_date($entity['updated_at']); ?>
         <br>
-        <?php if ($entity['approved_by'] != '' & $entity['approved_by'] != 'without_approval') : ?>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
+        <?php if ($entity['checked_by'] != '' & $entity['approved_by'] != 'without_approval') : ?>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
         <?php endif; ?>
         <?php if ($entity['approved_by'] == 'without_approval') : ?>
           <img src="<?= base_url('ttd_user/mark.png'); ?>" width="100">
         <?php endif; ?>
         <br>
-        <br><?php if ($entity['approved_by'] != 'without_approval') : ?>
-          <?= $entity['approved_by']; ?>
+        <br><?php if ($entity['checked_by'] != 'without_approval') : ?>
+          <?= $entity['checked_by']; ?>
         <?php endif; ?></p>
     </td>
   </tr>
