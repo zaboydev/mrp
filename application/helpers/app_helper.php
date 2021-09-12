@@ -1948,4 +1948,19 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getUsernameByPersonName')) {
+    function getUsernameByPersonName($person_name)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where('person_name', $person_name);
+
+      $query = $CI->db->get();
+
+      return $query->unbuffered_row('array');
+    }
+  }
+
     

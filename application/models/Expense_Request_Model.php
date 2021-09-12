@@ -465,6 +465,7 @@ class Expense_Request_Model extends MY_Model
         $total = $this->countTotalExpense($id);
         $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
         $cost_center = getCostCenterByAnnualCostCenterId($request['annual_cost_center_id']);
+        $created_by = getUsernameByPersonName($request['created_by']);
 
         if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
             if($request['base']=='BANYUWANGI'){
@@ -497,6 +498,7 @@ class Expense_Request_Model extends MY_Model
             $level = -1;
             
         }
+
         if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
             if($with_po=='t'){
                 $this->connection->set('status','approved');
@@ -523,7 +525,7 @@ class Expense_Request_Model extends MY_Model
         }
 
         if(config_item('auth_role')=='FINANCE MANAGER' && $request['status']=='WAITING FOR FINANCE REVIEW'){
-            if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))){
+            if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id')) || in_array($created_by['username'],$this->config->item('unique_user'))){
             // if($cost_center['id']==$this->config->item('head_office_cost_center_id')){
                 $this->connection->set('status','WAITING FOR VP FINANCE REVIEW');                
                 $level = 3;
