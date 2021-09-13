@@ -121,6 +121,9 @@
             <option value="cancel">
               CANCELED
             </option>
+            <option value="close">
+              Close
+            </option>
           </select>
         </div>
 

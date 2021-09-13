@@ -106,11 +106,9 @@
         <div class="form-group">
           <label for="filter_status">Status</label>
           <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
-            <?php if (!is_granted($module, 'approval')) : ?>
             <option value="all">
               All Status
             </option>
-            <?php endif; ?>
             <option value="review" <?php if (is_granted($module, 'approval')):echo 'selected'; endif;?>>
               Review
             </option>
@@ -128,6 +126,9 @@
             </option>
             <option value="cancel">
               Canceled
+            </option>
+            <option value="close">
+              Close
             </option>
           </select>
         </div>
