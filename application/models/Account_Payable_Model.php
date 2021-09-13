@@ -33,10 +33,10 @@ class Account_Payable_Model extends MY_Model
   public function getSearchableColumns()
   {
     $return = array(
-      'tb_po.id',
+      // 'tb_po.id',
       'tb_po.document_number',
       'tb_po.status',
-      'tb_po.document_date',
+      // 'tb_po.document_date',
       'tb_po.vendor'
 
     );
