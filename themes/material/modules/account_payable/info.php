@@ -285,7 +285,7 @@
                     <tr id="row_<?= $i; ?>">
                       <td width="1"></td>
                       <td>
-                        <?= print_string($receipt['document_number']); ?>
+                        <a href="<?= site_url('goods_received_note/print_pdf/' . $receipt['id']) ?>"><?= print_string($receipt['document_number']); ?></a>
                       </td>
                       <td class="no-space">
                         <?= print_date($receipt['received_date']); ?>

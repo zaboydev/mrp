@@ -229,6 +229,7 @@ class Account_Payable_Model extends MY_Model
 
   public function getReceiptItems($purchase_order_item_id){
     $select = array(
+      'tb_receipts.id',
       'tb_receipts.document_number',
       'tb_receipts.received_date',
       'tb_receipts.received_by',
