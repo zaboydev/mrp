@@ -414,7 +414,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
       if ($currency == 'IDR') {
         if($grandtotal >= 15000000){
           $status = strtoupper("waiting for vp finance review");
-          $Level = 3;
+          $level = 3;
         }else{
           $status = "approved";
           $level = 0;
@@ -422,7 +422,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
       }else{
         if($grandtotal >= 1500){
           $status = strtoupper("waiting for vp finance review");
-          $Level = 3;
+          $level = 3;
         }else{
           $status = "approved";
           $level = 0;

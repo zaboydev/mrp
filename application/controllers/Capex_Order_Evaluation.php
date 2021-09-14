@@ -572,7 +572,7 @@ class Capex_Order_Evaluation extends MY_Controller
 
   public function manage_attachment($id_poe)
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'document');
 
     $this->data['manage_attachment'] = $this->model->listAttachment_2($id_poe);
     $this->data['id_poe'] = $id_poe;
