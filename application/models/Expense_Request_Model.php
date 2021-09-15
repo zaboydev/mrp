@@ -137,6 +137,9 @@ class Expense_Request_Model extends MY_Model
                         if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {  
                             $status[] = 'WAITING FOR COO REVIEW';
                         }
+                        if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
+                            $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
+                        }
                         if (config_item('as_head_department')=='yes'){  
                             $status[] = 'WAITING FOR HEAD DEPT';
                         }
@@ -165,6 +168,9 @@ class Expense_Request_Model extends MY_Model
                     }
                     if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
                         $status = ['WAITING FOR VP FINANCE REVIEW','WAITING FOR CFO REVIEW','approved'];
+                    }
+                    if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT'){
+                        $status = ['WAITING FOR FINANCE REVIEW','WAITING FOR HOS REVIEW','WAITING FOR COO REVIEW','WAITING FOR VP FINANCE REVIEW','WAITING FOR CFO REVIEW','approved'];
                     }
                     if (config_item('as_head_department')=='yes'){
                         $status = ['WAITING FOR FINANCE REVIEW','WAITING FOR HOS REVIEW','WAITING FOR COO REVIEW','WAITING FOR VP FINANCE REVIEW','WAITING FOR CFO REVIEW','approved'];
@@ -200,6 +206,9 @@ class Expense_Request_Model extends MY_Model
                 }
                 if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {  
                     $status[] = 'WAITING FOR COO REVIEW';
+                }
+                if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
+                    $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
                 }
                 if (config_item('as_head_department')=='yes'){  
                     $status[] = 'WAITING FOR HEAD DEPT';
@@ -282,7 +291,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        if(config_item('auth_role') == 'PIC STAFF' || config_item('auth_role') == 'SUPER ADMIN'){
+        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
@@ -325,7 +334,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        if(config_item('auth_role') == 'PIC STAFF' || config_item('auth_role') == 'SUPER ADMIN'){
+        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
@@ -349,7 +358,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        if(config_item('auth_role') == 'PIC STAFF' || config_item('auth_role') == 'SUPER ADMIN'){
+        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
@@ -471,6 +480,9 @@ class Expense_Request_Model extends MY_Model
             if($request['base']=='BANYUWANGI'){
                 $this->connection->set('status','WAITING FOR AHOS REVIEW');
                 $level = 22;
+            }elseif($created_by['auth_level']=='23'){
+                $this->connection->set('status','WAITING FOR HEAD DEPT UNIQ REVIEW');
+                $level = 24;
             }else{
                 $this->connection->set('status','WAITING FOR HEAD DEPT');
                 $level = -1;
@@ -500,6 +512,31 @@ class Expense_Request_Model extends MY_Model
         }
 
         if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
+            if($with_po=='t'){
+                $this->connection->set('status','approved');
+                $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+                $this->connection->set('head_approved_by',config_item('auth_person_name'));
+                if($notes!=''){
+                    $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+                }
+                $this->connection->where('id',$id);
+                $this->connection->update('tb_expense_purchase_requisitions');
+                $level = 8;
+            }else{
+                $this->connection->set('status','WAITING FOR FINANCE REVIEW');
+                $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+                $this->connection->set('head_approved_by',config_item('auth_person_name'));
+                if($notes!=''){
+                    $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+                }
+                $this->connection->where('id',$id);
+                $this->connection->update('tb_expense_purchase_requisitions');
+                $level = 14;
+            }
+            
+        }
+
+        if(config_item('auth_role')=='HEAD DEPT UNIQ JKT' && $request['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW'){
             if($with_po=='t'){
                 $this->connection->set('status','approved');
                 $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
@@ -628,7 +665,7 @@ class Expense_Request_Model extends MY_Model
 
     public function searchBudget($annual_cost_center_id,$with_po = NULL)
     {
-        $item_no_po = $this->items_no_po();
+        // $item_no_po = $this->items_no_po();
         $query = "";
         $this->column_select = array(
             'SUM(tb_expense_monthly_budgets.mtd_budget) as budget',
@@ -650,13 +687,13 @@ class Expense_Request_Model extends MY_Model
         $this->connection->from('tb_expense_monthly_budgets');
         $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
-        if ($with_po !== NULL || !empty($with_po)) {
-            if($with_po=='f'){
-                $this->connection->where_in('tb_accounts.id',$item_no_po);
-            }else{
-                $this->connection->where_not_in('tb_accounts.id',$item_no_po);
-            }            
-        }
+        // if ($with_po !== NULL || !empty($with_po)) {
+        //     if($with_po=='f'){
+        //         $this->connection->where_in('tb_accounts.id',$item_no_po);
+        //     }else{
+        //         $this->connection->where_not_in('tb_accounts.id',$item_no_po);
+        //     }            
+        // }
         $this->connection->group_by($this->column_groupby);
         $this->connection->order_by('tb_accounts.account_code ASC, tb_accounts.account_name ASC');
           $query  = $this->connection->get();

@@ -115,12 +115,15 @@ class Capex_Request_Model extends MY_Model
                         if(config_item('auth_role') == 'ASSISTANT HOS'){
                             $status[] = 'WAITING FOR AHOS REVIEW';
                         } 
+                        if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
+                            $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
+                        }
                         if (config_item('as_head_department')=='yes'){
                             $status[] = 'WAITING FOR HEAD DEPT';
                         }                
                         $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
                     }  else{
-                        $status = ['pending','WAITING FOR AHOS REVIEW','WAITING FOR HEAD DEPT'];
+                        $status = ['pending','WAITING FOR AHOS REVIEW','WAITING FOR HEAD DEPT','WAITING FOR HEAD DEPT UNIQ REVIEW'];
                         $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
                     }
                 }else{
@@ -137,6 +140,9 @@ class Capex_Request_Model extends MY_Model
                 if(config_item('auth_role') == 'ASSISTANT HOS'){
                     $status[] = 'WAITING FOR AHOS REVIEW';
                 } 
+                if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
+                    $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
+                }
                 if (config_item('as_head_department')=='yes'){
                     $status[] = 'WAITING FOR HEAD DEPT';
                 }                
@@ -431,6 +437,9 @@ class Capex_Request_Model extends MY_Model
             if($request['base']=='BANYUWANGI'){
                 $this->connection->set('status','WAITING FOR AHOS REVIEW');
                 $level = 22;
+            }elseif($created_by['auth_level']=='23'){
+                $this->connection->set('status','WAITING FOR HEAD DEPT UNIQ REVIEW');
+                $level = 24;
             }else{
                 $this->connection->set('status','WAITING FOR HEAD DEPT');
                 $level = -1;
@@ -463,6 +472,16 @@ class Capex_Request_Model extends MY_Model
             $this->connection->update('tb_capex_purchase_requisitions');
             $level = -1;
             
+        }else if(config_item('auth_role')=='HEAD DEPT UNIQ JKT' && $request['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW'){
+            $this->connection->set('status','approved');
+            $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('head_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'Head-Dept : '.$notes);
+            }
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_capex_purchase_requisitions');
+            $level = 24;
         }
 
         

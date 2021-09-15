@@ -446,7 +446,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
       }
     }
 
-    if(config_item('auth_role')=='VP FINANCE' && $request['status']=='WAITING FOR VP FINANCE REVIEW'){
+    if(config_item('auth_role')=='VP FINANCE' && $row['status']=='WAITING FOR VP FINANCE REVIEW'){
       $this->db->set('status', 'approved');
       $this->db->set('review_status', strtoupper("waiting for purchase"));
       $this->db->set('approved_at', date('Y-m-d'));

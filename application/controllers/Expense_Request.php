@@ -47,9 +47,9 @@ class Expense_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
         redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['receipt']['with_po'] = $_GET['data'];
+        $_SESSION['expense']['with_po'] = $_GET['data'];
 
-        //redirect($this->module['route'] .'/create');
+        // redirect($this->module['route'] .'/create');
     }
 
     public function set_notes()
@@ -93,6 +93,8 @@ class Expense_Request extends MY_Controller
                     }else if($row['status']=='WAITING FOR CFO REVIEW' && config_item('auth_role')=='CHIEF OF FINANCE'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='WAITING FOR AHOS REVIEW' && config_item('auth_role')=='ASSISTANT HOS'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW' && config_item('auth_role')=='HEAD DEPT UNIQ JKT'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='approved'){
                         if(is_granted($this->module, 'closing') === TRUE && readyToCloseRequest($row['id'],'expense')){
@@ -319,6 +321,10 @@ class Expense_Request extends MY_Controller
                         $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
                     }
                 }
+
+                if (empty($_SESSION['expense']['with_po'])) {
+                    $errors[] = 'Attention!! Please select PO Status';
+                } 
 
                 if (!empty($errors)) {
                     $data['success'] = FALSE;
