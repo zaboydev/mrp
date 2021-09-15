@@ -47,9 +47,9 @@ class Expense_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
         redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['receipt']['with_po'] = $_GET['data'];
+        $_SESSION['expense']['with_po'] = $_GET['data'];
 
-        //redirect($this->module['route'] .'/create');
+        // redirect($this->module['route'] .'/create');
     }
 
     public function set_notes()
@@ -321,6 +321,10 @@ class Expense_Request extends MY_Controller
                         $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
                     }
                 }
+
+                if (empty($_SESSION['expense']['with_po'])) {
+                    $errors[] = 'Attention!! Please select PO Status';
+                } 
 
                 if (!empty($errors)) {
                     $data['success'] = FALSE;

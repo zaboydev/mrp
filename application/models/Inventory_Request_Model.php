@@ -120,12 +120,15 @@ class Inventory_Request_Model extends MY_Model
                         if(config_item('auth_role') == 'ASSISTANT HOS'){
                             $status[] = 'WAITING FOR AHOS REVIEW';
                         } 
+                        if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
+                            $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
+                        }
                         if (config_item('as_head_department')=='yes'){
                             $status[] = 'WAITING FOR HEAD DEPT';
                         }                
                         $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
                     }  else{
-                        $status = ['pending','WAITING FOR AHOS REVIEW','WAITING FOR HEAD DEPT'];
+                        $status = ['pending','WAITING FOR AHOS REVIEW','WAITING FOR HEAD DEPT','WAITING FOR HEAD DEPT UNIQ REVIEW'];
                         $this->connection->where_in('tb_inventory_purchase_requisitions.status', $status);
                     }
                 }else{
@@ -142,6 +145,9 @@ class Inventory_Request_Model extends MY_Model
                 if(config_item('auth_role') == 'ASSISTANT HOS'){
                     $status[] = 'WAITING FOR AHOS REVIEW';
                 } 
+                if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
+                    $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
+                }
                 if (config_item('as_head_department')=='yes'){
                     $status[] = 'WAITING FOR HEAD DEPT';
                 }                

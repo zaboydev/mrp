@@ -38,8 +38,13 @@
                 <label for="notes">Notes</label>
               </div>
               <div class="form-group">
-                <input readonly type="text" name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>">   
-                <label for="notes">With PO</label>
+                <select name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>" required>
+                  <option></option>
+                  <option value="t" <?= ('t' == $_SESSION['expense']['with_po']) ? 'selected' : ''; ?>>With PO</option>
+                  <option value="f" <?= ('f' == $_SESSION['expense']['with_po']) ? 'selected' : ''; ?>>Without PO</option>
+                </select>
+                <input type="hidden" name="with_pos" id="with_pos" class="form-control" value="<?= $_SESSION['expense']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>">   
+                <label for="notes">PO Status</label>
               </div>
             </div>
           </div>
@@ -47,14 +52,8 @@
             <div class="col-sm-12 col-lg-12">
               <div class="form-group">
                 <div class="input-group">
-                  <?php if (!empty($_SESSION['expense']['with_po'])):?>
-                  <?php if ($_SESSION['expense']['with_po']=='f'):?>
-                  <span class="input-group-addon">Expense Request ini merupakasn expense request tanpa PO. Item yang muncul sekarang merupakan item yang terdaftar di Master Data -> Expense Item Without PO</span>
-                  <?php endif;?>
-                  <?php if ($_SESSION['expense']['with_po']=='t'):?>
-                  <span class="input-group-addon">Expense Request ini merupakasn expense request dengan PO. Item yang muncul sekarang merupakan item yang tidak terdaftar di Master Data -> Expense Item Without PO</span>
-                  <?php endif;?>
-                  <?php endif;?>
+                  <span class="input-group-addon hide">Expense Request ini merupakan expense request tanpa PO. Item yang muncul sekarang merupakan item yang terdaftar di Master Data -> Expense Item Without PO</span>
+                  <span class="input-group-addon hide">Expense Request ini merupakan expense request dengan PO. Item yang muncul sekarang merupakan item yang tidak terdaftar di Master Data -> Expense Item Without PO</span>
                 </div>
               </div>
             </div>
