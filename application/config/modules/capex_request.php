@@ -12,10 +12,10 @@ $config['module']['capex_request']['helper']         = 'capex_request_helper';
 $config['module']['capex_request']['table']          = 'tb_capex_purchase_requisitions';
 $config['module']['capex_request']['model']          = 'Capex_Request_Model';
 $config['module']['capex_request']['permission']     = array(
-  'index'     => 'PIC STAFF UNIQ JKT,SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
-  'info'      => 'PIC STAFF UNIQ JKT,SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
-  'print'     => 'PIC STAFF UNIQ JKT,AP STAFF,SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
+  'index'     => 'HEAD DEPT UNIQ JKT,PIC STAFF UNIQ JKT,SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
+  'info'      => 'HEAD DEPT UNIQ JKT,PIC STAFF UNIQ JKT,SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
+  'print'     => 'HEAD DEPT UNIQ JKT,PIC STAFF UNIQ JKT,AP STAFF,SUPER ADMIN,BUDGETCONTROL,PIC STAFF,PIC PROCUREMENT,ASSISTANT HOS',
   'document'  => 'PIC STAFF UNIQ JKT,SUPER ADMIN,PIC STAFF',
   'closing'   => 'SUPER ADMIN,PIC PROCUREMENT',
-  'approval'  => 'BUDGETCONTROL,ASSISTANT HOS'
+  'approval'  => 'HEAD DEPT UNIQ JKT,BUDGETCONTROL,ASSISTANT HOS'
 );
