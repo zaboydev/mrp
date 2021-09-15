@@ -50,6 +50,9 @@
 
       <div class="col-sm-12 col-md-8 col-md-pull-4">
         <dl class="dl-inline">
+          <dt>Approval Status</dt>
+          <dd><?= print_string($entity['review_status']); ?></dd>
+
           <dt>Order Status</dt>
           <dd><?= print_string($entity['status']); ?></dd>
 
@@ -385,7 +388,7 @@
           <?= form_open(current_url(), array(
                   'class' => 'form-xhr-order pull-left',
                 )); ?>
-          <div class="form-group col-xs-3">
+          <div class="form-group">
             <div class="input-group">
               <span class="input-group-addon">Notes</span>
               <div class="input-group-content">
