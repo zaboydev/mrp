@@ -258,7 +258,11 @@ class Dashboard_Model extends MY_Model
     }
     if($role=='ASSISTANT HOS'){
       $status[] = 'WAITING FOR AHOS REVIEW';
-    }    
+    } 
+    
+    if($role=='HEAD DEPT UNIQ JKT'){
+      $status[] = 'WAITING FOR HEAD DEPT UNIQ  REVIEW';
+    } 
 
     $this->connection->select('*');
     $this->connection->from('tb_capex_purchase_requisitions');
@@ -299,6 +303,9 @@ class Dashboard_Model extends MY_Model
     if($role=='ASSISTANT HOS'){
       $status[] = 'WAITING FOR AHOS REVIEW';
     }    
+    if($role=='HEAD DEPT UNIQ JKT'){
+      $status[] = 'WAITING FOR HEAD DEPT UNIQ  REVIEW';
+    } 
 
     $this->connection->select('*');
     $this->connection->from('tb_inventory_purchase_requisitions');
@@ -354,6 +361,9 @@ class Dashboard_Model extends MY_Model
     if($role=='CHIEF OPERATION OFFICER'){
       $status[] = 'WAITING FOR COO REVIEW';
     }
+    if($role=='HEAD DEPT UNIQ JKT'){
+      $status[] = 'WAITING FOR HEAD DEPT UNIQ  REVIEW';
+    } 
 
     $this->connection->select('*');
     $this->connection->from('tb_expense_purchase_requisitions');

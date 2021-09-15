@@ -50,6 +50,9 @@
 
       <div class="col-sm-12 col-md-8 col-md-pull-4">
         <dl class="dl-inline">
+          <dt>Approval Status</dt>
+          <dd><?= print_string($entity['review_status']); ?></dd>
+
           <dt>Order Status</dt>
           <dd><?= print_string($entity['status']); ?></dd>
 
@@ -366,7 +369,7 @@
       <?= form_open(current_url(), array(
           'class' => 'form-xhr-order pull-left',
         )); ?>
-      <div class="form-group col-xs-3">
+      <div class="form-group">
         <div class="input-group">
           <span class="input-group-addon">Term of Payment</span>
           <div class="input-group-content">
@@ -390,7 +393,7 @@
           <?= form_open(current_url(), array(
                   'class' => 'form-xhr-order pull-left',
                 )); ?>
-          <div class="form-group col-xs-3">
+          <div class="form-group">
             <div class="input-group">
               <span class="input-group-addon">Notes</span>
               <div class="input-group-content">
@@ -414,7 +417,12 @@
 
   <div class="card-foot">
     <div class="pull-left">
-
+      <?php if (is_granted($module, 'info') && $entity['review_status'] == 'APPROVED' && $tipe != 'report') : ?>
+      <a href="<?= site_url($module['route'] . '/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
+        <i class="md md-attach-file"></i>
+        <small class="top right">Manage Attachment</small>
+      </a>
+      <?php endif; ?>
     </div>
     <div class="pull-right">
       <?php if (is_granted($module, 'payment') && $tipe != 'report') : ?>
@@ -452,8 +460,28 @@
     </div>
   </div>
 </div>
-<?php //startblock('page_modals') 
-?>
+<script type="text/javascript">
+  function popup(mylink, windowname) {
+    var height = window.innerHeight;
+    var widht;
+    var href;
 
-<?php //endblock() 
-?>
+    if (screen.availWidth > 768) {
+      width = 769;
+    } else {
+      width = screen.availWidth;
+    }
+
+    var left = (screen.availWidth / 2) - (width / 2);
+    var top = 0;
+    // var top = (screen.availHeight / 2) - (height / 2);
+
+    if (typeof(mylink) == 'string') href = mylink;
+    else href = mylink.href;
+
+    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+
+    if (!window.focus) return true;
+    else return false;
+  }
+</script>
