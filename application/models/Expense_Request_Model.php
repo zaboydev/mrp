@@ -1009,11 +1009,11 @@ class Expense_Request_Model extends MY_Model
         return TRUE;
     }
 
-    public function countTotalExpense(){
+    public function countTotalExpense($id){
         $this->connection->select('sum(total)');
         $this->connection->from('tb_expense_purchase_requisition_details');
         $this->connection->group_by('tb_expense_purchase_requisition_details.expense_purchase_requisition_id');
-        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $prl_item_id);
+        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $id);
         return $this->connection->get('')->row()->sum;
     }
 

@@ -673,4 +673,12 @@ class Expense_Request extends MY_Controller
         redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
         // echo json_encode($result);
     }
+
+    public function send_email($id, $level)
+    {
+        $send = $this->model->send_mail($id, $level);
+        
+        $result['status'] = $send;
+        echo json_encode($result);
+    }
 }
