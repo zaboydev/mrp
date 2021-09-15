@@ -471,6 +471,9 @@ class Expense_Request_Model extends MY_Model
             if($request['base']=='BANYUWANGI'){
                 $this->connection->set('status','WAITING FOR AHOS REVIEW');
                 $level = 22;
+            }elseif($created_by['auth_level']=='23'){
+                $this->connection->set('status','WAITING FOR HEAD DEPT UNIQ REVIEW');
+                $level = 24;
             }else{
                 $this->connection->set('status','WAITING FOR HEAD DEPT');
                 $level = -1;
@@ -500,6 +503,31 @@ class Expense_Request_Model extends MY_Model
         }
 
         if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
+            if($with_po=='t'){
+                $this->connection->set('status','approved');
+                $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+                $this->connection->set('head_approved_by',config_item('auth_person_name'));
+                if($notes!=''){
+                    $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+                }
+                $this->connection->where('id',$id);
+                $this->connection->update('tb_expense_purchase_requisitions');
+                $level = 8;
+            }else{
+                $this->connection->set('status','WAITING FOR FINANCE REVIEW');
+                $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+                $this->connection->set('head_approved_by',config_item('auth_person_name'));
+                if($notes!=''){
+                    $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+                }
+                $this->connection->where('id',$id);
+                $this->connection->update('tb_expense_purchase_requisitions');
+                $level = 14;
+            }
+            
+        }
+
+        if(config_item('auth_role')=='HEAD DEPT UNIQ JKT' && $request['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW'){
             if($with_po=='t'){
                 $this->connection->set('status','approved');
                 $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
@@ -1009,11 +1037,11 @@ class Expense_Request_Model extends MY_Model
         return TRUE;
     }
 
-    public function countTotalExpense(){
+    public function countTotalExpense($id){
         $this->connection->select('sum(total)');
         $this->connection->from('tb_expense_purchase_requisition_details');
         $this->connection->group_by('tb_expense_purchase_requisition_details.expense_purchase_requisition_id');
-        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $prl_item_id);
+        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $id);
         return $this->connection->get('')->row()->sum;
     }
 

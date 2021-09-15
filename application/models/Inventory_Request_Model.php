@@ -1180,6 +1180,16 @@ class Inventory_Request_Model extends MY_Model
             $this->connection->update('tb_inventory_purchase_requisitions');
             $level = -1;
             
+        }else if(config_item('auth_role')=='HEAD DEPT UNIQ JKT' && $request['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW'){
+            $this->connection->set('status','approved');
+            $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('head_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'Head-Dept : '.$notes);
+            }
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_inventory_purchase_requisitions');
+            $level = 24;
         }
 
         

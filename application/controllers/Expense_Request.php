@@ -94,6 +94,8 @@ class Expense_Request extends MY_Controller
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='WAITING FOR AHOS REVIEW' && config_item('auth_role')=='ASSISTANT HOS'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW' && config_item('auth_role')=='HEAD DEPT UNIQ JKT'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='approved'){
                         if(is_granted($this->module, 'closing') === TRUE && readyToCloseRequest($row['id'],'expense')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -672,5 +674,13 @@ class Expense_Request extends MY_Controller
 
         redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
         // echo json_encode($result);
+    }
+
+    public function send_email($id, $level)
+    {
+        $send = $this->model->send_mail($id, $level);
+        
+        $result['status'] = $send;
+        echo json_encode($result);
     }
 }
