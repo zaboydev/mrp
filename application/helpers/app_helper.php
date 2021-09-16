@@ -1789,11 +1789,14 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI->db->where('department_id',$department_id);
       $CI->db->where('status','active');
       $query  = $CI->db->get();
+      $return = array();
       if($query->num_rows()>0){
-        $result = $query->unbuffered_row('array');
-        $return = $result['username'];
+        $result = $query->result_array();
+        foreach ($result as $row) {
+          $return[] = $row['username'];
+        }
       }else{
-        $return = 'aidanurul';
+        $return[] = 'aidanurul';
       }
 
       return $return;

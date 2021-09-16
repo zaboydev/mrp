@@ -1252,7 +1252,7 @@ class Capex_Request_Model extends MY_Model
     {
         $this->db->select('email');
         $this->db->from('tb_auth_users');
-        $this->db->where('username', $username);
+        $this->db->where_in('username', $username);
         return $this->db->get('')->result();
     }
 
