@@ -19,7 +19,7 @@
                 <th class="middle-alignment text-right" rowspan="2">Qty</th>
                 <th class="middle-alignment text-right" rowspan="2">Price Requested</th>
                 <!-- <th class="middle-alignment text-right" rowspan="2">Unit</th> -->
-                <th class="middle-alignment text-right" rowspan="2">Konversi</th>
+                <th class="middle-alignment text-right hide" rowspan="2">Konversi</th>
                 <th class="middle-alignment text-right" rowspan="2">Remarks</th>
 
                 <?php foreach ($_SESSION['capex_poe']['vendors'] as $key => $vendor) : ?>
@@ -43,7 +43,7 @@
                     <?= $request['purchase_request_number']; ?>
                   </td>
                   <td>
-                    <?= $request['description']; ?>
+                    <input type="text" rel="description" name="request[<?= $id; ?>][description]" value="<?= $_SESSION['capex_poe']['request'][$id]['description']; ?>" class="form-control">
                   </td>
                   <td class="no-space">
                     <input type="text" rel="part_number" name="request[<?= $id; ?>][part_number]" value="<?= $_SESSION['capex_poe']['request'][$id]['part_number']; ?>" class="form-control">
@@ -60,7 +60,7 @@
                   <td class="hide">
                     <input type="text" rel="unit" name="request[<?= $id; ?>][unit]" value="<?= $_SESSION['capex_poe']['request'][$id]['unit']; ?>" class="form-control">
                   </td>
-                  <td>
+                  <td class=" hide">
                     <input type="number" rel="konversi" name="request[<?= $id; ?>][konversi]" value="<?= $_SESSION['capex_poe']['request'][$id]['konversi']; ?>" class="form-control">
                   </td>
                   <td>

@@ -148,3 +148,24 @@ if ( ! function_exists('getStatusPOE')) {
     return $status;
   }
 }
+
+if ( ! function_exists('generatePartNumber')) {
+  function generatePartNumber($kode)
+  {
+
+    $CI =& get_instance();
+
+    $CI->db->select_max('part_number', 'last_number');
+    $CI->db->from('tb_master_items');
+    $CI->db->like('tb_master_items.part_number', $kode.'-', 'after');
+
+    $query  = $CI->db->get();
+    $row    = $query->unbuffered_row();
+    $last   = $row->last_number;
+    $number = substr($last, -3);
+    $next   = $number + 1;
+    $return = sprintf('%03s', $next);
+
+    return $kode.'-'.$return;
+  }
+}

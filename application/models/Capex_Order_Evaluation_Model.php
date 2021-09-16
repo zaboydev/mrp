@@ -644,6 +644,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $serial_number = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
       $unit = trim($item['unit']);
       $group = 'CAPEX';
+      $part_number = generatePartNumber($item['part_number']);
 
       if (!empty($unit)) {
         if (isItemUnitExists($unit) === FALSE) {
@@ -665,8 +666,8 @@ class Capex_Order_Evaluation_Model extends MY_Model
         }
       }
 
-      if (isItemExists($item['part_number'], $serial_number) === FALSE) {
-        $this->db->set('part_number', strtoupper($item['part_number']));
+      if ($this->isItemExists($part_number) === FALSE) {
+        $this->db->set('part_number', $part_number);
         $this->db->set('serial_number', strtoupper($serial_number));
         $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
         $this->db->set('description', strtoupper($item['description']));
@@ -684,9 +685,22 @@ class Capex_Order_Evaluation_Model extends MY_Model
         $item_id = $this->db->insert_id();
       }
 
+      if ($this->isPartNumberExists($part_number) == FALSE) {
+        $this->db->set('group', strtoupper($group));
+        $this->db->set('description', strtoupper($item['description']));
+        $this->db->set('part_number', $part_number);
+        $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
+        $this->db->set('min_qty', floatval(1));
+        $this->db->set('unit', strtoupper($unit));
+        // $this->db->set('kode_pemakaian', $data['kode_pemakaian']);
+        $this->db->set('current_price', floatval($item['unit_price_requested']));
+        $this->db->set('kode_stok', null);
+        $this->db->insert('tb_master_part_number');
+      }
+
       $this->db->set('purchase_order_id', $document_id);
       $this->db->set('description', strtoupper($item['description']));
-      $this->db->set('part_number', strtoupper($item['part_number']));
+      $this->db->set('part_number', $part_number);
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       $this->db->set('quantity_requested', floatval($item['quantity_requested']));
@@ -1240,5 +1254,25 @@ class Capex_Order_Evaluation_Model extends MY_Model
     $result = $query->unbuffered_row('array');
 
     return $result['capex_purchase_requisition_id'];
+  }
+
+  public function isPartNumberExistsByDescription($description)
+  {
+    $this->db->from('tb_master_part_number');
+    $this->db->where('description', strtoupper($description));
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? true : false;
+  }
+
+  public function isItemExistsByDescription($description)
+  {
+    $this->db->from('tb_master_items');
+    $this->db->where('description', strtoupper($description));
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
   }
 }
