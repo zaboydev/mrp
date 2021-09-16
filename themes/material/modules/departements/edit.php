@@ -57,7 +57,7 @@ c <?=form_open(site_url($module['route'] .'/save'), array(
                 </option>
               <?php endforeach; ?>
             </select>
-            <?php foreach (available_user_for_head_department(array('person_name', 'username'),$entity['id']) as $i => $user):?>
+            <?php foreach (available_user(array('person_name', 'username')) as $i => $user):?>
             <div class="checkbox">
               <input type="checkbox" name="head_departments[]" id="user[<?=$i;?>]" value="<?=$user['username'];?>" <?=(in_array($user['username'], user_in_head_department_list($entity['id']))) ? 'checked' : '';?> >
               <label for="user[<?=$i;?>]">

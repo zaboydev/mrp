@@ -222,34 +222,26 @@ class MY_Controller extends CI_Controller
     $this->db->where('username',$_SESSION['username']);
     $this->db->where('status','active');
     $query  = $this->db->get();
+    
+    $return = array();
     if($query->num_rows() > 0){      
-      $result = $query->unbuffered_row('array');
-      $department_id = $result['department_id'];
+      $result = $query->result_array();
 
-      $this->connection->select('department_name');
-      $this->connection->from('tb_departments');
-      $this->connection->where('id',$department_id);
-      $query  = $this->connection->get();
-      $result = $query->unbuffered_row('array');
-      $department_name = $result['department_name'];
+      foreach ($result as $row) {
+        $department_id = $row['department_id'];
+        $this->connection->select('department_name');
+        $this->connection->from('tb_departments');
+        $this->connection->where('id',$department_id);
+        $query  = $this->connection->get();
+        $result = $query->unbuffered_row('array');
+        $department_name = $result['department_name'];
+        $return[] = $department_name;
+      }
     }else{
-      $department_name = 'no_head_department';
+      $return[] = 'no_head_department';
     }
 
-    // $result = $query->result_array();
-    // $department_name = array();
-
-    // foreach ($result as $row) {
-    //   $department_id = $row['department_id'];
-    //   $this->connection->select('department_name');
-    //   $this->connection->from('tb_departments');
-    //   $this->connection->where('id',$department_id);
-    //   $query  = $this->connection->get();
-    //   $resultquery = $query->unbuffered_row('array');
-    //   $department_name[] = $resultquery['department_name'];
-    // }
-
-    return $department_name;
+    return $return;
   }
 
   protected function auth_inventory()
