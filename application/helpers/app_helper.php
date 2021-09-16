@@ -1897,7 +1897,7 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       if($status=='WAITING FOR HEAD DEPT'){
         if(config_item('as_head_department')=='yes'){
-          if($department_request==config_item('head_department')){
+          if(in_array($department_request,config_item('head_department'))){
             return true;
           }else{
             return false;

@@ -511,7 +511,7 @@ class Expense_Request_Model extends MY_Model
             
         }
 
-        if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
+        if(config_item('as_head_department')=='yes' && in_array($department['department_name'],config_item('head_department')) && $request['status']=='WAITING FOR HEAD DEPT'){
             if($with_po=='t'){
                 $this->connection->set('status','approved');
                 $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));

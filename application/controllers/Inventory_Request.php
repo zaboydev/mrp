@@ -39,7 +39,7 @@ class Inventory_Request extends MY_Controller
         foreach ($entities as $row) {
             $no++;
             $col = array();
-            if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+            if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department'))) {
                 $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
             }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                 $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';

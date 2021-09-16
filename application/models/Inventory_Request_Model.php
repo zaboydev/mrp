@@ -1165,7 +1165,7 @@ class Inventory_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_inventory_purchase_requisitions');
-        }else if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
+        }else if(config_item('as_head_department')=='yes' && in_array($department['department_name'],config_item('head_department')) && $request['status']=='WAITING FOR HEAD DEPT'){
             $this->connection->set('status','approved');
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('head_approved_by',config_item('auth_person_name'));
