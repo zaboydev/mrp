@@ -85,10 +85,10 @@ class Expense_Request extends MY_Controller
             $total = array();
 
             foreach ($entities as $row) {
-                if (viewOrNot($row['status'],$row['department_name'])) {                
+                if (viewOrNot($row['status'],$row['department_name'],$row['head_dept'])) {                
                     $no++;
                     $col = array();
-                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department'))) {
+                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department')) && $row['head_dept']==config_item('auth_username')) {
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -120,7 +120,7 @@ class Expense_Request extends MY_Controller
                     $col[] = print_string($row['cost_center_name']);
                     $col[] = print_date($row['pr_date']);
                     $col[] = print_date($row['required_date']);
-                    // $col[] = print_string($row['account_name']);
+                    $col[] = $this->model->getAccountExpenseRequest($row['id']);
                     $col[] = print_number($row['total_expense'],2);
                     $col[] = $row['notes'];
                     if($row['status']=='close'){
@@ -165,7 +165,7 @@ class Expense_Request extends MY_Controller
             $result = array(
                 "draw" => $_POST['draw'],
                 "recordsTotal" => $this->model->countIndex(),
-                "recordsFiltered" => $this->model->countIndexFiltered(),
+                // "recordsFiltered" => $this->model->countIndexFiltered(),
                 // "recordsFiltered"   => count($data),
                 "data" => $data,
                 "total" => array(
@@ -173,9 +173,11 @@ class Expense_Request extends MY_Controller
                 )
             );
 
-            // if (is_granted($this->module, 'approval') === TRUE){
-            //     $result['recordsFiltered'] = $this->model->count_expense_req(config_item('auth_role'));
-            // }
+            if (is_granted($this->module, 'approval') === TRUE){
+                $result['recordsFiltered'] = $this->model->count_expense_req(config_item('auth_role'));
+            }else{
+                $result['recordsFiltered'] = $this->model->countIndexFiltered();
+            }
         }
 
         echo json_encode($result);
@@ -189,7 +191,7 @@ class Expense_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(6);
+        $this->data['grid']['summary_columns']  = array(7);
         $this->data['grid']['order_columns']    = array(
             0   => array( 0 => 1,  1 => 'desc' ),
             1   => array( 0 => 2,  1 => 'desc' ),

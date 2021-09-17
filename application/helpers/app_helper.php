@@ -1915,11 +1915,11 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('viewOrNot')) {
-    function viewOrNot($status,$department_request)
+    function viewOrNot($status,$department_request,$head_dept)
     {
       if($status=='WAITING FOR HEAD DEPT'){
         if(config_item('as_head_department')=='yes'){
-          if(in_array($department_request,config_item('head_department'))){
+          if(in_array($department_request,config_item('head_department')) && $head_dept==config_item('auth_username')){
             return true;
           }else{
             return false;
