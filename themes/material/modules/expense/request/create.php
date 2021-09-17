@@ -28,7 +28,15 @@
                 <label for="required_date">Required Date</label>
               </div>
 
-              
+              <div class="form-group">
+                <select name="with_po" id="with_po" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
+                  <option></option>
+                  <?php foreach(list_user_in_head_department($_SESSION['expense']['department_id']) as $head):?>
+                  <option value="<?=$head['username'];?>" <?= ($head['username'] == $_SESSION['expense']['head_dept']) ? 'selected' : ''; ?>><?=$head['person_name'];?></option>
+                  <?php endforeach;?>
+                </select>
+                <label for="notes">Head Dept.</label>
+              </div>
             </div>
 
             <div class="col-sm-12 col-lg-5">

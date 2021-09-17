@@ -325,7 +325,8 @@ class Inventory_Request_Model extends MY_Model
         	'tb_inventory_purchase_requisitions.*, 
         	tb_cost_centers.cost_center_name,
         	tb_cost_centers.cost_center_code,
-        	tb_annual_cost_centers.cost_center_id,
+            tb_annual_cost_centers.cost_center_id,
+            tb_cost_centers.department_id,
         	tb_product_categories.category_name,
         	tb_product_categories.category_code'
         );

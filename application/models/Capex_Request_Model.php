@@ -292,7 +292,7 @@ class Capex_Request_Model extends MY_Model
 
     public function findById($id)
     {
-        $this->connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name,tb_cost_centers.cost_center_code,tb_annual_cost_centers.cost_center_id');
+        $this->connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name,tb_cost_centers.cost_center_code,tb_annual_cost_centers.cost_center_id, tb_cost_centers.department_id');
         $this->connection->from('tb_capex_purchase_requisitions');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');

@@ -1256,6 +1256,25 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('list_user_in_head_department')) {
+    function list_user_in_head_department($department_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_head_department.username,tb_auth_users.person_name');
+      $CI->db->from('tb_head_department');
+      $CI->db->join('tb_auth_users','tb_auth_users.username=tb_head_department.username');
+      $CI->db->where('tb_head_department.department_id', $department_id);
+      $CI->db->where('tb_head_department.status', 'active');
+      $CI->db->order_by('tb_head_department.username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
   if ( ! function_exists('available_user_for_head_department')) {
     function available_user_for_head_department($select = NULL, $department_id = NULL)
     {

@@ -52,6 +52,16 @@ class Expense_Request extends MY_Controller
         // redirect($this->module['route'] .'/create');
     }
 
+    public function set_head_dept()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['expense']['head_dept'] = $_GET['data'];
+
+        // redirect($this->module['route'] .'/create');
+    }
+
     public function set_notes()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -267,7 +277,8 @@ class Expense_Request extends MY_Controller
           $annual_cost_center_id = urldecode($annual_cost_center_id);
           $cost_center = findCostCenter($annual_cost_center_id);
           $cost_center_code = $cost_center['cost_center_code'];
-          $cost_center_name = $cost_center['cost_center_name'];
+          $cost_center_name = $cost_center['cost_center_name'];          
+          $department_id    = $cost_center['department_id'];
 
           $_SESSION['expense']['items']            = array();
           $_SESSION['expense']['annual_cost_center_id']   = $annual_cost_center_id;
@@ -280,7 +291,8 @@ class Expense_Request extends MY_Controller
           $_SESSION['expense']['warehouse']        = config_item('auth_warehouse');
           $_SESSION['expense']['notes']            = NULL;
           $_SESSION['expense']['with_po']          = NULL;
-          // $_SESSION['expense']['suggested_supplier'] = NULL;
+          $_SESSION['expense']['department_id']          = $department_id;
+          $_SESSION['expense']['head_dept'] = NULL;
           // $_SESSION['expense']['deliver_to']          = NULL;
 
           redirect($this->module['route'] .'/create');
@@ -324,7 +336,11 @@ class Expense_Request extends MY_Controller
 
                 if (empty($_SESSION['expense']['with_po'])) {
                     $errors[] = 'Attention!! Please select PO Status';
-                } 
+                }
+                
+                if (empty($_SESSION['expense']['head_dept'])) {
+                    $errors[] = 'Attention!! Please select one of Head Dept for Approval';
+                }
 
                 if (!empty($errors)) {
                     $data['success'] = FALSE;

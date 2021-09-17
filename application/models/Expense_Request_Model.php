@@ -371,7 +371,7 @@ class Expense_Request_Model extends MY_Model
 
     public function findById($id)
     {
-        $this->connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code');
+        $this->connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id');
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
@@ -761,6 +761,7 @@ class Expense_Request_Model extends MY_Model
         $created_by           = config_item('auth_person_name');
         $notes                = (empty($_SESSION['expense']['notes'])) ? NULL : $_SESSION['expense']['notes'];
         $unbudgeted           = 0;
+        $head_dept              = $_SESSION['expense']['head_dept'];
 
         $this->connection->trans_begin();
         // $this->db->trans_begin();
@@ -780,6 +781,7 @@ class Expense_Request_Model extends MY_Model
             $this->connection->set('created_at', date('Y-m-d H:i:s'));
             $this->connection->set('updated_at', date('Y-m-d H:i:s'));
             $this->connection->set('with_po', $with_po);
+            $this->connection->set('head_dept', $head_dept);
             $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->insert('tb_expense_purchase_requisitions');
 
@@ -794,6 +796,7 @@ class Expense_Request_Model extends MY_Model
             $this->connection->set('updated_at', date('Y-m-d'));
             $this->connection->set('updated_by', config_item('auth_person_name'));
             $this->connection->set('with_po', $with_po);
+            $this->connection->set('head_dept', $head_dept);
             $this->connection->where('id', $document_id);
             $this->connection->update('tb_expense_purchase_requisitions');
 

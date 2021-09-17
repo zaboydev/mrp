@@ -99,7 +99,7 @@ if ( ! function_exists('request_last_number')) {
 
       $connection = $CI->load->database('budgetcontrol', TRUE);
 
-      $connection->select(array('cost_center_code','cost_center_name'));
+      $connection->select(array('cost_center_code','cost_center_name','department_id'));
       $connection->from( 'tb_cost_centers' );
       $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
       $connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
