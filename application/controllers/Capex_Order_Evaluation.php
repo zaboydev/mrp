@@ -658,6 +658,7 @@ class Capex_Order_Evaluation extends MY_Controller
           $quantity = floatval($_SESSION['capex_poe']['request'][$id]['quantity_requested']);
 
           $_SESSION['capex_poe']['request'][$id]['part_number'] = $request['part_number'];
+          $_SESSION['capex_poe']['request'][$id]['description'] = $request['description'];
           $_SESSION['capex_poe']['request'][$id]['quantity']    = $request['quantity'];
           $_SESSION['capex_poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
           $_SESSION['capex_poe']['request'][$id]['remarks']     = $request['remarks'];
