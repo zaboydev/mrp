@@ -37,6 +37,7 @@ class Capex_Request_Model extends MY_Model
         );
         if (config_item('as_head_department')=='yes') {
             $return['tb_departments.department_name']  = 'Dept. Name';
+            $return['tb_capex_purchase_requisitions.head_dept']  = 'Head Dept.';
         }
         return $return;
     }
@@ -52,7 +53,8 @@ class Capex_Request_Model extends MY_Model
             'tb_capex_purchase_requisitions.required_date',
             'tb_capex_purchase_requisitions.notes',
             'tb_departments.department_name',
-            'tb_capex_purchase_requisitions.approved_notes'
+            'tb_capex_purchase_requisitions.approved_notes',
+            'tb_capex_purchase_requisitions.head_dept'
             // 'SUM(tb_capex_purchase_requisition_detail.total) as total_capex'
         );
     }
@@ -88,6 +90,7 @@ class Capex_Request_Model extends MY_Model
         );
         if (config_item('as_head_department')=='yes') {
             $return[]  = 'tb_departments.department_name';
+            $return[]  = 'tb_capex_purchase_requisitions.head_dept';
         }
         return $return;
     }
@@ -292,7 +295,7 @@ class Capex_Request_Model extends MY_Model
 
     public function findById($id)
     {
-        $this->connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name,tb_cost_centers.cost_center_code,tb_annual_cost_centers.cost_center_id');
+        $this->connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name,tb_cost_centers.cost_center_code,tb_annual_cost_centers.cost_center_id, tb_cost_centers.department_id');
         $this->connection->from('tb_capex_purchase_requisitions');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
@@ -451,7 +454,7 @@ class Capex_Request_Model extends MY_Model
             }            
             $this->connection->where('id',$id);
             $this->connection->update('tb_capex_purchase_requisitions');
-        }else if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
+        }else if(config_item('as_head_department')=='yes' && in_array($department['department_name'],config_item('head_department')) && $request['status']=='WAITING FOR HEAD DEPT'){
             $this->connection->set('status','approved');
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('head_approved_by',config_item('auth_person_name'));
@@ -481,7 +484,7 @@ class Capex_Request_Model extends MY_Model
             }
             $this->connection->where('id',$id);
             $this->connection->update('tb_capex_purchase_requisitions');
-            $level = 24;
+            $level = 8;
         }
 
         
@@ -627,6 +630,7 @@ class Capex_Request_Model extends MY_Model
         $created_by           = config_item('auth_person_name');
         $notes                = (empty($_SESSION['capex']['notes'])) ? NULL : $_SESSION['capex']['notes'];
         $unbudgeted           = 0;
+        $head_dept              = $_SESSION['capex']['head_dept'];
 
         $this->connection->trans_begin();
         // $this->db->trans_begin();
@@ -642,6 +646,7 @@ class Capex_Request_Model extends MY_Model
             $this->connection->set('status', 'pending');
             $this->connection->set('notes', $notes);
             $this->connection->set('created_by', $created_by);
+            $this->connection->set('head_dept', $head_dept);
             $this->connection->set('updated_by', config_item('auth_person_name'));
             $this->connection->set('created_at', date('Y-m-d H:i:s'));
             $this->connection->set('updated_at', date('Y-m-d H:i:s'));
@@ -656,6 +661,7 @@ class Capex_Request_Model extends MY_Model
             $this->connection->set('notes', $notes);
             $this->connection->set('updated_at', date('Y-m-d'));
             $this->connection->set('updated_by', config_item('auth_person_name'));
+            $this->connection->set('head_dept', $head_dept);
             $this->connection->where('id', $document_id);
             $this->connection->update('tb_capex_purchase_requisitions');
 
@@ -1252,7 +1258,7 @@ class Capex_Request_Model extends MY_Model
     {
         $this->db->select('email');
         $this->db->from('tb_auth_users');
-        $this->db->where('username', $username);
+        $this->db->where_in('username', $username);
         return $this->db->get('')->result();
     }
 
@@ -1481,5 +1487,50 @@ class Capex_Request_Model extends MY_Model
         $this->db->trans_commit();
         $this->connection->trans_commit();
         return TRUE;
+    }
+
+    public function count_capex_req($role){
+        $status = ['all'];
+        if($role=='BUDGETCONTROL'){
+            $status[] = 'pending';
+        }
+        if($role=='ASSISTANT HOS'){
+            $status[] = 'WAITING FOR AHOS REVIEW';
+        } 
+        
+        if($role=='HEAD DEPT UNIQ JKT'){
+            $status[] = 'WAITING FOR HEAD DEPT UNIQ  REVIEW';
+        } 
+
+        $this->connection->select('*');
+        $this->connection->from('tb_capex_purchase_requisitions');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
+        $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
+        $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
+        $query = $this->connection->get();
+        $count = $query->num_rows();
+
+        $count_as_head_dept = 0;
+        if(config_item('as_head_department')=='yes'){
+            $status = 'WAITING FOR HEAD DEPT';
+            $this->connection->select('*');
+            $this->connection->from('tb_capex_purchase_requisitions');
+            $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
+            $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+            $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+            $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
+            $this->connection->where('tb_capex_purchase_requisitions.status', $status);
+            $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
+            $this->connection->where_in('tb_departments.department_name', config_item('head_department'));
+            $this->connection->where('tb_capex_purchase_requisitions.head_dept', config_item('auth_username'));
+            $query_as_head_dept = $this->connection->get();
+            $count_as_head_dept = $query_as_head_dept->num_rows();
+        }
+
+
+        return $count+$count_as_head_dept;
     }
 }

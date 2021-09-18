@@ -36,9 +36,7 @@
           <span class="profile-info">
             <strong class="text-bold"><?=config_item('auth_person_name');?></strong>
             <small class="text-default-dark"><?=config_item('auth_role');?></small>
-            <?php if(config_item('as_head_department')=='yes'):?>
-            <small class="text-default-dark">As Head Dept : <?=config_item('head_department');?></small>
-            <?php endif;?>
+            <!-- -->
           </span>
         </a>
         <ul class="dropdown-menu animation-dock">

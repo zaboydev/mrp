@@ -1256,6 +1256,25 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('list_user_in_head_department')) {
+    function list_user_in_head_department($department_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_head_department.username,tb_auth_users.person_name');
+      $CI->db->from('tb_head_department');
+      $CI->db->join('tb_auth_users','tb_auth_users.username=tb_head_department.username');
+      $CI->db->where('tb_head_department.department_id', $department_id);
+      $CI->db->where('tb_head_department.status', 'active');
+      $CI->db->order_by('tb_head_department.username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
   if ( ! function_exists('available_user_for_head_department')) {
     function available_user_for_head_department($select = NULL, $department_id = NULL)
     {
@@ -1789,11 +1808,14 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI->db->where('department_id',$department_id);
       $CI->db->where('status','active');
       $query  = $CI->db->get();
+      $return = array();
       if($query->num_rows()>0){
-        $result = $query->unbuffered_row('array');
-        $return = $result['username'];
+        $result = $query->result_array();
+        foreach ($result as $row) {
+          $return[] = $row['username'];
+        }
       }else{
-        $return = 'aidanurul';
+        $return[] = 'aidanurul';
       }
 
       return $return;
@@ -1893,11 +1915,11 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('viewOrNot')) {
-    function viewOrNot($status,$department_request)
+    function viewOrNot($status,$department_request,$head_dept)
     {
       if($status=='WAITING FOR HEAD DEPT'){
         if(config_item('as_head_department')=='yes'){
-          if($department_request==config_item('head_department')){
+          if(in_array($department_request,config_item('head_department')) && $head_dept==config_item('auth_username')){
             return true;
           }else{
             return false;

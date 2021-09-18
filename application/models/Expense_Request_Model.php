@@ -29,7 +29,7 @@ class Expense_Request_Model extends MY_Model
             'tb_cost_centers.cost_center_name'                                  => 'Cost Center',
             'tb_expense_purchase_requisitions.pr_date'                          => 'Pr Date',
             'tb_expense_purchase_requisitions.required_date'                    => 'Required Date',
-            // 'tb_accounts.account_name'                                           => 'Account',
+            'tb_expense_purchase_requisitions.head_dept'                        => 'Accounts',
             'SUM(tb_expense_purchase_requisition_details.total) as total_expense'  => 'Total',
             'tb_expense_purchase_requisitions.notes'                            => 'Notes',
             'tb_expense_purchase_requisitions.approved_notes'                             => 'Notes',
@@ -49,7 +49,7 @@ class Expense_Request_Model extends MY_Model
             'tb_cost_centers.cost_center_name',
             'tb_expense_purchase_requisitions.pr_date',
             'tb_expense_purchase_requisitions.required_date',
-            // 'tb_accounts.account_name',
+            'tb_expense_purchase_requisitions.head_dept',
             // 'tb_expense_purchase_requisition_details.total',
             'tb_expense_purchase_requisitions.notes',
             'tb_expense_purchase_requisitions.status',
@@ -86,7 +86,7 @@ class Expense_Request_Model extends MY_Model
             'tb_cost_centers.cost_center_name',
             'tb_expense_purchase_requisitions.pr_date',
             'tb_expense_purchase_requisitions.required_date',
-            // 'tb_accounts.account_name',
+            null,
             null,
             'tb_expense_purchase_requisitions.notes',
             'tb_expense_purchase_requisitions.approved_notes',
@@ -371,7 +371,7 @@ class Expense_Request_Model extends MY_Model
 
     public function findById($id)
     {
-        $this->connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code');
+        $this->connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id');
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
@@ -511,7 +511,7 @@ class Expense_Request_Model extends MY_Model
             
         }
 
-        if(config_item('as_head_department')=='yes' && config_item('head_department')==$department['department_name'] && $request['status']=='WAITING FOR HEAD DEPT'){
+        if(config_item('as_head_department')=='yes' && in_array($department['department_name'],config_item('head_department')) && $request['status']=='WAITING FOR HEAD DEPT'){
             if($with_po=='t'){
                 $this->connection->set('status','approved');
                 $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
@@ -761,6 +761,7 @@ class Expense_Request_Model extends MY_Model
         $created_by           = config_item('auth_person_name');
         $notes                = (empty($_SESSION['expense']['notes'])) ? NULL : $_SESSION['expense']['notes'];
         $unbudgeted           = 0;
+        $head_dept              = $_SESSION['expense']['head_dept'];
 
         $this->connection->trans_begin();
         // $this->db->trans_begin();
@@ -780,6 +781,7 @@ class Expense_Request_Model extends MY_Model
             $this->connection->set('created_at', date('Y-m-d H:i:s'));
             $this->connection->set('updated_at', date('Y-m-d H:i:s'));
             $this->connection->set('with_po', $with_po);
+            $this->connection->set('head_dept', $head_dept);
             $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->insert('tb_expense_purchase_requisitions');
 
@@ -794,6 +796,7 @@ class Expense_Request_Model extends MY_Model
             $this->connection->set('updated_at', date('Y-m-d'));
             $this->connection->set('updated_by', config_item('auth_person_name'));
             $this->connection->set('with_po', $with_po);
+            $this->connection->set('head_dept', $head_dept);
             $this->connection->where('id', $document_id);
             $this->connection->update('tb_expense_purchase_requisitions');
 
@@ -1277,7 +1280,7 @@ class Expense_Request_Model extends MY_Model
     {
         $this->db->select('email');
         $this->db->from('tb_auth_users');
-        $this->db->where('username', $username);
+        $this->db->where_in('username', $username);
         return $this->db->get('')->result();
     }
 
@@ -1558,7 +1561,8 @@ class Expense_Request_Model extends MY_Model
         $this->connection->where('tb_expense_purchase_requisitions.status', $status);
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
-        $this->connection->where('tb_departments.department_name', config_item('head_department'));
+        $this->connection->where_in('tb_departments.department_name', config_item('head_department'));
+        $this->connection->where('tb_expense_purchase_requisitions.head_dept', config_item('auth_username'));
         $query = $this->connection->get();
         $count_as_head_dept = $query->num_rows();
         }
@@ -1589,5 +1593,50 @@ class Expense_Request_Model extends MY_Model
 
         $this->connection->trans_commit();
         return TRUE;
+    }
+
+    public function getAccountExpenseRequest($id)
+    {
+
+        $select = array(
+            // 'tb_expense_purchase_requisition_details.*',
+            // 'tb_accounts.account_name',
+            'tb_accounts.account_code',
+            // 'tb_expense_monthly_budgets.account_id',
+            // 'tb_expense_monthly_budgets.ytd_budget',
+            // 'tb_expense_monthly_budgets.ytd_used_budget',
+        );
+
+        $group_by = array(
+            // 'tb_expense_purchase_requisition_details.id',
+            // 'tb_accounts.account_name',
+            'tb_accounts.account_code',
+            // 'tb_expense_monthly_budgets.account_id',
+            // 'tb_expense_monthly_budgets.ytd_budget',
+            // 'tb_expense_monthly_budgets.ytd_used_budget',
+        );
+
+        $this->connection->select($select);
+        $this->connection->from('tb_expense_purchase_requisition_details');
+        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $id);
+        $this->connection->group_by($group_by);
+
+        $query = $this->connection->get();
+        $count = $query->num_rows();
+        $return = '';
+        $no = 1;
+        foreach ($query->result_array() as $key => $value){
+            if($no==$count){
+                $return .= $value['account_code'];
+            }else{
+                $return .= $value['account_code'].',';
+            }
+            $no++;
+            
+        }
+
+        return $return;
     }
 }

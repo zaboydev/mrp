@@ -52,6 +52,16 @@ class Expense_Request extends MY_Controller
         // redirect($this->module['route'] .'/create');
     }
 
+    public function set_head_dept()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['expense']['head_dept'] = $_GET['data'];
+
+        // redirect($this->module['route'] .'/create');
+    }
+
     public function set_notes()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -74,11 +84,11 @@ class Expense_Request extends MY_Controller
             $no       = $_POST['start'];
             $total = array();
 
-            foreach ($entities as $row) {   
-                if (viewOrNot($row['status'],$row['department_name'])) {                               
-                    $no++;    
+            foreach ($entities as $row) {
+                if (viewOrNot($row['status'],$row['department_name'],$row['head_dept'])) {                
+                    $no++;
                     $col = array();
-                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && config_item('head_department')==$row['department_name']) {
+                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department')) && $row['head_dept']==config_item('auth_username')) {
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -110,7 +120,7 @@ class Expense_Request extends MY_Controller
                     $col[] = print_string($row['cost_center_name']);
                     $col[] = print_date($row['pr_date']);
                     $col[] = print_date($row['required_date']);
-                    // $col[] = print_string($row['account_name']);
+                    $col[] = $this->model->getAccountExpenseRequest($row['id']);
                     $col[] = print_number($row['total_expense'],2);
                     $col[] = $row['notes'];
                     if($row['status']=='close'){
@@ -155,7 +165,7 @@ class Expense_Request extends MY_Controller
             $result = array(
                 "draw" => $_POST['draw'],
                 "recordsTotal" => $this->model->countIndex(),
-                "recordsFiltered" => $this->model->countIndexFiltered(),
+                // "recordsFiltered" => $this->model->countIndexFiltered(),
                 // "recordsFiltered"   => count($data),
                 "data" => $data,
                 "total" => array(
@@ -163,9 +173,11 @@ class Expense_Request extends MY_Controller
                 )
             );
 
-            // if (is_granted($this->module, 'approval') === TRUE){
-            //     $result['recordsFiltered'] = $this->model->count_expense_req(config_item('auth_role'));
-            // }
+            if (is_granted($this->module, 'approval') === TRUE){
+                $result['recordsFiltered'] = $this->model->count_expense_req(config_item('auth_role'));
+            }else{
+                $result['recordsFiltered'] = $this->model->countIndexFiltered();
+            }
         }
 
         echo json_encode($result);
@@ -179,7 +191,7 @@ class Expense_Request extends MY_Controller
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = array(6);
+        $this->data['grid']['summary_columns']  = array(7);
         $this->data['grid']['order_columns']    = array(
             0   => array( 0 => 1,  1 => 'desc' ),
             1   => array( 0 => 2,  1 => 'desc' ),
@@ -267,7 +279,8 @@ class Expense_Request extends MY_Controller
           $annual_cost_center_id = urldecode($annual_cost_center_id);
           $cost_center = findCostCenter($annual_cost_center_id);
           $cost_center_code = $cost_center['cost_center_code'];
-          $cost_center_name = $cost_center['cost_center_name'];
+          $cost_center_name = $cost_center['cost_center_name'];          
+          $department_id    = $cost_center['department_id'];
 
           $_SESSION['expense']['items']            = array();
           $_SESSION['expense']['annual_cost_center_id']   = $annual_cost_center_id;
@@ -280,7 +293,8 @@ class Expense_Request extends MY_Controller
           $_SESSION['expense']['warehouse']        = config_item('auth_warehouse');
           $_SESSION['expense']['notes']            = NULL;
           $_SESSION['expense']['with_po']          = NULL;
-          // $_SESSION['expense']['suggested_supplier'] = NULL;
+          $_SESSION['expense']['department_id']          = $department_id;
+          $_SESSION['expense']['head_dept'] = NULL;
           // $_SESSION['expense']['deliver_to']          = NULL;
 
           redirect($this->module['route'] .'/create');
@@ -324,7 +338,11 @@ class Expense_Request extends MY_Controller
 
                 if (empty($_SESSION['expense']['with_po'])) {
                     $errors[] = 'Attention!! Please select PO Status';
-                } 
+                }
+                
+                if (empty($_SESSION['expense']['head_dept'])) {
+                    $errors[] = 'Attention!! Please select one of Head Dept for Approval';
+                }
 
                 if (!empty($errors)) {
                     $data['success'] = FALSE;

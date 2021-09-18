@@ -286,7 +286,8 @@ class Dashboard_Model extends MY_Model
       $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
       $this->connection->where('tb_capex_purchase_requisitions.status', $status);
       $this->connection->where_in('tb_capex_purchase_requisitions.base', config_item('auth_warehouses'));
-      $this->connection->where('tb_departments.department_name', config_item('head_department'));
+      $this->connection->where_in('tb_departments.department_name', config_item('head_department'));
+      $this->connection->where('tb_capex_purchase_requisitions.head_dept', config_item('auth_username'));
       $query_as_head_dept = $this->connection->get();
       $count_as_head_dept = $query_as_head_dept->num_rows();
     }
@@ -329,7 +330,8 @@ class Dashboard_Model extends MY_Model
       $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
       $this->connection->where('tb_inventory_purchase_requisitions.status', $status);
       $this->connection->where_in('tb_inventory_purchase_requisitions.base', config_item('auth_warehouses'));
-      $this->connection->where('tb_departments.department_name', config_item('head_department'));
+      $this->connection->where_in('tb_departments.department_name', config_item('head_department'));
+      $this->connection->where('tb_inventory_purchase_requisitions.head_dept', config_item('auth_username'));
       $query_as_head_dept = $this->connection->get();
       $count_as_head_dept = $query_as_head_dept->num_rows();
     }
@@ -391,7 +393,8 @@ class Dashboard_Model extends MY_Model
       $this->connection->where('tb_expense_purchase_requisitions.status', $status);
       $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
       $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
-      $this->connection->where('tb_departments.department_name', config_item('head_department'));
+      $this->connection->where_in('tb_departments.department_name', config_item('head_department'));
+      $this->connection->where('tb_expense_purchase_requisitions.head_dept', config_item('auth_username'));
       $query = $this->connection->get();
       $count_as_head_dept = $query->num_rows();
     }
