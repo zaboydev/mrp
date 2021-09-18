@@ -26,10 +26,13 @@
                       <span class="input-group-addon"><?= request_format_number($_SESSION['inventory']['category_code']); ?></span>
                     </div>
                   </div>
-
                   <div class="form-group">
                     <input type="text" name="required_date" id="required_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['inventory']['required_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_required_date');?>" required>
                     <label for="required_date">Required Date</label>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="deliver_to" id="deliver_to" class="form-control" value="<?=$_SESSION['inventory']['deliver_to'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_deliver_to');?>" required>
+                    <label for="deliver_to">Deliver To</label>
                   </div>
                 </div>
 
@@ -38,14 +41,21 @@
                     <input type="text" name="suggested_supplier" id="suggested_supplier" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_suggested_supplier');?>" data-autocomplete="<?=site_url($module['route'] .'/get_available_vendors');?>" value="<?=$_SESSION['inventory']['suggested_supplier'];?>" required>
                     <label for="suggested_supplier">Suggested Supplier</label>
                   </div>
-
                   <div class="form-group">
-                    <input type="text" name="deliver_to" id="deliver_to" class="form-control" value="<?=$_SESSION['inventory']['deliver_to'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_deliver_to');?>" required>
-                    <label for="deliver_to">Deliver To</label>
+                    <select name="with_po" id="with_po" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
+                      <option></option>
+                      <?php foreach(list_user_in_head_department($_SESSION['inventory']['department_id']) as $head):?>
+                      <option value="<?=$head['username'];?>" <?= ($head['username'] == $_SESSION['inventory']['head_dept']) ? 'selected' : ''; ?>><?=$head['person_name'];?></option>
+                      <?php endforeach;?>
+                    </select>
+                    <label for="notes">Head Dept.</label>
                   </div>
+
+                  
                 </div>
 
                 <div class="col-sm-12 col-lg-5">
+                  
                   <div class="form-group">
                     <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_notes');?>"><?=$_SESSION['inventory']['notes'];?></textarea>
                     <label for="notes">Notes</label>

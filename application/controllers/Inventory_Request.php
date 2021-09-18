@@ -25,86 +25,98 @@ class Inventory_Request extends MY_Controller
     public function index_data_source()
     {
         if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] . '/denied');
+            redirect($this->modules['secure']['route'] . '/denied');
 
         if (is_granted($this->module, 'index') === FALSE) {
-        $return['type'] = 'danger';
-        $return['info'] = "You don't have permission to access this page!";
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to access this page!";
         } else {
-        $entities = $this->model->getIndex();
-        $data     = array();
-        $no       = $_POST['start'];
-        $total = array();
+            $entities = $this->model->getIndex();
+            $data     = array();
+            $no       = $_POST['start'];
+            $total = array();
 
-        foreach ($entities as $row) {
-            $no++;
-            $col = array();
-            if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department'))) {
-                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-            }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
-                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-            }else if($row['status']=='WAITING FOR AHOS REVIEW' && config_item('auth_role')=='ASSISTANT HOS'){
-                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-            }else if($row['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW' && config_item('auth_role')=='HEAD DEPT UNIQ JKT'){
-                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-            }else if($row['status']=='approved'){
-                if(is_granted($this->module, 'closing') === TRUE){
-                    $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                }else{
-                    $col[] = print_number($no);
-                }
-            }else{                    
-                $col[] = print_number($no);
-            }
-            $col[] = print_string($row['pr_number']);
-            $col[] = print_string(strtoupper($row['status']));
-            $col[] = print_string($row['category_name']);
-            // $col[] = print_string($row['department_name']);
-            $col[] = print_string($row['cost_center_name']);
-            $col[] = print_date($row['pr_date']);
-            $col[] = print_date($row['required_date']);
-            $col[] = print_number($row['total_inventory'],2);
-            $col[] = $row['notes'];
-            if($row['status']=='close'){
-                $col[] = $row['approved_notes'];
-            }else{
-                if (is_granted($this->module, 'approval') === TRUE) {
-                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                }else{  
-                    if (is_granted($this->module, 'closing') === TRUE) {
-                            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                    }  else{                                         
+            foreach ($entities as $row) {
+                if (viewOrNot($row['status'],$row['department_name'],$row['head_dept'])) {
+                    $no++;
+                    $col = array();
+                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department')) && $row['head_dept']==config_item('auth_username')) {
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR AHOS REVIEW' && config_item('auth_role')=='ASSISTANT HOS'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW' && config_item('auth_role')=='HEAD DEPT UNIQ JKT'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='approved'){
+                        if(is_granted($this->module, 'closing') === TRUE){
+                            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                        }else{
+                            $col[] = print_number($no);
+                        }
+                    }else{                    
+                        $col[] = print_number($no);
+                    }
+                    $col[] = print_string($row['pr_number']);
+                    $col[] = print_string(strtoupper($row['status']));
+                    $col[] = print_string($row['category_name']);
+                    // $col[] = print_string($row['department_name']);
+                    $col[] = print_string($row['cost_center_name']);
+                    $col[] = print_date($row['pr_date']);
+                    $col[] = print_date($row['required_date']);
+                    $col[] = print_number($row['total_inventory'],2);
+                    $col[] = $row['notes'];
+                    if($row['status']=='close'){
                         $col[] = $row['approved_notes'];
-                    }   
-                }
+                    }else{
+                        if (is_granted($this->module, 'approval') === TRUE) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                        }else{  
+                            if (is_granted($this->module, 'closing') === TRUE) {
+                                    $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                            }  else{                                         
+                                $col[] = $row['approved_notes'];
+                            }   
+                        }
+                    }
+                    $col[] = isAttachementExists($row['id'],'inventory') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                            <i class="fa fa-eye"></i>
+                            </a>';
+                    if (config_item('as_head_department')=='yes'){
+                        $col[] = print_string(strtoupper($row['department_name']));
+                        $col[] = print_string(strtoupper($row['head_dept']));
+                    }
+                    $col['DT_RowId'] = 'row_'. $row['id'];
+                    $col['DT_RowData']['pkey']  = $row['id'];
+                    $total[]         = $row['total_inventory'];
+
+                    if ($this->has_role($this->module, 'info')){
+                        $col['DT_RowAttr']['onClick']     = '';
+                        $col['DT_RowAttr']['data-id']     = $row['id'];
+                        $col['DT_RowAttr']['data-target'] = '#data-modal';
+                        $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                    }
+
+                    $data[] = $col;
+                }       
+                
             }
-            $col[] = isAttachementExists($row['id'],'inventory') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
-                       <i class="fa fa-eye"></i>
-                     </a>';
-            $col[] = print_string($row['department_name']);
-            $col['DT_RowId'] = 'row_'. $row['id'];
-            $col['DT_RowData']['pkey']  = $row['id'];
-            $total[]         = $row['total_inventory'];
 
-            if ($this->has_role($this->module, 'info')){
-                $col['DT_RowAttr']['onClick']     = '';
-                $col['DT_RowAttr']['data-id']     = $row['id'];
-                $col['DT_RowAttr']['data-target'] = '#data-modal';
-                $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+            $result = array(
+                "draw" => $_POST['draw'],
+                "recordsTotal" => $this->model->countIndex(),
+                "recordsFiltered" => $this->model->countIndexFiltered(),
+                "data" => $data,
+                "total" => array(
+                    7  => print_number(array_sum($total), 2),
+                )
+            );
+
+            if (is_granted($this->module, 'approval') === TRUE){
+                $result['recordsFiltered'] = $this->model->count_inventory_req(config_item('auth_role'));
+            }else{
+                $result['recordsFiltered'] = $this->model->countIndexFiltered();
             }
-
-            $data[] = $col;
-        }
-
-        $result = array(
-            "draw" => $_POST['draw'],
-            "recordsTotal" => $this->model->countIndex(),
-            "recordsFiltered" => $this->model->countIndexFiltered(),
-            "data" => $data,
-            "total" => array(
-                7  => print_number(array_sum($total), 2),
-            )
-        );
         }
 
         echo json_encode($result);
@@ -226,6 +238,7 @@ class Inventory_Request extends MY_Controller
             $cost_center              = findCostCenter($annual_cost_center_id);
             $cost_center_code         = $cost_center['cost_center_code'];
             $cost_center_name         = $cost_center['cost_center_name'];
+            $department_id            = $cost_center['department_id'];
 
 
             $product_category         = findProductCategoryById($product_category_id);
@@ -248,6 +261,8 @@ class Inventory_Request extends MY_Controller
             $_SESSION['inventory']['notes']                   = NULL;
             $_SESSION['inventory']['suggested_supplier']      = NULL;
             $_SESSION['inventory']['deliver_to']              = NULL;
+            $_SESSION['inventory']['department_id']             = $department_id;
+            $_SESSION['inventory']['head_dept']                 = NULL;
 
             redirect($this->module['route'] .'/create');
         }
@@ -368,6 +383,10 @@ class Inventory_Request extends MY_Controller
                     if ($this->model->isDocumentNumberExists($pr_number)) {
                         $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
                     }
+                }
+
+                if (empty($_SESSION['inventory']['head_dept'])) {
+                    $errors[] = 'Attention!! Please select one of Head Dept for Approval';
                 }
 
                 if (!empty($errors)) {
@@ -553,6 +572,16 @@ class Inventory_Request extends MY_Controller
           $number = $_GET['data'];
 
         $_SESSION['inventory']['order_number'] = $number;
+    }
+
+    public function set_head_dept()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['inventory']['head_dept'] = $_GET['data'];
+
+        // redirect($this->module['route'] .'/create');
     }
 
     public function set_required_date()
