@@ -108,7 +108,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
 
       $this->db->where('tb_purchase_orders.status', $search_status);
     } else {
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+      if (config_item('auth_role') == 'PROCUREMENT MANAGER') {
         $this->db->where('tb_purchase_orders.status', 'evaluation');
       }
     }
