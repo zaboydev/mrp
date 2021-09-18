@@ -34,11 +34,22 @@
               </div>
             </div>
 
-            <div class="col-sm-12 col-lg-5">
+            <div class="col-sm-12 col-lg-4">
               <div class="form-group">
                 <input type="text" name="suggested_supplier" id="suggested_supplier" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_suggested_supplier'); ?>" value="<?= $_SESSION['capex']['suggested_supplier']; ?>" required>
                 <label for="suggested_supplier">Suggested Supplier</label>
               </div>
+              <div class="form-group">
+                <select name="with_po" id="with_po" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
+                  <option></option>
+                  <?php foreach(list_user_in_head_department($_SESSION['capex']['department_id']) as $head):?>
+                  <option value="<?=$head['username'];?>" <?= ($head['username'] == $_SESSION['capex']['head_dept']) ? 'selected' : ''; ?>><?=$head['person_name'];?></option>
+                  <?php endforeach;?>
+                </select>
+                <label for="notes">Head Dept.</label>
+              </div>
+            </div>
+            <div class="col-sm-12 col-lg-5">
               <div class="form-group">
                 <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['capex']['notes']; ?></textarea>
                 <label for="notes">Notes</label>

@@ -33,6 +33,16 @@ class Capex_Request extends MY_Controller
         $_SESSION['capex']['pr_number'] = $number;
     }
 
+    public function set_head_dept()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['capex']['head_dept'] = $_GET['data'];
+
+        // redirect($this->module['route'] .'/create');
+    }
+
     public function get_available_vendors()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -91,10 +101,10 @@ class Capex_Request extends MY_Controller
             $total = array();
 
             foreach ($entities as $row) {
-                if (viewOrNot($row['status'],$row['department_name'])){
+                if (viewOrNot($row['status'],$row['department_name'],$row['head_dept'])){
                     $no++;
                     $col = array();
-                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department'))) {
+                    if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department')) && $row['head_dept']==config_item('auth_username')) {
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='pending' && config_item('auth_role')=='BUDGETCONTROL'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -138,6 +148,7 @@ class Capex_Request extends MY_Controller
                         </a>';
                     if (config_item('as_head_department')=='yes'){
                         $col[] = print_string(strtoupper($row['department_name']));
+                        $col[] = print_string(strtoupper($row['head_dept']));
                     }
 
                     $col['DT_RowId'] = 'row_'. $row['id'];
@@ -161,12 +172,18 @@ class Capex_Request extends MY_Controller
             $result = array(
                 "draw" => $_POST['draw'],
                 "recordsTotal" => $this->model->countIndex(),
-                "recordsFiltered" => $this->model->countIndexFiltered(),
+                // "recordsFiltered" => $this->model->countIndexFiltered(),
                 "data" => $data,
                 "total" => array(
                     6  => print_number(array_sum($total), 2),
                 )
             );
+
+            if (is_granted($this->module, 'approval') === TRUE){
+                $result['recordsFiltered'] = $this->model->count_capex_req(config_item('auth_role'));
+            }else{
+                $result['recordsFiltered'] = $this->model->countIndexFiltered();
+            }
         }
 
         echo json_encode($result);
@@ -268,7 +285,8 @@ class Capex_Request extends MY_Controller
           $annual_cost_center_id = urldecode($annual_cost_center_id);
           $cost_center = findCostCenter($annual_cost_center_id);
           $cost_center_code = $cost_center['cost_center_code'];
-          $cost_center_name = $cost_center['cost_center_name'];
+          $cost_center_name = $cost_center['cost_center_name'];          
+          $department_id    = $cost_center['department_id'];
 
           $_SESSION['capex']['items']            = array();
           $_SESSION['capex']['annual_cost_center_id']   = $annual_cost_center_id;
@@ -283,6 +301,8 @@ class Capex_Request extends MY_Controller
           $_SESSION['capex']['notes']            = NULL;
           $_SESSION['capex']['suggested_supplier'] = NULL;
           $_SESSION['capex']['deliver_to']          = NULL;
+          $_SESSION['capex']['department_id']       = $department_id;
+          $_SESSION['capex']['head_dept']           = NULL;
 
           redirect($this->module['route'] .'/create');
         }
@@ -321,6 +341,10 @@ class Capex_Request extends MY_Controller
                     if ($this->model->isDocumentNumberExists($pr_number)) {
                         $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
                     }
+                }
+
+                if (empty($_SESSION['capex']['head_dept'])) {
+                    $errors[] = 'Attention!! Please select one of Head Dept for Approval';
                 }
 
                 if (!empty($errors)) {
