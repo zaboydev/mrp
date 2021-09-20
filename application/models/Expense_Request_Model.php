@@ -1222,7 +1222,8 @@ class Expense_Request_Model extends MY_Model
         $query = $this->connection->get();
         $row = $query->unbuffered_row('array');
         $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
-        $head_department_username = getHeadDeptByDeptid($department['id']);
+        // $head_department_username = getHeadDeptByDeptid($department['id']);
+        $head_department_username = $row['head_dept'];
 
         $recipientList = $this->getNotifRecipientByUsername($head_department_username);
         $recipient = array();
