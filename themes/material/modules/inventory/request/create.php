@@ -20,7 +20,7 @@
                   <div class="form-group">
                     <div class="input-group">
                       <div class="input-group-content">
-                        <input type="text" name="pr_number" id="pr_number" class="form-control" maxlength="6" value="<?=$_SESSION['inventory']['order_number'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" readonly>
+                        <input type="text" name="pr_number" id="pr_number" class="form-control" maxlength="6" value="[auto]" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" readonly>
                         <label for="pr_number">Document No.</label>
                       </div>
                       <span class="input-group-addon"><?= request_format_number($_SESSION['inventory']['category_code']); ?></span>

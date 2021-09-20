@@ -495,7 +495,7 @@ class Inventory_Request_Model extends MY_Model
 
     public function isDocumentNumberExists($pr_number)
     {
-	   $this->connection->where('pr_number', $pr_number);
+	   $this->connection->where('order_number', $pr_number);
 	   $query = $this->connection->get('tb_inventory_purchase_requisitions');
 
 	   if ($query->num_rows() > 0)
