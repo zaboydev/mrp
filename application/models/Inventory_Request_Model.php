@@ -1472,7 +1472,7 @@ class Inventory_Request_Model extends MY_Model
             $issued_by = $row['created_by'];
 
             $recipientList = $this->getNotifRecipient_approval($issued_by);
-            $recipient = array("aidanurul99@rocketmail.com");
+            $recipient = array();
             foreach ($recipientList as $key) {
                 array_push($recipient, $key->email);
 			}

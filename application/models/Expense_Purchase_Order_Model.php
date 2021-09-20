@@ -1382,7 +1382,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     $row = $query->unbuffered_row('array');
 
     $recipientList = $this->getNotifRecipient($level);
-    $recipient = array('aidanurul99@rocketmail.com');
+    $recipient = array();
     foreach ($recipientList as $key) {
       array_push($recipient, $key->email);
     }
