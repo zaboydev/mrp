@@ -746,7 +746,7 @@ class Expense_Request_Model extends MY_Model
     {
         $document_id          = (isset($_SESSION['expense']['id'])) ? $_SESSION['expense']['id'] : NULL;
         $document_edit        = (isset($_SESSION['expense']['edit'])) ? $_SESSION['expense']['edit'] : NULL;
-        $order_number         = $_SESSION['expense']['pr_number'];
+        $order_number         = $_SESSION['expense']['order_number'];
         $cost_center_code     = $_SESSION['expense']['cost_center_code'];
         $cost_center_name     = $_SESSION['expense']['cost_center_name'];
         $with_po              = $_SESSION['expense']['with_po'];
@@ -1222,7 +1222,8 @@ class Expense_Request_Model extends MY_Model
         $query = $this->connection->get();
         $row = $query->unbuffered_row('array');
         $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
-        $head_department_username = getHeadDeptByDeptid($department['id']);
+        // $head_department_username = getHeadDeptByDeptid($department['id']);
+        $head_department_username = $row['head_dept'];
 
         $recipientList = $this->getNotifRecipientByUsername($head_department_username);
         $recipient = array();

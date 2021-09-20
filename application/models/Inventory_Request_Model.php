@@ -495,7 +495,7 @@ class Inventory_Request_Model extends MY_Model
 
     public function isDocumentNumberExists($pr_number)
     {
-	   $this->connection->where('pr_number', $pr_number);
+	   $this->connection->where('order_number', $pr_number);
 	   $query = $this->connection->get('tb_inventory_purchase_requisitions');
 
 	   if ($query->num_rows() > 0)
@@ -1293,7 +1293,8 @@ class Inventory_Request_Model extends MY_Model
         $query = $this->connection->get();
         $row = $query->unbuffered_row('array');
         $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
-        $head_department_username = getHeadDeptByDeptid($department['id']);
+        // $head_department_username = getHeadDeptByDeptid($department['id']);
+        $head_department_username = $row['head_dept'];
 
         $recipientList = $this->getNotifRecipientByUsername($head_department_username);
         $recipient = array();
@@ -1471,7 +1472,7 @@ class Inventory_Request_Model extends MY_Model
             $issued_by = $row['created_by'];
 
             $recipientList = $this->getNotifRecipient_approval($issued_by);
-            $recipient = array("aidanurul99@rocketmail.com");
+            $recipient = array();
             foreach ($recipientList as $key) {
                 array_push($recipient, $key->email);
 			}

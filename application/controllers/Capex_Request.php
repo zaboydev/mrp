@@ -266,7 +266,7 @@ class Capex_Request extends MY_Controller
         // if (!isset($_SESSION['request'])){
         $_SESSION['capex']              = $entity;
         $_SESSION['capex']['id']        = $id;
-        $_SESSION['capex']['edit']      = $entity['pr_number'];
+        $_SESSION['capex']['edit']      = $entity['order_number'];
         $_SESSION['capex']['annual_cost_center_id']   = $entity['annual_cost_center_id'];        
         $_SESSION['capex']['pr_number']        = $entity['order_number'];
         // $_SESSION['capex']['items']            = array();
@@ -293,13 +293,13 @@ class Capex_Request extends MY_Controller
           $_SESSION['capex']['cost_center_id']   = $cost_center_id;
           $_SESSION['capex']['cost_center_name'] = $cost_center_name;
           $_SESSION['capex']['cost_center_code'] = $cost_center_code;
-          $_SESSION['capex']['order_number']        = request_last_number();
-          $_SESSION['capex']['format_order_number']        = request_format_number($_SESSION['capex']['cost_center_code']);
+          $_SESSION['capex']['order_number']                = request_last_number();
+          $_SESSION['capex']['format_order_number']         = request_format_number($_SESSION['capex']['cost_center_code']);
           $_SESSION['capex']['required_date']    = date('Y-m-d');
           $_SESSION['capex']['created_by']       = config_item('auth_person_name');
           $_SESSION['capex']['warehouse']        = config_item('auth_warehouse');
           $_SESSION['capex']['notes']            = NULL;
-          $_SESSION['capex']['suggested_supplier'] = NULL;
+          $_SESSION['capex']['suggested_supplier']  = NULL;
           $_SESSION['capex']['deliver_to']          = NULL;
           $_SESSION['capex']['department_id']       = $department_id;
           $_SESSION['capex']['head_dept']           = NULL;
@@ -329,17 +329,22 @@ class Capex_Request extends MY_Controller
                 $data['success'] = FALSE;
                 $data['message'] = 'Please add at least 1 item!';
             } else {
-                $pr_number = $_SESSION['capex']['order_number'].$_SESSION['capex']['format_order_number'];
+                $_SESSION['capex']['order_number'] = request_last_number();
+                $pr_number = $_SESSION['capex']['order_number'];
 
                 $errors = array();
 
                 if (isset($_SESSION['capex']['edit'])) {
                     if ($_SESSION['capex']['edit'] != $pr_number && $this->model->isDocumentNumberExists($pr_number)) {
-                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        // $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        $_SESSION['capex']['order_number'] = request_last_number();
+                        $pr_number = $_SESSION['capex']['order_number'];
                     }
                 } else {
                     if ($this->model->isDocumentNumberExists($pr_number)) {
-                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        // $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        $_SESSION['capex']['order_number'] = request_last_number();
+                        $pr_number = $_SESSION['capex']['order_number'];
                     }
                 }
 
@@ -357,7 +362,7 @@ class Capex_Request extends MY_Controller
                         // SEND EMAIL NOTIFICATION HERE
                         // $this->send_mail();
                         $data['success'] = TRUE;
-                        $data['message'] = 'Document ' . $pr_number . ' has been saved. You will redirected now.';
+                        $data['message'] = 'Document ' . $pr_number.$_SESSION['capex']['format_order_number'] . ' has been saved. You will redirected now.';
                     } else {
                         $data['success'] = FALSE;
                         $data['message'] = 'Error while saving this document. Please ask Technical Support.';

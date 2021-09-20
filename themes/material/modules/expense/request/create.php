@@ -16,8 +16,8 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['expense']['pr_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
-                    <label for="pr_number">Document No.</label>
+                    <input type="text" name="order_number" id="order_number" class="form-control" value="[auto]" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
+                    <label for="order_number">Document No.</label>
                   </div>
                   <span class="input-group-addon"><?= request_format_number($_SESSION['expense']['cost_center_code']); ?></span>
                 </div>
