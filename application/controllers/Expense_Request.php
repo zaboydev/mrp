@@ -31,7 +31,7 @@ class Expense_Request extends MY_Controller
         else
             $number = $_GET['data'];
 
-        $_SESSION['expense']['pr_number'] = $number;
+        $_SESSION['expense']['order_number'] = $number;
     }
 
     public function set_required_date()
@@ -249,7 +249,7 @@ class Expense_Request extends MY_Controller
         $_SESSION['expense']              = $entity;
         $_SESSION['expense']['id']        = $id;
         $_SESSION['expense']['edit']      = $entity['order_number'];
-        $_SESSION['expense']['pr_number']        = $entity['order_number'];
+        $_SESSION['expense']['order_number']        = $entity['order_number'];
         // $_SESSION['request']['category']  = $entity['category_name'];
         $_SESSION['expense']['annual_cost_center_id']   = $entity['annual_cost_center_id'];
         
@@ -264,26 +264,26 @@ class Expense_Request extends MY_Controller
         $this->authorized($this->module, 'document');
 
         if ($annual_cost_center_id !== NULL){
-          $annual_cost_center_id = urldecode($annual_cost_center_id);
-          $cost_center = findCostCenter($annual_cost_center_id);
-          $cost_center_code = $cost_center['cost_center_code'];
-          $cost_center_name = $cost_center['cost_center_name'];
+            $annual_cost_center_id = urldecode($annual_cost_center_id);
+            $cost_center = findCostCenter($annual_cost_center_id);
+            $cost_center_code = $cost_center['cost_center_code'];
+            $cost_center_name = $cost_center['cost_center_name'];
 
-          $_SESSION['expense']['items']            = array();
-          $_SESSION['expense']['annual_cost_center_id']   = $annual_cost_center_id;
-          $_SESSION['expense']['cost_center_id']   = $cost_center_id;
-          $_SESSION['expense']['cost_center_name'] = $cost_center_name;
-          $_SESSION['expense']['cost_center_code'] = $cost_center_code;
-          $_SESSION['expense']['pr_number']        = request_last_number();
-          $_SESSION['expense']['required_date']    = date('Y-m-d');
-          $_SESSION['expense']['created_by']       = config_item('auth_person_name');
-          $_SESSION['expense']['warehouse']        = config_item('auth_warehouse');
-          $_SESSION['expense']['notes']            = NULL;
-          $_SESSION['expense']['with_po']          = NULL;
-          // $_SESSION['expense']['suggested_supplier'] = NULL;
-          // $_SESSION['expense']['deliver_to']          = NULL;
+            $_SESSION['expense']['items']            = array();
+            $_SESSION['expense']['annual_cost_center_id']   = $annual_cost_center_id;
+            $_SESSION['expense']['cost_center_id']   = $cost_center_id;
+            $_SESSION['expense']['cost_center_name'] = $cost_center_name;
+            $_SESSION['expense']['cost_center_code'] = $cost_center_code;
+            $_SESSION['expense']['order_number']        = request_last_number();
+            $_SESSION['expense']['required_date']    = date('Y-m-d');
+            $_SESSION['expense']['created_by']       = config_item('auth_person_name');
+            $_SESSION['expense']['warehouse']        = config_item('auth_warehouse');
+            $_SESSION['expense']['notes']            = NULL;
+            $_SESSION['expense']['with_po']          = NULL;
+            // $_SESSION['expense']['suggested_supplier'] = NULL;
+            // $_SESSION['expense']['deliver_to']          = NULL;
 
-          redirect($this->module['route'] .'/create');
+            redirect($this->module['route'] .'/create');
         }
 
         if (!isset($_SESSION['expense']))
@@ -308,20 +308,25 @@ class Expense_Request extends MY_Controller
                 $data['success'] = FALSE;
                 $data['message'] = 'Please add at least 1 item!';
             } else {
-                $pr_number = $_SESSION['expense']['pr_number'];
+                $_SESSION['expense']['order_number'] = request_last_number();
+                $pr_number = $_SESSION['expense']['order_number'];
 
                 $errors = array();
 
                 if (isset($_SESSION['expense']['edit'])) {
                     if ($_SESSION['expense']['edit'] != $pr_number && $this->model->isDocumentNumberExists($pr_number)) {
-                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        // $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        $_SESSION['expense']['order_number'] = request_last_number();
+                        $pr_number = $_SESSION['expense']['order_number'];
                     }
                 } else {
                     if ($this->model->isDocumentNumberExists($pr_number)) {
-                        $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        // $errors[] = 'Duplicate Document Number: ' . $pr_number . ' !';
+                        $_SESSION['expense']['order_number'] = request_last_number();
+                        $pr_number = $_SESSION['expense']['order_number'];
                     }
                 }
-
+                
                 if (empty($_SESSION['expense']['with_po'])) {
                     $errors[] = 'Attention!! Please select PO Status';
                 } 

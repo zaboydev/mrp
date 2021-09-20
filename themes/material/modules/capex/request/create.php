@@ -16,7 +16,7 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="order_number" id="order_number" class="form-control" value="<?= $_SESSION['capex']['order_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
+                    <input type="text" name="order_number" id="order_number" class="form-control" value="[auto]" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
                     <label for="order_number">Document No.</label>
                   </div>
                   <span class="input-group-addon"><?= request_format_number($_SESSION['capex']['cost_center_code']); ?></span>
