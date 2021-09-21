@@ -261,7 +261,7 @@ class Dashboard_Model extends MY_Model
     } 
     
     if($role=='HEAD DEPT UNIQ JKT'){
-      $status[] = 'WAITING FOR HEAD DEPT UNIQ  REVIEW';
+      $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
     } 
 
     $this->connection->select('*');
@@ -305,7 +305,7 @@ class Dashboard_Model extends MY_Model
       $status[] = 'WAITING FOR AHOS REVIEW';
     }    
     if($role=='HEAD DEPT UNIQ JKT'){
-      $status[] = 'WAITING FOR HEAD DEPT UNIQ  REVIEW';
+      $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
     } 
 
     $this->connection->select('*');
@@ -364,7 +364,7 @@ class Dashboard_Model extends MY_Model
       $status[] = 'WAITING FOR COO REVIEW';
     }
     if($role=='HEAD DEPT UNIQ JKT'){
-      $status[] = 'WAITING FOR HEAD DEPT UNIQ  REVIEW';
+      $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
     } 
 
     $this->connection->select('*');
