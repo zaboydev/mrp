@@ -156,6 +156,7 @@ class Expired_Stock_Model extends MY_Model
     $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     // $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
     // $this->db->where('tb_stock_in_stores.expired_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.expired_date >= ', $start_date);
@@ -233,6 +234,7 @@ class Expired_Stock_Model extends MY_Model
     $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
     // $this->db->where('tb_stock_in_stores.received_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
@@ -299,6 +301,7 @@ class Expired_Stock_Model extends MY_Model
     $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
     // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
     // $this->db->where('tb_stock_in_stores.received_date <= ', $end_date);
     // $this->db->where('tb_stock_in_stores.expired_date <= ', $start_date);
