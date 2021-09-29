@@ -556,11 +556,61 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->where('tb_po_item.purchase_order_id', $poe['id']);
     $query = $this->db->get();
 
+    $department = array();
+    $request_number = array();
+    $poe['department'] = '';
+    $poe['request_number'] = '';
+
+    $total = $query->num_rows();
+    $no     = 1;
+
     foreach ($query->result_array() as $key => $value) {
       $poe['items'][$key] = $value;
       $poe['items'][$key]['reference_ipc']    = getReferenceIpc($value['prl_item_id'],'expense');
       $poe['items'][$key]['history']          = $this->getHistory($value['prl_item_id']);
+      $get_department = getRequest($value['prl_item_id'],'expense','department_name');
+      if(count($department)>0){
+        if(!in_array($get_department,$department)){
+          $department[] = $get_department;
+          $poe['department'] .= $get_department.', ';
+          if($no==$total){
+            $poe['department'] .= $get_department;
+          }else{
+            $poe['department'] .= $get_department.', ';
+          }
+        }
+      }else{
+        $department[] = $get_department;
+        if($no==$total){
+          $poe['department'] .= $get_department;
+        }else{
+          $poe['department'] .= $get_department.', ';
+        }
+      }
+
+      $get_request_number = getRequest($value['prl_item_id'],'expense','pr_number');
+      if(count($request_number)>0){
+        if(!in_array($get_request_number,$request_number)){
+          $request_number[] = $get_request_number;
+          if($no==$total){
+            $poe['request_number'] .= $get_request_number;
+          }else{
+            $poe['request_number'] .= $get_request_number.', ';
+          }
+        }
+      }else{
+        $request_number[] = $get_request_number;
+        if($no==$total){
+          $poe['request_number'] .= $get_request_number;
+        }else{
+          $poe['request_number'] .= $get_request_number.', ';
+        }
+      }
+      $no++;
     }
+
+    // $poe['department']      = $department;
+    // $poe['request_number']  = $request_number;
 
     return $poe;
   }
