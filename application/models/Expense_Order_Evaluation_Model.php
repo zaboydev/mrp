@@ -788,10 +788,16 @@ class Expense_Order_Evaluation_Model extends MY_Model
         $this->connection->where('id', $inventory_purchase_request_detail_id);
         $detail_request = $this->connection->get('tb_expense_purchase_requisition_details')->row();
         if ($detail_request->total <= $detail_request->process_amount) {
-          $this->db->set('closing_by', config_item('auth_person_name'));
-          $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
-          $this->db->set('tipe', 'EXPENSE');
-          $this->db->insert('tb_purchase_request_closures');
+          $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+          $this->db->where('tipe', 'EXPENSE');
+          $count_closures = $this->db->get('tb_purchase_request_closures')->num_rows();
+          if($count_closures==0){
+            $this->db->set('closing_by', config_item('auth_person_name'));
+            $this->db->set('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+            $this->db->set('tipe', 'EXPENSE');
+            $this->db->insert('tb_purchase_request_closures');
+          }
+          
         }
       }
 
