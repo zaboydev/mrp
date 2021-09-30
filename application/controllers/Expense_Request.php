@@ -341,11 +341,11 @@ class Expense_Request extends MY_Controller
                     }
                 }
                 
-                if (empty($_SESSION['expense']['with_po'])) {
+                if ($_SESSION['expense']['with_po']==NULL||$_SESSION['expense']['with_po']=='') {
                     $errors[] = 'Attention!! Please select PO Status';
                 }
                 
-                if (empty($_SESSION['expense']['head_dept'])) {
+                if ($_SESSION['expense']['head_dept']==NULL || $_SESSION['expense']['head_dept']=='') {
                     $errors[] = 'Attention!! Please select one of Head Dept for Approval';
                 }
 

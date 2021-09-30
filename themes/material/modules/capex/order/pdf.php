@@ -76,6 +76,8 @@
 						<br /><em>Date : <?= nice_date($entity['document_date'], 'F d, Y'); ?></em>
 						<!-- <br />Ref. POE : <strong><?= $entity['evaluation_number']; ?></strong> -->
 						<br />Ref. Quotation : <?= (empty($entity['reference_quotation'])) ? '-' : '<strong>' . $entity['reference_quotation'] . '</strong>'; ?>
+						<br />Department : <?=$entity['department'];?>
+						<br />Exp Request : <?=$entity['request_number'];?>
 					</p>
 				</div>
 			</header>
