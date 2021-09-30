@@ -434,7 +434,12 @@ class Capex_Request_Model extends MY_Model
         $query    = $this->connection->get();
         $request  = $query->unbuffered_row('array');
         $approval_notes = $request['approval_notes'];
+        $with_po = $request['with_po'];
         $department = getDepartmentByAnnualCostCenterId($request['annual_cost_center_id']);
+        $cost_center = getCostCenterByAnnualCostCenterId($request['annual_cost_center_id']);
+        $created_by = getUsernameByPersonName($request['created_by']);
+
+        $total = $this->countTotalExpense($id);
 
         if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
             if($request['base']=='BANYUWANGI'){
@@ -455,7 +460,11 @@ class Capex_Request_Model extends MY_Model
             $this->connection->where('id',$id);
             $this->connection->update('tb_capex_purchase_requisitions');
         }else if(config_item('as_head_department')=='yes' && in_array($department['department_name'],config_item('head_department')) && $request['status']=='WAITING FOR HEAD DEPT'){
-            $this->connection->set('status','approved');
+            if($with_po=='t'){
+                $this->connection->set('status','approved');
+            }else{
+                $this->connection->set('status','WAITING FOR FINANCE REVIEW');
+            }
             $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('head_approved_by',config_item('auth_person_name'));
             if($notes!=''){
@@ -485,6 +494,73 @@ class Capex_Request_Model extends MY_Model
             $this->connection->where('id',$id);
             $this->connection->update('tb_capex_purchase_requisitions');
             $level = 8;
+        }else if(config_item('auth_role')=='FINANCE MANAGER' && $request['status']=='WAITING FOR FINANCE REVIEW'){
+            if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id')) || $created_by['auth_level']=='23'){
+            // if($cost_center['id']==$this->config->item('head_office_cost_center_id')){
+                $this->connection->set('status','WAITING FOR VP FINANCE REVIEW');                
+                $level = 3;
+            }else{
+                $this->connection->set('status','WAITING FOR HOS REVIEW');
+                $level = 10;
+            }
+            $this->connection->set('finance_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('finance_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'Finance : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_capex_purchase_requisitions');
+            
+        }else if(config_item('auth_role')=='HEAD OF SCHOOL' && $request['status']=='WAITING FOR HOS REVIEW'){
+            if($total>15000000){
+                $this->connection->set('status','WAITING FOR COO REVIEW');
+                $level = 16;
+            }else{
+                $this->connection->set('status','approved');
+                $level = 0;
+            }            
+            $this->connection->set('hos_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('hos_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'HOS : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_capex_purchase_requisitions');
+        }else if(config_item('auth_role')=='CHIEF OPERATION OFFICER' && $request['status']=='WAITING FOR COO REVIEW'){
+            $this->connection->set('status','approved');
+            $this->connection->set('ceo_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('ceo_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'COO : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_capex_purchase_requisitions');
+            $level = 0;
+        }else if(config_item('auth_role')=='VP FINANCE' && $request['status']=='WAITING FOR VP FINANCE REVIEW'){
+            if($total>15000000){
+                $this->connection->set('status','WAITING FOR CFO REVIEW');
+                $level = 11;
+            }else{
+                $this->connection->set('status','approved');
+                $level = 0;
+            }            
+            $this->connection->set('hos_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('hos_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'VP FINANCE : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_capex_purchase_requisitions');
+        }else if(config_item('auth_role')=='CHIEF OF FINANCE' && $request['status']=='WAITING FOR CFO REVIEW'){
+            $this->connection->set('status','approved');
+            $this->connection->set('ceo_approved_date',date('Y-m-d H:i:s'));
+            $this->connection->set('ceo_approved_by',config_item('auth_person_name'));
+            if($notes!=''){
+                $this->connection->set('approved_notes',$approval_notes.'CFO : '.$notes);
+            }            
+            $this->connection->where('id',$id);
+            $this->connection->update('tb_capex_purchase_requisitions');
+            $level = 0;
         }
 
         
@@ -505,6 +581,14 @@ class Capex_Request_Model extends MY_Model
             }
         }
         return TRUE;
+    }
+
+    public function countTotalCapex($id){
+        $this->connection->select('sum(total)');
+        $this->connection->from('tb_capex_purchase_requisition_details');
+        $this->connection->group_by('tb_capex_purchase_requisition_details.capex_purchase_requisition_id');
+        $this->connection->where('tb_capex_purchase_requisition_details.capex_purchase_requisition_id', $id);
+        return $this->connection->get('')->row()->sum;
     }
 
     public function searchBudget($annual_cost_center_id)
@@ -631,6 +715,7 @@ class Capex_Request_Model extends MY_Model
         $notes                = (empty($_SESSION['capex']['notes'])) ? NULL : $_SESSION['capex']['notes'];
         $unbudgeted           = 0;
         $head_dept              = $_SESSION['capex']['head_dept'];
+        $with_po              = $_SESSION['capex']['with_po'];
 
         $this->connection->trans_begin();
         // $this->db->trans_begin();
@@ -647,6 +732,7 @@ class Capex_Request_Model extends MY_Model
             $this->connection->set('notes', $notes);
             $this->connection->set('created_by', $created_by);
             $this->connection->set('head_dept', $head_dept);
+            $this->connection->set('with_po', $with_po);
             $this->connection->set('updated_by', config_item('auth_person_name'));
             $this->connection->set('created_at', date('Y-m-d H:i:s'));
             $this->connection->set('updated_at', date('Y-m-d H:i:s'));
@@ -662,6 +748,7 @@ class Capex_Request_Model extends MY_Model
             $this->connection->set('updated_at', date('Y-m-d'));
             $this->connection->set('updated_by', config_item('auth_person_name'));
             $this->connection->set('head_dept', $head_dept);
+            $this->connection->set('with_po', $with_po);
             $this->connection->where('id', $document_id);
             $this->connection->update('tb_capex_purchase_requisitions');
 

@@ -48,6 +48,14 @@
                 </select>
                 <label for="notes">Head Dept.</label>
               </div>
+              <div class="form-group">
+                <select name="with_po" id="with_po" class="form-control" value="<?= $_SESSION['capex']['with_po']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_with_po'); ?>" required>
+                  <option></option>
+                  <option value="t" <?= ('t' == $_SESSION['capex']['with_po']) ? 'selected' : ''; ?>>With PO</option>
+                  <option value="f" <?= ('f' == $_SESSION['capex']['with_po']) ? 'selected' : ''; ?>>Without PO</option>
+                </select>
+                <label for="notes">PO Status</label>
+              </div>
             </div>
             <div class="col-sm-12 col-lg-5">
               <div class="form-group">

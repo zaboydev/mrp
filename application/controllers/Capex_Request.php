@@ -33,6 +33,16 @@ class Capex_Request extends MY_Controller
         $_SESSION['capex']['pr_number'] = $number;
     }
 
+    public function set_with_po()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['capex']['with_po'] = $_GET['data'];
+
+        // redirect($this->module['route'] .'/create');
+    }
+
     public function set_head_dept()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -111,6 +121,16 @@ class Capex_Request extends MY_Controller
                     }else if($row['status']=='WAITING FOR AHOS REVIEW' && config_item('auth_role')=='ASSISTANT HOS'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='WAITING FOR HEAD DEPT UNIQ REVIEW' && config_item('auth_role')=='HEAD DEPT UNIQ JKT'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR FINANCE REVIEW' && config_item('auth_role')=='FINANCE MANAGER'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR HOS REVIEW' && config_item('auth_role')=='HEAD OF SCHOOL'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR COO REVIEW' && config_item('auth_role')=='CHIEF OPERATION OFFICER'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR VP FINANCE REVIEW' && config_item('auth_role')=='VP FINANCE'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }else if($row['status']=='WAITING FOR CFO REVIEW' && config_item('auth_role')=='CHIEF OF FINANCE'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='approved'){
                         if(is_granted($this->module, 'closing') === TRUE){
@@ -282,27 +302,28 @@ class Capex_Request extends MY_Controller
         $this->authorized($this->module, 'document');
 
         if ($annual_cost_center_id !== NULL){
-          $annual_cost_center_id = urldecode($annual_cost_center_id);
-          $cost_center = findCostCenter($annual_cost_center_id);
-          $cost_center_code = $cost_center['cost_center_code'];
-          $cost_center_name = $cost_center['cost_center_name'];          
-          $department_id    = $cost_center['department_id'];
+            $annual_cost_center_id = urldecode($annual_cost_center_id);
+            $cost_center = findCostCenter($annual_cost_center_id);
+            $cost_center_code = $cost_center['cost_center_code'];
+            $cost_center_name = $cost_center['cost_center_name'];          
+            $department_id    = $cost_center['department_id'];
 
-          $_SESSION['capex']['items']            = array();
-          $_SESSION['capex']['annual_cost_center_id']   = $annual_cost_center_id;
-          $_SESSION['capex']['cost_center_id']   = $cost_center_id;
-          $_SESSION['capex']['cost_center_name'] = $cost_center_name;
-          $_SESSION['capex']['cost_center_code'] = $cost_center_code;
-          $_SESSION['capex']['order_number']                = request_last_number();
-          $_SESSION['capex']['format_order_number']         = request_format_number($_SESSION['capex']['cost_center_code']);
-          $_SESSION['capex']['required_date']    = date('Y-m-d');
-          $_SESSION['capex']['created_by']       = config_item('auth_person_name');
-          $_SESSION['capex']['warehouse']        = config_item('auth_warehouse');
-          $_SESSION['capex']['notes']            = NULL;
-          $_SESSION['capex']['suggested_supplier']  = NULL;
-          $_SESSION['capex']['deliver_to']          = NULL;
-          $_SESSION['capex']['department_id']       = $department_id;
-          $_SESSION['capex']['head_dept']           = NULL;
+            $_SESSION['capex']['items']            = array();
+            $_SESSION['capex']['annual_cost_center_id']   = $annual_cost_center_id;
+            $_SESSION['capex']['cost_center_id']   = $cost_center_id;
+            $_SESSION['capex']['cost_center_name'] = $cost_center_name;
+            $_SESSION['capex']['cost_center_code'] = $cost_center_code;
+            $_SESSION['capex']['order_number']                = request_last_number();
+            $_SESSION['capex']['format_order_number']         = request_format_number($_SESSION['capex']['cost_center_code']);
+            $_SESSION['capex']['required_date']    = date('Y-m-d');
+            $_SESSION['capex']['created_by']       = config_item('auth_person_name');
+            $_SESSION['capex']['warehouse']        = config_item('auth_warehouse');
+            $_SESSION['capex']['notes']            = NULL;
+            $_SESSION['capex']['suggested_supplier']  = NULL;
+            $_SESSION['capex']['deliver_to']          = NULL;
+            $_SESSION['capex']['department_id']       = $department_id;
+            $_SESSION['capex']['head_dept']           = NULL;
+            $_SESSION['capex']['with_po']          = NULL;
 
           redirect($this->module['route'] .'/create');
         }
@@ -348,8 +369,12 @@ class Capex_Request extends MY_Controller
                     }
                 }
 
-                if (empty($_SESSION['capex']['head_dept'])) {
+                if ($_SESSION['capex']['head_dept']==NULL||$_SESSION['capex']['head_dept']=='') {
                     $errors[] = 'Attention!! Please select one of Head Dept for Approval';
+                }
+
+                if ($_SESSION['capex']['with_po']==NULL||$_SESSION['capex']['with_po']=='') {
+                    $errors[] = 'Attention!! Please select PO Status';
                 }
 
                 if (!empty($errors)) {
