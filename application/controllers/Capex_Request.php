@@ -757,4 +757,12 @@ class Capex_Request extends MY_Controller
         }
         echo json_encode($result);
     }
+
+    public function send_email($id, $level)
+    {
+        $send = $this->model->send_mail($id, $level);
+        
+        $result['status'] = $send;
+        echo json_encode($result);
+    }
 }
