@@ -499,7 +499,13 @@ class Expense_Request_Model extends MY_Model
         }
 
         if(config_item('auth_role')=='ASSISTANT HOS' && $request['status']=='WAITING FOR AHOS REVIEW'){
-            $this->connection->set('status','WAITING FOR HEAD DEPT');
+            if($created_by['auth_level']=='23'){
+                $this->connection->set('status','WAITING FOR HEAD DEPT UNIQ REVIEW');
+                $level = 24;
+            }else{
+                $this->connection->set('status','WAITING FOR HEAD DEPT');
+                $level = -1;
+            }
             $this->connection->set('ahos_approved_date',date('Y-m-d H:i:s'));
             $this->connection->set('ahos_approved_by',config_item('auth_person_name'));
             if($notes!=''){

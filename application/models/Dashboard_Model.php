@@ -264,6 +264,22 @@ class Dashboard_Model extends MY_Model
       $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
     } 
 
+    if($role=='FINANCE MANAGER'){
+      $status[] = 'WAITING FOR FINANCE REVIEW';
+    }
+    if($role=='HEAD OF SCHOOL'){
+      $status[] = 'WAITING FOR HOS REVIEW';
+    }
+    if($role=='VP FINANCE'){
+      $status[] = 'WAITING FOR VP FINANCE REVIEW';
+    }
+    if($role=='CHIEF OF FINANCE'){
+      $status[] = 'WAITING FOR CFO REVIEW';
+    }
+    if($role=='CHIEF OPERATION OFFICER'){
+      $status[] = 'WAITING FOR COO REVIEW';
+    }
+
     $this->connection->select('*');
     $this->connection->from('tb_capex_purchase_requisitions');
     $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
