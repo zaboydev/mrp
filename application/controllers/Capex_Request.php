@@ -262,6 +262,7 @@ class Capex_Request extends MY_Controller
         // $on_hand_stock = $this->model->findPrlById($id);
 
         $this->data['entity']           = $entity;
+        $this->data['created_by']           = getUsernameByPersonName($entity['created_by']);
         $this->data['page']['title']    = strtoupper($this->module['label']);
         $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 

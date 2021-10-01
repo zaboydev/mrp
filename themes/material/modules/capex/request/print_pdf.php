@@ -193,6 +193,84 @@
         <br /><?= $entity['head_approved_by']; ?>
       </p>
     </td>
+
+    <?php if($entity['with_po']=='f'):?>
+
+    <td valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Finance
+        <?php if ($entity['finance_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['finance_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['finance_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['finance_approved_by']; ?>
+      </p>
+    </td>
+
+    <?php if(!in_array($entity['cost_center_id'],$this->config->item('head_office_cost_center_id'))&&$created_by['auth_level']!='23'):?>
+
+    <td valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Head of School
+        <?php if ($entity['hos_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['hos_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['hos_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['hos_approved_by']; ?>
+      </p>
+    </td>
+
+    <?php  if (array_sum($total)>15000000) :  ?>
+
+    <td valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Chief Operation Officer
+        <?php if ($entity['ceo_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['ceo_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['ceo_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['ceo_approved_by']; ?>
+      </p>
+    </td>
+
+    <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if(in_array($entity['cost_center_id'],$this->config->item('head_office_cost_center_id'))||$created_by['auth_level']=='23'):?>
+    <td valign="top" align="center">
+      <p>
+        Approved by:
+        <br />VP Finance
+        <?php if ($entity['hos_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['hos_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['hos_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['hos_approved_by']; ?>
+      </p>
+    </td>
+    <?php  if (array_sum($total)>15000000) :  ?>
+    <td valign="top" align="center">
+      <p>
+        Approved by:
+        <br />Chief Of Finance
+        <?php if ($entity['ceo_approved_by'] != '') : ?>
+          <br /><?= print_date($entity['ceo_approved_date']) ?><br>
+          <img src="<?= base_url('ttd_user/' . get_ttd($entity['ceo_approved_by'])); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?= $entity['ceo_approved_by']; ?>
+      </p>
+    </td>
+    <?php endif; ?>
+    <?php endif; ?>
+    <?php endif; ?>
   </tr>
 </table>
 
