@@ -121,6 +121,22 @@ class Capex_Request_Model extends MY_Model
                         if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
                             $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
                         }
+
+                        if (config_item('auth_role') == 'FINANCE MANAGER') {
+                            $status[] = 'WAITING FOR FINANCE REVIEW';
+                        }
+                        if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+                            $status[] = 'WAITING FOR HOS REVIEW';
+                        }
+                        if (config_item('auth_role') == 'VP FINANCE') {
+                            $status[] = 'WAITING FOR VP FINANCE REVIEW';
+                        }
+                        if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+                            $status[] = 'WAITING FOR CFO REVIEW';
+                        }
+                        if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {  
+                            $status[] = 'WAITING FOR COO REVIEW';
+                        }
                         if (config_item('as_head_department')=='yes'){
                             $status[] = 'WAITING FOR HEAD DEPT';
                         }                
@@ -146,9 +162,27 @@ class Capex_Request_Model extends MY_Model
                 if (config_item('auth_role') == 'HEAD DEPT UNIQ JKT') {  
                     $status[] = 'WAITING FOR HEAD DEPT UNIQ REVIEW';
                 }
+
+                if (config_item('auth_role') == 'FINANCE MANAGER') {
+                    $status[] = 'WAITING FOR FINANCE REVIEW';
+                }
+                if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+                    $status[] = 'WAITING FOR HOS REVIEW';
+                }
+                if (config_item('auth_role') == 'VP FINANCE') {
+                    $status[] = 'WAITING FOR VP FINANCE REVIEW';
+                }
+                if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+                    $status[] = 'WAITING FOR CFO REVIEW';
+                }
+                if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {  
+                    $status[] = 'WAITING FOR COO REVIEW';
+                }
+                
                 if (config_item('as_head_department')=='yes'){
                     $status[] = 'WAITING FOR HEAD DEPT';
-                }                
+                }
+
                 $this->connection->where_in('tb_capex_purchase_requisitions.status', $status);
             }            
             
@@ -439,7 +473,7 @@ class Capex_Request_Model extends MY_Model
         $cost_center = getCostCenterByAnnualCostCenterId($request['annual_cost_center_id']);
         $created_by = getUsernameByPersonName($request['created_by']);
 
-        $total = $this->countTotalExpense($id);
+        $total = $this->countTotalCapex($id);
 
         if(config_item('auth_role')=='BUDGETCONTROL' && $request['status']=='pending'){
             if($request['base']=='BANYUWANGI'){

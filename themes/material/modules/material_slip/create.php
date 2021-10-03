@@ -654,8 +654,10 @@ $(function(){
   var startDate = new Date(<?=config_item('period_year');?>, <?=config_item('period_month');?>-1, 1);
   var lastDate = new Date(<?=config_item('period_year');?>, <?=config_item('period_month');?>, 0);
   var last_publish = $('[name="opname_start_date"]').val();
-  var today       = new Date();
-  today.setDate(today.getDate() - 2);
+  // var today       = new Date();
+  // today.setDate(today.getDate() - 2);
+
+  var today = moment().startOf('month').format('YYYY-MM-DD');
 
   $('[data-provide="datepicker"]').datepicker({
     autoclose: true,
