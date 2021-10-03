@@ -185,12 +185,11 @@ class Capex_Order_Evaluation extends MY_Controller
         $col[] = print_string($row['vendor']);
         $col[] = print_number($row['unit_price'], 2);
         $col[] = print_string(strtoupper($row['status']));
-        $col[] = $row['attachment'] == null ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
-                       <i class="fa fa-eye"></i>
-                     </a>';
-        // $col[] ='<a href="#" data-id="'.$row["id"].'" class="btn btn-icon-toggle btn-info btn-sm ">
-        //                <i class="fa fa-eye"></i>
-        //             </a>';
+        if(idPoehaveAttachment($row['id'],'CAPEX')){
+          $col[] = '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye"></i> </a>';
+        }else{
+          $col[] = '';
+        }
         $col[] = print_string($row['notes']);
         if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')) || config_item('auth_role') == 'SUPER ADMIN') {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
@@ -226,7 +225,15 @@ class Capex_Order_Evaluation extends MY_Controller
   
   public function listAttachment($id)
   {
-    $data = $this->model->listAttachment($id);
+    // $data = $this->model->listAttachment($id);
+    // echo json_encode($data);
+
+    $data = [];
+    $data['att_poe'] = $this->model->listAttachment($id);
+    $data['count_att_poe'] = count($data['att_poe']);
+
+    $data['att_request'] = listAttachmentRequest($id,'CAPEX');
+    $data['count_att_request'] = count($data['att_request']);
     echo json_encode($data);
   }
 

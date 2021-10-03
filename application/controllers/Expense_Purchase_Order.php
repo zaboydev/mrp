@@ -79,7 +79,7 @@ class Expense_Purchase_Order extends MY_Controller
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
         
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
@@ -98,12 +98,16 @@ class Expense_Purchase_Order extends MY_Controller
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
           $col[]  = print_string($row['approval_notes']);
         }
-        $col[]  = null;
+        if(idPoHaveAttachment($row['id'],'EXPENSE')){
+          $col[] = '<a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="PO" data-id="' . $row['id'] . '"></i></a>';
+        }else{
+          $col[] = '';
+        }
         
 
         $col['DT_RowId'] = 'row_' . $row['id'];
@@ -1317,6 +1321,14 @@ class Expense_Purchase_Order extends MY_Controller
   public function listAttachmentpoe($id)
   {
     $data = $this->model->listAttachmentpoe($id);
+    echo json_encode($data);
+  }
+
+  public function listAttachment($id)
+  {
+    $data = [];
+    $data['att_po'] = $this->model->listAttachment_2($id);
+    $data['count_att_po'] = count($data['att_po']);
     echo json_encode($data);
   }
 

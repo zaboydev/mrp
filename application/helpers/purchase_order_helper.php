@@ -225,8 +225,9 @@ if ( ! function_exists('getRequest')) {
 
     $connection = $CI->load->database('budgetcontrol', TRUE);
 
-    $connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
+
     if($tipe=='capex'){
+      $connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
       $connection->from('tb_capex_purchase_requisitions');
       $connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
       $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
@@ -236,6 +237,7 @@ if ( ! function_exists('getRequest')) {
     }
 
     if($tipe=='inventory'){
+      $connection->select('tb_inventory_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
       $connection->from('tb_inventory_purchase_requisitions');
       $connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
       $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
@@ -245,6 +247,7 @@ if ( ! function_exists('getRequest')) {
     }
 
     if($tipe=='expense'){      
+      $connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
       $connection->from('tb_expense_purchase_requisitions');
       $connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
       $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
