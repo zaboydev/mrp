@@ -593,13 +593,36 @@
           var data = jQuery.parseJSON(response)
           $("#listView").html("")
           $("#attachment_modal").modal("show");
-          $.each(data, function(i, item) {
-            var text = '<tr>' +
-              '<td>' + (i + 1) + '</td>' +
-              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-              '</tr>';
-            $("#listView").append(text);
-          });
+          var a = '<tr><td colspan="2">Attachment POE</td></tr>';
+          $("#listView").append(a);
+          if(data.count_att_poe>0){
+            $.each(data.att_poe, function(i, item) {
+              var text = '<tr>' +
+                '<td>' + (i + 1) + '</td>' +
+                '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+                '</tr>';
+              $("#listView").append(text);
+            });
+          }else{
+            var no_att_poe = '<tr><td colspan="2" style="text-align:center;">POE doesnt have Attachment</td></tr>';
+            $("#listView").append(no_att_poe);
+          }
+          
+          var b = '<tr><td colspan="2">Attachment Request</td></tr>';
+          $("#listView").append(b);
+          if(data.count_att_request>0){
+            $.each(data.att_request, function(i, item) {
+              var text = '<tr>' +
+                '<td>' + (i + 1) + '</td>' +
+                '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+                '</tr>';
+              $("#listView").append(text);
+            });
+          }else{
+            var no_att_request = '<tr><td colspan="2" style="text-align:center;">Request doesnt have Attachment</td></tr>';
+            $("#listView").append(no_att_request);
+          }
+          
         },
         error: function(xhr, ajaxOptions, thrownError) {
           console.log(xhr.status);

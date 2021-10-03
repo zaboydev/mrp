@@ -1995,4 +1995,197 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('listAttachmentRequest')) {
+    function listAttachmentRequest($poe_id,$tipe)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $CI->db->select('inventory_purchase_request_detail_id');
+      $CI->db->where('purchase_order_id', $poe_id);
+      $query    = $CI->db->get('tb_purchase_order_items');    
+      $result = $query->result_array();
+      $request_item_id = array();
+
+      foreach ($result as $row) {
+        $request_item_id[] = $row['inventory_purchase_request_detail_id'];
+      }
+
+      //get request id
+      if($tipe=='EXPENSE'){
+        $connection->select('expense_purchase_requisition_id');
+        $connection->where_in('id', $request_item_id);
+        $queryrequest_id    = $connection->get('tb_expense_purchase_requisition_details');    
+        $resultrequest_id = $queryrequest_id->result_array();
+        $request_id = array();
+
+        foreach ($resultrequest_id as $row) {
+          $request_id[] = $row['expense_purchase_requisition_id'];
+        }
+        $tipe_request = 'expense';
+
+      }
+      if($tipe=='CAPEX'){
+        $connection->select('capex_purchase_requisition_id');
+        $connection->where_in('id', $request_item_id);
+        $queryrequest_id    = $connection->get('tb_capex_purchase_requisition_details');    
+        $resultrequest_id = $queryrequest_id->result_array();
+        $request_id = array();
+
+        foreach ($resultrequest_id as $row) {
+          $request_id[] = $row['capex_purchase_requisition_id'];
+        }
+        $tipe_request = 'capex';
+
+      }
+
+      if($tipe=='INVENTORY'){
+        $connection->select('inventory_purchase_requisition_id');
+        $connection->where_in('id', $request_item_id);
+        $queryrequest_id    = $connection->get('tb_inventory_purchase_requisition_details');    
+        $resultrequest_id = $queryrequest_id->result_array();
+        $request_id = array();
+
+        foreach ($resultrequest_id as $row) {
+          $request_id[] = $row['inventory_purchase_requisition_id'];
+        }
+        $tipe_request = 'inventory';
+
+      }
+
+      if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
+        $connection->where_in('id_purchase', $request_id);
+        $connection->where('tipe', $tipe_request);
+        return $connection->get('tb_attachment')->result();
+      }else{
+        return [];
+      }
+    }
+  }
+
+  if ( ! function_exists('idPoehaveAttachment')) {
+    function idPoehaveAttachment($id,$tipe)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $CI->db->select('*');
+      $CI->db->from('tb_attachment_poe');
+      $CI->db->where('id_poe', $id);
+      $CI->db->where('tipe', 'POE');
+
+      $query = $CI->db->get();
+      $att_poe = $query->num_rows();
+
+      $CI->db->select('tb_purchase_order_items.inventory_purchase_request_detail_id');
+      // $CI->db->from('tb_purchase_order_items');
+      $CI->db->where('purchase_order_id', $id);
+      $query_poe = $CI->db->get('tb_purchase_order_items');
+      $request_item_id = array();
+
+      foreach ($query_poe->result_array() as $row) {
+        $request_item_id[] = $row['inventory_purchase_request_detail_id'];
+      }
+
+      if($tipe=='EXPENSE'){
+        $connection->select('expense_purchase_requisition_id');
+        $connection->where_in('id', $request_item_id);
+        $queryrequest_id    = $connection->get('tb_expense_purchase_requisition_details');    
+        $resultrequest_id = $queryrequest_id->result_array();
+        $request_id = array();
+
+        foreach ($resultrequest_id as $row) {
+          $request_id[] = $row['expense_purchase_requisition_id'];
+        }
+        $tipe_request = 'expense';
+      }
+
+      if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
+        $connection->where_in('id_purchase', $request_id);
+        $connection->where('tipe', $tipe_request);
+        $query_request = $connection->get('tb_attachment');
+        $att_request = $query_request->num_rows();
+      }else{
+        $att_request = 0;
+      }
+
+      $total = $att_poe+$att_request;
+      return $total > 0? true:false;
+    }
+  }
+
+  if ( ! function_exists('idPoHaveAttachment')) {
+    function idPoHaveAttachment($id,$tipe)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $CI->db->select('*');
+      $CI->db->from('tb_attachment_poe');
+      $CI->db->where('id_poe', $id);
+      $CI->db->where('tipe', 'PO');
+
+      $query = $CI->db->get();
+      $att_po = $query->num_rows();
+
+      // //POE
+      // $CI->db->select('poe_number');
+      // $CI->db->where('purchase_order_id', $id);
+      // $query    = $CI->db->get('tb_po_item');
+      // $item_po = $query->unbuffered_row('array');
+      // $poe_number = $item_po['poe_number'];
+
+      // $CI->db->select('id');
+      // $CI->db->where('evaluation_number', $poe_number);
+      // $query    = $CI->db->get('tb_purchase_orders');
+      // $evaluation = $query->unbuffered_row();
+      // $poe_id = $evaluation->id;
+
+      // $CI->db->select('*');
+      // $CI->db->from('tb_attachment_poe');
+      // $CI->db->where('id_poe', $poe_id);
+      // $CI->db->where('tipe', 'POE');
+
+      // $query = $CI->db->get();
+      // $att_poe = $query->num_rows();
+
+      // //request
+      // $CI->db->select('tb_purchase_order_items.inventory_purchase_request_detail_id');
+      // $CI->db->where('purchase_order_id', $poe_id);
+      // $query_poe = $CI->db->get('tb_purchase_order_items');
+      // $request_item_id = array();
+
+      // foreach ($query_poe->result_array() as $row) {
+      //   $request_item_id[] = $row['inventory_purchase_request_detail_id'];
+      // }
+
+      // if($tipe=='EXPENSE'){
+      //   $connection->select('expense_purchase_requisition_id');
+      //   $connection->where_in('id', $request_item_id);
+      //   $queryrequest_id    = $connection->get('tb_expense_purchase_requisition_details');    
+      //   $resultrequest_id = $queryrequest_id->result_array();
+      //   $request_id = array();
+
+      //   foreach ($resultrequest_id as $row) {
+      //     $request_id[] = $row['expense_purchase_requisition_id'];
+      //   }
+      //   $tipe_request = 'expense';
+      // }
+
+      // if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
+      //   $connection->where_in('id_purchase', $request_id);
+      //   $connection->where('tipe', $tipe_request);
+      //   $query_request = $connection->get('tb_attachment');
+      //   $att_request = $query_request->num_rows();
+      // }else{
+      //   $att_request = 0;
+      // }
+
+      // $total = $att_po+$att_poe+$att_request;
+      $total = $att_po;
+      return $total > 0? true:false;
+    }
+  }
+
     

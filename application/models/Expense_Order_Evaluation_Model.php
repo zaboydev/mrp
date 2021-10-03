@@ -29,8 +29,8 @@ class Expense_Order_Evaluation_Model extends MY_Model
       'tb_purchase_order_items.vendor'                   => 'Vendor',
       'tb_purchase_order_items.unit_price'          => 'Price',
       'tb_purchase_orders.status'                   => 'Status',
-      'tb_attachment_poe.id_poe as attachment'      => 'Attachment',
       'tb_purchase_orders.notes'                    => 'Notes',
+      NULL      => 'Attachment',
 
 
     );
@@ -193,7 +193,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
+    // $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
     $this->db->where('tb_purchase_orders.tipe', 'EXPENSE');
@@ -237,7 +237,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
+    // $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
     $this->db->where('tb_purchase_orders.tipe', 'EXPENSE');
@@ -264,7 +264,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
     $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
+    // $this->db->join('tb_attachment_poe', 'tb_purchase_orders.id = tb_attachment_poe.id_poe', 'left');
     $this->db->where('tb_purchase_order_items_vendors.is_selected', 't');
     $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
     $this->db->where('tb_purchase_orders.tipe', 'EXPENSE');

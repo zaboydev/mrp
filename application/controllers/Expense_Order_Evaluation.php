@@ -204,13 +204,16 @@ class Expense_Order_Evaluation extends MY_Controller
         $col[] = print_string($row['vendor']);
         $col[] = print_number($row['unit_price'], 2);
         $col[] = print_string(strtoupper($row['status']));
-        $col[] = $row['attachment'] == null ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
-                       <i class="fa fa-eye"></i>
-                     </a>';
+        //$col[] = $row['attachment'] == null ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye"></i> </a>';
         // $col[] ='<a href="#" data-id="'.$row["id"].'" class="btn btn-icon-toggle btn-info btn-sm ">
         //                <i class="fa fa-eye"></i>
         //             </a>';
         $col[] = print_string($row['notes']);
+        if(idPoehaveAttachment($row['id'],'EXPENSE')){
+          $col[] = '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye"></i> </a>';
+        }else{
+          $col[] = '';
+        }
         if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')||(config_item('auth_role') == 'SUPER ADMIN'))) {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase") && (config_item('auth_role') == 'VP FINANCE'|| config_item('auth_role') == 'SUPER ADMIN')) {
@@ -245,7 +248,12 @@ class Expense_Order_Evaluation extends MY_Controller
   
   public function listAttachment($id)
   {
-    $data = $this->model->listAttachment($id);
+    $data = [];
+    $data['att_poe'] = $this->model->listAttachment($id);
+    $data['count_att_poe'] = count($data['att_poe']);
+
+    $data['att_request'] = listAttachmentRequest($id,'EXPENSE');
+    $data['count_att_request'] = count($data['att_request']);
     echo json_encode($data);
   }
 

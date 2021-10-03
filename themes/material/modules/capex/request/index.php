@@ -57,7 +57,7 @@
 <?php startblock('actions_right') ?>
 
 <div class="section-floating-action-row">
-  <?php if (config_item('as_head_department')=='yes' || config_item('auth_role')=='BUDGETCONTROL') : ?>
+  <?php if (is_granted($module, 'approval')) : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-clear"></i>
