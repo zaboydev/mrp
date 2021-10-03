@@ -2101,6 +2101,19 @@ if (!function_exists('currency_for_vendor_list')) {
         $tipe_request = 'expense';
       }
 
+      if($tipe=='CAPEX'){
+        $connection->select('capex_purchase_requisition_id');
+        $connection->where_in('id', $request_item_id);
+        $queryrequest_id    = $connection->get('tb_capex_purchase_requisition_details');    
+        $resultrequest_id = $queryrequest_id->result_array();
+        $request_id = array();
+
+        foreach ($resultrequest_id as $row) {
+          $request_id[] = $row['capex_purchase_requisition_id'];
+        }
+        $tipe_request = 'capex';
+      }
+
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
         $connection->where_in('id_purchase', $request_id);
         $connection->where('tipe', $tipe_request);

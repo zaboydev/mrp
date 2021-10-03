@@ -593,7 +593,12 @@
 
       } else if (e.target.nodeName === "I") {
         var id = $(e.target).attr('data-id');
-        getAttachment(id);
+        var type = $(e.target).attr('data-type');
+        if(type=='PO'){
+          getAttachment(id);
+        }else{
+          getAttachmentPoe(id);
+        }
         console.log(id);
       } else if (e.target.nodeName === "SPAN") {
         // var a = $(e.target).data('id');
@@ -605,22 +610,44 @@
 
     });
 
-    function getAttachment(id) {
+    function getAttachmentPoe(id) {
       $.ajax({
         type: "GET",
-        url: 'capex_purchase_order/listAttachmentpoe/' + id,
+        url: 'capex_order_evaluation/listAttachment/' + id,
         cache: false,
         success: function(response) {
           var data = jQuery.parseJSON(response)
           $("#listView").html("")
           $("#attachment_modal").modal("show");
-          $.each(data, function(i, item) {
-            var text = '<tr>' +
-              '<td>' + (i + 1) + '</td>' +
-              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-              '</tr>';
-            $("#listView").append(text);
-          });
+          var a = '<tr><td colspan="2">Attachment POE</td></tr>';
+          $("#listView").append(a);
+          if(data.count_att_poe>0){
+            $.each(data.att_poe, function(i, item) {
+              var text = '<tr>' +
+                '<td>' + (i + 1) + '</td>' +
+                '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+                '</tr>';
+              $("#listView").append(text);
+            });
+          }else{
+            var no_att_poe = '<tr><td colspan="2" style="text-align:center;">POE doesnt have Attachment</td></tr>';
+            $("#listView").append(no_att_poe);
+          }
+          
+          var b = '<tr><td colspan="2">Attachment Request</td></tr>';
+          $("#listView").append(b);
+          if(data.count_att_request>0){
+            $.each(data.att_request, function(i, item) {
+              var text = '<tr>' +
+                '<td>' + (i + 1) + '</td>' +
+                '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+                '</tr>';
+              $("#listView").append(text);
+            });
+          }else{
+            var no_att_request = '<tr><td colspan="2" style="text-align:center;">Request doesnt have Attachment</td></tr>';
+            $("#listView").append(no_att_request);
+          }
         },
         error: function(xhr, ajaxOptions, thrownError) {
           console.log(xhr.status);
@@ -629,6 +656,39 @@
         }
       });
     }
+
+    function getAttachment(id) {
+      $.ajax({
+        type: "GET",
+        url: 'capex_purchase_order/listAttachment/' + id,
+        cache: false,
+        success: function(response) {
+          var data = jQuery.parseJSON(response)
+          $("#listView").html("")
+          $("#attachment_modal").modal("show");
+          var a = '<tr><td colspan="2">Attachment PO</td></tr>';
+          $("#listView").append(a);
+          if(data.count_att_po>0){
+            $.each(data.att_po, function(i, item) {
+              var text = '<tr>' +
+                '<td>' + (i + 1) + '</td>' +
+                '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+                '</tr>';
+              $("#listView").append(text);
+            });
+          }else{
+            var no_att_po = '<tr><td colspan="2" style="text-align:center;">POE doesnt have Attachment</td></tr>';
+            $("#listView").append(no_att_po);
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          console.log(xhr.status);
+          console.log(xhr.responseText);
+          console.log(thrownError);
+        }
+      });
+    }
+
     var notes = "";
     $("#modal-approve-data-button-multi").click(function() {
       var action = $(this).data('source');
