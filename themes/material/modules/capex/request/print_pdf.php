@@ -209,7 +209,7 @@
       </p>
     </td>
 
-    <?php if(!in_array($entity['cost_center_id'],$this->config->item('head_office_cost_center_id'))&&$created_by['auth_level']!='23'):?>
+    <?php if(!in_array($entity['cost_center_id'],$this->config->item('head_office_cost_center_id'))&&$created_by['auth_level']!='23'&&$created_by['auth_level']!='25'):?>
 
     <td valign="top" align="center">
       <p>
@@ -242,7 +242,7 @@
     <?php endif; ?>
     <?php endif; ?>
 
-    <?php if(in_array($entity['cost_center_id'],$this->config->item('head_office_cost_center_id'))||$created_by['auth_level']=='23'):?>
+    <?php if(in_array($entity['cost_center_id'],$this->config->item('head_office_cost_center_id'))||$created_by['auth_level']=='23'||$created_by['auth_level']=='25'):?>
     <td valign="top" align="center">
       <p>
         Approved by:
