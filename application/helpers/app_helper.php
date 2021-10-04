@@ -1962,6 +1962,19 @@ if (!function_exists('currency_for_vendor_list')) {
           return false;
         }
       }
+
+      if($tipe=='capex'){
+        $connection->from('tb_capex_purchase_requisitions');
+        $connection->where('id',$purchase_request_id);
+        $query    = $connection->get();
+        $request  = $query->unbuffered_row('array');
+        
+        if($request['with_po']=='t'){
+          return true;
+        }else{
+          return false;
+        }
+      }
     }
   }
 
