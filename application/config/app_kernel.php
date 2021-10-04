@@ -74,6 +74,7 @@ require('modules/budgeting.php');
 require('modules/capex_request.php');
 require('modules/capex_order_evaluation.php');
 require('modules/capex_purchase_order.php');
+require('modules/capex_closing_payment.php');
 //Inventory
 require('modules/inventory_request.php');
 require('modules/inventory_order_evaluation.php');

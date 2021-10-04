@@ -294,6 +294,16 @@
       </a>
     </div>
     <div class="pull-right">
+      <?php if ($entity['with_po'] == 'f'):?>
+        <?php if ($entity['status'] == 'approved'):?>
+        <?php if (is_granted($module, 'payment')):?>
+        <a href="<?= site_url($modules['capex_closing_payment']['route'] . '/create/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-approval-data-button">
+          <i class="md md-check"></i>
+          <small class="top right">Closing Request</small>
+        </a>
+        <?php endif;?>
+        <?php endif;?>
+      <?php endif;?>
       <?php if (is_granted($module, 'document')):?>
         <?php if ($entity['status']=='rejected' || $entity['status']=='pending'):?>
         <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">

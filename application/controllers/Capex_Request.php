@@ -133,7 +133,7 @@ class Capex_Request extends MY_Controller
                     }else if($row['status']=='WAITING FOR CFO REVIEW' && config_item('auth_role')=='CHIEF OF FINANCE'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if($row['status']=='approved'){
-                        if(is_granted($this->module, 'closing') === TRUE){
+                        if(is_granted($this->module, 'closing') === TRUE && readyToCloseRequest($row['id'],'capex')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                         }else{
                             $col[] = print_number($no);
