@@ -50,7 +50,8 @@ $config['levels_and_roles'] = array(
 	'21'	=> 'PROCUREMENT MANAGER',
 	'22'	=> 'ASSISTANT HOS',
 	'23'	=> 'PIC STAFF UNIQ JKT',
-	'24'	=> 'HEAD DEPT UNIQ JKT'
+	'24'	=> 'HEAD DEPT UNIQ JKT',
+	'25'	=> 'PIC STAFF JKT'
 );
 
 /*
