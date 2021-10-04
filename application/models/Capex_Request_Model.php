@@ -539,7 +539,7 @@ class Capex_Request_Model extends MY_Model
             $this->connection->update('tb_capex_purchase_requisitions');
             $level = 8;
         }else if(config_item('auth_role')=='FINANCE MANAGER' && $request['status']=='WAITING FOR FINANCE REVIEW'){
-            if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id')) || $created_by['auth_level']=='23'){
+            if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id')) || $created_by['auth_level']=='23' || $created_by['auth_level']=='25'){
             // if($cost_center['id']==$this->config->item('head_office_cost_center_id')){
                 $this->connection->set('status','WAITING FOR VP FINANCE REVIEW');                
                 $level = 3;

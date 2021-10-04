@@ -172,7 +172,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
       </p>
     </td>
 
-    <?php if($entity['with_po']=='f'):?>
+    <?php if($entity['with_po']=='f'):?> 
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -185,10 +185,8 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['finance_approved_by']; ?>
       </p>
     </td>
-    <?php endif; ?>
 
-    <?php if($entity['with_po']=='f'):?>      
-    <?php if(!in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))&&$created_by['auth_level']!='23'):?>
+    <?php if(!in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))&&$created_by['auth_level']!='23'&&$created_by['auth_level']!='25'):?>
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -201,11 +199,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['hos_approved_by']; ?>
       </p>
     </td>
-    <?php endif; ?>
-    <?php endif; ?>
-
-    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000) :  ?>
-    <?php if(!in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))&&$created_by['auth_level']!='23'):?>
+    <?php  if (array_sum($total)>15000000) :  ?>
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -221,8 +215,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
     <?php endif; ?>
     <?php endif; ?>
 
-    <?php if($entity['with_po']=='f'):?>      
-    <?php if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))||$created_by['auth_level']=='23'):?>
+    <?php if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))||$created_by['auth_level']=='23'||$created_by['auth_level']=='25'):?>
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -235,11 +228,8 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['hos_approved_by']; ?>
       </p>
     </td>
-    <?php endif; ?>
-    <?php endif; ?>
-
-    <?php  if ($entity['with_po']=='f' && array_sum($total)>15000000) :  ?>
-    <?php if(in_array($cost_center['id'],$this->config->item('head_office_cost_center_id'))||$created_by['auth_level']=='23'):?>
+    
+    <?php  if (array_sum($total)>15000000) :  ?>
     <td valign="top" align="center">
       <p>
         Approved by:
@@ -252,6 +242,7 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <br /><?= $entity['ceo_approved_by']; ?>
       </p>
     </td>
+    <?php endif; ?>
     <?php endif; ?>
     <?php endif; ?>
   </tr>
