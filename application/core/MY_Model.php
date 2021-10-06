@@ -406,7 +406,7 @@ class MY_Model extends CI_Model
   public function isUsernameExists($username, $username_exception = NULL)
   {
     $this->db->from(config_item('module')['user']['table']);
-    $this->db->where('username', strtoupper($username));
+    $this->db->where('username', $username);
 
     if ($username_exception !== NULL)
       $this->db->where('username != ', $username_exception);

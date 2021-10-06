@@ -447,6 +447,7 @@ class Expense_Order_Evaluation extends MY_Controller
       $_SESSION['expense_poe']['total_price']         = NULL;
       $_SESSION['expense_poe']['grand_total']         = NULL;
       $_SESSION['expense_poe']['notes']               = NULL;
+      $_SESSION['expense_poe']['tipe']                = 'EXPENSE';
 
       redirect($this->module['route'] . '/create');
     }
