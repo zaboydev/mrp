@@ -263,6 +263,14 @@ class Expense_Purchase_Order extends MY_Controller
     $_SESSION['order']['taxes'] = $_GET['data'];
   }
 
+  public function set_pph()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['order']['pph'] = $_GET['data'];
+  }
+
   public function set_shipping_cost()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -756,6 +764,7 @@ class Expense_Purchase_Order extends MY_Controller
       $_SESSION['order']['exchange_rate']       = 1.00;
       $_SESSION['order']['discount']            = 0.00;
       $_SESSION['order']['taxes']               = 0.00;
+      $_SESSION['order']['pph']                 = 0.00;
       $_SESSION['order']['shipping_cost']       = 0.00;
       $_SESSION['order']['total_quantity']      = NULL;
       $_SESSION['order']['total_price']         = NULL;
@@ -899,6 +908,7 @@ class Expense_Purchase_Order extends MY_Controller
       $_SESSION['order']['exchange_rate']       = 1.00;
       $_SESSION['order']['discount']            = $order['discount'];
       $_SESSION['order']['taxes']               = $order['taxes'];
+      $_SESSION['order']['pph']                 = $order['pph'];
       $_SESSION['order']['shipping_cost']       = $order['shipping_cost'];
       $_SESSION['order']['total_quantity']      = NULL;
       $_SESSION['order']['total_price']         = NULL;

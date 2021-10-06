@@ -148,13 +148,13 @@
               <?php $subtotal       = array_sum($total_amount); ?>
               <?php $after_discount = $subtotal - $entity['discount']; ?>
               <?php $total_taxes    = $after_discount * ($entity['taxes'] / 100); ?>
+              <?php $total_pph    = $after_discount * ($entity['pph'] / 100); ?>
               <?php $after_taxes    = $after_discount + $total_taxes; ?>
-              <?php $grandtotal     = $after_taxes + $entity['shipping_cost']; ?>
+              <?php $grandtotal     = $entity['grand_total']; ?>
             </tbody>
             <tfoot>
               <tr>
-                <!-- <th></th> -->
-                <!-- <th></th> -->
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -166,12 +166,12 @@
                 <th></th>
                 <th></th>
                 <th style="background-color: #eee;">Subtotal <?= $entity['default_currency']; ?></th>
-                <th style="background-color: #eee;"><?= print_number($subtotal, 2); ?></th>
+                <th style="background-color: #eee;" colspan="2"><?= print_number($subtotal, 2); ?></th>
               </tr>
               <?php if ($entity['discount'] > 0) : ?>
                 <tr>
-                  <!-- <th></th> -->
-                <!-- <th></th> -->
+                  <th></th>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -182,13 +182,13 @@
                   <th></th>
                   <th></th>
                   <th style="background-color: #eee;">Discount</th>
-                  <th style="background-color: #eee;"><?= print_number($entity['discount'], 2); ?></th>
+                  <th style="background-color: #eee;" colspan="2"><?= print_number($entity['discount'], 2); ?></th>
                 </tr>
               <?php endif; ?>
               <?php if ($entity['taxes'] > 0) : ?>
                 <tr>
-                  <!-- <th></th> -->
-                <!-- <th></th> -->
+                  <th></th>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -199,13 +199,30 @@
                   <th></th>
                   <th></th>
                   <th style="background-color: #eee;">VAT <?= $entity['taxes']; ?> %</th>
-                  <th style="background-color: #eee;"><?= print_number($total_taxes, 2); ?></th>
+                  <th style="background-color: #eee;" colspan="2"><?= print_number($total_taxes, 2); ?></th>
+                </tr>
+              <?php endif; ?>
+              <?php if ($entity['pph'] > 0) : ?>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th style="background-color: #eee;">PPh <?= $entity['pph']; ?> %</th>
+                  <th style="background-color: #eee;" colspan="2"><?= print_number($total_pph, 2); ?></th>
                 </tr>
               <?php endif; ?>
               <?php if ($entity['shipping_cost'] > 0) : ?>
                 <tr>
-                  <!-- <th></th> -->
-                <!-- <th></th> -->
+                  <th></th>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -216,12 +233,11 @@
                   <th></th>
                   <th></th>
                   <th style="background-color: #eee;">Shipping Cost</th>
-                  <th style="background-color: #eee;"><?= print_number($entity['shipping_cost'], 2); ?></th>
+                  <th style="background-color: #eee;" colspan="2"><?= print_number($entity['shipping_cost'], 2); ?></th>
                 </tr>
               <?php endif; ?>
               <tr>
-                <!-- <th></th> -->
-                <!-- <th></th> -->
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -233,7 +249,7 @@
                 <th></th>
                 <th></th>
                 <th style="background-color: #eee;">Grand Total</th>
-                <th style="background-color: #eee;"><?= print_number($grandtotal, 2); ?></th>
+                <th style="background-color: #eee;" colspan="2"><?= print_number($grandtotal, 2); ?></th>
               </tr>
             </tfoot>
           </table>

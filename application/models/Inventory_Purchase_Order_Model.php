@@ -956,6 +956,7 @@ class Inventory_Purchase_Order_Model extends MY_Model
     $exchange_rate        = $_SESSION['order']['exchange_rate'];
     $discount             = $_SESSION['order']['discount'];
     $taxes                = $_SESSION['order']['taxes'];
+    $pph                = $_SESSION['order']['pph'];
     $shipping_cost        = $_SESSION['order']['shipping_cost'];
     $payment_type         = $_SESSION['order']['payment_type'];
     $warehouse            = $_SESSION['order']['warehouse'];
@@ -995,6 +996,7 @@ class Inventory_Purchase_Order_Model extends MY_Model
     $this->db->set('exchange_rate', $exchange_rate);
     $this->db->set('discount', $discount);
     $this->db->set('taxes', $taxes);
+    $this->db->set('pph', $pph);
     $this->db->set('shipping_cost', $shipping_cost);
     $this->db->set('term_payment', $term_payment);
     $this->db->set('notes', $notes);
@@ -1078,8 +1080,9 @@ class Inventory_Purchase_Order_Model extends MY_Model
 
     $after_discount = $total_value - $discount;
     $total_taxes    = $after_discount * ($taxes / 100);
-    $after_taxes    = $after_discount + $total_taxes;
-    $grandtotal     = $after_taxes + $shipping_cost;
+    $total_pph      = $after_discount * ($pph / 100);
+    $after_taxes_pph    = $after_discount - $total_pph + $total_taxes;
+    $grandtotal     = $after_taxes_pph + $shipping_cost;
 
     $this->db->set('total_quantity', floatval($total_qty));
     $this->db->set('total_price', floatval($total_value));
@@ -1131,6 +1134,7 @@ class Inventory_Purchase_Order_Model extends MY_Model
     $exchange_rate        = $_SESSION['order']['exchange_rate'];
     $discount             = $_SESSION['order']['discount'];
     $taxes                = $_SESSION['order']['taxes'];
+    $pph                  = $_SESSION['order']['pph'];
     $shipping_cost        = $_SESSION['order']['shipping_cost'];
     $payment_type         = $_SESSION['order']['payment_type'];
     $warehouse            = $_SESSION['order']['warehouse'];
@@ -1169,6 +1173,7 @@ class Inventory_Purchase_Order_Model extends MY_Model
     $this->db->set('exchange_rate', $exchange_rate);
     $this->db->set('discount', $discount);
     $this->db->set('taxes', $taxes);
+    $this->db->set('pph',$pph);
     $this->db->set('shipping_cost', $shipping_cost);
     $this->db->set('notes', $notes);
     $this->db->set('status', 'PURPOSED');
@@ -1253,13 +1258,16 @@ class Inventory_Purchase_Order_Model extends MY_Model
 
     $after_discount = $total_value - $discount;
     $total_taxes    = $after_discount * ($taxes / 100);
-    $after_taxes    = $after_discount + $total_taxes;
-    $grandtotal     = $after_taxes + $shipping_cost;
+    $total_pph      = $after_discount * ($pph / 100);
+    $after_taxes_pph    = $after_discount - $total_pph + $total_taxes;
+    $grandtotal     = $after_taxes_pph + $shipping_cost;
 
     $this->db->set('total_quantity', floatval($total_qty));
     $this->db->set('total_price', floatval($total_value));
     $this->db->set('grand_total', floatval($grandtotal));
     $this->db->set('remaining_payment', floatval($grandtotal));
+    $this->db->set('additional_price', floatval($grandtotal - $total_value));
+    $this->db->set('additional_price_remaining', floatval($grandtotal- $total_value));
     $this->db->where('id', $id_po);
     $this->db->update('tb_po');
 
