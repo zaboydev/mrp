@@ -88,19 +88,28 @@
                 <label for="discount">Discount</label>
               </div>
 
-              <div class="form-group">
-                <input type="number" name="taxes" id="taxes" class="form-control" value="<?= $_SESSION['order']['taxes']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_taxes'); ?>">
-                <label for="taxes">Taxes</label>
+              <div class="form-group">                
+                <div class="input-group">
+                  <div class="input-group-content">
+                    <input type="number" name="taxes" id="taxes" class="form-control" value="<?= $_SESSION['order']['taxes']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_taxes'); ?>">
+                    <label for="taxes">Taxes</label>
+                  </div>
+                  <span class="input-group-addon">%</span>
+                </div>
+              </div>
+              <div class="form-group">                
+                <div class="input-group">
+                  <div class="input-group-content">
+                    <input type="number" name="pph" id="taxes" class="form-control" value="<?= $_SESSION['order']['pph']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_pph'); ?>">
+                    <label for="taxes">PPh</label>
+                  </div>
+                  <span class="input-group-addon">%</span>
+                </div>
               </div>
 
               <div class="form-group">
                 <input type="number" name="shipping_cost" id="shipping_cost" class="form-control" value="<?= $_SESSION['order']['shipping_cost']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_shipping_cost'); ?>">
                 <label for="shipping_cost">Shipping Cost</label>
-              </div>
-
-              <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['order']['notes']; ?></textarea>
-                <label for="notes">Notes</label>
               </div>
             </div>
 
@@ -135,6 +144,11 @@
               <div class="form-group">
                 <input type="text" name="reference_quotation" id="reference_quotation" class="form-control" value="<?= $_SESSION['order']['reference_quotation']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_reference_quotation'); ?>" required>
                 <label for="reference_quotation">Ref. Quotation</label>
+              </div>
+
+              <div class="form-group">
+                <textarea name="notes" id="notes" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['order']['notes']; ?></textarea>
+                <label for="notes">Notes</label>
               </div>
             </div>
 
