@@ -424,6 +424,7 @@ class Capex_Order_Evaluation extends MY_Controller
       $_SESSION['capex_poe']['total_price']         = NULL;
       $_SESSION['capex_poe']['grand_total']         = NULL;
       $_SESSION['capex_poe']['notes']               = NULL;
+      $_SESSION['capex_poe']['tipe']                = 'CAPEX';
 
       redirect($this->module['route'] . '/create');
     }

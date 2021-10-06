@@ -421,6 +421,7 @@ class Inventory_Order_Evaluation extends MY_Controller
       $_SESSION['inventory_poe']['total_price']         = NULL;
       $_SESSION['inventory_poe']['grand_total']         = NULL;
       $_SESSION['inventory_poe']['notes']               = NULL;
+      $_SESSION['inventory_poe']['tipe']                = 'INVENTORY';
 
       redirect($this->module['route'] . '/create');
     }

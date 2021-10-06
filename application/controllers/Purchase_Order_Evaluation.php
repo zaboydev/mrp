@@ -563,6 +563,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['total_price']         = NULL;
       $_SESSION['poe']['grand_total']         = NULL;
       $_SESSION['poe']['notes']               = NULL;
+      $_SESSION['poe']['tipe']                = 'INVENTORY MRP';
 
       redirect($this->module['route'] . '/create');
     }

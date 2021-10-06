@@ -402,7 +402,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   public function isDocumentNumberExists($document_number)
   {
-    $this->db->where('document_number', $document_number);
+    $this->db->where('evaluation_number', $document_number);
     $query = $this->db->get('tb_purchase_orders');
 
     if ($query->num_rows() > 0)

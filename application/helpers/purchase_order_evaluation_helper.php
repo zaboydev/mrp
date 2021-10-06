@@ -85,18 +85,13 @@ if ( ! function_exists('poe_format_number')) {
     $year = date('Y');
     $CI =& get_instance();
 
-    $CI->db->select('code');
-    $CI->db->from( 'tb_master_item_categories' );
-    $CI->db->where('tb_master_item_categories.category', $_SESSION['poe']['category']);
-
-    $query    = $CI->db->get();
-    $category = $query->unbuffered_row('array');
-
-    // $return = '/POE/'. $category['code'] .'/'. find_budget_setting('Active Year');
-    $return = '/POE/'.date('Y');
-    // $return = '/POE/'. $category['code'] .'/'. $year;
-
-
+    
+    if($_SESSION['poe']['tipe']=='INVENTORY MRP'){
+      $return = '/POE/'.date('Y');
+    }else{
+      $return = '/POE-L/'.date('Y');
+    }
+    
     return $return;
   }
 }
