@@ -591,6 +591,7 @@
             //   toastr.error('You must filled Notes for each item that you want to approve');
             // } else {
               $(this).attr('disabled', true);
+              $("#modal-reject-data-button-multi").attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
                   'id_expense_request': id_purchase_order,
@@ -598,6 +599,7 @@
                 }).done(function(data) {
                   console.log(data);
                   $("#modal-approve-data-button-multi").attr('disabled', false);
+                  $("#modal-reject-data-button-multi").attr('disabled', false);
                   var result = jQuery.parseJSON(data);
                   if (result.status == 'success') {
                     toastr.options.timeOut = 10000;
@@ -611,12 +613,14 @@
                   }
                 }).fail(function() {
                   $("#modal-approve-data-button-multi").attr('disabled', false);
+                  $("#modal-reject-data-button-multi").attr('disabled', false);
                   toastr.options.timeOut = 10000;
                   toastr.options.positionClass = 'toast-top-right';
                   toastr.error('Delete Failed! This data is still being used by another document.');
                 });
               } else {
                 $(this).attr('disabled', false);
+                $("#modal-reject-data-button-multi").attr('disabled', false);
                 toastr.options.timeOut = 10000;
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
@@ -713,7 +717,11 @@
           }
 
           $("#modal-reject-data-button-multi").click(function() {
+            $(this).attr('disabled', true);
+            $("#modal-approve-data-button-multi").attr('disabled', true);
             if (!encodeNotes()) {
+              $(this).attr('disabled', false);
+              $("#modal-approve-data-button-multi").attr('disabled', false);
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
               toastr.error('You must filled notes for each item that you want to reject');
@@ -724,8 +732,9 @@
             //   toastr.error('You must filled Price for each item that you want to approve');
             // } 
             else {
-
               if (id_purchase_order == "") {
+                $(this).attr('disabled', false);
+                $("#modal-approve-data-button-multi").attr('disabled', false);
                 toastr.options.timeOut = 10000;
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('You must select item that you want to reject');
@@ -752,8 +761,12 @@
                       toastr.options.positionClass = 'toast-top-right';
                       toastr.error('Failed rejected item');
                     }
+                    $(this).attr('disabled', false);
+                    $("#modal-approve-data-button-multi").attr('disabled', false);
                   },
                   error: function(xhr, ajaxOptions, thrownError) {
+                    $(this).attr('disabled', false);
+                    $("#modal-approve-data-button-multi").attr('disabled', false);
                     console.log(xhr.status);
                     console.log(xhr.responseText);
                     console.log(thrownError);

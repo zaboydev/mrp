@@ -342,6 +342,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
       array_push($attachment, $key->file);
     }
     $poe["attachment"] = $attachment;
+    $poe['status_edit'] = getStatusEditPoe($poe['evaluation_number']);
     return $poe;
   }
 

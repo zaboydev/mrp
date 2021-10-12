@@ -2214,4 +2214,20 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getStatusEditPoe')) {
+    function getStatusEditPoe($evaluation_number)
+    {
+      $CI =& get_instance();
+
+      $CI->db->from('tb_po_item');
+      $CI->db->join('tb_po','tb_po.id=tb_po_item.purchase_order_id');
+      $CI->db->where('tb_po_item.poe_number',$evaluation_number);
+      $CI->db->where_not_in('tb_po.status',['REVISI','REJECTED','CANCELED']);
+
+      $query = $CI->db->get();
+
+      return ( $query->num_rows() > 0 ) ? false : true;
+    }
+  }
+
     
