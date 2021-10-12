@@ -175,12 +175,14 @@
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
+            <?php if (!isset($_SESSION['expense_poe']['edit'])) : ?>
             <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas">
               Add Item
             </a>
             <a href="<?= site_url($module['route'] . '/add_request'); ?>" onClick="return popup(this, 'add_request')" class="btn btn-primary ink-reaction hide">
               Select Request
             </a>
+            <?php endif; ?>
 
             <?php if (!empty($_SESSION['expense_poe']['request'])) : ?>
               <a href="<?= site_url($module['route'] . '/edit_request'); ?>" onClick="return popup(this, 'edit_request')" class="btn btn-primary ink-reaction">
