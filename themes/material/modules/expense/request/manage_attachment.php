@@ -3,7 +3,7 @@
 <div class="container">
 
   <h4 class="page-header">Attachment</h4>
-  <?php if (is_granted($module, 'document')) : ?>
+  <?php if (is_granted($module, 'document_attachment')) : ?>
   <form id="form_add_vendor" id="inputForm" class="form" role="form" method="post" enctype="multipart/form-data" action="<?=site_url($module['route'] .'/add_attachment_to_db/'. $id);?>">
     <div class="row">
       <div class="col-sm-12">
@@ -41,7 +41,7 @@
               <td><?=$n?></td>
               <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
-              <?php if (is_granted($module, 'document')) : ?>
+              <?php if (is_granted($module, 'document_attachment')) : ?>
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                   <i class="fa fa-trash"></i>
                 </a>

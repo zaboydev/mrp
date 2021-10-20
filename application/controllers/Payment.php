@@ -35,31 +35,33 @@ class Payment extends MY_Controller
         $attachment = $this->model->checkAttachment($row['id']);
         $no++;
         $col = array();
-        if ($row['status'] == 'WAITING') {
-          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'check') === TRUE) {
+        if (is_granted($this->module, 'approval') === TRUE) {
+          if ($row['status'] == 'WAITING CHECK BY FIN SPV' && config_item('auth_role')=='FINANCE SUPERVISOR') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        }else if ($row['status'] == 'CHECKED') {
-          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approve') === TRUE) {
+          }else if ($row['status'] == 'WAITING REVIEW BY FIN MNG' && config_item('auth_role')=='FINANCE MANAGER') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
+          }else if ($row['status'] == 'WAITING REVIEW BY HOS' && config_item('auth_role')=='HEAD OF SCHOOL') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ($row['status'] == 'WAITING REVIEW BY VP FINANCE' && config_item('auth_role')=='VP FINANCE') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ($row['status'] == 'WAITING REVIEW BY COO' && config_item('auth_role')=='CHIEF OPERATION OFFICER') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else if ($row['status'] == 'WAITING REVIEW BY CFO' && config_item('auth_role')=='CHIEF OF FINANCE') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }else{
             $col[] = print_number($no);
           }
         }else{
-          $col[]  = print_number($no);
-        }
+          $col[] = print_number($no);
+        }        
         $col[]  = print_string($row['no_transaksi']);
         $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['no_cheque']);
-        $col[]  = print_string($row['document_number']);
+        // $col[]  = print_string($row['document_number']);
         $col[]  = print_string($row['vendor']);
         // $col[]  = print_string($row['part_number']);
-        $col[]  = print_string($row['description']);
-        $col[]  = print_string($row['default_currency']);
+        // $col[]  = print_string($row['description']);
+        $col[]  = print_string($row['currency']);
         $col[]  = print_number($row['amount_paid'], 2);
         $col[]  = print_string($row['status']);
         $col[] = $attachment == 0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
@@ -92,7 +94,7 @@ class Payment extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          8 => print_number(array_sum($total), 2),
+          6 => print_number(array_sum($total), 2),
         )
       );
     }
@@ -109,7 +111,7 @@ class Payment extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(8);
+    $this->data['grid']['summary_columns']  = array(6);
 
     $this->data['grid']['order_columns']    = array();
     // $this->data['grid']['order_columns']    = array(
@@ -244,9 +246,7 @@ class Payment extends MY_Controller
     $failed = sizeof($id_purchase_order);
     $x = 0;
     $level = 13;
-    if (config_item('auth_role')=='FINANCE MANAGER') {			
-			$level = 3;
-		}
+    
     foreach ($id_purchase_order as $key) {
       if ($this->model->approve($key)) {
         $total++;
@@ -256,10 +256,6 @@ class Payment extends MY_Controller
       $x++;
     }
     if ($success > 0) {
-      if($level==3){
-        $this->model->send_mail($level);
-      }
-      // $id_role = 13;
       $this->session->set_flashdata('alert', array(
         'type' => 'success',
         'info' => " data has been approved!"
@@ -337,7 +333,8 @@ class Payment extends MY_Controller
     $_SESSION['payment']                          = $item;
     $_SESSION['payment']['no_transaksi']          = $item['no_transaksi'];
     $_SESSION['payment']['vendor']                = $item['vendor'];
-    $_SESSION['payment']['currency']              = $item['default_currency'];
+    $_SESSION['payment']['currency']              = $item['currency'];
+    $_SESSION['payment']['po_payment_id']              = $item['id'];
     $_SESSION['payment']['total_amount']          = 0;
     foreach ($_SESSION['payment']['items'] as $i => $item){
       $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$item['amount_paid'];

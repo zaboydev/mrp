@@ -718,7 +718,7 @@
     if ($(this).val() === "") {
       $(this).val("0")
     }
-    if (parseInt($(this).val()) < 0) {
+    if (parseFloat($(this).val()) < 0) {
       $(this).val("0")
     }
   })
@@ -730,7 +730,7 @@
       toastr.error("All field must be fill");
       return
     }
-    if (parseInt($("#amount").val()) != parseInt($("#total_general").html())) {
+    if (parseFloat($("#amount").val()) != parseFloat($("#total_general").html())) {
       toastr.options.timeOut = 10000;
       toastr.options.positionClass = 'toast-top-right';
       toastr.error("Check value and item value not match");
@@ -756,7 +756,7 @@
         data["document_number"] = $("#sel_item_" + po + "_" + item).val()
         data["id_po"] = $("#sel_item_2_" + po + "_" + item).val()
         data["desc"] = $("#desc_item_" + po + "_" + item).val()
-        data["value"] = parseInt($("#in_item_" + po + "_" + item).val())
+        data["value"] = parseFloat($("#in_item_" + po + "_" + item).val())
         postData.push(data);
       });
     });
@@ -821,7 +821,7 @@
     if ($(this).val() === "") {
       $(this).val("0")
     }
-    if (parseInt($(this).val()) < 0) {
+    if (parseFloat($(this).val()) < 0) {
       $(this).val("0")
     }
   })

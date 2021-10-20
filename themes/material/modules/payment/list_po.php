@@ -4,7 +4,7 @@ $no_item = 1; ?>
     <tr id="row_<?= $no ?>">
         <td><input id="sel_<?= $no ?>" value="<?= $detail['id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
         <td><?= print_string($detail['status']) ?></td>
-        <td><?= print_date($detail['due_date']) ?></td>
+        <td><?= print_date($detail['due_date'],'d/m/Y') ?></td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td><?= print_number($detail['grand_total'], 2) ?></td>
@@ -18,7 +18,7 @@ $no_item = 1; ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['id'] ?>" type="hidden"><input id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['purchase_order_id'] ?>" type="hidden"><?= print_string($detail_po['part_number']) ?></td>
                 <td><?= print_string($detail_po['description']) ?><input id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['description'] ?>" type="hidden"></td>
-                <td><?= print_date($detail_po['due_date']) ?></td>
+                <td><?= $detail_po['due_date'] ?></td>
                 <td><?= print_number($detail_po['quantity_received'], 2) ?></td>
                 <td><?= print_number($detail_po['quantity_received'] * ($detail_po['unit_price'] + $detail_po['core_charge']), 2) ?></td>
                 <td><?= print_number($detail_po['total_amount'], 2) ?></td>
@@ -29,11 +29,10 @@ $no_item = 1; ?>
                 <?php $no_item++; ?>
             </tr>
         <?php endforeach; ?>
-        <?php if ($detail['additional_price_remaining'] > 0) : ?>
+        <?php if ($detail['additional_price_remaining'] != 0) : ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="sel_item_<?= $no ?>_<?= $no_item ?>" value="0" type="hidden"><input id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['id'] ?>" type="hidden">Additional Price</td>
                 <td>Additional Price (PPN, DISC, SHIPPING COST)<input id="desc_item_<?= $no ?>_<?= $no_item ?>" value="Additional Price (PPN, DISC, SHIPPING COST)" type="hidden"></td>
-                <td>-</td>
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>

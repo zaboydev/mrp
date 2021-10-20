@@ -12,12 +12,12 @@ $config['module']['payment']['helper']         = 'material_slip_helper';
 $config['module']['payment']['table']          = 'tb_hutang';
 $config['module']['payment']['model']          = 'Payment_Model';
 $config['module']['payment']['permission']     = array(
-  'index'     => 'AP STAFF,TELLER,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'info'      => 'AP STAFF,TELLER,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-  'print'     => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
+  'index'     => 'AP STAFF,TELLER,FINANCE,FINANCE SUPERVISOR,FINANCE MANAGER,HEAD OF SCHOOL,VP FINANCE,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,SUPER ADMIN',
+  'info'      => 'AP STAFF,TELLER,FINANCE,FINANCE SUPERVISOR,FINANCE MANAGER,HEAD OF SCHOOL,VP FINANCE,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,SUPER ADMIN',
+  'print'     => 'AP STAFF,TELLER,FINANCE,FINANCE SUPERVISOR,FINANCE MANAGER,HEAD OF SCHOOL,VP FINANCE,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,SUPER ADMIN',
   'document'  => 'AP STAFF,SUPER ADMIN',//tambhan supervisor
   'payment'   => 'TELLER,SUPER ADMIN',
-  'approval'  => 'FINANCE MANAGER,VP FINANCE,SUPER ADMIN',//tambhan supervisor
+  'approval'  => 'FINANCE SUPERVISOR,FINANCE MANAGER,HEAD OF SCHOOL,VP FINANCE,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,SUPER ADMIN',//tambhan supervisor
   'check'     => 'FINANCE MANAGER,SUPER ADMIN',
   'approve'   => 'VP FINANCE,SUPER ADMIN'
 );
