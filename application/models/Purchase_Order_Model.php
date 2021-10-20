@@ -1061,6 +1061,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('core_charge', floatval($item['core_charge']));
       $this->db->set('total_amount', floatval($item['total_amount']));
       $this->db->set('left_paid_amount', floatval($item['total_amount']));
+      $this->db->set('left_paid_request', floatval($item['total_amount']));
       $this->db->set('poe_number', $item['evaluation_number']);      
       $this->db->set('purchase_request_number', $item['purchase_request_number']);
       $this->db->insert('tb_po_item');
@@ -1100,8 +1101,10 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('total_price', floatval($total_value));
     $this->db->set('grand_total', floatval($grandtotal));
     $this->db->set('remaining_payment', floatval($grandtotal));
+    $this->db->set('remaining_payment_request', floatval($grandtotal));
     $this->db->set('additional_price', floatval($grandtotal - $total_value));
     $this->db->set('additional_price_remaining', floatval($grandtotal- $total_value));
+    $this->db->set('additional_price_remaining_request', floatval($grandtotal- $total_value));
     $this->db->where('id', $id_po);
     $this->db->update('tb_po');
 
