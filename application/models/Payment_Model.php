@@ -261,7 +261,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_po');
 		$this->db->where('vendor', $vendor);
 		$this->db->where('default_currency', $currency);
-		$this->db->where('remaining_payment >', 0);
+		$this->db->where('remaining_payment_request >', 0);
 		$this->db->where_in('status', ['OPEN', 'ORDER']);
 		$this->db->order_by('id', 'asc');
 		$po = $this->db->get()->result_array();
@@ -270,6 +270,7 @@ class Payment_Model extends MY_MODEL
 			$this->db->from('tb_po_item');
 			$this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id');
 			$this->db->where('tb_po_item.purchase_order_id', $detail['id']);
+			$this->db->where('tb_po_item.left_paid_request >', 0);
 			$this->db->order_by('tb_po_item.id', 'asc');
 			$query = $this->db->get();
 
@@ -287,7 +288,7 @@ class Payment_Model extends MY_MODEL
 		// $this->db->join('tb_po','tb_po.id=tb_po_item.purchase_order_id');
 		$this->db->where('tb_po.vendor', $vendor);
 		$this->db->where('tb_po.default_currency', $currency);
-		$this->db->where('tb_po.remaining_payment >', 0);
+		$this->db->where('tb_po.remaining_payment_request >', 0);
 		$this->db->where_in('tb_po.status', ['OPEN', 'ORDER']);
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
@@ -301,7 +302,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('tb_po.vendor', $vendor);
 		$this->db->where('tb_po.default_currency', $currency);
 		$this->db->where('tb_po.remaining_payment >', 0);
-		$this->db->where('tb_po.additional_price_remaining !=', 0);
+		$this->db->where('tb_po.additional_price_remaining_request !=', 0);
 		$this->db->where_in('tb_po.status', ['OPEN', 'ORDER']);
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
@@ -314,7 +315,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
 		$this->db->where('tb_po.vendor', $vendor);
 		$this->db->where('tb_po.default_currency', $currency);
-		$this->db->where('tb_po.remaining_payment >', 0);
+		$this->db->where('tb_po.remaining_payment_request >', 0);
 		$this->db->where_in('tb_po.status', ['OPEN', 'ORDER']);
 		// $this->db->where('document_number is not null', null,false);
 		return $this->db->get()->num_rows();
@@ -400,6 +401,23 @@ class Payment_Model extends MY_MODEL
 				$this->db->insert('tb_purchase_order_items_payments');
 				$id = $this->db->insert_id();
 				$id_payment[] = $id;
+
+				if($key['document_number']!==null){
+					$this->db->set('left_paid_request', '"left_paid_request" - ' . $key["amount_paid"], false);
+					// $this->db->set('payment', '"payment" + ' . $key["value"], false);
+					$this->db->where('id', $key["document_number"]);
+					$this->db->update('tb_po_item');
+				}else{
+					$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $key["amount_paid"], false);
+					// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
+					$this->db->where('id', $id_po);
+					$this->db->update('tb_po');
+				}
+
+				$this->db->set('remaining_payment_request', '"remaining_payment_request" - ' . $key["amount_paid"], false);
+				// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
 
 				// $this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["value"], false);
 				// // $this->db->set('payment', '"payment" + ' . $key["value"], false);
@@ -791,6 +809,31 @@ class Payment_Model extends MY_MODEL
 			$this->db->update('tb_po_payments');
 			$status = 'REJECTED';
 		}		
+
+		$this->db->select('tb_purchase_order_items_payments.*');
+        $this->db->from('tb_purchase_order_items_payments');
+        $this->db->where('tb_purchase_order_items_payments.po_payment_id',$id);
+		$query    		= $this->db->get();
+		
+		foreach ($query->result_array() as $key => $item) {
+			$id_po = $item['id_po'];
+			if($item['purchase_order_item_id']!==null){
+				$this->db->set('left_paid_request', '"left_paid_request" + ' . $item["amount_paid"], false);
+				// $this->db->set('payment', '"payment" + ' . $key["value"], false);
+				$this->db->where('id', $item["purchase_order_item_id"]);
+				$this->db->update('tb_po_item');
+			}else{
+				$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" + ' . $item["amount_paid"], false);
+				// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
+			}
+
+			$this->db->set('remaining_payment_request', '"remaining_payment_request" + ' . $item["amount_paid"], false);
+			// $this->db->set('payment', '"payment" + ' . $item["amount_paid"], false);
+			$this->db->where('id', $id_po);
+			$this->db->update('tb_po');
+		}
 
 		$this->db->set('status', $status);
 		$this->db->where('po_payment_id', $id);
