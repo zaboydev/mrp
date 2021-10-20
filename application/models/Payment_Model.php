@@ -264,21 +264,24 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('remaining_payment_request >', 0);
 		$this->db->where_in('status', ['OPEN', 'ORDER']);
 		$this->db->order_by('id', 'asc');
-		$po = $this->db->get()->result_array();
-		foreach ($po as $detail) {
+		$po = $this->db->get();
+		$list_po = array();
+		// foreach ($po as $detail) {
+		foreach ($po->result_array() as $key => $detail) {
+			$list_po[$key]= $detail;
 			$this->db->select('*');
 			$this->db->from('tb_po_item');
-			$this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id');
+			// $this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id');
 			$this->db->where('tb_po_item.purchase_order_id', $detail['id']);
 			$this->db->where('tb_po_item.left_paid_request >', 0);
 			$this->db->order_by('tb_po_item.id', 'asc');
 			$query = $this->db->get();
 
-			foreach ($query->result_array() as $key => $value) {
-				$po['items'][$detail['id']][$key] = $value;
+			foreach ($query->result_array() as $i => $value) {
+				$list_po[$key]['items'][$i] = $value;
 			}
 		}
-		return $po;
+		return $list_po;
 	}
 
 	function countPoByVendor($vendor, $currency, $tipe)
