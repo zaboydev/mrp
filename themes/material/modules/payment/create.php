@@ -723,7 +723,8 @@
     }
   })
   $("#btn-submit-document").click(function(e) {
-    e.preventDefault()
+    e.preventDefault();
+    $("#btn-submit-document").attr('disabled', true);
     if ($("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
       toastr.options.timeOut = 10000;
       toastr.options.positionClass = 'toast-top-right';
