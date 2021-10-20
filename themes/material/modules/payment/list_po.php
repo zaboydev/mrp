@@ -14,7 +14,7 @@ $no_item = 1; ?>
         <td><button type="button" class="btn btn-xs btn-info btn-sm"><i class="fa fa-eye btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"></i></button></td>
     </tr>
     <div id="list_detail_po">
-        <?php foreach ($po['items'][$detail['id']] as $i => $detail_po) : ?>
+        <?php foreach ($detail['items'] as $i => $detail_po) : ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['id'] ?>" type="hidden"><input id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['purchase_order_id'] ?>" type="hidden"><?= print_string($detail_po['part_number']) ?></td>
                 <td><?= print_string($detail_po['description']) ?><input id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['description'] ?>" type="hidden"></td>

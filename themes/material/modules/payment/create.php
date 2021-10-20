@@ -726,12 +726,15 @@
     e.preventDefault();
     $("#btn-submit-document").attr('disabled', true);
     if ($("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
+      
+      $("#btn-submit-document").attr('disabled', false);
       toastr.options.timeOut = 10000;
       toastr.options.positionClass = 'toast-top-right';
       toastr.error("All field must be fill");
       return
     }
     if (parseFloat($("#amount").val()) != parseFloat($("#total_general").html())) {
+      $("#btn-submit-document").attr('disabled', false);
       toastr.options.timeOut = 10000;
       toastr.options.positionClass = 'toast-top-right';
       toastr.error("Check value and item value not match");
@@ -794,6 +797,7 @@
           }, 5000);
 
         } else {
+          $("#btn-submit-document").attr('disabled', false);
           toastr.options.timeOut = 10000;
           toastr.options.positionClass = 'toast-top-right';
           toastr.error("Failed to save data");
@@ -801,6 +805,7 @@
       },
       error: function(xhr, ajaxOptions, thrownError) {
         $("#loadingScreen2").attr("style", "display:none");
+        $("#btn-submit-document").attr('disabled', false);
         console.log(xhr.status);
         console.log(xhr.responseText);
         console.log(thrownError);
