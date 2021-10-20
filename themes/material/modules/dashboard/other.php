@@ -13,7 +13,7 @@
           <div class="col-md-4">
             <div class="card">
               <div class="card-head style-primary">
-                <header>Approval Procurement</header>
+                <header>Approval</header>
               </div>
                 <?php if (is_granted($modules['capex_request'], 'approval')):?>
                   <div class="card-head collapsed">
@@ -130,6 +130,16 @@
                     <header>
                       <a href="<?=site_url($modules['purchase_order']['route']);?>">
                         Purchase Order (<strong><font color="red"><?=$count_po;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['payment'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['payment']['route']);?>">
+                        Payment Request (<strong><font color="red"><?=$count_payment_request;?></font></strong>)
                       </a>
                     </header>
                   </div>

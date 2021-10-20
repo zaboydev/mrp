@@ -25,6 +25,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input readonly value="<?= $_SESSION['payment']['no_transaksi'] ?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
+                                <input value="<?= $_SESSION['payment']['po_payment_id'] ?>" type="text" name="po_payment_id" id="po_payment_id" class="form-control">
 
                                 <label for="suplier_select">Purpose Number</label>
                             </div>
@@ -649,6 +650,7 @@
                 "no_cheque": $("#no_cheque").val(),
                 "date": $("#date").val(),
                 "amount": $("#amount").val(),
+                "po_payment_id": $("#po_payment_id").val(),
                 // "item": postData
             },
             cache: false,

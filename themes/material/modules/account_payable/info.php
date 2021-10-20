@@ -187,6 +187,7 @@
                     <th class="middle-alignment">Tanggal</th>
                     <th class="middle-alignment">No Cheque</th>
                     <th class="middle-alignment" colspan="2">Amount</th>
+                    <th class="middle-alignment">Status</th>
                   </tr>
                 </thead>
                 <tbody id="table_contents">
@@ -211,7 +212,10 @@
                         </td>
                         <td colspan="2">
                           <?= print_number($detail_payment['amount_paid'], 2); ?>
-                          </td>
+                        </td>
+                        <td class="no-space">
+                          <?= print_string($detail_payment['status']); ?>
+                        </td>
                       </tr>
                     <?php endforeach; ?>
                   <?php else : ?>

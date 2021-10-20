@@ -557,4 +557,34 @@ class Dashboard_Model extends MY_Model
     return $return;
   }
 
+  public function count_payment_request($role){
+    $status =['no_status'];
+    if($role=='FINANCE SUPERVISOR'){
+      $status = ['WAITING CHECK BY FIN SPV'];
+    }    
+    if($role=='FINANCE MANAGER'){
+      $status = ['WAITING REVIEW BY FIN MNG'];
+    }
+    if($role=='HEAD OF SCHOOL'){
+      $status = ['WAITING REVIEW BY HOS'];
+    }
+    if($role=='CHIEF OPERATION OFFICER'){
+      $status = ['WAITING REVIEW BY COO'];
+    }
+    if($role=='VP FINANCE'){
+      $status = ['WAITING REVIEW BY VP FINANCE'];
+    }
+    if($role=='CHIEF OF FINANCE'){
+      $status = ['WAITING REVIEW BY CFO'];
+    }
+
+    $this->db->select('*');
+    $this->db->from('tb_po_payments');
+		// $this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+    $this->db->where_in('tb_po_payments.status', $status);
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
 }
