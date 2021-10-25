@@ -87,6 +87,19 @@ class Grn_Payment_Model extends MY_Model
       }
     }
 
+    if (!empty($_POST['columns'][4]['search']['value'])) {
+      $type = $_POST['columns'][4]['search']['value'];
+      if ($type != 'all' && $type != null) {
+        if($type=='POM'){
+          $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
+        } else if($type=='POL'){
+          $this->db->where_in('tb_po.tipe_po', ['INVENTORY','CAPEX','EXPENSE']);
+        }        
+      }
+    }else{
+      $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
+    }
+
     $i = 0;
     foreach ($this->getSearchableColumns() as $item) {
       if ($_POST['search']['value']) {

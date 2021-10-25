@@ -89,6 +89,19 @@ class Po_Grn_Model extends MY_Model
       $this->db->where('tb_po.document_date <= ', $range_received_date[1]);
     }
 
+    if (!empty($_POST['columns'][3]['search']['value'])) {
+      $type = $_POST['columns'][3]['search']['value'];
+      if ($type != 'all' && $type != null) {
+        if($type=='POM'){
+          $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
+        } else if($type=='POL'){
+          $this->db->where_in('tb_po.tipe_po', ['INVENTORY','CAPEX','EXPENSE']);
+        }        
+      }
+    }else{
+      $this->db->where('tb_po.tipe_po', 'INVENTORY MRP');
+    }
+
     $i = 0;
 
     foreach ($this->getSearchableColumns() as $item){
