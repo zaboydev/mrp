@@ -225,8 +225,8 @@
                 <th width="7%" class="middle-alignment">Received Qty</th>
                 <th width="8%" class="middle-alignment">Received Val.</th>
                 <th width="10%" class="middle-alignment">Amount</th>
-                <th width="10%" class="middle-alignment">Paid Amount</th>
-                <th width="10%" class="middle-alignment">Remaining Payment</th>
+                <th width="10%" class="middle-alignment">Purposed Amount</th>
+                <th width="10%" class="middle-alignment">Remaining Purpose Payment</th>
                 <th width="7%" class="middle-alignment">Total Applied/Purposed</th>
                 <th width="5%" class="middle-alignment"></th>
               </tr>

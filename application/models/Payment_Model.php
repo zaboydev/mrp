@@ -7,6 +7,7 @@ class Payment_Model extends MY_MODEL
 	{
 		parent::__construct();
 
+		$this->connection   = $this->load->database('budgetcontrol', TRUE);
 		$this->modules        = config_item('module');
         $this->data['modules']        = $this->modules;
 	}
@@ -23,8 +24,8 @@ class Payment_Model extends MY_MODEL
 			// 'tb_po_item.part_number'             								=> 'Part Number',
 			// 'tb_purchase_order_items_payments.deskripsi as description'			=> 'Description',
 			'tb_po_payments.currency'             								=> 'Currency',
-            'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid'  => 'Amount',
-			// 'tb_purchase_order_items_payments.amount_paid'   					=> 'Amount',
+            'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid'  => 'Amount IDR',
+			'tb_po_payments.akun_kredit'   										=> 'Amount USD',
 			'tb_po_payments.status'	                     						=> 'Status',
 			NULL											           			=> 'Attachment',
 			'tb_po_payments.created_by'           								=> 'Created by',
@@ -87,6 +88,7 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.status',
 			'tb_po_payments.created_by',
 			'tb_po_payments.created_at',
+			'tb_po_payments.akun_kredit'
 		);
 
 		return $return;
@@ -594,7 +596,7 @@ class Payment_Model extends MY_MODEL
 
 	public function findById($id)
 	{
-		$this->db->where('id', $id);
+		// $this->db->where('id', $id);
 
 		$this->db->select('tb_po_payments.*');
 		$this->db->from('tb_po_payments');
@@ -613,6 +615,7 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.id',
 			'tb_po.document_number',
 			'tb_po.default_currency',
+			'tb_po.tipe_po',
 		);
 
 		$this->db->select($select);
@@ -627,10 +630,113 @@ class Payment_Model extends MY_MODEL
 
 		foreach ($query_item->result_array() as $key => $value) {
 			$payment['items'][$key] = $value;
+			if($value['purchase_order_item_id']!=null){
+				$item 										= $this->getItemPoById($value['purchase_order_item_id']);
+				$payment['items'][$key]['poe_number'] 		= $item['poe_number'];
+				$poe 										= $this->getPoe($item['poe_number']);
+				$payment['items'][$key]['poe_id'] 			= $poe['id'];
+				$payment['items'][$key]['poe_type'] 		= $poe['tipe'];
+				$payment['items'][$key]['request_number'] 	= $item['purchase_request_number'];
+				$payment['items'][$key]['request_id'] 		= $this->getRequestId($item['purchase_request_number'],$value['tipe_po']);
+				$payment['items'][$key]['history']              = $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);
+			}else{
+				$payment['items'][$key]['poe_number'] 		= null;
+				$payment['items'][$key]['request_number'] 	= null;
+				$payment['items'][$key]['history']              = $this->getHistory($value['id'],$value['id_po']);
+			}			
+			
 		}
 
 		return $payment;
 	}
+
+	public function getItemPoById($id)
+	{
+		$this->db->select('tb_po_item.*');
+		$this->db->from('tb_po_item');
+		$this->db->where('tb_po_item.id', $id);
+		$query = $this->db->get();
+		$item = $query->unbuffered_row('array');
+
+		return $item;
+	}
+
+	public function getRequestId($pr_number,$tipe)
+  	{
+	    $return = 0;
+	    if($tipe=='INVENTORY MRP'){
+	      $this->db->select('id');
+	      $this->db->where('pr_number', $pr_number);
+	      $this->db->from('tb_inventory_purchase_requisitions');
+	      $query    = $this->db->get();
+	      $request = $query->unbuffered_row();
+	      $return = $request->id;
+	    }
+
+	    if($tipe=='INVENTORY'){
+	      $this->connection->select('id');
+	      $this->connection->where('pr_number', $pr_number);
+	      $this->connection->from('tb_inventory_purchase_requisitions');
+	      $query    = $this->connection->get();
+	      $request = $query->unbuffered_row();
+	      $return = $request->id;
+	    }
+
+	    if($tipe=='EXPENSE'){
+	      $this->connection->select('id');
+	      $this->connection->where('pr_number', $pr_number);
+	      $this->connection->from('tb_expense_purchase_requisitions');
+	      $query    = $this->connection->get();
+	      $request = $query->unbuffered_row();
+	      $return = $request->id;
+	    }
+
+	    if($tipe=='CAPEX'){
+	      $this->connection->select('id');
+	      $this->connection->where('pr_number', $pr_number);
+	      $this->connection->from('tb_capex_purchase_requisitions');
+	      $query    = $this->connection->get();
+	      $request = $query->unbuffered_row();
+	      $return = $request->id;
+	    }
+	    return $return;
+  	}
+
+  	public function getPoe($poe_number)
+	{
+	    // $return = 0;
+	    $this->db->select('id,tipe');
+	    $this->db->where('evaluation_number', $poe_number);
+	    $this->db->from('tb_purchase_orders');
+	    $query    = $this->db->get();
+	    $return = $query->unbuffered_row('array');
+	    
+	    return $return;
+	}
+
+	public function getHistory($id,$id_po,$purchase_order_item_id=null)
+    {
+        $select = array(
+          'tb_po_payments.document_number',
+          'tb_po_payments.status',
+          'tb_po_payments.tanggal',
+          'tb_po_payments.currency',
+          'tb_purchase_order_items_payments.amount_paid'
+        );
+        $this->db->select($select);
+        $this->db->from('tb_purchase_order_items_payments');
+        $this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+        if($purchase_order_item_id!=null){
+        	$this->db->where('tb_purchase_order_items_payments.purchase_order_item_id', $purchase_order_item_id);
+        }else{
+        	$this->db->where('tb_purchase_order_items_payments.id_po', $id_po);
+        	$this->db->where('tb_purchase_order_items_payments.purchase_order_item_id', null);
+        }        
+        $this->db->where('tb_purchase_order_items_payments.id <',$id);
+        $query  = $this->db->get();
+
+        return $query->result_array();
+    }
 
 	public function approve($id)
 	{
