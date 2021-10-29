@@ -20,7 +20,7 @@
             <div class="pull-right"><?= print_string($entity['no_transaksi']); ?></div>
           </div>
           <div class="clearfix">
-            <div class="pull-left">DATE: </div>
+            <div class="pull-left"> PURPOSE DATE: </div>
             <div class="pull-right"><?= print_date($entity['tanggal']); ?></div>
           </div>
         </div>
@@ -51,6 +51,7 @@
               <tr>
                 <th>No</th>
                 <th>PO#</th>
+                <th>Due Date</th>
                 <th>Currency</th>
                 <!-- <th>P/N</th> -->
                 <th>Description</th>
@@ -70,6 +71,9 @@
                   </td>
                   <td>
                     <?= print_string($detail['document_number']); ?>
+                  </td>
+                  <td>
+                    <?= print_date($detail['due_date'],'d/m/Y'); ?>
                   </td>
                   <td>
                     <?= print_string($detail['default_currency']); ?>
@@ -174,6 +178,94 @@
                 <th><?=print_number(array_sum($grandtotal), 2);?></th>
                 <th></th>
                 <!-- <th></th> -->
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <h3>GRN INFO</h3>
+        <div class="table-responsive">
+          <table class="table table-striped table-nowrap">
+            <thead id="table_header">
+              <th style="text-align: center;">No</th>
+              <th style="text-align: center;">PO#</th>
+              <th style="text-align: center;">P/N</th>
+              <th style="text-align: center;">Desc</th>
+              <th style="text-align: center;">Qty Order</th>
+              <th style="text-align: center;">Value Order</th>
+              <th style="text-align: center;">Qty Receipt</th>
+              <th style="text-align: center;">Value Receipt</th>
+              <th style="text-align: center;">Qty Remaining</th>
+              <th style="text-align: center;">Value Remaining</th>
+            </thead>
+            <tbody id="table_contents">
+              <?php 
+                $n = 0;
+                $total_quantity_order     = array();
+                $total_value_order        = array();
+                $total_quantity_receipt   = array();
+                $total_value_receipt      = array();
+                $total_quantity_remaining = array();
+                $total_value_remaining    = array();
+              ?>              
+              <?php foreach ($entity['items'] as $i => $detail):?>
+                <?php 
+                  $n++;
+                  $total_quantity_order[]     = $detail['item']['quantity'];
+                  $total_value_order[]        = $detail['item']['total_amount'];
+                  $total_quantity_receipt[]   = $detail['item']['grn_qty'];
+                  $total_value_receipt[]      = $detail['item']['grn_qty']*$detail['item']['unit_price'];
+                  $total_quantity_remaining[] = $detail['item']['left_received_quantity'];
+                  $total_value_remaining[]    = $detail['item']['left_received_quantity']*$detail['item']['unit_price'];
+                ?>
+                <tr>
+                  <td style="text-align: center;">
+                    <?=print_number($n);?>
+                  </td>
+                  <td>
+                    <?= print_string($detail['document_number']); ?>
+                  </td>
+                  <td>
+                    <?= print_string($detail['item']['part_number']); ?>
+                  </td>
+                  <td>
+                    <?= print_string($detail['description']); ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['item']['quantity'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['item']['total_amount'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['item']['grn_qty'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['item']['grn_qty']*$detail['item']['unit_price'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['item']['left_received_quantity'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['item']['left_received_quantity']*$detail['item']['unit_price'], 2); ?>
+                  </td>
+                </tr>
+                              
+              <?php endforeach;?>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Total</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th><?=print_number(array_sum($total_quantity_order), 2);?></th>
+                <th><?=print_number(array_sum($total_value_order), 2);?></th>
+                <th><?=print_number(array_sum($total_quantity_receipt), 2);?></th>
+                <th><?=print_number(array_sum($total_value_receipt), 2);?></th>
+                <th><?=print_number(array_sum($total_quantity_remaining), 2);?></th>
+                <th><?=print_number(array_sum($total_value_remaining), 2);?></th>
               </tr>
             </tfoot>
           </table>

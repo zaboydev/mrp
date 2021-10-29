@@ -616,13 +616,13 @@ class Payment_Model extends MY_MODEL
 			'tb_po.document_number',
 			'tb_po.default_currency',
 			'tb_po.tipe_po',
+			'tb_po.due_date',
+			
 		);
 
 		$this->db->select($select);
 		$this->db->from('tb_purchase_order_items_payments');
-		// $this->db->join('tb_po_item', 'tb_purchase_order_items_payments.purchase_order_item_id = tb_po_item.id');
 		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
-		// $this->db->where('tb_purchase_order_items_payments.no_transaksi', $no_jurnal);
 		$this->db->where('tb_purchase_order_items_payments.po_payment_id', $id);
 		$this->db->order_by('tb_purchase_order_items_payments.id_po','asc');
 
@@ -636,9 +636,10 @@ class Payment_Model extends MY_MODEL
 				$poe 										= $this->getPoe($item['poe_number']);
 				$payment['items'][$key]['poe_id'] 			= $poe['id'];
 				$payment['items'][$key]['poe_type'] 		= $poe['tipe'];
+				$payment['items'][$key]['item'] 			= $item;
 				$payment['items'][$key]['request_number'] 	= $item['purchase_request_number'];
 				$payment['items'][$key]['request_id'] 		= $this->getRequestId($item['purchase_request_number'],$value['tipe_po']);
-				$payment['items'][$key]['history']              = $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);
+				$payment['items'][$key]['history']          = $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);
 			}else{
 				$payment['items'][$key]['poe_number'] 		= null;
 				$payment['items'][$key]['request_number'] 	= null;
@@ -650,11 +651,55 @@ class Payment_Model extends MY_MODEL
 		return $payment;
 	}
 
+	public function getReceiptItems($purchase_order_item_id)
+	{
+	    $select = array(
+	      'tb_receipts.id',
+	      'tb_receipts.document_number',
+	      'tb_receipts.received_date',
+	      'tb_receipts.received_by',
+	      'tb_receipt_items.received_quantity',
+	      'tb_receipt_items.received_unit_value',
+	      'tb_receipt_items.received_total_value',
+	      
+	    );
+
+	    $this->db->select($select);
+	    $this->db->from('tb_receipt_items');
+	    $this->db->join('tb_receipts', 'tb_receipts.document_number = tb_receipt_items.document_number');    
+	    $this->db->where('tb_receipt_items.purchase_order_item_id', $purchase_order_item_id);
+
+	    $query = $this->db->get();
+
+	    return $query->result_array();
+	}
+
 	public function getItemPoById($id)
 	{
-		$this->db->select('tb_po_item.*');
+		$this->db->select(array(
+			'tb_po_item.poe_number',
+			'tb_po_item.purchase_request_number',
+			'tb_po_item.part_number',
+			'tb_po_item.quantity',
+			'tb_po_item.total_amount',
+			'tb_po_item.unit_price',
+			'tb_po_item.left_received_quantity',
+			'sum(case when tb_receipt_items.quantity_order is null then 0.00 else tb_receipt_items.quantity_order end) as "grn_qty"'
+		)
+		);
 		$this->db->from('tb_po_item');
+		$this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
 		$this->db->where('tb_po_item.id', $id);
+		$this->db->group_by(array(
+			'tb_po_item.poe_number',
+			'tb_po_item.purchase_request_number',
+			'tb_po_item.part_number',
+			'tb_po_item.quantity',
+			'tb_po_item.total_amount',
+			'tb_po_item.unit_price',
+			'tb_po_item.left_received_quantity'
+		)
+		);
 		$query = $this->db->get();
 		$item = $query->unbuffered_row('array');
 
