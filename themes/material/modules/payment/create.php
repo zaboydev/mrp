@@ -204,6 +204,11 @@
               </div>
 
               <div class="form-group">
+                <input type="text" name="purposed_date" id="purposed_date" class="form-control" value="<?= date('Y-m-d') ?>">
+                <label for="date">Purposed Date</label>
+              </div>
+
+              <div class="form-group">
                 <input type="number" name="amount" id="amount" class="form-control" value="0" readonly="readonly">
                 <label for="amount">Amount</label>
               </div>
@@ -826,6 +831,7 @@
         "tipe": $("#tipe_select").val(),
         "no_cheque": $("#no_cheque").val(),
         "date": $("#date").val(),
+        "purposed_date": $("#purposed_date").val(),
         "amount": $("#amount").val(),
         "item": postData
       },

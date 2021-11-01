@@ -20,8 +20,12 @@
             <div class="pull-right"><?= print_string($entity['no_transaksi']); ?></div>
           </div>
           <div class="clearfix">
-            <div class="pull-left"> PURPOSE DATE: </div>
+            <div class="pull-left"> DATE: </div>
             <div class="pull-right"><?= print_date($entity['tanggal']); ?></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left"> PURPOSED DATE: </div>
+            <div class="pull-right"><?= print_date($entity['purposed_date']); ?></div>
           </div>
         </div>
       </div>
@@ -70,7 +74,7 @@
                     <?= print_number($n); ?>
                   </td>
                   <td>
-                    <?= print_string($detail['document_number']); ?>
+                    <a href="<?= site_url('payment/print_po/' . $detail['id_po'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['document_number'])?></a>
                   </td>
                   <td>
                     <?= print_date($detail['due_date'],'d/m/Y'); ?>
@@ -252,7 +256,18 @@
                     <?= print_number($detail['item']['left_received_quantity']*$detail['item']['unit_price'], 2); ?>
                   </td>
                 </tr>
-                              
+                <?php if(count($detail['item']['grn'])>0):?> 
+                <?php foreach ($detail['item']['grn'] as $i => $grn):?>
+                <tr>
+                  <td></td>
+                  <td colspan="5"><a href="<?= site_url('goods_received_note/print_po/' . $grn['id']) ?>" target="_blank"><?= print_string($grn['document_number']); ?></a></td>
+                  <td><?= print_number($grn['quantity_order'], 2); ?></td>
+                  <td><?= print_number($grn['quantity_order']*$detail['item']['unit_price'], 2); ?></td>
+                  <td></td>
+                  <td></td>
+                </tr>  
+                <?php endforeach;?>
+                <?php endif;?>           
               <?php endforeach;?>
             </tbody>
             <tfoot>

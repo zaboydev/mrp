@@ -329,16 +329,17 @@ class Payment_Model extends MY_MODEL
 	function save()
 	{
 		$this->db->trans_begin();
-		$item = $this->input->post('item');
-		$account = $this->input->post('account');
-		$vendor = $this->input->post('vendor');
-		$no_cheque = $this->input->post('no_cheque');
-		$tanggal = $this->input->post('date');
-		$amount = $this->input->post('amount');
-		$no_jurnal = $this->jrl_last_number();
-		$currency = $this->input->post('currency');
-		$kurs = $this->tgl_kurs(date("Y-m-d"));
-		$tipe = $this->input->post('tipe');
+		$item 		= $this->input->post('item');
+		$account 	= $this->input->post('account');
+		$vendor 	= $this->input->post('vendor');
+		$no_cheque 	= $this->input->post('no_cheque');
+		$tanggal 	= $this->input->post('date');
+		$purposed_date 	= $this->input->post('purposed_date');
+		$amount 	= $this->input->post('amount');
+		$no_jurnal 	= $this->jrl_last_number();
+		$currency 	= $this->input->post('currency');
+		$kurs 		= $this->tgl_kurs(date("Y-m-d"));
+		$tipe 		= $this->input->post('tipe');
 		if ($currency == 'IDR') {
 			$amount_idr = $amount;
 			$amount_usd = $amount / $kurs;
@@ -369,6 +370,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('document_number', $no_jurnal);
 		$this->db->set('vendor', $vendor);
 		$this->db->set('tanggal', $tanggal);
+		$this->db->set('purposed_date', $purposed_date);
 		$this->db->set('currency', $currency);
 		$this->db->set('created_by', config_item('auth_person_name'));
 		$this->db->set('created_at', date('Y-m-d'));
@@ -643,11 +645,12 @@ class Payment_Model extends MY_MODEL
 				$payment['items'][$key]['item'] 			= $item;
 				$payment['items'][$key]['request_number'] 	= $item['purchase_request_number'];
 				$payment['items'][$key]['request_id'] 		= $this->getRequestId($item['purchase_request_number'],$value['tipe_po']);
-				$payment['items'][$key]['history']          = $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);
+				$payment['items'][$key]['history']          = $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);				
 			}else{
 				$payment['items'][$key]['poe_number'] 		= null;
 				$payment['items'][$key]['request_number'] 	= null;
 				$payment['items'][$key]['history']              = $this->getHistory($value['id'],$value['id_po']);
+				$payment['items'][$key]['grn']				= [];
 			}			
 			
 		}
@@ -664,7 +667,8 @@ class Payment_Model extends MY_MODEL
 	      'tb_receipts.received_by',
 	      'tb_receipt_items.received_quantity',
 	      'tb_receipt_items.received_unit_value',
-	      'tb_receipt_items.received_total_value',
+		  'tb_receipt_items.received_total_value',
+		  'tb_receipt_items.quantity_order'
 	      
 	    );
 
@@ -706,6 +710,8 @@ class Payment_Model extends MY_MODEL
 		);
 		$query = $this->db->get();
 		$item = $query->unbuffered_row('array');
+
+		$item['grn'] = $this->getReceiptItems($id);
 
 		return $item;
 	}
@@ -1289,15 +1295,15 @@ class Payment_Model extends MY_MODEL
 	public function send_mail($doc_id, $level)
     {
 		$this->db->select(
-        array(
-          'tb_po.document_number',
-          'tb_purchase_order_items_payments.deskripsi',
-          'tb_purchase_order_items_payments.tanggal',
-          'tb_purchase_order_items_payments.no_transaksi',
-          'tb_purchase_order_items_payments.amount_paid',
-          'tb_po_payments.currency',
-        )
-      );
+			array(
+			'tb_po.document_number',
+			'tb_purchase_order_items_payments.deskripsi',
+			'tb_purchase_order_items_payments.tanggal',
+			'tb_purchase_order_items_payments.no_transaksi',
+			'tb_purchase_order_items_payments.amount_paid',
+			'tb_po_payments.currency',
+			)
+		);
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments','tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		$this->db->join('tb_po','tb_po.id = tb_purchase_order_items_payments.id_po');
@@ -1368,5 +1374,5 @@ class Payment_Model extends MY_MODEL
 	// }
 }
 
-/* End of file Jurnal_Model.php */
-/* Location: ./application/models/Jurnal_Model.php */
+/* End of file Payment_Model.php */
+/* Location: ./application/models/Payment_Model.php */
