@@ -2133,20 +2133,23 @@ class Purchase_Order_Model extends MY_Model
     return $this->db->get()->row();
   }
 
-  public function listAttachment_2($id)
+  public function listAttachment_2($id,$tipe_att)
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'PO');
+    $this->db->where('tipe_att', $tipe_att);
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
-  function add_attachment_to_db($id_poe, $url)
+  function add_attachment_to_db($id_poe, $url,$tipe_att)
   {
     $this->db->trans_begin();
 
     $this->db->set('id_poe', $id_poe);
+    $this->db->set('id_po', $id_poe);
     $this->db->set('file', $url);
     $this->db->set('tipe', 'PO');
+    $this->db->set('tipe_att', $tipe_att);
     $this->db->insert('tb_attachment_poe');
 
     if ($this->db->trans_status() === FALSE)
