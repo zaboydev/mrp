@@ -109,6 +109,7 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
                 <!-- <th></th> -->
                 <th><?= print_number(array_sum($amount_paid), 2); ?></th>
               </tr>

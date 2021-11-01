@@ -265,7 +265,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('default_currency', $currency);
 		$this->db->where('remaining_payment_request >', 0);
 		$this->db->where_in('status', ['OPEN', 'ORDER']);
-		$this->db->order_by('id', 'asc');
+		$this->db->order_by('tb_po.due_date', 'asc');
 		$po = $this->db->get();
 		$list_po = array();
 		// foreach ($po as $detail) {
@@ -393,6 +393,7 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('tanggal', $tanggal);
 				$this->db->set('no_transaksi', $no_jurnal);
 				$this->db->set('coa_kredit', $account);
+				$this->db->set('adj_value', $key["adj"]);
 				// $this->db->set('akun_kredit', $jenis);
 				if ($status == "ORDER") {
 					$this->db->set('uang_muka', $key["value"]);
@@ -406,20 +407,23 @@ class Payment_Model extends MY_MODEL
 				$this->db->insert('tb_purchase_order_items_payments');
 				$id = $this->db->insert_id();
 				$id_payment[] = $id;
+				$val_request = $key["value"]-$key["adj"];
 
 				if($key['document_number']!==null){
-					$this->db->set('left_paid_request', '"left_paid_request" - ' . $key["value"], false);
+					// $this->db->set('left_paid_request', '"left_paid_request" - ' . $key["value"], false);
+					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
 					// $this->db->set('payment', '"payment" + ' . $key["value"], false);
 					$this->db->where('id', $key["document_number"]);
 					$this->db->update('tb_po_item');
 				}else{
-					$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $key["value"], false);
+					// $this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $key["value"], false);					
+					$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $val_request, false);
 					// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
 					$this->db->where('id', $id_po);
 					$this->db->update('tb_po');
 				}
 
-				$this->db->set('remaining_payment_request', '"remaining_payment_request" - ' . $key["value"], false);
+				$this->db->set('remaining_payment_request', '"remaining_payment_request" - ' . $val_request, false);
 				// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
 				$this->db->where('id', $id_po);
 				$this->db->update('tb_po');

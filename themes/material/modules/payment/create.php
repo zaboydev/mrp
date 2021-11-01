@@ -221,14 +221,15 @@
                 <!-- <th class="middle-alignment">No.</th> -->
                 <th width="15%" class="middle-alignment">No PO</th>
                 <th width="13%" class="middle-alignment">Status</th>
-                <th width="10%" class="middle-alignment">Due Date</th>
-                <th width="7%" class="middle-alignment">Received Qty</th>
-                <th width="8%" class="middle-alignment">Received Val.</th>
-                <th width="10%" class="middle-alignment">Amount</th>
-                <th width="10%" class="middle-alignment">Purposed Amount</th>
-                <th width="10%" class="middle-alignment">Remaining Purpose Payment</th>
-                <th width="7%" class="middle-alignment">Total Applied/Purposed</th>
+                <th width="7%" class="middle-alignment">Due Date</th>
+                <th width="5%" class="middle-alignment">Received Qty</th>
+                <th width="7%" class="middle-alignment">Received Val.</th>
+                <th width="7%" class="middle-alignment">Amount</th>
+                <th width="7%" class="middle-alignment">Purposed Amount</th>
+                <th width="7%" class="middle-alignment">Remaining Purposed</th>
+                <th width="8%" class="middle-alignment">Amount Purposed</th>
                 <th width="5%" class="middle-alignment"></th>
+                <th width="8%" class="middle-alignment">Adjustment</th>
               </tr>
             </thead>
             <tbody id="listView">
@@ -236,7 +237,7 @@
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="7" style="text-align: right;">Total Applied</td>
+                <td colspan="8" style="text-align: right;">Total Applied</td>
                 <td id="total_general">0</td>
                 <td></td>
                 <td></td>
@@ -420,6 +421,7 @@
     }
 
   });
+  
   $('#currency_select').change(function() {
     currency = $(this).val();
 
@@ -607,29 +609,7 @@
     console.log(row)
   }
 
-  $("#listView").on("change", ".sel_applied", function() {
-    // console.log('test');
-    var selRow = $(this).data("row");
-    sisa = parseFloat($("#sis_" + selRow).val())
-    input = parseFloat($(this).val())
-    if (input < sisa) {
-      $('.detail_' + selRow).removeClass('hide');
-      $.each(row_detail, function(i, po) {
-        sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-        $("#in_item_" + selRow + "_" + po).val(0)
-        $("#in_" + selRow).attr('readonly', true);
-      });
-    } else {
-      $.each(row_detail, function(i, po) {
-        sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-        $("#in_item_" + selRow + "_" + po).val(sisa_item)
-      });
-      $('.detail_' + selRow).removeClass('hide');
-    }
-    changeTotal();
-
-  })
-
+  //klik icon mata utk lihat item po
   $("#listView").on("click", ".btn_view_detail", function() {
     console.log('klik detail');
     var selRow = $(this).data("row");
@@ -645,19 +625,31 @@
     }
   })
 
-  $("#listView").on("change", ".sel_applied_item", function() {
+  //jika mengisi input PO
+  $("#listView").on("change", ".sel_applied", function() {
     // console.log('test');
     var selRow = $(this).data("row");
-    var parent = $(this).data("parent");
-    var parent_total = $("#in_" + parent).val();
     sisa = parseFloat($("#sis_" + selRow).val())
-    input = parseFloat($(this).val())
-    var sum = 0;
-    $('.sel_applied_' + parent).each(function(key, val) {
-      var val = $(this).val();
-      sum = parseFloat(sum) + parseFloat(val);
-    });
-    $("#in_" + parent).val(sum)
+    input = $(this).val();
+    if(input!=''){
+      if (parseFloat(input) < sisa) {
+        $('.detail_' + selRow).removeClass('hide');
+        $.each(row_detail, function(i, po) {
+          sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+          $("#in_item_" + selRow + "_" + po).val(0)
+          $("#in_" + selRow).attr('readonly', true);
+        });
+      } else {
+        $.each(row_detail, function(i, po) {
+          sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+          $("#in_item_" + selRow + "_" + po).val(sisa_item)
+        });
+        $('.detail_' + selRow).removeClass('hide');
+      }
+    }else{
+      $(this).val(0)
+    }
+    
     changeTotal();
 
   })
@@ -674,6 +666,27 @@
 
   })
 
+  //jika mengisi input item PO
+  $("#listView").on("change", ".sel_applied_item", function() {
+    // console.log('test');
+    var selRow = $(this).data("row");
+    var parent = $(this).data("parent");
+    var parent_total = $("#in_" + parent).val();
+    sisa = parseFloat($("#sis_" + selRow).val())
+    input = $(this).val()
+    if(input==''){
+      $(this).val(0)
+    }
+    var sum = 0;
+    $('.sel_applied_' + parent).each(function(key, val) {
+      var val = $(this).val();
+      sum = parseFloat(sum) + parseFloat(val);
+    });
+    $("#in_" + parent).val(sum)
+    changeTotal();
+
+  })
+
   $("#listView").on("keyup", ".sel_applied_item", function() {
     var selRow = $(this).data("row");
     var parent = $(this).data("parent");
@@ -682,12 +695,39 @@
     input = parseFloat($(this).val())
     if (sisa < input) {
       console.log('lebih');
-      var text = $(this).val();
-      $(this).val(sisa);
-      input = sisa;
+      var selisih = parseFloat(input)-parseFloat(sisa);
+      // var text = $(this).val();
+      // $(this).val(sisa);
+      // input = sisa;
+      $("#in_adj_" + parent + "_" + selRow).val(selisih.toFixed(2));
+      $("#in_adj_" + parent + "_" + selRow).removeClass('hide');
+    }else{
+      $("#in_adj_" + parent + "_" + selRow).val(0);
+      if($("#in_adj_" + parent + "_" + selRow).hasClass('hide')){
+        $("#in_adj_" + parent + "_" + selRow).addClass('hide');
+      }
+      
     }
     $("#in" + parent).val(parent_total + input);
   })
+
+  //jika klik checkbox adjustment
+  $("#listView").on("change", ".check_adj", function() {
+    console.log('checkbox');
+    var id = $(this).data('id');
+    sisa = parseFloat($("#sis_item_" + id).val())
+    input = parseFloat($("#in_item_" + id).val())
+    var selisih = parseFloat(input)-parseFloat(sisa)
+    if($(this).prop('checked')){
+      console.log('checkbox-check');
+      $("#in_adj_" + id).val(selisih.toFixed(2));
+      $("#in_adj_" + id).removeClass('hide');
+    }else{
+      console.log('checkbox-uncheck');
+      $("#in_adj_" + id).val(0);
+      $("#in_adj_" + id).addClass('hide');
+    }
+  });
 
   $("#listView").on("keydown", ".sel_applied", function(e) {
     var selRow = $(this).data("row");
@@ -757,17 +797,24 @@
     $.each(row, function(i, po) {
       $.each(row_detail, function(i, item) {
         var value = parseFloat($("#in_item_" + po + "_" + item).val());
-        if(value!=0){
+        if(value!=0 && value!=''){
           var data = {}
           data["document_number"] = $("#sel_item_" + po + "_" + item).val();
           data["id_po"] = $("#sel_item_2_" + po + "_" + item).val();
           data["desc"] = $("#desc_item_" + po + "_" + item).val();
           data["value"] = parseFloat($("#in_item_" + po + "_" + item).val());
+          data["adj"] = parseFloat($("#in_adj_" + po + "_" + item).val());
           postData.push(data);
         }
         
       });
     });
+    if(postData.length==0){
+      toastr.options.timeOut = 10000;
+      toastr.options.positionClass = 'toast-top-right';
+      toastr.error("Check value and item value not match");
+      return
+    }
     $("#loadingScreen2").attr("style", "display:block");
     $.ajax({
       type: "POST",
