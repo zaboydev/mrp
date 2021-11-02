@@ -710,4 +710,12 @@ class Expense_Request extends MY_Controller
         $result['status'] = $send;
         echo json_encode($result);
     }
+
+    public function used_budget()
+    {
+        $send = $this->model->get_used_budget();
+        
+        $result['status'] = $send;
+        echo json_encode($result);
+    }
 }
