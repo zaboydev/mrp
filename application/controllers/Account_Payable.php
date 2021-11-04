@@ -138,7 +138,7 @@ class Account_Payable extends MY_Controller
       redirect('capex_request/print_pdf/'.$request_id);
     }elseif($tipe=='INVENTORY'){
       redirect('inventory_request/print_pdf/'.$request_id);
-    }elseif($tipe=='INVENTORY MRP'){
+    }else{
       redirect('purchase_request/print_pdf/'.$request_id);
     }
     
@@ -154,7 +154,7 @@ class Account_Payable extends MY_Controller
       redirect('capex_order_evaluation/print_pdf/'.$poe_id);
     }elseif($tipe=='INVENTORY'){
       redirect('inventory_order_evaluation/print_pdf/'.$poe_id);
-    }elseif($tipe=='INVENTORY MRP'){
+    }else{
       redirect('purchase_order_evaluation/print_pdf/'.$poe_id);
     }
     

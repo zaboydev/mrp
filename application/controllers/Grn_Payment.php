@@ -65,6 +65,7 @@ class Grn_Payment extends MY_Controller
           $col['DT_RowAttr']['onClick']     = '$(this).popup();';
           $col['DT_RowAttr']['data-target'] = '#data-modal';
           $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+          //$col['DT_ROwAttr']['data-source'] = site_url($this->modules['account_payable']['route'] . '/info/' . $row['id']);
         }
 
         $data[] = $col;

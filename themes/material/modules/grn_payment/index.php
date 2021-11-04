@@ -40,6 +40,21 @@
   </div>
 
   <div class="form-group">
+    <label for="filter_item_group">Type</label>
+    <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_item_category">
+      <option value="POM">
+        POM
+      </option>
+      <option value="POL">
+        POL
+      </option>
+      <option value="all">
+        ALL
+      </option>
+    </select>
+  </div>
+
+  <div class="form-group">
     <label for="start_date">Status</label>
     <select class="form-control input-sm filter_dropdown" id="status" name="status" data-column="3">
       <option value="all">All</option>

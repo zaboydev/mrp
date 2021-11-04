@@ -29,7 +29,8 @@ class Payment extends MY_Controller
       $entities = $this->model->getIndex();
       $data     = array();
       $no       = $_POST['start'];
-      $total     = array();
+      $total_idr      = array();
+      $total_usd      = array();
 
       foreach ($entities as $row) {
         $attachment = $this->model->checkAttachment($row['id']);
@@ -62,7 +63,13 @@ class Payment extends MY_Controller
         // $col[]  = print_string($row['part_number']);
         // $col[]  = print_string($row['description']);
         $col[]  = print_string($row['currency']);
-        $col[]  = print_number($row['amount_paid'], 2);
+        if($row['currency']=='IDR'){
+          $col[]  = print_number($row['amount_paid'], 2);
+          $col[]  = print_number(0, 2);
+        }else{
+          $col[]  = print_number(0, 2);
+          $col[]  = print_number($row['amount_paid'], 2);
+        }        
         $col[]  = print_string($row['status']);
         $col[] = $attachment == 0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
                        <i class="fa fa-eye"></i>
@@ -70,9 +77,12 @@ class Payment extends MY_Controller
         $col[]  = print_string($row['created_by']);
         $col[]  = print_date($row['created_at']);
 
-      
-
-        $total[] = $row['amount_paid'];
+        if($row['currency']=='IDR'){
+          $total_idr[] = $row['amount_paid'];
+        }else{
+          $total_usd[] = $row['amount_paid'];
+        }
+        
 
         $col['DT_RowId'] = 'row_' . $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
@@ -94,7 +104,8 @@ class Payment extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          6 => print_number(array_sum($total), 2),
+          6 => print_number(array_sum($total_idr), 2),
+          7 => print_number(array_sum($total_usd), 2),
         )
       );
     }
@@ -111,7 +122,7 @@ class Payment extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(6);
+    $this->data['grid']['summary_columns']  = array(6,7);
 
     $this->data['grid']['order_columns']    = array();
     // $this->data['grid']['order_columns']    = array(
@@ -407,6 +418,34 @@ class Payment extends MY_Controller
       $result["status"] = 1;
     }
     echo json_encode($result);
+  }
+
+  public function print_prl($request_id,$tipe)
+  {
+    if($tipe=='EXPENSE'){
+      redirect('expense_request/print_pdf/'.$request_id);
+    }elseif($tipe=='CAPEX'){
+      redirect('capex_request/print_pdf/'.$request_id);
+    }elseif($tipe=='INVENTORY'){
+      redirect('inventory_request/print_pdf/'.$request_id);
+    }else{
+      redirect('purchase_request/print_pdf/'.$request_id);
+    }
+    
+  }
+
+  public function print_poe($poe_id,$tipe)
+  {
+    if($tipe=='EXPENSE'){
+      redirect('expense_order_evaluation/print_pdf/'.$poe_id);
+    }elseif($tipe=='CAPEX'){
+      redirect('capex_order_evaluation/print_pdf/'.$poe_id);
+    }elseif($tipe=='INVENTORY'){
+      redirect('inventory_order_evaluation/print_pdf/'.$poe_id);
+    }else{
+      redirect('purchase_order_evaluation/print_pdf/'.$poe_id);
+    }
+    
   }
 
 }

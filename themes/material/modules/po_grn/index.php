@@ -26,6 +26,7 @@
     <label for="filter_received_date">Date</label>
     <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
   </div>
+
   <div class="form-group">
     <label for="filter_item_group">Vendor</label>
     <select class="form-control input-sm filter_dropdown" data-column="1" id="filter_item_vendor">
@@ -39,6 +40,22 @@
       <?php endforeach; ?>
     </select>
   </div>
+
+  <div class="form-group">
+    <label for="filter_item_group">Type</label>
+    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
+      <option value="POM">
+        POM
+      </option>
+      <option value="POL">
+        POL
+      </option>
+      <option value="all">
+        ALL
+      </option>
+    </select>
+  </div>
+
 </div>
 <?php endblock() ?>
 <?php startblock('offcanvas_left_actions') ?>

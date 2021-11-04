@@ -151,6 +151,20 @@
       <?php endforeach; ?>
     </select>
   </div>
+  <div class="form-group">
+    <label for="filter_item_group">Type</label>
+    <select class="form-control input-sm filter_dropdown" data-column="5" id="filter_item_category">
+      <option value="POM">
+        POM
+      </option>
+      <option value="POL">
+        POL
+      </option>
+      <option value="all">
+        ALL
+      </option>
+    </select>
+  </div>
 </div>
 <?php endblock() ?>
 
