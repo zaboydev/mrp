@@ -9,7 +9,7 @@
     <div class="row">
       <div class="col-sm-12">
         <div class="table-responsive">
-          <table class="table table-hover table-bordered">
+          <table class="table table-hover table-bordered table-nowrap">
             <thead>
               <tr>
                 <th class="middle-alignment" rowspan="2">PR Number</th>
@@ -45,13 +45,13 @@
                   <td>
                     <?= $request['description']; ?>
                   </td>
-                  <td class="no-space">
+                  <td>
                     <input type="text" rel="part_number" name="request[<?= $id; ?>][part_number]" value="<?= $_SESSION['poe']['request'][$id]['part_number']; ?>" class="form-control">
                   </td> 
                   <td>
                     <input type="text" rel="alternate_part_number" name="request[<?= $id; ?>][alternate_part_number]" value="<?= $_SESSION['poe']['request'][$id]['alternate_part_number']; ?>" class="form-control">
                   </td>                                   
-                  <td class="no-space">
+                  <td>
                     <input type="text" rel="serial_number" name="request[<?= $id; ?>][serial_number]" value="<?= $_SESSION['poe']['request'][$id]['serial_number']; ?>" class="form-control">
                   </td>
                   <td>

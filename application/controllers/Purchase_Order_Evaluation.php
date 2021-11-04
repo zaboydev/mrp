@@ -612,7 +612,8 @@ class Purchase_Order_Evaluation extends MY_Controller
           }
         } else {
           if ($this->model->isDocumentNumberExists($document_number)) {
-            $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
+            $_SESSION['poe']['document_number']     = poe_last_number();
+            // $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
           }
         }
 

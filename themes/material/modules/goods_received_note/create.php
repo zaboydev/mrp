@@ -396,7 +396,7 @@
                 </div>
 
                 <div class="form-group">
-                  <input type="text" name="purchase_order_number" id="purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm">
+                  <input type="text" name="purchase_order_number" id="purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm" readonly> 
                   <label for="purchase_order_number">Order Number</label>
                   <input type="hidden" name="purchase_order_item_id" id="purchase_order_item_id" />
                 </div>
@@ -654,7 +654,7 @@
                 </div>
 
                 <div class="form-group">
-                  <input type="text" name="purchase_order_number" id="edit_purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm">
+                  <input type="text" name="purchase_order_number" id="edit_purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm" readonly>
                   <label for="purchase_order_number">Order Number</label>
                   <input type="hidden" name="purchase_order_item_id" id="edit_purchase_order_item_id" />
                 </div>

@@ -1646,4 +1646,22 @@ class Expense_Request_Model extends MY_Model
 
         return $return;
     }
+
+    public function get_used_budget()
+    {
+        $select = array(
+          'tb_expense_used_budgets.*'
+        );
+        $this->connection->select($select);
+        $this->connection->from('tb_expense_used_budgets');
+        // $this->connection->join('tb_expense_purchase_requisitions', 'tb_expense_purchase_requisitions.id = tb_expense_purchase_requisition_details.expense_purchase_requisition_id');
+        // $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        // $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
+        // $this->connection->where('tb_expense_monthly_budgets.account_id', $account_id);
+        $this->connection->like('tb_expense_used_budgets.pr_number', $this->budget_year);
+        $this->connection->order_by('tb_expense_used_budgets.pr_number', 'desc');
+        $query  = $this->connection->get();
+
+        return $query->result_array();
+    }
 }

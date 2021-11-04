@@ -57,7 +57,6 @@
                   <div class="form-group">
                     <select name="issued_to" id="issued_to" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_to');?>" required>
                         <option value="OTHER" <?=($_SESSION['usage']['issued_to'] == 'OTHER') ? 'selected' : '';?>>OTHER</option>
-                        <option value="MIX" <?=($_SESSION['usage']['issued_to'] == 'MIX') ? 'selected' : '';?>>MIX</option>
                       <?php foreach (pesawat() as $pesawat):?>
                         <option value="<?=$pesawat;?>" <?=($_SESSION['usage']['issued_to'] == $pesawat) ? 'selected' : '';?>>
                           <?=$pesawat;?>

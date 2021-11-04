@@ -542,11 +542,11 @@ class Expense_Request extends MY_Controller
                 'expense_monthly_budget_id'     => $this->input->post('expense_monthly_budget_id'),
             );
 
-            if (empty($_SESSION['expense']['with_po'])){
-                $account_id = $this->input->post('account_id');
-                $item_status = getStatusItemExpense($account_id);
-                $_SESSION['expense']['with_po'] = $item_status;
-            }
+            // if (empty($_SESSION['expense']['with_po'])){
+            //     $account_id = $this->input->post('account_id');
+            //     $item_status = getStatusItemExpense($account_id);
+            //     $_SESSION['expense']['with_po'] = $item_status;
+            // }
         }
 
         redirect($this->module['route'] . '/create');
@@ -706,6 +706,14 @@ class Expense_Request extends MY_Controller
     public function send_email($id, $level)
     {
         $send = $this->model->send_mail($id, $level);
+        
+        $result['status'] = $send;
+        echo json_encode($result);
+    }
+
+    public function used_budget()
+    {
+        $send = $this->model->get_used_budget();
         
         $result['status'] = $send;
         echo json_encode($result);
