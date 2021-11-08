@@ -1861,7 +1861,7 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $num_rows = $connection->count_all_results();
 
-      if($tipe=='POE'||$tipe=='PO'){
+      if($tipe=='POE'||$tipe=='PO'||$tipe=='GRN'){
         $CI =& get_instance();
         $CI->db->from( 'tb_attachment_poe' );
         $CI->db->where('id_poe', $request_id);

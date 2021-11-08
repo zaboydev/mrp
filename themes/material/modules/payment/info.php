@@ -260,7 +260,16 @@
                 <?php foreach ($detail['item']['grn'] as $i => $grn):?>
                 <tr>
                   <td></td>
-                  <td colspan="5"><a href="<?= site_url('goods_received_note/print_po/' . $grn['id']) ?>" target="_blank"><?= print_string($grn['document_number']); ?></a></td>
+                  <td colspan="5">
+                    <a href="<?= site_url('goods_received_note/print_po/' . $grn['id']) ?>" target="_blank">
+                      <?= print_string($grn['document_number']); ?>
+                    </a> 
+                    <?php if(isAttachementExists($grn['id'],'GRN')):?>
+                    <a href="<?= site_url('goods_received_note/manage_attachment/' . $grn['id']); ?>" onClick="return popup(this, 'attachment')" data-id="<?=$grn['id']?>" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                    <?php endif;?>     
+                  </td>
                   <td><?= print_number($grn['quantity_order'], 2); ?></td>
                   <td><?= print_number($grn['quantity_order']*$detail['item']['unit_price'], 2); ?></td>
                   <td></td>

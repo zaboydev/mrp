@@ -10,7 +10,7 @@
 
 <?php startblock('page_body') ?>
 <?php $this->load->view('material/templates/datatable') ?>
-<div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
+<div id="attachment_modal" class="modal fade" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
