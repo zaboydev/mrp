@@ -542,11 +542,11 @@ class Expense_Request extends MY_Controller
                 'expense_monthly_budget_id'     => $this->input->post('expense_monthly_budget_id'),
             );
 
-            if (empty($_SESSION['expense']['with_po'])){
-                $account_id = $this->input->post('account_id');
-                $item_status = getStatusItemExpense($account_id);
-                $_SESSION['expense']['with_po'] = $item_status;
-            }
+            // if (empty($_SESSION['expense']['with_po'])){
+            //     $account_id = $this->input->post('account_id');
+            //     $item_status = getStatusItemExpense($account_id);
+            //     $_SESSION['expense']['with_po'] = $item_status;
+            // }
         }
 
         redirect($this->module['route'] . '/create');

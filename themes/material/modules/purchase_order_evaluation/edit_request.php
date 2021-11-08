@@ -9,7 +9,7 @@
     <div class="row">
       <div class="col-sm-12">
         <div class="table-responsive">
-          <table class="table table-hover table-bordered">
+          <table class="table table-hover table-bordered table-nowrap">
             <thead>
               <tr>
                 <th class="middle-alignment" rowspan="2">PR Number</th>

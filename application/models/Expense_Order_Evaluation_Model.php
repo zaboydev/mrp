@@ -730,58 +730,60 @@ class Expense_Order_Evaluation_Model extends MY_Model
         $poe_vendor_id  = $row['id'];
         $is_selected    = $detail['is_selected'];
 
-        $this->db->where('purchase_order_item_id', $poe_item_id);
-        $this->db->where('purchase_order_vendor_id', $poe_vendor_id);
-        $count = $this->db->get('tb_purchase_order_items_vendors')->num_rows();
-        if($count==0){
-          $this->db->set('purchase_order_item_id', $poe_item_id);
-          $this->db->set('purchase_order_vendor_id', $poe_vendor_id);
-          $this->db->set('quantity', floatval($detail['quantity']));
-          $this->db->set('left_received_quantity', floatval($detail['left_received_quantity']));
-          $this->db->set('left_paid_quantity', floatval($detail['left_paid_quantity']));
-          $this->db->set('unit_price', floatval($detail['unit_price']));
-          $this->db->set('core_charge', floatval($detail['core_charge']));
-          $this->db->set('total', floatval($detail['total']));
-          $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
-          $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
-          $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
-          $this->db->set('is_selected', $detail['is_selected']);
-          $this->db->insert('tb_purchase_order_items_vendors');
-        }        
+        if($poe_vendor_id !=null){
+          $this->db->where('purchase_order_item_id', $poe_item_id);
+          $this->db->where('purchase_order_vendor_id', $poe_vendor_id);
+          $count = $this->db->get('tb_purchase_order_items_vendors')->num_rows();
+          if($count==0){
+            $this->db->set('purchase_order_item_id', $poe_item_id);
+            $this->db->set('purchase_order_vendor_id', $poe_vendor_id);
+            $this->db->set('quantity', floatval($detail['quantity']));
+            $this->db->set('left_received_quantity', floatval($detail['left_received_quantity']));
+            $this->db->set('left_paid_quantity', floatval($detail['left_paid_quantity']));
+            $this->db->set('unit_price', floatval($detail['unit_price']));
+            $this->db->set('core_charge', floatval($detail['core_charge']));
+            $this->db->set('total', floatval($detail['total']));
+            $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
+            $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
+            $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
+            $this->db->set('is_selected', $detail['is_selected']);
+            $this->db->insert('tb_purchase_order_items_vendors');
+          }        
 
-        if ($is_selected == 't') {
-          $item_status = 'closed';
-          if ($approval == 'without_approval') {
-            $item_status               = 'open';
+          if ($is_selected == 't') {
+            $item_status = 'closed';
+            if ($approval == 'without_approval') {
+              $item_status               = 'open';
+            }
+            // $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
+            $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
+            $this->db->set('vendor', strtoupper($range_vendor_currency[1]));
+            $this->db->set('quantity', floatval($detail['quantity']));
+            $this->db->set('left_received_quantity', floatval($detail['left_received_quantity']));
+            $this->db->set('left_paid_quantity', floatval($detail['left_paid_quantity']));
+            $this->db->set('unit_price', floatval($detail['unit_price']));
+            $this->db->set('core_charge', floatval($detail['core_charge']));
+            $this->db->set('total_amount', floatval($detail['total']));
+            $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
+            $this->db->set('quantity_prl', floatval($detail['quantity'] * $item['konversi']));
+            $this->db->set('value_prl', floatval($detail['total'] / ($detail['quantity'] * $item['konversi'])));
+            $this->db->set('konversi', floatval($item['konversi']));
+            $this->db->set('status_item', $item_status);
+            $this->db->where('id', $poe_item_id);
+            $this->db->update('tb_purchase_order_items');
+            $quantity_prl = floatval($detail['total'] / ($detail['quantity'] * $item['konversi']));
+
+            $this->connection->set('process_amount', '"process_amount" + ' . $detail['total'], false);
+            $this->connection->where('id', $inventory_purchase_request_detail_id);
+            $this->connection->update('tb_expense_purchase_requisition_details');
+
+            $this->db->set('is_selected', 't');
+            $this->db->where('id', $poe_vendor_id);
+            $this->db->update('tb_purchase_order_vendors');
+
+            $quantity = floatval($detail['quantity']);
+            $total_amount = floatval($detail['total']);
           }
-          // $this->db->set('alternate_part_number', strtoupper($detail['alternate_part_number']));
-          $this->db->set('purchase_request_number', strtoupper($detail['purchase_request_number']));
-          $this->db->set('vendor', strtoupper($range_vendor_currency[1]));
-          $this->db->set('quantity', floatval($detail['quantity']));
-          $this->db->set('left_received_quantity', floatval($detail['left_received_quantity']));
-          $this->db->set('left_paid_quantity', floatval($detail['left_paid_quantity']));
-          $this->db->set('unit_price', floatval($detail['unit_price']));
-          $this->db->set('core_charge', floatval($detail['core_charge']));
-          $this->db->set('total_amount', floatval($detail['total']));
-          $this->db->set('left_paid_amount', floatval($detail['left_paid_amount']));
-          $this->db->set('quantity_prl', floatval($detail['quantity'] * $item['konversi']));
-          $this->db->set('value_prl', floatval($detail['total'] / ($detail['quantity'] * $item['konversi'])));
-          $this->db->set('konversi', floatval($item['konversi']));
-          $this->db->set('status_item', $item_status);
-          $this->db->where('id', $poe_item_id);
-          $this->db->update('tb_purchase_order_items');
-          $quantity_prl = floatval($detail['total'] / ($detail['quantity'] * $item['konversi']));
-
-          $this->connection->set('process_amount', '"process_amount" + ' . $detail['total'], false);
-          $this->connection->where('id', $inventory_purchase_request_detail_id);
-          $this->connection->update('tb_expense_purchase_requisition_details');
-
-          $this->db->set('is_selected', 't');
-          $this->db->where('id', $poe_vendor_id);
-          $this->db->update('tb_purchase_order_vendors');
-
-          $quantity = floatval($detail['quantity']);
-          $total_amount = floatval($detail['total']);
         }
       }
 

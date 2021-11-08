@@ -44,6 +44,9 @@
           <dt>Status</dt>
           <dd><?=strtoupper($entity['status']);?></dd>
 
+          <dt>Head Dept</dt>
+          <dd><?=($entity['head_dept']==null)? 'N/A':print_string($entity['head_dept']);?></dd>
+
           <dt>Suggested Supplier</dt>
           <dd><?=($entity['suggested_supplier']==null)? 'N/A':print_string($entity['suggested_supplier']);?></dd>
 
@@ -227,7 +230,7 @@
     <div class="pull-right">
       <?php if (is_granted($module, 'document')):?>
         <?php if ($entity['status']=='rejected' || $entity['status']=='pending'):?>
-        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="hide btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>
         </a>
