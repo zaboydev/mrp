@@ -1,20 +1,11 @@
 <?php include 'themes/material/simple.php' ?>
 <?php startblock('body') ?>
 <div class="container">
-
   <h4 class="page-header">Attachment</h4>
-  
+  <?php if (is_granted($module, 'document')) : ?>
   <form id="form_add_vendor" id="inputForm" class="form" role="form" method="post" enctype="multipart/form-data" action="<?=site_url($module['route'] .'/add_attachment_to_db/'. $id);?>">
-    <?php if (is_granted($module, 'document')) : ?>
     <div class="row">
       <div class="col-sm-12">
-        <div class="form-group">
-          <label> Tipe Attachment</label>
-          <select name="tipe_attachment" id="tipe_attachment" class="form-control" required>
-            <option value="invoice">Invoice</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
         <div class="form-group">
           <label> Add Attachment</label>
           <input type="file" name="attachment" id="attachment" accept=".png,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.pdf">
@@ -25,14 +16,13 @@
       <div class="clearfix">
         <button type="submit" class="btn btn-primary">Add Attachment</button>
       </div>
-    </div>
-    <?php endif;?>
-    
+    </div>    
   </form>
+  <?Php endif;?>
   <div class="clearfix"></div>
   <div class="row" style="margin-top: 30px">
     <div class="col-md-12">
-      <h5>Attachment Invoice</h5>
+      <h5>List Attachment</h5>
       <div class="clearfix"></div>
       <table style="width: 100%">
         <thead>
@@ -43,66 +33,27 @@
           </tr>
         </thead>
         <tbody>
-          <?php if(count($attachment_invoice)>0):?>
+          <?php if(count($manage_attachment)>0):?>
           <?php $n = 0;?>
-          <?php foreach ($attachment_invoice as $i => $detail):?>
+          <?php foreach ($manage_attachment as $i => $detail):?>
             <?php $n++;?>
             <tr>
               <td><?=$n?></td>
               <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
-                <?php if (is_granted($module, 'document')) : ?>
+              <?php if (is_granted($module, 'document_attachment')) : ?>
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                   <i class="fa fa-trash"></i>
                 </a>
-                <?Php endif;?>
+              <?Php endif;?>
               </td>
             </tr>
           <?php endforeach;?>
-          <?Php else:?>
+          <?php else:?>
           <tr>
             <td colspan="3" style="text-align: center;">No Attachment</td>
           </tr>
-          <?Php endif;?> 
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="row" style="margin-top: 30px">
-    <div class="col-md-12">
-      <h5>Attachment Other</h5>
-      <div class="clearfix"></div>
-      <table style="width: 100%">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>File</th>
-            <th>#</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if(count($attachment_other)>0):?>
-          <?php $n = 0;?>
-          <?php foreach ($attachment_other as $i => $detail):?>
-            <?php $n++;?>
-            <tr>
-              <td><?=$n?></td>
-              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
-              <td>
-                <?php if (is_granted($module, 'document')) : ?>
-                <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
-                  <i class="fa fa-trash"></i>
-                </a>
-                <?Php endif;?>
-              </td>
-            </tr>
-          <?php endforeach;?>
-          <?Php else:?>
-          <tr>
-            <td colspan="3" style="text-align: center;">No Attachment</td>
-          </tr>
-          <?Php endif;?>        
-          
+          <?php endif;?>
         </tbody>
       </table>
     </div>

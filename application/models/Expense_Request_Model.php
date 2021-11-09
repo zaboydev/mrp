@@ -436,6 +436,15 @@ class Expense_Request_Model extends MY_Model
             $request['items'][$key]['history']              = $this->getHistory($request['annual_cost_center_id'],$value['account_id'],$request['order_number']);
         }
 
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'expense');
+        $data = $this->connection->get('tb_attachment')->result();
+        $attachment = array();
+        foreach ($data as $key) {
+            array_push($attachment, $key->file);
+        }
+        $request["attachment"] = $attachment;
+
         return $request;
     }
 
@@ -793,59 +802,90 @@ class Expense_Request_Model extends MY_Model
 
             $document_id = $this->connection->insert_id();
         } else {
+            $this->connection->select('tb_expense_purchase_requisitions.status');
+            $this->connection->from('tb_expense_purchase_requisitions');
+            $this->connection->where('id', $document_id);
+            $query  = $this->connection->get();
+            $request = $query->unbuffered_row('array');
+
+            // $this->connection->set('required_date', $required_date);
+            // $this->connection->set('suggested_supplier', $suggested_supplier);
+            // $this->connection->set('deliver_to', $deliver_to);
+            $this->connection->set('status', 'revisi');
+            // $this->connection->set('base', config_item('auth_warehouse'));
+            // $this->connection->set('notes', $notes);
+            // $this->connection->set('updated_at', date('Y-m-d'));
+            // $this->connection->set('updated_by', config_item('auth_person_name'));
+            // $this->connection->set('with_po', $with_po);
+            // $this->connection->set('head_dept', $head_dept);
+            $this->connection->where('id', $document_id);
+            $this->connection->update('tb_expense_purchase_requisitions');
+
+            if($request['status']=='pending'){
+                $this->connection->select('tb_expense_purchase_requisition_details.*');
+                $this->connection->from('tb_expense_purchase_requisition_details');
+                $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $document_id);
+
+                $query  = $this->connection->get();
+                $result = $query->result_array();
+
+                foreach ($result as $data) {
+                    $this->connection->from('tb_expense_monthly_budgets');
+                    $this->connection->where('id', $data['expense_monthly_budget_id']);
+
+                    $query        = $this->connection->get();
+                    $budget_monthly = $query->unbuffered_row('array');
+
+                    $year = $this->budget_year;
+                    $month = $budget_monthly['month_number'];
+                    $annual_cost_center_id = $budget_monthly['annual_cost_center_id'];
+                    $account_id = $budget_monthly['account_id'];
+
+                    for ($i = $month; $i < 13; $i++) {
+                        // $this->connection->set('ytd_used_quantity', 'ytd_used_quantity - ' . $data['quantity'], FALSE);
+                        $this->connection->set('ytd_used_budget', 'ytd_used_budget - ' . $data['total'], FALSE);
+                        $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
+                        $this->connection->where('tb_expense_monthly_budgets.account_id', $account_id);
+                            // $this->connection->where('year_number', $year);
+                        $this->connection->where('tb_expense_monthly_budgets.month_number', $i);
+                        $this->connection->update('tb_expense_monthly_budgets');
+                    }
+
+                    // $this->connection->set('mtd_used_quantity', 'mtd_used_quantity - ' . $data['quantity'], FALSE);
+                    $this->connection->set('mtd_used_budget', 'mtd_used_budget +- ' . $data['total'], FALSE);
+                    $this->connection->where('id', $data['expense_monthly_budget_id']);
+                    $this->connection->update('tb_expense_monthly_budgets');
+                }
+
+                // $this->connection->where('expense_purchase_requisition_id', $document_id);
+                // $this->connection->delete('tb_expense_purchase_requisition_details');
+
+                $this->connection->where('expense_purchase_requisition_id', $document_id);
+                $this->connection->delete('tb_expense_used_budgets');
+            }
+
+            $this->connection->set('annual_cost_center_id', $annual_cost_center_id);
+            // $this->connection->set('product_category_id', NULL);
+            $this->connection->set('order_number', $order_number);
+            $this->connection->set('pr_number', $pr_number);
+            $this->connection->set('pr_date', $pr_date);
             $this->connection->set('required_date', $required_date);
             // $this->connection->set('suggested_supplier', $suggested_supplier);
             // $this->connection->set('deliver_to', $deliver_to);
             $this->connection->set('status', 'pending');
-            $this->connection->set('base', config_item('auth_warehouse'));
-            $this->connection->set('notes', $notes);
-            $this->connection->set('updated_at', date('Y-m-d'));
+            $this->connection->set('notes', '[revision of '.$_SESSION['expense']['edit'].'] '.$notes);
+            $this->connection->set('created_by', $created_by);
             $this->connection->set('updated_by', config_item('auth_person_name'));
+            $this->connection->set('created_at', date('Y-m-d H:i:s'));
+            $this->connection->set('updated_at', date('Y-m-d H:i:s'));
             $this->connection->set('with_po', $with_po);
             $this->connection->set('head_dept', $head_dept);
-            $this->connection->where('id', $document_id);
-            $this->connection->update('tb_expense_purchase_requisitions');
+            $this->connection->set('base', config_item('auth_warehouse'));
+            $this->connection->insert('tb_expense_purchase_requisitions');
 
-            $this->connection->select('tb_expense_purchase_requisition_details.*');
-            $this->connection->from('tb_expense_purchase_requisition_details');
-            $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $document_id);
+            $document_id = $this->connection->insert_id();
 
-            $query  = $this->connection->get();
-            $result = $query->result_array();
-
-            foreach ($result as $data) {
-                $this->connection->from('tb_expense_monthly_budgets');
-                $this->connection->where('id', $data['expense_monthly_budget_id']);
-
-                $query        = $this->connection->get();
-                $budget_monthly = $query->unbuffered_row('array');
-
-                $year = $this->budget_year;
-                $month = $budget_monthly['month_number'];
-                $annual_cost_center_id = $budget_monthly['annual_cost_center_id'];
-                $account_id = $budget_monthly['account_id'];
-
-                for ($i = $month; $i < 13; $i++) {
-                    // $this->connection->set('ytd_used_quantity', 'ytd_used_quantity - ' . $data['quantity'], FALSE);
-                    $this->connection->set('ytd_used_budget', 'ytd_used_budget - ' . $data['total'], FALSE);
-                    $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
-                    $this->connection->where('tb_expense_monthly_budgets.account_id', $account_id);
-                        // $this->connection->where('year_number', $year);
-                    $this->connection->where('tb_expense_monthly_budgets.month_number', $i);
-                    $this->connection->update('tb_expense_monthly_budgets');
-                }
-
-                // $this->connection->set('mtd_used_quantity', 'mtd_used_quantity - ' . $data['quantity'], FALSE);
-                $this->connection->set('mtd_used_budget', 'mtd_used_budget +- ' . $data['total'], FALSE);
-                $this->connection->where('id', $data['expense_monthly_budget_id']);
-                $this->connection->update('tb_expense_monthly_budgets');
-            }
-
-            $this->connection->where('expense_purchase_requisition_id', $document_id);
-            $this->connection->delete('tb_expense_purchase_requisition_details');
-
-            $this->connection->where('pr_number', $pr_number);
-            $this->connection->delete('tb_expense_used_budgets');
+            
         }
           // request from budget control
             foreach ($_SESSION['expense']['items'] as $key => $data) {
@@ -1352,7 +1392,7 @@ class Expense_Request_Model extends MY_Model
                     $this->connection->where('annual_cost_center_id', $annual_cost_center_id);
                     $this->connection->update('tb_expense_monthly_budgets');
                 }
-                $this->connection->where('expense_purchase_requisition_id', $row['id']);
+                $this->connection->where('expense_purchase_requisition_id', $id);
                 $this->connection->delete('tb_expense_used_budgets');
             }
 

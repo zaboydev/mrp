@@ -448,4 +448,18 @@ class Payment extends MY_Controller
     
   }
 
+  public function print_po($id_po,$tipe)
+  {
+    if($tipe=='EXPENSE'){
+      redirect('expense_purchase_order/print_pdf/'.$id_po);
+    }elseif($tipe=='CAPEX'){
+      redirect('capex_purchase_order/print_pdf/'.$id_po);
+    }elseif($tipe=='INVENTORY'){
+      redirect('inventory_purchase_order/print_pdf/'.$id_po);
+    }else{
+      redirect('purchase_order/print_pdf/'.$id_po);
+    }
+    
+  }
+
 }

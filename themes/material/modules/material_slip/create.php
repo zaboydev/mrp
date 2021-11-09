@@ -56,11 +56,11 @@
                 <div class="col-sm-6 col-lg-4">
                   <div class="form-group">
                     <select name="issued_to" id="issued_to" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_to');?>" required>
-                        <option value="OTHER" <?=($_SESSION['usage']['issued_to'] == 'OTHER') ? 'selected' : '';?>>OTHER</option>
+                      <option value="OTHER" <?=($_SESSION['usage']['issued_to'] == 'OTHER') ? 'selected' : '';?>>OTHER</option>
                       <?php foreach (pesawat() as $pesawat):?>
-                        <option value="<?=$pesawat;?>" <?=($_SESSION['usage']['issued_to'] == $pesawat) ? 'selected' : '';?>>
-                          <?=$pesawat;?>
-                        </option>
+                      <option value="<?=$pesawat;?>" <?=($_SESSION['usage']['issued_to'] == $pesawat) ? 'selected' : '';?>>
+                        <?=$pesawat;?>
+                      </option>
                       <?php endforeach; ?>
                     </select>
                     <label for="issued_to">Issued To</label>

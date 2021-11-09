@@ -297,7 +297,7 @@
       <?php if ($entity['with_po'] == 'f'):?>
         <?php if ($entity['status'] == 'approved'):?>
         <?php if (is_granted($module, 'payment')):?>
-        <a href="<?= site_url($modules['capex_closing_payment']['route'] . '/create/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-approval-data-button">
+        <a href="<?= site_url($modules['capex_closing_payment']['route'] . '/create/' . $entity['id']); ?>" class="hide btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-approval-data-button">
           <i class="md md-check"></i>
           <small class="top right">Closing Request</small>
         </a>
