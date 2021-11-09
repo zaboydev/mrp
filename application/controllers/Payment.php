@@ -139,13 +139,43 @@ class Payment extends MY_Controller
     $this->render_view($this->module['view'] . '/index');
   }
 
-  public function create()
+  public function create_2($category = NULL)
   {
     $this->data['currency']                 = 'IDR';
     $this->data['page']['title']            = $this->module['label'];
     $this->data['account']                  = $this->model->getAccount($this->data['currency']);
     $this->data['suplier']                  = $this->model->getSuplier($this->data['currency']);
     $this->data['no_transaksi']                  = $this->model->jrl_last_number();
+    $this->render_view($this->module['view'] . '/create-2');
+  }
+
+  public function create($category = NULL)
+  {
+    $this->authorized($this->module, 'document');
+
+    if ($category !== NULL) {
+      $category = urldecode($category);
+
+      $_SESSION['payment_request']['items']               = array();
+      $_SESSION['payment_request']['category']            = $category;
+      $_SESSION['payment_request']['document_number']     = payment_request_last_number();
+      $_SESSION['payment_request']['date']                = date('Y-m-d');
+      $_SESSION['payment_request']['purposed_date']       = date('Y-m-d');
+      $_SESSION['payment_request']['created_by']          = config_item('auth_person_name');
+      $_SESSION['payment_request']['currency']            = "IDR";
+      $_SESSION['payment_request']['vendor']              = NULL;
+      $_SESSION['payment_request']['notes']               = NULL;
+      $_SESSION['payment_request']['total_amount']        = 0;
+
+      redirect($this->module['route'] . '/create');
+    }
+
+    if (!isset($_SESSION['payment_request']))
+      redirect($this->module['route']);
+
+    $this->data['page']['content']    = $this->module['view'] . '/create';
+    $this->data['page']['title']      = 'create payment request';
+
     $this->render_view($this->module['view'] . '/create');
   }
   
@@ -165,17 +195,63 @@ class Payment extends MY_Controller
     echo json_encode($return);
   }
 
-  public function save()
+  public function save_2()
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
-    $save = $this->model->save();
+    $save = $this->model->save_2();
     if ($save) {
       $result["status"] = "success";
     } else {
       $result["status"] = "failed";
     }
     echo json_encode($result);
+  }
+
+  public function save()
+  {
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (!isset($_SESSION['payment_request']['items']) || empty($_SESSION['payment_request']['items'])) {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please add at least 1 request or vendor!';
+      } else {
+        $errors = array();
+
+        $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+
+        if (isset($_SESSION['payment_request']['edit'])) {
+          if ($_SESSION['payment_request']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
+            $errors[] = 'Duplicate Document Number: ' . $document_number. ' !';
+          }
+        } else {
+          if ($this->model->isDocumentNumberExists($document_number)) {
+            $_SESSION['payment_request']['document_number']     = payment_request_last_number();
+            $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+            // $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
+          }
+        }
+
+        if (!empty($errors)) {
+          $data['success'] = FALSE;
+          $data['message'] = implode('<br />', $errors);
+        } else {
+          if ($this->model->save()) {
+            unset($_SESSION['payment_request']);
+            // $this->sendEmail();
+            $data['success'] = TRUE;
+            $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
+          } else {
+            $data['success'] = FALSE;
+            $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+          }
+        }
+      }
+    }
+
+    echo json_encode($data);
   }
 
   public function get_akun()
@@ -460,6 +536,166 @@ class Payment extends MY_Controller
       redirect('purchase_order/print_pdf/'.$id_po);
     }
     
+  }
+
+  public function add_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $vendor           = $_SESSION['payment_request']['vendor'];
+    $default_currency = $_SESSION['payment_request']['currency'];
+
+    $this->data['entities'] = $this->model->listItems($vendor,$default_currency);
+    $this->data['page']['title']            = 'Add Items';
+
+    $this->render_view($this->module['view'] . '/add_item');
+  }
+
+  public function set_date()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['date'] = $_GET['data'];
+  }
+
+  public function set_purposed_date()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['purposed_date'] = $_GET['data'];
+  }
+
+  public function set_notes()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['notes'] = $_GET['data'];
+  }
+
+  public function set_default_currency($currency)
+  {
+    $this->authorized($this->module, 'document');
+
+    $currency = urldecode($currency);
+
+    $_SESSION['payment_request']['currency']  = $currency;
+    $_SESSION['payment_request']['items']   = array();
+
+    redirect($this->module['route'] . '/create');
+  }
+
+  public function set_vendor($vendor)
+  {
+    $this->authorized($this->module, 'document');
+
+    $vendor = urldecode($vendor);
+
+    $_SESSION['payment_request']['vendor']  = $vendor;
+    $_SESSION['payment_request']['items']   = array();
+
+    redirect($this->module['route'] . '/create');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item_id']) && !empty($_POST['item_id'])) {
+        $_SESSION['payment_request']['items'] = array();
+
+        foreach ($_POST['item_id'] as $key => $item_id) {
+          $item_id_explode  = explode('-', $item_id);
+          $po_id = $item_id_explode[0];
+          $po_item_id = $item_id_explode[1];
+          $request = $this->model->infoItem($po_id,$po_item_id);
+
+          if($po_item_id!=0){
+            $_SESSION['payment_request']['items'][$item_id] = array(
+              'po_number'               => $request['document_number'],
+              'deskripsi'               => $request['part_number'].' | '.$request['description'],
+              'quantity_received'       => floatval($request['quantity_received']),
+              'amount_received'         => floatval($request['quantity_received'])*(floatval($request['unit_price'])+floatval($request['core_charge'])),
+              'total_amount'            => floatval($request['total_amount']),
+              'left_paid_request'       => floatval($request['left_paid_request']),
+              'status'                  => $request['status'],
+              'due_date'                => $request['due_date'],
+              'amount_paid'             => floatval(0),
+              'adj_value'               => floatval(0),
+            );
+
+            $_SESSION['payment_request']['items'][$item_id]['purchase_order_item_id'] = $po_item_id;
+          }else{
+            $_SESSION['payment_request']['items'][$item_id] = array(
+              'po_number'               => $request['document_number'],
+              'deskripsi'               => 'Additional Price (PPN, DISC, SHIPPING COST)',
+              'quantity_received'       => floatval(0),
+              'amount_received'         => floatval(0),
+              'total_amount'            => floatval($request['additional_price']),
+              'left_paid_request'       => floatval($request['additional_price_remaining_request']),
+              'status'                  => $request['status'],
+              'due_date'                => $request['due_date'],
+              'amount_paid'             => floatval(0),
+              'adj_value'               => floatval(0),
+            );
+            $_SESSION['payment_request']['items'][$item_id]['purchase_order_item_id'] = $po_item_id;
+          }
+          
+          $_SESSION['payment_request']['items'][$item_id]['id_po'] = $po_id;
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
+    }
+
+    echo json_encode($data);
+  }
+
+  public function edit_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/edit_item_payment');
+  }
+
+  public function update_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item']) && !empty($_POST['item'])) {
+        $total_amount = array();
+        foreach ($_POST['item'] as $id => $request) {
+
+          $_SESSION['payment_request']['items'][$id]['amount_paid']            = $request['amount_paid'];
+          $_SESSION['payment_request']['items'][$id]['adj_value']              = $request['adj_value'];
+          $total_amount[] = $request['amount_paid'];
+          
+        }
+        $_SESSION['payment_request']['total_amount'] = array_sum($total_amount);
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'No data to update!';
+      }
+    }
+
+    echo json_encode($data);
   }
 
 }

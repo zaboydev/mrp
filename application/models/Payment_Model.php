@@ -326,7 +326,7 @@ class Payment_Model extends MY_MODEL
 		return $this->db->get()->num_rows();
 	}
 
-	function save()
+	function save_2()
 	{
 		$this->db->trans_begin();
 		$item 		= $this->input->post('item');
@@ -498,6 +498,114 @@ class Payment_Model extends MY_MODEL
 		$this->db->trans_commit();
 		$this->send_mail($po_payment_id,26);
 		return TRUE;
+	}
+
+	function save(){
+		$this->db->trans_begin();
+
+		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
+		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
+		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+		$date      				= $_SESSION['payment_request']['date'];
+		$purposed_date      	= $_SESSION['payment_request']['purposed_date'];
+		$currency      			= $_SESSION['payment_request']['currency'];
+		$vendor      			= $_SESSION['payment_request']['vendor'];
+		$notes      			= (empty($_SESSION['payment_request']['notes'])) ? NULL : $_SESSION['payment_request']['notes'];
+		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
+		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
+
+		if ($currency == 'IDR') {
+			$amount_idr = $total_amount;
+			$amount_usd = $total_amount / $kurs;
+		} else {
+			$amount_usd = $total_amount;
+			$amount_idr = $total_amount * $kurs;
+		}
+		
+		if ($document_id === NULL) {
+			$this->db->set('document_number', $document_number);
+			$this->db->set('vendor', $vendor);
+			$this->db->set('tanggal', $date);
+			$this->db->set('purposed_date', $purposed_date);
+			$this->db->set('currency', $currency);
+			$this->db->set('created_by', config_item('auth_person_name'));
+			$this->db->set('created_at', date('Y-m-d'));
+			$this->db->set('base', config_item('auth_warehouse'));
+			$this->db->set('notes', $notes);
+			$this->db->insert('tb_po_payments');
+			$po_payment_id = $this->db->insert_id();
+		}else{
+			//utk edit
+			$po_payment_id = $document_id;
+		}
+
+		//items
+		foreach ($_SESSION['payment_request']['items'] as $key => $item) {
+			if ($item["amount_paid"] != 0) {
+				$id_po = $item['id_po'];
+				$status = $this->get_status_po($id_po);
+
+				if($item["purchase_order_item_id"]!=0){
+					$this->db->set('purchase_order_item_id', $item["purchase_order_item_id"]);
+				}				
+				$this->db->set('id_po', $id_po);
+				$this->db->set('po_payment_id', $po_payment_id);
+				$this->db->set('deskripsi', $item['deskripsi']);
+				$this->db->set('amount_paid', $item["amount_paid"]);
+				$this->db->set('created_by', config_item('auth_person_name'));
+				$this->db->set('no_cheque', null);
+				$this->db->set('tanggal', $date);
+				$this->db->set('no_transaksi', $document_number);
+				$this->db->set('coa_kredit', null);
+				$this->db->set('adj_value', $item["adj_value"]);
+				if ($status == "ORDER") {
+					$this->db->set('uang_muka', $item["amount_paid"]);
+				}
+				if ($currency == 'USD') {
+					$this->db->set('kurs', $kurs);
+				} else {
+					$this->db->set('kurs', 1);
+				}
+				$this->db->insert('tb_purchase_order_items_payments');
+				$id = $this->db->insert_id();
+				// $id_payment[] = $id;
+				$val_request = $item["amount_paid"]-$item["adj_value"];
+
+				if($item['purchase_order_item_id']!=0){
+					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
+					$this->db->where('id', $item["purchase_order_item_id"]);
+					$this->db->update('tb_po_item');
+				}else{
+					$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $val_request, false);
+					$this->db->where('id', $id_po);
+					$this->db->update('tb_po');
+				}
+
+				$this->db->set('remaining_payment_request', '"remaining_payment_request" - ' . $val_request, false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
+
+				
+			}
+		}
+
+		 if ($this->db->trans_status() === FALSE)
+			return FALSE;
+
+		$this->db->trans_commit();
+		$this->send_mail($po_payment_id,26);
+		return TRUE;
+	}
+
+	public function isDocumentNumberExists($document_number)
+	{
+		$this->db->where('document_number', $document_number);
+		$query = $this->db->get('tb_po_payments');
+
+		if ($query->num_rows() > 0)
+			return true;
+
+		return false;
 	}
 
 	function groupsBycoa($account)
@@ -1370,7 +1478,57 @@ class Payment_Model extends MY_MODEL
           return true;
         else
           return $this->email->print_debugger();
-    }
+	}
+	
+	public function listItems($vendor, $currency)
+	{
+		$this->db->select('tb_po.*');
+		$this->db->from('tb_po');
+		$this->db->where('vendor', $vendor);
+		$this->db->where('default_currency', $currency);
+		$this->db->where('remaining_payment_request >', 0);
+		$this->db->where_in('status', ['OPEN', 'ORDER']);
+		$this->db->order_by('tb_po.due_date', 'asc');
+		$po = $this->db->get();
+		$list_po = array();
+		// foreach ($po as $detail) {
+		foreach ($po->result_array() as $key => $detail) {
+			$list_po[$key]= $detail;
+			$this->db->select('*');
+			$this->db->from('tb_po_item');
+			// $this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id');
+			$this->db->where('tb_po_item.purchase_order_id', $detail['id']);
+			$this->db->where('tb_po_item.left_paid_request >', 0);
+			$this->db->order_by('tb_po_item.id', 'asc');
+			$query = $this->db->get();
+
+			foreach ($query->result_array() as $i => $value) {
+				$list_po[$key]['items'][$i] = $value;
+			}
+		}
+		return $list_po;
+		// return $po->result_array();
+	}
+
+	public function infoItem($po_id, $po_item_id)
+	{
+		if($po_item_id!=0){
+			$this->db->select('*');
+			$this->db->join('tb_po','tb_po.id = tb_po_item.purchase_order_id');
+			$this->db->from('tb_po_item');
+			$this->db->where('tb_po_item.id',$po_item_id);
+			$query = $this->db->get();
+			$return = $query->unbuffered_row('array');
+		}else{
+			$this->db->select('*');
+			$this->db->from('tb_po');
+			$this->db->where('id',$po_id);
+			$query = $this->db->get();
+			$return = $query->unbuffered_row('array');
+		}
+
+		return $return;
+	}
 	// }
 }
 

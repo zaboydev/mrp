@@ -2230,4 +2230,37 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('payment_request_format_number')) {
+    function payment_request_format_number()
+    {
+      $div  = config_item('document_format_divider');
+      $year = date('Y');
+
+      $return = $div . 'BPV' . $div . $year;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('payment_request_last_number')) {
+    function payment_request_last_number()
+    {
+      $CI =& get_instance();
+      $format = payment_request_format_number();
+
+      $CI->db->select_max('document_number', 'last_number');
+      $CI->db->from('tb_po_payments');
+      $CI->db->like('document_number', $format, 'before');
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+
+      return $return;
+    }
+  }
+
     
