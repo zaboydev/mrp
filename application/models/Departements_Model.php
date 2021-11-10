@@ -179,18 +179,18 @@ class Departements_Model extends MY_Model
     $this->connection->where('id', $id);
     $this->connection->update('tb_departments');
 
-    if ($this->input->post('head_department')){
-      $this->db->set('status','not active');
-      $this->db->where('department_id', $id);
-      $this->db->where('status', 'active');
-      $this->db->update('tb_head_department');
+    $this->db->where('department_id', $id);
+    $this->db->delete('tb_head_department');
 
-      $this->db->set('department_id',$id);
-      $this->db->set('username',$this->input->post('head_department'));
-      $this->db->set('status','active');
-      $this->db->set('updated_at', date('Y-m-d H:i:s'));
-      $this->db->set('updated_by', config_item('auth_person_name'));
-      $this->db->insert('tb_head_department');
+    if ($this->input->post('head_departments')){
+      foreach ($this->input->post('head_departments') as $key => $user){
+        $this->db->set('department_id',$id);
+        $this->db->set('username',$user);
+        $this->db->set('status','active');
+        $this->db->set('updated_at', date('Y-m-d H:i:s'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->insert('tb_head_department');
+      }     
 
     }
 

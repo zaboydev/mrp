@@ -175,70 +175,159 @@
         </div>
       </div>
       <div class="col-sm-6">
-        <h5>Payment</h5>
-        <div class="table-responsive">
-          <table class="table table-striped table-nowrap">
-            <thead id="table_header">
-              <tr>
-                <th class="middle-alignment"></th>
-                <th class="middle-alignment">No Transaksi</th>
-                <th class="middle-alignment">Tanggal</th>
-                <th class="middle-alignment">No Cheque</th>
-                <th class="middle-alignment" colspan="2">Amount</th>
-              </tr>
-            </thead>
-            <tbody id="table_contents">
-              <?php $n = 0; ?>
-              <?php $total_amount_payment = array(); ?>
-              <?php if ($entity['count_payment'] > 0) : ?>
-                <?php foreach ($entity['payments'] as $i => $detail_payment) : ?>
-                  <?php $total_amount_payment[] = $detail_payment['amount_paid']; ?>
-                  <?php $n++; ?>
-                  <tr id="row_<?= $i; ?>">
-                    <td width="1">
-                      <?= $n; ?>
-                    </td>
-                    <td>
-                      <?= print_string($detail_payment['no_transaksi']); ?>
-                    </td>
-                    <td class="no-space">
-                      <?= print_string($detail_payment['tanggal']); ?>
-                    </td>
-                    <td class="no-space">
-                      <?= print_string($detail_payment['no_cheques']); ?>
-                    </td>
-                    <td colspan="2">
-                      <?= print_number($detail_payment['amount_paid'], 2); ?>
-                      </td>
+        <div class="row">
+          <div class="col-sm-12">
+            <h5>Payment</h5>
+            <div class="table-responsive">
+              <table class="table table-striped table-nowrap">
+                <thead id="table_header">
+                  <tr>
+                    <th class="middle-alignment"></th>
+                    <th class="middle-alignment">No Transaksi</th>
+                    <th class="middle-alignment">Tanggal</th>
+                    <th class="middle-alignment">No Cheque</th>
+                    <th class="middle-alignment" colspan="2">Amount</th>
                   </tr>
-                <?php endforeach; ?>
-              <?php else : ?>
-                <tr>
-                  <td colspan="6" align="center">No Payment</td>
-                </tr>
-              <?php endif; ?>
-              <?php $total_payment       = array_sum($total_amount_payment); ?>
-            </tbody>
-            <tfoot>
-              <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th style="background-color: #eee;">Total <?= $entity['default_currency']; ?></th>
-                <th style="background-color: #eee;"><?= print_number($total_payment, 2); ?></th>
-              </tr>
-              <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th style="background-color: #eee;">&nbsp;</th>
-                <th style="background-color: #eee;">&nbsp;</th>
-              </tr>
-            </tfoot>
-          </table>
+                </thead>
+                <tbody id="table_contents">
+                  <?php $n = 0; ?>
+                  <?php $total_amount_payment = array(); ?>
+                  <?php if ($entity['count_payment'] > 0) : ?>
+                    <?php foreach ($entity['payments'] as $i => $detail_payment) : ?>
+                      <?php $total_amount_payment[] = $detail_payment['amount_paid']; ?>
+                      <?php $n++; ?>
+                      <tr id="row_<?= $i; ?>">
+                        <td width="1">
+                          <?= $n; ?>
+                        </td>
+                        <td>
+                          <?= print_string($detail_payment['no_transaksi']); ?>
+                        </td>
+                        <td class="no-space">
+                          <?= print_string($detail_payment['tanggal']); ?>
+                        </td>
+                        <td class="no-space">
+                          <?= print_string($detail_payment['no_cheques']); ?>
+                        </td>
+                        <td colspan="2">
+                          <?= print_number($detail_payment['amount_paid'], 2); ?>
+                          </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php else : ?>
+                    <tr>
+                      <td colspan="6" align="center">No Payment</td>
+                    </tr>
+                  <?php endif; ?>
+                  <?php $total_payment       = array_sum($total_amount_payment); ?>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th style="background-color: #eee;">Total <?= $entity['default_currency']; ?></th>
+                    <th style="background-color: #eee;"><?= print_number($total_payment, 2); ?></th>
+                  </tr>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th style="background-color: #eee;">&nbsp;</th>
+                    <th style="background-color: #eee;">&nbsp;</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <div class="col-sm-12">
+            <h5>Receipt Item (GRN)</h5>
+            <div class="table-responsive">
+              <table class="table table-striped table-nowrap">
+                <thead id="table_header">
+                  <tr>
+                    <th class="middle-alignment"></th>
+                    <th class="middle-alignment">Document Number</th>
+                    <th class="middle-alignment">Received Date</th>
+                    <th class="middle-alignment">Received Quantity</th>
+                    <th class="middle-alignment">Received Unit Value</th>
+                    <th class="middle-alignment">Received Total Value</th>
+                    <th class="middle-alignment">Received By</th>
+                  </tr>
+                </thead>
+                <tbody id="table_contents">
+                  <?php $n = 0; ?>
+                  <?php $total_amount = array(); ?>
+                  <?php foreach ($entity['items'] as $i => $detail) : ?>
+                    <?php $n++; ?>
+                    <tr id="row_<?= $i; ?>">
+                      <td width="1">
+                        <?= $n; ?>
+                      </td>
+                      <td>
+                        <?= print_string($detail['description']); ?>
+                      </td>
+                      <td class="no-space">
+                        <?= print_string($detail['part_number']); ?>
+                      </td>
+                      <td class="no-space">
+                        <?= print_string($detail['alternate_part_number']); ?>
+                      </td>
+                      <td class="no-space"></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <?php if(count($detail['receipts'])>0):?>
+                    <?php foreach ($detail['receipts'] as $i => $receipt) : ?>
+                    <?php $n++; ?>
+                    <tr id="row_<?= $i; ?>">
+                      <td width="1"></td>
+                      <td>
+                        <?= print_string($receipt['document_number']); ?>
+                      </td>
+                      <td class="no-space">
+                        <?= print_date($receipt['received_date']); ?>
+                      </td>
+                      <td class="no-space">
+                        <?= print_number($receipt['received_quantity'],2); ?>
+                      </td>                      
+                      <td class="no-space">
+                        <?= print_number($receipt['received_unit_value'],2); ?>
+                      </td>                      
+                      <td class="no-space">
+                        <?= print_number($receipt['received_total_value'],2); ?>
+                      </td>
+                      <td>
+                        <?= print_string($receipt['received_by']); ?>
+                      </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php else: ?>
+                    <tr>
+                    <td colspan="6" style="text-align:center;">No Receipt</td>
+                    </tr>
+                    <?php endif;?>
+                  <?php endforeach; ?>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                  </tr>                  
+                </tfoot>
+              </table>
+            </div>
+          </div>
         </div>
+        
       </div>
     </div>
   </div>

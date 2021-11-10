@@ -1233,6 +1233,67 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('user_in_head_department_list')) {
+    function user_in_head_department_list($department_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('username');
+      $CI->db->from('tb_head_department');
+      $CI->db->where('department_id', $department_id);
+      $CI->db->where('status', 'active');
+      $CI->db->order_by('username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = array();
+
+      foreach ($result as $row) {
+        $return[] = $row['username'];
+      }
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('available_user_for_head_department')) {
+    function available_user_for_head_department($select = NULL, $department_id = NULL)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('username');
+      $CI->db->from('tb_head_department');
+      if($department_id!==NULL){
+        $CI->db->where('department_id !=', $department_id);
+      }      
+      $CI->db->where('status', 'active');
+      $CI->db->order_by('username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $user_in_head_dept_list = array();
+
+      foreach ($result as $row) {
+        $user_in_head_dept_list[] = $row['username'];
+      }
+
+      if ($select !== NULL){
+        $CI->db->select($select);
+      }
+
+      $CI->db->from('tb_auth_users');
+      $CI->db->where('banned', '0');
+      if(count($user_in_head_dept_list)>0){
+        $CI->db->where_not_in('username', $user_in_head_dept_list);
+      }
+      $CI->db->order_by('person_name', 'ASC');
+
+      $query = $CI->db->get();
+
+      return $query->result_array();
+    }
+  }
+
   if ( ! function_exists('user_in_annual_cost_centers_list')) {
     function user_in_annual_cost_centers_list($annual_cost_center_id)
     {
@@ -1884,6 +1945,21 @@ if (!function_exists('currency_for_vendor_list')) {
       $query = $CI->db->get();
 
       return ( $query->num_rows() > 0 ) ? true : false;
+    }
+  }
+
+  if ( ! function_exists('getUsernameByPersonName')) {
+    function getUsernameByPersonName($person_name)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where('person_name', $person_name);
+
+      $query = $CI->db->get();
+
+      return $query->unbuffered_row('array');
     }
   }
 

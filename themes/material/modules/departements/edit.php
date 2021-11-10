@@ -1,4 +1,4 @@
-<?=form_open(site_url($module['route'] .'/save'), array(
+c <?=form_open(site_url($module['route'] .'/save'), array(
   'autocomplete'  => 'off',
   'id'            => 'form-edit-data',
   'class'         => 'form form-validate form-xhr ui-front',
@@ -41,8 +41,15 @@
             <label>Division</label>
           </div>
           <div class="form-group">
+            <textarea name="notes" id="notes" class="form-control"><?=$entity['notes'];?></textarea>
+            <label for="notes">Notes</label>
+          </div>
+          
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
             <label>Head Department</label>
-            <select name="head_department" id="head_department" class="form-control" required>
+            <select name="head" id="head" class="form-control hide">
               <option value="">Not Set</option>
               <?php foreach (available_user(array('person_name', 'username')) as $i => $user) : ?>
                 <option value="<?= $user['username']; ?>" <?= ($user['username'] == user_in_head_department($entity['id'])) ? 'selected' : ''; ?>>
@@ -50,12 +57,14 @@
                 </option>
               <?php endforeach; ?>
             </select>
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <div class="form-group">
-            <textarea name="notes" id="notes" class="form-control"><?=$entity['notes'];?></textarea>
-            <label for="notes">Notes</label>
+            <?php foreach (available_user_for_head_department(array('person_name', 'username'),$entity['id']) as $i => $user):?>
+            <div class="checkbox">
+              <input type="checkbox" name="head_departments[]" id="user[<?=$i;?>]" value="<?=$user['username'];?>" <?=(in_array($user['username'], user_in_head_department_list($entity['id']))) ? 'checked' : '';?> >
+              <label for="user[<?=$i;?>]">
+                <?=$user['person_name'];?>
+              </label>
+            </div>
+            <?php endforeach;?>
           </div>
 
         </div>
