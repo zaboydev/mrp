@@ -229,10 +229,10 @@
     </div>
     <div class="pull-right">
       <?php if (is_granted($module, 'document')):?>
-        <?php if ($entity['status']=='rejected' || $entity['status']=='pending'):?>
-        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="hide btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+        <?php if ($entity['status']=='rejected'):?>
+        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
-          <small class="top right">edit</small>
+          <small class="top right">Revisi</small>
         </a>
         <?php endif;?>
       <?php endif;?>
