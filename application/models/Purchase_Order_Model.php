@@ -207,8 +207,9 @@ class Purchase_Order_Model extends MY_Model
         $this->db->like('tb_po.review_status', 'APPROVED');
         $this->db->like('tb_po.status', 'PURPOSED');
         // $this->db->like('tb_po.status', 'OPEN');
-      }elseif ($status == 'canceled') {
-        $this->db->where('tb_po.status', 'CANCELED');
+      }elseif ($status == 'cancel') {
+        $this->db->like('tb_po.review_status', 'CANCEL');
+        $this->db->like('tb_po.status', 'CANCEL');
         // $this->db->like('tb_po.status', 'OPEN');
       }
       
@@ -2173,6 +2174,24 @@ class Purchase_Order_Model extends MY_Model
 
     $this->db->where('id', $id_att);
     $this->db->delete('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  public function cancel()
+  {
+    $this->db->trans_begin();
+
+    $id = $this->input->post('id');
+
+    $this->db->set('status', 'CANCEL');
+    $this->db->set('review_status', 'CANCEL');
+    $this->db->where('id', $id);
+    $this->db->update('tb_po');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
