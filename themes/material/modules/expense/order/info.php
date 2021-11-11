@@ -435,6 +435,18 @@
         <small class="top right">Manage Attachment</small>
       </a>
       <?php endif; ?>
+      <?php if (is_granted($module, 'document') && $entity['status'] == 'PURPOSED' && $tipe != 'report') : ?>
+      <?=form_open(current_url(), array(
+        'class' => 'form-xhr-cancel',
+      ));?>
+        <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+
+        <a href="<?=site_url($module['route'] .'/cancel_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-cancel btn-tooltip ink-reaction" id="modal-cancel-data-button">
+          <i class="md md-close"></i>
+          <small class="top left">Cancel</small>
+        </a>
+      <?=form_close();?>
+      <?php endif; ?>
     </div>
     <div class="pull-right">
       <?php if (is_granted($module, 'payment') && $tipe != 'report') : ?>
