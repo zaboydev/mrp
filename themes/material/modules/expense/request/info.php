@@ -229,7 +229,7 @@
     </div>
     <div class="pull-right">
       <?php if (is_granted($module, 'document')):?>
-        <?php if ($entity['status']=='rejected'):?>
+        <?php if ($entity['status']=='rejected' && $entity['revisi']==0):?>
         <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">Revisi</small>
