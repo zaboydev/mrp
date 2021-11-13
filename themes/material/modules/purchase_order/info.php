@@ -429,14 +429,27 @@
   </div>
 
   <div class="card-foot">
-    <div class="pull-left">
+    <!-- <div class="pull-left"> -->
       <?php if (is_granted($module, 'info') && $entity['review_status'] == 'APPROVED' && $tipe != 'report') : ?>
       <a href="<?= site_url($module['route'] . '/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
         <i class="md md-attach-file"></i>
         <small class="top right">Manage Attachment</small>
       </a>
       <?php endif; ?>
-    </div>
+      
+      <?php if (is_granted($module, 'document') && $entity['status'] == 'PURPOSED' && $tipe != 'report') : ?>
+      <?=form_open(current_url(), array(
+        'class' => 'form-xhr-cancel pull-left',
+      ));?>
+        <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+
+        <a href="<?=site_url($module['route'] .'/cancel_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-cancel btn-tooltip ink-reaction" id="modal-cancel-data-button">
+          <i class="md md-close"></i>
+          <small class="top left">Cancel</small>
+        </a>
+      <?=form_close();?>
+      <?php endif; ?>
+    <!-- </div> -->
     <div class="pull-right">
       <?php if (is_granted($module, 'payment') && $tipe != 'report') : ?>
         <!-- <a href="<?= site_url($module['route'] . '/payment/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">

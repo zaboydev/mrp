@@ -811,13 +811,13 @@ class Expense_Request_Model extends MY_Model
             // $this->connection->set('required_date', $required_date);
             // $this->connection->set('suggested_supplier', $suggested_supplier);
             // $this->connection->set('deliver_to', $deliver_to);
-            $this->connection->set('status', 'revisi');
+            // $this->connection->set('status', 'revisi');
             // $this->connection->set('base', config_item('auth_warehouse'));
             // $this->connection->set('notes', $notes);
             // $this->connection->set('updated_at', date('Y-m-d'));
             // $this->connection->set('updated_by', config_item('auth_person_name'));
             // $this->connection->set('with_po', $with_po);
-            // $this->connection->set('head_dept', $head_dept);
+            $this->connection->set('revisi', 1);
             $this->connection->where('id', $document_id);
             $this->connection->update('tb_expense_purchase_requisitions');
 
@@ -880,6 +880,7 @@ class Expense_Request_Model extends MY_Model
             $this->connection->set('updated_at', date('Y-m-d H:i:s'));
             $this->connection->set('with_po', $with_po);
             $this->connection->set('head_dept', $head_dept);
+            $this->connection->set('last_request_id', $document_id);
             $this->connection->set('base', config_item('auth_warehouse'));
             $this->connection->insert('tb_expense_purchase_requisitions');
 
