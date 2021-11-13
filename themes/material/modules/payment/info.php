@@ -16,7 +16,7 @@
       <div class="col-sm-12 col-md-4 col-md-push-8">
         <div class="well">
           <div class="clearfix">
-            <div class="pull-left">TRANSACTION NO.: </div>
+            <div class="pull-left">TRANSACTION NO : </div>
             <div class="pull-right"><?= print_string($entity['no_transaksi']); ?></div>
           </div>
           <div class="clearfix">
@@ -210,8 +210,10 @@
               <th style="text-align: center;">Value Order</th>
               <th style="text-align: center;">Qty Receipt</th>
               <th style="text-align: center;">Value Receipt</th>
-              <th style="text-align: center;">Qty Remaining</th>
-              <th style="text-align: center;">Value Remaining</th>
+              <th style="text-align: center;">Left Received Qty</th>
+              <th style="text-align: center;">Left Received Value</th>
+              <th style="text-align: center;">Over Received Qty</th>
+              <th style="text-align: center;">Over Received Value</th>
             </thead>
             <tbody id="table_contents">
               <?php 
@@ -222,6 +224,8 @@
                 $total_value_receipt      = array();
                 $total_quantity_remaining = array();
                 $total_value_remaining    = array();
+                $total_quantity_over      = array();
+                $total_value_over         = array();
               ?>              
               <?php foreach ($entity['items'] as $i => $detail):?>
                 <?php 
@@ -230,8 +234,14 @@
                   $total_value_order[]        = $detail['item']['total_amount'];
                   $total_quantity_receipt[]   = $detail['item']['grn_qty'];
                   $total_value_receipt[]      = $detail['item']['grn_qty']*$detail['item']['unit_price'];
-                  $total_quantity_remaining[] = $detail['item']['left_received_quantity'];
-                  $total_value_remaining[]    = $detail['item']['left_received_quantity']*$detail['item']['unit_price'];
+                  if($detail['item']['left_received_quantity']>=0){
+                    $total_quantity_remaining[] = $detail['item']['left_received_quantity'];
+                    $total_value_remaining[]    = $detail['item']['left_received_quantity']*$detail['item']['unit_price'];
+                  }else{
+                    $total_quantity_over[] = $detail['item']['left_received_quantity']*-1;
+                    $total_value_over[]    = $detail['item']['left_received_quantity']*$detail['item']['unit_price']*-1;
+                  }
+                  
                 ?>
                 <tr>
                   <td style="text-align: center;">
@@ -259,10 +269,18 @@
                     <?= print_number($detail['item']['grn_qty']*$detail['item']['unit_price'], 2); ?>
                   </td>
                   <td>
-                    <?= print_number($detail['item']['left_received_quantity'], 2); ?>
+                    <?= ($detail['item']['left_received_quantity']>=0) ? print_number($detail['item']['left_received_quantity'], 2) : print_number(0,2); ?>
                   </td>
                   <td>
-                    <?= print_number($detail['item']['left_received_quantity']*$detail['item']['unit_price'], 2); ?>
+                    <?= ($detail['item']['left_received_quantity']>=0) ? print_number($detail['item']['left_received_quantity']*$detail['item']['unit_price'], 2) : print_number(0,2); ?>
+                    
+                  </td>
+                  <td>
+                    <?= ($detail['item']['left_received_quantity']<0) ? print_number($detail['item']['left_received_quantity']*-1, 2) : print_number(0,2); ?>
+                  </td>
+                  <td>
+                    <?= ($detail['item']['left_received_quantity']<0) ? print_number($detail['item']['left_received_quantity']*$detail['item']['unit_price']*-1, 2) : print_number(0,2); ?>
+                    
                   </td>
                 </tr>
                 <?php if(count($detail['item']['grn'])>0):?> 
@@ -283,6 +301,8 @@
                   <td><?= print_number($grn['quantity_order']*$detail['item']['unit_price'], 2); ?></td>
                   <td></td>
                   <td></td>
+                  <td></td>
+                  <td></td>
                 </tr>  
                 <?php endforeach;?>
                 <?php endif;?>           
@@ -300,6 +320,8 @@
                 <th><?=print_number(array_sum($total_value_receipt), 2);?></th>
                 <th><?=print_number(array_sum($total_quantity_remaining), 2);?></th>
                 <th><?=print_number(array_sum($total_value_remaining), 2);?></th>
+                <th><?=print_number(array_sum($total_quantity_over), 2);?></th>
+                <th><?=print_number(array_sum($total_value_over), 2);?></th>
               </tr>
             </tfoot>
           </table>
@@ -321,6 +343,10 @@
           <small class="top right">payment</small>
         </a>
       <?php endif; ?>
+      <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
+        <i class="md md-print"></i>
+        <small class="top right">print</small>
+      </a>
     </div>
   </div>
 </div>
