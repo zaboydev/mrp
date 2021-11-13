@@ -740,4 +740,27 @@ class Expense_Request extends MY_Controller
 
         echo json_encode($alert);
     }
+
+    public function change_ajax()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'document') === FALSE) {
+        $alert['type']  = 'danger';
+        $alert['info']  = 'You are not allowed to cancel this request!';
+        } else {
+            $change = $this->model->change();
+            if ($change['status']) {
+                $alert['type'] = 'success';
+                $alert['info'] = $change['info'];
+                $alert['link'] = site_url($this->module['route']);
+            } else {
+                $alert['type'] = 'danger';
+                $alert['info'] = $change['info'];
+            }
+        }
+
+        echo json_encode($alert);
+    }
 }

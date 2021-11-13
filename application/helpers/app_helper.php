@@ -2236,9 +2236,7 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI =& get_instance();
 
       $CI->db->from('tb_purchase_order_items');
-      // $CI->db->join('tb_po','tb_po.id=tb_po_item.purchase_order_id');
       $CI->db->where('tb_purchase_order_items.purchase_request_number',$pr_number);
-      // $CI->db->where_not_in('tb_po.status',['REVISI','REJECTED','CANCEL']);
 
       $query = $CI->db->get();
 

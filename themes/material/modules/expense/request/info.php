@@ -251,6 +251,24 @@
     </div>
     <div class="pull-right">
       <?php if (is_granted($module, 'document')):?>
+        <?php if ($entity['status']!='rejected' && $entity['status']!='canceled' && $entity['status']!='revisi' && $entity['status']!='close'):?>
+        <?php if ($entity['cancel']) : ?>
+        <?=form_open(current_url(), array(
+            'class' => 'form-xhr-cancel pull-left',
+          ));?>
+          <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+          <input type="hidden" name="change_notes" id="change_notes" class="form-control">
+
+          <a data-type-po="<?=$entity['with_po']?>" href="<?=site_url($module['route'] .'/change_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-change btn-tooltip ink-reaction" id="modal-cancel-data-button">
+            <!-- <i class="md md-shuffle"></i> -->
+            <i class="md md-swap-horiz"></i>
+            <small class="top left">Change Type PO</small>
+          </a>
+        <?=form_close();?>
+        <?php endif;?>
+        <?php endif;?>
+      <?php endif;?>
+      <?php if (is_granted($module, 'document')):?>
         <?php if ($entity['status']=='rejected' && $entity['revisi']==0):?>
         <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>

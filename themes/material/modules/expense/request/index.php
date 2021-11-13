@@ -1020,6 +1020,59 @@
 
             button.attr('disabled', false);
           });
+
+          $(document).on('click', '.btn-xhr-change', function(e) {
+            e.preventDefault();
+
+            var button = $(this);
+            var type = $(this).data('type-po');
+
+
+            if(type=='f'){
+              var last_type = 'tanpa PO';
+              var next_type = 'dengan PO';
+            }else{
+              var last_type = 'dengan PO';
+              var next_type = 'tanpa PO';
+            }
+            button.attr('disabled', true);
+
+            // let notes = prompt("Please enter cancel notes", "");
+            // $('form.form-xhr-cancel input[name=cancel_notes]').val(notes);
+
+            var form = $('.form-xhr-cancel');
+            var action = button.attr('href');
+            if (confirm('Expense Request ini merupakasn expense request '+last_type+'? Anda yakin akan mengubah request ini menjadi request '+next_type+'?')) {
+              
+              $.post(action, form.serialize()).done(function(data) {
+                var obj = $.parseJSON(data);
+                if (obj.type == 'danger') {
+                  toastr.options.timeOut = 10000;
+                  toastr.options.positionClass = 'toast-top-right';
+                  toastr.error(obj.info);
+
+                  buttonToDelete.attr('disabled', false);
+                } else {
+                  toastr.options.positionClass = 'toast-top-right';
+                  toastr.success(obj.info);
+
+                  form.reset();
+
+                  $('[data-dismiss="modal"]').trigger('click');
+
+                  if (datatable) {
+                    datatable.ajax.reload(null, false);
+                  }
+                }
+              }).fail(function() {
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.error('Cancel Failed!');
+              });
+            }
+
+            button.attr('disabled', false);
+          });
         });
       </script>
 

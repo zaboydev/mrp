@@ -443,8 +443,9 @@ class Expense_Request_Model extends MY_Model
         foreach ($data as $key) {
             array_push($attachment, $key->file);
         }
-        $request["attachment"] = $attachment;
-        $request['cancel']      = getStatusCancelRequest($request['pr_number']);
+        $request["attachment"]  = $attachment;
+        $request['cancel']      = getStatusCancelRequest(strtoupper($request['pr_number']));
+        // $request['change']      = getStatusChangeRequest($id);
         return $request;
     }
 
@@ -1753,5 +1754,59 @@ class Expense_Request_Model extends MY_Model
 
         $this->connection->trans_commit();
         return TRUE;
+    }
+
+    function change()
+    {
+        $this->connection->trans_begin();
+
+        $id = $this->input->post('id');
+        // $notes = $this->input->post('notes');
+
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->where('id', $id);
+
+        $query  = $this->connection->get();
+        $request    = $query->unbuffered_row('array');
+
+        $pr_number = $request['pr_number'];
+        $last_status = $request['status'];
+        $level = 0;
+
+        if($request['with_po']=='t'){
+            if($last_status=='approved'){
+                $this->connection->set('status', 'WAITING FOR FINANCE REVIEW');
+                $level = 14;
+            }            
+            $this->connection->set('with_po', 'f');
+            $this->connection->where('id', $id);
+            $this->connection->update('tb_expense_purchase_requisitions');  
+        }else{
+            $status = [
+                'WAITING FOR HOS REVIEW',
+                'WAITING FOR COO REVIEW',
+                'WAITING FOR VP FINANCE REVIEW',
+                'WAITING FOR CFO REVIEW'
+            ];
+            if(in_array($last_status,$status)){
+                $this->connection->set('status', 'approved');
+            }            
+            $this->connection->set('with_po', 't');
+            $this->connection->where('id', $id);
+            $this->connection->update('tb_expense_purchase_requisitions'); 
+        }
+
+        
+
+        
+
+        if ($this->connection->trans_status() === FALSE)
+            return ['status'=>FALSE,'info'=>'Expense gagal Diubah. Silahkan dicoba beberapa saat lagi'];
+
+        $this->connection->trans_commit();
+        if($level>0){
+            $this->send_mail($id, $level);
+        }
+        return ['status'=>TRUE,'info'=>'Expense '.$pr_number.' Berhasil Diubah.'];
     }
 }
