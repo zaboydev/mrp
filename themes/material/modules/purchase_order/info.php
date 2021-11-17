@@ -262,19 +262,20 @@
         <div class="table-responsive">
           <table class="table table-striped table-nowrap">
             <thead id="table_header">
-              <th>No</th>
-              <th>Tanggal</th>
-              <th>Purchase Number</th>
-              <th align="right">Qty</th>
-              <th>Unit</th>
+              <th style="text-align:center;">No</th>
+              <th style="text-align:center;">Tanggal</th>
+              <th style="text-align:center;">Purchase Number</th>
+              <th style="text-align:center;">Stock on Hand</th>
+              <th style="text-align:center;">Qty</th>
+              <th style="text-align:center;">Unit</th>
               <!-- <th>Price</th> -->
-              <th align="right">Total</th>
-              <th align="right">POE Qty</th>
-              <th align="right">POE Value</th>
-              <th align="right">PO Qty</th>
-              <th align="right">PO Value</th>
-              <th align="right">GRN Qty</th>
-              <th align="right">GRN Value</th>
+              <th style="text-align:center;">Total</th>
+              <th style="text-align:center;" style="text-align:center;">POE Qty</th>
+              <th style="text-align:center;">POE Value</th>
+              <th style="text-align:center;">PO Qty</th>
+              <th style="text-align:center;">PO Value</th>
+              <th style="text-align:center;">GRN Qty</th>
+              <th style="text-align:center;">GRN Value</th>
               <!-- <th align="right" width="10">Budget Status</th> -->
             </thead>
             <tbody id="table_contents">
@@ -325,10 +326,13 @@
                     <?=print_string($history['pr_number']);?>
                   </td>
                   <td align="right">
+                    <?=print_number($history['on_hand_stock'], 2);?>
+                  </td>  
+                  <td align="right">
                     <?=print_number($history['quantity'], 2);?>
                   </td>
                   <td>
-                    <?=print_string($detail['unit']);?>
+                    <?=print_string($history['unit']);?>
                   </td>
                   
                   <td align="right">
@@ -351,7 +355,7 @@
                   </td>
                   <td align="right">
                     <?=print_number($history['grn_value'], 2);?>
-                  </td>                     
+                  </td>                  
                 </tr>                
                 <?php endforeach;?>
               <?php endforeach;?>
@@ -359,6 +363,7 @@
             <tfoot>
               <tr>
                 <th>Total</th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th><?=print_number(array_sum($total_qty), 2);?></th>
