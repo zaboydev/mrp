@@ -340,6 +340,8 @@ class Payment_Model extends MY_MODEL
 		$currency 	= $this->input->post('currency');
 		$kurs 		= $this->tgl_kurs(date("Y-m-d"));
 		$tipe 		= $this->input->post('tipe');
+		$notes 		= $this->input->post('notes');
+		$base 		= config_item('auth_warehouse');
 		if ($currency == 'IDR') {
 			$amount_idr = $amount;
 			$amount_usd = $amount / $kurs;
@@ -372,6 +374,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('tanggal', $tanggal);
 		$this->db->set('purposed_date', $purposed_date);
 		$this->db->set('currency', $currency);
+		$this->db->set('notes', $notes);
 		$this->db->set('created_by', config_item('auth_person_name'));
 		$this->db->set('created_at', date('Y-m-d'));
 		$this->db->set('base', config_item('auth_warehouse'));
@@ -496,7 +499,12 @@ class Payment_Model extends MY_MODEL
 			return FALSE;
 
 		$this->db->trans_commit();
-		$this->send_mail($po_payment_id,26);
+		if($base=='JAKARTA'){
+			$this->send_mail($po_payment_id,14);
+		}else{
+			$this->send_mail($po_payment_id,26);
+		}
+		
 		return TRUE;
 	}
 
@@ -513,6 +521,7 @@ class Payment_Model extends MY_MODEL
 		$notes      			= (empty($_SESSION['payment_request']['notes'])) ? NULL : $_SESSION['payment_request']['notes'];
 		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
 		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
+		$base 					= config_item('auth_warehouse');
 
 		if ($currency == 'IDR') {
 			$amount_idr = $total_amount;
@@ -530,7 +539,7 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('currency', $currency);
 			$this->db->set('created_by', config_item('auth_person_name'));
 			$this->db->set('created_at', date('Y-m-d'));
-			$this->db->set('base', config_item('auth_warehouse'));
+			$this->db->set('base', $base);
 			$this->db->set('notes', $notes);
 			$this->db->insert('tb_po_payments');
 			$po_payment_id = $this->db->insert_id();
@@ -589,11 +598,15 @@ class Payment_Model extends MY_MODEL
 			}
 		}
 
-		 if ($this->db->trans_status() === FALSE)
+		if ($this->db->trans_status() === FALSE)
 			return FALSE;
 
 		$this->db->trans_commit();
-		$this->send_mail($po_payment_id,26);
+		if($base=='JAKARTA'){
+			$this->send_mail($po_payment_id,14);
+		}else{
+			$this->send_mail($po_payment_id,26);
+		}
 		return TRUE;
 	}
 
@@ -931,9 +944,9 @@ class Payment_Model extends MY_MODEL
 				$status = 'WAITING REVIEW BY VP FINANCE';
 				$level = 3;
 			}else{
-				$this->db->set('status', 'WAITING REVIEW BY HOS');
-				$status = 'WAITING REVIEW BY HOS';
-				$level = 10;
+				$this->db->set('status', 'WAITING REVIEW BY CEO');
+				$status = 'WAITING REVIEW BY CEO';
+				$level = 16;
 			}			
 			$this->db->set('review_by', config_item('auth_person_name'));
 			$this->db->set('review_at', date('Y-m-d'));
@@ -970,7 +983,7 @@ class Payment_Model extends MY_MODEL
 			$this->db->update('tb_po_payments');
 		}
 
-		if (config_item('auth_role')=='CHIEF OPERATION OFFICER' && $po_payment['status'] == 'WAITING REVIEW BY COO') {
+		if (config_item('auth_role')=='CHIEF OPERATION OFFICER' && $po_payment['status'] == 'WAITING REVIEW BY CEO') {
 			$this->db->set('status', 'APPROVED');
 			$this->db->set('approved_by', config_item('auth_person_name'));
 			$this->db->set('approved_at', date('Y-m-d'));
@@ -980,28 +993,31 @@ class Payment_Model extends MY_MODEL
 		}
 
 		if (config_item('auth_role')=='VP FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
-			if($currency=='IDR'){
-				if($total>15000000){
-					$this->db->set('status', 'WAITING REVIEW BY CFO');
-					$status = 'WAITING REVIEW BY CFO';
-					$level = 11;
-				}else{
-					$this->db->set('status', 'APPROVED');
-					$status = 'APPROVED';
-					$level = 0;
-				}
-			}else{
-				if($total>1500){
-					$this->db->set('status', 'WAITING REVIEW BY CFO');
-					$status = 'WAITING REVIEW BY CFO';
-					$level = 11;
-				}else{
-					$this->db->set('status', 'APPROVED');
-					$status = 'APPROVED';
-					$level = 0;
-				}
-			}
+			// if($currency=='IDR'){
+			// 	if($total>15000000){
+			// 		$this->db->set('status', 'WAITING REVIEW BY CFO');
+			// 		$status = 'WAITING REVIEW BY CFO';
+			// 		$level = 11;
+			// 	}else{
+			// 		$this->db->set('status', 'APPROVED');
+			// 		$status = 'APPROVED';
+			// 		$level = 0;
+			// 	}
+			// }else{
+			// 	if($total>1500){
+			// 		$this->db->set('status', 'WAITING REVIEW BY CFO');
+			// 		$status = 'WAITING REVIEW BY CFO';
+			// 		$level = 11;
+			// 	}else{
+			// 		$this->db->set('status', 'APPROVED');
+			// 		$status = 'APPROVED';
+			// 		$level = 0;
+			// 	}
+			// }
 			// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
+			$this->db->set('status', 'WAITING REVIEW BY CFO');
+			$status = 'WAITING REVIEW BY CFO';
+			$level = 11;
 			$this->db->set('known_by', config_item('auth_person_name'));
 			$this->db->set('known_at', date('Y-m-d'));
 			$this->db->where('id', $id);

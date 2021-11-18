@@ -112,9 +112,10 @@
             </p>
         </td>
 
+        <?php if($entity['base']!='JAKARTA'): ?>
         <td valign="top" align="center">
             <p>
-                Checked by:
+                Approved by:
                 <br />Finance Supervisor
                 <?php if ($entity['checked_by'] != '') : ?>
                     <br /><?= print_date($entity['checked_at']) ?><br>
@@ -124,10 +125,11 @@
                 <br /><?= $entity['checked_by']; ?>
             </p>
         </td>
+        <?php endif; ?>
 
         <td valign="top" align="center">
             <p>
-                Review by:
+                Approved by:
                 <br />Finance Manager
                 <?php if ($entity['review_by'] != '') : ?>
                     <br /><?= print_date($entity['review_at']) ?><br>
@@ -138,13 +140,10 @@
             </p>
         </td>
 
+        <?php if($entity['base']=='JAKARTA'): ?>
         <td valign="top" align="center">
             <p>
-                <?php if(($entity['currency']=='IDR'&&$amount_paid>15000000)||($entity['currency']!='IDR'&&$amount_paid>1500)):?>
-                Known by:
-                <?php else:?>
                 Approved by:
-                <?php endif;?>
                 <br /> <?= ($entity['base']=='JAKARTA') ? 'VP Finance' : 'Head of School'; ?>
                 <?php if ($entity['known_by'] != '') : ?>
                 <br /><?= print_date($entity['known_at']) ?><br>
@@ -154,13 +153,13 @@
                 <br /><?= $entity['known_by']; ?>
             </p>
         </td>
+        <?php endif; ?>
 
-        <?php if(($entity['currency']=='IDR'&&$amount_paid>15000000)||($entity['currency']!='IDR'&&$amount_paid>1500)):?>
         <td valign="top" align="center">
             <p>
-                Approved by:
+                Release by:
                 <br /> 
-                <?= ($entity['base']=='JAKARTA') ? 'Chief of Finance' : 'Chief Operation Officer'; ?>
+                <?= ($entity['base']=='JAKARTA') ? 'Chief of Finance' : 'Chief Executive Officer'; ?>
                 <?php if ($entity['approved_by'] != '') : ?>
                 <br /><?= print_date($entity['approved_at']) ?><br>
                 <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
@@ -169,6 +168,5 @@
                 <br /><?= $entity['approved_by']; ?>
             </p>
         </td>
-        <?php endif;?>
     </tr>
 </table>

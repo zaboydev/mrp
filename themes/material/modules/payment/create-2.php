@@ -148,19 +148,22 @@
             <div class="newoverlay" id="loadingScreen2" style="display: none;">
               <i class="fa fa-refresh fa-spin"></i>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6 col-lg-4">
               <div class="form-group">
                 <input readonly value="<?=$no_transaksi;?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
                 
                 <label for="suplier_select">Purpose Number</label>
               </div>
               <div class="form-group">
-                <select id="currency_select" class="form-control">
-                  <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
-                </select>
-                <label for="currency">Currency</label>
+                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
+                <label for="date">Date</label>
               </div>
+
+              <div class="form-group">
+                <input type="text" name="purposed_date" id="purposed_date" class="form-control" value="<?= date('Y-m-d') ?>">
+                <label for="date">Purposed Date</label>
+              </div>
+              
               <div class="form-group hide">
                 <select id="account_select" class="form-control">
                   <option value="">No Account</option>
@@ -179,6 +182,18 @@
                 </select>
                 <label for="suplier_select">Tipe</label>
               </div>
+              
+            </div>
+
+            <div class="col-sm-6 col-lg-4">
+              <div class="form-group">
+                <select id="currency_select" class="form-control">
+                  <option value="IDR">IDR</option>
+                  <option value="USD">USD</option>
+                </select>
+                <label for="currency">Currency</label>
+              </div>
+
               <div class="form-group">
                 <select id="suplier_select" class="form-control">
                   <option value="">No Suplier</option>
@@ -190,30 +205,25 @@
                 </select>
                 <label for="suplier_select">Suplier</label>
               </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group hide">
-                <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="">
-                <label for="no_cheque">No Cheque</label>
-              </div>
-
-              <div class="form-group">
-                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
-                <label for="date">Date</label>
-              </div>
-
-              <div class="form-group">
-                <input type="text" name="purposed_date" id="purposed_date" class="form-control" value="<?= date('Y-m-d') ?>">
-                <label for="date">Purposed Date</label>
-              </div>
 
               <div class="form-group">
                 <input type="number" name="amount" id="amount" class="form-control" value="0" readonly="readonly">
                 <label for="amount">Amount</label>
               </div>
 
+              <div class="form-group hide">
+                <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="">
+                <label for="no_cheque">No Cheque</label>
+              </div>            
 
+
+            </div>
+
+            <div class="col-sm-6 col-lg-4">
+                <div class="form-group">
+                    <textarea name="notes" id="notes" class="form-control" ></textarea>
+                    <label for="notes">Notes</label>
+                </div>
             </div>
             <!-- <button class="btn btn-danger" id="add_item" type="button">Add Item</button> -->
           </div>
@@ -825,15 +835,16 @@
       type: "POST",
       url: '<?= base_url() . "payment/save_2" ?>',
       data: {
-        'account': $("#account_select").val(),
-        "vendor": $("#suplier_select").val(),
-        "currency": $("#currency_select").val(),
-        "tipe": $("#tipe_select").val(),
-        "no_cheque": $("#no_cheque").val(),
-        "date": $("#date").val(),
-        "purposed_date": $("#purposed_date").val(),
-        "amount": $("#amount").val(),
-        "item": postData
+        'account'       : $("#account_select").val(),
+        "vendor"        : $("#suplier_select").val(),
+        "currency"      : $("#currency_select").val(),
+        "tipe"          : $("#tipe_select").val(),
+        "no_cheque"     : $("#no_cheque").val(),
+        "date"          : $("#date").val(),
+        "purposed_date" : $("#purposed_date").val(),
+        "amount"        : $("#amount").val(),
+        "notes"         : $("#notes").val(),
+        "item"          : postData
       },
       cache: false,
       success: function(response) {
@@ -880,6 +891,7 @@
     $("#listView").html("");
     $("#total_general").html("0");
   }
+
   $("listView").on("change", ".sel_applied", function() {
     if ($(this).val() === "") {
       $(this).val("0")
