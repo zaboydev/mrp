@@ -1187,7 +1187,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('taxes', $taxes);
     $this->db->set('pph',$pph);
     $this->db->set('shipping_cost', $shipping_cost);
-    $this->db->set('notes', $notes);
+    $this->db->set('notes', '[revision of '.$_SESSION['order']['old_document_number'].']'.$notes);
     $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
