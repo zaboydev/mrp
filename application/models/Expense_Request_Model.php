@@ -452,11 +452,11 @@ class Expense_Request_Model extends MY_Model
     public function getHistory($annual_cost_center_id,$account_id,$order_number)
     {
         $select = array(
-          'tb_expense_purchase_requisitions.pr_number',
-          'tb_expense_purchase_requisitions.pr_date',
-          'tb_expense_purchase_requisitions.created_by',
-          'tb_expense_purchase_requisition_details.amount',
-          'tb_expense_purchase_requisition_details.total',
+            'tb_expense_purchase_requisitions.pr_number',
+            'tb_expense_purchase_requisitions.pr_date',
+            'tb_expense_purchase_requisitions.created_by',
+            'tb_expense_purchase_requisition_details.amount',
+            'tb_expense_purchase_requisition_details.total',
         );
         $this->connection->select($select);
         $this->connection->from('tb_expense_purchase_requisition_details');
@@ -465,6 +465,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
         $this->connection->where('tb_expense_monthly_budgets.account_id', $account_id);
         $this->connection->where('tb_expense_purchase_requisitions.order_number <',$order_number);
+        $this->connection->order_by('tb_expense_purchase_requisitions.order_number','desc');
         $query  = $this->connection->get();
 
         return $query->result_array();
