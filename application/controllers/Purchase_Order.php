@@ -867,9 +867,12 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
+      $_SESSION['order']['old_document_number'] = $order['document_number'];
       $_SESSION['order']['format_number']       = substr($order['document_number'], 0, 3);
       $_SESSION['order']['document_number']     = substr($order['document_number'], 3, 6) . 'R';
       $_SESSION['order']['document_date']       = date('Y-m-d');
+      $_SESSION['order']['wom_document_number']     = $_SESSION['order']['format_number']=='POM'? order_last_number('WOM'):$_SESSION['order']['document_number'];
+      $_SESSION['order']['pom_document_number']     = $_SESSION['order']['format_number']=='WOM'? order_last_number('POM'):$_SESSION['order']['document_number'];
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['vendor_address']      = $order['vendor_address'];
       $_SESSION['order']['vendor_country']      = $order['vendor_country'];

@@ -602,7 +602,8 @@ class Purchase_Order_Model extends MY_Model
       'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
       'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
       'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
-      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
+      'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',
+      'sum(case when tb_purchase_request_items_on_hand_stock.on_hand_stock is null then 0.00 else tb_purchase_request_items_on_hand_stock.on_hand_stock end) as "on_hand_stock"',        
     );
 
     $group = array(
@@ -623,6 +624,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
     $this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id','left');
     $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+    $this->db->join('tb_purchase_request_items_on_hand_stock', 'tb_purchase_request_items_on_hand_stock.prl_item_id = tb_inventory_purchase_requisition_details.id','left');
     $this->db->where('tb_purchase_order_items.id', $poe_item_id);
     $this->db->where_in('tb_po.status',['PURPOSED','OPEN','ORDER','CLOSE']);
     $this->db->group_by($group);
@@ -1190,7 +1192,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('taxes', $taxes);
     $this->db->set('pph',$pph);
     $this->db->set('shipping_cost', $shipping_cost);
-    $this->db->set('notes', $notes);
+    $this->db->set('notes', '[revision of '.$_SESSION['order']['old_document_number'].']'.$notes);
     $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
