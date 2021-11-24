@@ -66,7 +66,7 @@
           <dd><?= print_string($entity['evaluation_number'], 'N/A'); ?></dd>
 
           <dt>Notes</dt>
-          <dd><?= print_string($entity['notes'], '-'); ?></dd>
+          <dd><?php if($entity['revision_of_po_id']!=null):?><a target="_blank" href="<?= site_url($module['route'] . '/print_pdf/' . $entity['revision_of_po_id']); ?>"><?= print_string($entity['revision_of_po_number'], '-'); ?></a><?php endif;?><?= print_string($entity['notes_'], '-'); ?></dd>
         </dl>
       </div>
     </div>

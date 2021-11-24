@@ -582,6 +582,10 @@ class Purchase_Order_Model extends MY_Model
       $poe['items'][$key]['history']          = $this->getHistory($value['poe_item_id']);
     }
 
+    $notes = explode('-', $poe['notes']);
+    $poe['revision_of_po_number'] = $notes[0];
+    $poe['notes_'] = $notes[1];
+
     return $poe;
   }
 
@@ -1192,12 +1196,13 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('taxes', $taxes);
     $this->db->set('pph',$pph);
     $this->db->set('shipping_cost', $shipping_cost);
-    $this->db->set('notes', '[revision of '.$_SESSION['order']['old_document_number'].']'.$notes);
+    $this->db->set('notes', '[revision of '.$_SESSION['order']['old_document_number'].']-'.$notes);
     $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
     $this->db->set('review_status', strtoupper('waiting for finance review'));
     $this->db->set('tipe', strtoupper($payment_type));
+    $this->db->set('revision_of_po_id', $id_po_lama);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
     $id_po = $this->db->insert_id();
