@@ -561,6 +561,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       //   $this->db->update('tb_purchase_orders');
       // }
     }
+    
     foreach ($_SESSION["poe"]["attachment"] as $key) {
       $this->db->set('id_poe', $document_id);
       $this->db->set('file', $key);
