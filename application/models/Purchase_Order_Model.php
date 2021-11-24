@@ -1110,6 +1110,18 @@ class Purchase_Order_Model extends MY_Model
     $this->db->where('id', $id_po);
     $this->db->update('tb_po');
 
+    $attachments_poe = $this->getAllPoeAtt($id_poe);
+    if(count($attachments_poe)>0){
+      foreach ($attachments_poe->result_array() as $key => $attachment) {
+        $this->db->set('id_poe', $id_po);
+        $this->db->set('file', $attachment['file']);
+        $this->db->set('id_po', $id_po);
+        $this->db->set('tipe', 'PO');
+        $this->db->set('tipe_att', 'other');
+        $this->db->insert('tb_attachment_poe');
+      }
+    }
+
     if($this->config->item('access_from')!='localhost'){
       $this->send_mail($id_po, 14);
     }
@@ -1121,6 +1133,22 @@ class Purchase_Order_Model extends MY_Model
     
     
     return TRUE;
+  }
+
+  public function getAllPoeAtt($id)
+  {
+   
+    $this->db->where('id_poe', $id);
+    $this->db->where('tipe', 'POE');
+    return $this->db->get('tb_attachment_poe');
+  }
+
+  public function getAllPoAtt($id)
+  {
+   
+    $this->db->where('id_poe', $id);
+    $this->db->where('tipe', 'PO');
+    return $this->db->get('tb_attachment_poe');
   }
 
   public function save_revisi_po()
@@ -1307,6 +1335,18 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('additional_price_remaining_request', floatval($grandtotal- $total_value));
     $this->db->where('id', $id_po);
     $this->db->update('tb_po');
+
+    $attachments_po = $this->getAllPoAtt($id_po_lama);
+    if(count($attachments_po)>0){
+      foreach ($attachments_po->result_array() as $key => $attachment) {
+        $this->db->set('id_poe', $id_po);
+        $this->db->set('file', $attachment['file']);
+        $this->db->set('id_po', $id_po);
+        $this->db->set('tipe', 'PO');
+        $this->db->set('tipe_att', $attachment['tipe_att']);
+        $this->db->insert('tb_attachment_poe');
+      }
+    }
     
     $this->send_mail($id_po, 14,'revisi');
 
