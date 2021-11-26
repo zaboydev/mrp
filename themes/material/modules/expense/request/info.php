@@ -42,7 +42,10 @@
           <dd><?=print_person_name($entity['created_by']);?></dd>
 
           <dt>Status</dt>
-          <dd><?=strtoupper($entity['status']);?></dd>
+          <dd><?=strtoupper($entity['status']);?> 
+          <?php if($entity['status']=='rejected'):?> by <?=$entity['rejected_by']?> at <?=print_date($entity['rejected_date'], 'd M Y')?><?php endif;?>
+          <?php if($entity['status']=='canceled'):?> by <?=$entity['canceled_by']?> at <?=print_date($entity['canceled_date'], 'd M Y')?><?php endif;?>
+          </dd>
 
           <dt>Head Dept</dt>
           <dd><?=($entity['head_dept']==null)? 'N/A':print_string($entity['head_dept']);?></dd>
@@ -54,7 +57,11 @@
           <dd><?=($entity['deliver_to']==null)? 'N/A':print_string($entity['deliver_to']);?></dd>
 
           <dt>Notes</dt>
-          <dd><?=$entity['notes'];?></dd>
+          <dd><?=($entity['notes']==null)? 'N/A':print_string($entity['notes']);?></dd>
+          <?php if($entity['status']=='rejected'||$entity['status']=='canceled'):?>
+          <dt><?= ucwords($entity['status']);?> Notes</dt>
+          <dd><?=($entity['status']=='rejected')? print_string($entity['rejected_notes']):print_string($entity['canceled_notes']);?></dd>
+          <?php endif;?>
           <dd>
           <?php if ($entity['with_po']=='f'):?>
             Expense Request ini merupakasn expense request tanpa PO.
@@ -226,8 +233,41 @@
         <i class="md md-attach-file"></i>
         <small class="top right">Manage Attachment</small>
       </a>
+      <?php if (is_granted($module, 'cancel') && $entity['status']=='approved') : ?>
+      <?php if ($entity['cancel']) : ?>
+      <?=form_open(current_url(), array(
+        'class' => 'form-xhr-cancel pull-left',
+      ));?>
+        <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+        <input type="hidden" name="cancel_notes" id="cancel_notes" class="form-control">
+
+        <a href="<?=site_url($module['route'] .'/cancel_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-cancel btn-tooltip ink-reaction" id="modal-cancel-data-button">
+          <i class="md md-close"></i>
+          <small class="top left">Cancel</small>
+        </a>
+      <?=form_close();?>
+      <?php endif; ?>
+      <?php endif; ?>
     </div>
     <div class="pull-right">
+      <?php if (is_granted($module, 'document')):?>
+        <?php if ($entity['status']!='rejected' && $entity['status']!='canceled' && $entity['status']!='revisi' && $entity['status']!='close'):?>
+        <?php if ($entity['cancel']) : ?>
+        <?=form_open(current_url(), array(
+            'class' => 'form-xhr-cancel pull-left',
+          ));?>
+          <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+          <input type="hidden" name="change_notes" id="change_notes" class="form-control">
+
+          <a data-type-po="<?=$entity['with_po']?>" href="<?=site_url($module['route'] .'/change_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-change btn-tooltip ink-reaction" id="modal-cancel-data-button">
+            <!-- <i class="md md-shuffle"></i> -->
+            <i class="md md-swap-horiz"></i>
+            <small class="top left">Change Type PO</small>
+          </a>
+        <?=form_close();?>
+        <?php endif;?>
+        <?php endif;?>
+      <?php endif;?>
       <?php if (is_granted($module, 'document')):?>
         <?php if ($entity['status']=='rejected' && $entity['revisi']==0):?>
         <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">

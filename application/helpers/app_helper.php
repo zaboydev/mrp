@@ -2262,5 +2262,19 @@ if (!function_exists('currency_for_vendor_list')) {
       return $return;
     }
   }
+  
+  if ( ! function_exists('getStatusCancelRequest')) {
+    function getStatusCancelRequest($pr_number)
+    {
+      $CI =& get_instance();
+
+      $CI->db->from('tb_purchase_order_items');
+      $CI->db->where('tb_purchase_order_items.purchase_request_number',$pr_number);
+
+      $query = $CI->db->get();
+
+      return ( $query->num_rows() > 0 ) ? false : true;
+    }
+  }
 
     

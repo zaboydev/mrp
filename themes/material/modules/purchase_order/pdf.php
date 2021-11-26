@@ -504,9 +504,9 @@
 			      <th>No</th>
 			      <th>Tanggal</th>
 			      <th>Purchase Number</th>
+			      <th>Stock on Hand</th>
 			      <th>Qty</th>
 			      <th>Unit</th>
-			      <!-- <th>Price</th> -->
 			      <th>Total</th>
 			      <th>POE Qty</th>
 			      <th>POE Value</th>
@@ -563,11 +563,14 @@
 			      <td>
 			        <?=print_string($history['pr_number']);?>
 			      </td>
+				  <td align="right">
+			        <?=print_number($history['pn_hand_stock'], 2);?>
+			      </td>
 			      <td align="right">
 			        <?=print_number($history['quantity'], 2);?>
 			      </td>
 			      <td>
-			        <?=print_string($detail['unit']);?>
+			        <?=print_string($history['unit']);?>
 			      </td>
 			      <td align="right">
 			        <?=print_number($history['total'], 2);?>
