@@ -1546,6 +1546,220 @@ class Payment_Model extends MY_MODEL
 		return $return;
 	}
 	// }
+
+	//report
+	public function getSelectedColumnsReport()
+	{
+		$return = array(
+			'tb_po_payments.id'                          						=> NULL,
+			'tb_po_payments.document_number as no_transaksi'             		=> 'Transaction Number',
+			'tb_po.document_number as po_number'               					=> '#PO',
+			'tb_po_payments.vendor'                   							=> 'Vendor',
+			'tb_purchase_order_items_payments.deskripsi as description'			=> 'Description',
+			'tb_po_payments.status'	                     						=> 'Status',
+			'tb_po_payments.currency'             								=> 'Currency',
+            'tb_purchase_order_items_payments.remarks'  						=> 'Purposed IDR',
+			'tb_purchase_order_items_payments.paid'								=> 'Purposed USD',
+            'tb_purchase_order_items_payments.amount_paid'  					=> 'Unpaid IDR',
+			'tb_purchase_order_items_payments.paid_by'							=> 'Unpaid USD',
+			'tb_purchase_order_items_payments.checked_by'						=> 'Paid IDR',
+			'tb_purchase_order_items_payments.approved_by'						=> 'Paid USD',
+		);
+
+		return $return;
+	}
+
+	public function getSearchableColumnsReport()
+	{
+		$return = array(
+			// 'tb_po_payments.id',
+			'tb_po_payments.document_number',
+			'tb_po.document_number',
+			'tb_po_payments.vendor',
+			'tb_purchase_order_items_payments.deskripsi',
+			'tb_po_payments.status',
+			'tb_po_payments.currency',
+		);
+
+		return $return;
+	}
+
+	public function getOrderableColumnsReport()
+	{
+		$return = array(
+			null,//'tb_po_payments.id',
+			'tb_po_payments.document_number',
+			'tb_po.document_number',
+			'tb_po_payments.vendor',
+			'tb_purchase_order_items_payments.deskripsi',
+			'tb_po_payments.status',
+			'tb_po_payments.currency',
+            null,//'tb_purchase_order_items_payments.amount_paid',
+			null,//'tb_po_payments.akun_kredit',
+		);
+
+		return $return;
+	}
+
+	public function getGroupedColumnsReport()
+	{
+		$return = array(
+			'tb_po_payments.id',
+			'tb_po_payments.document_number',
+			'tb_po.document_number',
+			'tb_po_payments.vendor',
+			'tb_purchase_order_items_payments.deskripsi',
+			'tb_po_payments.status',
+			'tb_po_payments.currency',
+		);
+
+		return $return;
+	}
+
+	private function searchIndexReport()
+	{
+		if (!empty($_POST['columns'][1]['search']['value'])) {
+			$search_received_date = $_POST['columns'][1]['search']['value'];
+			$range_received_date  = explode(' ', $search_received_date);
+
+			$this->db->where('tb_po_payments.tanggal >= ', $range_received_date[0]);
+			$this->db->where('tb_po_payments.tanggal <= ', $range_received_date[1]);
+		}
+
+		if (!empty($_POST['columns'][2]['search']['value'])) {
+			$vendor = $_POST['columns'][2]['search']['value'];
+
+			$this->db->where('tb_po_payments.vendor', $vendor);
+		}
+
+		if (!empty($_POST['columns'][3]['search']['value'])) {
+			$currency = $_POST['columns'][3]['search']['value'];
+
+			if ($currency != 'all') {
+				$this->db->where('tb_po_payments.currency', $currency);
+			}
+		}
+
+		if (!empty($_POST['columns'][4]['search']['value'])) {
+			$status = $_POST['columns'][4]['search']['value'];
+			if($status!='all'){
+				$this->db->like('tb_po_payments.status', $status);
+			}			
+		} else {
+			if(is_granted($this->data['modules']['payment'], 'approval')){
+				if (config_item('auth_role') == 'FINANCE SUPERVISOR') {
+					$status[] = 'WAITING CHECK BY FIN SPV';
+				}
+				if (config_item('auth_role') == 'FINANCE MANAGER') {
+					$status[] = 'WAITING REVIEW BY FIN MNG';
+				}
+				if (config_item('auth_role') == 'HEAD OF SCHOOL') {
+					$status[] = 'WAITING REVIEW BY HOS';
+				}
+				if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
+					$status[] = 'WAITING REVIEW BY COO';
+				}
+				if (config_item('auth_role') == 'VP FINANCE') {
+					$status[] = 'WAITING REVIEW BY VP FINANCE';
+				}
+				if (config_item('auth_role') == 'CHIEF OF FINANCE') {
+					$status[] = 'WAITING REVIEW BY CFO';
+				}
+				$this->db->where_in('tb_po_payments.status', $status);
+			}else{
+				if (config_item('auth_role') == 'TELLER') {
+					$status[] = 'APPROVED';
+					$this->db->where_in('tb_po_payments.status', $status);
+				}
+			}		
+			
+		}
+
+		$i = 0;
+
+		foreach ($this->getSearchableColumnsReport() as $item) {
+			if ($_POST['search']['value']) {
+				$term = strtoupper($_POST['search']['value']);
+
+				if ($i === 0) {
+					$this->db->group_start();
+					$this->db->like('UPPER(' . $item . ')', $term);
+				} else {
+					$this->db->or_like('UPPER(' . $item . ')', $term);
+				}
+
+				if (count($this->getSearchableColumnsReport()) - 1 == $i)
+					$this->db->group_end();
+			}
+
+			$i++;
+		}
+	}
+
+	function getIndexReport($return = 'array')
+	{
+		$this->db->select(array_keys($this->getSelectedColumnsReport()));
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
+		// $this->db->group_by($this->getGroupedColumnsReport());
+
+		$this->searchIndexReport();
+
+		$column_order = $this->getOrderableColumnsReport();
+
+		if (isset($_POST['order'])) {
+			foreach ($_POST['order'] as $key => $order) {
+				$this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+			}
+		} else {
+			$this->db->order_by('id', 'desc');
+		}
+
+		if ($_POST['length'] != -1)
+			$this->db->limit($_POST['length'], $_POST['start']);
+
+		$query = $this->db->get();
+
+		if ($return === 'object') {
+			return $query->result();
+		} elseif ($return === 'json') {
+			return json_encode($query->result());
+		} else {
+			return $query->result_array();
+		}
+	}
+
+	function countIndexFilteredReport()
+	{
+		$this->db->select(array_keys($this->getSelectedColumnsReport()));
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
+		// $this->db->group_by($this->getGroupedColumnsReport());
+
+		$this->searchIndex();
+
+		$query = $this->db->get();
+
+		return $query->num_rows();
+	}
+
+	public function countIndexReport()
+	{
+		$this->db->select(array_keys($this->getSelectedColumnsReport()));
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
+		// $this->db->group_by($this->getGroupedColumnsReport());
+
+		$query = $this->db->get();
+
+		return $query->num_rows();
+	}
 }
 
 /* End of file Payment_Model.php */
