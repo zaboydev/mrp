@@ -10,36 +10,6 @@
 
 <?php startblock('page_body') ?>
 <?php $this->load->view('material/templates/datatable') ?>
-<div id="attachment_modal" class="modal fade" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-
-        <h4 class="modal-title" id="import-modal-label">Attachment</h4>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12">
-            <table style="width: 100%">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Link</th>
-                </tr>
-              </thead>
-              <tbody id="listView">
-
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 <?php endblock() ?>
 
 <?php startblock('page_modals') ?>
@@ -48,75 +18,27 @@
 
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
-  <div class="btn-group dropup">
-
-    <?php if (is_granted($module, 'document')) : ?>
-      <a href="<?= site_url($module['route'] . '/create/payment'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
-        <i class="md md-add"></i>
-        <small class="top right">Create <?= $module['label']; ?></small>
-      </a>
-      <a href="<?= site_url($module['route'] . '/create_2/payment'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
-        <i class="md md-add"></i>
-        <small class="top right">Create <?= $module['label']; ?></small>
-      </a>
-    <?php endif ?>
-    <?php if (is_granted($module, 'approval')) : ?>
-      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
-        <i class="md md-clear"></i>
-        <small class="top right">reject</small>
-      </button>
-      <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
-        <i class="md md-spellcheck"></i>
-        <small class="top right">approve</small>
-      </button>
-    <?php endif ?>
-  </div>
 </div>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
 <div class="form force-padding">
-  <div class="form-group">
-    <label for="filter_received_date">Date</label>
-    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
-  </div>
+    <div class="form-group">
+        <label for="filter_received_date">Date</label>
+        <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+    </div>
 
-  <div class="form-group">
-    <label for="start_date">Vendor</label>
-    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
-      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
-      <?php foreach (available_vendors() as $vendor) : ?>
-        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
-          <?= $vendor; ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="start_date">Currency</label>
-    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="3">
-      <option value="all">All Currency</option>
-      <option value="IDR">IDR</option>
-      <option value="USD">USD</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="start_date">Status</label>
-    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
-      <option value="all">All Status</option>
-      <option value="WAITING CHECK BY FIN SPV"<?php if (config_item('auth_role') == 'FINANCE SUPERVISOR'):echo 'selected'; endif;?>>Waiting Check By Fin Spv</option>
-      <option value="WAITING REVIEW BY FIN MNG"<?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review By Fin Mng</option>
-      <option value="WAITING REVIEW BY FIN HOS"<?php if (config_item('auth_role') == 'HEAD OF SCHOOL'):echo 'selected'; endif;?>>Waiting Review By Head Of School</option>
-      <option value="WAITING REVIEW BY COO"<?php if (config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>Waiting Review By COO</option>
-      <option value="WAITING REVIEW BY VP FINANCE"<?php if (config_item('auth_role') == 'VP FINANCE'):echo 'selected'; endif;?>>Waiting Review By VP Finance</option>
-      <option value="WAITING REVIEW BY CFO"<?php if (config_item('auth_role') == 'CHIEF OF FINANCE'):echo 'selected'; endif;?>>Waiting Review By CFO</option>
-      <option value="APPROVED"<?php if (config_item('auth_role') == 'TELLER'):echo 'selected'; endif;?>>Approved</option>
-      <option value="PAID">Paid</option>
-      <option value="REJECTED">Rejected</option>
-    </select>
-  </div>
+    <div class="form-group">
+        <label for="start_date">Vendor</label>
+        <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
+        <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
+        <?php foreach (available_vendors() as $vendor) : ?>
+            <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
+            <?= $vendor; ?>
+            </option>
+        <?php endforeach; ?>
+        </select>
+    </div>
 
 
 </div>
@@ -292,71 +214,93 @@
     $.fn.dataTable.ext.errMode = 'throw';
 
     var datatable = $(datatableElement).DataTable({
-      searchDelay: 350,
-      scrollY: 410,
-      scrollX: true,
-      scrollCollapse: true,
-      lengthMenu: [
-        [10, 50, 100, -1],
-        [10, 50, 100, "All"]
-      ],
-      pageLength: 10,
-      pagingType: 'full',
+        searchDelay: 350,
+        scrollY: 410,
+        scrollX: true,
+        scrollCollapse: true,
+        lengthMenu: [
+            [10, 50, 100, -1],
+            [10, 50, 100, "All"]
+        ],
+        pageLength: 10,
+        pagingType: 'full',
 
-      order: <?= json_encode($grid['order_columns']); ?>,
-      fixedColumns: {
-        leftColumns: <?= $grid['fixed_columns']; ?>
-      },
+        order: <?= json_encode($grid['order_columns']); ?>,
+        fixedColumns: {
+            leftColumns: <?= $grid['fixed_columns']; ?>
+        },
 
-      language: {
-        info: "Total _TOTAL_ entries"
-      },
+        language: {
+            info: "Total _TOTAL_ entries"
+        },
 
-      processing: true,
-      serverSide: true,
-      ajax: {
-        url: "<?= $grid['data_source']; ?>",
-        type: "POST",
-        error: function(xhr, ajaxOptions, thrownError) {
-          console.log(xhr.responseText);
-          if (xhr.status == 404) {
-            toastr.clear();
-            toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
-            alert("page not found");
-          } else {
-            toastr.clear();
-            toastr.error(textStatus + ': ' + errorThrown + '. Report this error!', 'Loading data failed!');
-          }
-        }
-      },
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "<?= $grid['data_source']; ?>",
+            type: "POST",
+            error: function(xhr, ajaxOptions, thrownError) {
+            console.log(xhr.responseText);
+            if (xhr.status == 404) {
+                toastr.clear();
+                toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
+                alert("page not found");
+            } else {
+                toastr.clear();
+                toastr.error(textStatus + ': ' + errorThrown + '. Report this error!', 'Loading data failed!');
+            }
+            }
+        },
 
-      rowCallback: function(row, data) {
-        if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
-          $(row).addClass('selected');
-        }
-      },
-      drawCallback: function(settings) {
-        var api = this.api();
-        var data = api.rows({
-          page: 'current'
-        }).data()
-        $.each(data, function(i, item) {
-          var id = $(item[0]).attr("data-id");
-          if (id_purchase_order.indexOf("|" + id + ",") !== -1) {
-            $("#cb_" + id).attr('checked', true);
-          }
-        });
+        rowCallback: function(row, data) {
+            if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
+            $(row).addClass('selected');
+            }
+        },
+        drawCallback: function(settings) {
+            var api = this.api();
+            var data = api.rows({
+            page: 'current'
+            }).data()
+            $.each(data, function(i, item) {
+            var id = $(item[0]).attr("data-id");
+            if (id_purchase_order.indexOf("|" + id + ",") !== -1) {
+                $("#cb_" + id).attr('checked', true);
+            }
+            });
 
-      },
+        },
 
-      columnDefs: [{
-        searchable: false,
-        orderable: false,
-        targets: [0]
-      }],
+        columnDefs: [
+            {
+                searchable: false,
+                orderable: false,
+                targets: [0]
+            },
+            {
+                searchable: false,
+                orderable: false,
+                targets: [7]
+            },
+            {
+                searchable: false,
+                orderable: false,
+                targets: [8]
+            },
+            {
+                searchable: false,
+                orderable: false,
+                targets: [9]
+            },
+            {
+                searchable: false,
+                orderable: false,
+                targets: [10]
+            }
+        ],
 
-      dom: "<'row'<'col-sm-12'tr>>" +
-        "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
+        dom: "<'row'<'col-sm-12'tr>>" +
+            "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
     });
 
     new $.fn.dataTable.Buttons(datatable, {
