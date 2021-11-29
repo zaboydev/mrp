@@ -139,13 +139,43 @@ class Payment extends MY_Controller
     $this->render_view($this->module['view'] . '/index');
   }
 
-  public function create_2($category = NULL)
+  public function create_2_copy($category = NULL)
   {
     $this->data['currency']                 = 'IDR';
     $this->data['page']['title']            = $this->module['label'];
     $this->data['account']                  = $this->model->getAccount($this->data['currency']);
     $this->data['suplier']                  = $this->model->getSuplier($this->data['currency']);
     $this->data['no_transaksi']                  = $this->model->jrl_last_number();
+    $this->render_view($this->module['view'] . '/create-2');
+  }
+
+  public function create_2($category = NULL)
+  {
+    $this->authorized($this->module, 'document');
+
+    if ($category !== NULL) {
+      $category = urldecode($category);
+
+      // $_SESSION['payment_request']['items']               = array();
+      $_SESSION['payment_request']['category']            = $category;
+      $_SESSION['payment_request']['document_number']     = payment_request_last_number();
+      $_SESSION['payment_request']['date']                = date('Y-m-d');
+      $_SESSION['payment_request']['purposed_date']       = date('Y-m-d');
+      $_SESSION['payment_request']['created_by']          = config_item('auth_person_name');
+      $_SESSION['payment_request']['currency']            = "IDR";
+      $_SESSION['payment_request']['vendor']              = NULL;
+      $_SESSION['payment_request']['notes']               = NULL;
+      $_SESSION['payment_request']['total_amount']        = 0;
+
+      redirect($this->module['route'] . '/create_2');
+    }
+
+    if (!isset($_SESSION['payment_request']))
+      redirect($this->module['route']);
+
+    $this->data['page']['content']    = $this->module['view'] . '/create-2';
+    $this->data['page']['title']      = 'create payment request';
+
     $this->render_view($this->module['view'] . '/create-2');
   }
 
@@ -577,26 +607,34 @@ class Payment extends MY_Controller
 
   public function set_default_currency($currency)
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'document');
 
-    $currency = urldecode($currency);
+    // $currency = urldecode($currency);
 
-    $_SESSION['payment_request']['currency']  = $currency;
-    $_SESSION['payment_request']['items']   = array();
+    // $_SESSION['payment_request']['currency']  = $currency;
+    // $_SESSION['payment_request']['items']   = array();
 
-    redirect($this->module['route'] . '/create');
+    // redirect($this->module['route'] . '/create');
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['currency'] = $_GET['data'];
   }
 
   public function set_vendor($vendor)
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'document');
 
-    $vendor = urldecode($vendor);
+    // $vendor = urldecode($vendor);
 
-    $_SESSION['payment_request']['vendor']  = $vendor;
-    $_SESSION['payment_request']['items']   = array();
+    // $_SESSION['payment_request']['vendor']  = $vendor;
+    // $_SESSION['payment_request']['items']   = array();
 
-    redirect($this->module['route'] . '/create');
+    // redirect($this->module['route'] . '/create');
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['vendor'] = $_GET['data'];
   }
 
   public function add_selected_item()

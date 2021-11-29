@@ -558,6 +558,40 @@ if ( ! function_exists('available_vendors')) {
   }
 }
 
+if ( ! function_exists('available_vendors_by_currency')) {
+  function available_vendors_by_currency($currency = NULL)
+  {
+    $CI =& get_instance();
+
+    $CI->db->distinct();
+    $CI->db->select('tb_master_vendors.vendor');
+    $CI->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
+		$CI->db->where('tb_master_vendors_currency.currency', $currency);
+    $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
+    $CI->db->from('tb_master_vendors');
+
+    // if ($category !== NULL){
+    //   $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
+
+    //   if (is_array($category)){
+    //     $CI->db->where_in('tb_master_vendor_categories.category', $category);
+    //   } else {
+    //     $CI->db->where('tb_master_vendor_categories.category', $category);
+    //   }
+    // }
+
+    $query  = $CI->db->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['vendor'];
+    }
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('available_vendors_for_poe')) {
   function available_vendors_for_poe($currency = NULL)
   {

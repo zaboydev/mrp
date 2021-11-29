@@ -1366,6 +1366,7 @@ class Purchase_Request_Model extends MY_Model
         $this->db->group_by('tb_master_items.part_number,tb_stock_in_stores.warehouse,tb_master_items.unit');
         //tambahan
         $this->db->where('tb_master_items.part_number', $data['part_number']);
+        $this->db->where('tb_stocks.condition', 'SERVICEABLE');
         $query =  $this->db->get();
         $result = $query->result_array();
 

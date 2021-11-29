@@ -148,60 +148,80 @@
             <div class="newoverlay" id="loadingScreen2" style="display: none;">
               <i class="fa fa-refresh fa-spin"></i>
             </div>
-            <div class="col-sm-6 col-lg-3">
+            <div class="col-sm-6 col-lg-4">
               <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-content">
-                    <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="[auto]" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
-                    <label for="document_number">Purpose Number</label>
-                  </div>
-                  <span class="input-group-addon"><?=payment_request_format_number();?></span>
-                </div>
+                <input readonly value="<?=$no_transaksi;?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
+                
+                <label for="suplier_select">Purpose Number</label>
+              </div>
+              <div class="form-group">
+                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
+                <label for="date">Date</label>
               </div>
 
               <div class="form-group">
-                <input type="text" name="document_date" id="document_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['payment_request']['date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_date');?>" required>
-                <label for="document_date">Date</label>
+                <input type="text" name="purposed_date" id="purposed_date" class="form-control" value="<?= date('Y-m-d') ?>">
+                <label for="date">Purposed Date</label>
               </div>
-
-              <div class="form-group">
-                <input type="text" name="purposed_date" id="purposed_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['payment_request']['purposed_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_purposed_date');?>" required>
-                <label for="purposed_date"> Purposed Date</label>
+              
+              <div class="form-group hide">
+                <select id="account_select" class="form-control">
+                  <option value="">No Account</option>
+                  <?php foreach ($account as $key) {
+                    ?>
+                    <option value="<?= $key->coa ?>"><?= $key->coa ?> - <?= $key->group ?></option>
+                  <?php
+                  } ?>
+                </select>
+                <label for="account_select">Account</label>
               </div>
-
+              <div class="form-group hide">
+                <select id="tipe_select" class="form-control">
+                  <option value="OPEN">OPEN</option>
+                  <option value="ORDER">ORDER</option>
+                </select>
+                <label for="suplier_select">Tipe</label>
+              </div>
               
             </div>
-            <div class="col-sm-6 col-lg-4">               
 
-                <div class="form-group">
-                    <select name="default_currency" id="default_currency" class="form-control" data-source="<?= site_url($module['route'] . '/set_default_currency'); ?>" required>
-                    <?php foreach ($this->config->item('currency') as $key => $value) : ?>
-                    <option value="<?=$key?>" <?= ($key == $_SESSION['payment_request']['currency']) ? 'selected' : ''; ?>><?=$value?></option>
-                    <?php endforeach; ?>
-                    </select>
-                    <label for="default_currency">Currency</label>
-                </div>
+            <div class="col-sm-6 col-lg-4">
+              <div class="form-group">
+                <select id="currency_select" class="form-control">
+                  <option value="IDR">IDR</option>
+                  <option value="USD">USD</option>
+                </select>
+                <label for="currency">Currency</label>
+              </div>
 
-                <div class="form-group">
-                    <select name="vendor" id="vendor" class="form-control" data-source="<?= site_url($module['route'] . '/set_vendor/'); ?>" required>
-                    <option value="">-- SELECT VENDOR</option>
-                    <?php foreach (available_vendors_by_currency($_SESSION['payment_request']['currency']) as $v => $vendor) : ?>
-                        <option value="<?= $vendor; ?>" <?= ($vendor == $_SESSION['payment_request']['vendor']) ? 'selected' : ''; ?>>
-                        <?= $vendor; ?>
-                        </option>
-                    <?php endforeach; ?>
-                    </select>
-                    <label for="vendor">Vendor</label>
-                </div>
+              <div class="form-group">
+                <select id="suplier_select" class="form-control">
+                  <option value="">No Suplier</option>
+                  <?php foreach ($suplier as $key) {
+                    ?>
+                    <option value="<?= $key->vendor ?>"><?= $key->vendor ?> - <?= $key->code ?></option>
+                  <?php
+                  } ?>
+                </select>
+                <label for="suplier_select">Suplier</label>
+              </div>
 
-                <div class="form-group">
-                    <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment_request']['total_amount']; ?>" readonly="readonly">
-                    <label for="amount">Amount</label>
-                </div>
+              <div class="form-group">
+                <input type="number" name="amount" id="amount" class="form-control" value="0" readonly="readonly">
+                <label for="amount">Amount</label>
+              </div>
+
+              <div class="form-group hide">
+                <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="">
+                <label for="no_cheque">No Cheque</label>
+              </div>            
+
+
             </div>
+
             <div class="col-sm-6 col-lg-4">
                 <div class="form-group">
-                    <textarea name="notes" id="notes" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['payment_request']['notes']; ?></textarea>
+                    <textarea name="notes" id="notes" class="form-control" ></textarea>
                     <label for="notes">Notes</label>
                 </div>
             </div>
@@ -359,9 +379,8 @@
     }
   }(jQuery));
   $("#loadingScreen2").attr("style", "display:none");
-  $('[data-provide="datepicker"]').datepicker({
+  $('#date').datepicker({
     autoclose: true,
-    todayHighlight: true,
     format: 'yyyy-mm-dd'
   });
 
@@ -418,10 +437,25 @@
 
   });
   
-  $('#default_currency').change(function() {
+  $('#currency_select').change(function() {
     currency = $(this).val();
-    var supplier_view = $('#vendor');
-    supplier_view.html('');    
+
+    var akun_view = $('#account_select');
+    var supplier_view = $('#suplier_select');
+    akun_view.html('');
+    supplier_view.html('');
+    $.ajax({
+      type: "POST",
+      url: '<?= base_url() . "payment/get_akun" ?>',
+      data: {
+        'currency': currency
+      },
+      cache: false,
+      success: function(response) {
+        var data = jQuery.parseJSON(response);
+        akun_view.html(data);
+      }
+    });
 
     $.ajax({
       type: "POST",
@@ -436,26 +470,37 @@
       }
     });
 
-    suplier = $("#vendor").val();
+    suplier = $("#suplier_select").val();
     // currency = $("#currency_select").val();
+    tipe = $("#tipe_select").val();
     $("#total_general").html(0);
     $("#amount").val(0);
     // row_num = 0;
     $("#listView").html("");
     row = [];
     row_detail = [];
+
     getPo()
-
-    var val = $(this).val();
-    var url = $(this).data('source');
-
-    $.get( url, { data: val });
 
   });
 
-  $("#vendor").change(function(e) {
-    suplier = $("#vendor").val();
-    currency = $("#default_currency").val();
+  $("#suplier_select").change(function(e) {
+    // if (suplier != "") {
+    //   if (confirm("If you change suplier the items will be reset")) {
+    //     suplier = $("#suplier_select").val()
+    //     currency = $("#currency_select").val()
+    //     getPo()
+    //     row_num = 0;
+    //     $("#listView").html("");
+    //     row = []
+    //   } else {
+    //     $("#suplier_select").val(suplier)
+    //   }
+    // } else {
+    // changeTotal();
+    suplier = $("#suplier_select").val();
+    currency = $("#currency_select").val();
+    tipe = $("#tipe_select").val();
     $("#total_general").html(0);
     $("#amount").val(0);
     // row_num = 0;
@@ -464,11 +509,6 @@
     row_detail = [];
 
     getPo()
-
-    var val = $(this).val();
-    var url = $(this).data('source');
-
-    $.get( url, { data: val });
 
     // }
   });
@@ -507,6 +547,31 @@
 
   function getPo() {
     $("#loadingScreen2").attr("style", "display:block");
+    // $.ajax({
+    //   type: "POST",
+    //   url: '<?= base_url() . "payment/getPo" ?>',
+    //   data: {
+    //     'vendor': suplier,
+    //     'currency': currency
+    //   },
+    //   cache: false,
+    //   success: function(response) {
+    //     $("#loadingScreen2").attr("style", "display:none");
+    //     var data = jQuery.parseJSON(response);
+    //     arr_po = []
+    //     id_po = []
+    //     $.each(data, function(i, item) {
+    //       arr_po["id_" + item.id] = item;
+    //       id_po.push(item.id)
+    //     });
+    //   },
+    //   error: function(xhr, ajaxOptions, thrownError) {
+    //     $("#loadingScreen2").attr("style", "display:none");
+    //     console.log(xhr.status);
+    //     console.log(xhr.responseText);
+    //     console.log(thrownError);
+    //   }
+    // });
 
     $.ajax({
       type: "POST",
@@ -514,7 +579,7 @@
       data: {
         'currency': currency,
         'vendor': suplier,
-        'tipe': 'credit'
+        'tipe': tipe
       },
       cache: false,
       success: function(response) {
@@ -770,15 +835,15 @@
       type: "POST",
       url: '<?= base_url() . "payment/save_2" ?>',
       data: {
-        // 'account'       : $("#account_select").val(),
-        // "vendor"        : $("#suplier_select").val(),
-        // "currency"      : $("#currency_select").val(),
-        // "tipe"          : $("#tipe_select").val(),
-        // "no_cheque"     : $("#no_cheque").val(),
-        // "date"          : $("#date").val(),
-        // "purposed_date" : $("#purposed_date").val(),
-        // "amount"        : $("#amount").val(),
-        // "notes"         : $("#notes").val(),
+        'account'       : $("#account_select").val(),
+        "vendor"        : $("#suplier_select").val(),
+        "currency"      : $("#currency_select").val(),
+        "tipe"          : $("#tipe_select").val(),
+        "no_cheque"     : $("#no_cheque").val(),
+        "date"          : $("#date").val(),
+        "purposed_date" : $("#purposed_date").val(),
+        "amount"        : $("#amount").val(),
+        "notes"         : $("#notes").val(),
         "item"          : postData
       },
       cache: false,
@@ -835,14 +900,6 @@
       $(this).val("0")
     }
   })
-
-  var autosetInputData          = $('[data-input-type="autoset"]');
-  $( autosetInputData ).on('change', function(){
-    var val = $(this).val();
-    var url = $(this).data('source');
-
-    $.get( url, { data: val });
-  });
 </script>
 
 <?= html_script('themes/material/assets/js/core/source/App.min.js') ?>
