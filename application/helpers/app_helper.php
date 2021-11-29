@@ -558,6 +558,40 @@ if ( ! function_exists('available_vendors')) {
   }
 }
 
+if ( ! function_exists('available_vendors_by_currency')) {
+  function available_vendors_by_currency($currency = NULL)
+  {
+    $CI =& get_instance();
+
+    $CI->db->distinct();
+    $CI->db->select('tb_master_vendors.vendor');
+    $CI->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
+		$CI->db->where('tb_master_vendors_currency.currency', $currency);
+    $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
+    $CI->db->from('tb_master_vendors');
+
+    // if ($category !== NULL){
+    //   $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
+
+    //   if (is_array($category)){
+    //     $CI->db->where_in('tb_master_vendor_categories.category', $category);
+    //   } else {
+    //     $CI->db->where('tb_master_vendor_categories.category', $category);
+    //   }
+    // }
+
+    $query  = $CI->db->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['vendor'];
+    }
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('available_vendors_for_poe')) {
   function available_vendors_for_poe($currency = NULL)
   {
@@ -1861,7 +1895,7 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $num_rows = $connection->count_all_results();
 
-      if($tipe=='POE'||$tipe=='PO'){
+      if($tipe=='POE'||$tipe=='PO'||$tipe=='GRN'){
         $CI =& get_instance();
         $CI->db->from( 'tb_attachment_poe' );
         $CI->db->where('id_poe', $request_id);
@@ -2230,6 +2264,39 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('payment_request_format_number')) {
+    function payment_request_format_number()
+    {
+      $div  = config_item('document_format_divider');
+      $year = date('Y');
+
+      $return = $div . 'BPV' . $div . $year;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('payment_request_last_number')) {
+    function payment_request_last_number()
+    {
+      $CI =& get_instance();
+      $format = payment_request_format_number();
+
+      $CI->db->select_max('document_number', 'last_number');
+      $CI->db->from('tb_po_payments');
+      $CI->db->like('document_number', $format, 'before');
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+
+      return $return;
+    }
+  }
+  
   if ( ! function_exists('getStatusCancelRequest')) {
     function getStatusCancelRequest($pr_number)
     {

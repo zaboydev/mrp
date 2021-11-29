@@ -289,7 +289,14 @@
                     <tr id="row_<?= $i; ?>">
                       <td width="1"></td>
                       <td>
-                        <a href="<?= site_url('goods_received_note/print_pdf/' . $receipt['id']) ?>"><?= print_string($receipt['document_number']); ?></a>
+                        <a href="<?= site_url('goods_received_note/print_pdf/' . $receipt['id']) ?>">
+                          <?= print_string($receipt['document_number']); ?>
+                        </a>
+                        <?php if(isAttachementExists($receipt['id'],'GRN')):?>
+                        <a href="<?= site_url('goods_received_note/manage_attachment/' . $receipt['id']); ?>" onClick="return popup(this, 'attachment')" data-id="<?=$grn['id']?>" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
+                          <i class="fa fa-eye"></i>
+                        </a>
+                        <?php endif;?>   
                       </td>
                       <td class="no-space">
                         <?= print_date($receipt['received_date']); ?>

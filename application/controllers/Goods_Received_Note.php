@@ -751,6 +751,7 @@ class Goods_Received_Note extends MY_Controller
 
     $this->data['manage_attachment'] = $this->model->listAttachment($id);
     $this->data['id'] = $id;
+    $this->data['page']['title']            = "Manage Attachment Goods Received Notes";
     $this->render_view($this->module['view'] . '/manage_attachment');
   }
 

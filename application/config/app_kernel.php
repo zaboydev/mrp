@@ -128,6 +128,7 @@ require('modules/konsolidasi.php');
 
 require('modules/account_payable.php');
 require('modules/payment.php');
+require('modules/payment_report.php');
 require('modules/purchase_item_detail.php');
 require('modules/purchase_supplier_summary.php');
 require('modules/supplier_payment_history.php');
