@@ -130,7 +130,7 @@
 <section class="has-actions style-default">
   <div class="section-body">
 
-    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form_approval')); ?>
+    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form_purposed_payment')); ?>
 
     <div class="card">
       <div class="card-head style-primary-dark">
