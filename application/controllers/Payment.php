@@ -229,13 +229,17 @@ class Payment extends MY_Controller
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
-    $save = $this->model->save_2();
-    if ($save) {
-      $result["status"] = "success";
+
+    if ($this->model->save_2()) {
+      unset($_SESSION['payment_request']);
+      // $this->sendEmail();
+      $data['success'] = TRUE;
+      $data['message'] = 'Document has been saved. You will redirected now.';
     } else {
-      $result["status"] = "failed";
+      $data['success'] = FALSE;
+      $data['message'] = 'Error while saving this document. Please ask Technical Support.';
     }
-    echo json_encode($result);
+    echo json_encode($data);
   }
 
   public function save()

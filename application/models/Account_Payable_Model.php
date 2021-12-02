@@ -98,9 +98,18 @@ class Account_Payable_Model extends MY_Model
       if($tipe_po != 'all'){
         if($tipe_po=='po_local'){
           $this->db->where_in('tb_po.tipe_po', ['INVENTORY','CAPEX','EXPENSE']);
+        }elseif($tipe_po=='maintenance'){
+          $this->db->where_in('tb_po.tipe_po', ['INVENTORY MRP']);
         }else{
           $this->db->where('tb_po.tipe_po', $tipe_po);
         }        
+      }
+    }else{
+      $tipe_po = $_SESSION['ap']['tipe_po'];
+      if($tipe_po=='po_local'){
+          $this->db->where_in('tb_po.tipe_po', ['INVENTORY','CAPEX','EXPENSE']);
+      }elseif($tipe_po=='maintenance'){
+        $this->db->where_in('tb_po.tipe_po', ['INVENTORY MRP']);
       }
     }
 

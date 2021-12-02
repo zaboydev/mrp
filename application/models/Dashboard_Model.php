@@ -587,4 +587,18 @@ class Dashboard_Model extends MY_Model
     return $query->num_rows();
   }
 
+  public function count_ap($tipe){
+    if($tipe=='maintenance'){
+      $tipe_po = ['INVENTORY MRP'];
+    }else{
+      $tipe_po = ['CAPEX','EXPENSE','INVENTORY'];
+    }
+    $this->db->from('tb_po');
+    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN','ADVANCE']);
+    $this->db->where_in('tb_po.tipe_po', $tipe_po);
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
 }
