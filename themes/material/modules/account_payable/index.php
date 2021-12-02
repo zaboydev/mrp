@@ -86,12 +86,8 @@
   <div class="form-group">
     <label for="start_date">Jenis</label>
     <select class="form-control input-sm filter_dropdown" id="tipe_po" name="tipe_po" data-column="4">
-      <option value="all">Semua</option>
-      <option value="CAPEX">Capex Purchase Order</option>
-      <option value="EXPENSE">Expense Purchase Order</option>
-      <option value="INVENTORY">Inventory Non Pesawat Purchase Order</option>
-      <option value="po_local">All Purchase Order Local (Capex,Expense,Inventory Non Pesawat)</option>
-      <option value="INVENTORY MRP">Inventory Pesawat Purchase Order</option>
+      <option value="po_local"<?php if($_SESSION['ap']['tipe_po']=='po_local'): echo 'selected'; endif; ?>>Purchase Order Local</option>
+      <option value="maintenance" <?php if($_SESSION['ap']['tipe_po']=='maintenance'): echo 'selected'; endif; ?>>Purchase Order Maintenance</option>
     </select>
   </div>
 </div>

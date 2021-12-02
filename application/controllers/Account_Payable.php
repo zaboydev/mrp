@@ -15,9 +15,12 @@ class Account_Payable extends MY_Controller
     $this->data['module'] = $this->module;
   }
 
-  public function index()
+  public function index($tipe_po=null)
   {
     $this->authorized($this->module, 'index');
+    if($tipe_po!=null){
+      $_SESSION['ap']['tipe_po'] = $tipe_po;
+    }
 
     $this->data['page']['title']            = $this->module['label'];
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
