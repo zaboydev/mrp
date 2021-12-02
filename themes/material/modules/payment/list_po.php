@@ -17,38 +17,74 @@ $no_item = 1; ?>
     <div id="list_detail_po">
         <?php foreach ($detail['items'] as $i => $detail_po) : ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['id'] ?>" type="hidden"><input id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['purchase_order_id'] ?>" type="hidden"><?= print_string($detail_po['part_number']) ?></td>
-                <td><?= print_string($detail_po['description']) ?><input id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['description'] ?>" type="hidden"></td>
-                <td><?= $detail_po['due_date'] ?></td>
-                <td><?= print_number($detail_po['quantity_received'], 2) ?></td>
-                <td><?= print_number($detail_po['quantity_received'] * ($detail_po['unit_price'] + $detail_po['core_charge']), 2) ?></td>
-                <td><?= print_number($detail_po['total_amount'], 2) ?></td>
-                <td><?= print_number($detail_po['total_amount'] - $detail_po['left_paid_request'], 2) ?></td>
-                <td><input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['left_paid_request'] ?>" type="hidden"><?= print_number($detail_po['left_paid_request'], 2) ?></td>
-                <td><input id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control" value="0"></td>
-                <td>
-                <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
-                
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input name="po_item_id[]" id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['id'] ?>" type="hidden">
+                    <input name="po_id[]" id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['purchase_order_id'] ?>" type="hidden">
+                    <?= print_string($detail_po['part_number']) ?>
                 </td>
-                <td><input id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;"></td>
+                <td>
+                    <?= print_string($detail_po['description']) ?>
+                    <input name="desc[]" id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['description'] ?>" type="hidden">
+                </td>
+                <td>
+                    <?= $detail_po['due_date'] ?>
+                </td>
+                <td>
+                    <?= print_number($detail_po['quantity_received'], 2) ?>
+                </td>
+                <td>
+                    <?= print_number($detail_po['quantity_received'] * ($detail_po['unit_price'] + $detail_po['core_charge']), 2) ?>
+                </td>
+                <td>
+                    <?= print_number($detail_po['total_amount'], 2) ?>
+                </td>
+                <td>
+                    <?= print_number($detail_po['total_amount'] - $detail_po['left_paid_request'], 2) ?>
+                </td>
+                <td>
+                    <input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['left_paid_request'] ?>" type="hidden">
+                    <?= print_number($detail_po['left_paid_request'], 2) ?>
+                </td>
+                <td>
+                    <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control" value="0">
+                </td>
+                <td>
+                    <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
+                </td>
+                <td>
+                    <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                </td>
                 <?php $no_item++; ?>
             </tr>
         <?php endforeach; ?>
         <?php if ($detail['additional_price_remaining_request'] != 0) : ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="sel_item_<?= $no ?>_<?= $no_item ?>" value="0" type="hidden"><input id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['id'] ?>" type="hidden">Additional Price</td>
-                <td>Additional Price (PPN, DISC, SHIPPING COST)<input id="desc_item_<?= $no ?>_<?= $no_item ?>" value="Additional Price (PPN, DISC, SHIPPING COST)" type="hidden"></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input name="po_item_id[]" id="sel_item_<?= $no ?>_<?= $no_item ?>" value="0" type="hidden">
+                    <input name="po_id[]" id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['id'] ?>" type="hidden">
+                    Additional Price
+                </td>
+                <td>
+                    Additional Price (PPN, DISC, SHIPPING COST)
+                    <input name="desc[]" id="desc_item_<?= $no ?>_<?= $no_item ?>" value="Additional Price (PPN, DISC, SHIPPING COST)" type="hidden">
+                </td>
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
                 <td><?= print_number($detail['additional_price'], 2) ?></td>
                 <td><?= print_number($detail['additional_price'] - $detail['additional_price_remaining_request'], 2) ?></td>
-                <td><input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['additional_price_remaining_request'] ?>" type="hidden"><?= print_number($detail['additional_price_remaining_request'], 2) ?></td>
-                <td><input id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class=" form-control sel_applied_item sel_applied_<?= $no ?>" value="0"></td>
                 <td>
-                <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
+                    <input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['additional_price_remaining_request'] ?>" type="hidden"><?= print_number($detail['additional_price_remaining_request'], 2) ?>
                 </td>
-                <td><input id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;"></td>
+                <td>
+                    <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class=" form-control sel_applied_item sel_applied_<?= $no ?>" value="0">
+                </td>
+                <td>
+                    <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
+                </td>
+                <td>
+                    <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                </td>
                 <?php $no_item++; ?>
             </tr>
         <?php endif; ?>

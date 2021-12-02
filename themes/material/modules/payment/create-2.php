@@ -130,7 +130,7 @@
 <section class="has-actions style-default">
   <div class="section-body">
 
-    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form_purposed_payment')); ?>
+    <?= form_open(site_url($module['route'] . '/save_2'), array('autocomplete' => 'off', 'class' => 'form-xhr-submit form form-validate', 'id' => 'form_purposed_payment')); ?>
 
     <div class="card">
       <div class="card-head style-primary-dark">
@@ -249,17 +249,18 @@
         </div>
       </div>
     </div>
-    <?= form_close(); ?>
+    
   </div>
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
-      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="">
+      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-xhr-submit btn-tooltip ink-reaction" id="btn-submit-document">
         <i class="md md-save"></i>
         <small class="top right">Save Document</small>
-      </a>
+      </button>
     </div>
   </div>
+  <?= form_close(); ?>
 </section>
 <?php endblock() ?>
 
@@ -712,7 +713,7 @@
       $(this).val("0")
     }
   })
-  $("#btn-submit-document").click(function(e) {
+  $("#btn-submit-document_2").click(function(e) {
     e.preventDefault();
     $("#btn-submit-document").attr('disabled', true);
     if ($("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
@@ -812,6 +813,39 @@
     });
 
   })
+
+  $(document).on('click', '.btn-xhr-submit', function(e) {
+      e.preventDefault();
+
+      var button = $('.btn-xhr-submit');
+      var form = $('#form_purposed_payment');
+      var action = form.attr('action');
+
+      $(button).addClass('hide');
+
+      if (form.valid()) {
+        $.post(action, form.serialize()).done(function(data) {
+          var obj = $.parseJSON(data);
+
+          if ( obj.success == false ){
+            $(button).removeClass('hide');
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.message);
+          } else {
+            toastr.options.timeOut = 4500;
+            toastr.options.closeButton = false;
+            toastr.options.progressBar = true;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.message);
+
+            window.setTimeout(function(){
+              window.location.href = '<?=site_url($module['route']);?>';
+            }, 5000);
+          }
+        });
+      }
+    });
 
   function clearForm() {
     console.log(123)

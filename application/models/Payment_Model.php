@@ -329,7 +329,13 @@ class Payment_Model extends MY_MODEL
 	function save_2()
 	{
 		$this->db->trans_begin();
-		$item 					= $this->input->post('item');
+		// $item 					= $this->input->post('item');
+		$po_items_id 			= $this->input->post('po_item_id');
+		$pos_id 				= $this->input->post('po_id');
+		$desc_items 			= $this->input->post('desc');
+		$value_items		 	= $this->input->post('value');
+		$adj_value_items	 	= $this->input->post('adj_value');
+
 		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
 		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
 		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number();
@@ -367,27 +373,28 @@ class Payment_Model extends MY_MODEL
 			$po_payment_id = $document_id;
 		}
 		$id_payment = array();
-		foreach ($item as $key) {
-			if ($key["value"] != 0) {
-				$id_po = $key['id_po'];
+		// foreach ($item as $key) {
+		foreach ($po_items_id as $key=>$po_item) {
+			if ($value_items[$key] != 0) {
+				$id_po = $pos_id[$key];
 				$status = $this->get_status_po($id_po);
 
-				if($key["document_number"]!=0){
-					$this->db->set('purchase_order_item_id', $key["document_number"]);
+				if($po_item!=0){
+					$this->db->set('purchase_order_item_id', $po_item);
 				}				
 				$this->db->set('id_po', $id_po);
 				$this->db->set('po_payment_id', $po_payment_id);
-				$this->db->set('deskripsi', $key['desc']);
-				$this->db->set('amount_paid', $key["value"]);
+				$this->db->set('deskripsi', $desc[$key]);
+				$this->db->set('amount_paid', $value_items[$key]);
 				$this->db->set('created_by', config_item('auth_person_name'));
-				$this->db->set('no_cheque', $no_cheque);
-				$this->db->set('tanggal', $tanggal);
-				$this->db->set('no_transaksi', $no_jurnal);
-				$this->db->set('coa_kredit', $account);
-				$this->db->set('adj_value', $key["adj"]);
+				$this->db->set('no_cheque', null);
+				$this->db->set('tanggal', $date);
+				$this->db->set('no_transaksi', $document_number);
+				$this->db->set('coa_kredit', null);
+				$this->db->set('adj_value', $adj_value_items[$key]);
 				// $this->db->set('akun_kredit', $jenis);
 				if ($status == "ORDER") {
-					$this->db->set('uang_muka', $key["value"]);
+					$this->db->set('uang_muka', $value_items[$key]);
 				}
 				if ($currency == 'USD') {
 					$this->db->set('kurs', $kurs);
@@ -398,11 +405,11 @@ class Payment_Model extends MY_MODEL
 				$this->db->insert('tb_purchase_order_items_payments');
 				$id = $this->db->insert_id();
 				$id_payment[] = $id;
-				$val_request = $key["value"]-$key["adj"];
+				$val_request = $value_items[$key]-$adj_value_items[$key];
 
 				if($key['document_number']!==null){
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
-					$this->db->where('id', $key["document_number"]);
+					$this->db->where('id', $po_item_id);
 					$this->db->update('tb_po_item');
 				}else{
 					$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $val_request, false);

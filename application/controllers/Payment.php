@@ -231,14 +231,14 @@ class Payment extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
 
     if ($this->model->save_2()) {
-            unset($_SESSION['payment_request']);
-            // $this->sendEmail();
-            $data['success'] = TRUE;
-            $data['message'] = 'Document has been saved. You will redirected now.';
-          } else {
-            $data['success'] = FALSE;
-            $data['message'] = 'Error while saving this document. Please ask Technical Support.';
-          }
+      unset($_SESSION['payment_request']);
+      // $this->sendEmail();
+      $data['success'] = TRUE;
+      $data['message'] = 'Document has been saved. You will redirected now.';
+    } else {
+      $data['success'] = FALSE;
+      $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+    }
     echo json_encode($data);
   }
 
