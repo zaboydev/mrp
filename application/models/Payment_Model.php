@@ -407,7 +407,7 @@ class Payment_Model extends MY_MODEL
 				$id_payment[] = $id;
 				$val_request = $value_items[$key]-$adj_value_items[$key];
 
-				if($key['document_number']!==null){
+				if($po_item_id!==0){
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
 					$this->db->where('id', $po_item_id);
 					$this->db->update('tb_po_item');
