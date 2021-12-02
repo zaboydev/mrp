@@ -713,6 +713,31 @@
             </div>
         </div>
         <?php endif;?>
+        <?php if (is_granted($modules['account_payable'], 'index')):?> 
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>Account Payable</header>
+              </div>
+              <?php if (is_granted($modules['account_payable'], 'index')):?>
+              <div class="card-head collapsed">
+                <header>
+                  <a href="<?=site_url($modules['account_payable']['route'].'/index/maintenance');?>">
+                    Account Payable POM/WOM (<strong><font color="red"><?=$ap_maintenance;?></font></strong>)
+                  </a>
+                </header>
+              </div>
+              <div class="card-head collapsed">
+                <header>
+                  <a href="<?=site_url($modules['account_payable']['route'].'/index/po_local');?>">
+                    Account Payable POL/WOL (<strong><font color="red"><?=$ap_local;?></font></strong>)
+                  </a>
+                </header>
+              </div>
+              <?php endif;?>
+            </div>
+          </div>   
+        <?php endif;?>
         </div>     
 
     </div>
