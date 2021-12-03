@@ -384,7 +384,7 @@ class Payment_Model extends MY_MODEL
 				}				
 				$this->db->set('id_po', $id_po);
 				$this->db->set('po_payment_id', $po_payment_id);
-				$this->db->set('deskripsi', $desc[$key]);
+				$this->db->set('deskripsi', $desc_items[$key]);
 				$this->db->set('amount_paid', $value_items[$key]);
 				$this->db->set('created_by', config_item('auth_person_name'));
 				$this->db->set('no_cheque', null);
@@ -676,7 +676,7 @@ class Payment_Model extends MY_MODEL
 
 		$this->db->select($select);
 		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		$this->db->where('tb_purchase_order_items_payments.po_payment_id', $id);
 		$this->db->order_by('tb_purchase_order_items_payments.id_po','asc');
 

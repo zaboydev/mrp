@@ -2,110 +2,45 @@
 
 <?php startblock('content') ?>
 <style>
-  .float {
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    bottom: 40px;
-    right: 40px;
-    border-radius: 50px;
-    text-align: center;
-    box-shadow: 2px 2px 3px #999;
-    z-index: 100000;
-  }
+  /* .form-control-payment {
+    padding: 0;
+    height: 25px;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom-color: rgba(12, 12, 12, 0.12);
+    background: transparent;
+    color: #0c0c0c;
+    font-size: 16px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  } */
 
-  .my-float {
-    margin-top: 22px;
-  }
-
-  .tg {
-    border-collapse: collapse;
-    border-spacing: 0;
-    border-color: #ccc;
+  .form-control-payment {
+    display: block;
     width: 100%;
-  }
-
-  .tg td {
-    font-family: "Arial", Helvetica, sans-serif !important;
+    height: 30px;
+    padding: 4.5px 14px;
     font-size: 13px;
-    padding: 3px 3px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #fff;
-
+    line-height: 1.846153846;
+    color: #0c0c0c;
+    background-color: #ffffff;
+    background-image: none;
+    border: 1px solid rgba(12, 12, 12, 0.12);
+    border-radius: 2px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  }
+  
+  .form-control-payment[readonly]{
+    background-color : #f0f0f0;
   }
 
-  .tg th {
-    font-family: "Arial", Helvetica, sans-serif !important;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 3px 3px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #f0f0f0;
-    text-align: center;
-  }
-
-  .tg .tg-3wr7 {
-    font-weight: bold;
-    font-size: 12px;
-    font-family: "Arial", Helvetica, sans-serif !important;
-    ;
-    text-align: center
-  }
-
-  .tg .tg-ti5e {
-    font-size: 10px;
-    font-family: "Arial", Helvetica, sans-serif !important;
-    ;
-    text-align: center
-  }
-
-  .tg .tg-rv4w {
-    font-size: 10px;
-    font-family: "Arial", Helvetica, sans-serif !important;
-  }
-
-  .box {
-    background-color: white;
-    width: auto;
-    height: auto;
-    border: 1px solid black;
-    padding: 5px;
-    margin: 2px;
-  }
-
-  .tt td {
-    font-family: Arial;
-    font-size: 12px;
-    padding: 3px 3px;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #fff;
-  }
-
-  .tt th {
-    font-family: Arial;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 3px 3px;
-    border-width: 1px;
-    overflow: hidden;
-    word-break: normal;
-    border-color: #000;
-    color: #333;
-    background-color: #f0f0f0;
+  .form-control-payment:focus{
+    border: 1px solid rgba(12, 12, 12, 0.12);
   }
 
   @media print {
@@ -210,7 +145,7 @@
         </div>
 
         <div class="document-data table-responsive">
-          <table class="tg" id="table-document" width="100%">
+          <table class="table table-hover table-bordered table-nowrap" id="table-document" width="100%">
             <thead>
               <tr>
                 <!-- <th class="middle-alignment">No.</th> -->
@@ -243,6 +178,11 @@
       </div>
       <div class="card-actionbar">
         <div class="card-actionbar-row">
+          <div class="pull-left">
+            <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction">
+              Add
+            </button>
+          </div>
           <a href="<?= site_url($module['route']); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
           </a>
@@ -310,6 +250,23 @@
 
     if (!window.focus) return true;
     else return false;
+  }
+
+  function addRow() {
+    var row = '<tr>'+
+    '<td colspan="2"><input name="desc[]" type="text" class="form-control-payment"></td>'+
+    '<td><input type="hidden" value="0" name="po_item_id[]"></td>'+
+    '<td><input type="hidden" value="0" name="po_id[]"></td>'+
+    '<td></td>'+
+    '<td></td>'+
+    '<td></td>'+
+    '<td></td>'+
+    '<td><input name="value[]" type="number" class="form-control-payment"></td>'+
+    '<td></td>'+
+    '<td><input name="adj_value[]" type="number" class="hide sel_applied_adj sel_applied_adj" value="0" style="display: inline;"></td>'+
+    '</tr>';
+    $("#listView").append(row);
+    setAddValue();
   }
 
   (function($) {
@@ -692,12 +649,22 @@
 
   })
 
+  function setAddValue() {
+    $('[name="value[]"]').change(function () {
+      changeTotal();
+    });
+  }
+
   function changeTotal() {
     var sum = 0
-    $.each(row, function(i, item) {
-      sum += parseFloat($("#in_" + item).val())
+    // $.each(row, function(i, item) {
+    //   sum += parseFloat($("#in_" + item).val())
+    // });
+    $('[name="value[]"]').each(function (key, val) {
+      var val = $(this).val();
+      sum = parseFloat(sum) + parseFloat(val);
     });
-    console.log(row_detail)
+    // console.log(row_detail)
     // $('.sel_applied_' + parent).each(function(key, val) {
     //   var val = $(this).val();
     //   sum = parseFloat(sum) + parseFloat(val);
@@ -705,6 +672,7 @@
     $("#total_general").html(sum);
     $("#amount").val(sum);
   }
+
   $("#amount").change(function() {
     if ($(this).val() === "") {
       $(this).val("0")

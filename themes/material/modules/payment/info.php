@@ -79,11 +79,13 @@
                     
                   </td>
                   <td>
+                  <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?>
                   <?php //if(isAttachementExists($detail['id_po'],'PO')):?>
                     <a href="<?= site_url('purchase_order/manage_attachment/' . $detail['id_po']); ?>" onClick="return popup(this, 'attachment')" data-id="<?=$grn['id']?>" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
                       <i class="fa fa-eye"></i>
                     </a>
-                    <?php //endif;?>
+                  <?php //endif;?>
+                  <?php endif;?>
                   </td>
                   <td>
                     <?= print_date($detail['due_date'],'d/m/Y'); ?>

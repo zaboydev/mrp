@@ -51,7 +51,7 @@
   <div class="btn-group dropup">
 
     <?php if (is_granted($module, 'document')) : ?>
-      <a href="<?= site_url($module['route'] . '/create/payment'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+      <a href="<?= site_url($module['route'] . '/create/payment'); ?>" type="button" class="hide btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
         <i class="md md-add"></i>
         <small class="top right">Create <?= $module['label']; ?></small>
       </a>
