@@ -671,6 +671,7 @@ class Payment_Model extends MY_MODEL
 			'tb_po.default_currency',
 			'tb_po.tipe_po',
 			'tb_po.due_date',
+			'tb_po.tipe'
 			
 		);
 
@@ -1525,6 +1526,7 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.id'                          						=> NULL,
 			'tb_po_payments.document_number as no_transaksi'             		=> 'Transaction Number',
 			'tb_po.document_number as po_number'               					=> '#PO',
+			'tb_po.tipe as cash_credit'               							=> 'Cash/Credit',
 			'tb_po_payments.vendor'                   							=> 'Vendor',
 			'tb_purchase_order_items_payments.deskripsi as description'			=> 'Description',
 			'tb_po_payments.status'	                     						=> 'Status',
@@ -1562,6 +1564,7 @@ class Payment_Model extends MY_MODEL
 		$return = array(
 			null,//'tb_po_payments.id',
 			'tb_po_payments.document_number',
+			null,
 			'tb_po.document_number',
 			'tb_po_payments.vendor',
 			'tb_purchase_order_items_payments.deskripsi',

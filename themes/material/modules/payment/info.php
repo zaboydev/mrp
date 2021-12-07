@@ -32,6 +32,19 @@
 
       <div class="col-sm-12 col-md-8 col-md-pull-4">
         <dl class="dl-inline">
+          <dt>Status</dt>
+          <dd>
+          <?php if($entity['status']=='PAID'):?>
+          PAID by <?=$entity['paid_by']?> at <?= print_date($entity['paid_at'],'d/m/Y'); ?>
+          <?php endif;?>
+          <?php if($entity['status']=='APPROVED'):?>
+          WAITING PAYMENT
+          <?php endif;?>
+          <?php if($entity['status']!='APPROVED' && $entity['status']!='PAID'):?>
+          Purpose Review
+          <?php endif;?>
+          </dd>
+
           <dt>Payment To</dt>
           <dd><?= $entity['vendor']; ?></dd>
 
@@ -40,6 +53,15 @@
 
           <dt>Currency</dt>
           <dd><?= $entity['currency']; ?></dd>
+
+          <?php if($entity['status']=='PAID'):?>
+          <dt>Pay From</dt>
+          <dd>(<?= $entity['coa_kredit']; ?>) <?= $entity['akun_kredit']; ?></dd>
+
+          <dt>No Konfirmasi</dt>
+          <dd><?= ($entity['no_konfirmasi']!='')? $entity['no_konfirmasi']:'-'; ?></dd>
+
+          <?php endif;?>
 
           <dt>Notes</dt>
           <dd><?= $entity['notes']; ?></dd>
@@ -76,8 +98,9 @@
                   </td>
                   <td>
                     <a href="<?= site_url('payment/print_po/' . $detail['id_po'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['document_number'])?></a>
-                    
+                    <span style="display:block;font-size:10px;font-style:italic;"><?= print_string($detail['tipe']); ?></span>
                   </td>
+                  
                   <td>
                   <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?>
                   <?php //if(isAttachementExists($detail['id_po'],'PO')):?>
@@ -122,6 +145,7 @@
               <tr>
                 <th></th>
                 <th>Total</th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
