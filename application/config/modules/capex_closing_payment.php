@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['capex_closing_payment']['visible']        = TRUE;
-$config['module']['capex_closing_payment']['main_warehouse'] = TRUE;
+$config['module']['capex_closing_payment']['main_warehouse'] = FALSE;
 $config['module']['capex_closing_payment']['parent']         = 'capex';
 $config['module']['capex_closing_payment']['label']          = 'Capex Closing Payment';
 $config['module']['capex_closing_payment']['name']           = 'Capex Closing Payment';

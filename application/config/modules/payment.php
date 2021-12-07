@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['payment']['visible']        = TRUE;
-$config['module']['payment']['main_warehouse'] = TRUE;
+$config['module']['payment']['main_warehouse'] = FALSE;
 $config['module']['payment']['parent']         = 'account_payable';
 $config['module']['payment']['label']          = 'Purpose Payment Purchase';
 $config['module']['payment']['name']           = 'Purpose Payment Purchase';
