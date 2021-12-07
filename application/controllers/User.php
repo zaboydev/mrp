@@ -132,7 +132,7 @@ class User extends MY_Controller
       $return['info'] = "You don't have permission to access this page!";
     } else {
       if ($this->input->post('id')){
-        if ($this->model->isUsernameExists($this->input->post('username'), NULL, $this->input->post('username_exception'))){
+        if ($this->model->isUsernameExists($this->input->post('username'), $this->input->post('username_exception'))){
           $return['type'] = 'danger';
           $return['info'] = 'Duplicate Username! Username '. $this->input->post('username') .' already exists.';
         } else {
