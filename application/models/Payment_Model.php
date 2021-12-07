@@ -1033,22 +1033,25 @@ class Payment_Model extends MY_MODEL
 		
 		foreach ($query->result_array() as $key => $item) {
 			$id_po = $item['id_po'];
+			$value = $item["amount_paid"]+$item["adj_value"];
 			if($item['purchase_order_item_id']!==null){
-				$this->db->set('left_paid_request', '"left_paid_request" + ' . $item["amount_paid"], false);
+				$this->db->set('left_paid_request', '"left_paid_request" + ' . $value, false);
 				// $this->db->set('payment', '"payment" + ' . $key["value"], false);
 				$this->db->where('id', $item["purchase_order_item_id"]);
 				$this->db->update('tb_po_item');
 			}else{
-				$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" + ' . $item["amount_paid"], false);
+				$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" + ' . $value, false);
 				// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
 				$this->db->where('id', $id_po);
 				$this->db->update('tb_po');
 			}
-
-			$this->db->set('remaining_payment_request', '"remaining_payment_request" + ' . $item["amount_paid"], false);
-			// $this->db->set('payment', '"payment" + ' . $item["amount_paid"], false);
-			$this->db->where('id', $id_po);
-			$this->db->update('tb_po');
+			if($item['id_po']!=0){
+				$this->db->set('remaining_payment_request', '"remaining_payment_request" + ' . $value, false);
+				// $this->db->set('payment', '"payment" + ' . $item["amount_paid"], false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
+			}
+			
 		}
 
 		$this->db->set('status', $status);
