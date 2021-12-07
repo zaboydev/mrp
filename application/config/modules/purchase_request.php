@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['purchase_request']['visible']        = TRUE;
-$config['module']['purchase_request']['main_warehouse'] = TRUE;
+$config['module']['purchase_request']['main_warehouse'] = FALSE;
 $config['module']['purchase_request']['parent']         = 'procurement';
 $config['module']['purchase_request']['label']          = 'Purchase Request';
 $config['module']['purchase_request']['name']           = 'purchase_request';

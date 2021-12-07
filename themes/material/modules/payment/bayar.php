@@ -22,13 +22,33 @@
                         <div class="newoverlay" id="loadingScreen2" style="display: none;">
                             <i class="fa fa-refresh fa-spin"></i>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <input readonly value="<?= $_SESSION['payment']['no_transaksi'] ?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
-                                <input value="<?= $_SESSION['payment']['po_payment_id'] ?>" type="text" name="po_payment_id" id="po_payment_id" class="form-control">
+                                <input value="<?= $_SESSION['payment']['po_payment_id'] ?>" type="hidden" name="po_payment_id" id="po_payment_id" class="form-control">
 
                                 <label for="suplier_select">Purpose Number</label>
                             </div>
+                            <div class="form-group">
+                                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
+                                <label for="date">Date</label>
+                            </div>
+                            
+                            <div class="form-group hide">
+                                <select id="tipe_select" class="form-control">
+                                    <option value="OPEN">OPEN</option>
+                                    <option value="ORDER">ORDER</option>
+                                </select>
+                                <label for="suplier_select">Tipe</label>
+                            </div>
+                            <div class="form-group">
+                                <input readonly value="<?= $_SESSION['payment']['no_transaksi'] ?>" type="hidden" name="no_transaksi" id="no_transaksi" class="form-control">
+                                <input readonly value="<?= $_SESSION['payment']['vendor'] ?>" type="text" name="suplier_select" id="suplier_select" class="form-control">
+                                <label for="suplier_select">Suplier</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <input readonly value="<?= $_SESSION['payment']['currency'] ?>" type="text" name="currency_select" id="currency_select" class="form-control">
                                 <label for="currency">Currency</label>
@@ -44,31 +64,26 @@
                                 </select>
                                 <label for="account_select">Account</label>
                             </div>
-                            <div class="form-group hide">
-                                <select id="tipe_select" class="form-control">
-                                    <option value="OPEN">OPEN</option>
-                                    <option value="ORDER">ORDER</option>
-                                </select>
-                                <label for="suplier_select">Tipe</label>
-                            </div>
-                            <div class="form-group">
-                                <input readonly value="<?= $_SESSION['payment']['no_transaksi'] ?>" type="hidden" name="no_transaksi" id="no_transaksi" class="form-control">
-                                <input readonly value="<?= $_SESSION['payment']['vendor'] ?>" type="text" name="suplier_select" id="suplier_select" class="form-control">
-                                <label for="suplier_select">Suplier</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
                             <div class="form-group">
                                 <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="" required>
                                 <label for="no_cheque">No Cheque</label>
-                            </div>
-
+                            </div>                            
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
-                                <label for="date">Date</label>
+                                <input type="text" name="no_konfirmasi" id="no_konfirmasi" class="form-control" value="">
+                                <label for="amount">No Konfirmasi</label>
                             </div>
-
+                            <div class="form-group">
+                                <select name="paid_base" id="paid_base" class="form-control" required>
+                                <?php foreach (available_warehouses() as $w => $warehouse) : ?>
+                                    <option value="<?= $warehouse; ?>" <?= ($_SESSION['payment']['base'] == $warehouse) ? 'selected' : ''; ?>>
+                                    <?= $warehouse; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                                </select>
+                                <label for="warehouse">Warehouse</label>
+                            </div>
                             <div class="form-group">
                                 <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment']['total_amount'] ?>" readonly="readonly">
                                 <label for="amount">Amount</label>
@@ -125,6 +140,11 @@
             </div>
             <div class="card-actionbar">
                 <div class="card-actionbar-row">
+                    <div class="pull-left">
+                        <a href="<?=site_url($module['route'] .'/attachment');?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+                            Attachment
+                        </a>
+                    </div>
                     <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
                         Discard
                     </a>
@@ -602,7 +622,7 @@
     $("#btn-submit-document").click(function(e) {
         e.preventDefault()
         $("#btn-submit-document").attr('disabled', true);
-        if ($("#account_select").val() === "" || $("#no_cheque").val() === "" || $("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
+        if ($("#account_select").val() === "" || $("#suplier_select").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
             $("#btn-submit-document").attr('disabled', false);
             toastr.options.timeOut = 10000;
             toastr.options.positionClass = 'toast-top-right';
@@ -651,6 +671,8 @@
                 "date": $("#date").val(),
                 "amount": $("#amount").val(),
                 "po_payment_id": $("#po_payment_id").val(),
+                "no_konfirmasi": $("#no_konfirmasi").val(),
+                "paid_base": $("#paid_base").val(),
                 // "item": postData
             },
             cache: false,

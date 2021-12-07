@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['account_payable']['visible']        = TRUE;
-$config['module']['account_payable']['main_warehouse'] = TRUE;
+$config['module']['account_payable']['main_warehouse'] = FALSE;
 $config['module']['account_payable']['parent']         = 'account_payable';
 $config['module']['account_payable']['label']          = 'Account Payable';
 $config['module']['account_payable']['name']           = 'Account Payable';

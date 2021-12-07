@@ -10,7 +10,7 @@ $no_item = 1; ?>
         <td><?= print_number($detail['grand_total'], 2) ?></td>
         <td><?= print_number($detail['payment'], 2) ?></td>
         <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment_request'] ?>" type="hidden"><?= print_number($detail['remaining_payment_request'], 2) ?></td>
-        <td><input id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control" value="0"></td>
+        <td><input id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="0"></td>
         <td><button type="button" class="btn btn-xs btn-info btn-sm"><i class="fa fa-eye btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"></i></button></td>
         <td></td>
     </tr>
@@ -46,13 +46,13 @@ $no_item = 1; ?>
                     <?= print_number($detail_po['left_paid_request'], 2) ?>
                 </td>
                 <td>
-                    <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control" value="0">
+                    <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control-payment" value="0">
                 </td>
                 <td>
                     <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
                 </td>
                 <td>
-                    <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                    <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
                 </td>
                 <?php $no_item++; ?>
             </tr>
@@ -77,13 +77,13 @@ $no_item = 1; ?>
                     <input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['additional_price_remaining_request'] ?>" type="hidden"><?= print_number($detail['additional_price_remaining_request'], 2) ?>
                 </td>
                 <td>
-                    <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class=" form-control sel_applied_item sel_applied_<?= $no ?>" value="0">
+                    <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class=" form-control-payment sel_applied_item sel_applied_<?= $no ?>" value="0">
                 </td>
                 <td>
                     <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
                 </td>
                 <td>
-                    <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                    <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
                 </td>
                 <?php $no_item++; ?>
             </tr>

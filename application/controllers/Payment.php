@@ -455,8 +455,10 @@ class Payment extends MY_Controller
     $_SESSION['payment']['no_transaksi']          = $item['no_transaksi'];
     $_SESSION['payment']['vendor']                = $item['vendor'];
     $_SESSION['payment']['currency']              = $item['currency'];
+    $_SESSION['payment']['base']                  = $item['base'];
     $_SESSION['payment']['po_payment_id']              = $item['id'];
     $_SESSION['payment']['total_amount']          = 0;
+    $_SESSION['payment']['attachment']            = array();
     foreach ($_SESSION['payment']['items'] as $i => $item){
       $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$item['amount_paid'];
     }
@@ -503,6 +505,7 @@ class Payment extends MY_Controller
     $this->authorized($this->module, 'document');
 
     $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
+    $this->data['page']['title']    = "Manage Attachment Payment";
     $this->data['id'] = $id;
     $this->render_view($this->module['view'] . '/manage_attachment');
   }
@@ -759,6 +762,44 @@ class Payment extends MY_Controller
     $pdf = $this->m_pdf->load(null, 'A4-L');
     $pdf->WriteHTML($html);
     $pdf->Output($pdfFilePath, "I");
+  }
+
+  public function attachment()
+  {
+    $this->authorized($this->module, 'document');
+    $this->data['page']['title']    = "Attachment Payment";
+    $this->render_view($this->module['view'] . '/attachment');
+  }
+
+  public function add_attachment()
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'attachment/payment/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+
+    $this->upload->initialize($config);
+
+    if (!$this->upload->do_upload('attachment')) {
+      $error = array('error' => $this->upload->display_errors());
+    } else {
+
+      $data = array('upload_data' => $this->upload->data());
+      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      array_push($_SESSION["payment"]["attachment"], $url);
+      $result["status"] = 1;
+    }
+    echo json_encode($result);
+  }
+
+  public function delete_attachment_in_db($id_att, $id_poe)
+  {
+    $this->model->delete_attachment_in_db($id_att);
+
+    redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+    // echo json_encode($result);
   }
 
 }

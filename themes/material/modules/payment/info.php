@@ -32,17 +32,39 @@
 
       <div class="col-sm-12 col-md-8 col-md-pull-4">
         <dl class="dl-inline">
+          <dt>Status</dt>
+          <dd>
+          <?php if($entity['status']=='PAID'):?>
+          PAID by <?=$entity['paid_by']?> at <?= print_date($entity['paid_at'],'d/m/Y'); ?>
+          <?php endif;?>
+          <?php if($entity['status']=='APPROVED'):?>
+          WAITING PAYMENT
+          <?php endif;?>
+          <?php if($entity['status']!='APPROVED' && $entity['status']!='PAID'):?>
+          Purpose Review
+          <?php endif;?>
+          </dd>
+
           <dt>Payment To</dt>
           <dd><?= $entity['vendor']; ?></dd>
 
           <dt>Created By</dt>
           <dd><?= $entity['created_by']; ?></dd>
 
-          <!-- <dt>Known By</dt>
-          <dd><?= $entity['known_by']; ?></dd>
+          <dt>Currency</dt>
+          <dd><?= $entity['currency']; ?></dd>
+
+          <?php if($entity['status']=='PAID'):?>
+          <dt>Pay From</dt>
+          <dd>(<?= $entity['coa_kredit']; ?>) <?= $entity['akun_kredit']; ?></dd>
+
+          <dt>No Konfirmasi</dt>
+          <dd><?= ($entity['no_konfirmasi']!='')? $entity['no_konfirmasi']:'-'; ?></dd>
+
+          <?php endif;?>
 
           <dt>Notes</dt>
-          <dd><?= $entity['notes']; ?></dd> -->
+          <dd><?= $entity['notes']; ?></dd>
         </dl>
       </div>
     </div>
@@ -76,20 +98,25 @@
                   </td>
                   <td>
                     <a href="<?= site_url('payment/print_po/' . $detail['id_po'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['document_number'])?></a>
-                    
+                    <span style="display:block;font-size:10px;font-style:italic;"><?= print_string($detail['tipe']); ?></span>
                   </td>
+                  
                   <td>
+                  <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?>
                   <?php //if(isAttachementExists($detail['id_po'],'PO')):?>
                     <a href="<?= site_url('purchase_order/manage_attachment/' . $detail['id_po']); ?>" onClick="return popup(this, 'attachment')" data-id="<?=$grn['id']?>" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
                       <i class="fa fa-eye"></i>
                     </a>
-                    <?php //endif;?>
+                  <?php //endif;?>
+                  <?php endif;?>
                   </td>
                   <td>
+                    <?php if($detail['due_date']!=null):?>
                     <?= print_date($detail['due_date'],'d/m/Y'); ?>
+                    <?php endif;?>
                   </td>
                   <td>
-                    <?= print_string($detail['default_currency']); ?>
+                    <?= print_string($entity['currency']); ?>
                   </td>
                   <!-- <td>
                     <?= print_string($detail['part_number']); ?>
@@ -118,6 +145,7 @@
               <tr>
                 <th></th>
                 <th>Total</th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -154,7 +182,7 @@
                     <?=print_number($n);?>
                   </td>
                   <td colspan="7">
-                    <?=print_string($detail['description']);?> - <?=print_string($detail['document_number']);?>
+                    <?=print_string($detail['description']);?> <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?> - <?=print_string($detail['document_number']);?> <?php endif; ?>
                   </td>
                 </tr><?php $total = array();?>
                 <?php foreach ($detail['history'] as $i => $history):?>
