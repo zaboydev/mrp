@@ -1535,6 +1535,8 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.paid_by'							=> 'Unpaid USD',
 			'tb_purchase_order_items_payments.checked_by'						=> 'Paid IDR',
 			'tb_purchase_order_items_payments.approved_by'						=> 'Paid USD',
+			'tb_po_payments.no_konfirmasi'										=> 'Balance IDR',
+			'tb_po_payments.paid_base'											=> 'Balance USD',
 		);
 
 		return $return;
@@ -1565,6 +1567,8 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.deskripsi',
 			'tb_po_payments.status',
 			'tb_po_payments.currency',
+            null,//'tb_purchase_order_items_payments.amount_paid',
+			null,//'tb_po_payments.akun_kredit',
             null,//'tb_purchase_order_items_payments.amount_paid',
 			null,//'tb_po_payments.akun_kredit',
 		);
@@ -1672,7 +1676,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumnsReport()));
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 
@@ -1707,7 +1711,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumnsReport()));
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 
@@ -1723,7 +1727,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumnsReport()));
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 
