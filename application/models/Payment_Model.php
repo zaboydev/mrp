@@ -1077,6 +1077,8 @@ class Payment_Model extends MY_MODEL
 		$amount 		= $this->input->post('amount');
 		$no_jurnal 		= $this->input->post('no_transaksi');
 		$currency 		= $this->input->post('currency');
+		$no_konfirmasi 	= $this->input->post('no_konfirmasi');
+		$paid_base 		= $this->input->post('paid_base');
 		$kurs 			= $this->tgl_kurs(date("Y-m-d"));
 		$tipe 			= $this->input->post('tipe');
 		$po_payment_id 			= $this->input->post('po_payment_id');
@@ -1112,6 +1114,8 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('coa_kredit', $account);
 		$this->db->set('no_cheque', $no_cheque);
 		$this->db->set('akun_kredit', $jenis);
+		$this->db->set('no_konfirmasi', $no_konfirmasi);
+		$this->db->set('paid_base', $paid_base);
 		$this->db->set('status', "PAID");
 		$this->db->set('paid_by', config_item('auth_person_name'));
 		$this->db->set('paid_at', date("Y-m-d",strtotime($tanggal)));
@@ -1219,6 +1223,14 @@ class Payment_Model extends MY_MODEL
 				$this->db->update('tb_po');
 			}
 		}
+
+		foreach ($_SESSION["payment"]["attachment"] as $file) {
+			$this->db->set('id_poe', $po_payment_id);
+			$this->db->set('tipe', "PAYMENT");
+			$this->db->set('file', $file);
+			$this->db->set('tipe_att', "PAYMENT");
+			$this->db->insert('tb_attachment_poe');
+		}
 		if ($this->db->trans_status() === FALSE)
 			return FALSE;
 
@@ -1228,38 +1240,51 @@ class Payment_Model extends MY_MODEL
 
 	public function listAttachment($id)
 	{
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_purchase_order_items_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['no_transaksi'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_purchase_order_items_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['no_transaksi'];
 
-		$this->db->where('no_transaksi', $no_transaksi);
-		return $this->db->get('tb_attachment_payment')->result();
+		// $this->db->where('no_transaksi', $no_transaksi);
+		// return $this->db->get('tb_attachment_payment')->result();
+
+		$this->db->where('id_poe', $id);
+		$this->db->where('tipe', 'PAYMENT');
+		return $this->db->get('tb_attachment_poe')->result();
 	}
 
 	public function listAttachment_2($id)
 	{
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_po_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['document_number'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_po_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['document_number'];
 
-		$this->db->where('no_transaksi', $no_transaksi);
-		return $this->db->get('tb_attachment_payment')->result_array();
+		// $this->db->where('no_transaksi', $no_transaksi);
+		// return $this->db->get('tb_attachment_payment')->result_array();
+		$this->db->where('id_poe', $id);
+		$this->db->where('tipe', 'PAYMENT');
+		return $this->db->get('tb_attachment_poe')->result_array();
 	}
 
 	function add_attachment_to_db($id, $url)
 	{
 		$this->db->trans_begin();
 
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_po_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['document_number'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_po_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['document_number'];
 
-		$this->db->set('no_transaksi', $no_transaksi);
+		// $this->db->set('no_transaksi', $no_transaksi);
+		// $this->db->set('file', $url);
+		// $this->db->insert('tb_attachment_payment');
+
+		$this->db->set('id_poe', $id);
+		$this->db->set('tipe', "PAYMENT");
 		$this->db->set('file', $url);
-		$this->db->insert('tb_attachment_payment');
+		$this->db->set('tipe_att', "PAYMENT");
+		$this->db->insert('tb_attachment_poe');
 
 		if ($this->db->trans_status() === FALSE)
 			return FALSE;
@@ -1270,16 +1295,35 @@ class Payment_Model extends MY_MODEL
 
 	public function checkAttachment($id)
 	{
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_po_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['document_number'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_po_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['document_number'];
 
-		$this->db->where('no_transaksi', $no_transaksi);
-		$this->db->from('tb_attachment_payment');
+		// $this->db->where('no_transaksi', $no_transaksi);
+		// $this->db->from('tb_attachment_payment');
+		// $num_rows = $this->db->count_all_results();
+
+		$this->db->where('id_poe', $id);
+		$this->db->where('tipe', 'PAYMENT');
+		$this->db->from('tb_attachment_poe');
 		$num_rows = $this->db->count_all_results();
 
 		return $num_rows;
+	}
+
+	function delete_attachment_in_db($id_att)
+	{
+		$this->db->trans_begin();
+
+		$this->db->where('id', $id_att);
+		$this->db->delete('tb_attachment_poe');
+
+		if ($this->db->trans_status() === FALSE)
+		return FALSE;
+
+		$this->db->trans_commit();
+		return TRUE;
 	}
 
 	public function getNotifRecipient($level)

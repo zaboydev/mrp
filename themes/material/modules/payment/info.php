@@ -38,11 +38,11 @@
           <dt>Created By</dt>
           <dd><?= $entity['created_by']; ?></dd>
 
-          <!-- <dt>Known By</dt>
-          <dd><?= $entity['known_by']; ?></dd>
+          <dt>Currency</dt>
+          <dd><?= $entity['currency']; ?></dd>
 
           <dt>Notes</dt>
-          <dd><?= $entity['notes']; ?></dd> -->
+          <dd><?= $entity['notes']; ?></dd>
         </dl>
       </div>
     </div>
@@ -88,10 +88,12 @@
                   <?php endif;?>
                   </td>
                   <td>
+                    <?php if($detail['due_date']!=null):?>
                     <?= print_date($detail['due_date'],'d/m/Y'); ?>
+                    <?php endif;?>
                   </td>
                   <td>
-                    <?= print_string($detail['default_currency']); ?>
+                    <?= print_string($entity['currency']); ?>
                   </td>
                   <!-- <td>
                     <?= print_string($detail['part_number']); ?>
@@ -156,7 +158,7 @@
                     <?=print_number($n);?>
                   </td>
                   <td colspan="7">
-                    <?=print_string($detail['description']);?> - <?=print_string($detail['document_number']);?>
+                    <?=print_string($detail['description']);?> <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?> - <?=print_string($detail['document_number']);?> <?php endif; ?>
                   </td>
                 </tr><?php $total = array();?>
                 <?php foreach ($detail['history'] as $i => $history):?>

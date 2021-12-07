@@ -4,8 +4,7 @@
 
   <h4 class="page-header">Attachment</h4>
   
-  <?php if (is_granted($module, 'manage_attachment')) : ?>
-  <form id="form_add_vendor" id="inputForm" class="form" role="form" method="post" enctype="multipart/form-data" action="<?=site_url($module['route'] .'/add_attachment_to_db/'. $id);?>">
+  <form id="form_add_vendor" id="inputForm" class="form" role="form" method="post" enctype="multipart/form-data" action="<?=site_url($module['route'] .'/add_attachment');?>">
     <div class="row">
       <div class="col-sm-12">
         <div class="form-group">
@@ -18,9 +17,10 @@
       <div class="clearfix">
         <button type="submit" class="btn btn-primary">Add Attachment</button>
       </div>
-    </div>    
+    </div>
+
+    
   </form>
-  <?php endif;?>
   <div class="clearfix"></div>
   <div class="row" style="margin-top: 30px">
     <div class="col-md-12">
@@ -35,27 +35,31 @@
           </tr>
         </thead>
         <tbody>
-          <?php $n = 0;?>
-          <?php if(count($manage_attachment)>0):?>
-          <?php foreach ($manage_attachment as $i => $detail):?>
-            <?php $n++;?>
-            <tr>
-              <td><?=$n?></td>
-              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
-              <td>
-                <?php if (is_granted($module, 'manage_attachment')) : ?>
-                <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id_poe);?>" style="color: red" class="btn-delete-att">
-                  <i class="fa fa-trash"></i>
-                </a>
-                <?php endif;?>
-              </td>
-            </tr>
-          <?php endforeach;?>
-          <?php else:?>          
+          <?php if(sizeof($_SESSION["payment"]["attachment"])>0) {
+              $x=0; 
+              $y=0;
+              foreach ($_SESSION["payment"]["attachment"] as $key) {
+                    $x++;
+                  ?>
+                  <tr>
+                    <td><?=$x?></td>
+                    <td><a href="<?=base_url().$key?>"><?=$key?></a></td>
+                    <td>
+                      <a href="<?=site_url($module['route'] .'/delete_attachment/'. $y);?>" style="color: red" class="">
+                        <i class="fa fa-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <?php
+                  $y++;
+              }
+          
+
+           } else { ?>
           <tr>
             <td colspan="3" style="text-align: center;">No Attachment</td>
           </tr>
-          <?php endif; ?>
+          <?php } ?>
         </tbody>
       </table>
     </div>
@@ -133,32 +137,6 @@ $(document).ready(function(){
             }
         });  
   });
-
-  // $('.btn-delete-att').on('click',function(e){
-  //   $("#typeError").css('display','none');
-  //   $.ajax({
-  //     type: "GET",
-  //     url: $(this).data('href'),
-  //     // data: new FormData( this ),
-  //     processData: false,
-  //     contentType: false,
-  //     success: function(response){
-  //       var data = jQuery.parseJSON(response);
-  //       if (data.status == 1){
-  //         window.location.reload()
-  //       }else{
-  //         $("#typeError").css('display','block');
-  //         $("#typeError").html('Failed to delete attachment');
-  //       }
-  //     },
-  //     error: function (xhr, ajaxOptions, thrownError) {
-  //       console.log(xhr.status);
-  //       console.log(xhr.responseText);
-  //       console.log(thrownError);
-  //     }
-  //   });
-  // });
-
 })
 </script>
 <?php endblock() ?>
