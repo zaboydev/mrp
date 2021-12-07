@@ -35,6 +35,8 @@ class Payment_Report extends MY_Controller
       $total_usd_paid           = array();
       $total_idr_purposed       = array();
       $total_usd_purposed       = array();
+      $total_idr_balance        = array();
+      $total_usd_balance        = array();
 
       foreach ($entities as $row) {
         $attachment = $this->model->checkAttachment($row['id']);
@@ -42,7 +44,8 @@ class Payment_Report extends MY_Controller
         $col = array();
         $col[] = print_number($no);      
         $col[]  = print_string($row['no_transaksi']);      
-        $col[]  = print_string($row['po_number']);
+        $col[]  = print_string($row['po_number']);     
+        $col[]  = print_string($row['cash_credit']);
         $col[]  = print_string($row['vendor']);
         $col[]  = print_string($row['description']);
         $col[]  = print_string($row['status']);
@@ -53,20 +56,33 @@ class Payment_Report extends MY_Controller
         $col[]  = ($row['currency']!='IDR' && $row['status']=='APPROVED')?print_number($row['amount_paid'], 2):print_number(0, 2);
         $col[]  = ($row['currency']=='IDR' && $row['status']=='PAID')?print_number($row['amount_paid'], 2):print_number(0, 2);
         $col[]  = ($row['currency']!='IDR' && $row['status']=='PAID')?print_number($row['amount_paid'], 2):print_number(0, 2);
+        $col[]  = ($row['currency']=='IDR' && $row['status']!='PAID')?print_number($row['amount_paid'], 2):print_number(0, 2);
+        $col[]  = ($row['currency']!='IDR' && $row['status']!='PAID')?print_number($row['amount_paid'], 2):print_number(0, 2);
         
 
         if($row['currency']=='IDR' && $row['status']=='APPROVED'){
           $total_idr_unpaid[] = $row['amount_paid'];
-        }elseif($row['currency']!='IDR' && $row['status']=='APPROVED'){
+        }
+        if($row['currency']!='IDR' && $row['status']=='APPROVED'){
           $total_usd_unpaid[] = $row['amount_paid'];
-        }elseif($row['currency']=='IDR' && $row['status']=='PAID'){
+        }
+        if($row['currency']=='IDR' && $row['status']=='PAID'){
           $total_idr_paid[] = $row['amount_paid'];
-        }elseif($row['currency']!='IDR' && $row['status']=='PAID'){
+        }
+        if($row['currency']!='IDR' && $row['status']=='PAID'){
           $total_usd_paid[] = $row['amount_paid'];
-        }elseif($row['currency']=='IDR' && $row['status']!='PAID' && $row['status']!='APPROVED'){
+        }
+        if($row['currency']=='IDR' && $row['status']!='PAID' && $row['status']!='APPROVED'){
           $total_idr_purposed[] = $row['amount_paid'];
-        }elseif($row['currency']!='IDR' && $row['status']!='PAID' && $row['status']!='APPROVED'){
+        }
+        if($row['currency']!='IDR' && $row['status']!='PAID' && $row['status']!='APPROVED'){
           $total_usd_purposed[] = $row['amount_paid'];
+        }
+        if($row['currency']=='IDR' && $row['status']!='PAID'){
+          $total_idr_balance[] = $row['amount_paid'];
+        }
+        if($row['currency']!='IDR' && $row['status']!='PAID'){
+          $total_usd_balance[] = $row['amount_paid'];
         }
         
 
@@ -90,12 +106,14 @@ class Payment_Report extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFilteredReport(),
         "data"            => $data,
         "total"           => array(
-          7 => print_number(array_sum($total_idr_purposed), 2),
-          8 => print_number(array_sum($total_usd_purposed), 2),
-          9 => print_number(array_sum($total_idr_unpaid), 2),
-          10 => print_number(array_sum($total_usd_unpaid), 2),
-          11 => print_number(array_sum($total_idr_paid), 2),
-          12 => print_number(array_sum($total_usd_paid), 2),
+          8 => print_number(array_sum($total_idr_purposed), 2),
+          9 => print_number(array_sum($total_usd_purposed), 2),
+          10 => print_number(array_sum($total_idr_unpaid), 2),
+          11 => print_number(array_sum($total_usd_unpaid), 2),
+          12 => print_number(array_sum($total_idr_paid), 2),
+          13 => print_number(array_sum($total_usd_paid), 2),
+          14 => print_number(array_sum($total_idr_balance), 2),
+          15 => print_number(array_sum($total_usd_balance), 2),
         )
       );
     }
@@ -112,7 +130,7 @@ class Payment_Report extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsReport());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(7,8,9,10,11,12);
+    $this->data['grid']['summary_columns']  = array(8,9,10,11,12,13,14,15);
 
     // $this->data['grid']['order_columns']    = array();
     $this->data['grid']['order_columns']    = array(

@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['purchase_order']['visible']        = TRUE;
-$config['module']['purchase_order']['main_warehouse'] = TRUE;
+$config['module']['purchase_order']['main_warehouse'] = FALSE;
 $config['module']['purchase_order']['parent']         = 'procurement';
 $config['module']['purchase_order']['label']          = 'Purchase Order';
 $config['module']['purchase_order']['name']           = 'purchase_order';

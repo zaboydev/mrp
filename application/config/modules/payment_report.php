@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['payment_report']['visible']        = TRUE;
-$config['module']['payment_report']['main_warehouse'] = TRUE;
+$config['module']['payment_report']['main_warehouse'] = FALSE;
 $config['module']['payment_report']['parent']         = 'account_payable';
 $config['module']['payment_report']['label']          = 'Payment Report';
 $config['module']['payment_report']['name']           = 'Payment Report';

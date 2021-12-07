@@ -384,7 +384,7 @@ class Payment_Model extends MY_MODEL
 				}				
 				$this->db->set('id_po', $id_po);
 				$this->db->set('po_payment_id', $po_payment_id);
-				$this->db->set('deskripsi', $desc[$key]);
+				$this->db->set('deskripsi', $desc_items[$key]);
 				$this->db->set('amount_paid', $value_items[$key]);
 				$this->db->set('created_by', config_item('auth_person_name'));
 				$this->db->set('no_cheque', null);
@@ -671,12 +671,13 @@ class Payment_Model extends MY_MODEL
 			'tb_po.default_currency',
 			'tb_po.tipe_po',
 			'tb_po.due_date',
+			'tb_po.tipe'
 			
 		);
 
 		$this->db->select($select);
 		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		$this->db->where('tb_purchase_order_items_payments.po_payment_id', $id);
 		$this->db->order_by('tb_purchase_order_items_payments.id_po','asc');
 
@@ -1077,6 +1078,8 @@ class Payment_Model extends MY_MODEL
 		$amount 		= $this->input->post('amount');
 		$no_jurnal 		= $this->input->post('no_transaksi');
 		$currency 		= $this->input->post('currency');
+		$no_konfirmasi 	= $this->input->post('no_konfirmasi');
+		$paid_base 		= $this->input->post('paid_base');
 		$kurs 			= $this->tgl_kurs(date("Y-m-d"));
 		$tipe 			= $this->input->post('tipe');
 		$po_payment_id 			= $this->input->post('po_payment_id');
@@ -1112,6 +1115,8 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('coa_kredit', $account);
 		$this->db->set('no_cheque', $no_cheque);
 		$this->db->set('akun_kredit', $jenis);
+		$this->db->set('no_konfirmasi', $no_konfirmasi);
+		$this->db->set('paid_base', $paid_base);
 		$this->db->set('status', "PAID");
 		$this->db->set('paid_by', config_item('auth_person_name'));
 		$this->db->set('paid_at', date("Y-m-d",strtotime($tanggal)));
@@ -1219,6 +1224,14 @@ class Payment_Model extends MY_MODEL
 				$this->db->update('tb_po');
 			}
 		}
+
+		foreach ($_SESSION["payment"]["attachment"] as $file) {
+			$this->db->set('id_poe', $po_payment_id);
+			$this->db->set('tipe', "PAYMENT");
+			$this->db->set('file', $file);
+			$this->db->set('tipe_att', "PAYMENT");
+			$this->db->insert('tb_attachment_poe');
+		}
 		if ($this->db->trans_status() === FALSE)
 			return FALSE;
 
@@ -1228,38 +1241,51 @@ class Payment_Model extends MY_MODEL
 
 	public function listAttachment($id)
 	{
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_purchase_order_items_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['no_transaksi'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_purchase_order_items_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['no_transaksi'];
 
-		$this->db->where('no_transaksi', $no_transaksi);
-		return $this->db->get('tb_attachment_payment')->result();
+		// $this->db->where('no_transaksi', $no_transaksi);
+		// return $this->db->get('tb_attachment_payment')->result();
+
+		$this->db->where('id_poe', $id);
+		$this->db->where('tipe', 'PAYMENT');
+		return $this->db->get('tb_attachment_poe')->result();
 	}
 
 	public function listAttachment_2($id)
 	{
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_po_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['document_number'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_po_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['document_number'];
 
-		$this->db->where('no_transaksi', $no_transaksi);
-		return $this->db->get('tb_attachment_payment')->result_array();
+		// $this->db->where('no_transaksi', $no_transaksi);
+		// return $this->db->get('tb_attachment_payment')->result_array();
+		$this->db->where('id_poe', $id);
+		$this->db->where('tipe', 'PAYMENT');
+		return $this->db->get('tb_attachment_poe')->result_array();
 	}
 
 	function add_attachment_to_db($id, $url)
 	{
 		$this->db->trans_begin();
 
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_po_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['document_number'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_po_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['document_number'];
 
-		$this->db->set('no_transaksi', $no_transaksi);
+		// $this->db->set('no_transaksi', $no_transaksi);
+		// $this->db->set('file', $url);
+		// $this->db->insert('tb_attachment_payment');
+
+		$this->db->set('id_poe', $id);
+		$this->db->set('tipe', "PAYMENT");
 		$this->db->set('file', $url);
-		$this->db->insert('tb_attachment_payment');
+		$this->db->set('tipe_att', "PAYMENT");
+		$this->db->insert('tb_attachment_poe');
 
 		if ($this->db->trans_status() === FALSE)
 			return FALSE;
@@ -1270,16 +1296,35 @@ class Payment_Model extends MY_MODEL
 
 	public function checkAttachment($id)
 	{
-		$this->db->where('id', $id);
-		$query    = $this->db->get('tb_po_payments');
-		$payment_item = $query->unbuffered_row('array');
-		$no_transaksi = $payment_item['document_number'];
+		// $this->db->where('id', $id);
+		// $query    = $this->db->get('tb_po_payments');
+		// $payment_item = $query->unbuffered_row('array');
+		// $no_transaksi = $payment_item['document_number'];
 
-		$this->db->where('no_transaksi', $no_transaksi);
-		$this->db->from('tb_attachment_payment');
+		// $this->db->where('no_transaksi', $no_transaksi);
+		// $this->db->from('tb_attachment_payment');
+		// $num_rows = $this->db->count_all_results();
+
+		$this->db->where('id_poe', $id);
+		$this->db->where('tipe', 'PAYMENT');
+		$this->db->from('tb_attachment_poe');
 		$num_rows = $this->db->count_all_results();
 
 		return $num_rows;
+	}
+
+	function delete_attachment_in_db($id_att)
+	{
+		$this->db->trans_begin();
+
+		$this->db->where('id', $id_att);
+		$this->db->delete('tb_attachment_poe');
+
+		if ($this->db->trans_status() === FALSE)
+		return FALSE;
+
+		$this->db->trans_commit();
+		return TRUE;
 	}
 
 	public function getNotifRecipient($level)
@@ -1481,6 +1526,7 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.id'                          						=> NULL,
 			'tb_po_payments.document_number as no_transaksi'             		=> 'Transaction Number',
 			'tb_po.document_number as po_number'               					=> '#PO',
+			'tb_po.tipe as cash_credit'               							=> 'Cash/Credit',
 			'tb_po_payments.vendor'                   							=> 'Vendor',
 			'tb_purchase_order_items_payments.deskripsi as description'			=> 'Description',
 			'tb_po_payments.status'	                     						=> 'Status',
@@ -1491,6 +1537,8 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.paid_by'							=> 'Unpaid USD',
 			'tb_purchase_order_items_payments.checked_by'						=> 'Paid IDR',
 			'tb_purchase_order_items_payments.approved_by'						=> 'Paid USD',
+			'tb_po_payments.no_konfirmasi'										=> 'Balance IDR',
+			'tb_po_payments.paid_base'											=> 'Balance USD',
 		);
 
 		return $return;
@@ -1516,11 +1564,14 @@ class Payment_Model extends MY_MODEL
 		$return = array(
 			null,//'tb_po_payments.id',
 			'tb_po_payments.document_number',
+			null,
 			'tb_po.document_number',
 			'tb_po_payments.vendor',
 			'tb_purchase_order_items_payments.deskripsi',
 			'tb_po_payments.status',
 			'tb_po_payments.currency',
+            null,//'tb_purchase_order_items_payments.amount_paid',
+			null,//'tb_po_payments.akun_kredit',
             null,//'tb_purchase_order_items_payments.amount_paid',
 			null,//'tb_po_payments.akun_kredit',
 		);
@@ -1628,7 +1679,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumnsReport()));
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 
@@ -1663,7 +1714,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumnsReport()));
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 
@@ -1679,7 +1730,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumnsReport()));
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 

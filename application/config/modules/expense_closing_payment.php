@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['expense_closing_payment']['visible']        = TRUE;
-$config['module']['expense_closing_payment']['main_warehouse'] = TRUE;
+$config['module']['expense_closing_payment']['main_warehouse'] = FALSE;
 $config['module']['expense_closing_payment']['parent']         = 'expense';
 $config['module']['expense_closing_payment']['label']          = 'Expense Closing Payment';
 $config['module']['expense_closing_payment']['name']           = 'Expense Closing Payment';
