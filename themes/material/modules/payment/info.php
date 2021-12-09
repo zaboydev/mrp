@@ -363,6 +363,21 @@
         <i class="md md-attach-file"></i>
         <small class="top right">Manage Attachment</small>
       </a>
+      <?php if (is_granted($module, 'cancel')) : ?>
+      <?php if ($entity['status']!='PAID' && $entity['status']!='APPROVED' && $entity['status']!='REJECTED') : ?>
+      <?=form_open(current_url(), array(
+        'class' => 'form-xhr-cancel pull-left',
+      ));?>
+        <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+        <input type="hidden" name="cancel_notes" id="cancel_notes" class="form-control">
+
+        <a href="<?=site_url($module['route'] .'/cancel_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-cancel btn-tooltip ink-reaction" id="modal-cancel-data-button">
+          <i class="md md-close"></i>
+          <small class="top left">Cancel</small>
+        </a>
+      <?=form_close();?>
+      <?php endif; ?>
+      <?php endif; ?>
     </div>
     <div class="pull-right">
       <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>

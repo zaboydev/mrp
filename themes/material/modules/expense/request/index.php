@@ -1037,12 +1037,12 @@
             }
             button.attr('disabled', true);
 
-            // let notes = prompt("Please enter cancel notes", "");
-            // $('form.form-xhr-cancel input[name=cancel_notes]').val(notes);
+            let notes = prompt("Please enter notes", "");
+            $('form.form-xhr-change input[name=change_notes]').val(notes);
 
-            var form = $('.form-xhr-cancel');
+            var form = $('.form-xhr-change');
             var action = button.attr('href');
-            if (confirm('Expense Request ini merupakasn expense request '+last_type+'? Anda yakin akan mengubah request ini menjadi request '+next_type+'?')) {
+            if (confirm('Expense Request ini merupakan expense request '+last_type+'? Anda yakin akan mengubah request ini menjadi request '+next_type+'?')) {
               
               $.post(action, form.serialize()).done(function(data) {
                 var obj = $.parseJSON(data);
