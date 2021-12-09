@@ -250,11 +250,11 @@
       <?php endif; ?>
     </div>
     <div class="pull-right">
-      <?php if (is_granted($module, 'document')):?>
+      <?php if (is_granted($module, 'document_change')):?>
         <?php if ($entity['status']!='rejected' && $entity['status']!='canceled' && $entity['status']!='revisi' && $entity['status']!='close'):?>
         <?php if ($entity['cancel']) : ?>
         <?=form_open(current_url(), array(
-            'class' => 'form-xhr-cancel pull-left',
+            'class' => 'form-xhr-change pull-left',
           ));?>
           <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
           <input type="hidden" name="change_notes" id="change_notes" class="form-control">
