@@ -1762,7 +1762,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->trans_begin();
 
         $id = $this->input->post('id');
-        // $notes = $this->input->post('notes');
+        $notes = $this->input->post('notes');
 
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->where('id', $id);
@@ -1780,6 +1780,7 @@ class Expense_Request_Model extends MY_Model
                 $level = 14;
             }            
             $this->connection->set('with_po', 'f');
+            $this->connection->set('change_notes', $notes);
             $this->connection->where('id', $id);
             $this->connection->update('tb_expense_purchase_requisitions');  
         }else{
@@ -1793,6 +1794,7 @@ class Expense_Request_Model extends MY_Model
                 $this->connection->set('status', 'approved');
             }            
             $this->connection->set('with_po', 't');
+            $this->connection->set('change_notes', $notes);
             $this->connection->where('id', $id);
             $this->connection->update('tb_expense_purchase_requisitions'); 
         }

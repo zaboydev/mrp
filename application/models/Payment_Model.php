@@ -1741,6 +1741,72 @@ class Payment_Model extends MY_MODEL
 
 		return $query->num_rows();
 	}
+
+	public function cancel()
+	{
+		$this->db->trans_begin();
+
+		$id = $this->input->post('id');
+        $notes = $this->input->post('notes');
+
+		$this->db->select('tb_po_payments.*');
+        $this->db->from('tb_po_payments');
+        $this->db->where('tb_po_payments.id',$id);
+        $query    		= $this->db->get();
+		$po_payment  	= $query->unbuffered_row('array');
+		$total 			= $this->countTotalPayment($id);
+		$currency 		= $po_payment['currency'];
+		$level 			= 0;
+
+		if($po_payment['status']!='CANCELED'){
+			$this->db->set('status', 'CANCELED');
+			$this->db->set('canceled_by', config_item('auth_person_name'));
+			$this->db->set('canceled_at', date('Y-m-d'));
+			$this->db->where('id', $id);
+			$this->db->update('tb_po_payments');
+			$status = 'CANCELED';
+		}		
+
+		$this->db->select('tb_purchase_order_items_payments.*');
+        $this->db->from('tb_purchase_order_items_payments');
+        $this->db->where('tb_purchase_order_items_payments.po_payment_id',$id);
+		$query    		= $this->db->get();
+		
+		foreach ($query->result_array() as $key => $item) {
+			$id_po = $item['id_po'];
+			$value = $item["amount_paid"]+$item["adj_value"];
+			if($item['purchase_order_item_id']!==null){
+				$this->db->set('left_paid_request', '"left_paid_request" + ' . $value, false);
+				$this->db->where('id', $item["purchase_order_item_id"]);
+				$this->db->update('tb_po_item');
+			}else{
+				$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" + ' . $value, false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
+			}
+			if($item['id_po']!=0){
+				$this->db->set('remaining_payment_request', '"remaining_payment_request" + ' . $value, false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
+			}
+			
+		}
+
+		$this->db->set('status', $status);
+		$this->db->where('po_payment_id', $id);
+		$this->db->update('tb_purchase_order_items_payments');
+
+
+		// $this->db->set('status', 'REJECTED');
+		// $this->db->where('id', $id);
+		// $this->db->update('tb_purchase_order_items_payments');
+
+		if ($this->db->trans_status() === FALSE)
+			return FALSE;
+
+		$this->db->trans_commit();
+		return TRUE;
+	}
 }
 
 /* End of file Payment_Model.php */
