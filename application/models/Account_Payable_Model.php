@@ -137,7 +137,7 @@ class Account_Payable_Model extends MY_Model
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_po');
     $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED','ADVANCE']);
-    $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     // $this->db->join('tb_po_item','tb_po.purchase_order_id=tb_po_item.id');
     // $this->db->group_by($this->getGroupedColumns());
     $this->searchIndex();
@@ -169,7 +169,7 @@ class Account_Payable_Model extends MY_Model
   {
     $this->db->from('tb_po');
     $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED', 'ADVANCE']);
-    $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -181,7 +181,7 @@ class Account_Payable_Model extends MY_Model
   {
     $this->db->from('tb_po');
     $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'CLOSED', 'ADVANCE']);
-    $this->db->where_in('tb_po.category', config_item('auth_inventory'));
+    // $this->db->where_in('tb_po.category', config_item('auth_inventory'));
     $query = $this->db->get();
 
     return $query->num_rows();
