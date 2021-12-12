@@ -185,6 +185,7 @@
                     <?=print_string($detail['description']);?> <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?> - <?=print_string($detail['document_number']);?> <?php endif; ?>
                   </td>
                 </tr><?php $total = array();?>
+                
                 <?php foreach ($detail['history'] as $i => $history):?>
                 <tr>
                   <?php 
@@ -380,8 +381,18 @@
       <?php endif; ?>
     </div>
     <div class="pull-right">
+      <?php if ($entity['revisi']=='t') : ?>
+      <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
+      <?php if (is_granted($module, 'document')) : ?>
+        <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+          <i class="md md-edit"></i>
+          <small class="top right">edit</small>
+        </a>
+      <?php endif; ?>
+      <?php endif; ?>
+      <?php endif; ?>
       <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>
-        <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+        <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
           <i class="md md-attach-money"></i>
           <small class="top right">payment</small>
         </a>

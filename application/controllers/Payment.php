@@ -116,7 +116,7 @@ class Payment extends MY_Controller
   public function index()
   {
     $this->authorized($this->module, 'index');
-    unset($_SESSION['receipt']['id']);
+    unset($_SESSION['payment_request']);
 
     $this->data['page']['title']            = $this->module['label'];
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
@@ -242,6 +242,23 @@ class Payment extends MY_Controller
     echo json_encode($data);
   }
 
+  public function update()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if ($this->model->update()) {
+      unset($_SESSION['payment_request']);
+      // $this->sendEmail();
+      $data['success'] = TRUE;
+      $data['message'] = 'Document has been saved. You will redirected now.';
+    } else {
+      $data['success'] = FALSE;
+      $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+    }
+    echo json_encode($data);
+  }
+
   public function save()
   {
     if (is_granted($this->module, 'document') == FALSE) {
@@ -348,6 +365,27 @@ class Payment extends MY_Controller
     }
 
     echo json_encode($return);
+  }
+
+  public function edit($id)
+  {
+    $this->authorized($this->module, 'document');
+
+    $entity = $this->model->findById($id);
+
+    $document_number  = sprintf('%06s', substr($entity['document_number'], 0, 6));
+
+    if (isset($_SESSION['payment_request']) === FALSE){
+      $_SESSION['payment_request']                     = $entity;
+      $_SESSION['payment_request']['id']               = $id;
+      $_SESSION['payment_request']['date']             = $entity['tanggal'];
+      $_SESSION['payment_request']['edit']             = $entity['document_number'];
+      $_SESSION['payment_request']['document_number']  = $document_number;
+      $_SESSION['payment_request']['total_amount']     = $this->model->countTotalPayment($id);
+    }
+
+    // redirect($this->module['route'] .'/create');
+    $this->render_view($this->module['view'] . '/edit');
   }
 
   public function multi_approve()
@@ -487,9 +525,9 @@ class Payment extends MY_Controller
 
   public function discard()
   {
-    $this->authorized($this->module['permission']['document']);
+    $this->authorized($this->module, 'document');
 
-    unset($_SESSION['payment']);
+    unset($_SESSION['payment_request']);
 
     redirect($this->module['route']);
   }
