@@ -814,7 +814,7 @@
           }
         });
       }
-    });
+  });
 
   function clearForm() {
     console.log(123)

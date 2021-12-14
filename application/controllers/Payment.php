@@ -230,15 +230,26 @@ class Payment extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if ($this->model->save_2()) {
-      unset($_SESSION['payment_request']);
-      // $this->sendEmail();
-      $data['success'] = TRUE;
-      $data['message'] = 'Document has been saved. You will redirected now.';
-    } else {
-      $data['success'] = FALSE;
-      $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+    $errors = array();
+
+    if ($this->input->post('amount')==0){
+      $errors[] = 'Amount Purposed Tidak Boleh 0 !!';
     }
+
+    if (!empty($errors)){
+      $data['success'] = FALSE;
+      $data['message'] = implode('<br />', $errors);
+    } else {
+      if ($this->model->save_2()) {
+        unset($_SESSION['payment_request']);
+        // $this->sendEmail();
+        $data['success'] = TRUE;
+        $data['message'] = 'Document has been saved. You will redirected now.';
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      }
+    }    
     echo json_encode($data);
   }
 
@@ -247,14 +258,25 @@ class Payment extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if ($this->model->update()) {
-      unset($_SESSION['payment_request']);
-      // $this->sendEmail();
-      $data['success'] = TRUE;
-      $data['message'] = 'Document has been saved. You will redirected now.';
-    } else {
+    $errors = array();
+
+    if ($this->input->post('amount')==0){
+      $errors[] = 'Amount Purposed Tidak Boleh 0 !!';
+    }
+
+    if (!empty($errors)){
       $data['success'] = FALSE;
-      $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      $data['message'] = implode('<br />', $errors);
+    } else {
+      if ($this->model->update()) {
+        unset($_SESSION['payment_request']);
+        // $this->sendEmail();
+        $data['success'] = TRUE;
+        $data['message'] = 'Document has been saved. You will redirected now.';
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      }
     }
     echo json_encode($data);
   }
