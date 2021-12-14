@@ -40,7 +40,19 @@ class Payment extends MY_Controller
           if ($row['status'] == 'WAITING CHECK BY FIN SPV' && config_item('auth_role')=='FINANCE SUPERVISOR') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }else if ($row['status'] == 'WAITING REVIEW BY FIN MNG' && config_item('auth_role')=='FINANCE MANAGER') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            if(config_item('auth_warehouse')=='JAKARTA'){
+              if($row['base']=='JAKARTA'){
+                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+              }else{
+                $col[] = print_number($no);
+              }
+            }else{
+              if($row['base']!='JAKARTA'){
+                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+              }else{
+                $col[] = print_number($no);
+              }
+            }
           }else if ($row['status'] == 'WAITING REVIEW BY HOS' && config_item('auth_role')=='HEAD OF SCHOOL') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }else if ($row['status'] == 'WAITING REVIEW BY VP FINANCE' && config_item('auth_role')=='VP FINANCE') {
@@ -74,6 +86,7 @@ class Payment extends MY_Controller
         $col[] = $attachment == 0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
                        <i class="fa fa-eye"></i>
                      </a>';
+        $col[]  = print_string($row['base']);
         $col[]  = print_string($row['created_by']);
         $col[]  = print_date($row['created_at']);
 

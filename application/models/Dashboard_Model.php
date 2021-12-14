@@ -582,6 +582,14 @@ class Dashboard_Model extends MY_Model
     $this->db->from('tb_po_payments');
 		// $this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
     $this->db->where_in('tb_po_payments.status', $status);
+    if($role=='FINANCE MANAGER'){
+      $base = config_item('auth_warehouse');
+			if($base!='JAKARTA'){
+				$this->db->where('tb_po_payments.base !=','JAKARTA');
+			}elseif($base=='JAKARTA'){
+				$this->db->where('tb_po_payments.base','JAKARTA');
+			}
+    }
     $query = $this->db->get();
 
     return $query->num_rows();
