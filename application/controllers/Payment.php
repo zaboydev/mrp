@@ -862,4 +862,18 @@ class Payment extends MY_Controller
     echo json_encode($alert);
   }
 
+  public function view_manage_attachment_po($po_id,$tipe)
+  {
+    if($tipe=='EXPENSE'){
+      redirect('expense_purchase_order/manage_attachment/'.$po_id);
+    }elseif($tipe=='CAPEX'){
+      redirect('capex_purchase_order/manage_attachment/'.$po_id);
+    }elseif($tipe=='INVENTORY'){
+      redirect('inventory_purchase_order/manage_attachment/'.$po_id);
+    }else{
+      redirect('purchase_order/manage_attachment/'.$po_id);
+    }
+    
+  }
+
 }
