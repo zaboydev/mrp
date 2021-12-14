@@ -11,8 +11,8 @@ $no_item = 1; ?>
         <td><?= print_number($detail['payment'], 2) ?></td>
         <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment_request'] ?>" type="hidden"><?= print_number($detail['remaining_payment_request'], 2) ?></td>
         <td><input id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="0"></td>
-        <td><button type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="fa fa-angle-right"></i></button></td>
-        <td><a onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
+        <td><button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="fa fa-angle-right"></i></button></td>
+        <td><a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
         <td></td>
     </tr>
     <div id="list_detail_po">
