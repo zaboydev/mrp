@@ -450,6 +450,7 @@
         'class' => 'form-xhr-cancel pull-left',
       ));?>
         <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+        <input type="hidden" name="cancel_notes" id="cancel_notes" class="form-control">
 
         <a href="<?=site_url($module['route'] .'/cancel_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-cancel btn-tooltip ink-reaction" id="modal-cancel-data-button">
           <i class="md md-close"></i>
