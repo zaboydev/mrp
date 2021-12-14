@@ -103,16 +103,26 @@
   </div>
 
   <div class="form-group">
+    <label for="start_date">Base</label>
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="5">
+      <option value="WISNU"  <?php if (config_item('auth_warehouse') != 'JAKARTA'):echo 'selected'; endif;?>>Bali</option>
+      <option value="JAKARTA" <?php if (config_item('auth_warehouse') == 'JAKARTA'):echo 'selected'; endif;?>>Jakarta</option>
+      <option value="ALL">All Base</option> 
+    </select>
+  </div>
+
+  <div class="form-group">
     <label for="start_date">Status</label>
     <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
       <option value="all">All Status</option>
-      <option value="WAITING CHECK BY FIN SPV"<?php if (config_item('auth_role') == 'FINANCE SUPERVISOR'):echo 'selected'; endif;?>>Waiting Check By Fin Spv</option>
+      <option value="WAITING CHECK BY FIN SPV" <?php if (config_item('auth_role') == 'FINANCE SUPERVISOR'):echo 'selected'; endif;?>>Waiting Check By Fin Spv</option>
       <option value="WAITING REVIEW BY FIN MNG"<?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review By Fin Mng</option>
-      <option value="WAITING REVIEW BY FIN HOS"<?php if (config_item('auth_role') == 'HEAD OF SCHOOL'):echo 'selected'; endif;?>>Waiting Review By Head Of School</option>
-      <option value="WAITING REVIEW BY COO"<?php if (config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>Waiting Review By COO</option>
+      <!-- <option value="WAITING REVIEW BY FIN HOS"<?php if (config_item('auth_role') == 'HEAD OF SCHOOL'):echo 'selected'; endif;?>>Waiting Review By Head Of School</option> -->
+      <option value="WAITING REVIEW BY CEO"<?php if (config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>Waiting Review By CEO</option>
       <option value="WAITING REVIEW BY VP FINANCE"<?php if (config_item('auth_role') == 'VP FINANCE'):echo 'selected'; endif;?>>Waiting Review By VP Finance</option>
       <option value="WAITING REVIEW BY CFO"<?php if (config_item('auth_role') == 'CHIEF OF FINANCE'):echo 'selected'; endif;?>>Waiting Review By CFO</option>
       <option value="APPROVED"<?php if (config_item('auth_role') == 'TELLER'):echo 'selected'; endif;?>>Approved</option>
+      <option value="REVISI">Revisi</option>
       <option value="PAID">Paid</option>
       <option value="REJECTED">Rejected</option>
     </select>
@@ -721,14 +731,14 @@
         
         console.log(id_purchase_order);
 
-      } else if (e.target.nodeName === "SPAN") {
-        var a = $(e.target).data('id');
-        console.log(e.target.nodeName);
-        // console.log(price);
-        ///////////////////////////////////////eventdefault
       } else if (e.target.nodeName === "I") {
         var id = $(this).attr('data-id');
         getAttachment(id);
+      } else if (e.target.nodeName === "SPAN") {
+        // var a = $(e.target).data('id');
+        // console.log(e.target.nodeName);
+        // console.log(price);
+        ///////////////////////////////////////eventdefault
       } else {
         $(this).popup();
       }

@@ -158,7 +158,8 @@
                 <th width="7%" class="middle-alignment">Purposed Amount</th>
                 <th width="7%" class="middle-alignment">Remaining Purposed</th>
                 <th width="8%" class="middle-alignment">Amount Purposed</th>
-                <th width="5%" class="middle-alignment"></th>
+                <th width="3%" class="middle-alignment"></th>
+                <th width="3%" class="middle-alignment"></th>
                 <th width="8%" class="middle-alignment">Adjustment</th>
               </tr>
             </thead>
@@ -813,7 +814,7 @@
           }
         });
       }
-    });
+  });
 
   function clearForm() {
     console.log(123)

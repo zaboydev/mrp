@@ -28,6 +28,7 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.akun_kredit'   										=> 'Amount USD',
 			'tb_po_payments.status'	                     						=> 'Status',
 			NULL											           			=> 'Attachment',
+			'tb_po_payments.base'                     							=> 'Base',
 			'tb_po_payments.created_by'           								=> 'Created by',
 			'tb_po_payments.created_at'                     					=> 'Created At',
 		);
@@ -49,7 +50,8 @@ class Payment_Model extends MY_MODEL
 			// 'tb_purchase_order_items_payments.amount_paid',
 			'tb_po_payments.created_by',
 			'tb_po_payments.vendor',
-			'tb_po_payments.status'
+			'tb_po_payments.status',
+			'tb_po_payments.base'
 			// 'tb_purchase_order_items_payments.created_at',
 		);
 
@@ -69,6 +71,7 @@ class Payment_Model extends MY_MODEL
 			// 'tb_purchase_order_items_payments.deskripsi',
 			'tb_po_payments.currency',
 			// 'tb_purchase_order_items_payments.amount_paid',
+			'tb_po_payments.base',
 			'tb_po_payments.created_by',
 			'tb_po_payments.created_at'
 		);
@@ -86,6 +89,7 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.vendor',
 			'tb_po_payments.currency',
 			'tb_po_payments.status',
+			'tb_po_payments.base',
 			'tb_po_payments.created_by',
 			'tb_po_payments.created_at',
 			'tb_po_payments.akun_kredit'
@@ -135,7 +139,7 @@ class Payment_Model extends MY_MODEL
 					$status[] = 'WAITING REVIEW BY HOS';
 				}
 				if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
-					$status[] = 'WAITING REVIEW BY COO';
+					$status[] = 'WAITING REVIEW BY CEO';
 				}
 				if (config_item('auth_role') == 'VP FINANCE') {
 					$status[] = 'WAITING REVIEW BY VP FINANCE';
@@ -150,6 +154,28 @@ class Payment_Model extends MY_MODEL
 					$this->db->where_in('tb_po_payments.status', $status);
 				}
 			}		
+			
+		}
+
+		if (!empty($_POST['columns'][5]['search']['value'])) {
+			$base = $_POST['columns'][5]['search']['value'];
+			if($base!='ALL'){
+				if($base!='JAKARTA'){
+					$this->db->where('tb_po_payments.base !=','JAKARTA');
+				}elseif($base=='JAKARTA'){
+					$this->db->where('tb_po_payments.base','JAKARTA');
+				}	
+			}
+					
+		} else {
+			if(config_item('auth_role') == 'AP STAFF' || config_item('auth_role') == 'FINANCE MANAGER'){
+				$base = config_item('auth_warehouse');
+				if($base!='JAKARTA'){
+					$this->db->where('tb_po_payments.base !=','JAKARTA');
+				}elseif($base=='JAKARTA'){
+					$this->db->where('tb_po_payments.base','JAKARTA');
+				}	
+			}
 			
 		}
 
@@ -179,9 +205,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumns()));
 		$this->db->from('tb_po_payments');
 		$this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
-            $this->connection->where_in('tb_po_payments.base', config_item('auth_warehouses'));
-        }        
+		// if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
+        //     $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
+        // }        
 		// $this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		$this->db->group_by($this->getGroupedColumns());
@@ -217,9 +243,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumns()));
 		$this->db->from('tb_po_payments');
 		$this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
-            $this->connection->where_in('tb_po_payments.base', config_item('auth_warehouses'));
-		}
+		// if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
+        //     $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
+		// }
 		// $this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		$this->db->group_by($this->getGroupedColumns());
@@ -236,9 +262,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->select(array_keys($this->getSelectedColumns()));
 		$this->db->from('tb_po_payments');
 		$this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
-            $this->connection->where_in('tb_po_payments.base', config_item('auth_warehouses'));
-		}
+		// if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
+        //     $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
+		// }
 		// $this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		$this->db->group_by($this->getGroupedColumns());
@@ -252,7 +278,7 @@ class Payment_Model extends MY_MODEL
 	{
 		$this->db->select('group,coa');
 		$this->db->from('tb_master_coa');
-		$this->db->like('group', $currency);
+		// $this->db->like('group', $currency);
 		$this->db->where('category', "Bank");
 		return $this->db->get('')->result();
 	}
@@ -375,6 +401,9 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('created_at', date('Y-m-d'));
 			$this->db->set('base', $base);
 			$this->db->set('notes', $notes);
+			if($base=='JAKARTA'){
+				$this->db->set('status','WAITING REVIEW BY FIN MNG');
+			}
 			$this->db->insert('tb_po_payments');
 			$po_payment_id = $this->db->insert_id();
 		}else{
@@ -436,7 +465,7 @@ class Payment_Model extends MY_MODEL
 
 		$this->db->trans_commit();
 		if($base=='JAKARTA'){
-			$this->send_mail($po_payment_id,14);
+			$this->send_mail($po_payment_id,14,$base);
 		}else{
 			$this->send_mail($po_payment_id,26);
 		}
@@ -530,6 +559,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('base', $base);
 		$this->db->set('notes', $notes);
 		$this->db->set('revisi', 'f');
+		if($base=='JAKARTA'){
+				$this->db->set('status','WAITING REVIEW BY FIN MNG');
+			}
 		$this->db->insert('tb_po_payments');
 		$po_payment_id = $this->db->insert_id();
 		$id_payment = array();
@@ -593,7 +625,7 @@ class Payment_Model extends MY_MODEL
 
 		$this->db->trans_commit();
 		if($base=='JAKARTA'){
-			$this->send_mail($po_payment_id,14);
+			$this->send_mail($po_payment_id,14,$base);
 		}else{
 			$this->send_mail($po_payment_id,26);
 		}
@@ -696,7 +728,7 @@ class Payment_Model extends MY_MODEL
 
 		$this->db->trans_commit();
 		if($base=='JAKARTA'){
-			$this->send_mail($po_payment_id,14);
+			$this->send_mail($po_payment_id,14,$base);
 		}else{
 			$this->send_mail($po_payment_id,26);
 		}
@@ -1181,7 +1213,7 @@ class Payment_Model extends MY_MODEL
 			return FALSE;
 
 		if($level!=0){
-			$this->send_mail($id,$level);
+			$this->send_mail($id,$level,$po_payment['base']);
 		}
 		$this->db->trans_commit();
 		return TRUE;
@@ -1521,11 +1553,18 @@ class Payment_Model extends MY_MODEL
 		return TRUE;
 	}
 
-	public function getNotifRecipient($level)
+	public function getNotifRecipient($level,$base=null)
 	{
 		$this->db->select('email');
 		$this->db->from('tb_auth_users');
 		$this->db->where('auth_level', $level);
+		if($level==14){
+			if($base=='JAKARTA'){
+				$this->db->where('warehouse', $base);
+			}else{
+				$this->db->where('warehouse !=', 'JAKARTA');
+			}			
+		}
 		return $this->db->get('')->result();
 	}
 
@@ -1582,14 +1621,14 @@ class Payment_Model extends MY_MODEL
 		return $this->email->print_debugger();
 	}
 
-	public function send_mail($doc_id, $level)
+	public function send_mail($doc_id, $level,$base=null)
     {
 		$this->db->select(
 			array(
 			'tb_po.document_number',
 			'tb_purchase_order_items_payments.deskripsi',
 			'tb_purchase_order_items_payments.tanggal',
-			'tb_purchase_order_items_payments.no_transaksi',
+			'tb_po_payments.document_number as no_transaksi',
 			'tb_purchase_order_items_payments.amount_paid',
 			'tb_po_payments.currency',
 			)
@@ -1616,7 +1655,11 @@ class Payment_Model extends MY_MODEL
 		}
         
 
-        $recipientList = $this->getNotifRecipient($level);
+		if($base!=null){
+			$recipientList = $this->getNotifRecipient($level,$base);
+		}else{
+			$recipientList = $this->getNotifRecipient($level);
+		}		
         $recipient = array();
         foreach ($recipientList as $key) {
           array_push($recipient, $key->email);
