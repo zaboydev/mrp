@@ -278,7 +278,7 @@ class Payment_Model extends MY_MODEL
 	{
 		$this->db->select('group,coa');
 		$this->db->from('tb_master_coa');
-		$this->db->like('group', $currency);
+		// $this->db->like('group', $currency);
 		$this->db->where('category', "Bank");
 		return $this->db->get('')->result();
 	}

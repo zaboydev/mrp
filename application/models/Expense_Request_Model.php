@@ -291,7 +291,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE){
+        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
@@ -334,7 +334,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE){
+        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
@@ -358,7 +358,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE){
+        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));

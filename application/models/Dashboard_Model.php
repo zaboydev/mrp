@@ -609,4 +609,15 @@ class Dashboard_Model extends MY_Model
     return $query->num_rows();
   }
 
+  public function count_ap_expense(){
+    $this->connection->from('tb_expense_purchase_requisitions');
+    $this->connection->where('tb_expense_purchase_requisitions.with_po','f');
+    $this->connection->where_in('tb_expense_purchase_requisitions.status', ['approved']);
+    $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+    // $this->db->where_in('tb_po.tipe_po', $tipe_po);
+    $query = $this->connection->get();
+
+    return $query->num_rows();
+  }
+
 }

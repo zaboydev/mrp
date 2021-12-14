@@ -67,7 +67,7 @@ class Payment extends MY_Controller
         }else{
           $col[] = print_number($no);
         }        
-        $col[]  = print_string($row['no_transaksi']);
+        $col[]  = '<a href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
         $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['no_cheque']);
         // $col[]  = print_string($row['document_number']);

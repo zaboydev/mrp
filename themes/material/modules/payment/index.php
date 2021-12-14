@@ -731,14 +731,14 @@
         
         console.log(id_purchase_order);
 
-      } else if (e.target.nodeName === "SPAN") {
-        var a = $(e.target).data('id');
-        console.log(e.target.nodeName);
-        // console.log(price);
-        ///////////////////////////////////////eventdefault
       } else if (e.target.nodeName === "I") {
         var id = $(this).attr('data-id');
         getAttachment(id);
+      } else if (e.target.nodeName === "SPAN") {
+        // var a = $(e.target).data('id');
+        // console.log(e.target.nodeName);
+        // console.log(price);
+        ///////////////////////////////////////eventdefault
       } else {
         $(this).popup();
       }

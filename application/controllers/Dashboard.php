@@ -61,6 +61,7 @@ class Dashboard extends MY_Controller
     $this->data['count_payment_request']                        = $this->model->count_payment_request(config_item('auth_role'));
     $this->data['ap_maintenance']                               = $this->model->count_ap('maintenance');
     $this->data['ap_local']                                     = $this->model->count_ap('local');
+    $this->data['ap_expense']                                     = $this->model->count_ap_expense();
     
     $this->base_theme = $this->module['view'] .'/other';
     $this->render_view();
