@@ -2228,10 +2228,14 @@ class Purchase_Order_Model extends MY_Model
   {
     $this->db->trans_begin();
 
-    $id = $this->input->post('id');
+    $id     = $this->input->post('id');
+    $notes  = $this->input->post('cancel_notes');
 
     $this->db->set('status', 'CANCEL');
     $this->db->set('review_status', 'CANCEL');
+    $this->db->set('cancel_by', config_item('auth_person_name'));
+    $this->db->set('cancel_at', date('Y-m-d H:i:s'));
+    $this->db->set('cancel_notes', $notes);
     $this->db->where('id', $id);
     $this->db->update('tb_po');
 
