@@ -1013,6 +1013,10 @@
       e.preventDefault();
 
       var button = $(this);
+
+      let notes = prompt("Please enter cancel notes", "");
+      $('form.form-xhr-cancel input[name=cancel_notes]').val(notes);
+      
       var form = $('.form-xhr-cancel');
       var action = button.attr('href');
 
