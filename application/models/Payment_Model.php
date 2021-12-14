@@ -135,7 +135,7 @@ class Payment_Model extends MY_MODEL
 					$status[] = 'WAITING REVIEW BY HOS';
 				}
 				if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
-					$status[] = 'WAITING REVIEW BY COO';
+					$status[] = 'WAITING REVIEW BY CEO';
 				}
 				if (config_item('auth_role') == 'VP FINANCE') {
 					$status[] = 'WAITING REVIEW BY VP FINANCE';
@@ -180,7 +180,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_po_payments');
 		$this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
-            $this->connection->where_in('tb_po_payments.base', config_item('auth_warehouses'));
+            $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
         }        
 		// $this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
@@ -218,7 +218,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_po_payments');
 		$this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
-            $this->connection->where_in('tb_po_payments.base', config_item('auth_warehouses'));
+            $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
 		}
 		// $this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
@@ -237,7 +237,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_po_payments');
 		$this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		if(is_granted($this->data['modules']['payment'], 'document') === TRUE){
-            $this->connection->where_in('tb_po_payments.base', config_item('auth_warehouses'));
+            $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
 		}
 		// $this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po');
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
@@ -375,6 +375,9 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('created_at', date('Y-m-d'));
 			$this->db->set('base', $base);
 			$this->db->set('notes', $notes);
+			if($base=='JAKARTA'){
+				$this->db->set('status','WAITING REVIEW BY FIN MNG');
+			}
 			$this->db->insert('tb_po_payments');
 			$po_payment_id = $this->db->insert_id();
 		}else{
@@ -530,6 +533,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('base', $base);
 		$this->db->set('notes', $notes);
 		$this->db->set('revisi', 'f');
+		if($base=='JAKARTA'){
+				$this->db->set('status','WAITING REVIEW BY FIN MNG');
+			}
 		$this->db->insert('tb_po_payments');
 		$po_payment_id = $this->db->insert_id();
 		$id_payment = array();

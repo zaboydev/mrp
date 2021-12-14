@@ -317,7 +317,7 @@
                 <tr>
                   <td></td>
                   <td colspan="5">
-                    <a href="<?= site_url('goods_received_note/print_po/' . $grn['id']) ?>" target="_blank">
+                    <a href="<?= site_url('goods_received_note/print_pdf/' . $grn['id']) ?>" target="_blank">
                       <?= print_string($grn['document_number']); ?>
                     </a> 
                     <?php if(isAttachementExists($grn['id'],'GRN')):?>
@@ -365,7 +365,7 @@
         <small class="top right">Manage Attachment</small>
       </a>
       <?php if (is_granted($module, 'cancel')) : ?>
-      <?php if ($entity['status']!='PAID' && $entity['status']!='APPROVED' && $entity['status']!='REJECTED') : ?>
+      <?php if ($entity['status']!='PAID' && $entity['status']!='APPROVED' && $entity['status']!='REJECTED' && $entity['status']!='CANCELED') : ?>
       <?=form_open(current_url(), array(
         'class' => 'form-xhr-cancel pull-left',
       ));?>
