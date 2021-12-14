@@ -569,7 +569,7 @@ class Dashboard_Model extends MY_Model
       $status = ['WAITING REVIEW BY HOS'];
     }
     if($role=='CHIEF OPERATION OFFICER'){
-      $status = ['WAITING REVIEW BY COO'];
+      $status = ['WAITING REVIEW BY CEO'];
     }
     if($role=='VP FINANCE'){
       $status = ['WAITING REVIEW BY VP FINANCE'];
