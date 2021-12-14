@@ -40,7 +40,19 @@ class Payment extends MY_Controller
           if ($row['status'] == 'WAITING CHECK BY FIN SPV' && config_item('auth_role')=='FINANCE SUPERVISOR') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }else if ($row['status'] == 'WAITING REVIEW BY FIN MNG' && config_item('auth_role')=='FINANCE MANAGER') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            if(config_item('auth_warehouse')=='JAKARTA'){
+              if($row['base']=='JAKARTA'){
+                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+              }else{
+                $col[] = print_number($no);
+              }
+            }else{
+              if($row['base']!='JAKARTA'){
+                $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+              }else{
+                $col[] = print_number($no);
+              }
+            }
           }else if ($row['status'] == 'WAITING REVIEW BY HOS' && config_item('auth_role')=='HEAD OF SCHOOL') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }else if ($row['status'] == 'WAITING REVIEW BY VP FINANCE' && config_item('auth_role')=='VP FINANCE') {
@@ -55,7 +67,7 @@ class Payment extends MY_Controller
         }else{
           $col[] = print_number($no);
         }        
-        $col[]  = print_string($row['no_transaksi']);
+        $col[]  = '<a href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
         $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['no_cheque']);
         // $col[]  = print_string($row['document_number']);
@@ -74,6 +86,7 @@ class Payment extends MY_Controller
         $col[] = $attachment == 0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
                        <i class="fa fa-eye"></i>
                      </a>';
+        $col[]  = print_string($row['base']);
         $col[]  = print_string($row['created_by']);
         $col[]  = print_date($row['created_at']);
 
@@ -230,15 +243,26 @@ class Payment extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if ($this->model->save_2()) {
-      unset($_SESSION['payment_request']);
-      // $this->sendEmail();
-      $data['success'] = TRUE;
-      $data['message'] = 'Document has been saved. You will redirected now.';
-    } else {
-      $data['success'] = FALSE;
-      $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+    $errors = array();
+
+    if ($this->input->post('amount')==0){
+      $errors[] = 'Amount Purposed Tidak Boleh 0 !!';
     }
+
+    if (!empty($errors)){
+      $data['success'] = FALSE;
+      $data['message'] = implode('<br />', $errors);
+    } else {
+      if ($this->model->save_2()) {
+        unset($_SESSION['payment_request']);
+        // $this->sendEmail();
+        $data['success'] = TRUE;
+        $data['message'] = 'Document has been saved. You will redirected now.';
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      }
+    }    
     echo json_encode($data);
   }
 
@@ -247,14 +271,25 @@ class Payment extends MY_Controller
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    if ($this->model->update()) {
-      unset($_SESSION['payment_request']);
-      // $this->sendEmail();
-      $data['success'] = TRUE;
-      $data['message'] = 'Document has been saved. You will redirected now.';
-    } else {
+    $errors = array();
+
+    if ($this->input->post('amount')==0){
+      $errors[] = 'Amount Purposed Tidak Boleh 0 !!';
+    }
+
+    if (!empty($errors)){
       $data['success'] = FALSE;
-      $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      $data['message'] = implode('<br />', $errors);
+    } else {
+      if ($this->model->update()) {
+        unset($_SESSION['payment_request']);
+        // $this->sendEmail();
+        $data['success'] = TRUE;
+        $data['message'] = 'Document has been saved. You will redirected now.';
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      }
     }
     echo json_encode($data);
   }
@@ -860,6 +895,20 @@ class Payment extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function view_manage_attachment_po($po_id,$tipe)
+  {
+    if($tipe=='EXPENSE'){
+      redirect('expense_purchase_order/manage_attachment/'.$po_id);
+    }elseif($tipe=='CAPEX'){
+      redirect('capex_purchase_order/manage_attachment/'.$po_id);
+    }elseif($tipe=='INVENTORY'){
+      redirect('inventory_purchase_order/manage_attachment/'.$po_id);
+    }else{
+      redirect('purchase_order/manage_attachment/'.$po_id);
+    }
+    
   }
 
 }

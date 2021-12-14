@@ -734,6 +734,13 @@
                   </a>
                 </header>
               </div>
+              <div class="card-head collapsed">
+                <header>
+                  <a href="<?=site_url($modules['expense_request']['route'].'/index');?>">
+                    Account Payable Expense Request (<strong><font color="red"><?=$ap_expense;?></font></strong>)
+                  </a>
+                </header>
+              </div>
               <?php endif;?>
             </div>
           </div>   
