@@ -2183,7 +2183,10 @@ class Expense_Purchase_Order_Model extends MY_Model
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'PO');
-    $this->db->where('tipe_att', $tipe_att);
+    if($tipe_att!=null){
+      $this->db->where('tipe_att', $tipe_att);
+    }
+    
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
