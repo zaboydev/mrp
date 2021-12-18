@@ -1129,6 +1129,10 @@ class Capex_Purchase_Order_Model extends MY_Model
       $this->db->where('id', $item['purchase_order_evaluation_items_vendors_id']);
       $this->db->update('tb_purchase_order_items');
 
+      $this->db->set('evaluation_number',$item['evaluation_number']);
+      $this->db->where('id',$id_po);
+      $this->db->update('tb_po');
+
       $this->db->where('id', $item['purchase_order_evaluation_items_vendors_id']);
       $detail_request = $this->db->get('tb_purchase_order_items')->row();
       if ($detail_request->sisa == 0) {
