@@ -2251,5 +2251,45 @@ class Purchase_Order_Model extends MY_Model
     return TRUE;
   }
 
+  public function add_attachment_poe($po_id)
+  {
+    $this->db->trans_begin();
+
+    $id_poe = getEvaluationId($po_id);
+
+    $attachments_poe = $this->getAllPoeAtt($id_poe);
+    if(count($attachments_poe)>0){
+      foreach ($attachments_poe->result_array() as $key => $attachment) {
+        $this->db->set('id_poe', $po_id);
+        $this->db->set('file', $attachment['file']);
+        $this->db->set('id_po', $po_id);
+        $this->db->set('tipe', 'PO');
+        $this->db->set('tipe_att', 'other');
+        $this->db->insert('tb_attachment_poe');
+      }
+    }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function change_tipe_attachment($tipe,$id_att)
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('tipe_att',$tipe);
+    $this->db->where('id', $id_att);
+    $this->db->update('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
   
 }
