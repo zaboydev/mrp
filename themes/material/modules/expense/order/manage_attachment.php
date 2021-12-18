@@ -52,6 +52,9 @@
               <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
                 <?php if (is_granted($module, 'manage_attachment')) : ?>
+                <a title="Change to Other" href="<?=site_url($module['route'] .'/change_tipe_attachment/other/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
+                  <i class="fa fa-refresh"></i>
+                </a>
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                   <i class="fa fa-trash"></i>
                 </a>
@@ -89,7 +92,10 @@
               <td><?=$n?></td>
               <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
-                <?php if (is_granted($module, 'document')) : ?>
+                <?php if (is_granted($module, 'manage_attachment')) : ?>
+                <a title="Change to Invoice" href="<?=site_url($module['route'] .'/change_tipe_attachment/invoice/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
+                  <i class="fa fa-refresh"></i>
+                </a>
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                   <i class="fa fa-trash"></i>
                 </a>
@@ -107,9 +113,12 @@
       </table>
     </div>
   </div>
+  <div class="clearfix"></div>
+  <hr>
   <div class="clearfix">
-      <button type="button" class="btn btn-default pull-right" onclick="popupClose()">Close</button>
-    </div>
+    <a type="button" href="<?=site_url($module['route'] .'/add_attachment_poe/'.$id);?>" class="btn btn-primary pull-left">Add Attachment POE</a>
+    <button type="button" class="btn btn-default pull-right" onclick="popupClose()">Close</button>
+  </div>
   <div class="clearfix"></div>
   <hr>
 

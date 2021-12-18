@@ -2331,4 +2331,15 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAllPoeAtt')) {
+    function getAllPoeAtt($poe_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->where('id_poe', $poe_id);
+      $CI->db->where('tipe', 'POE');
+      return $CI->db->get('tb_attachment_poe');
+    }
+  }
+
     

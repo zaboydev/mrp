@@ -92,7 +92,7 @@
               <td><?=$n?></td>
               <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
-                <?php if (is_granted($module, 'document')) : ?>
+                <?php if (is_granted($module, 'manage_attachment')) : ?>
                 <a title="Change to Invoice" href="<?=site_url($module['route'] .'/change_tipe_attachment/invoice/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
                   <i class="fa fa-refresh"></i>
                 </a>
