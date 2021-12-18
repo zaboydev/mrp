@@ -378,6 +378,7 @@ class Payment_Model extends MY_MODEL
 		$purposed_date      	= $_SESSION['payment_request']['purposed_date'];
 		$currency      			= $_SESSION['payment_request']['currency'];
 		$vendor      			= $_SESSION['payment_request']['vendor'];
+		$coa_kredit      			= $_SESSION['payment_request']['coa_kredit'];
 		$notes      			= (empty($_SESSION['payment_request']['notes'])) ? NULL : $_SESSION['payment_request']['notes'];
 		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
 		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
@@ -401,6 +402,7 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('created_at', date('Y-m-d'));
 			$this->db->set('base', $base);
 			$this->db->set('notes', $notes);
+			$this->db->set('coa_kredit', $coa_kredit);
 			if($base=='JAKARTA'){
 				$this->db->set('status','WAITING REVIEW BY FIN MNG');
 			}
@@ -490,6 +492,7 @@ class Payment_Model extends MY_MODEL
 		$purposed_date      	= $_SESSION['payment_request']['purposed_date'];
 		$currency      			= $_SESSION['payment_request']['currency'];
 		$vendor      			= $_SESSION['payment_request']['vendor'];
+		$coa_kredit      		= $_SESSION['payment_request']['coa_kredit'];
 		$notes      			= (empty($_SESSION['payment_request']['notes'])) ? NULL : $_SESSION['payment_request']['notes'];
 		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
 		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
@@ -559,6 +562,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('base', $base);
 		$this->db->set('notes', $notes);
 		$this->db->set('revisi', 'f');
+		$this->db->set('coa_kredit', $coa_kredit);
 		if($base=='JAKARTA'){
 				$this->db->set('status','WAITING REVIEW BY FIN MNG');
 			}

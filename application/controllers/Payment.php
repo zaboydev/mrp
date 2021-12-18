@@ -179,6 +179,7 @@ class Payment extends MY_Controller
       $_SESSION['payment_request']['vendor']              = NULL;
       $_SESSION['payment_request']['notes']               = NULL;
       $_SESSION['payment_request']['total_amount']        = 0;
+      $_SESSION['payment_request']['coa_kredit']          = NULL;
 
       redirect($this->module['route'] . '/create_2');
     }

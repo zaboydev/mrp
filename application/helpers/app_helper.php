@@ -2342,4 +2342,19 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAccount')) {
+    function getAccount($currency=null)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('group,coa');
+		  $CI->db->from('tb_master_coa');
+      // $CI->db->like('group', $currency);
+      $CI->db->where('category', "Bank");
+      $query    = $CI->db->get('tb_purchase_orders');
+      $accounts = $query->result_array();
+      return $accounts;
+    }
+  }
+
     

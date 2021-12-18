@@ -130,6 +130,18 @@
                 </div>
 
                 <div class="form-group">
+                    <select name="account" id="account" class="form-control" data-source="<?= site_url($module['route'] . '/set_account/'); ?>" required data-input-type="autoset">
+                    <option value="">-- SELECT Account</option>
+                    <?php foreach (getAccount() as $key => $account) : ?>
+                        <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment_request']['coa_kredit']) ? 'selected' : ''; ?>>
+                        <?= $account['group']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                    </select>
+                    <label for="vendor">Account</label>
+                </div>
+
+                <div class="form-group">
                     <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment_request']['total_amount']; ?>" readonly="readonly">
                     <label for="amount">Amount</label>
                 </div>
