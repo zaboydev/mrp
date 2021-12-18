@@ -2311,4 +2311,24 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getEvaluationId')) {
+    function getEvaluationId($po_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('poe_number');
+      $CI->db->where('purchase_order_id', $po_id);
+      $query        = $CI->db->get('tb_po_item');
+      $item_po      = $query->unbuffered_row('array');
+      $no_evaluasi  =  $item_po['poe_number'];
+
+
+      $CI->db->select('id');
+      $CI->db->where('evaluation_number', $no_evaluasi);
+      $query    = $CI->db->get('tb_purchase_orders');
+      $evaluation = $query->unbuffered_row('array');
+      return $evaluation['id'];
+    }
+  }
+
     
