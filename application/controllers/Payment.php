@@ -575,7 +575,7 @@ class Payment extends MY_Controller
 
   public function manage_attachment($id)
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'manage_attachment');
 
     $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
     $this->data['page']['title']    = "Manage Attachment Payment";
@@ -839,7 +839,7 @@ class Payment extends MY_Controller
 
   public function attachment()
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'manage_attachment');
     $this->data['page']['title']    = "Attachment Payment";
     $this->render_view($this->module['view'] . '/attachment');
   }
