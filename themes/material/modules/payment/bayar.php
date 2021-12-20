@@ -56,11 +56,12 @@
                             <div class="form-group">
                                 <select id="account_select" class="form-control" required>
                                     <option value="">No Account</option>
-                                    <?php foreach ($account as $key) {
-                                        ?>
-                                        <option value="<?= $key->coa ?>"><?= $key->coa ?> - <?= $key->group ?></option>
-                                    <?php
-                                    } ?>
+                                    <option value="">-- SELECT Account</option>
+                                    <?php foreach (getAccount() as $key => $account) : ?>
+                                    <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment']['coa_kredit']) ? 'selected' : ''; ?>>
+                                    <?= $account['group']; ?>
+                                    </option>
+                                    <?php endforeach; ?>
                                 </select>
                                 <label for="account_select">Account</label>
                             </div>
@@ -102,6 +103,7 @@
                                     <th class="middle-alignment"></th>
                                     <!-- <th class="middle-alignment"></th> -->
                                     <th class="middle-alignment">Description</th>
+                                    <th class="middle-alignment text-center">Qty Paid</th>
                                     <th class="middle-alignment text-center">Amount Paid</th>
                                     <th class="middle-alignment">PO#</th>
                                 </tr>
@@ -124,6 +126,9 @@
                                         </td> -->
                                         <td class="no-space">
                                             <?= $item['description']; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <?= number_format($item['quantity_paid'], 2); ?>
                                         </td>
                                         <td class="text-center">
                                             <?= number_format($item['amount_paid'], 2); ?>

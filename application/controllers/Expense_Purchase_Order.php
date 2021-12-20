@@ -1592,4 +1592,21 @@ class Expense_Purchase_Order extends MY_Controller
 
     echo json_encode($alert);
   }
+
+  public function add_attachment_poe($po_id)
+  {
+    $this->model->add_attachment_poe($po_id);
+
+    redirect($this->module['route'] . "/manage_attachment/" . $po_id, 'refresh');
+    // echo json_encode($result);
+  }
+
+  public function change_tipe_attachment($tipe,$id_att, $id_poe)
+  {
+    $this->model->change_tipe_attachment($tipe,$id_att);
+
+    redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+    // echo json_encode($result);
+  }
+  
 }

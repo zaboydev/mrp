@@ -9,6 +9,13 @@
     <div class="row">
       <div class="col-sm-12">
         <div class="form-group">
+          <label> Tipe Attachment</label>
+          <select name="tipe_attachment" id="tipe_attachment" class="form-control" required>
+            <option value="invoice">Invoice</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label> Add Attachment</label>
           <input type="file" name="attachment" id="attachment" accept=".png,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.pdf">
           <p style="font-size: 8pt">Allowing file format <i>doc, docx, xls, xlsx, pdf, jpg, png</i></p>
@@ -25,7 +32,7 @@
   <div class="clearfix"></div>
   <div class="row" style="margin-top: 30px">
     <div class="col-md-12">
-      <h5>List Attachment</h5>
+      <h5>Attachment Invoice</h5>
       <div class="clearfix"></div>
       <table style="width: 100%">
         <thead>
@@ -36,14 +43,18 @@
           </tr>
         </thead>
         <tbody>
+          <?php if(count($attachment_invoice)>0):?>
           <?php $n = 0;?>
-          <?php foreach ($manage_attachment as $i => $detail):?>
+          <?php foreach ($attachment_invoice as $i => $detail):?>
             <?php $n++;?>
             <tr>
               <td><?=$n?></td>
               <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
                 <?php if (is_granted($module, 'manage_attachment')) : ?>
+                <a title="Change to Other" href="<?=site_url($module['route'] .'/change_tipe_attachment/other/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
+                  <i class="fa fa-refresh"></i>
+                </a>
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                   <i class="fa fa-trash"></i>
                 </a>
@@ -51,17 +62,63 @@
               </td>
             </tr>
           <?php endforeach;?>
-          
+          <?Php else:?>
           <tr>
             <td colspan="3" style="text-align: center;">No Attachment</td>
           </tr>
+          <?Php endif;?> 
         </tbody>
       </table>
     </div>
   </div>
-  <div class="clearfix">
-      <button type="button" class="btn btn-default pull-right" onclick="popupClose()">Close</button>
+  <div class="row" style="margin-top: 30px">
+    <div class="col-md-12">
+      <h5>Attachment Other</h5>
+      <div class="clearfix"></div>
+      <table style="width: 100%">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>File</th>
+            <th>#</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if(count($attachment_other)>0):?>
+          <?php $n = 0;?>
+          <?php foreach ($attachment_other as $i => $detail):?>
+            <?php $n++;?>
+            <tr>
+              <td><?=$n?></td>
+              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
+              <td>
+                <?php if (is_granted($module, 'manage_attachment')) : ?>
+                <a title="Change to Invoice" href="<?=site_url($module['route'] .'/change_tipe_attachment/invoice/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
+                  <i class="fa fa-refresh"></i>
+                </a>
+                <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
+                  <i class="fa fa-trash"></i>
+                </a>
+                <?Php endif;?>
+              </td>
+            </tr>
+          <?php endforeach;?>
+          <?Php else:?>
+          <tr>
+            <td colspan="3" style="text-align: center;">No Attachment</td>
+          </tr>
+          <?Php endif;?>        
+          
+        </tbody>
+      </table>
     </div>
+  </div>
+  <div class="clearfix"></div>
+  <hr>
+  <div class="clearfix">
+    <a type="button" href="<?=site_url($module['route'] .'/add_attachment_poe/'.$id);?>" class="btn btn-primary pull-left">Add Attachment POE</a>
+    <button type="button" class="btn btn-default pull-right" onclick="popupClose()">Close</button>
+  </div>
   <div class="clearfix"></div>
   <hr>
 

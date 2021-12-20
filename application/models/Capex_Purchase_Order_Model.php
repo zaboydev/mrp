@@ -2251,20 +2251,24 @@ class Capex_Purchase_Order_Model extends MY_Model
     return $this->db->get()->row();
   }
 
-  public function listAttachment_2($id)
+  public function listAttachment_2($id,$tipe_att=null)
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'PO');
+    if($tipe_att!=null){
+      $this->db->where('tipe_att', $tipe_att);
+    }
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
-  function add_attachment_to_db($id_poe, $url)
+  function add_attachment_to_db($id_poe, $url, $tipe_att)
   {
     $this->db->trans_begin();
 
     $this->db->set('id_poe', $id_poe);
     $this->db->set('file', $url);
     $this->db->set('tipe', 'PO');
+    $this->db->set('tipe_att', $tipe_att);
     $this->db->insert('tb_attachment_poe');
 
     if ($this->db->trans_status() === FALSE)
@@ -2302,6 +2306,46 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->set('cancel_notes', $notes);
     $this->db->where('id', $id);
     $this->db->update('tb_po');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  public function add_attachment_poe($po_id)
+  {
+    $this->db->trans_begin();
+
+    $id_poe = getEvaluationId($po_id);
+
+    $attachments_poe = getAllPoeAtt($id_poe);
+    if(count($attachments_poe)>0){
+      foreach ($attachments_poe->result_array() as $key => $attachment) {
+        $this->db->set('id_poe', $po_id);
+        $this->db->set('file', $attachment['file']);
+        $this->db->set('id_po', $po_id);
+        $this->db->set('tipe', 'PO');
+        $this->db->set('tipe_att', 'other');
+        $this->db->insert('tb_attachment_poe');
+      }
+    }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function change_tipe_attachment($tipe,$id_att)
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('tipe_att',$tipe);
+    $this->db->where('id', $id_att);
+    $this->db->update('tb_attachment_poe');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
