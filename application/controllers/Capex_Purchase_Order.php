@@ -1534,6 +1534,8 @@ class Capex_Purchase_Order extends MY_Controller
     // $this->authorized($this->module, 'document');
 
     $this->data['manage_attachment'] = $this->model->listAttachment_2($id);
+    $this->data['attachment_invoice'] = $this->model->listAttachment_2($id,'invoice');
+    $this->data['attachment_other']   = $this->model->listAttachment_2($id,'other');
     $this->data['id'] = $id;
     $this->render_view($this->module['view'] . '/manage_attachment');
   }
@@ -1548,6 +1550,7 @@ class Capex_Purchase_Order extends MY_Controller
     $config['max_size']  = 2000;
 
     $this->upload->initialize($config);
+    $tipe_att = $this->input->post('tipe_attachment');
 
     if (!$this->upload->do_upload('attachment')) {
       $error = array('error' => $this->upload->display_errors());
@@ -1555,7 +1558,7 @@ class Capex_Purchase_Order extends MY_Controller
       $data = array('upload_data' => $this->upload->data());
       $url = $config['upload_path'] . $data['upload_data']['orig_name'];
       // array_push($_SESSION["poe"]["attachment"], $url);
-      $this->model->add_attachment_to_db($id, $url);
+      $this->model->add_attachment_to_db($id, $url, $tipe_att);
       $result["status"] = 1;
     }
     echo json_encode($result);
@@ -1589,5 +1592,21 @@ class Capex_Purchase_Order extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function add_attachment_poe($po_id)
+  {
+    $this->model->add_attachment_poe($po_id);
+
+    redirect($this->module['route'] . "/manage_attachment/" . $po_id, 'refresh');
+    // echo json_encode($result);
+  }
+
+  public function change_tipe_attachment($tipe,$id_att, $id_poe)
+  {
+    $this->model->change_tipe_attachment($tipe,$id_att);
+
+    redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+    // echo json_encode($result);
   }
 }

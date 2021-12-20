@@ -10,6 +10,7 @@ $no_item = 1; ?>
         <td><?= print_number($detail['grand_total'], 2) ?></td>
         <td><?= print_number($detail['payment'], 2) ?></td>
         <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment_request'] ?>" type="hidden"><?= print_number($detail['remaining_payment_request'], 2) ?></td>
+        <td></td>
         <td><input id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="0"></td>
         <td><button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="fa fa-angle-right"></i></button></td>
         <td><a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
@@ -47,6 +48,9 @@ $no_item = 1; ?>
                     <?= print_number($detail_po['left_paid_request'], 2) ?>
                 </td>
                 <td>
+                    <input name="qty_paid[]" id="in_qty_paid_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="in_qty_paid_<?= $no ?> form-control-payment" value="<?= $detail_po['quantity']-$detail_po['quantity_paid'] ?>">
+                </td>
+                <td>
                     <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control-payment" value="0">
                 </td>
                 <td>
@@ -77,6 +81,9 @@ $no_item = 1; ?>
                 <td><?= print_number($detail['additional_price'] - $detail['additional_price_remaining_request'], 2) ?></td>
                 <td>
                     <input id="sis_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['additional_price_remaining_request'] ?>" type="hidden"><?= print_number($detail['additional_price_remaining_request'], 2) ?>
+                </td>
+                <td>
+                    <input name="qty_paid[]" id="in_qty_paid_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="in_qty_paid_<?= $no ?> form-control-payment" value="1" readonly>
                 </td>
                 <td>
                     <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class=" form-control-payment sel_applied_item sel_applied_<?= $no ?>" value="0">

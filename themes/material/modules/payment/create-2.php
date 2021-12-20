@@ -130,6 +130,18 @@
                 </div>
 
                 <div class="form-group">
+                    <select name="account" id="account" class="form-control" data-source="<?= site_url($module['route'] . '/set_account/'); ?>" required data-input-type="autoset">
+                    <option value="">-- SELECT Account</option>
+                    <?php foreach (getAccount() as $key => $account) : ?>
+                        <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment_request']['coa_kredit']) ? 'selected' : ''; ?>>
+                        <?= $account['group']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                    </select>
+                    <label for="vendor">Account</label>
+                </div>
+
+                <div class="form-group">
                     <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment_request']['total_amount']; ?>" readonly="readonly">
                     <label for="amount">Amount</label>
                 </div>
@@ -152,11 +164,12 @@
                 <th width="15%" class="middle-alignment">No PO</th>
                 <th width="13%" class="middle-alignment">Status</th>
                 <th width="7%" class="middle-alignment">Due Date</th>
-                <th width="5%" class="middle-alignment">Received Qty</th>
-                <th width="7%" class="middle-alignment">Received Val.</th>
+                <th width="5%" class="middle-alignment">GRN Qty</th>
+                <th width="7%" class="middle-alignment">GRN Val.</th>
                 <th width="7%" class="middle-alignment">Amount</th>
                 <th width="7%" class="middle-alignment">Purposed Amount</th>
                 <th width="7%" class="middle-alignment">Remaining Purposed</th>
+                <th width="8%" class="middle-alignment">Qty Paid</th>
                 <th width="8%" class="middle-alignment">Amount Purposed</th>
                 <th width="3%" class="middle-alignment"></th>
                 <th width="3%" class="middle-alignment"></th>
@@ -183,6 +196,10 @@
             <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction">
               Add
             </button>
+
+            <button type="button" class="btn btn-danger ink-reaction btn-xhr-submit">
+                Next
+            </button>
           </div>
           <a href="<?= site_url($module['route']); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
@@ -195,7 +212,7 @@
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
-      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-xhr-submit btn-tooltip ink-reaction" id="btn-submit-document">
+      <button type="button" class="hide btn btn-floating-action btn-lg btn-danger btn-xhr-submit btn-tooltip ink-reaction" id="btn-submit-document">
         <i class="md md-save"></i>
         <small class="top right">Save Document</small>
       </button>
@@ -258,6 +275,7 @@
     '<td colspan="2"><input name="desc[]" type="text" class="form-control-payment"></td>'+
     '<td><input type="hidden" value="0" name="po_item_id[]"></td>'+
     '<td><input type="hidden" value="0" name="po_id[]"></td>'+
+    '<td></td>'+
     '<td></td>'+
     '<td></td>'+
     '<td></td>'+
@@ -790,30 +808,59 @@
       var form = $('#form_purposed_payment');
       var action = form.attr('action');
 
-      $(button).addClass('hide');
+      // $(button).addClass('hide');
 
-      if (form.valid()) {
+      // if (form.valid()) {
         $.post(action, form.serialize()).done(function(data) {
           var obj = $.parseJSON(data);
 
           if ( obj.success == false ){
-            $(button).removeClass('hide');
+            // $(button).removeClass('hide');
             toastr.options.timeOut = 10000;
             toastr.options.positionClass = 'toast-top-right';
             toastr.error(obj.message);
           } else {
-            toastr.options.timeOut = 4500;
-            toastr.options.closeButton = false;
-            toastr.options.progressBar = true;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success(obj.message);
+            var mylink = '<?=site_url($module['route'] .'/konfirmasi');?>';
+            var windowname = 'konfirmasi';
+            // popup(href, 'konfirmasi')
 
-            window.setTimeout(function(){
-              window.location.href = '<?=site_url($module['route']);?>';
-            }, 5000);
+            var height = window.innerHeight;
+            var widht;
+            var href;
+
+            if (screen.availWidth > 768){
+              width = 769;
+            } else {
+              width = screen.availWidth;
+            }
+
+            var left = (screen.availWidth / 2) - (width / 2);
+            var top = 0;
+            // var top = (screen.availHeight / 2) - (height / 2);
+
+            if (typeof(mylink) == 'string') href = mylink;
+            else href = mylink.href;
+
+            window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+width+', height='+height+', top='+top+', left='+left);
+
+            if (! window.focus) return true;
+            else return false;
+
+            // toastr.options.timeOut = 4500;
+            // toastr.options.closeButton = false;
+            // toastr.options.progressBar = true;
+            // toastr.options.positionClass = 'toast-top-right';
+            // toastr.success(obj.message);
+
+            // window.setTimeout(function(){
+            //   window.location.href = '<?=site_url($module['route']);?>';
+            // }, 5000);
+
           }
         });
-      }
+      // }else{
+
+      // }
   });
 
   function clearForm() {
