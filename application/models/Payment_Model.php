@@ -370,6 +370,7 @@ class Payment_Model extends MY_MODEL
 		$desc_items 			= $this->input->post('desc');
 		$value_items		 	= $this->input->post('value');
 		$adj_value_items	 	= $this->input->post('adj_value');
+		$qty_paid	 			= $this->input->post('qty_paid');
 
 		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
 		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
@@ -432,6 +433,7 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('no_transaksi', $document_number);
 				$this->db->set('coa_kredit', null);
 				$this->db->set('adj_value', $adj_value_items[$key]);
+				$this->db->set('quantity_paid', $qty_paid[$key]);
 				// $this->db->set('akun_kredit', $jenis);
 				if ($status == "ORDER") {
 					$this->db->set('uang_muka', $value_items[$key]);
@@ -449,6 +451,7 @@ class Payment_Model extends MY_MODEL
 
 				if($po_item!=0){
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
+					$this->db->set('quantity_paid', '"quantity_paid" + ' . $qty_paid[$key], false);
 					$this->db->where('id', $po_item);
 					$this->db->update('tb_po_item');
 				}else{
@@ -642,11 +645,12 @@ class Payment_Model extends MY_MODEL
 
 		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
 		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
-		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number().'-R';
 		$date      				= $_SESSION['payment_request']['date'];
 		$purposed_date      	= $_SESSION['payment_request']['purposed_date'];
 		$currency      			= $_SESSION['payment_request']['currency'];
 		$vendor      			= $_SESSION['payment_request']['vendor'];
+		$coa_kredit      		= $_SESSION['payment_request']['coa_kredit'];
 		$notes      			= (empty($_SESSION['payment_request']['notes'])) ? NULL : $_SESSION['payment_request']['notes'];
 		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
 		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
@@ -659,7 +663,7 @@ class Payment_Model extends MY_MODEL
 			$amount_usd = $total_amount;
 			$amount_idr = $total_amount * $kurs;
 		}
-		
+
 		if ($document_id === NULL) {
 			$this->db->set('document_number', $document_number);
 			$this->db->set('vendor', $vendor);
@@ -670,6 +674,10 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('created_at', date('Y-m-d'));
 			$this->db->set('base', $base);
 			$this->db->set('notes', $notes);
+			$this->db->set('coa_kredit', $coa_kredit);
+			if($base=='JAKARTA'){
+				$this->db->set('status','WAITING REVIEW BY FIN MNG');
+			}
 			$this->db->insert('tb_po_payments');
 			$po_payment_id = $this->db->insert_id();
 		}else{
@@ -680,7 +688,7 @@ class Payment_Model extends MY_MODEL
 		//items
 		foreach ($_SESSION['payment_request']['items'] as $key => $item) {
 			if ($item["amount_paid"] != 0) {
-				$id_po = $item['id_po'];
+				$id_po = $item['po_id'];
 				$status = $this->get_status_po($id_po);
 
 				if($item["purchase_order_item_id"]!=0){
@@ -696,6 +704,7 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('no_transaksi', $document_number);
 				$this->db->set('coa_kredit', null);
 				$this->db->set('adj_value', $item["adj_value"]);
+				$this->db->set('quantity_paid', $item['qty_paid']);
 				if ($status == "ORDER") {
 					$this->db->set('uang_muka', $item["amount_paid"]);
 				}
@@ -711,6 +720,7 @@ class Payment_Model extends MY_MODEL
 
 				if($item['purchase_order_item_id']!=0){
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
+					$this->db->set('quantity_paid', '"quantity_paid" + ' . $item['qty_paid'], false);
 					$this->db->where('id', $item["purchase_order_item_id"]);
 					$this->db->update('tb_po_item');
 				}else{
@@ -865,6 +875,7 @@ class Payment_Model extends MY_MODEL
 			// 'tb_po_item.part_number',
 			'tb_purchase_order_items_payments.deskripsi as description',
 			'tb_purchase_order_items_payments.amount_paid',
+			'tb_purchase_order_items_payments.quantity_paid',
 			'tb_purchase_order_items_payments.purchase_order_item_id',
 			'tb_purchase_order_items_payments.id_po',
 			'tb_purchase_order_items_payments.uang_muka',

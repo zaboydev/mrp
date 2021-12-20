@@ -1,11 +1,68 @@
 <?php include 'themes/material/simple.php' ?>
 
 <?php startblock('body') ?>
+<style>
+.table-info {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 24px;
+}
+.table-info > thead > tr > th, .table-info > tbody > tr > th, .table-info > tfoot > tr > th, .table-info > thead > tr > td, .table-info > tbody > tr > td, .table-info > tfoot > tr > td {
+    padding: 10px 8px;
+    line-height: 1.846153846;
+    vertical-align: top;
+    /* border-top: 1px solid rgba(189, 193, 193, 0.2); */
+}
+</style>
 <div class="container-fluid">
 
   <h4 class="page-header">Confirmation Request</h4>
 
   <form id="form_update_request" class="form form-validate ui-front" role="form" method="post" action="<?= site_url($module['route'] . '/update_item'); ?>">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="table-responsive">
+                <table class="table-info">
+                    <tr>
+                        <td style="font-weight:bolder;">Date</td>
+                        <td><?=$_SESSION['payment_request']['date'];?></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bolder;">Purposed Date</td>
+                        <td><?=$_SESSION['payment_request']['purposed_date'];?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="table-responsive">
+                <table class="table-info">
+                    <tr>
+                        <td style="font-weight:bolder;">Currency</td>
+                        <td><?=$_SESSION['payment_request']['currency'];?></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bolder;">Vendor</td>
+                        <td><?=$_SESSION['payment_request']['vendor'];?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="table-responsive">
+                <table class="table-info">
+                    <tr>
+                        <td style="font-weight:bolder;">Account</td>
+                        <td><?=$_SESSION['payment_request']['coa_kredit'];?></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bolder;">Notes</td>
+                        <td><?=$_SESSION['payment_request']['notes'];?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
     <div class="row">
       <div class="col-sm-12">
         <div class="table-responsive">
@@ -21,12 +78,21 @@
                 <th>Received Val.</th>
                 <th>Amount</th>
                 <th>Remaining Purposed</th>
+                <th>Qty Paid</th>
                 <th>Purposed Amount</th>
                 <th colspan="2">Adjustment</th>
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($_SESSION['payment_request']['items'] as $id => $request) : ?>
+            <?php 
+                $total_amount = array();
+                $total_qty = array();
+            ?>
+                <?php foreach ($_SESSION['payment_request']['items'] as $id => $request) : ?>
+                <?php 
+                    $total_amount[] = $request['amount_paid'];
+                    $total_qty[]    = $request['qty_paid'];
+                ?>
                 <tr id="row_<?= $id; ?>">
                     <td>
                         
@@ -57,17 +123,32 @@
                         <input id="sis_item_<?= $id; ?>" type="number" rel="left_paid_request" name="item[<?= $id; ?>][left_paid_request]" value="<?= $request['left_paid_request']; ?>" class="hide form-control sel_applied_item">
                     </td>
                     <td>
-                        <input id="in_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" rel="amount_paid" name="item[<?= $id; ?>][amount_paid]" value="<?= $request['amount_paid']; ?>" class="form-control sel_applied_item">
+                        <?= print_number($request['qty_paid'],2) ?>
+                        <input id="in_qty_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" rel="qty_paid" name="item[<?= $id; ?>][qty_paid]" value="<?= $request['qty_paid']; ?>" class="hide form-control sel_applied_qty_item">
                     </td>
                     <td>
-                        <input type="checkbox" id="cb_<?= $id ?>" data-row="<?= $id ?>" data-id="<?= $id ?>" name="" style="display: inline;" class="check_adj" <?= ($request['adj_value']!=0) ? 'checked' : ''; ?>>
+                        <?= print_number($request['amount_paid'],2) ?>
+                        <input id="in_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" rel="amount_paid" name="item[<?= $id; ?>][amount_paid]" value="<?= $request['amount_paid']; ?>" class="hide form-control sel_applied_item">
                     </td>
                     <td>
+                        <input type="checkbox" id="cb_<?= $id ?>" data-row="<?= $id ?>" data-id="<?= $id ?>" name="" style="display: inline;" class="hide check_adj" <?= ($request['adj_value']!=0) ? 'checked' : ''; ?>>
+                    </td>
+                    <td>
+                        <?php if($request['adj_value']!=0):?>
+                        <?= print_number($request['adj_value'],2) ?>
+                        <?php endif; ?>
                         <input id="in_adj_<?= $id ?>" name="item[<?= $id; ?>][adj_value]" data-parent="<?= $no ?>" data-row="<?= $id ?>" type="number" class="<?= ($request['adj_value']==0) ? 'hide' : ''; ?>  form-control sel_applied_adj sel_applied_adj<?= $id ?>" value="<?= $request['adj_value']; ?>" style="display: inline;">
                     </td>
                 </tr>
-              <?php endforeach; ?>
+                <?php endforeach; ?>
             </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="9">Total</th>
+                    <th><?= print_number(array_sum($total_qty),2) ?></th>
+                    <th><?= print_number(array_sum($total_amount),2) ?></th>
+                </tr>
+            </tfoot>
           </table>
         </div>
       </div>
@@ -75,7 +156,7 @@
 
     <div class="clearfix">
       <div class="pull-right">
-        <button type="submit" id="submit_button" class="btn btn-primary">Next</button>
+        <a href="<?=site_url($module['route'] .'/save');?>" type="button" id="submit_button" class="btn btn-primary">Next</a>
       </div>
 
       <button type="button" class="btn btn-default" onclick="popupClose()">Cancel</button>
@@ -101,31 +182,34 @@
 <?= html_script('themes/material/assets/js/libs/toastr/toastr.js') ?>
 <script>
   $(function() {
-    $('#submit_button').on('click', function(e) {
-      e.preventDefault();
+    var formDocument = $('#form_update_request');
+    $('#submit_button').on('click', function(e){
+        e.preventDefault();
+        $('#submit_button').attr('disabled', true);
 
-      var button = $(this);
-      var form = $('#form_update_request');
-      var action = form.attr('action');
+        var url = $(this).attr('href');
 
-      button.prop('disabled', true);
+        $.post(url, formDocument.serialize(), function(data){
+            var obj = $.parseJSON(data);
 
-      if (form.valid()) {
-        $.post(action, form.serialize()).done(function(data) {
-          var obj = $.parseJSON(data);
+            if ( obj.success == false ){
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.error(obj.message);
+            } else {
+                toastr.options.timeOut = 4500;
+                toastr.options.closeButton = false;
+                toastr.options.progressBar = true;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.success(obj.message);
 
-          if (obj.success == false) {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error(obj.message);
-          } else {
-            refreshParent();
-            popupClose();
-          }
+                popupClose();
+
+                window.opener.location.href = '<?=site_url($module['route']);?>';
+            }
+
+            $(buttonSubmitDocument).attr('disabled', false);
         });
-      }
-
-      button.prop('disabled', false);
     });
 
     $("#listView").on("change", ".sel_applied_item", function() {

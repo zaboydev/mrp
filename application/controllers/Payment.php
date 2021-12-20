@@ -254,15 +254,94 @@ class Payment extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = implode('<br />', $errors);
     } else {
-      if ($this->model->save_2()) {
-        unset($_SESSION['payment_request']);
-        // $this->sendEmail();
-        $data['success'] = TRUE;
-        $data['message'] = 'Document has been saved. You will redirected now.';
-      } else {
-        $data['success'] = FALSE;
-        $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      $po_items_id 			= $this->input->post('po_item_id');
+      $pos_id 				= $this->input->post('po_id');
+      $desc_items 			= $this->input->post('desc');
+      $value_items		 	= $this->input->post('value');
+      $adj_value_items	 	= $this->input->post('adj_value');
+      $qty_paid	 			= $this->input->post('qty_paid');
+
+      foreach ($po_items_id as $key=>$po_item) {
+        // if ($value_items[$key] != 0) {
+        //   $_SESSION['payment_request']['items'][$key] = array(
+        //     'po_items_id'     => $po_items_id[$key],
+        //     'pos_id'          => $pos_id[$key],
+        //     'desc_items'      => $desc_items[$key],
+        //     'value_items'     => $value_items[$key],
+        //     'adj_value_items' => $adj_value_items[$key],
+        //     'qty_paid'        => $qty_paid[$key],
+        //   );
+        // }
+        if ($value_items[$key] != 0){
+                  
+          if($po_item!=0){
+            $request = $this->model->infoItem($pos_id[$key],$po_item);
+            $_SESSION['payment_request']['items'][$key] = array(
+              'po_number'               => $request['document_number'],
+              'deskripsi'               => $request['part_number'].' | '.$request['description'],
+              'quantity_received'       => floatval($request['quantity_received']),
+              'amount_received'         => floatval($request['quantity_received'])*(floatval($request['unit_price'])+floatval($request['core_charge'])),
+              'total_amount'            => floatval($request['total_amount']),
+              'left_paid_request'       => floatval($request['left_paid_request']),
+              'status'                  => $request['status'],
+              'due_date'                => $request['due_date'],
+              'amount_paid'             => floatval($value_items[$key]),
+              'adj_value'               => floatval($adj_value_items[$key]),
+              'qty_paid'                => $qty_paid[$key],
+              'po_id'                   => $pos_id[$key],
+            );
+
+            $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
+          }else{
+            if($pos_id[$key]!=0){
+              $request = $this->model->infoItem($pos_id[$key],$po_item);
+              $_SESSION['payment_request']['items'][$key] = array(
+                'po_number'               => $request['document_number'],
+                'deskripsi'               => 'Additional Price (PPN, DISC, SHIPPING COST)',
+                'quantity_received'       => floatval(0),
+                'amount_received'         => floatval(0),
+                'total_amount'            => floatval($request['additional_price']),
+                'left_paid_request'       => floatval($request['additional_price_remaining_request']),
+                'status'                  => $request['status'],
+                'due_date'                => $request['due_date'],
+                'amount_paid'             => floatval($value_items[$key]),
+                'adj_value'               => floatval($adj_value_items[$key]),
+                'qty_paid'                => $qty_paid[$key],
+                'po_id'                   => $pos_id[$key],
+              );
+              $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
+            }else{
+              $_SESSION['payment_request']['items'][$key] = array(
+                'po_number'               => '',
+                'deskripsi'               => $desc_items[$key],
+                'quantity_received'       => floatval(0),
+                'amount_received'         => floatval(0),
+                'total_amount'            => floatval($value_items[$key]),
+                'left_paid_request'       => floatval($value_items[$key]),
+                'status'                  => '',
+                'due_date'                => null,
+                'amount_paid'             => floatval($value_items[$key]),
+                'adj_value'               => floatval($adj_value_items[$key]),
+                'qty_paid'                => 0,
+                'po_id'                   => $pos_id[$key],
+              );
+              $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
+            }
+            
+          }
+        }
       }
+      // if ($this->model->save_2()) {
+      //   unset($_SESSION['payment_request']);
+      //   // $this->sendEmail();
+      //   $data['success'] = TRUE;
+      //   $data['message'] = 'Document has been saved. You will redirected now.';
+      // } else {
+      //   $data['success'] = FALSE;
+      //   $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+      // }
+      $data['success'] = TRUE;
+      $data['message'] = 'Document has been saved. You will redirected now.';
     }    
     echo json_encode($data);
   }
@@ -670,6 +749,14 @@ class Payment extends MY_Controller
     $_SESSION['payment_request']['date'] = $_GET['data'];
   }
 
+  public function set_account()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['coa_kredit'] = $_GET['data'];
+  }
+
   public function set_purposed_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -910,6 +997,16 @@ class Payment extends MY_Controller
       redirect('purchase_order/manage_attachment/'.$po_id);
     }
     
+  }
+
+  public function konfirmasi()
+  {
+    $this->authorized($this->module, 'document');
+
+    // $this->data['entities'] = $this->model->listRequest($_SESSION['poe']['category']);
+    $this->data['page']['title']            = 'Confirmation Request';
+
+    $this->render_view($this->module['view'] . '/konfirmasi');
   }
 
 }
