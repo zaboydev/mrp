@@ -13,14 +13,14 @@
         <th>: <?= print_string($entity['no_transaksi']); ?></th>
     </tr>
     <tr>
-        <td></td>
-        <th></th>
+        <td>Payment Status</td>
+        <th>: <?= $entity['status']; ?></th>
         <td>Date.</td>
         <th>: <?= print_date($entity['tanggal']); ?></th>
     </tr>
     <tr>
-        <td></td>
-        <th></th>
+        <td>Account</td>
+        <th>: <?= $entity['coa_kredit']; ?> <?= $entity['group']; ?></th>
         <td>Purposed Date</td>
         <th>: <?= print_date($entity['purposed_date']); ?></th>
     </tr>

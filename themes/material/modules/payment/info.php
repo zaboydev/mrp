@@ -55,9 +55,12 @@
           <dd><?= $entity['currency']; ?></dd>
 
           <?php if($entity['status']=='PAID'):?>
-          <dt>Pay From</dt>
-          <dd>(<?= $entity['coa_kredit']; ?>) <?= $entity['akun_kredit']; ?></dd>
-
+          <dt>Request Selected Account</dt>
+          <?php else: ?>
+          <dt>Account</dt>
+          <?php endif;?>
+          <dd> <?= ($entity['coa_kredit']!='')? '('.$entity['coa_kredit'].')':'n/b'; ?> <?= $entity['akun_kredit']; ?> <?= $entity['group']; ?></dd>
+          <?php if($entity['status']=='PAID'):?>
           <dt>No Konfirmasi</dt>
           <dd><?= ($entity['no_konfirmasi']!='')? $entity['no_konfirmasi']:'-'; ?></dd>
 
@@ -84,6 +87,7 @@
                 <th>Description</th>
                 <th>POE#</th>
                 <th>Request Number</th>
+                <th align="right">Qty Request Payment</th>
                 <th align="right">Amount Request Payment</th>
               </tr>
             </thead>
@@ -133,6 +137,9 @@
                     <?php if($detail['request_number']!=null):?>
                     <a href="<?= site_url('payment/print_prl/' . $detail['request_id'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['request_number'])?></a>
                     <?php endif; ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['quantity_paid'], 2); ?>
                   </td>
                   <td>
                     <?= print_number($detail['amount_paid'], 2); ?>

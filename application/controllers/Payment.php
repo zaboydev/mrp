@@ -169,7 +169,7 @@ class Payment extends MY_Controller
     if ($category !== NULL) {
       $category = urldecode($category);
 
-      // $_SESSION['payment_request']['items']               = array();
+      $_SESSION['payment_request']['po']                  = array();
       $_SESSION['payment_request']['category']            = $category;
       $_SESSION['payment_request']['document_number']     = payment_request_last_number();
       $_SESSION['payment_request']['date']                = date('Y-m-d');
@@ -254,12 +254,13 @@ class Payment extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = implode('<br />', $errors);
     } else {
-      $po_items_id 			= $this->input->post('po_item_id');
-      $pos_id 				= $this->input->post('po_id');
-      $desc_items 			= $this->input->post('desc');
-      $value_items		 	= $this->input->post('value');
+      $po_items_id 			  = $this->input->post('po_item_id');
+      $pos_id 				    = $this->input->post('po_id');
+      $desc_items 			  = $this->input->post('desc');
+      $value_items		 	  = $this->input->post('value');
       $adj_value_items	 	= $this->input->post('adj_value');
-      $qty_paid	 			= $this->input->post('qty_paid');
+      $qty_paid	 			    = $this->input->post('qty_paid');
+      $_SESSION['payment_request']['items'] = array();
 
       foreach ($po_items_id as $key=>$po_item) {
         // if ($value_items[$key] != 0) {
@@ -275,7 +276,7 @@ class Payment extends MY_Controller
         if ($value_items[$key] != 0){
                   
           if($po_item!=0){
-            $request = $this->model->infoItem($pos_id[$key],$po_item);
+            $request = $this->model->infoItemPo($pos_id[$key],$po_item);
             $_SESSION['payment_request']['items'][$key] = array(
               'po_number'               => $request['document_number'],
               'deskripsi'               => $request['part_number'].' | '.$request['description'],
@@ -294,7 +295,7 @@ class Payment extends MY_Controller
             $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
           }else{
             if($pos_id[$key]!=0){
-              $request = $this->model->infoItem($pos_id[$key],$po_item);
+              $request = $this->model->infoItemPo($pos_id[$key],$po_item);
               $_SESSION['payment_request']['items'][$key] = array(
                 'po_number'               => $request['document_number'],
                 'deskripsi'               => 'Additional Price (PPN, DISC, SHIPPING COST)',
@@ -385,6 +386,8 @@ class Payment extends MY_Controller
         $data['message'] = 'Please add at least 1 request or vendor!';
       } else {
         $errors = array();
+
+        $_SESSION['payment_request']['document_number'] = payment_request_last_number();
 
         $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number();
 
@@ -780,13 +783,14 @@ class Payment extends MY_Controller
     // $currency = urldecode($currency);
 
     // $_SESSION['payment_request']['currency']  = $currency;
-    // $_SESSION['payment_request']['items']   = array();
+    // $_SESSION['payment_request']['po']   = array();
 
-    // redirect($this->module['route'] . '/create');
+    // redirect($this->module['route'] . '/create_2');
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['payment_request']['currency'] = $_GET['data'];
+    $_SESSION['payment_request']['po']   = array();
   }
 
   public function set_vendor($vendor)
@@ -796,13 +800,14 @@ class Payment extends MY_Controller
     // $vendor = urldecode($vendor);
 
     // $_SESSION['payment_request']['vendor']  = $vendor;
-    // $_SESSION['payment_request']['items']   = array();
+    // $_SESSION['payment_request']['po']   = array();
 
-    // redirect($this->module['route'] . '/create');
+    // redirect($this->module['route'] . '/create_2');
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['payment_request']['vendor'] = $_GET['data'];
+    $_SESSION['payment_request']['po']   = array();
   }
 
   public function add_selected_item()
@@ -814,47 +819,69 @@ class Payment extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (isset($_POST['item_id']) && !empty($_POST['item_id'])) {
-        $_SESSION['payment_request']['items'] = array();
+      if (isset($_POST['po_id']) && !empty($_POST['po_id'])) {
+        $_SESSION['payment_request']['po'] = array();
 
-        foreach ($_POST['item_id'] as $key => $item_id) {
-          $item_id_explode  = explode('-', $item_id);
-          $po_id = $item_id_explode[0];
-          $po_item_id = $item_id_explode[1];
-          $request = $this->model->infoItem($po_id,$po_item_id);
+        foreach ($_POST['po_id'] as $key => $po_id) {
+          // $item_id_explode  = explode('-', $item_id);
+          // $po_id = $item_id_explode[0];
+          // $po_item_id = $item_id_explode[1];
+          $po = $this->model->infoPo($po_id);
 
-          if($po_item_id!=0){
-            $_SESSION['payment_request']['items'][$item_id] = array(
-              'po_number'               => $request['document_number'],
-              'deskripsi'               => $request['part_number'].' | '.$request['description'],
-              'quantity_received'       => floatval($request['quantity_received']),
-              'amount_received'         => floatval($request['quantity_received'])*(floatval($request['unit_price'])+floatval($request['core_charge'])),
-              'total_amount'            => floatval($request['total_amount']),
-              'left_paid_request'       => floatval($request['left_paid_request']),
-              'status'                  => $request['status'],
-              'due_date'                => $request['due_date'],
-              'amount_paid'             => floatval(0),
-              'adj_value'               => floatval(0),
+          $_SESSION['payment_request']['po'][$po_id] = array(
+            'po_id'                     => $po['id'],
+            'document_number'           => $po['document_number'],
+            'status'                    => $po['status'],
+            'due_date'                  => $po['due_date'],
+            'grand_total'               => $po['grand_total'],
+            'payment'                   => $po['payment'],
+            'remaining_payment_request' => $po['remaining_payment_request']
+          );
+          $_SESSION['payment_request']['po'][$po_id]['items_po'] = array();
+
+          $po_items = $this->model->infoItem($po_id);
+          $i = 0;
+
+          foreach ($po_items as $key => $value) {
+            $_SESSION['payment_request']['po'][$po_id]['items_po'][$key] = array(
+              'po_id'               => $value['purchase_order_id'],
+              'po_item_id'          => $value['id'],
+              'part_number'         => $value['part_number'],
+              'description'         => $value['description'],
+              'due_date'            => $po['due_date'],
+              'quantity_received'   => $value['quantity_received'],
+              'unit_price'          => $value['unit_price'],
+              'core_charge'         => $value['core_charge'],
+              'total_amount'        => $value['total_amount'],
+              'left_paid_request'   => $value['left_paid_request'],
+              'quantity'            => $value['quantity'],
+              'quantity_paid'       => $value['quantity_paid'],
+              'value'               => floatval(0),
+              'adj_value'           => floatval(0),
+              'qty_paid'            => floatval($value['quantity']-$value['quantity_paid'])
             );
-
-            $_SESSION['payment_request']['items'][$item_id]['purchase_order_item_id'] = $po_item_id;
-          }else{
-            $_SESSION['payment_request']['items'][$item_id] = array(
-              'po_number'               => $request['document_number'],
-              'deskripsi'               => 'Additional Price (PPN, DISC, SHIPPING COST)',
-              'quantity_received'       => floatval(0),
-              'amount_received'         => floatval(0),
-              'total_amount'            => floatval($request['additional_price']),
-              'left_paid_request'       => floatval($request['additional_price_remaining_request']),
-              'status'                  => $request['status'],
-              'due_date'                => $request['due_date'],
-              'amount_paid'             => floatval(0),
-              'adj_value'               => floatval(0),
-            );
-            $_SESSION['payment_request']['items'][$item_id]['purchase_order_item_id'] = $po_item_id;
+            $i++;
           }
-          
-          $_SESSION['payment_request']['items'][$item_id]['id_po'] = $po_id;
+
+          if($po['additional_price_remaining_request']!=0){
+            $_SESSION['payment_request']['po'][$po_id]['items_po'][$i] = array(
+              'po_id'               => $po['id'],
+              'po_item_id'          => 0,
+              'part_number'         => 'Additional Price',
+              'description'         => 'Additional Price (PPN, Diskon, Shipping Cost)',
+              'due_date'            => $po['due_date'],
+              'quantity_received'   => floatval(1),
+              'unit_price'          => floatval(0),
+              'core_charge'         => floatval(0),
+              'total_amount'        => floatval($po['additional_price']),
+              'left_paid_request'   => floatval($po['additional_price']-$po['additional_price_remaining_request']),
+              'quantity'            => floatval(1),
+              'quantity_paid'       => floatval(1),
+              'value'               => floatval(0),
+              'adj_value'           => floatval(0),
+              'qty_paid'            => floatval(1)
+            );
+          }
         }
 
         $data['success'] = TRUE;
