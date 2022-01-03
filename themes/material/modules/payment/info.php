@@ -55,9 +55,9 @@
           <dd><?= $entity['currency']; ?></dd>
 
           <?php if($entity['status']=='PAID'):?>
-          <dt>Request Selected Account</dt>
-          <?php else: ?>
           <dt>Account</dt>
+          <?php else: ?>
+          <dt>Request Selected Account</dt>
           <?php endif;?>
           <dd> <?= ($entity['coa_kredit']!='')? '('.$entity['coa_kredit'].')':'n/b'; ?> <?= $entity['akun_kredit']; ?> <?= $entity['group']; ?></dd>
           <?php if($entity['status']=='PAID'):?>
