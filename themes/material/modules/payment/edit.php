@@ -157,6 +157,7 @@
                 <th width="7%" class="middle-alignment">Amount</th>
                 <th width="7%" class="middle-alignment">Purposed Amount</th>
                 <th width="7%" class="middle-alignment">Remaining Purposed</th>
+                <th width="8%" class="middle-alignment">Qty Paid</th>
                 <th width="8%" class="middle-alignment">Amount Purposed</th>
                 <th width="5%" class="middle-alignment"></th>
                 <th width="8%" class="middle-alignment">Adjustment</th>
@@ -166,10 +167,10 @@
                 <?php foreach ($_SESSION['payment_request']['items'] as $id => $items):?> 
                 <tr>
                 <td>
-                  <?=$items['document_number']?> <input id="po_item_id_<?= $id; ?>" name="po_item_id[]" value="<?=$items['purchase_order_item_id']?>" type="text" class="form-control-payment">
+                  <?=$items['document_number']?> <input id="po_item_id_<?= $id; ?>" name="po_item_id[]" value="<?=$items['purchase_order_item_id']?>" type="hidden" class="form-control-payment">
                 </td>
                 <td><?=$items['description']?> <input id="desc_<?= $id; ?>" name="desc[]" value="<?=$items['description']?>" type="hidden" class="form-control-payment"></td>
-                <td><?=$items['due_date']?> <input id="po_id_<?= $id; ?>" name="po_id[]" value="<?=$items['id_po']?>" type="text" class="form-control-payment"></td>
+                <td><?=$items['due_date']?> <input id="po_id_<?= $id; ?>" name="po_id[]" value="<?=$items['id_po']?>" type="hidden" class="form-control-payment"></td>
                 <td><?=print_number($items['item']['quantity_received'],2)?></td>
                 <td>
                   <?= print_number($items['item']['quantity_received'] * ($items['item']['unit_price'] + $items['item']['core_charge']), 2) ?>
@@ -202,6 +203,9 @@
                 <?php endif; ?>
                 </td>
                 <td>
+                    <input name="qty_paid[]" id="in_qty_paid_<?= $id; ?>" data-id="<?= $id; ?>" type="number" class="form-control-payment sel_applied_item" value="<?=$items['quantity_paid']?>">
+                </td>
+                <td>
                     <input name="value[]" id="in_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" class="form-control-payment sel_applied_item" value="<?=$items['amount_paid']?>">
                 </td>
                 <td>
@@ -216,6 +220,7 @@
             <tfoot>
               <tr>
                 <td colspan="8" style="text-align: right;">Total Applied</td>
+                <td></td>
                 <td id="total_general"><?= print_number($_SESSION['payment_request']['total_amount'],2); ?></td>
                 <td></td>
                 <td></td>

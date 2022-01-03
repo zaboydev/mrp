@@ -18,7 +18,7 @@
 
   <h4 class="page-header">Confirmation Request</h4>
 
-  <form id="form_update_request" class="form form-validate ui-front" role="form" method="post" action="<?= site_url($module['route'] . '/update_item'); ?>">
+  <form id="form_update_request" class="form form-validate ui-front" role="form" method="post" action="<?= site_url($module['route'] . '/save'); ?>">
     <div class="row">
         <div class="col-sm-4">
             <div class="table-responsive">
@@ -95,7 +95,7 @@
                 ?>
                 <tr id="row_<?= $id; ?>">
                     <td>
-                        
+                        <?= $request['po_id']; ?><?= $request['purchase_order_item_id']; ?>
                     </td>
                     <td>
                         <?= $request['po_number']; ?>
@@ -130,14 +130,14 @@
                         <?= print_number($request['amount_paid'],2) ?>
                         <input id="in_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" rel="amount_paid" name="item[<?= $id; ?>][amount_paid]" value="<?= $request['amount_paid']; ?>" class="hide form-control sel_applied_item">
                     </td>
-                    <td>
+                    <td class="hide">
                         <input type="checkbox" id="cb_<?= $id ?>" data-row="<?= $id ?>" data-id="<?= $id ?>" name="" style="display: inline;" class="hide check_adj" <?= ($request['adj_value']!=0) ? 'checked' : ''; ?>>
                     </td>
                     <td>
                         <?php if($request['adj_value']!=0):?>
                         <?= print_number($request['adj_value'],2) ?>
                         <?php endif; ?>
-                        <input id="in_adj_<?= $id ?>" name="item[<?= $id; ?>][adj_value]" data-parent="<?= $no ?>" data-row="<?= $id ?>" type="number" class="<?= ($request['adj_value']==0) ? 'hide' : ''; ?>  form-control sel_applied_adj sel_applied_adj<?= $id ?>" value="<?= $request['adj_value']; ?>" style="display: inline;">
+                        <input id="in_adj_<?= $id ?>" name="item[<?= $id; ?>][adj_value]" data-parent="<?= $no ?>" data-row="<?= $id ?>" type="hidden" class="<?= ($request['adj_value']==0) ? 'hide' : ''; ?>  form-control sel_applied_adj sel_applied_adj<?= $id ?>" value="<?= $request['adj_value']; ?>" style="display: inline;">
                     </td>
                 </tr>
                 <?php endforeach; ?>

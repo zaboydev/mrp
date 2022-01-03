@@ -487,6 +487,7 @@ class Payment_Model extends MY_MODEL
 		$desc_items 			= $this->input->post('desc');
 		$value_items		 	= $this->input->post('value');
 		$adj_value_items	 	= $this->input->post('adj_value');
+		$qty_paid			 	= $this->input->post('qty_paid');
 
 		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
 		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
@@ -534,7 +535,8 @@ class Payment_Model extends MY_MODEL
 					$id_po = $item['id_po'];
 					$value = $item["amount_paid"]+$item["adj_value"];
 					if($item['purchase_order_item_id']!==null){
-						$this->db->set('left_paid_request', '"left_paid_request" + ' . $value, false);
+						$this->db->set('left_paid_request', '"left_paid_request" + ' . $value, false);					
+						$this->db->set('quantity_paid', '"quantity_paid" - ' . $qty_paid[$key], false);
 						$this->db->where('id', $item["purchase_order_item_id"]);
 						$this->db->update('tb_po_item');
 					}else{
@@ -589,7 +591,8 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('no_cheque', null);
 				$this->db->set('tanggal', $date);
 				$this->db->set('no_transaksi', $document_number);
-				$this->db->set('coa_kredit', null);
+				$this->db->set('coa_kredit', null);				
+				$this->db->set('quantity_paid', $qty_paid[$key]);
 				if($adj_value_items[$key]!=null){
 					$this->db->set('adj_value', $adj_value_items[$key]);
 					$adj_value = $adj_value_items[$key];
@@ -613,7 +616,8 @@ class Payment_Model extends MY_MODEL
 				$val_request = $value_items[$key]-$adj_value;
 
 				if($po_item!=0){
-					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
+					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);					
+					$this->db->set('quantity_paid', '"quantity_paid" + ' . $qty_paid[$key], false);
 					$this->db->where('id', $po_item);
 					$this->db->update('tb_po_item');
 				}else{
@@ -645,7 +649,7 @@ class Payment_Model extends MY_MODEL
 
 		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
 		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
-		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number().'-R';
+		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number();
 		$date      				= $_SESSION['payment_request']['date'];
 		$purposed_date      	= $_SESSION['payment_request']['purposed_date'];
 		$currency      			= $_SESSION['payment_request']['currency'];
@@ -864,7 +868,8 @@ class Payment_Model extends MY_MODEL
 	{
 		// $this->db->where('id', $id);
 
-		$this->db->select('tb_po_payments.*');
+		$this->db->select('tb_po_payments.*,tb_master_coa.group');
+		$this->db->join('tb_master_coa','tb_master_coa.coa = tb_po_payments.coa_kredit','left');
 		$this->db->from('tb_po_payments');
 		$this->db->where('tb_po_payments.id', $id);
 		$query = $this->db->get();
@@ -880,6 +885,7 @@ class Payment_Model extends MY_MODEL
 			'tb_purchase_order_items_payments.id_po',
 			'tb_purchase_order_items_payments.uang_muka',
 			'tb_purchase_order_items_payments.id',
+			'tb_purchase_order_items_payments.quantity_paid',
 			'tb_po.document_number',
 			'tb_po.default_currency',
 			'tb_po.tipe_po',
@@ -1730,27 +1736,27 @@ class Payment_Model extends MY_MODEL
 		$this->db->where_in('status', ['OPEN', 'ORDER']);
 		$this->db->order_by('tb_po.due_date', 'asc');
 		$po = $this->db->get();
-		$list_po = array();
-		// foreach ($po as $detail) {
-		foreach ($po->result_array() as $key => $detail) {
-			$list_po[$key]= $detail;
-			$this->db->select('*');
-			$this->db->from('tb_po_item');
-			// $this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id');
-			$this->db->where('tb_po_item.purchase_order_id', $detail['id']);
-			$this->db->where('tb_po_item.left_paid_request >', 0);
-			$this->db->order_by('tb_po_item.id', 'asc');
-			$query = $this->db->get();
+		// $list_po = array();
+		// // foreach ($po as $detail) {
+		// foreach ($po->result_array() as $key => $detail) {
+		// 	$list_po[$key]= $detail;
+		// 	$this->db->select('*');
+		// 	$this->db->from('tb_po_item');
+		// 	// $this->db->join('tb_po', 'tb_po_item.purchase_order_id = tb_po.id');
+		// 	$this->db->where('tb_po_item.purchase_order_id', $detail['id']);
+		// 	$this->db->where('tb_po_item.left_paid_request >', 0);
+		// 	$this->db->order_by('tb_po_item.id', 'asc');
+		// 	$query = $this->db->get();
 
-			foreach ($query->result_array() as $i => $value) {
-				$list_po[$key]['items'][$i] = $value;
-			}
-		}
-		return $list_po;
-		// return $po->result_array();
+		// 	foreach ($query->result_array() as $i => $value) {
+		// 		$list_po[$key]['items'][$i] = $value;
+		// 	}
+		// }
+		// return $list_po;
+		return $po->result_array();
 	}
 
-	public function infoItem($po_id, $po_item_id)
+	public function infoItemPo($po_id, $po_item_id)
 	{
 		if($po_item_id!=0){
 			$this->db->select('*');
@@ -1768,6 +1774,28 @@ class Payment_Model extends MY_MODEL
 		}
 
 		return $return;
+	}
+
+	public function infoItem($po_id)
+	{
+		$this->db->select(array('tb_po_item.*','tb_po.due_date'));
+		$this->db->join('tb_po','tb_po.id = tb_po_item.purchase_order_id');
+		$this->db->from('tb_po_item');
+		$this->db->where('tb_po_item.purchase_order_id',$po_id);
+		$query = $this->db->get();
+		$return = $query->result_array();
+
+		return $return;
+	}
+
+	public function infoPo($po_id)
+	{
+		$this->db->select('*');
+		// $this->db->join('tb_po','tb_po.id = tb_po_item.purchase_order_id');
+		$this->db->from('tb_po');
+		$this->db->where('tb_po.id',$po_id);
+		$query = $this->db->get();
+		return $query->unbuffered_row('array');
 	}
 	// }
 

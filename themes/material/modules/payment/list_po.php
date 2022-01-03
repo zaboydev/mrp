@@ -2,6 +2,7 @@
 $no_item = 1; ?>
 <?php foreach ($po as $detail) : ?>
     <tr id="row_<?= $no ?>">
+        <td><?= $no ?></td>
         <td><input id="sel_<?= $no ?>" value="<?= $detail['id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
         <td><?= print_string($detail['status']) ?></td>
         <td><?= print_date($detail['due_date'],'d/m/Y') ?></td>
@@ -19,6 +20,7 @@ $no_item = 1; ?>
     <div id="list_detail_po">
         <?php foreach ($detail['items'] as $i => $detail_po) : ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
+                <td><?=$no_item?></td>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input name="po_item_id[]" id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['id'] ?>" type="hidden">
                     <input name="po_id[]" id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['purchase_order_id'] ?>" type="hidden">
@@ -65,6 +67,7 @@ $no_item = 1; ?>
         <?php endforeach; ?>
         <?php if ($detail['additional_price_remaining_request'] != 0) : ?>
             <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
+                <td><?=$no_item?></td>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input name="po_item_id[]" id="sel_item_<?= $no ?>_<?= $no_item ?>" value="0" type="hidden">
                     <input name="po_id[]" id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail['id'] ?>" type="hidden">

@@ -87,7 +87,7 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="[auto]" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
+                    <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['payment_request']['document_number']; ?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
                     <label for="document_number">Purpose Number</label>
                   </div>
                   <span class="input-group-addon"><?=payment_request_format_number();?></span>
@@ -160,7 +160,7 @@
           <table class="table table-hover table-bordered table-nowrap" id="table-document" width="100%">
             <thead>
               <tr>
-                <!-- <th class="middle-alignment">No.</th> -->
+                <th class="middle-alignment">#</th>
                 <th width="15%" class="middle-alignment">No PO</th>
                 <th width="13%" class="middle-alignment">Status</th>
                 <th width="7%" class="middle-alignment">Due Date</th>
@@ -176,8 +176,80 @@
                 <th width="8%" class="middle-alignment">Adjustment</th>
               </tr>
             </thead>
+            <?php if (count($_SESSION['payment_request']['po'])>0):?>
             <tbody id="listView">
-
+              <?php 
+                $no = 1; 
+              ?>
+              <?php foreach ($_SESSION['payment_request']['po'] as $i => $detail) : ?>
+                <tr id="row_<?= $no ?>">
+                  <td><?= $no ?></td>
+                  <td><input id="sel_<?= $no ?>" value="<?= $detail['id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
+                  <td><?= print_string($detail['status']) ?></td>
+                  <td><?= print_date($detail['due_date'],'d/m/Y') ?></td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td><?= print_number($detail['grand_total'], 2) ?></td>
+                  <td><?= print_number($detail['payment'], 2) ?></td>
+                  <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment_request'] ?>" type="hidden"><?= print_number($detail['remaining_payment_request'], 2) ?></td>
+                  <td></td>
+                  <td><input name="request[<?= $i; ?>]" id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="0"></td>
+                  <td><button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="fa fa-angle-right"></i></button></td>
+                  <td><a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
+                  <td></td>
+                </tr>
+                <div id="list_detail_po">
+                <?php $no_item = 1;?>
+                <?php foreach ($detail['items_po'] as $id => $detail_po) : ?>
+                  <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
+                    <td><?=$no?>.<?=$no_item?></td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input name="po_item_id[]" id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['po_item_id'] ?>" type="hidden">
+                        <input name="po_id[]" id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['po_id'] ?>" type="hidden">
+                        <?= print_string($detail_po['part_number']) ?>
+                    </td>
+                    <td>
+                        <?= print_string($detail_po['description']) ?>
+                        <input name="desc[]" id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['description'] ?>" type="hidden">
+                    </td>
+                    <td>
+                        <?= $detail_po['due_date'] ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity_received'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity_received'] * ($detail_po['unit_price'] + $detail_po['core_charge']), 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['total_amount'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['total_amount'] - $detail_po['left_paid_request'], 2) ?>
+                    </td>
+                    <td>
+                        <input id="sis_item_<?= $no ?>_<?= $no_item ?>" class="sis_item_<?= $no ?>" value="<?= $detail_po['left_paid_request'] ?>" type="hidden">
+                        <?= print_number($detail_po['left_paid_request'], 2) ?>
+                    </td>
+                    <td>
+                        <input name="qty_paid[]" id="in_qty_paid_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="in_qty_paid_<?= $no ?> form-control-payment" value="<?= $detail_po['quantity']-$detail_po['quantity_paid'] ?>">
+                    </td>
+                    <td>
+                        <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control-payment" value="0">
+                    </td>
+                    <td>
+                        <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
+                    </td>
+                    <td></td>
+                    <td>
+                        <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                    </td>
+                    <?php $no_item++; ?>
+                  </tr>
+                <?php endforeach; ?>
+                </div>
+                <?php $no++; ?>
+              <?php endforeach;?>
             </tbody>
             <tfoot>
               <tr>
@@ -187,12 +259,16 @@
                 <td></td>
               </tr>
             </tfoot>
+            <?php endif;?>
           </table>
         </div>
       </div>
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
+            <a href="<?=site_url($module['route'] .'/add_item');?>" onClick="return popup(this, 'add_item')" class="btn btn-primary ink-reaction">
+              Select PO
+            </a>
             <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction">
               Add
             </button>
@@ -272,17 +348,16 @@
 
   function addRow() {
     var row = '<tr>'+
-    '<td colspan="2"><input name="desc[]" type="text" class="form-control-payment"></td>'+
+    '<td colspan="5"><input name="desc[]" type="text" class="form-control-payment"></td>'+
     '<td><input type="hidden" value="0" name="po_item_id[]"></td>'+
     '<td><input type="hidden" value="0" name="po_id[]"></td>'+
-    '<td></td>'+
-    '<td></td>'+
     '<td></td>'+
     '<td></td>'+
     '<td></td>'+
     '<td><input name="value[]" type="number" class="form-control-payment"></td>'+
     '<td></td>'+
     '<td><input name="adj_value[]" type="number" class="hide sel_applied_adj sel_applied_adj" value="0" style="display: inline;"></td>'+
+    '<td></td>'+
     '</tr>';
     $("#listView").append(row);
     setAddValue();
@@ -421,7 +496,7 @@
     $("#listView").html("");
     row = [];
     row_detail = [];
-    getPo()
+    // getPo()
 
     var val = $(this).val();
     var url = $(this).data('source');
@@ -440,14 +515,12 @@
     row = [];
     row_detail = [];
 
-    getPo()
+    // getPo()
 
     var val = $(this).val();
     var url = $(this).data('source');
 
     $.get( url, { data: val });
-
-    // }
   });
 
   $("#tipe_select").change(function(e) {
@@ -561,17 +634,26 @@
     if(input!=''){
       if (parseFloat(input) < sisa) {
         $('.detail_' + selRow).removeClass('hide');
-        $.each(row_detail, function(i, po) {
-          sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-          $("#in_item_" + selRow + "_" + po).val(0)
-          $("#in_" + selRow).attr('readonly', true);
-        });
-      } else {
-        $.each(row_detail, function(i, po) {
+        $(".sis_item_"+selRow).each(function (key, val){
+          // console.log(key)
+          var po = parseInt(key)+1;
           sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
           $("#in_item_" + selRow + "_" + po).val(sisa_item)
         });
+        $("#in_" + selRow).attr('readonly', true);
+      } else {
+        $(".sis_item_"+selRow).each(function (key, val){
+          // console.log(key)
+          var po = parseInt(key)+1;
+          sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+          $("#in_item_" + selRow + "_" + po).val(sisa_item)
+        });
+        // $.each(row_detail, function(i, po) {
+        //   sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+        //   $("#in_item_" + selRow + "_" + po).val(sisa_item)
+        // });
         $('.detail_' + selRow).removeClass('hide');
+        $("#in_" + selRow).attr('readonly', true);
       }
     }else{
       $(this).val(0)

@@ -2284,7 +2284,7 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $CI->db->select_max('document_number', 'last_number');
       $CI->db->from('tb_po_payments');
-      $CI->db->like('document_number', $format, 'before');
+      $CI->db->like('document_number', $format);
 
       $query  = $CI->db->get();
       $row    = $query->unbuffered_row();
