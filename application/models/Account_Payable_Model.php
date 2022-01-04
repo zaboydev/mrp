@@ -347,6 +347,7 @@ class Account_Payable_Model extends MY_Model
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', $tipe);
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result();
   }
 

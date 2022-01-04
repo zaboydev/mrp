@@ -1514,6 +1514,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $poe_id = $id;
 
     $this->db->where('id_poe', $poe_id);
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result();
   }
 
@@ -2257,7 +2258,8 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->where('tipe', 'PO');
     if($tipe_att!=null){
       $this->db->where('tipe_att', $tipe_att);
-    }
+    }    
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
@@ -2282,8 +2284,13 @@ class Capex_Purchase_Order_Model extends MY_Model
   {
     $this->db->trans_begin();
 
+    // $this->db->where('id', $id_att);
+    // $this->db->delete('tb_attachment_poe');
+
+    $this->db->set('deleted_at',date('Y-m-d'));
+    $this->db->set('deleted_by', config_item('auth_person_name'));
     $this->db->where('id', $id_att);
-    $this->db->delete('tb_attachment_poe');
+    $this->db->update('tb_attachment_poe');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

@@ -1919,6 +1919,7 @@ class Goods_Received_Note_Model extends MY_Model
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'GRN');
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
