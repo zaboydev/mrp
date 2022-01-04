@@ -134,7 +134,7 @@
                     <option value="">-- SELECT Account</option>
                     <?php foreach (getAccount() as $key => $account) : ?>
                         <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment_request']['coa_kredit']) ? 'selected' : ''; ?>>
-                        <?= $account['group']; ?>
+                        <?= $account['group']; ?> <?= $account['group']; ?>
                         </option>
                     <?php endforeach; ?>
                     </select>

@@ -75,6 +75,8 @@ class Payment extends MY_Controller
         // $col[]  = print_string($row['part_number']);
         // $col[]  = print_string($row['description']);
         $col[]  = print_string($row['currency']);
+        // $col[]  = print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']);
+        $col[]  = '<a data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">' . print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']) . '</a>';
         if($row['currency']=='IDR'){
           $col[]  = print_number($row['amount_paid'], 2);
           $col[]  = print_number(0, 2);
@@ -1035,6 +1037,48 @@ class Payment extends MY_Controller
     $this->data['page']['title']            = 'Confirmation Request';
 
     $this->render_view($this->module['view'] . '/konfirmasi');
+  }
+
+  public function change_account($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'change_account') === FALSE) {
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->findById($id);
+
+      $this->data['entity'] = $entity;
+
+      $return['type'] = 'success';
+      $return['info'] = $this->load->view($this->module['view'] . '/change_account', $this->data, TRUE);
+    }
+
+    echo json_encode($return);
+  }
+
+  public function save_change_account()
+  {
+    // if ($this->input->is_ajax_request() == FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'change_account') == FALSE) {
+      $data['type'] = FALSE;
+      $data['info'] = 'You are not allowed to save this Document!';
+    } else {
+      if ($this->model->save_change_account()) {
+        $data['type'] = 'success';
+        $data['info'] = 'Update Success';
+      } else {
+        $data['type'] = 'danger';
+        $data['info'] = 'Error while saving this document. Please ask Technical Support.';
+      }
+    }
+
+    // echo json_encode($data);
+    redirect($this->module['route']);
   }
 
 }
