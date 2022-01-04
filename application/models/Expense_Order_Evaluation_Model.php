@@ -40,6 +40,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'POE');
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result();
   }
 
@@ -47,6 +48,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'POE');
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
@@ -337,6 +339,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
       }
     }
     $this->db->where('id_poe', $id);
+    $this->db->where(array('deleted_at' => NULL));
     $data = $this->db->get('tb_attachment_poe')->result();
     $attachment = array();
     foreach ($data as $key) {
@@ -1063,8 +1066,12 @@ class Expense_Order_Evaluation_Model extends MY_Model
   {
     $this->db->trans_begin();
 
+    // $this->db->where('id', $id_att);
+    // $this->db->delete('tb_attachment_poe');
+    $this->db->set('deleted_at',date('Y-m-d'));
+    $this->db->set('deleted_by', config_item('auth_person_name'));
     $this->db->where('id', $id_att);
-    $this->db->delete('tb_attachment_poe');
+    $this->db->update('tb_attachment_poe');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

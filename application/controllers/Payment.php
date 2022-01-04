@@ -643,7 +643,7 @@ class Payment extends MY_Controller
 
   public function discard()
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'document');
 
     unset($_SESSION['payment_request']);
 

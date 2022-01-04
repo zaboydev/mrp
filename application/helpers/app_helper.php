@@ -2338,6 +2338,7 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $CI->db->where('id_poe', $poe_id);
       $CI->db->where('tipe', 'POE');
+      $CI->db->where(array('deleted_at' => NULL));
       return $CI->db->get('tb_attachment_poe');
     }
   }
