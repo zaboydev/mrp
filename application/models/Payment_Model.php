@@ -1014,7 +1014,7 @@ class Payment_Model extends MY_MODEL
 	    $return = 0;
 	    if($tipe=='INVENTORY MRP'){
 	      $this->db->select('id');
-	      $this->db->where('pr_number', $pr_number);
+	      $this->db->where('UPPER(tb_inventory_purchase_requisitions.pr_number)', $pr_number);
 	      $this->db->from('tb_inventory_purchase_requisitions');
 	      $query    = $this->db->get();
 	      $request = $query->unbuffered_row();
@@ -1023,7 +1023,7 @@ class Payment_Model extends MY_MODEL
 
 	    if($tipe=='INVENTORY'){
 	      $this->connection->select('id');
-	      $this->connection->where('pr_number', $pr_number);
+	      $this->connection->where('UPPER(tb_inventory_purchase_requisitions.pr_number)', $pr_number);
 	      $this->connection->from('tb_inventory_purchase_requisitions');
 	      $query    = $this->connection->get();
 	      $request = $query->unbuffered_row();
@@ -1032,7 +1032,7 @@ class Payment_Model extends MY_MODEL
 
 	    if($tipe=='EXPENSE'){
 	      $this->connection->select('id');
-	      $this->connection->where('pr_number', $pr_number);
+	      $this->connection->where('UPPER(tb_expense_purchase_requisitions.pr_number)', $pr_number);
 	      $this->connection->from('tb_expense_purchase_requisitions');
 	      $query    = $this->connection->get();
 	      $request = $query->unbuffered_row();
@@ -1041,7 +1041,7 @@ class Payment_Model extends MY_MODEL
 
 	    if($tipe=='CAPEX'){
 	      $this->connection->select('id');
-	      $this->connection->where('pr_number', $pr_number);
+	      $this->connection->where('UPPER(tb_capex_purchase_requisitions.pr_number)', $pr_number);
 	      $this->connection->from('tb_capex_purchase_requisitions');
 	      $query    = $this->connection->get();
 	      $request = $query->unbuffered_row();
