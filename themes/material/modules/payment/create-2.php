@@ -184,7 +184,7 @@
               <?php foreach ($_SESSION['payment_request']['po'] as $i => $detail) : ?>
                 <tr id="row_<?= $no ?>">
                   <td><?= $no ?></td>
-                  <td><input id="sel_<?= $no ?>" value="<?= $detail['id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
+                  <td><input id="sel_<?= $no ?>" value="<?= $detail['po_id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
                   <td><?= print_string($detail['status']) ?></td>
                   <td><?= print_date($detail['due_date'],'d/m/Y') ?></td>
                   <td>&nbsp;</td>
@@ -195,7 +195,7 @@
                   <td></td>
                   <td><input name="request[<?= $i; ?>]" id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="0"></td>
                   <td><button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="fa fa-angle-right"></i></button></td>
-                  <td><a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
+                  <td><a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['po_id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
                   <td></td>
                 </tr>
                 <div id="list_detail_po">
@@ -240,8 +240,8 @@
                     <td>
                         <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
                     </td>
-                    <td></td>
-                    <td>
+                    <!-- <td></td> -->
+                    <td colspan="2">
                         <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
                     </td>
                     <?php $no_item++; ?>
@@ -638,8 +638,25 @@
           // console.log(key)
           var po = parseInt(key)+1;
           sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-          $("#in_item_" + selRow + "_" + po).val(sisa_item)
+          // $("#in_item_" + selRow + "_" + po).val(sisa_item)
+          $("#in_item_" + selRow + "_" + po).val(0)
+          $("#in_adj_" + selRow + "_" + po).val(0)
+          $("#cb_" + selRow + "_" + po).prop('checked',false);
         });
+        alert("Amount that you enter is less than total order. Please input item amount!");
+        $("#in_" + selRow).attr('readonly', true);
+      }else if (parseFloat(input) > sisa) {
+        $('.detail_' + selRow).removeClass('hide');
+        $(".sis_item_"+selRow).each(function (key, val){
+          // console.log(key)
+          var po = parseInt(key)+1;
+          sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+          // $("#in_item_" + selRow + "_" + po).val(sisa_item)
+          $("#in_item_" + selRow + "_" + po).val(0)
+          $("#in_adj_" + selRow + "_" + po).val(0)
+          $("#cb_" + selRow + "_" + po).prop('checked',false);
+        });
+        alert("Amount that you enter is more than total order. Please input item amount!");
         $("#in_" + selRow).attr('readonly', true);
       } else {
         $(".sis_item_"+selRow).each(function (key, val){
@@ -647,6 +664,8 @@
           var po = parseInt(key)+1;
           sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
           $("#in_item_" + selRow + "_" + po).val(sisa_item)
+          $("#in_adj_" + selRow + "_" + po).val(0)
+          $("#cb_" + selRow + "_" + po).prop('checked',false);
         });
         // $.each(row_detail, function(i, po) {
         //   sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
@@ -709,6 +728,7 @@
       // $(this).val(sisa);
       // input = sisa;
       $("#in_adj_" + parent + "_" + selRow).val(selisih.toFixed(2));
+      $("#cb_" + parent + "_" + selRow).prop('checked',true);
       $("#in_adj_" + parent + "_" + selRow).removeClass('hide');
     }else{
       $("#in_adj_" + parent + "_" + selRow).val(0);
@@ -729,7 +749,8 @@
     var selisih = parseFloat(input)-parseFloat(sisa)
     if($(this).prop('checked')){
       console.log('checkbox-check');
-      $("#in_adj_" + id).val(selisih.toFixed(2));
+      // $("#in_adj_" + id).val(selisih.toFixed(2));
+      $("#in_adj_" + id).val(0);
       $("#in_adj_" + id).removeClass('hide');
     }else{
       console.log('checkbox-uncheck');

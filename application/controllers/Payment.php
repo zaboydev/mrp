@@ -835,7 +835,8 @@ class Payment extends MY_Controller
             'due_date'                  => $po['due_date'],
             'grand_total'               => $po['grand_total'],
             'payment'                   => $po['payment'],
-            'remaining_payment_request' => $po['remaining_payment_request']
+            'remaining_payment_request' => $po['remaining_payment_request'],            
+            'tipe_po'                   => $po['tipe_po']
           );
           $_SESSION['payment_request']['po'][$po_id]['items_po'] = array();
 
