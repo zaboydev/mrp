@@ -776,12 +776,13 @@
       // tulis disini
       var id = $(this).data('id');
       if (id == 'item') {
+        var url = $(this).data('href');
         var a = $(this).data('item-row');
         $.ajax({
-          url: "<?= site_url($module['route'] . '/info_item/'); ?>" + "/" + a,
+          url: url,
           type: 'get',
           success: function(data) {
-            var dataModal = $('#modal-item');
+            var dataModal = $('#data-modal');
             var obj = $.parseJSON(data);
             $(dataModal)
               .find('.modal-body')

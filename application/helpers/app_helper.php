@@ -567,8 +567,9 @@ if ( ! function_exists('available_vendors_by_currency')) {
     $CI->db->select('tb_master_vendors.vendor');
     $CI->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
 		$CI->db->where('tb_master_vendors_currency.currency', $currency);
-    $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
+    // $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
     $CI->db->from('tb_master_vendors');
+    $CI->db->order_by('tb_master_vendors.vendor', 'asc');
 
     // if ($category !== NULL){
     //   $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');

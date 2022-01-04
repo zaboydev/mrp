@@ -7,22 +7,28 @@
 </style>
 <table class="table-no-strip condensed">
     <tr>
-        <td>Payment to</td>
-        <th widtd="40%">: <?= $entity['vendor']; ?></th>
         <td>TRANSACTION NO </td>
         <th>: <?= print_string($entity['no_transaksi']); ?></th>
+        <td>Payment to</td>
+        <th>: <?= $entity['vendor']; ?></th>
+        <td>Paid at</td>
+        <th>: <?= ($entity['paid_at']!='')? print_date($entity['paid_at']):'-'; ?></th>
     </tr>
     <tr>
-        <td>Payment Status</td>
-        <th>: <?= $entity['status']; ?></th>
         <td>Date.</td>
         <th>: <?= print_date($entity['tanggal']); ?></th>
+        <td>Payment Status</td>
+        <th>: <?= $entity['status']; ?></th>
+        <td>No. Konfirmasi</td>
+        <th>: <?= ($entity['status']=='PAID')? $entity['no_konfirmasi']:'n/b'; ?></th>
     </tr>
     <tr>
-        <td>Account</td>
-        <th>: <?= $entity['coa_kredit']; ?> <?= $entity['group']; ?></th>
         <td>Purposed Date</td>
         <th>: <?= print_date($entity['purposed_date']); ?></th>
+        <td>Account</td>
+        <th>: <?= $entity['coa_kredit']; ?> <?= $entity['group']; ?></th>
+        <td>No. Cheque</td>
+        <th>: <?= ($entity['status']=='PAID')? $entity['no_cheque']:'n/b'; ?></th>
     </tr>
 </table>
 

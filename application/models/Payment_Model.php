@@ -24,10 +24,11 @@ class Payment_Model extends MY_MODEL
 			// 'tb_po_item.part_number'             								=> 'Part Number',
 			// 'tb_purchase_order_items_payments.deskripsi as description'			=> 'Description',
 			'tb_po_payments.currency'             								=> 'Currency',
+			'tb_po_payments.coa_kredit'             								=> 'Account',
             'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid'  => 'Amount IDR',
 			'tb_po_payments.akun_kredit'   										=> 'Amount USD',
 			'tb_po_payments.status'	                     						=> 'Status',
-			NULL											           			=> 'Attachment',
+			'tb_po_payments.akun_kredit'					           			=> 'Attachment',
 			'tb_po_payments.base'                     							=> 'Base',
 			'tb_po_payments.created_by'           								=> 'Created by',
 			'tb_po_payments.created_at'                     					=> 'Created At',
@@ -47,6 +48,8 @@ class Payment_Model extends MY_MODEL
 			// 'tb_po_item.part_number',
 			// 'tb_purchase_order_items_payments.deskripsi',
 			'tb_po_payments.currency',
+			'tb_po_payments.coa_kredit',
+			'tb_po_payments.akun_kredit',
 			// 'tb_purchase_order_items_payments.amount_paid',
 			'tb_po_payments.created_by',
 			'tb_po_payments.vendor',
@@ -69,7 +72,8 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.vendor',
 			// 'tb_po_item.part_number',
 			// 'tb_purchase_order_items_payments.deskripsi',
-			'tb_po_payments.currency',
+			'tb_po_payments.currency',			
+			'tb_po_payments.coa_kredit',
 			// 'tb_purchase_order_items_payments.amount_paid',
 			'tb_po_payments.base',
 			'tb_po_payments.created_by',
@@ -289,6 +293,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
 		$this->db->where('tb_master_vendors_currency.currency', $currency);
 		$this->db->from('tb_master_vendors');
+		$this->db->order_by('tb_master_vendors.vendor');
 		return $this->db->get('')->result();
 	}
 
@@ -501,6 +506,7 @@ class Payment_Model extends MY_MODEL
 		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
 		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
 		$base 					= config_item('auth_warehouse');
+		$akun_kredit 			= getAccountByCode($coa_kredit);
 
 		if ($currency == 'IDR') {
 			$amount_idr = $total_amount;
@@ -568,6 +574,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('notes', $notes);
 		$this->db->set('revisi', 'f');
 		$this->db->set('coa_kredit', $coa_kredit);
+		$this->db->set('akun_kredit', $akun_kredit->group);
 		if($base=='JAKARTA'){
 				$this->db->set('status','WAITING REVIEW BY FIN MNG');
 			}
@@ -659,6 +666,7 @@ class Payment_Model extends MY_MODEL
 		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
 		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
 		$base 					= config_item('auth_warehouse');
+		$akun_kredit 			= getAccountByCode($coa_kredit);
 
 		if ($currency == 'IDR') {
 			$amount_idr = $total_amount;
@@ -679,6 +687,7 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('base', $base);
 			$this->db->set('notes', $notes);
 			$this->db->set('coa_kredit', $coa_kredit);
+			$this->db->set('akun_kredit', $akun_kredit->group);
 			if($base=='JAKARTA'){
 				$this->db->set('status','WAITING REVIEW BY FIN MNG');
 			}
@@ -901,9 +910,11 @@ class Payment_Model extends MY_MODEL
 		$this->db->order_by('tb_purchase_order_items_payments.id_po','asc');
 
 		$query_item = $this->db->get();
+		$total = 0;
 
 		foreach ($query_item->result_array() as $key => $value) {
 			$payment['items'][$key] = $value;
+			$total = $total+$value['amount_paid'];
 			if($value['purchase_order_item_id']!=null){
 				$item 										= $this->getItemPoById($value['purchase_order_item_id']);
 				$payment['items'][$key]['poe_number'] 		= $item['poe_number'];
@@ -925,6 +936,7 @@ class Payment_Model extends MY_MODEL
 			}			
 			
 		}
+		$payment['total_amount'] = $total;
 
 		return $payment;
 	}
@@ -2088,6 +2100,26 @@ class Payment_Model extends MY_MODEL
 			return FALSE;
 
 		$this->db->trans_commit();
+		return TRUE;
+	}
+
+	public function save_change_account()
+	{
+		$this->db->trans_begin();
+
+		$coa_kredit = $this->input->post('account');
+		$akun_kredit = getAccountByCode($coa_kredit);
+
+		$this->db->set('coa_kredit', $coa_kredit);
+		$this->db->set('akun_kredit', $akun_kredit->group);
+		$this->db->where('id', $this->input->post('id'));
+		$this->db->update('tb_po_payments');
+
+		if ($this->db->trans_status() === FALSE)
+		return FALSE;
+
+		$this->db->trans_commit();
+
 		return TRUE;
 	}
 }

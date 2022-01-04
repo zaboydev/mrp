@@ -22,4 +22,5 @@ $config['module']['payment']['permission']     = array(
   'approve'             => 'VP FINANCE,SUPER ADMIN',
   'manage_attachment'   => 'SUPER ADMIN,TELLER,AP STAFF,FINANCE SUPERVISOR',
   'cancel'              => 'AP STAFF,SUPER ADMIN',
+  'change_account'      => 'AP STAFF,FINANCE SUPERVISOR,FINANCE MANAGER,VP FINANCE,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,SUPER ADMIN',
 );
