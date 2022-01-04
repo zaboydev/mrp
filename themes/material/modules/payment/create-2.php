@@ -20,7 +20,7 @@
     display: block;
     width: 100%;
     height: 30px;
-    padding: 4.5px 14px;
+    /* padding: 4.5px 14px; */
     font-size: 13px;
     line-height: 1.846153846;
     color: #0c0c0c;
@@ -157,23 +157,24 @@
         </div>
 
         <div class="document-data table-responsive">
-          <table class="table table-hover table-bordered table-nowrap" id="table-document" width="100%">
+          <table class="table table-hover table-bordered" id="table-document">
             <thead>
               <tr>
                 <th class="middle-alignment">#</th>
-                <th width="15%" class="middle-alignment">No PO</th>
-                <th width="13%" class="middle-alignment">Status</th>
-                <th width="7%" class="middle-alignment">Due Date</th>
-                <th width="5%" class="middle-alignment">GRN Qty</th>
-                <th width="7%" class="middle-alignment">GRN Val.</th>
-                <th width="7%" class="middle-alignment">Amount</th>
-                <th width="7%" class="middle-alignment">Purposed Amount</th>
-                <th width="7%" class="middle-alignment">Remaining Purposed</th>
-                <th width="8%" class="middle-alignment">Qty Paid</th>
-                <th width="8%" class="middle-alignment">Amount Purposed</th>
-                <th width="3%" class="middle-alignment"></th>
-                <th width="3%" class="middle-alignment"></th>
-                <th width="8%" class="middle-alignment">Adjustment</th>
+                <th class="middle-alignment">No PO</th>
+                <th class="middle-alignment">Status</th>
+                <th class="middle-alignment">Due Date</th>
+                <th class="middle-alignment">Qty PO</th>
+                <th class="middle-alignment">Total PO</th>
+                <th class="middle-alignment">GRN Qty</th>
+                <th class="middle-alignment">GRN Val.</th>
+                <th class="middle-alignment">Purposed Amount</th>
+                <th class="middle-alignment">Remaining Purposed</th>
+                <th class="middle-alignment">Qty Paid</th>
+                <th class="middle-alignment">Amount</th>
+                <th class="middle-alignment"></th>
+                <th class="middle-alignment"></th>
+                <th class="middle-alignment">Adjustment</th>
               </tr>
             </thead>
             <?php if (count($_SESSION['payment_request']['po'])>0):?>
@@ -187,6 +188,7 @@
                   <td><input id="sel_<?= $no ?>" value="<?= $detail['po_id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
                   <td><?= print_string($detail['status']) ?></td>
                   <td><?= print_date($detail['due_date'],'d/m/Y') ?></td>
+                  <td>&nbsp;</td>
                   <td>&nbsp;</td>
                   <td>&nbsp;</td>
                   <td><?= print_number($detail['grand_total'], 2) ?></td>
@@ -216,13 +218,16 @@
                         <?= $detail_po['due_date'] ?>
                     </td>
                     <td>
+                        <?= print_number($detail_po['quantity'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['total_amount'], 2) ?>
+                    </td>
+                    <td>
                         <?= print_number($detail_po['quantity_received'], 2) ?>
                     </td>
                     <td>
                         <?= print_number($detail_po['quantity_received'] * ($detail_po['unit_price'] + $detail_po['core_charge']), 2) ?>
-                    </td>
-                    <td>
-                        <?= print_number($detail_po['total_amount'], 2) ?>
                     </td>
                     <td>
                         <?= print_number($detail_po['total_amount'] - $detail_po['left_paid_request'], 2) ?>
@@ -242,7 +247,7 @@
                     </td>
                     <!-- <td></td> -->
                     <td colspan="2">
-                        <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide  form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                        <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
                     </td>
                     <?php $no_item++; ?>
                   </tr>
@@ -253,7 +258,7 @@
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="8" style="text-align: right;">Total Applied</td>
+                <td colspan="11" style="text-align: right;">Total Applied</td>
                 <td id="total_general">0</td>
                 <td></td>
                 <td></td>

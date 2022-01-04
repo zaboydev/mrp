@@ -289,6 +289,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
 		$this->db->where('tb_master_vendors_currency.currency', $currency);
 		$this->db->from('tb_master_vendors');
+		$this->db->order_by('tb_master_vendors.vendor');
 		return $this->db->get('')->result();
 	}
 
