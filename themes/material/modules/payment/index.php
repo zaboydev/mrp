@@ -810,6 +810,11 @@
         });
       }
 
+      if (id == 'openPo') {
+        var url = $(this).data('href');
+        window.open(url, '_blank').focus();
+      }
+
 
     });
 

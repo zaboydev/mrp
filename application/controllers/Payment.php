@@ -67,7 +67,7 @@ class Payment extends MY_Controller
         }else{
           $col[] = print_number($no);
         }        
-        $col[]  = '<a href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
+        $col[]  = '<a data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
         $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['no_cheque']);
         // $col[]  = print_string($row['document_number']);
@@ -76,7 +76,7 @@ class Payment extends MY_Controller
         // $col[]  = print_string($row['description']);
         $col[]  = print_string($row['currency']);
         // $col[]  = print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']);
-        $col[]  = '<a data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">' . print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']) . '</a>';
+        $col[]  = '<a href="javascript:;" data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">' . print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']) . '</a>';
         if($row['currency']=='IDR'){
           $col[]  = print_number($row['amount_paid'], 2);
           $col[]  = print_number(0, 2);
