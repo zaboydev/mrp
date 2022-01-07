@@ -2103,9 +2103,13 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
-        $connection->where_in('id_purchase', $request_id);
-        $connection->where('tipe', $tipe_request);
-        return $connection->get('tb_attachment')->result();
+        if(count($request->id)>0){
+          $connection->where_in('id_purchase', $request_id);
+          $connection->where('tipe', $tipe_request);
+          return $connection->get('tb_attachment')->result();
+        }else{
+          return [];
+        }
       }else{
         return [];
       }
@@ -2163,10 +2167,15 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
-        $connection->where_in('id_purchase', $request_id);
-        $connection->where('tipe', $tipe_request);
-        $query_request = $connection->get('tb_attachment');
-        $att_request = $query_request->num_rows();
+        if(count($request_id)>0){
+          $connection->where_in('id_purchase', $request_id);
+          $connection->where('tipe', $tipe_request);
+          $query_request = $connection->get('tb_attachment');
+          $att_request = $query_request->num_rows();
+        }else{
+          $att_request = 0;
+        }
+        
       }else{
         $att_request = 0;
       }
