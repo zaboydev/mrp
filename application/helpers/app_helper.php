@@ -2362,7 +2362,7 @@ if (!function_exists('currency_for_vendor_list')) {
 		  $CI->db->from('tb_master_coa');
       // $CI->db->like('group', $currency);
       $CI->db->where('category', "Bank");
-      $query    = $CI->db->get('tb_purchase_orders');
+      $query    = $CI->db->get();
       $accounts = $query->result_array();
       return $accounts;
     }
@@ -2374,11 +2374,10 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI =& get_instance();
       $connection = $CI->load->database('budgetcontrol', TRUE);
 
-      $connection->db->select('year_number');
-      $connection->db->from('tb_annual_cost_centers');
-      // $CI->db->like('group', $currency);
-      $connection->db->group_by('year_number');
-      $query    = $connection->db->get('tb_annual_cost_centers');
+      $connection->select('year_number');
+      $connection->group_by('year_number');
+      $connection->order_by('year_number','desc');      
+      $query    = $connection->get('tb_annual_cost_centers');
       $year = $query->result_array();
       return $year;
     }
