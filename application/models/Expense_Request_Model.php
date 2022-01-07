@@ -231,11 +231,13 @@ class Expense_Request_Model extends MY_Model
             }            
         }
 
-        // if (!empty($_POST['columns'][4]['search']['value'])){
-        //     $search_category = $_POST['columns'][4]['search']['value'];
+        if (!empty($_POST['columns'][4]['search']['value'])){
+            $year = $_POST['columns'][4]['search']['value'];
 
-        //     $this->connection->where('UPPER(tb_product_categories.category_name)', strtoupper($search_category));
-        // }
+            $this->connection->where('tb_annual_cost_centers.year_number',$year);
+        }else{
+            $this->connection->where('tb_annual_cost_centers.year_number', $this->budget_year);
+        }
 
         $i = 0;
 
@@ -290,7 +292,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
@@ -333,7 +335,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
@@ -357,7 +359,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
