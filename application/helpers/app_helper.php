@@ -2103,9 +2103,14 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
-        $connection->where_in('id_purchase', $request_id);
-        $connection->where('tipe', $tipe_request);
-        return $connection->get('tb_attachment')->result();
+        if(count($request->id)>0){
+          $connection->where_in('id_purchase', $request_id);
+          $connection->where('tipe', $tipe_request);
+          return $connection->get('tb_attachment')->result();
+        }else{
+          return [];
+        }
+        
       }else{
         return [];
       }
@@ -2163,10 +2168,15 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
-        $connection->where_in('id_purchase', $request_id);
-        $connection->where('tipe', $tipe_request);
-        $query_request = $connection->get('tb_attachment');
-        $att_request = $query_request->num_rows();
+        if(count($request_id>0)){
+          $connection->where_in('id_purchase', $request_id);
+          $connection->where('tipe', $tipe_request);
+          $query_request = $connection->get('tb_attachment');
+          $att_request = $query_request->num_rows();
+        }else{
+          $att_request = 0;
+        }
+        
       }else{
         $att_request = 0;
       }
@@ -2356,6 +2366,22 @@ if (!function_exists('currency_for_vendor_list')) {
       $query    = $CI->db->get('tb_purchase_orders');
       $accounts = $query->result_array();
       return $accounts;
+    }
+  }
+
+  if ( ! function_exists('getYears')) {
+    function getYears()
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->db->select('year_number');
+      $connection->db->from('tb_annual_cost_centers');
+      // $CI->db->like('group', $currency);
+      $connection->db->group_by('year_number');
+      $query    = $connection->db->get('tb_annual_cost_centers');
+      $year = $query->result_array();
+      return $year;
     }
   }
 

@@ -174,7 +174,7 @@ class Stock_Report_Model extends MY_Model
                   ->group_end();
       }
       else{
-        $this->db->where('tb_stock_in_stores.warehouse', $warehouse);
+        $this->db->where('tb_stock_cards.warehouse', $warehouse);
       }
       // if($warehouse == 'LOMBOK'){
       //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
