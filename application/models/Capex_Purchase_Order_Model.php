@@ -1514,6 +1514,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $poe_id = $id;
 
     $this->db->where('id_poe', $poe_id);
+    $this->db->where('tipe', 'POE');
     $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result();
   }
