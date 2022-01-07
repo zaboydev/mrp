@@ -1128,9 +1128,9 @@ class Payment_Model extends MY_MODEL
 				$status = 'WAITING REVIEW BY VP FINANCE';
 				$level = 3;
 			}else{
-				$this->db->set('status', 'WAITING REVIEW BY CEO');
-				$status = 'WAITING REVIEW BY CEO';
-				$level = 16;
+				$this->db->set('status', 'APPROVED');
+				$status = 'APPROVED';
+				$level = 0;
 			}			
 			$this->db->set('review_by', config_item('auth_person_name'));
 			$this->db->set('review_at', date('Y-m-d'));
@@ -1138,43 +1138,43 @@ class Payment_Model extends MY_MODEL
 			$this->db->update('tb_po_payments');
 		}
 
-		if (config_item('auth_role')=='HEAD OF SCHOOL' && $po_payment['status'] == 'WAITING REVIEW BY HOS') {
-			if($currency=='IDR'){
-				if($total>15000000){
-					$this->db->set('status', 'WAITING REVIEW BY COO');
-					$status = 'WAITING REVIEW BY COO';
-					$level = 16;
-				}else{
-					$this->db->set('status', 'APPROVED');
-					$status = 'APPROVED';
-					$level = 0;
-				}
-			}else{
-				if($total>1500){
-					$this->db->set('status', 'WAITING REVIEW BY COO');
-					$status = 'WAITING REVIEW BY COO';
-					$level = 16;
-				}else{
-					$this->db->set('status', 'APPROVED');
-					$status = 'APPROVED';
-					$level = 0;
-				}
-			}
-			// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
-			$this->db->set('known_by', config_item('auth_person_name'));
-			$this->db->set('known_at', date('Y-m-d'));
-			$this->db->where('id', $id);
-			$this->db->update('tb_po_payments');
-		}
+		// if (config_item('auth_role')=='HEAD OF SCHOOL' && $po_payment['status'] == 'WAITING REVIEW BY HOS') {
+		// 	if($currency=='IDR'){
+		// 		if($total>15000000){
+		// 			$this->db->set('status', 'WAITING REVIEW BY COO');
+		// 			$status = 'WAITING REVIEW BY COO';
+		// 			$level = 16;
+		// 		}else{
+		// 			$this->db->set('status', 'APPROVED');
+		// 			$status = 'APPROVED';
+		// 			$level = 0;
+		// 		}
+		// 	}else{
+		// 		if($total>1500){
+		// 			$this->db->set('status', 'WAITING REVIEW BY COO');
+		// 			$status = 'WAITING REVIEW BY COO';
+		// 			$level = 16;
+		// 		}else{
+		// 			$this->db->set('status', 'APPROVED');
+		// 			$status = 'APPROVED';
+		// 			$level = 0;
+		// 		}
+		// 	}
+		// 	// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
+		// 	$this->db->set('known_by', config_item('auth_person_name'));
+		// 	$this->db->set('known_at', date('Y-m-d'));
+		// 	$this->db->where('id', $id);
+		// 	$this->db->update('tb_po_payments');
+		// }
 
-		if (config_item('auth_role')=='CHIEF OPERATION OFFICER' && $po_payment['status'] == 'WAITING REVIEW BY CEO') {
-			$this->db->set('status', 'APPROVED');
-			$this->db->set('approved_by', config_item('auth_person_name'));
-			$this->db->set('approved_at', date('Y-m-d'));
-			$this->db->where('id', $id);
-			$this->db->update('tb_po_payments');
-			$status = 'APPROVED';
-		}
+		// if (config_item('auth_role')=='CHIEF OPERATION OFFICER' && $po_payment['status'] == 'WAITING REVIEW BY CEO') {
+		// 	$this->db->set('status', 'APPROVED');
+		// 	$this->db->set('approved_by', config_item('auth_person_name'));
+		// 	$this->db->set('approved_at', date('Y-m-d'));
+		// 	$this->db->where('id', $id);
+		// 	$this->db->update('tb_po_payments');
+		// 	$status = 'APPROVED';
+		// }
 
 		if (config_item('auth_role')=='VP FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
 			// if($currency=='IDR'){
@@ -1199,23 +1199,23 @@ class Payment_Model extends MY_MODEL
 			// 	}
 			// }
 			// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
-			$this->db->set('status', 'WAITING REVIEW BY CFO');
+			$this->db->set('status', 'APPROVED');
 			$status = 'WAITING REVIEW BY CFO';
-			$level = 11;
+			$level = 0;
 			$this->db->set('known_by', config_item('auth_person_name'));
 			$this->db->set('known_at', date('Y-m-d'));
 			$this->db->where('id', $id);
 			$this->db->update('tb_po_payments');
 		}
 
-		if (config_item('auth_role')=='CHIEF OF FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY CFO') {
-			$this->db->set('status', 'APPROVED');
-			$this->db->set('approved_by', config_item('auth_person_name'));
-			$this->db->set('approved_at', date('Y-m-d'));
-			$this->db->where('id', $id);
-			$this->db->update('tb_po_payments');
-			$status = 'APPROVED';
-		}
+		// if (config_item('auth_role')=='CHIEF OF FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY CFO') {
+		// 	$this->db->set('status', 'APPROVED');
+		// 	$this->db->set('approved_by', config_item('auth_person_name'));
+		// 	$this->db->set('approved_at', date('Y-m-d'));
+		// 	$this->db->where('id', $id);
+		// 	$this->db->update('tb_po_payments');
+		// 	$status = 'APPROVED';
+		// }
 		
 		if($status!=''){
 			$this->db->set('status', $status);

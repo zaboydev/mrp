@@ -150,7 +150,7 @@
         <td valign="top" align="center">
             <p>
                 Approved by:
-                <br /> <?= ($entity['base']=='JAKARTA') ? 'VP Finance' : 'Head of School'; ?>
+                <br /> VP Finance
                 <?php if ($entity['known_by'] != '') : ?>
                 <br /><?= print_date($entity['known_at']) ?><br>
                 <img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
@@ -160,19 +160,5 @@
             </p>
         </td>
         <?php endif; ?>
-
-        <td valign="top" align="center">
-            <p>
-                Release by:
-                <br /> 
-                <?= ($entity['base']=='JAKARTA') ? 'Chief of Finance' : 'Chief Executive Officer'; ?>
-                <?php if ($entity['approved_by'] != '') : ?>
-                <br /><?= print_date($entity['approved_at']) ?><br>
-                <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
-                <?php endif; ?>
-                <br />
-                <br /><?= $entity['approved_by']; ?>
-            </p>
-        </td>
     </tr>
 </table>
