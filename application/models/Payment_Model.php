@@ -656,12 +656,13 @@ class Payment_Model extends MY_MODEL
 
 		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
 		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
-		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number($_SESSION['payment_request']['type']);
 		$date      				= $_SESSION['payment_request']['date'];
 		$purposed_date      	= $_SESSION['payment_request']['purposed_date'];
 		$currency      			= $_SESSION['payment_request']['currency'];
 		$vendor      			= $_SESSION['payment_request']['vendor'];
 		$coa_kredit      		= $_SESSION['payment_request']['coa_kredit'];
+		$type      				= $_SESSION['payment_request']['type'];
 		$notes      			= (empty($_SESSION['payment_request']['notes'])) ? NULL : $_SESSION['payment_request']['notes'];
 		$kurs 					= $this->tgl_kurs(date("Y-m-d"));		
 		$total_amount   		= floatval($_SESSION['payment_request']['total_amount']);
@@ -688,9 +689,14 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('notes', $notes);
 			$this->db->set('coa_kredit', $coa_kredit);
 			$this->db->set('akun_kredit', $akun_kredit->group);
-			if($base=='JAKARTA'){
+			if($type=='CASH'){
+				$this->db->set('status','PAID');
+			}else{
+				// if($base=='JAKARTA'){
 				$this->db->set('status','WAITING REVIEW BY FIN MNG');
+				// }
 			}
+			$this->db->set('type',$type);
 			$this->db->insert('tb_po_payments');
 			$po_payment_id = $this->db->insert_id();
 		}else{
@@ -726,27 +732,38 @@ class Payment_Model extends MY_MODEL
 				} else {
 					$this->db->set('kurs', 1);
 				}
+				if($type=='CASH'){
+					$this->db->set('status','PAID');
+				}
 				$this->db->insert('tb_purchase_order_items_payments');
 				$id = $this->db->insert_id();
 				// $id_payment[] = $id;
 				$val_request = $item["amount_paid"]-$item["adj_value"];
 
 				if($item['purchase_order_item_id']!=0){
+					if($type=='CASH'){						
+						$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $val_request, false);
+					}
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
 					$this->db->set('quantity_paid', '"quantity_paid" + ' . $item['qty_paid'], false);
 					$this->db->where('id', $item["purchase_order_item_id"]);
 					$this->db->update('tb_po_item');
 				}else{
+					if($type=='CASH'){
+						$this->db->set('additional_price_remaining', '"additional_price_remaining" - ' . $val_request, false);
+					}
 					$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $val_request, false);
 					$this->db->where('id', $id_po);
 					$this->db->update('tb_po');
 				}
 
+				if($type=='CASH'){
+					$this->db->set('remaining_payment', '"remaining_payment" - ' . $val_request, false);
+					$this->db->set('payment', '"payment" + ' . $val_request, false);
+				}
 				$this->db->set('remaining_payment_request', '"remaining_payment_request" - ' . $val_request, false);
 				$this->db->where('id', $id_po);
-				$this->db->update('tb_po');
-
-				
+				$this->db->update('tb_po');				
 			}
 		}
 
@@ -754,11 +771,14 @@ class Payment_Model extends MY_MODEL
 			return FALSE;
 
 		$this->db->trans_commit();
-		if($base=='JAKARTA'){
+		if($type!='CASH'){
 			$this->send_mail($po_payment_id,14,$base);
-		}else{
-			$this->send_mail($po_payment_id,26);
 		}
+		// if($base=='JAKARTA'){
+		// 	$this->send_mail($po_payment_id,14,$base);
+		// }else{
+		// 	$this->send_mail($po_payment_id,26);
+		// }
 		return TRUE;
 	}
 

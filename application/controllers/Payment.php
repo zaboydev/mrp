@@ -173,6 +173,7 @@ class Payment extends MY_Controller
 
       $_SESSION['payment_request']['po']                  = array();
       $_SESSION['payment_request']['category']            = $category;
+      $_SESSION['payment_request']['type']                = 'BANK';
       $_SESSION['payment_request']['document_number']     = payment_request_last_number();
       $_SESSION['payment_request']['date']                = date('Y-m-d');
       $_SESSION['payment_request']['purposed_date']       = date('Y-m-d');
@@ -391,7 +392,7 @@ class Payment extends MY_Controller
 
         $_SESSION['payment_request']['document_number'] = payment_request_last_number();
 
-        $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+        $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number($_SESSION['payment_request']['type']);
 
         if (isset($_SESSION['payment_request']['edit'])) {
           if ($_SESSION['payment_request']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
@@ -400,7 +401,7 @@ class Payment extends MY_Controller
         } else {
           if ($this->model->isDocumentNumberExists($document_number)) {
             $_SESSION['payment_request']['document_number']     = payment_request_last_number();
-            $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+            $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number($_SESSION['payment_request']['type']);
             // $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
           }
         }
@@ -451,6 +452,27 @@ class Payment extends MY_Controller
       $option .= '<option value="' . $key->vendor . '">' . $key->vendor . ' - ' . $key->code . '</option>';
     }
     echo json_encode($option);
+  }
+
+  public function get_accounts()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+    // $vendor = $this->input->post('vendor');
+
+    $type = $this->input->post('type');
+    $accounts = getAccount($type);
+    $option = '<option>--SELECT ACCOUNT--</option>';
+    foreach ($accounts as $key => $account) {
+      $option .= '<option value="' . $account['coa'] . '">' . $account['coa'] . ' - ' . $account['group'] . '</option>';
+    }
+    $format_number = payment_request_format_number($type);
+
+    $return = [
+      'account' => $option,
+      'format_number' => $format_number
+    ];
+    echo json_encode($return);
   }
 
   public function getPoDetail()
@@ -746,6 +768,15 @@ class Payment extends MY_Controller
     $this->render_view($this->module['view'] . '/add_item');
   }
 
+  public function set_type_transaction()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['type'] = $_GET['data'];
+    $_SESSION['payment_request']['coa_kredit'] = null;
+  }
+
   public function set_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -846,24 +877,26 @@ class Payment extends MY_Controller
           $i = 0;
 
           foreach ($po_items as $key => $value) {
-            $_SESSION['payment_request']['po'][$po_id]['items_po'][$key] = array(
-              'po_id'               => $value['purchase_order_id'],
-              'po_item_id'          => $value['id'],
-              'part_number'         => $value['part_number'],
-              'description'         => $value['description'],
-              'due_date'            => $po['due_date'],
-              'quantity_received'   => $value['quantity_received'],
-              'unit_price'          => $value['unit_price'],
-              'core_charge'         => $value['core_charge'],
-              'total_amount'        => $value['total_amount'],
-              'left_paid_request'   => $value['left_paid_request'],
-              'quantity'            => $value['quantity'],
-              'quantity_paid'       => $value['quantity_paid'],
-              'value'               => floatval(0),
-              'adj_value'           => floatval(0),
-              'qty_paid'            => floatval($value['quantity']-$value['quantity_paid'])
-            );
-            $i++;
+            if($value['left_paid_request']>0){
+              $_SESSION['payment_request']['po'][$po_id]['items_po'][$key] = array(
+                'po_id'               => $value['purchase_order_id'],
+                'po_item_id'          => $value['id'],
+                'part_number'         => $value['part_number'],
+                'description'         => $value['description'],
+                'due_date'            => $po['due_date'],
+                'quantity_received'   => $value['quantity_received'],
+                'unit_price'          => $value['unit_price'],
+                'core_charge'         => $value['core_charge'],
+                'total_amount'        => $value['total_amount'],
+                'left_paid_request'   => $value['left_paid_request'],
+                'quantity'            => $value['quantity'],
+                'quantity_paid'       => $value['quantity_paid'],
+                'value'               => floatval(0),
+                'adj_value'           => floatval(0),
+                'qty_paid'            => floatval($value['quantity']-$value['quantity_paid'])
+              );
+              $i++;
+            }            
           }
 
           if($po['additional_price_remaining_request']!=0){
@@ -877,7 +910,7 @@ class Payment extends MY_Controller
               'unit_price'          => floatval(0),
               'core_charge'         => floatval(0),
               'total_amount'        => floatval($po['additional_price']),
-              'left_paid_request'   => floatval($po['additional_price']-$po['additional_price_remaining_request']),
+              'left_paid_request'   => floatval($po['additional_price_remaining_request']),
               'quantity'            => floatval(1),
               'quantity_paid'       => floatval(1),
               'value'               => floatval(0),

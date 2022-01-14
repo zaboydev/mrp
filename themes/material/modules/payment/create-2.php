@@ -90,7 +90,7 @@
                     <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['payment_request']['document_number']; ?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
                     <label for="document_number">Purpose Number</label>
                   </div>
-                  <span class="input-group-addon"><?=payment_request_format_number();?></span>
+                  <span class="input-group-addon" id="format_number"><?=payment_request_format_number($_SESSION['payment_request']['type']);?></span>
                 </div>
               </div>
 
@@ -119,7 +119,7 @@
 
                 <div class="form-group">
                     <select name="vendor" id="vendor" class="form-control" data-source="<?= site_url($module['route'] . '/set_vendor/'); ?>" required>
-                    <option value="">-- SELECT VENDOR</option>
+                    <option value="">-- SELECT VENDOR --</option>
                     <?php foreach (available_vendors_by_currency($_SESSION['payment_request']['currency']) as $v => $vendor) : ?>
                         <option value="<?= $vendor; ?>" <?= ($vendor == $_SESSION['payment_request']['vendor']) ? 'selected' : ''; ?>>
                         <?= $vendor; ?>
@@ -130,23 +130,32 @@
                 </div>
 
                 <div class="form-group">
+                    <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
+                      <option value="CASH" <?= ('CASH' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Cash</option>
+                      <option value="BANK" <?= ('BANK' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
+                    </select>
+                    <label for="vendor">Transaction Type</label>
+                </div>
+
+                <div class="form-group">
                     <select name="account" id="account" class="form-control" data-source="<?= site_url($module['route'] . '/set_account/'); ?>" required data-input-type="autoset">
-                    <option value="">-- SELECT Account</option>
-                    <?php foreach (getAccount() as $key => $account) : ?>
+                    <option value="">-- SELECT Account --</option>
+                    <?php foreach (getAccount($_SESSION['payment_request']['type']) as $key => $account) : ?>
                         <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment_request']['coa_kredit']) ? 'selected' : ''; ?>>
-                        <?= $account['group']; ?> <?= $account['group']; ?>
+                        <?= $account['coa']; ?> <?= $account['group']; ?>
                         </option>
                     <?php endforeach; ?>
                     </select>
                     <label for="vendor">Account</label>
                 </div>
 
+                
+            </div>
+            <div class="col-sm-6 col-lg-4">
                 <div class="form-group">
                     <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment_request']['total_amount']; ?>" readonly="readonly">
                     <label for="amount">Amount</label>
                 </div>
-            </div>
-            <div class="col-sm-6 col-lg-4">
                 <div class="form-group">
                     <textarea name="notes" id="notes" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['payment_request']['notes']; ?></textarea>
                     <label for="notes">Notes</label>
@@ -526,6 +535,37 @@
     var url = $(this).data('source');
 
     $.get( url, { data: val });
+  });
+
+  $('#type').change(function() {
+    type_trs = $(this).val();
+    var account_view = $('#account');
+    var format_number_view = $('#format_number');
+    account_view.html('');    
+
+    $.ajax({
+      type: "post",
+      url: '<?= base_url() . "payment/get_accounts" ?>',
+      data: {
+        'type': type_trs
+      },
+      cache: false,
+      success: function(response) {
+        var data = jQuery.parseJSON(response);
+        account_view.html(data.account);
+
+        format_number_view.html('');
+        format_number_view.html(data.format_number);
+      }
+    });
+
+    // getPo()
+
+    var val = $(this).val();
+    var url = $(this).data('source');
+
+    $.get( url, { data: val });
+
   });
 
   $("#tipe_select").change(function(e) {
