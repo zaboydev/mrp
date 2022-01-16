@@ -632,9 +632,9 @@ class Material_Slip extends MY_Controller
         $date     = strtotime('-2 day',strtotime($today));
         $min_date = date('Y-m-d',$date);
 
-        // if($_SESSION['usage']['issued_date'] < $min_date){
-        //   $errors[] = 'Issued Date is too Old. Minimal Date is '.$date.' !';
-        // }
+        if($_SESSION['usage']['issued_date'] < $min_date){
+          $errors[] = 'Issued Date is too Old. Minimal Date is '.$date.' !';
+        }
 
         if (!empty($errors)){
           $data['success'] = FALSE;
