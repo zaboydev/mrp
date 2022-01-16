@@ -45,6 +45,10 @@
                         <td style="font-weight:bolder;">Vendor</td>
                         <td><?=$_SESSION['payment_request']['vendor'];?></td>
                     </tr>
+                    <tr>
+                        <td style="font-weight:bolder;">Total Payment</td>
+                        <td><?=$_SESSION['payment_request']['total_amount'];?></td>
+                    </tr>
                 </table>
             </div>
         </div>

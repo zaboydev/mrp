@@ -1559,16 +1559,21 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('getAccount')) {
-    function getAccount($currency=NULL)
+    function getAccount($type=NULL)
     {
       $CI =& get_instance();
 
       $CI->db->select('group,coa');
       $CI->db->from( 'tb_master_coa' );
-      if($currency!=NULL){
-        $CI->db->like('group', $currency);
+      if($type!=NULL){
+        if($type=='CASH'){
+          $CI->db->like('coa', '1-11');
+        }else{
+          $CI->db->like('coa', '1-12');
+          $CI->db->or_like('coa', '1-13');
+        }        
       }    
-      $CI->db->where('category', "Bank");
+      // $CI->db->where('category', "Bank");
       $CI->db->order_by('coa', "asc");
 
       $query    = $CI->db->get();
@@ -2275,12 +2280,18 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('payment_request_format_number')) {
-    function payment_request_format_number()
+    function payment_request_format_number($type)
     {
       $div  = config_item('document_format_divider');
       $year = date('Y');
 
-      $return = $div . 'BPV' . $div . $year;
+      if($type=='BANK'){
+        $kode = 'BPV';
+      }else{
+        $kode = 'CPV';
+      }
+
+      $return = $div . $kode . $div . $year;
 
       return $return;
     }
@@ -2290,7 +2301,7 @@ if (!function_exists('currency_for_vendor_list')) {
     function payment_request_last_number()
     {
       $CI =& get_instance();
-      $format = payment_request_format_number();
+      $format = payment_request_format_number($_SESSION['payment_request']['type']);
 
       $CI->db->select_max('document_number', 'last_number');
       $CI->db->from('tb_po_payments');
