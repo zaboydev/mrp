@@ -784,11 +784,19 @@
           success: function(data) {
             var dataModal = $('#data-modal');
             var obj = $.parseJSON(data);
-            $(dataModal)
-              .find('.modal-body')
-              .empty()
-              .append(obj.info);
-            $(dataModal).modal('show');
+
+            if (obj.type == 'denied') {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.error(obj.info, 'ACCESS DENIED!');
+            }else{
+              $(dataModal)
+                .find('.modal-body')
+                .empty()
+                .append(obj.info);
+              $(dataModal).modal('show');
+            }
+            
           }
         });
       }

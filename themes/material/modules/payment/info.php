@@ -54,12 +54,15 @@
           <dt>Currency</dt>
           <dd><?= $entity['currency']; ?></dd>
 
+          <dt>Transaction By</dt>
+          <dd><?= ($entity['type']=='BANK')? 'BANK TRANSFER':'CASH';?></dd>
+
           <?php if($entity['status']=='PAID'):?>
           <dt>Account</dt>
           <?php else: ?>
           <dt>Request Selected Account</dt>
           <?php endif;?>
-          <dd> <?= ($entity['coa_kredit']!='')? '('.$entity['coa_kredit'].')':'n/b'; ?> <?= $entity['akun_kredit']; ?> <?= $entity['group']; ?></dd>
+          <dd> <?= ($entity['coa_kredit']!='')? '('.$entity['coa_kredit'].')':'n/b'; ?> <?= $entity['akun_kredit']; ?></dd>
           <?php if($entity['status']=='PAID'):?>
           <dt>No Konfirmasi</dt>
           <dd><?= ($entity['no_konfirmasi']!='')? $entity['no_konfirmasi']:'-'; ?></dd>
@@ -370,6 +373,11 @@
       </div>
     </div>
   </div>
+  <?php
+      $today    = date('Y-m-d');
+      $date     = strtotime('-2 day',strtotime($today));
+      $data     = date('Y-m-d',$date);
+  ?>
   <div class="card-foot">
     <div class="pull-left">
       <a href="<?= site_url($module['route'] . '/manage_attachment/' . $id); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
@@ -394,15 +402,24 @@
     </div>
     <div class="pull-right">
       <?php if ($entity['revisi']=='t') : ?>
-      <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
-      <?php if (is_granted($module, 'document')) : ?>
-        <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-          <i class="md md-edit"></i>
-          <small class="top right">edit</small>
-        </a>
-      <?php endif; ?>
-      <?php endif; ?>
-      <?php endif; ?>
+        <?php if ($entity['type']=='CASH') : ?>
+          <?php if($entity['tanggal'] >= $data):?>
+            <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+              <i class="md md-edit"></i>
+              <small class="top right">edit</small>
+            </a>
+          <?php endif;  ?>
+        <?php else: ?>
+          <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
+            <?php if (is_granted($module, 'document')) : ?>
+              <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+                <i class="md md-edit"></i>
+                <small class="top right">edit</small>
+              </a>
+            <?php endif;  ?>
+          <?php endif;  ?>
+        <?php endif;  ?>  
+      <?php endif;  ?>
       <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>
         <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
           <i class="md md-attach-money"></i>

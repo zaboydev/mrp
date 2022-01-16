@@ -265,6 +265,8 @@ class Payment extends MY_Controller
       $qty_paid	 			    = $this->input->post('qty_paid');
       $_SESSION['payment_request']['items'] = array();
 
+      $amount_paid = array();
+
       foreach ($po_items_id as $key=>$po_item) {
         // if ($value_items[$key] != 0) {
         //   $_SESSION['payment_request']['items'][$key] = array(
@@ -333,8 +335,11 @@ class Payment extends MY_Controller
             }
             
           }
+          $amount_paid[] = $value_items[$key];
         }
       }
+
+      $_SESSION['payment_request']['total_amount'] = array_sum($amount_paid);
       // if ($this->model->save_2()) {
       //   unset($_SESSION['payment_request']);
       //   // $this->sendEmail();
@@ -920,6 +925,8 @@ class Payment extends MY_Controller
           }
         }
 
+        $_SESSION['payment_request']['total_amount'] = 0;
+
         $data['success'] = TRUE;
       } else {
         $data['success'] = FALSE;
@@ -1082,11 +1089,14 @@ class Payment extends MY_Controller
       $return['info'] = "You don't have permission to access this data. You may need to login again.";
     } else {
       $entity = $this->model->findById($id);
-
-      $this->data['entity'] = $entity;
-
-      $return['type'] = 'success';
-      $return['info'] = $this->load->view($this->module['view'] . '/change_account', $this->data, TRUE);
+      if($entity['type']=='BANK'){
+        $this->data['entity'] = $entity;
+        $return['type'] = 'success';
+        $return['info'] = $this->load->view($this->module['view'] . '/change_account', $this->data, TRUE);
+      }else{
+        $return['type'] = 'denied';
+        $return['info'] = "This Transaction type is CASH. You cant change account. You have to edit this Transaction.";
+      }      
     }
 
     echo json_encode($return);

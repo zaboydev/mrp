@@ -90,7 +90,7 @@
                     <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="[auto]" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
                     <label for="document_number">Purpose Number</label>
                   </div>
-                  <span class="input-group-addon"><?=payment_request_format_number();?></span>
+                  <span class="input-group-addon"><?=payment_request_format_number($_SESSION['payment_request']['type']);?></span>
                 </div>
               </div>
 
@@ -130,11 +130,32 @@
                 </div>
 
                 <div class="form-group">
+                    <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
+                      <option value="CASH" <?= ('CASH' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Cash</option>
+                      <option value="BANK" <?= ('BANK' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
+                    </select>
+                    <label for="vendor">Transaction Type</label>
+                </div>
+
+                <div class="form-group">
+                    <select name="account" id="account" class="form-control" data-source="<?= site_url($module['route'] . '/set_account/'); ?>" required data-input-type="autoset">
+                    <option value="">-- SELECT Account --</option>
+                    <?php foreach (getAccount($_SESSION['payment_request']['type']) as $key => $account) : ?>
+                        <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment_request']['coa_kredit']) ? 'selected' : ''; ?>>
+                        <?= $account['coa']; ?> <?= $account['group']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                    </select>
+                    <label for="vendor">Account</label>
+                </div>
+
+                
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="form-group">
                     <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment_request']['total_amount']; ?>" readonly="readonly">
                     <label for="amount">Amount</label>
                 </div>
-            </div>
-            <div class="col-sm-6 col-lg-4">
                 <div class="form-group">
                     <textarea name="notes" id="notes" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['payment_request']['notes']; ?></textarea>
                     <label for="notes">Notes</label>
@@ -145,15 +166,15 @@
         </div>
 
         <div class="document-data table-responsive">
-          <table class="table table-hover table-bordered table-nowrap" id="table-document" width="100%">
+          <table class="table table-hover table-bordered table-nowrap" id="table-document">
             <thead>
               <tr>
                 <!-- <th class="middle-alignment">No.</th> -->
                 <th width="15%" class="middle-alignment">No PO</th>
                 <th width="13%" class="middle-alignment">Description</th>
                 <th width="7%" class="middle-alignment">Due Date</th>
-                <th width="5%" class="middle-alignment">Received Qty</th>
-                <th width="7%" class="middle-alignment">Received Val.</th>
+                <th width="5%" class="middle-alignment">GRN Qty</th>
+                <th width="7%" class="middle-alignment">GRN Val.</th>
                 <th width="7%" class="middle-alignment">Amount</th>
                 <th width="7%" class="middle-alignment">Purposed Amount</th>
                 <th width="7%" class="middle-alignment">Remaining Purposed</th>

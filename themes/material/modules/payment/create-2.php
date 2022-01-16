@@ -837,7 +837,9 @@
     //   sum = parseFloat(sum) + parseFloat(val);
     // });
     $("#total_general").html(sum);
-    $("#amount").val(sum);
+    // $("#amount").val(sum);
+
+    $('#amount').val(sum).trigger('change');
   }
 
   $("#amount").change(function() {
