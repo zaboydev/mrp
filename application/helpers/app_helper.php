@@ -151,6 +151,24 @@ if ( ! function_exists('print_number')) {
   }
 }
 
+if ( ! function_exists('print_number_left')) {
+  function print_number_left($number, $decimal = 0, $force_right = TRUE)
+  {
+    if (trim($number) === '' || empty($number))
+      $number = 0;
+
+    if ($force_right === TRUE)
+      $text = '<span style="display:block; text-align:left">';
+    else
+      $text = '<span>';
+
+    $text.= number_format($number, $decimal);
+    $text.= '</span>';
+
+    return $text;
+  }
+}
+
 if ( ! function_exists('print_config')) {
   function print_config($config, $data)
   {

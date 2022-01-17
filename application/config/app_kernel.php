@@ -126,6 +126,10 @@ require('modules/low_stock.php');
 require('modules/expired_stock.php');
 require('modules/konsolidasi.php');
 
+//finance
+require('modules/cash_request.php');
+
+//account_payable
 require('modules/account_payable.php');
 require('modules/payment.php');
 require('modules/payment_report.php');
