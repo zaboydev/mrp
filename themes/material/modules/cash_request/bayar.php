@@ -3,7 +3,7 @@
 <?php startblock('content') ?>
 <section class="has-actions style-default">
   <div class="section-body">
-    <?= form_open(site_url($module['route'] . '/save'), array('autocomplete' => 'off', 'class' => 'form-xhr-submit form form-validate', 'id' => 'form-create-document')); ?>
+    <?= form_open(site_url($module['route'] . '/save_payment/'.$id), array('autocomplete' => 'off', 'class' => 'form-xhr-submit form form-validate', 'id' => 'form-create-document')); ?>
     <div class="card">
       <div class="card-body no-padding">
         <?php
@@ -12,50 +12,64 @@
         ?>
         <div class="document-header force-padding">
           <div class="row">
-            <div class="col-sm-6 col-lg-3">
+            <div class="col-sm-12 col-lg-6">
               <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-content">
-                    <input type="text" name="order_number" id="order_number" class="form-control" value="[auto]" readonly>
-                    <label for="order_number">Document No.</label>
-                  </div>
-                  <span class="input-group-addon"><?= cash_request_format_number(); ?></span>
-                </div>
+                <input type="text" name="order_number" id="order_number" class="form-control" value="<?= $entity['document_number']?>" readonly>
+                <label for="order_number">Document No.</label>
+                <input type="hidden" name="cash_request_id" value="<?=$id?>">
               </div>
 
               <div class="form-group">
-                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= date('Y-m-d'); ?>" required>
-                <label for="required_date">Date</label>
+                <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d',strtotime($entity['tanggal'])); ?>" readonly>
+                <label for="required_date">Request Date</label>
               </div>
 
               <div class="form-group">
-                <input type="text" name="request_by" id="request_by" class="form-control" value="<?= config_item('auth_person_name'); ?>" required>
+                <input type="text" name="request_by" id="request_by" class="form-control" value="<?= $entity['request_by']; ?>" readonly>
                 <label for="required_date">Request By</label>
+              </div>
+
+              <div class="form-group">
+                <input type="text" name="cash_account" id="cash_account" class="form-control" value="<?= $entity['cash_account_code']; ?> <?= $entity['cash_account_name']; ?> " readonly>
+                <label for="required_date">Cash Account</label>
+              </div>
+              <div class="form-group">
+                <input type="text" name="request_amount" id="request_amount" class="form-control" value="<?= $entity['request_amount']?>" readonly>
+                <label for="amount">Request Amount</label>
+              </div>
+              <div class="form-group">
+                <textarea name="notes" id="notes" class="form-control" rows="3" readonly><?=$entity['notes']?></textarea>
+                <label for="notes">Notes</label>
               </div>
             </div>
 
-            <div class="col-sm-12 col-lg-4">
+            <div class="col-sm-12 col-lg-6"> 
               <div class="form-group">
-                <select name="cash_account" id="cash_account" class="form-control" required>
+                <input type="text" name="paid_by" id="paid_by" class="form-control" value="<?= config_item('auth_person_name'); ?>" required>
+                <label for="required_date">paid By</label>
+              </div>             
+              <div class="form-group">
+                <input type="text" name="paid_at" id="paid_at" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= date('Y-m-d'); ?>" required>
+                <label for="required_date">Paid Date</label>
+              </div>
+              <div class="form-group">
+                <select name="coa_kredit" id="coa_kredit" class="form-control" required>
                   <option value="">-- SELECT Account --</option>
-                  <?php foreach (getAccount('CASH') as $key => $account) : ?>
+                  <?php foreach (getAccount($entity['type']) as $key => $account) : ?>
                   <option value="<?= $account['coa']; ?>">
                     <?= $account['coa']; ?> <?= $account['group']; ?>
                   </option>
                   <?php endforeach; ?>
                 </select>
-                <label for="vendor">Cash Account</label>
+                <label for="vendor">Bank Account</label>
               </div>
               <div class="form-group">
-                <input type="number" name="request_amount" id="request_amount" class="form-control" value="0" required="required">
-                <label for="amount">Request Amount</label>
+                <input type="text" name="no_cheque" id="no_cheque" class="form-control" value="">
+                <label for="no_cheque">No Cheque</label>
               </div>
-            </div>
-
-            <div class="col-sm-12 col-lg-4">              
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
-                <label for="notes">Notes</label>
+                <input type="text" name="no_konfirmasi" id="no_konfirmasi" class="form-control" value="">
+                <label for="amount">No Konfirmasi</label>
               </div>
             </div>
           </div>
@@ -63,6 +77,11 @@
       </div>
       <div class="card-actionbar">
         <div class="card-actionbar-row">
+          <div class="pull-left">
+            <a href="<?=site_url($module['route'] .'/attachment');?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+              Attachment
+            </a>
+          </div>
           <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
           </a>
@@ -283,7 +302,6 @@
             toastr.options.timeOut = 10000;
             toastr.options.positionClass = 'toast-top-right';
             toastr.error(obj.info);
-            // button.attr('disabled', false);
             $(buttonXhrSubmit).attr('disabled', false);
           } else {
             toastr.options.timeOut = 4500;

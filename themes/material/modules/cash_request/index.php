@@ -76,38 +76,19 @@
 <div class="form force-padding">
   <div class="form-group">
     <label for="filter_received_date">Date</label>
-    <input class="form-control input-sm filter_daterange" data-column="2" id="filter_received_date" readonly>
-  </div>
-
-  <div class="form-group">
-    <label for="start_date">Supplier</label>
-    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="1">
-      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
-      <?php foreach (available_vendors() as $vendor) : ?>
-        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
-          <?= $vendor; ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
+    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
   </div>
 
   <div class="form-group">
     <label for="start_date">Status</label>
-    <select class="form-control input-sm filter_dropdown" id="status" name="status" data-column="3">
+    <select class="form-control input-sm filter_dropdown" id="status" name="status" data-column="2">
       <option value="all">All</option>
-      <option value="ORDER">Order</option>
-      <option value="OPEN">Open</option>
-      <option value="ADVANCE">Advance</option>
-      <option value="RETUR">Retur</option>
-      <option value="CLOSED">Closed</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="start_date">Jenis</label>
-    <select class="form-control input-sm filter_dropdown" id="tipe_po" name="tipe_po" data-column="4">
-      <option value="po_local"<?php if($_SESSION['ap']['tipe_po']=='po_local'): echo 'selected'; endif; ?>>Purchase Order Local</option>
-      <option value="maintenance" <?php if($_SESSION['ap']['tipe_po']=='maintenance'): echo 'selected'; endif; ?>>Purchase Order Maintenance</option>
+      <option value="WAITING REVIEW BY FIN MNG" <?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review Fin Mng</option>
+      <option value="WAITING REVIEW BY VP FINANCE" <?php if (config_item('auth_role') == 'VP FINANCE'):echo 'selected'; endif;?>>Waiting Review Vp Fin</option>
+      <option value="APPROVED" <?php if (config_item('auth_role') == 'TELLER'):echo 'selected'; endif;?>>Approved</option>
+      <option value="PAID">Paid</option>
+      <option value="REJECTED">Rejected</option>
+      <option value="CANCEL">Cancel</option>
     </select>
   </div>
 </div>

@@ -10,18 +10,21 @@ class Cash_Request_Model extends MY_Model
     parent::__construct();
     //Do your magic here
     $this->connection   = $this->load->database('budgetcontrol', TRUE);
+    $this->modules        = config_item('module');
+    $this->data['modules']        = $this->modules;
   }
   public function getSelectedColumns()
   {
     $return = array(
       // "''".' as "temp"' => "Act.", 
       'tb_cash_request.id'                  => NULL,
-      'tb_cash_request.status'              => 'Status',
+      'tb_cash_request.status'              => 'Document Number',
       'tb_cash_request.tanggal'             => 'Date',
-      'tb_cash_request.document_number'     => 'Document Number',
+      'tb_cash_request.document_number'     => 'Status',
       'tb_cash_request.request_by'          => 'Request By',
       'tb_cash_request.cash_account_code'   => 'Cash Account',
       'tb_cash_request.request_amount'      => 'Request Amount',
+      'tb_cash_request.coa_kredit'          => 'Transfer From',
       'tb_cash_request.notes'               => 'Notes',
     );
 
@@ -33,8 +36,11 @@ class Cash_Request_Model extends MY_Model
       'tb_cash_request.document_number',
       'tb_cash_request.request_by',
       'tb_cash_request.cash_account_code',
+      'tb_cash_request.cash_account_name',
       'tb_cash_request.notes',
       'tb_cash_request.cash_account_name',
+      'tb_cash_request.coa_kredit',
+      'tb_cash_request.akun_kredit'
 
     );
 
@@ -56,12 +62,13 @@ class Cash_Request_Model extends MY_Model
   {
     $return = array(
       null,
-      'tb_cash_request.status',
-      'tb_cash_request.tanggal',
       'tb_cash_request.document_number',
+      'tb_cash_request.tanggal',
+      'tb_cash_request.status',
       'tb_cash_request.request_by',
       'tb_cash_request.cash_account_code',
       'tb_cash_request.request_amount',
+      'tb_cash_request.coa_kredit',
       'tb_cash_request.notes',
     );
     return $return;
@@ -69,19 +76,34 @@ class Cash_Request_Model extends MY_Model
 
   private function searchIndex()
   {
-    if (!empty($_POST['columns'][2]['search']['value'])) {
-      $search_received_date = $_POST['columns'][2]['search']['value'];
+    if (!empty($_POST['columns'][1]['search']['value'])) {
+      $search_received_date = $_POST['columns'][1]['search']['value'];
       $range_received_date  = explode(' ', $search_received_date);
 
       $this->db->where('tb_cash_request.tanggal >= ', $range_received_date[0]);
       $this->db->where('tb_cash_request.tanggal <= ', $range_received_date[1]);
     }
 
-    if (!empty($_POST['columns'][3]['search']['value'])) {
-      $status = $_POST['columns'][3]['search']['value'];
+    if (!empty($_POST['columns'][2]['search']['value'])) {
+      $status = $_POST['columns'][2]['search']['value'];
 
       if($status != 'all'){
         $this->db->where('tb_cash_request.status', $status);
+      }
+    }else{
+      if(is_granted($this->data['modules']['cash_request'], 'approval')){
+        if (config_item('auth_role') == 'FINANCE MANAGER') {
+          $status[] = 'WAITING REVIEW BY FIN MNG';
+        }
+        if (config_item('auth_role') == 'VP FINANCE') {
+          $status[] = 'WAITING REVIEW BY VP FINANCE';
+        }
+        $this->db->where_in('tb_cash_request.status', $status);
+      }else{
+        if (config_item('auth_role') == 'TELLER') {
+          $status[] = 'APPROVED';
+          $this->db->where_in('tb_cash_request.status', $status);
+        }
       }
     }
 
@@ -169,7 +191,16 @@ class Cash_Request_Model extends MY_Model
   {
     $this->db->trans_begin();
 
-    $document_number = cash_request_order_number().cash_request_format_number();
+    if($this->input->post('cash_request_id')){
+      $this->db->set('status','REVISI');
+      $this->db->set('revisi','f');
+      $this->db->where('id',$this->input->post('cash_request_id'));
+      $this->db->update('tb_cash_request');
+      $document_number = $this->input->post('order_number');
+    }else{
+      $document_number = cash_request_order_number().cash_request_format_number();
+    }
+    
     $cash_account      = getAccountByCode($this->input->post('cash_account'));
 
     $this->db->set('document_number', $document_number);
@@ -184,7 +215,105 @@ class Cash_Request_Model extends MY_Model
     $this->db->set('cash_account_name', $cash_account->group);
     $this->db->set('created_by', config_item('auth_person_name'));
     $this->db->set('created_at', date('Y-m-d'));
+    if($this->input->post('cash_request_id')){
+      $this->db->set('revisi','f');
+    }
     $this->db->insert('tb_cash_request');
+    
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+
+    return [
+      'document_number' => $document_number,
+      'type'            =>TRUE
+    ];
+  }
+
+  public function insert_payment($id)
+  {
+    $this->db->trans_begin();
+
+    $entity = $this->findById($id);
+
+    $kurs       = $this->tgl_kurs(date("Y-m-d"));
+    if ($entity['currency'] == 'IDR') {
+      $amount_idr = $entity['request_amount'];
+      $amount_usd = $entity['request_amount'] / $kurs;
+    } else {
+      $amount_usd = $entity['request_amount'];
+      $amount_idr = $entity['request_amount'] * $kurs;
+    }
+
+    $document_number = $this->input->post('order_number');
+    $akun_kredit      = getAccountByCode($this->input->post('coa_kredit'));
+    $akun_debet      = getAccountByCode($entity['cash_account_code']);
+
+    $this->db->set('no_cheque', $this->input->post('no_cheque'));
+    $this->db->set('coa_kredit', $this->input->post('coa_kredit'));
+    $this->db->set('akun_kredit',$akun_kredit->group);
+    $this->db->set('paid_at', $this->input->post('paid_at'));
+    $this->db->set('paid_by', $this->input->post('paid_by'));
+    $this->db->set('no_konfirmasi', $this->input->post('no_konfirmasi'));
+    $this->db->set('paid_base', config_item('auth_warehouse'));
+    $this->db->set('status','PAID');
+    $this->db->where('id',$id);
+    $this->db->update('tb_cash_request');
+
+    if($this->input->post('edit')=='yes'){
+      $this->db->select('tb_jurnal.*');
+      $this->db->from('tb_jurnal');
+      $this->db->where('tb_jurnal.no_jurnal', $entity['document_number']);
+      $query = $this->db->get();
+      $jurnal = $query->unbuffered_row('array');
+
+      $this->db->where('id_jurnal',$jurnal['id']);
+      $this->db->delete('tb_jurnal_detail');
+
+      $this->db->where('id',$jurnal['id']);
+      $this->db->delete('tb_jurnal');
+    }
+
+    $this->db->set('no_jurnal', $document_number);
+    $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($this->input->post('paid_at'))));
+    $this->db->set('source', "CASH REQUEST");
+    // $this->db->set('vendor', $vendor);
+    $this->db->set('grn_no', $document_number);
+    $this->db->set('keterangan', strtoupper("pembayaran cash request"));
+    $this->db->insert('tb_jurnal');
+    $id_jurnal = $this->db->insert_id();
+
+    //debet
+    $this->db->set('id_jurnal', $id_jurnal);
+    $this->db->set('jenis_transaksi', $akun_debet->group);
+    $this->db->set('trs_debet', $amount_idr);
+    $this->db->set('trs_kredit', 0);
+    $this->db->set('trs_debet_usd', $amount_usd);
+    $this->db->set('trs_kredit_usd', 0);
+    $this->db->set('kode_rekening', $entity['cash_account_code']);
+    $this->db->set('currency', $entity['currency']);
+    $this->db->insert('tb_jurnal_detail');
+
+    //kredit
+    $this->db->set('id_jurnal', $id_jurnal);
+    $this->db->set('jenis_transaksi', $akun_kredit->group);
+    $this->db->set('trs_debet', 0);
+    $this->db->set('trs_kredit', $amount_idr);
+    $this->db->set('trs_debet_usd', 0);
+    $this->db->set('trs_kredit_usd', $amount_usd);
+    $this->db->set('kode_rekening', $this->input->post('coa_kredit'));
+    $this->db->set('currency', $entity['currency']);
+    $this->db->insert('tb_jurnal_detail');
+
+    foreach ($_SESSION["payment"]["attachment"] as $file) {
+      $this->db->set('id_poe', $id);
+      $this->db->set('tipe', "CASH REQUEST");
+      $this->db->set('file', $file);
+      $this->db->set('tipe_att', "CASH REQUEST PAYMENT");
+      $this->db->insert('tb_attachment_poe');
+    }
     
 
     if ($this->db->trans_status() === FALSE)

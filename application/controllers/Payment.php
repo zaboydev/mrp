@@ -1090,9 +1090,15 @@ class Payment extends MY_Controller
     } else {
       $entity = $this->model->findById($id);
       if($entity['type']=='BANK'){
-        $this->data['entity'] = $entity;
-        $return['type'] = 'success';
-        $return['info'] = $this->load->view($this->module['view'] . '/change_account', $this->data, TRUE);
+        if($entity['status']=='PAID'){
+          $return['type'] = 'denied';
+          $return['info'] = "This Transaction already paid. You cant change account. Please contack the technician.";
+        }else{
+          $this->data['entity'] = $entity;
+          $return['type'] = 'success';
+          $return['info'] = $this->load->view($this->module['view'] . '/change_account', $this->data, TRUE);
+        }
+        
       }else{
         $return['type'] = 'denied';
         $return['info'] = "This Transaction type is CASH. You cant change account. You have to edit this Transaction.";

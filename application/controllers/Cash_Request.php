@@ -12,6 +12,7 @@ class Cash_Request extends MY_Controller
     $this->module = $this->modules['cash_request'];
     $this->load->model($this->module['model'], 'model');
     $this->load->helper($this->module['helper']);
+    $this->load->library('upload');
     $this->data['module'] = $this->module;
   }
 
@@ -56,6 +57,8 @@ class Cash_Request extends MY_Controller
       foreach ($entities as $row) {
         $no++;
         $col = array();
+        $akun_cash = getAccountByCode($row['cash_account_code']);
+        $akun_bank = getAccountByCode($row['coa_kredit']);
         if (is_granted($this->module, 'approval') === TRUE) {
           if ($row['status'] == 'WAITING REVIEW BY FIN MNG' && (config_item('auth_role')=='SUPER ADMIN' || config_item('auth_role')=='FINANCE MANAGER')) {
             if(config_item('auth_warehouse')=='JAKARTA'){
@@ -79,12 +82,13 @@ class Cash_Request extends MY_Controller
         }else{
           $col[] = print_number($no);
         }
-        $col[]  = print_string($row['status']);
-        $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['document_number']);
+        $col[]  = print_date($row['tanggal']);
+        $col[]  = print_string($row['status']);
         $col[]  = print_string($row['request_by']);
-        $col[]  = print_string($row['cash_account_code']);
+        $col[]  = print_string($row['cash_account_code']).' '.print_string($akun_cash->group);
         $col[]  = print_number($row['request_amount'], 2);
+        $col[]  = print_string($row['coa_kredit']).' '.print_string($akun_bank->group);
         $col[]  = print_string($row['notes']);
         
         $total_value[] = $row['request_amount'];
@@ -157,8 +161,8 @@ class Cash_Request extends MY_Controller
       $return['type'] = 'danger';
       $return['info'] = "You don't have permission to access this page!";
     } else {
-      if ($this->input->post('id')) {
-        $update = $this->model->update($this->input->post('id'));
+      if ($this->input->post('cash_request_id')) {
+        $update = $this->model->insert();
         if ($update['type']) {
           $return['type'] = 'success';
           $return['info'] = 'Cash Request number ' . $insert['document_number'] . ' revised.';
@@ -175,6 +179,41 @@ class Cash_Request extends MY_Controller
           $return['type'] = 'danger';
           $return['info'] = 'There are error while updating data. Please try again later.';
         }
+      }
+    }
+
+    echo json_encode($return);
+  }
+
+  public function bayar($id)
+  {
+    $this->authorized($this->module, 'payment');
+
+    $entity = $this->model->findById($id);
+
+    $this->data['entity'] = $entity;
+    $this->data['id']     = $id;    
+    $_SESSION['payment']['attachment']            = array();
+
+    $this->render_view($this->module['view'] . '/bayar');
+  }
+
+  public function save_payment($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'payment') === FALSE) {
+      $return['type'] = 'danger';
+      $return['info'] = "You don't have permission to access this page!";
+    } else {
+      $insert_payment = $this->model->insert_payment($id);
+      if ($insert_payment['type']) {
+        $return['type'] = 'success';
+        $return['info'] = 'Cash Request number ' . $insert_payment['document_number'] . ' has been paid.';
+      } else {
+        $return['type'] = 'danger';
+        $return['info'] = 'There are error while updating data. Please try again later.';
       }
     }
 
@@ -268,6 +307,79 @@ class Cash_Request extends MY_Controller
       $result['status'] = 'success';
     }
     echo json_encode($result);
+  }
+
+  public function attachment()
+  {
+    // $this->authorized($this->module, 'manage_attachment');
+    $this->data['page']['title']    = "Attachment Payment";
+    $this->render_view($this->module['view'] . '/attachment');
+  }
+
+  public function add_attachment()
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'attachment/cash_request_payment/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+
+    $this->upload->initialize($config);
+
+    if (!$this->upload->do_upload('attachment')) {
+      $error = array('error' => $this->upload->display_errors());
+    } else {
+
+      $data = array('upload_data' => $this->upload->data());
+      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      array_push($_SESSION["payment"]["attachment"], $url);
+      $result["status"] = 1;
+    }
+    echo json_encode($result);
+  }
+
+  public function discard()
+  {
+    // $this->authorized($this->module, 'document');
+
+    unset($_SESSION['payment']);
+
+    redirect($this->module['route']);
+  }
+
+  public function print_pdf($id)
+  {
+    $this->authorized($this->module, 'print');
+
+    $entity = $this->model->findById($id);
+
+    $this->data['entity']           = $entity;
+    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
+
+    $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+    $pdfFilePath = str_replace('/', '-', $entity['document_number']) .".pdf";
+
+    $this->load->library('m_pdf');
+
+    $pdf = $this->m_pdf->load(null, 'A4-L');
+    $pdf->WriteHTML($html);
+    $pdf->Output($pdfFilePath, "I");
+  }
+
+  public function edit($id)
+  {
+    $this->authorized($this->module, 'document');
+
+    $entity = $this->model->findById($id);
+
+    $this->data['entity'] = $entity;
+    $this->data['id']     = $id;    
+    $_SESSION['payment']['attachment']            = array();
+
+    $this->render_view($this->module['view'] . '/edit');
   }
 
 }

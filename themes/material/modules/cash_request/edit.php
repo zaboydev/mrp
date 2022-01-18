@@ -14,22 +14,18 @@
           <div class="row">
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-content">
-                    <input type="text" name="order_number" id="order_number" class="form-control" value="[auto]" readonly>
-                    <label for="order_number">Document No.</label>
-                  </div>
-                  <span class="input-group-addon"><?= cash_request_format_number(); ?></span>
-                </div>
+                <input type="text" name="order_number" id="order_number" class="form-control" value="<?= $entity['document_number']?>-R" readonly>
+                <label for="order_number">Document No.</label>
+                <input type="hidden" name="cash_request_id" value="<?=$id?>">
               </div>
 
               <div class="form-group">
-                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= date('Y-m-d'); ?>" required>
+                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= date('Y-m-d',strtotime($entity['tanggal'])); ?>" required>
                 <label for="required_date">Date</label>
               </div>
 
               <div class="form-group">
-                <input type="text" name="request_by" id="request_by" class="form-control" value="<?= config_item('auth_person_name'); ?>" required>
+                <input type="text" name="request_by" id="request_by" class="form-control" value="<?= $entity['request_by']; ?>" required>
                 <label for="required_date">Request By</label>
               </div>
             </div>
@@ -39,7 +35,7 @@
                 <select name="cash_account" id="cash_account" class="form-control" required>
                   <option value="">-- SELECT Account --</option>
                   <?php foreach (getAccount('CASH') as $key => $account) : ?>
-                  <option value="<?= $account['coa']; ?>">
+                  <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $entity['cash_account_code']) ? 'selected' : ''; ?>>
                     <?= $account['coa']; ?> <?= $account['group']; ?>
                   </option>
                   <?php endforeach; ?>
@@ -47,14 +43,14 @@
                 <label for="vendor">Cash Account</label>
               </div>
               <div class="form-group">
-                <input type="number" name="request_amount" id="request_amount" class="form-control" value="0" required="required">
+                <input type="number" name="request_amount" id="request_amount" class="form-control" value="<?= $entity['request_amount']?>" required="required">
                 <label for="amount">Request Amount</label>
               </div>
             </div>
 
             <div class="col-sm-12 col-lg-4">              
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
+                <textarea name="notes" id="notes" class="form-control" rows="3"><?= $entity['notes']?></textarea>
                 <label for="notes">Notes</label>
               </div>
             </div>
@@ -283,7 +279,6 @@
             toastr.options.timeOut = 10000;
             toastr.options.positionClass = 'toast-top-right';
             toastr.error(obj.info);
-            // button.attr('disabled', false);
             $(buttonXhrSubmit).attr('disabled', false);
           } else {
             toastr.options.timeOut = 4500;
