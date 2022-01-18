@@ -8,90 +8,59 @@
 <table class="table-no-strip condensed">
     <tr>
         <td>TRANSACTION NO </td>
-        <th>: <?= print_string($entity['no_transaksi']); ?></th>
-        <td>Payment to</td>
-        <th>: <?= $entity['vendor']; ?></th>
-        <td>Paid at</td>
-        <th>: <?= ($entity['paid_at']!='')? print_date($entity['paid_at']):'-'; ?></th>
+        <th>: <?= print_string($entity['document_number']); ?></th>
+        <td>Status</td>
+        <th>
+            : <?php if($entity['status']=='PAID'):?>
+              PAID
+              <?php endif;?>
+              <?php if($entity['status']=='APPROVED'):?>
+              WAITING PAYMENT
+              <?php endif;?>
+              <?php if($entity['status']=='REJECTED'):?>
+              REJECTED by <?= $entity['rejected_by']; ?> at <?= print_date($entity['rejected_at'],'d/m/Y'); ?>
+              <?php endif;?>
+              <?php if($entity['status']!='APPROVED' && $entity['status']!='PAID' && $entity['status']!='REJECTED'):?>
+              Purpose Review
+              <?php endif;?>
+        </th>
     </tr>
     <tr>
         <td>Date.</td>
         <th>: <?= print_date($entity['tanggal']); ?></th>
-        <td>Payment Status</td>
-        <th>: <?= $entity['status']; ?></th>
-        <td>No. Konfirmasi</td>
-        <th>: <?= ($entity['status']=='PAID')? $entity['no_konfirmasi']:'n/b'; ?></th>
+        <td>Paid at</td>
+        <th>: <?= ($entity['paid_at']!='')? print_date($entity['paid_at']):'n/b'; ?></th>
     </tr>
     <tr>
-        <td>Purposed Date</td>
-        <th>: <?= print_date($entity['purposed_date']); ?></th>
-        <td>Account</td>
-        <th>: <?= $entity['coa_kredit']; ?> <?= $entity['group']; ?></th>
+        <td>Request By</td>
+        <th>: <?= print_string($entity['request_by']); ?></th>
+        <td>Paid By</td>
+        <th>: <?= (empty($entity['paid_by'])) ? 'n/b' : print_string($entity['paid_by']); ?></th>
+    </tr>
+    <tr>
+        <td>Cash Account.</td>
+        <th>: <?= $entity['cash_account_code']; ?> <?= $entity['cash_account_name']; ?></th>
+        <td>Transfer From</td>
+        <th>: <?= $entity['coa_kredit']; ?> <?= $entity['akun_kredit']; ?></th>
+    </tr>
+    <tr>
+        <td>Amount</td>
+        <th>: <?= print_number($entity['request_amount'],2); ?></th>
         <td>No. Cheque</td>
         <th>: <?= ($entity['status']=='PAID')? $entity['no_cheque']:'n/b'; ?></th>
     </tr>
+    <tr>
+        <td>Notes</td>
+        <th>: <?= (empty($entity['notes'])) ? '' : nl2br($entity['notes']); ?></th>
+        <td>No. Konfirmasi</td>
+        <th>: <?= ($entity['status']=='PAID')? $entity['no_konfirmasi']:'n/b'; ?></th>
+    </tr>
 </table>
 
 <div class="clear"></div>
 
-<table class="table" style="margin-top: 20px;" width="100%">
-    <thead>
-        <tr>
-            <th style="text-align: center;">No</th>
-            <th style="text-align: center;">PO#</th>
-            <th style="text-align: center;">Due Date</th>
-            <th style="text-align: center;">Currency</th>
-            <th style="text-align: center;">Description</th>
-            <th style="text-align: center;">POE#</th>
-            <th style="text-align: center;">Request Number</th>
-            <th style="text-align: center;">Amount Request Payment</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php $n = 0; ?>
-        <?php $amount_paid = array(); ?>
-        <?php foreach ($entity['items'] as $i => $detail) : ?>
-        <?php $n++; ?>
-        <tr>
-            <td class="no-space">
-                <?= print_number($n); ?>
-            </td>
-            <td>
-                <?=print_string($detail['document_number'])?>
-            </td>
-            <td>
-                <?= print_date($detail['due_date'],'d/m/Y'); ?>
-            </td>
-            <td>
-                <?= print_string($detail['default_currency']); ?>
-            </td>
-            <td>
-                <?= print_string($detail['description']); ?>
-            </td>
-            <td>
-                <?=print_string($detail['poe_number'])?>
-            </td>
-            <td>
-                <?=print_string($detail['request_number'])?>
-            </td>
-            <td style="text-align: right;">
-                <?= print_number($detail['amount_paid'], 2); ?>
-                <?php $amount_paid[] = $detail['amount_paid']; ?>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-    <tfoot>
-        <tr>
-            <th colspan="7">Total</th>
-            <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
-        </tr>
-    </tfoot>
-</table>
-
 <div class="clear"></div>
 
-<?= (empty($entity['notes'])) ? '' : '<p>Note: ' . nl2br($entity['notes']) . '</p>'; ?>
 
 <?php if ($entity['approved_date'] != null) : ?>
   <?= (empty($entity['approved_notes'])) ? '' : '<p>Note: ' . nl2br($entity['approved_notes']) . '</p>'; ?>
