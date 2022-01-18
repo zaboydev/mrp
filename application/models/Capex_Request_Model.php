@@ -667,8 +667,8 @@ class Capex_Request_Model extends MY_Model
         $this->connection->join('tb_products', 'tb_products.id = tb_capex_monthly_budgets.product_id');
         $this->connection->join('tb_product_purchase_prices', 'tb_product_purchase_prices.product_id = tb_products.id');
         $this->connection->join('tb_product_measurements', 'tb_product_measurements.id = tb_products.product_measurement_id');
-        $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
-        $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
+        $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id','left');
+        $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id','left');
         $this->connection->where('tb_capex_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
         $this->connection->group_by($this->column_groupby);
         $this->connection->order_by('tb_products.product_name ASC, tb_products.product_code ASC');
