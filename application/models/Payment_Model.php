@@ -1914,34 +1914,38 @@ class Payment_Model extends MY_MODEL
     {
 		$this->db->select(
 			array(
-			'tb_po.document_number',
-			'tb_purchase_order_items_payments.deskripsi',
-			'tb_purchase_order_items_payments.tanggal',
 			'tb_po_payments.document_number as no_transaksi',
-			'tb_purchase_order_items_payments.amount_paid',
+			'SUM(tb_purchase_order_items_payments.amount_paid) as total',
 			'tb_po_payments.currency',
+			'tb_po_payments.tanggal',
 			)
 		);
-		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po_payments','tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po','tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->from('tb_po_payments');
+		$this->db->join('tb_purchase_order_items_payments','tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+		$this->connection->group_by(
+            array(
+                'tb_po_payments.document_number as no_transaksi',
+				'tb_po_payments.currency',
+				'tb_po_payments.tanggal',
+            )
+		);
 		if(is_array($doc_id)){
             $this->db->where_in('tb_purchase_order_items_payments.po_payment_id',$doc_id);
         }else{
             $this->db->where('tb_purchase_order_items_payments.po_payment_id',$doc_id);
-        }
+		}
+		
 		$query = $this->db->get();
 		$item_message = '<tbody>';
 		foreach ($query->result_array() as $key => $item) {
 			$item_message .= "<tr>";
 			$item_message .= "<td>" . print_date($item['tanggal']) . "</td>";
 			$item_message .= "<td>" . $item['no_transaksi'] . "</td>";
-			$item_message .= "<td>" . $item['document_number'] . "</td>";
-			$item_message .= "<td>" . $item['deskripsi'] . "</td>";
-			$item_message .= "<td>" . print_number($item['amount_paid'], 2) . "</td>";
 			$item_message .= "<td>" . $item['currency'] . "</td>";
+			$item_message .= "<td>" . print_number($item['amount_paid'], 2) . "</td>";
 			$item_message .= "</tr>";
 		}
+		$item_message .= '</tbody>';
         
 
 		if($base!=null){
@@ -1971,10 +1975,8 @@ class Payment_Model extends MY_MODEL
         $message .= "<tr>";
         $message .= "<th>Tanggal</th>";
         $message .= "<th>No Payment Request</th>";
-        $message .= "<th>No PO</th>";
-        $message .= "<th>Description Item</th>";
-        $message .= "<th>Nominal</th>";
         $message .= "<th>Currency</th>";
+        $message .= "<th>Nominal</th>";
         $message .= "</tr>";
         $message .= "</thead>";
         $message .= $item_message;
