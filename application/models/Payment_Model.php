@@ -1362,16 +1362,6 @@ class Payment_Model extends MY_MODEL
 		$level 			= 0;
 		$status 		= '';
 
-		if (config_item('auth_role')=='FINANCE SUPERVISOR' && $po_payment['status'] == 'WAITING CHECK BY FIN SPV') {
-			$this->db->set('status', 'WAITING REVIEW BY FIN MNG');
-			$this->db->set('checked_by', config_item('auth_person_name'));
-			$this->db->set('checked_at', date('Y-m-d'));
-			$this->db->where('id', $id);
-			$this->db->update('tb_po_payments');
-			$status = 'WAITING REVIEW BY FIN MNG';
-			$level = 14;
-		}
-
 		if (config_item('auth_role')=='FINANCE MANAGER' && $po_payment['status'] == 'WAITING REVIEW BY FIN MNG') {
 			if($po_payment['base']=='JAKARTA'){
 				$this->db->set('status', 'WAITING REVIEW BY VP FINANCE');
@@ -1388,109 +1378,21 @@ class Payment_Model extends MY_MODEL
 			$this->db->update('tb_po_payments');
 		}
 
-		// if (config_item('auth_role')=='HEAD OF SCHOOL' && $po_payment['status'] == 'WAITING REVIEW BY HOS') {
-		// 	if($currency=='IDR'){
-		// 		if($total>15000000){
-		// 			$this->db->set('status', 'WAITING REVIEW BY COO');
-		// 			$status = 'WAITING REVIEW BY COO';
-		// 			$level = 16;
-		// 		}else{
-		// 			$this->db->set('status', 'APPROVED');
-		// 			$status = 'APPROVED';
-		// 			$level = 0;
-		// 		}
-		// 	}else{
-		// 		if($total>1500){
-		// 			$this->db->set('status', 'WAITING REVIEW BY COO');
-		// 			$status = 'WAITING REVIEW BY COO';
-		// 			$level = 16;
-		// 		}else{
-		// 			$this->db->set('status', 'APPROVED');
-		// 			$status = 'APPROVED';
-		// 			$level = 0;
-		// 		}
-		// 	}
-		// 	// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
-		// 	$this->db->set('known_by', config_item('auth_person_name'));
-		// 	$this->db->set('known_at', date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_po_payments');
-		// }
-
-		// if (config_item('auth_role')=='CHIEF OPERATION OFFICER' && $po_payment['status'] == 'WAITING REVIEW BY CEO') {
-		// 	$this->db->set('status', 'APPROVED');
-		// 	$this->db->set('approved_by', config_item('auth_person_name'));
-		// 	$this->db->set('approved_at', date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_po_payments');
-		// 	$status = 'APPROVED';
-		// }
-
 		if (config_item('auth_role')=='VP FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
-			// if($currency=='IDR'){
-			// 	if($total>15000000){
-			// 		$this->db->set('status', 'WAITING REVIEW BY CFO');
-			// 		$status = 'WAITING REVIEW BY CFO';
-			// 		$level = 11;
-			// 	}else{
-			// 		$this->db->set('status', 'APPROVED');
-			// 		$status = 'APPROVED';
-			// 		$level = 0;
-			// 	}
-			// }else{
-			// 	if($total>1500){
-			// 		$this->db->set('status', 'WAITING REVIEW BY CFO');
-			// 		$status = 'WAITING REVIEW BY CFO';
-			// 		$level = 11;
-			// 	}else{
-			// 		$this->db->set('status', 'APPROVED');
-			// 		$status = 'APPROVED';
-			// 		$level = 0;
-			// 	}
-			// }
-			// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
 			$this->db->set('status', 'APPROVED');
-			$status = 'WAITING REVIEW BY CFO';
+			$status = 'APPROVED';
 			$level = 0;
 			$this->db->set('known_by', config_item('auth_person_name'));
 			$this->db->set('known_at', date('Y-m-d'));
 			$this->db->where('id', $id);
 			$this->db->update('tb_po_payments');
 		}
-
-		// if (config_item('auth_role')=='CHIEF OF FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY CFO') {
-		// 	$this->db->set('status', 'APPROVED');
-		// 	$this->db->set('approved_by', config_item('auth_person_name'));
-		// 	$this->db->set('approved_at', date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_po_payments');
-		// 	$status = 'APPROVED';
-		// }
 		
 		if($status!=''){
 			$this->db->set('status', $status);
 			$this->db->where('po_payment_id', $id);
 			$this->db->update('tb_purchase_order_items_payments');
 		}
-		
-
-		// $this->db->where('id', $id);
-		// $query    = $this->db->get('tb_purchase_order_items_payments');
-		// $payment_item = $query->unbuffered_row('array');
-		// $no_jurnal = $payment_item['no_transaksi'];
-
-		// if (config_item('auth_role')=='FINANCE MANAGER') {			
-		// 	$this->db->set('status', 'CHECKED');
-		// 	$this->db->set('checked_by', config_item('auth_person_name').'|'.date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_purchase_order_items_payments');
-		// }
-		// if (config_item('auth_role')=='VP FINANCE') {			
-		// 	$this->db->set('status', 'APPROVED');
-		// 	$this->db->set('approved_by', config_item('auth_person_name').'|'.date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_purchase_order_items_payments');
-		// }
 
 		if ($this->db->trans_status() === FALSE)
 			return FALSE;

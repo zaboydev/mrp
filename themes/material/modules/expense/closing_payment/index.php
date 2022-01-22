@@ -495,17 +495,12 @@
           });
 
           $("#modal-approve-data-button-multi").click(function() {
-            var action = $(this).data('source');
-            if (!encodeNotes()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
-            } else {
+            var action = $(this).data('source');            
               $(this).attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
                   'id_expense_request': id_purchase_order,
-                  'notes': notes
+                  // 'notes': notes
                 }).done(function(data) {
                   console.log(data);
                   $("#modal-approve-data-button-multi").attr('disabled', false);
@@ -524,7 +519,7 @@
                   $("#modal-approve-data-button-multi").attr('disabled', false);
                   toastr.options.timeOut = 10000;
                   toastr.options.positionClass = 'toast-top-right';
-                  toastr.error('Delete Failed! This data is still being used by another document.');
+                  toastr.error('Delete Failed! Silahkan Hubungi Teknisi.');
                 });
               } else {
                 $(this).attr('disabled', false);
@@ -532,7 +527,6 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            }
 
           });
 
@@ -681,6 +675,7 @@
                   id_purchase_order = id_purchase_order.replace("|" + $(this).attr('data-id') + ",", "");
                 }
               }
+              console.log(id_purchase_order);
 
             } else if (e.target.nodeName === "SPAN") {
               var a = $(e.target).data('id');

@@ -333,87 +333,62 @@ class Expense_Closing_Payment_Model extends MY_Model
         return $query->result_array();
     }
 
-    public function approve($id,$notes)
+    public function approve($request_payment_id)
     {
         $this->connection->trans_begin();
 
-        $this->connection->select('tb_expense_purchase_requisitions.*');
-        $this->connection->from('tb_expense_purchase_requisitions');
-        $this->connection->where('tb_expense_purchase_requisitions.id',$id);
-        $query    = $this->connection->get();
-        $request  = $query->unbuffered_row('array');
-        $approval_notes = $request['approval_notes'];
-        $total = $this->countTotalExpense($id);
+        $send_to_vp_finance = array();
 
-        if(config_item('auth_role')=='BUDGETCONTROL'){
-            $this->connection->set('status','WAITING FOR HEAD DEPT');
-            $this->connection->set('approved_date',date('Y-m-d H:i:s'));
-            $this->connection->set('approved_by',config_item('auth_person_name'));
-            if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'Budgetcontrol : '.$notes);
-            }            
-            $this->connection->where('id',$id);
-            $this->connection->update('tb_expense_purchase_requisitions');
-        }
-        if(config_item('as_head_department')=='yes'){
-            $this->connection->set('status','WAITING FOR FINANCE REVIEW');
-            $this->connection->set('head_approved_date',date('Y-m-d H:i:s'));
-            $this->connection->set('head_approved_by',config_item('auth_person_name'));
-            if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'Head : '.$notes);
+        foreach ($request_payment_id as $key) {
+            $id = $key;
+            $this->connection->select('tb_request_payments.*');
+            $this->connection->from('tb_request_payments');
+            $this->connection->where('tb_request_payments.id',$id);
+            $query          = $this->connection->get();
+            $request_payment     = $query->unbuffered_row('array');
+            $currency       = $request_payment['currency'];
+            $level          = 0;
+            $status         = '';
+
+            if (config_item('auth_role')=='FINANCE MANAGER' && $request_payment['status'] == 'WAITING REVIEW BY FIN MNG') {
+                if($request_payment['base']=='JAKARTA'){
+                    $this->connection->set('status', 'WAITING REVIEW BY VP FINANCE');
+                    $status = 'WAITING REVIEW BY VP FINANCE';
+                    $level = 3;
+                    $send_to_vp_finance[] = $id;
+                }else{
+                    $this->connection->set('status', 'APPROVED');
+                    $status = 'APPROVED';
+                    $level = 0;
+                }           
+                $this->connection->set('review_by', config_item('auth_person_name'));
+                $this->connection->set('review_at', date('Y-m-d'));
+                $this->connection->where('id', $id);
+                $this->connection->update('tb_request_payments');
             }
-            $this->connection->where('id',$id);
-            $this->connection->update('tb_expense_purchase_requisitions');
+
+            if (config_item('auth_role')=='VP FINANCE' && $request_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
+                $this->connection->set('status', 'APPROVED');
+                $status = 'APPROVED';
+                $level = 0;
+                $this->connection->set('approved_by', config_item('auth_person_name'));
+                $this->connection->set('approved_at', date('Y-m-d'));
+                $this->connection->where('id', $id);
+                $this->connection->update('tb_request_payments');
+            }
         }
 
-        if(config_item('auth_role')=='VP FINANCE'){
-            $this->connection->set('status','WAITING FOR HOS REVIEW');
-            $this->connection->set('finance_approved_date',date('Y-m-d H:i:s'));
-            $this->connection->set('finance_approved_by',config_item('auth_person_name'));
-            if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'Finance : '.$notes);
-            }            
-            $this->connection->where('id',$id);
-            $this->connection->update('tb_expense_purchase_requisitions');
-        }
-
-        if(config_item('auth_role')=='HEAD OF SCHOOL'){
-            if($total>15000000){
-                $this->connection->set('status','WAITING FOR COO REVIEW');
-            }else{
-                $this->connection->set('status','approved');
-            }            
-            $this->connection->set('hos_approved_date',date('Y-m-d H:i:s'));
-            $this->connection->set('hos_approved_by',config_item('auth_person_name'));
-            if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'HOS : '.$notes);
-            }            
-            $this->connection->where('id',$id);
-            $this->connection->update('tb_expense_purchase_requisitions');
-        }
-
-        if(config_item('auth_role')=='CHIEF OPERATION OFFICER'){
-            $this->connection->set('status','approved');
-            $this->connection->set('ceo_approved_date',date('Y-m-d H:i:s'));
-            $this->connection->set('ceo_approved_by',config_item('auth_person_name'));
-            if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'COO : '.$notes);
-            }            
-            $this->connection->where('id',$id);
-            $this->connection->update('tb_expense_purchase_requisitions');
-        }
-
-        // $this->connection->set('status','approved');
-        // $this->connection->set('approved_date',date('Y-m-d H:i:s'));
-        // $this->connection->set('approved_by',config_item('auth_person_name'));
-        // $this->connection->set('approved_notes',$notes);
-        // $this->connection->where('id',$id);
-        // $this->connection->update('tb_expense_purchase_requisitions');
+        
 
         if ($this->connection->trans_status() === FALSE)
             return FALSE;
 
-        $this->connection->trans_commit();
+        if(!empty($send_to_vp_finance)){
+            $this->send_mail($send_to_vp_finance,3);
+        }
+
+        $this->connection->trans_commit();        
+        
         return TRUE;
     }
 
@@ -936,7 +911,6 @@ class Expense_Closing_Payment_Model extends MY_Model
         $message .= "<tr>";
         $message .= "<th>Tanggal</th>";
         $message .= "<th>No Payment Request</th>";
-        $message .= "<th>Description Item</th>";
         $message .= "<th>Currency</th>";
         $message .= "<th>Nominal</th>";
         $message .= "</tr>";

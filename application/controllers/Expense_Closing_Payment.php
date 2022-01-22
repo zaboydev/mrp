@@ -42,9 +42,7 @@ class Expense_Closing_Payment extends MY_Controller
                 $no++;
                 $col = array();
                 if (is_granted($this->module, 'approval') === TRUE) {
-                    if ($row['status'] == 'WAITING CHECK BY FIN SPV' && config_item('auth_role')=='FINANCE SUPERVISOR') {
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }else if ($row['status'] == 'WAITING REVIEW BY FIN MNG' && config_item('auth_role')=='FINANCE MANAGER') {
+                    if ($row['status'] == 'WAITING REVIEW BY FIN MNG' && config_item('auth_role')=='FINANCE MANAGER') {
                         if(config_item('auth_warehouse')=='JAKARTA'){
                             if($row['base']=='JAKARTA'){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -58,13 +56,7 @@ class Expense_Closing_Payment extends MY_Controller
                                 $col[] = print_number($no);
                             }
                         }
-                    }else if ($row['status'] == 'WAITING REVIEW BY HOS' && config_item('auth_role')=='HEAD OF SCHOOL') {
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else if ($row['status'] == 'WAITING REVIEW BY VP FINANCE' && config_item('auth_role')=='VP FINANCE') {
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }else if ($row['status'] == 'WAITING REVIEW BY CEO' && config_item('auth_role')=='CHIEF OPERATION OFFICER') {
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }else if ($row['status'] == 'WAITING REVIEW BY CFO' && config_item('auth_role')=='CHIEF OF FINANCE') {
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else{
                         $col[] = print_number($no);
@@ -75,12 +67,8 @@ class Expense_Closing_Payment extends MY_Controller
                 $col[]  = '<a data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
                 $col[]  = print_date($row['tanggal']);
                 $col[]  = print_string($row['no_cheque']);
-                // $col[]  = print_string($row['document_number']);
                 $col[]  = print_string($row['vendor']);
-                // $col[]  = print_string($row['part_number']);
-                // $col[]  = print_string($row['description']);
                 $col[]  = print_string($row['currency']);
-                // $col[]  = print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']);
                 $col[]  = '<a href="javascript:;" data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">' . print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']) . '</a>';
                 if($row['currency']=='IDR'){
                     $col[]  = print_number($row['amount_paid'], 2);
@@ -366,38 +354,6 @@ class Expense_Closing_Payment extends MY_Controller
         echo json_encode($return);
     }
 
-    // public function create_2($category = NULL)
-    // {
-    //     $this->authorized($this->module, 'document');
-
-    //     if ($category !== NULL) {
-    //       $category = urldecode($category);
-
-    //       $_SESSION['payment_request']['po']                  = array();
-    //       $_SESSION['payment_request']['category']            = $category;
-    //       $_SESSION['payment_request']['type']                = 'BANK';
-    //       $_SESSION['payment_request']['document_number']     = payment_request_last_number();
-    //       $_SESSION['payment_request']['date']                = date('Y-m-d');
-    //       $_SESSION['payment_request']['purposed_date']       = date('Y-m-d');
-    //       $_SESSION['payment_request']['created_by']          = config_item('auth_person_name');
-    //       $_SESSION['payment_request']['currency']            = "IDR";
-    //       $_SESSION['payment_request']['vendor']              = NULL;
-    //       $_SESSION['payment_request']['notes']               = NULL;
-    //       $_SESSION['payment_request']['total_amount']        = 0;
-    //       $_SESSION['payment_request']['coa_kredit']          = NULL;
-
-    //       redirect($this->module['route'] . '/create_2');
-    //     }
-
-    //     if (!isset($_SESSION['payment_request']))
-    //       redirect($this->module['route']);
-
-    //     $this->data['page']['content']    = $this->module['view'] . '/create-2';
-    //     $this->data['page']['title']      = 'create payment request';
-
-    //     $this->render_view($this->module['view'] . '/create-2');
-    // }
-
     public function print_pdf($id)
     {
         $this->authorized($this->module, 'print');
@@ -417,5 +373,95 @@ class Expense_Closing_Payment extends MY_Controller
         $pdf = $this->m_pdf->load(null, 'A4-L');
         $pdf->WriteHTML($html);
         $pdf->Output($pdfFilePath, "I");
+    }
+
+    public function multi_approve()
+    {
+        $id_purchase_order = $this->input->post('id_expense_request');
+        $id_purchase_order = str_replace("|", "", $id_purchase_order);
+        $id_purchase_order = substr($id_purchase_order, 0, -1);
+        $id_purchase_order = explode(",", $id_purchase_order);
+
+        $total = 0;
+        $success = 0;
+        $failed = sizeof($id_purchase_order);
+        $x = 0;
+        $level = 13;
+        
+        $success = $this->model->approve($id_purchase_order);
+        // foreach ($id_purchase_order as $key) {
+        //   if ($this->model->approve($key)) {
+        //     $total++;
+        //     $success++;
+        //     $failed--;
+        //   }
+        //   $x++;
+        // }
+        // if ($success > 0) {
+        //   $this->session->set_flashdata('alert', array(
+        //     'type' => 'success',
+        //     'info' => " data has been approved!"
+        //   ));
+        // }
+        // if ($failed > 0) {
+        //   $this->session->set_flashdata('alert', array(
+        //     'type' => 'danger',
+        //     'info' => "There are " . $failed . " errors"
+        //   ));
+        // }
+        if ($success) {
+          $result['status'] = 'success';
+        } else {
+          //$this->sendEmailHOS();
+          $result['status'] = 'failed';
+        }
+        echo json_encode($result);
+    }
+
+    public function multi_reject()
+    {
+        $id_purchase_order = $this->input->post('id_purchase_order');
+        $id_purchase_order = str_replace("|", "", $id_purchase_order);
+        $id_purchase_order = substr($id_purchase_order, 0, -1);
+        $id_purchase_order = explode(",", $id_purchase_order);
+
+        // $str_price = $this->input->post('price');
+        // $price = str_replace("|", "", $str_price);
+        // $price = substr($price, 0, -3);
+        // $price = explode("##,", $price);
+
+        $total = 0;
+        $success = 0;
+        $failed = sizeof($id_purchase_order);
+        $x = 0;
+        foreach ($id_purchase_order as $key) {
+          if ($this->model->rejected($key)) {
+            $total++;
+            $success++;
+            $failed--;
+            // $this->model->send_mail_approved($key,'approved');
+          }
+          $x++;
+        }
+        if ($success > 0) {
+          // $id_role = 13;
+          $this->session->set_flashdata('alert', array(
+            'type' => 'success',
+            'info' => $success . " data has been rejected!"
+          ));
+        }
+        if ($failed > 0) {
+          $this->session->set_flashdata('alert', array(
+            'type' => 'danger',
+            'info' => "There are " . $failed . " errors"
+          ));
+        }
+        if ($total == 0) {
+          $result['status'] = 'failed';
+        } else {
+          //$this->sendEmailHOS();
+          $result['status'] = 'success';
+        }
+        echo json_encode($result);
     }
 }
