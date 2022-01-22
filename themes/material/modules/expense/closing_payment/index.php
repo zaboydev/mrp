@@ -25,7 +25,24 @@
 
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
-
+  <div class="btn-group dropup">
+    <?php if (is_granted($module, 'document')) : ?>
+      <a href="<?= site_url($module['route'] . '/create/expense'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+        <i class="md md-add"></i>
+        <small class="top right">Create <?= $module['label']; ?></small>
+      </a>
+    <?php endif ?>
+    <?php if (is_granted($module, 'approval')) : ?>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+        <i class="md md-clear"></i>
+        <small class="top right">reject</small>
+      </button>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
+        <i class="md md-spellcheck"></i>
+        <small class="top right">approve</small>
+      </button>
+    <?php endif ?>
+  </div>
 </div>
 <?php endblock() ?>
 
@@ -713,6 +730,11 @@
                   $(dataModal).modal('show');
                 }
               });
+            }
+
+            if (id == 'openPo') {
+              var url = $(this).data('href');
+              window.open(url, '_blank').focus();
             }
 
 
