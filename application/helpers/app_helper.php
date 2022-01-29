@@ -1618,6 +1618,24 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAccountBudgetControlByCode')) {
+    function getAccountBudgetControlByCode($code)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('account_code as coa,account_name as group');
+      $connection->from( 'tb_accounts' ); 
+      $connection->where('account_code', $code);
+
+      $query    = $connection->get();
+      $row      = $query->unbuffered_row();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
   if ( ! function_exists('getMonthName')) {
     function getMonthName($month, $case = NULL)
     {

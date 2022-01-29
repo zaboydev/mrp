@@ -617,24 +617,26 @@
           }
 
           $("#modal-reject-data-button-multi").click(function() {
+            $(this).attr('disabled', true);
+            $("#modal-approve-data-button-multi").attr('disabled', true);
+
             if (!encodeNotes()) {
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
               toastr.error('You must filled notes for each item that you want to reject');
-            } else if (!encodePrice()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
+              $(this).attr('disabled', false);
+              $("#modal-approve-data-button-multi").attr('disabled', false);
             } else {
-
               if (id_purchase_order == "") {
                 toastr.options.timeOut = 10000;
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('You must select item that you want to reject');
+                $(this).attr('disabled', false);
+                $("#modal-approve-data-button-multi").attr('disabled', false);
               } else {
                 $.ajax({
                   type: "POST",
-                  url: 'purchase_request/multi_reject',
+                  url: 'expense_closing_payment/multi_reject',
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,

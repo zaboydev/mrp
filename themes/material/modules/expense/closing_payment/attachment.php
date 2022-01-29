@@ -12,6 +12,7 @@
           <input type="file" name="attachment" id="attachment" accept=".png,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.pdf">
           <p style="font-size: 8pt">Allowing file format <i>doc, docx, xls, xlsx, pdf, jpg, png</i></p>
           <p style="color: red; display: none;" id="typeError">The file type is not allowed to attach</p>
+          <input type="hidden" name="type_att" value="<?=$type_att?>">
         </div>
       </div>
       <div class="clearfix">
@@ -35,10 +36,10 @@
           </tr>
         </thead>
         <tbody>
-          <?php if(sizeof($_SESSION['expense']["attachment"])>0) {
+          <?php if(sizeof($_SESSION['payment']["attachment"])>0) {
               $x=0; 
               $y=0;
-              foreach ($_SESSION['expense']["attachment"] as $key) {
+              foreach ($_SESSION['payment']["attachment"] as $key) {
                     $x++;
                   ?>
                   <tr>

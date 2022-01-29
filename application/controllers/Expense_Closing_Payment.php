@@ -82,8 +82,19 @@ class Expense_Closing_Payment extends MY_Controller
                                <i class="fa fa-eye"></i>
                              </a>';
                 $col[]  = print_string($row['base']);
-                $col[]  = print_string($row['created_by']);
-                $col[]  = print_date($row['created_at']);
+                $col[]  = print_string($row['notes']);
+                if($row['status'] == 'WAITING REVIEW BY FIN MNG' || $row['status'] == 'WAITING REVIEW BY VP FINANCE'){
+                    if (is_granted($this->module, 'approval') === TRUE) {
+                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                    }else{
+                        $col[] = $row['approval_notes'];
+                    }
+                    
+                }elseif($row['status']=='REJECTED'){
+                    $col[] = $row['rejected_notes'];
+                }else{
+                    $col[] = $row['approval_notes'];
+                }
 
                 if($row['currency']=='IDR'){
                     $total_idr[] = $row['amount_paid'];
@@ -161,6 +172,7 @@ class Expense_Closing_Payment extends MY_Controller
 
             $this->data['entity'] = $entity;
             $this->data['account'] = $account;
+            $this->data['id']       = $id;
 
             $return['type'] = 'success';
             $return['info'] = $this->load->view($this->module['view'] . '/info', $this->data, TRUE);
@@ -425,42 +437,114 @@ class Expense_Closing_Payment extends MY_Controller
         $id_purchase_order = substr($id_purchase_order, 0, -1);
         $id_purchase_order = explode(",", $id_purchase_order);
 
-        // $str_price = $this->input->post('price');
-        // $price = str_replace("|", "", $str_price);
-        // $price = substr($price, 0, -3);
-        // $price = explode("##,", $price);
+        $str_notes = $this->input->post('notes');
+        $notes = str_replace("|", "", $str_notes);
+        $notes = substr($notes, 0, -3);
+        $notes = explode("##,", $notes);
 
         $total = 0;
         $success = 0;
         $failed = sizeof($id_purchase_order);
         $x = 0;
-        foreach ($id_purchase_order as $key) {
-          if ($this->model->rejected($key)) {
-            $total++;
-            $success++;
-            $failed--;
-            // $this->model->send_mail_approved($key,'approved');
-          }
-          $x++;
-        }
-        if ($success > 0) {
-          // $id_role = 13;
-          $this->session->set_flashdata('alert', array(
-            'type' => 'success',
-            'info' => $success . " data has been rejected!"
-          ));
-        }
-        if ($failed > 0) {
-          $this->session->set_flashdata('alert', array(
-            'type' => 'danger',
-            'info' => "There are " . $failed . " errors"
-          ));
-        }
-        if ($total == 0) {
-          $result['status'] = 'failed';
+
+        $rejected = $this->model->reject($id_purchase_order,$notes);
+        // foreach ($id_purchase_order as $key) {
+        //   if ($this->model->rejected($key)) {
+        //     $total++;
+        //     $success++;
+        //     $failed--;
+        //     // $this->model->send_mail_approved($key,'approved');
+        //   }
+        //   $x++;
+        // }
+        // if ($success > 0) {
+        //   // $id_role = 13;
+        //   $this->session->set_flashdata('alert', array(
+        //     'type' => 'success',
+        //     'info' => $success . " data has been rejected!"
+        //   ));
+        // }
+        // if ($failed > 0) {
+        //   $this->session->set_flashdata('alert', array(
+        //     'type' => 'danger',
+        //     'info' => "There are " . $failed . " errors"
+        //   ));
+        // }
+        if ($rejected) {
+          $result['status'] = 'success';
         } else {
           //$this->sendEmailHOS();
-          $result['status'] = 'success';
+          $result['status'] = 'failed';
+        }
+        echo json_encode($result);
+    }
+
+    public function bayar($id)
+    {
+        $this->authorized($this->module, 'payment');
+
+        // if ($category !== NULL){
+        $item       = $this->model->findById($id);
+
+        $_SESSION['payment']                          = $item;
+        $_SESSION['payment']['no_transaksi']          = $item['no_transaksi'];
+        $_SESSION['payment']['vendor']                = $item['vendor'];
+        $_SESSION['payment']['currency']              = $item['currency'];
+        $_SESSION['payment']['base']                  = $item['base'];
+        $_SESSION['payment']['po_payment_id']         = $item['id'];
+        $_SESSION['payment']['total_amount']          = 0;
+        $_SESSION['payment']['attachment']            = array();
+        foreach ($_SESSION['payment']['items'] as $i => $item){
+          $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$item['amount_paid'];
+        }
+        // $_SESSION['payment']['total_amount']          = $item['items']->sum('amount_paid');
+        
+
+        $this->render_view($this->module['view'] . '/bayar');
+    }
+
+    public function attachment()
+    {
+        // $this->authorized($this->module, 'manage_attachment');
+        $this->data['page']['title']    = "Attachment Payment";
+        $this->data['type_att']       = 'payment';
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function add_attachment()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+        $config['upload_path'] = 'attachment/expense_payment/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+          $error = array('error' => $this->upload->display_errors());
+        } else {
+
+          $data = array('upload_data' => $this->upload->data());
+          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          array_push($_SESSION["payment"]["attachment"], $url);
+          $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function save_pembayaran()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+        
+        $save = $this->model->save_pembayaran();
+        if ($save) {
+            unset($_SESSION['payment']);
+            $result["status"] = "success";
+        } else {
+            $result["status"] = "failed";
         }
         echo json_encode($result);
     }

@@ -30,11 +30,17 @@ class Expense_Closing_Payment_Model extends MY_Model
             'SUM(tb_request_payment_details.amount_paid) as amount_paid'             => 'Amount IDR',
             'tb_request_payments.akun_kredit'                                        => 'Amount USD',
             'tb_request_payments.status'                                             => 'Status',
-            'tb_request_payments.source'                                        => 'Attachment',
+            'tb_request_payments.rejected_notes'                                     => 'Attachment',
             'tb_request_payments.base'                                               => 'Base',
-            'tb_request_payments.created_by'                                         => 'Created by',
-            'tb_request_payments.created_at'                                         => 'Created At',
+            'tb_request_payments.notes'                                              => 'Notes',
         );
+        if(is_granted($this->data['modules']['payment'], 'approval')){
+            $return['tb_request_payments.approval_notes']  = 'Input Notes';
+        }else{
+            $return['tb_request_payments.approval_notes']  = 'Approval/Rejected Notes';
+        }
+
+
 
         return $return;
     }
@@ -78,8 +84,8 @@ class Expense_Closing_Payment_Model extends MY_Model
             'tb_request_payments.coa_kredit',
             // 'tb_purchase_order_items_payments.amount_paid',
             'tb_request_payments.base',
-            'tb_request_payments.created_by',
-            'tb_request_payments.created_at'
+            'tb_request_payments.notes',
+            // 'tb_request_payments.created_at'
         );
 
         return $return;
@@ -96,9 +102,9 @@ class Expense_Closing_Payment_Model extends MY_Model
             'tb_request_payments.currency',
             'tb_request_payments.status',
             'tb_request_payments.base',
-            'tb_request_payments.created_by',
-            'tb_request_payments.created_at',
-            'tb_request_payments.akun_kredit'
+            'tb_request_payments.notes',
+            'tb_request_payments.approval_notes',
+            'tb_request_payments.rejected_notes'
         );
 
         return $return;
@@ -392,6 +398,51 @@ class Expense_Closing_Payment_Model extends MY_Model
         return TRUE;
     }
 
+    public function reject($request_payment_id,$notes)
+    {
+        $this->connection->trans_begin();
+
+        $send_to_vp_finance = array();
+        $x = 0;
+        $return = 0;
+        $rejected_note = '';
+
+        foreach ($request_payment_id as $key) {
+            $id = $key;
+            $this->connection->select('tb_request_payments.*');
+            $this->connection->from('tb_request_payments');
+            $this->connection->where('tb_request_payments.id',$id);
+            $query          = $this->connection->get();
+            $request_payment     = $query->unbuffered_row('array');
+            $currency       = $request_payment['currency'];
+            $level          = 0;
+            $status         = '';
+
+            if($request_payment['status']!='REJECTED' || $request_payment['status']!='REVISI' || $request_payment['status']!='PAID'){
+                $this->connection->set('status', 'REJECTED');
+                $this->connection->set('rejected_by', config_item('auth_person_name'));
+                $this->connection->set('rejected_at', date('Y-m-d'));
+                $this->connection->set('rejected_notes',$notes[$x]);
+                $this->connection->where('id', $id);
+                $this->connection->update('tb_request_payments');
+            }
+            $x++;
+        }
+
+        
+
+        if ($this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        // if(!empty($send_to_vp_finance)){
+        //     $this->send_mail($send_to_vp_finance,3);
+        // }
+
+        $this->connection->trans_commit();        
+        
+        return TRUE;
+    }
+
     public function searchBudget($annual_cost_center_id)
     {
         $query = "";
@@ -534,6 +585,7 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->connection->set('pr_number', $item['pr_number']);
             $this->connection->set('amount_paid', $item['total']);
             $this->connection->set('remarks', $item['notes']);
+            $this->connection->set('account_code', $item['account_code']);
             $this->connection->set('deskripsi', $item['account_code'].' '.$item['account_name']);
             $this->connection->set('created_by', config_item('auth_person_name'));
             $this->connection->set('adj_value', 0);
@@ -570,7 +622,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 }
 
                     
-                $akun = getAccountByCode($item['account_code']);
+                $akun = getAccountBudgetControlByCode($item['account_code']);
 
                 $this->db->set('id_jurnal', $id_jurnal);
                 $this->db->set('jenis_transaksi', strtoupper($akun->group));
@@ -635,6 +687,112 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->send_mail($request_payment_id,14,$base);
         }
 
+        return TRUE;
+    }
+
+    function save_pembayaran()
+    {
+        $this->connection->trans_begin();
+        $this->db->trans_begin();
+        // $item = $this->input->post('item');
+        $account        = $this->input->post('account');
+        $vendor         = $this->input->post('vendor');
+        $no_cheque      = $this->input->post('no_cheque');
+        $tanggal        = $this->input->post('date');
+        $amount         = $this->input->post('amount');
+        $no_jurnal      = $this->input->post('no_transaksi');
+        $currency       = $this->input->post('currency');
+        $no_konfirmasi  = $this->input->post('no_konfirmasi');
+        $paid_base      = $this->input->post('paid_base');
+        $kurs           = $this->tgl_kurs(date("Y-m-d"));
+        $tipe           = $this->input->post('tipe');
+        $po_payment_id          = $this->input->post('po_payment_id');
+        if ($currency == 'IDR') {
+            $amount_idr = $amount;
+            $amount_usd = $amount / $kurs;
+        } else {
+            $amount_usd = $amount;
+            $amount_idr = $amount * $kurs;
+        }
+
+
+        $this->db->set('no_jurnal', $no_jurnal);
+        $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($tanggal)));
+        $this->db->set('source', "AP");
+        $this->db->set('vendor', $vendor);
+        $this->db->set('grn_no', $no_jurnal);
+        $this->db->set('keterangan', strtoupper("pembayaran expense payment"));
+        $this->db->insert('tb_jurnal');
+        $id_jurnal = $this->db->insert_id();
+
+        $akun_kredit = getAccountByCode($account);
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', $akun_kredit->group);
+        $this->db->set('trs_debet', 0);
+        $this->db->set('trs_kredit', $amount_idr);
+        $this->db->set('trs_debet_usd', 0);
+        $this->db->set('trs_kredit_usd', $amount_usd);
+        $this->db->set('kode_rekening', $account);
+        $this->db->set('currency', $currency);
+        $this->db->insert('tb_jurnal_detail');
+
+        $this->connection->set('coa_kredit', $account);
+        $this->connection->set('no_cheque', $no_cheque);
+        $this->connection->set('akun_kredit', $akun_kredit->group);
+        $this->connection->set('no_konfirmasi', $no_konfirmasi);
+        $this->connection->set('paid_base', $paid_base);
+        $this->connection->set('vendor', $vendor);
+        $this->connection->set('status', "PAID");
+        $this->connection->set('paid_by', config_item('auth_person_name'));
+        $this->connection->set('paid_at', date("Y-m-d",strtotime($tanggal)));
+        $this->connection->where('id', $po_payment_id);
+        $this->connection->update('tb_request_payments');
+
+
+        foreach ($_SESSION['payment']['items'] as $i => $key) {
+
+            $this->connection->set('closing_date', $tanggal);
+            $this->connection->set('status', 'close');
+            // $this->connection->set('closing_notes', $notes);
+            $this->connection->set('closing_by', config_item('auth_person_name'));
+            $this->connection->set('account', $account);         
+            $this->connection->where('id', $key['request_id']);
+            $this->connection->update('tb_expense_purchase_requisitions');
+
+            if ($currency == 'IDR') {
+                $amount_idr = $key["amount_paid"];
+                $amount_usd = $key["amount_paid"] / $kurs;
+            } else {
+                $amount_usd = $key["amount_paid"];
+                $amount_idr = $key["amount_paid"] * $kurs;
+            }
+
+                    
+            $akun = getAccountBudgetControlByCode($key['account_code']);
+
+            $this->db->set('id_jurnal', $id_jurnal);
+            $this->db->set('jenis_transaksi', strtoupper($akun->group));
+            $this->db->set('trs_kredit', 0);
+            $this->db->set('trs_debet', $amount_idr);
+            $this->db->set('trs_kredit_usd', 0);
+            $this->db->set('trs_debet_usd', $amount_usd);
+            $this->db->set('kode_rekening', $akun->coa);
+            $this->db->set('currency', $currency);
+            $this->db->insert('tb_jurnal_detail');
+        }
+
+        foreach ($_SESSION["payment"]["attachment"] as $file) {
+            $this->connection->set('id_purchase', $po_payment_id);
+            $this->connection->set('tipe', "payment");
+            $this->connection->set('file', $file);
+            $this->connection->set('type_att', "payment");
+            $this->connection->insert('tb_attachment');
+        }
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        $this->connection->trans_commit();
         return TRUE;
     }
 
