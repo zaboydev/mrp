@@ -107,7 +107,11 @@
     <tr>
         <td valign="top" align="center">
             <p>
-                Request by:
+                <?php if($entity['type']!='CASH'): ?>
+                Prepared by:
+                <?php else:?>
+                Prepared & Approved
+                <?php endif; ?>
                 <br />AP STAFF
                 <br />&nbsp;<br>
                 <?php if ($entity['created_by'] != '') : ?>
@@ -117,7 +121,7 @@
                 <br /><?= $entity['created_by']; ?>
             </p>
         </td>
-
+        <?php if($entity['type']!='CASH'): ?>
         <?php if($entity['base']!='JAKARTA'): ?>
         <!-- <td valign="top" align="center">
             <p>
@@ -160,5 +164,6 @@
             </p>
         </td>
         <?php endif; ?>
+        <?php endif;?>
     </tr>
 </table>

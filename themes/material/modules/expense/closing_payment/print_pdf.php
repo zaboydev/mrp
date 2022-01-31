@@ -6,106 +6,71 @@
   }
 </style>
 <table class="table-no-strip condensed">
-  <tr>
-    <td>Request By</td>
-    <th widtd="40%">: <?= print_person_name($entity['created_by']); ?></th>
-    <td>PR No.</td>
-    <th>: <?= print_string($entity['pr_number']); ?></th>
-  </tr>
-  <tr>
-    <td>Cost Center</td>
-    <th>: <?= print_string($entity['cost_center_name']); ?></th>
-    <td>PR Date.</td>
-    <th>: <?= print_date($entity['pr_date']); ?></th>
-  </tr>
-  <tr>
-    <td>Suggested Supplier</td>
-    <th>: <?= print_string($entity['suggested_supplier']); ?></th>
-    <td>Required Date</td>
-    <th>: <?= print_date($entity['required_date']); ?></th>
-  </tr>
-  <tr>
-    <td>Deliver to</td>
-    <th>: <?= print_string($entity['deliver_to']); ?></th>
-    <td>Status</td>
-    <th>: BUDGETED</th>
-  </tr>
-  <tr>
-    <td></td>
-    <th></th>
-    <td>Approval Status</td>
-    <?php if($entity['status']=='approved') : ?>
-      <th>: APPROVED by <?=print_person_name($entity['head_approved_by']);?></th>
-    <?php elseif($entity['status']=='rejected') : ?>
-      <th>: REJECTED by <?=print_person_name($entity['rejected_by']);?></th>
-    <?php elseif ($entity['canceled_date'] != null) : ?>
-      <th>: CANCELED by <?= print_person_name($entity['canceled_by']); ?></th>
-    <?php elseif($entity['status']=='WAITING FOR HEAD DEPT') : ?>
-      <th>: BUDGETCONTROL APPROVED by <?=print_person_name($entity['approved_by']); ?></th>
-    <?php elseif($entity['status']=='WAITING FOR BUDGETCONTROL') : ?>
-      <th>: WAITING FOR BUDGETCONTROL</th>
-    <?php endif; ?>
-  </tr>
+    <tr>
+        <td>TRANSACTION NO </td>
+        <th>: <?= print_string($entity['document_number']); ?></th>
+        <td>Payment to</td>
+        <th>: <?= $entity['vendor']; ?></th>
+        <td>Paid at</td>
+        <th>: <?= ($entity['paid_at']!='')? print_date($entity['paid_at']):'-'; ?></th>
+    </tr>
+    <tr>
+        <td>Date.</td>
+        <th>: <?= print_date($entity['tanggal']); ?></th>
+        <td>Payment Status</td>
+        <th>: <?= $entity['status']; ?></th>
+        <td>No. Konfirmasi</td>
+        <th>: <?= ($entity['status']=='PAID')? $entity['no_konfirmasi']:'n/b'; ?></th>
+    </tr>
+    <tr>
+        <td>Purposed Date</td>
+        <th>: <?= print_date($entity['purposed_date']); ?></th>
+        <td>Account</td>
+        <th>: <?= $entity['coa_kredit']; ?> <?= $entity['group']; ?></th>
+        <td>No. Cheque</td>
+        <th>: <?= ($entity['status']=='PAID')? $entity['no_cheque']:'n/b'; ?></th>
+    </tr>
 </table>
 
 <div class="clear"></div>
 
 <table class="table" style="margin-top: 20px;" width="100%">
-  <thead>
-    <tr>
-      <th style="text-align: center;" width="5%">#</th>
-      <th style="text-align: center;" width="15%">Account Name</th>
-      <th style="text-align: center;" width="15%">Account Code</th>
-      <th style="text-align: center;" width="15%">Amount</th>
-      <th style="text-align: center;" width="15%">Total</th>
-      <th style="text-align: center;" width="15%">Balance Budget Month to Date</th>
-      <th style="text-align: center;" width="15%">Balance Budget Year to Date</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php 
-      $n = 0;
-      $total = array();
-    ?>
-    <?php foreach ($entity['items'] as $i => $detail) : ?>
-      <?php 
-        $n++; 
-        $total[] = $detail['total']; 
-      ?>
-      <tr>
-        <td style="text-align: center;">
-          <?= print_number($n); ?>
-        </td>
-        <td>
-          <?= print_string($detail['account_name']); ?>
-        </td>
-        <td style="text-align: center;">
-          <?= print_string($detail['account_code']); ?>
-        </td>
-        <td align="right">
-          <?= print_number($detail['amount'], 2); ?>
-        </td>
-        <td align="right">
-          <?= print_number($detail['total'], 2); ?>
-        </td>
-        <td align="right">
-          <?=print_number($detail['balance_mtd_budget'], 2);?>
-        </td>
-        <td align="right">
-          <?=print_number($detail['balance_ytd_budget'], 2);?>
-        </td>        
-      </tr>
-    <?php endforeach; ?>
-  </tbody>
-  <tfoot>
-    <tr>
-      <th colspan="3">Total</th>
-      <th></th>
-      <th style="text-align: right;"><?=print_number(array_sum($total), 2);?></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </tfoot>
+    <thead>
+        <tr>
+            <th style="text-align: center;">No</th>
+            <th style="text-align: center;">ER#</th>
+            <th style="text-align: center;">Description</th>
+            <th style="text-align: center;">Amount Request Payment</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $n = 0; ?>
+        <?php $amount_paid = array(); ?>
+        <?php foreach ($entity['items'] as $i => $detail) : ?>
+        <?php $n++; ?>
+        <tr>
+            <td class="no-space">
+                <?= print_number($n); ?>
+            </td>
+            <td>
+                <?=print_string($detail['pr_number'])?>
+            </td>
+            <td>
+                <?= print_string($detail['deskripsi']); ?>
+            </td>
+            <td style="text-align: right;">
+                <?= print_number($detail['amount_paid'], 2); ?>
+                <?php $amount_paid[] = $detail['amount_paid']; ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="3">Total</th>
+            <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
+        </tr>
+    </tfoot>
 </table>
 
 <div class="clear"></div>
@@ -123,146 +88,66 @@
 <div class="clear"></div>
 
 <table class="condensed" style="margin-top: 20px;" width="100%">
-  <tr>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
-      <p>
-        Request by:
-        <br /><?= print_string($entity['cost_center_name']); ?>
-        <br />&nbsp;<br>
-        <?php if ($entity['created_by'] != '') : ?>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['created_by']; ?>
-      </p>
-    </td>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
-      <p>
-        Checked by:
-        <br />Budgetcontrol
-        <?php if ($entity['approved_by'] != '') : ?>
-          <br /><?= print_date($entity['approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['approved_by']; ?>
-      </p>
-    </td>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
-      <p>
-        Approved by:
-        <br /><?= print_string($entity['cost_center_name']); ?> Head Dept.
-        <?php if ($entity['head_approved_by'] != '') : ?>
-          <br /><?= print_date($entity['head_approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['head_approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['head_approved_by']; ?>
-      </p>
-    </td>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
-      <p>
-        Approved by:
-        <br />Finance
-        <?php if ($entity['finance_approved_by'] != '') : ?>
-          <br /><?= print_date($entity['finance_approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['finance_approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['finance_approved_by']; ?>
-      </p>
-    </td>
+    <tr>
+        <td valign="top" align="center">
+            <p>
+            <?php if($entity['type']!='CASH'): ?>
+                Prepared by:
+            <?php else:?>
+                Prepared & Approved
+            <?php endif;?>
+                <br />AP STAFF
+                <br />&nbsp;<br>
+                <?php if ($entity['created_by'] != '') : ?>
+                <img src="<?= base_url('ttd_user/' . get_ttd($entity['created_by'])); ?>" width="auto" height="50">
+                <?php endif; ?>
+                <br />
+                <br /><?= $entity['created_by']; ?>
+            </p>
+        </td>
+        <?php if($entity['type']!='CASH'): ?>
+            <?php if($entity['base']!='JAKARTA'): ?>
+            <!-- <td valign="top" align="center">
+                <p>
+                    Approved by:
+                    <br />Finance Supervisor
+                    <?php if ($entity['checked_by'] != '') : ?>
+                        <br /><?= print_date($entity['checked_at']) ?><br>
+                    <img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
+                    <?php endif; ?>
+                    <br />
+                    <br /><?= $entity['checked_by']; ?>
+                </p>
+            </td> -->
+            <?php endif; ?>
 
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
-      <p>
-        Approved by:
-        <br />Head of School
-        <?php if ($entity['hos_approved_by'] != '') : ?>
-          <br /><?= print_date($entity['hos_approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['hos_approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['hos_approved_by']; ?>
-      </p>
-    </td>
-    <?php  if (array_sum($total)>15000000) :  ?>
-    <td width="<?php (array_sum($total)<15000000)? '20%':'16%' ?>" valign="top" align="center">
-      <p>
-        Approved by:
-        <br />Chief Operation Officer
-        <?php if ($entity['ceo_approved_by'] != '') : ?>
-          <br /><?= print_date($entity['ceo_approved_date']) ?><br>
-          <img src="<?= base_url('ttd_user/' . get_ttd($entity['ceo_approved_by'])); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?= $entity['ceo_approved_by']; ?>
-      </p>
-    </td>
-    <?php endif; ?>
-  </tr>
-</table>
+            <td valign="top" align="center">
+                <p>
+                    Approved by:
+                    <br />Finance Manager
+                    <?php if ($entity['review_by'] != '') : ?>
+                        <br /><?= print_date($entity['review_at']) ?><br>
+                    <img src="<?= base_url('ttd_user/' . get_ttd($entity['review_by'])); ?>" width="auto" height="50">
+                    <?php endif; ?>
+                    <br />
+                    <br /><?= $entity['review_by']; ?>
+                </p>
+            </td>
 
-<h5 class="new-page">History Purchase</h5>
-<table class="table table-striped table-nowrap">
-  <thead id="table_header">
-    <tr>
-      <th style="text-align: center;">No</th>
-      <th style="text-align: center;">Tanggal</th>
-      <th style="text-align: center;">Purchase Number</th>
-      <th style="text-align: center;">Amount</th>
-      <th style="text-align: center;">Total</th>
-      <th style="text-align: center;">Created By</th>
+            <?php if($entity['base']=='JAKARTA'): ?>
+            <td valign="top" align="center">
+                <p>
+                    Approved by:
+                    <br /> VP Finance
+                    <?php if ($entity['known_by'] != '') : ?>
+                    <br /><?= print_date($entity['known_at']) ?><br>
+                    <img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
+                    <?php endif; ?>
+                    <br />
+                    <br /><?= $entity['known_by']; ?>
+                </p>
+            </td>
+            <?php endif; ?>
+        <?php endif;?>
     </tr>
-  </thead>
-  <tbody id="table_contents">
-    <?php $n = 0;?>
-              
-    <?php foreach ($entity['items'] as $i => $detail):?>
-    <?php 
-      $n++;
-    ?>
-    <tr>
-      <td style="text-align: center;">
-        <?=print_number($n);?>
-      </td>
-      <td colspan="5">
-        (<?=print_string($detail['account_code']);?>) <?=print_string($detail['account_name']);?>
-      </td>
-    </tr><?php $total = array();?>
-    <?php foreach ($detail['history'] as $i => $history):?>
-    <tr>
-      <?php 
-        $total[] = $history['total'];
-      ?>
-      <td></td>
-      <td style="text-align: left;">
-        <?=print_date($history['pr_date']);?>
-      </td>
-      <td style="text-align: left;">
-        <?=print_string($history['pr_number']);?>
-      </td>
-      <td style="text-align: right;">
-        <?=print_number($history['amount'], 2);?>
-      </td>
-      <td style="text-align: right;">
-        <?=print_number($history['total'], 2);?>
-      </td>
-      <td style="text-align: center;">
-        <?=print_string($history['created_by'], 2);?>
-      </td>                  
-    </tr>                
-    <?php endforeach;?>
-    <?php endforeach;?>
-  </tbody>
-  <tfoot>
-    <tr>
-      <th>Total</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th style="text-align: right;"><?=print_number(array_sum($total), 2);?></th>
-      <th></th>
-      <!-- <th></th> -->
-    </tr>
-  </tfoot>
 </table>

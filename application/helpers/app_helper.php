@@ -1618,6 +1618,24 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAccountBudgetControlByCode')) {
+    function getAccountBudgetControlByCode($code)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('account_code as coa,account_name as group');
+      $connection->from( 'tb_accounts' ); 
+      $connection->where('account_code', $code);
+
+      $query    = $connection->get();
+      $row      = $query->unbuffered_row();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
   if ( ! function_exists('getMonthName')) {
     function getMonthName($month, $case = NULL)
     {
@@ -2409,6 +2427,47 @@ if (!function_exists('currency_for_vendor_list')) {
       $query    = $connection->get('tb_annual_cost_centers');
       $year = $query->result_array();
       return $year;
+    }
+  }
+
+  if ( ! function_exists('request_payment_format_number')) {
+    function request_payment_format_number($type)
+    {
+      $div  = config_item('document_format_divider');
+      $year = date('Y');
+      $category = $_SESSION['request_closing']['category'];
+
+      if($type=='BANK'){
+        $kode = 'BPV';
+      }else{
+        $kode = 'CPV';
+      }
+
+      $return = $div. $category. $div . $kode . $div . $year;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('request_payment_last_number')) {
+    function request_payment_last_number()
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+      $format = request_payment_format_number($_SESSION['request_closing']['type']);
+
+      $connection->select_max('document_number', 'last_number');
+      $connection->from('tb_request_payments');
+      $connection->like('document_number', $format);
+
+      $query  = $connection->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+
+      return $return;
     }
   }
 

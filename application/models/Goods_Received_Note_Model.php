@@ -1256,58 +1256,114 @@ class Goods_Received_Note_Model extends MY_Model
 
   public function searchPurchaseOrder($category, $vendor = NULL)
   {
-    $this->column_select = array(
-      'tb_po_item.id',
-      'tb_po_item.unit_price',
-      'tb_po_item.serial_number',
-      'tb_po_item.part_number',
-      'tb_po_item.description',
-      'tb_po_item.alternate_part_number',
-      'tb_po_item.left_received_quantity',
-      'tb_po_item.unit',
-      'tb_po.vendor',
-      'tb_po.document_number',
-      'tb_po.default_currency',
-      'tb_po.exchange_rate',
-      'tb_master_items.group',
-      'tb_master_items.kode_stok',
-      'tb_po_item.unit as unit_pakai',
-    );
+    if($category=='EXPENSE' || $category=='CAPEX'){
+      $this->column_select = array(
+        'tb_po_item.id',
+        'tb_po_item.unit_price',
+        'tb_po_item.serial_number',
+        'tb_po_item.part_number',
+        'tb_po_item.description',
+        'tb_po_item.alternate_part_number',
+        'tb_po_item.left_received_quantity',
+        'tb_po_item.unit',
+        'tb_po.vendor',
+        'tb_po.document_number',
+        'tb_po.default_currency',
+        'tb_po.exchange_rate',
+        'tb_po_item.group',
+        // 'tb_master_items.kode_stok',
+        'tb_po_item.unit as unit_pakai',
+      );
 
-    $this->db->select($this->column_select);
-    $this->db->from('tb_po_item');
-    $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
-    $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number');
-    $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
-    $this->db->where('tb_master_item_groups.category', $category);
-    $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'ADVANCE']);
-    $this->db->where('tb_po_item.left_received_quantity > ', 0);
-    $this->db->group_by(array(
-      'tb_po_item.id',
-      'tb_po_item.unit_price',
-      'tb_po_item.serial_number',
-      'tb_po_item.part_number',
-      'tb_po_item.description',
-      'tb_po_item.alternate_part_number',
-      'tb_po_item.left_received_quantity',
-      'tb_po_item.unit',
-      'tb_po.vendor',
-      'tb_po.document_number',
-      'tb_po.default_currency',
-      'tb_po.exchange_rate',
-      'tb_master_items.group',
-      'tb_master_items.kode_stok',
-    ));
+      $this->db->select($this->column_select);
+      $this->db->from('tb_po_item');
+      $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+      // $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number');
+      // $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
+      $this->db->where('tb_po.category', $category);
+      $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'ADVANCE']);
+      $this->db->where('tb_po_item.left_received_quantity > ', 0);
+      $this->db->group_by(array(
+        'tb_po_item.id',
+        'tb_po_item.unit_price',
+        'tb_po_item.serial_number',
+        'tb_po_item.part_number',
+        'tb_po_item.description',
+        'tb_po_item.alternate_part_number',
+        'tb_po_item.left_received_quantity',
+        'tb_po_item.unit',
+        'tb_po.vendor',
+        'tb_po.document_number',
+        'tb_po.default_currency',
+        'tb_po.exchange_rate',
+        'tb_po_item.group',
+        // 'tb_master_items.kode_stok',
+      ));
 
-    if ($vendor !== NULL || !empty($vendor)) {
-      $this->db->where('tb_po.vendor', $vendor);
+      if ($vendor !== NULL || !empty($vendor)) {
+        $this->db->where('tb_po.vendor', $vendor);
+      }
+
+      $this->db->order_by('tb_po_item.part_number ASC, tb_po_item.description ASC');
+      $query  = $this->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }else{
+      $this->column_select = array(
+        'tb_po_item.id',
+        'tb_po_item.unit_price',
+        'tb_po_item.serial_number',
+        'tb_po_item.part_number',
+        'tb_po_item.description',
+        'tb_po_item.alternate_part_number',
+        'tb_po_item.left_received_quantity',
+        'tb_po_item.unit',
+        'tb_po.vendor',
+        'tb_po.document_number',
+        'tb_po.default_currency',
+        'tb_po.exchange_rate',
+        'tb_master_items.group',
+        'tb_master_items.kode_stok',
+        'tb_po_item.unit as unit_pakai',
+      );
+
+      $this->db->select($this->column_select);
+      $this->db->from('tb_po_item');
+      $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+      $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number');
+      $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
+      $this->db->where('tb_master_item_groups.category', $category);
+      $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'ADVANCE']);
+      $this->db->where('tb_po_item.left_received_quantity > ', 0);
+      $this->db->group_by(array(
+        'tb_po_item.id',
+        'tb_po_item.unit_price',
+        'tb_po_item.serial_number',
+        'tb_po_item.part_number',
+        'tb_po_item.description',
+        'tb_po_item.alternate_part_number',
+        'tb_po_item.left_received_quantity',
+        'tb_po_item.unit',
+        'tb_po.vendor',
+        'tb_po.document_number',
+        'tb_po.default_currency',
+        'tb_po.exchange_rate',
+        'tb_master_items.group',
+        'tb_master_items.kode_stok',
+      ));
+
+      if ($vendor !== NULL || !empty($vendor)) {
+        $this->db->where('tb_po.vendor', $vendor);
+      }
+
+      $this->db->order_by('tb_po_item.part_number ASC, tb_po_item.description ASC');
+      $query  = $this->db->get();
+      $result = $query->result_array();
+
+      return $result;
     }
-
-    $this->db->order_by('tb_po_item.part_number ASC, tb_po_item.description ASC');
-    $query  = $this->db->get();
-    $result = $query->result_array();
-
-    return $result;
+    
   }
 
   public function searchItemsBySerial($category)

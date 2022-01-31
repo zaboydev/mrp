@@ -16,46 +16,72 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['expense_closing']['document__number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
+                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="[auto]" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
                     <label for="pr_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon"></span>
+                  <span class="input-group-addon" id="format_number"><?=request_payment_format_number($_SESSION['request_closing']['type']);?></span>
                 </div>
               </div>
 
               <div class="form-group">
-                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['expense_closing']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_date'); ?>" required>
-                <label for="date">Closing Date</label>
+                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['request_closing']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_date'); ?>" required>
+                <label for="date">Date</label>
+              </div>
+
+              <div class="form-group">
+                <input type="text" name="purposed_date" id="purposed_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['request_closing']['purposed_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_purposed_date'); ?>" required>
+                <label for="purposed_date">Purposed Date</label>
               </div>
               
             </div>
 
             <div class="col-sm-12 col-lg-4">
+              
+
+              <div class="form-group">
+                <select name="default_currency" id="default_currency" class="form-control" data-source="<?= site_url($module['route'] . '/set_default_currency'); ?>" required>
+                <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+                  <option value="<?=$key?>" <?= ($key == $_SESSION['request_closing']['currency']) ? 'selected' : ''; ?>><?=$value?></option>
+                <?php endforeach; ?>
+                </select>
+                <label for="default_currency">Currency</label>
+              </div>
+
+              <div class="form-group">
+                    <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
+                      <option value="CASH" <?= ('CASH' == $_SESSION['request_closing']['type']) ? 'selected' : ''; ?>>Cash</option>
+                      <option value="BANK" <?= ('BANK' == $_SESSION['request_closing']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
+                    </select>
+                    <label for="vendor">Transaction Type</label>
+              </div>
+
               <div class="form-group">
                 <select name="account" id="account" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account'); ?>" required>
-                  <option value="">No Account</option>
-                  <?php foreach (getAccount() as $key):?>
-                  <option value="<?= $key['coa'] ?>" <?= ($_SESSION['expense_closing']['account'] == $key['coa']) ? 'selected' : ''; ?>><?= $key['coa'] ?> - <?= $key['group'] ?></option>
-                  <?php endforeach;?>
+                    <option value="">-- SELECT Account --</option>
+                    <?php foreach (getAccount($_SESSION['request_closing']['type']) as $key => $account) : ?>
+                        <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['request_closing']['coa_kredit']) ? 'selected' : ''; ?>>
+                        <?= $account['coa']; ?> <?= $account['group']; ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
-                <label for="account">Account</label>
-              </div>
-              
-              <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['expense_closing']['closing_notes']; ?></textarea>
-                <label for="notes">Notes</label>
+                <label for="vendor">Account</label>
               </div>
             </div>
             <div class="col-sm-12 col-lg-4">
               <div class="form-group">
-                <p class="form-control"><?= $_SESSION['expense_closing']['notes']; ?></p>
-                <label for="notes">Expense Request Notes</label>
+                <input type="vendor" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['request_closing']['vendor']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required">
+                <label for="vendor">Pay To</label>
+              </div>
+
+              <div class="form-group">
+                <textarea name="notes" id="notes" class="form-control" rows="2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['request_closing']['closing_notes']; ?></textarea>
+                <label for="notes">Notes</label>
               </div>
             </div>
           </div>
         </div>
 
-        <?php if (isset($_SESSION['expense_closing']['items'])) : ?>
+        <?php if (isset($_SESSION['request_closing']['items'])) : ?>
           <?php $grand_total = array(); ?>
           <?php $total_quantity = array(); ?>
           <div class="document-data table-responsive">
@@ -63,18 +89,20 @@
               <thead>
                 <tr>
                   <th></th>
+                  <th>PR Number</th>
                   <th>Akun</th>
                   <th>Ref. IPC</th>
-                  <th>Remarks</th>
+                  <th>Expense Notes</th>
                   <th class="text-right">Amount</th>
                 </tr>
               </thead>
               <tbody>
-                <?php foreach ($_SESSION['expense_closing']['items'] as $i => $items) : ?>
+                <?php foreach ($_SESSION['request_closing']['items'] as $i => $items) : ?>
                   <?php $grand_total[] = $items['amount']; ?>
                   <tr id="row_<?= $i; ?>">
-                    <td width="100">
-                      
+                    <td><?= print_string($items['request_id']); ?> - <?= print_string($items['id']); ?></td>
+                    <td class="">
+                      <?= print_string($items['pr_number']); ?>
                     </td>
                     <td class="">
                       <?= print_string($items['account_code']); ?> - <?= print_string($items['account_name']); ?>
@@ -83,7 +111,7 @@
                       <?= print_string($items['reference_ipc']); ?> 
                     </td>
                     <td class="">
-                      <?= print_string($items['additional_info']); ?> 
+                      <?= print_string($items['notes']); ?> 
                     </td>
                     <td>
                       <?= print_number($items['amount'], 2); ?>
@@ -460,119 +488,47 @@
       });
     });
 
-    $.ajax({
-      url: $('#search_budget').data('target'),
-      dataType: "json",
-      error: function(xhr, response, results) {
-        console.log(xhr.responseText);
-      },
-      success: function(resource) {
-        $('#search_budget').autocomplete({
-            autoFocus: true,
-            minLength: 1,
+    $('#type').change(function() {
+      type_trs = $(this).val();
+      var account_view = $('#account');
+      var format_number_view = $('#format_number');
+      account_view.html('');    
 
-            source: function(request, response) {
-              var results = $.ui.autocomplete.filter(resource, request.term);
-              response(results.slice(0, 5));
-              console.log(results);
-            },
+      $.ajax({
+        type: "post",
+        url: '<?= base_url() . "expense_closing_payment/get_accounts" ?>',
+        data: {
+          'type': type_trs
+        },
+        cache: false,
+        success: function(response) {
+          var data = jQuery.parseJSON(response);
+          account_view.html(data.account);
 
-            focus: function(event, ui) {
-              return false;
-            },
+          format_number_view.html('');
+          format_number_view.html(data.format_number);
+        }
+      });
 
-            select: function(event, ui) {
-              // var maximum_quantity = parseFloat(ui.item.maximum_quantity);
-              var maximum_price = parseFloat(ui.item.maximum_price);
-              var mtd_budget = parseFloat(ui.item.mtd_budget);
-              
+      var val = $(this).val();
+      var url = $(this).data('source');
 
-              $('#account_id').val(ui.item.account_id);
-              $('#account_name').val(ui.item.account_name);
-              $('#account_code').val(ui.item.account_code);
-              $('#annual_cost_center_id').val(ui.item.annual_cost_center_id);
-              $('#maximum_price').val(maximum_price);
-              $('#mtd_budget').val(mtd_budget);
-              $('#expense_monthly_budget_id').val(ui.item.expense_monthly_budget_id);
+      $.get( url, { data: val });
 
-              $('input[id="amount"]').attr('data-rule-max', parseFloat(ui.item.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(ui.item.maximum_price));
-
-              // $('#issued_quantity').attr('max', parseInt(ui.item.qty_konvers)).focus();
-              $('#amount').attr('max', parseFloat(ui.item.maximum_price)).focus();
-
-              $('#unbudgeted_item').val(0);
-
-              $('#account_name').prop("readonly", true);
-              $('#account_code').prop("readonly", true);
-
-              $('#search_budget').val('');
-
-              return false;
-            }
-          })
-          .data("ui-autocomplete")._renderItem = function(ul, item) {
-            $(ul).addClass('list divider-full-bleed');
-
-            return $("<li class='tile'>")
-              .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
-              .appendTo(ul);
-          };
-      }
     });
 
-    $('input[id="amount"]').on('keydown keyup', function (e) {
-      if (parseFloat($(this).val()) > parseFloat($('input[id="maximum_price"]').val())){
-        alert('Maximum limit is ' + $('input[id="maximum_price"]').val());
-        $(this).val($('input[id="maximum_price"]').val());
-        $(this).focus();
-      }else{
-        $("#modal-add-item-submit").prop("disabled", false);
-      }
+    $('#default_currency').change(function() {
 
-      if (parseFloat($(this).val()) == 0){
-        $("#modal-add-item-submit").prop("disabled", true);
-      }else{
-        $("#modal-add-item-submit").prop("disabled", false);
-      }
+      var val = $(this).val();
+      var url = $(this).data('source');
 
-      return !(e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57) && e.which != 46);
+      $.get( url, { data: val });
+
+      $('#account').val('').trigger('change');
+
     });
 
-
-    $("#relocation_budget").on("change", function() {
-      var budget_value = $("#budget_value").val();
-      if (parseFloat($(this).val()) > parseFloat($("#budget_value").val())) {
-
-        // $("#modal-add-item-submit").prop("disabled", true);
-
-        $("#relocation_budget").closest("div").addClass("has-error").append('<p class="help-block total-error">Not allowed! max available ' + budget_value + '</p>').focus();
-        $(this).val(budget_value);
-        $(this).focus();
-        // toastr.options.timeOut = 10000;
-        // toastr.options.positionClass = 'toast-top-right';
-        // toastr.error('Price or total price is over maximum price allowed! You can not add this item.');
-      } else {
-        console.log(321)
-        $("#relocation_budget").closest("div").removeClass("has-error");
-        // $(".total-error").remove();
-        $("#modal-add-item-submit").prop("disabled", false);
-      }
-    });
   });
-
-  function sum() {
-    var total = parseInt($("#quantity").val()) * parseInt($("#price").val());
-
-    $("#total").val(total).trigger("change");
-  }
-
-  function unbudgeted() {
-    var status = $('#inventory_monthly_budget_id').val();
-
-    if (status == null) {
-      $('.form-unbudgeted').removeClass('hide');
-    }
-  }
 </script>
 
 <?= html_script('themes/material/assets/js/core/source/App.min.js') ?>

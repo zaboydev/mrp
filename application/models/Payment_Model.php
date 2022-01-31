@@ -1362,16 +1362,6 @@ class Payment_Model extends MY_MODEL
 		$level 			= 0;
 		$status 		= '';
 
-		if (config_item('auth_role')=='FINANCE SUPERVISOR' && $po_payment['status'] == 'WAITING CHECK BY FIN SPV') {
-			$this->db->set('status', 'WAITING REVIEW BY FIN MNG');
-			$this->db->set('checked_by', config_item('auth_person_name'));
-			$this->db->set('checked_at', date('Y-m-d'));
-			$this->db->where('id', $id);
-			$this->db->update('tb_po_payments');
-			$status = 'WAITING REVIEW BY FIN MNG';
-			$level = 14;
-		}
-
 		if (config_item('auth_role')=='FINANCE MANAGER' && $po_payment['status'] == 'WAITING REVIEW BY FIN MNG') {
 			if($po_payment['base']=='JAKARTA'){
 				$this->db->set('status', 'WAITING REVIEW BY VP FINANCE');
@@ -1388,109 +1378,21 @@ class Payment_Model extends MY_MODEL
 			$this->db->update('tb_po_payments');
 		}
 
-		// if (config_item('auth_role')=='HEAD OF SCHOOL' && $po_payment['status'] == 'WAITING REVIEW BY HOS') {
-		// 	if($currency=='IDR'){
-		// 		if($total>15000000){
-		// 			$this->db->set('status', 'WAITING REVIEW BY COO');
-		// 			$status = 'WAITING REVIEW BY COO';
-		// 			$level = 16;
-		// 		}else{
-		// 			$this->db->set('status', 'APPROVED');
-		// 			$status = 'APPROVED';
-		// 			$level = 0;
-		// 		}
-		// 	}else{
-		// 		if($total>1500){
-		// 			$this->db->set('status', 'WAITING REVIEW BY COO');
-		// 			$status = 'WAITING REVIEW BY COO';
-		// 			$level = 16;
-		// 		}else{
-		// 			$this->db->set('status', 'APPROVED');
-		// 			$status = 'APPROVED';
-		// 			$level = 0;
-		// 		}
-		// 	}
-		// 	// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
-		// 	$this->db->set('known_by', config_item('auth_person_name'));
-		// 	$this->db->set('known_at', date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_po_payments');
-		// }
-
-		// if (config_item('auth_role')=='CHIEF OPERATION OFFICER' && $po_payment['status'] == 'WAITING REVIEW BY CEO') {
-		// 	$this->db->set('status', 'APPROVED');
-		// 	$this->db->set('approved_by', config_item('auth_person_name'));
-		// 	$this->db->set('approved_at', date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_po_payments');
-		// 	$status = 'APPROVED';
-		// }
-
 		if (config_item('auth_role')=='VP FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
-			// if($currency=='IDR'){
-			// 	if($total>15000000){
-			// 		$this->db->set('status', 'WAITING REVIEW BY CFO');
-			// 		$status = 'WAITING REVIEW BY CFO';
-			// 		$level = 11;
-			// 	}else{
-			// 		$this->db->set('status', 'APPROVED');
-			// 		$status = 'APPROVED';
-			// 		$level = 0;
-			// 	}
-			// }else{
-			// 	if($total>1500){
-			// 		$this->db->set('status', 'WAITING REVIEW BY CFO');
-			// 		$status = 'WAITING REVIEW BY CFO';
-			// 		$level = 11;
-			// 	}else{
-			// 		$this->db->set('status', 'APPROVED');
-			// 		$status = 'APPROVED';
-			// 		$level = 0;
-			// 	}
-			// }
-			// $this->db->set('status', 'WAITING REVIEW BY FIN MNG');
 			$this->db->set('status', 'APPROVED');
-			$status = 'WAITING REVIEW BY CFO';
+			$status = 'APPROVED';
 			$level = 0;
 			$this->db->set('known_by', config_item('auth_person_name'));
 			$this->db->set('known_at', date('Y-m-d'));
 			$this->db->where('id', $id);
 			$this->db->update('tb_po_payments');
 		}
-
-		// if (config_item('auth_role')=='CHIEF OF FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY CFO') {
-		// 	$this->db->set('status', 'APPROVED');
-		// 	$this->db->set('approved_by', config_item('auth_person_name'));
-		// 	$this->db->set('approved_at', date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_po_payments');
-		// 	$status = 'APPROVED';
-		// }
 		
 		if($status!=''){
 			$this->db->set('status', $status);
 			$this->db->where('po_payment_id', $id);
 			$this->db->update('tb_purchase_order_items_payments');
 		}
-		
-
-		// $this->db->where('id', $id);
-		// $query    = $this->db->get('tb_purchase_order_items_payments');
-		// $payment_item = $query->unbuffered_row('array');
-		// $no_jurnal = $payment_item['no_transaksi'];
-
-		// if (config_item('auth_role')=='FINANCE MANAGER') {			
-		// 	$this->db->set('status', 'CHECKED');
-		// 	$this->db->set('checked_by', config_item('auth_person_name').'|'.date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_purchase_order_items_payments');
-		// }
-		// if (config_item('auth_role')=='VP FINANCE') {			
-		// 	$this->db->set('status', 'APPROVED');
-		// 	$this->db->set('approved_by', config_item('auth_person_name').'|'.date('Y-m-d'));
-		// 	$this->db->where('id', $id);
-		// 	$this->db->update('tb_purchase_order_items_payments');
-		// }
 
 		if ($this->db->trans_status() === FALSE)
 			return FALSE;
@@ -1914,34 +1816,38 @@ class Payment_Model extends MY_MODEL
     {
 		$this->db->select(
 			array(
-			'tb_po.document_number',
-			'tb_purchase_order_items_payments.deskripsi',
-			'tb_purchase_order_items_payments.tanggal',
 			'tb_po_payments.document_number as no_transaksi',
-			'tb_purchase_order_items_payments.amount_paid',
+			'SUM(tb_purchase_order_items_payments.amount_paid) as total',
 			'tb_po_payments.currency',
+			'tb_po_payments.tanggal',
 			)
 		);
-		$this->db->from('tb_purchase_order_items_payments');
-		$this->db->join('tb_po_payments','tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
-		$this->db->join('tb_po','tb_po.id = tb_purchase_order_items_payments.id_po');
+		$this->db->from('tb_po_payments');
+		$this->db->join('tb_purchase_order_items_payments','tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+		$this->connection->group_by(
+            array(
+                'tb_po_payments.document_number as no_transaksi',
+				'tb_po_payments.currency',
+				'tb_po_payments.tanggal',
+            )
+		);
 		if(is_array($doc_id)){
             $this->db->where_in('tb_purchase_order_items_payments.po_payment_id',$doc_id);
         }else{
             $this->db->where('tb_purchase_order_items_payments.po_payment_id',$doc_id);
-        }
+		}
+		
 		$query = $this->db->get();
 		$item_message = '<tbody>';
 		foreach ($query->result_array() as $key => $item) {
 			$item_message .= "<tr>";
 			$item_message .= "<td>" . print_date($item['tanggal']) . "</td>";
 			$item_message .= "<td>" . $item['no_transaksi'] . "</td>";
-			$item_message .= "<td>" . $item['document_number'] . "</td>";
-			$item_message .= "<td>" . $item['deskripsi'] . "</td>";
-			$item_message .= "<td>" . print_number($item['amount_paid'], 2) . "</td>";
 			$item_message .= "<td>" . $item['currency'] . "</td>";
+			$item_message .= "<td>" . print_number($item['amount_paid'], 2) . "</td>";
 			$item_message .= "</tr>";
 		}
+		$item_message .= '</tbody>';
         
 
 		if($base!=null){
@@ -1971,10 +1877,8 @@ class Payment_Model extends MY_MODEL
         $message .= "<tr>";
         $message .= "<th>Tanggal</th>";
         $message .= "<th>No Payment Request</th>";
-        $message .= "<th>No PO</th>";
-        $message .= "<th>Description Item</th>";
-        $message .= "<th>Nominal</th>";
         $message .= "<th>Currency</th>";
+        $message .= "<th>Nominal</th>";
         $message .= "</tr>";
         $message .= "</thead>";
         $message .= $item_message;

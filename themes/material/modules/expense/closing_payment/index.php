@@ -25,7 +25,24 @@
 
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
-
+  <div class="btn-group dropup">
+    <?php if (is_granted($module, 'document')) : ?>
+      <a href="<?= site_url($module['route'] . '/create/expense'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+        <i class="md md-add"></i>
+        <small class="top right">Create <?= $module['label']; ?></small>
+      </a>
+    <?php endif ?>
+    <?php if (is_granted($module, 'approval')) : ?>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+        <i class="md md-clear"></i>
+        <small class="top right">reject</small>
+      </button>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
+        <i class="md md-spellcheck"></i>
+        <small class="top right">approve</small>
+      </button>
+    <?php endif ?>
+  </div>
 </div>
 <?php endblock() ?>
 
@@ -478,17 +495,12 @@
           });
 
           $("#modal-approve-data-button-multi").click(function() {
-            var action = $(this).data('source');
-            if (!encodeNotes()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
-            } else {
+            var action = $(this).data('source');            
               $(this).attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
                   'id_expense_request': id_purchase_order,
-                  'notes': notes
+                  // 'notes': notes
                 }).done(function(data) {
                   console.log(data);
                   $("#modal-approve-data-button-multi").attr('disabled', false);
@@ -507,7 +519,7 @@
                   $("#modal-approve-data-button-multi").attr('disabled', false);
                   toastr.options.timeOut = 10000;
                   toastr.options.positionClass = 'toast-top-right';
-                  toastr.error('Delete Failed! This data is still being used by another document.');
+                  toastr.error('Delete Failed! Silahkan Hubungi Teknisi.');
                 });
               } else {
                 $(this).attr('disabled', false);
@@ -515,7 +527,6 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            }
 
           });
 
@@ -606,24 +617,26 @@
           }
 
           $("#modal-reject-data-button-multi").click(function() {
+            $(this).attr('disabled', true);
+            $("#modal-approve-data-button-multi").attr('disabled', true);
+
             if (!encodeNotes()) {
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
               toastr.error('You must filled notes for each item that you want to reject');
-            } else if (!encodePrice()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
+              $(this).attr('disabled', false);
+              $("#modal-approve-data-button-multi").attr('disabled', false);
             } else {
-
               if (id_purchase_order == "") {
                 toastr.options.timeOut = 10000;
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('You must select item that you want to reject');
+                $(this).attr('disabled', false);
+                $("#modal-approve-data-button-multi").attr('disabled', false);
               } else {
                 $.ajax({
                   type: "POST",
-                  url: 'purchase_request/multi_reject',
+                  url: 'expense_closing_payment/multi_reject',
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,
@@ -664,6 +677,7 @@
                   id_purchase_order = id_purchase_order.replace("|" + $(this).attr('data-id') + ",", "");
                 }
               }
+              console.log(id_purchase_order);
 
             } else if (e.target.nodeName === "SPAN") {
               var a = $(e.target).data('id');
@@ -713,6 +727,11 @@
                   $(dataModal).modal('show');
                 }
               });
+            }
+
+            if (id == 'openPo') {
+              var url = $(this).data('href');
+              window.open(url, '_blank').focus();
             }
 
 
