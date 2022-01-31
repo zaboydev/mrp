@@ -961,8 +961,8 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $this->connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
       $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
       $this->connection->join('tb_products', 'tb_products.id = tb_capex_monthly_budgets.product_id');
-      $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
-      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
+      $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id','left');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id','left');
       $this->connection->where('tb_capex_purchase_requisitions.status', 'approved');
       // $this->connection->group_start();
       // $this->connection->where('tb_inventory_purchase_requisition_details.sisa >', 0);
@@ -1004,8 +1004,8 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $this->connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
       $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
       $this->connection->join('tb_products', 'tb_products.id = tb_capex_monthly_budgets.product_id');
-      $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
-      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
+      $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id','left');
+      $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id','left');
       $this->connection->where('tb_capex_purchase_requisitions.status', 'approved');
       $this->connection->where('tb_capex_purchase_requisition_details.id', $id);
       $query = $this->connection->get(); 
