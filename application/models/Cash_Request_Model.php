@@ -131,6 +131,9 @@ class Cash_Request_Model extends MY_Model
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_cash_request');
+    if(config_item('auth_role')=='PIC STAFF'){
+      $this->db->where_in('tb_cash_request.base', config_item('auth_warehouses'));
+    }
     $this->searchIndex();
     $column_order = $this->getOrderableColumns();
 
@@ -160,6 +163,9 @@ class Cash_Request_Model extends MY_Model
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_cash_request');
+    if(config_item('auth_role')=='PIC STAFF'){
+      $this->db->where_in('tb_cash_request.base', config_item('auth_warehouses'));
+    }
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -171,6 +177,9 @@ class Cash_Request_Model extends MY_Model
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_cash_request');
+    if(config_item('auth_role')=='PIC STAFF'){
+      $this->db->where_in('tb_cash_request.base', config_item('auth_warehouses'));
+    }
     $query = $this->db->get();
 
     return $query->num_rows();
@@ -183,6 +192,16 @@ class Cash_Request_Model extends MY_Model
 
     $query    = $this->db->get('tb_cash_request');
     $po       = $query->unbuffered_row('array');
+
+    $this->db->select('*');
+    $this->db->from('tb_cash_request_detail');
+    $this->db->where('tb_cash_request_detail.cash_request_id', $id);
+
+    $query = $this->db->get();
+
+    foreach ($query->result_array() as $key => $value) {
+      $po['items'][$key] = $value;
+    }
 
     return $po;
   }
@@ -230,6 +249,92 @@ class Cash_Request_Model extends MY_Model
       'document_number' => $document_number,
       'type'            =>TRUE
     ];
+  }
+
+  public function save(){
+    $this->db->trans_begin();
+    $this->connection->trans_begin();
+
+    if (isset($_SESSION['cash_request']['id'])) {
+      $this->db->set('status','REVISI');
+      $this->db->set('revisi','f');
+      $this->db->where('id',$_SESSION['cash_request']['id']);
+      $this->db->update('tb_cash_request');
+
+      $this->db->select('*');
+      $this->db->from('tb_cash_request_detail');
+      $this->db->where('tb_cash_request_detail.cash_request_id', $_SESSION['cash_request']['id']);
+
+      $query = $this->db->get();
+
+      foreach ($query->result_array() as $key => $value) {
+        if($value['source']=='mrp'){
+          $this->db->set('cash_request','OPEN');
+          $this->db->where('id',$value['payment_id']);
+          $this->db->update('tb_po_payments');
+        }else{
+          $this->connection->set('cash_request','OPEN');
+          $this->connection->where('id',$value['payment_id']);
+          $this->connection->update('tb_request_payments');
+        }
+      }
+
+    }
+
+    $document_number      = $_SESSION['cash_request']['document_number'];
+    $tanggal              = $_SESSION['cash_request']['date'];
+    $request_by           = $_SESSION['cash_request']['request_by'];
+    $cash_account_code    = $_SESSION['cash_request']['cash_account'];
+    $total_amount         = $_SESSION['cash_request']['total_amount'];
+    $cash_account         = getAccountByCode($cash_account_code);
+    $cash_account_name    = $cash_account->group;
+    $notes                = (empty($_SESSION['cash_request']['notes'])) ? NULL : $_SESSION['cash_request']['notes'];
+    $base                 = config_item('auth_warehouse');
+
+    $this->db->set('document_number', $document_number);
+    $this->db->set('tanggal', $tanggal);
+    $this->db->set('status','WAITING REVIEW BY FIN MNG');
+    $this->db->set('request_by', $request_by);
+    $this->db->set('currency','IDR');
+    $this->db->set('request_amount', $total_amount);
+    $this->db->set('notes', $notes);
+    $this->db->set('base', $base);
+    $this->db->set('cash_account_code', $cash_account_code);
+    $this->db->set('cash_account_name', $cash_account_name);
+    $this->db->set('created_by', config_item('auth_person_name'));
+    $this->db->set('created_at', date('Y-m-d'));
+    $this->db->insert('tb_cash_request');
+    $cash_request_id = $this->db->insert_id();
+
+    foreach ($_SESSION['cash_request']['items'] as $key => $data) {
+      if($data['source']=='mrp'){
+        $this->db->set('cash_request','REQUEST');
+        $this->db->where('id',$data['payment_id']);
+        $this->db->update('tb_po_payments');
+      }else{
+        $this->connection->set('cash_request','REQUEST');
+        $this->connection->where('id',$data['payment_id']);
+        $this->connection->update('tb_request_payments');
+      }
+
+      $this->db->set('cash_request_id',$cash_request_id);
+      $this->db->set('source',$data['source']);
+      $this->db->set('payment_id',$data['payment_id']);
+      $this->db->set('no_transaksi',$data['no_transaksi']);
+      $this->db->set('date',$data['date']);
+      $this->db->set('vendor',$data['vendor']);
+      $this->db->set('amount', $data['amount']);
+      $this->db->insert('tb_cash_request_detail');
+    }
+
+    if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    $this->connection->trans_commit();
+    $this->send_mail($cash_request_id,14,$base);
+
+    return TRUE;
   }
 
   public function insert_payment($id)
@@ -463,6 +568,164 @@ class Cash_Request_Model extends MY_Model
       }     
     }
     return $this->db->get('')->result();
+  }
+
+  public function listCashPaymentsPo()
+  {
+    $select = array(
+      'tb_po_payments.id',
+      'tb_po_payments.document_number',
+      'tb_po_payments.tanggal',
+      'tb_po_payments.vendor',
+      'tb_po_payments.currency',
+      'tb_po_payments.coa_kredit',
+      'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid',
+      'tb_po_payments.status',
+      'tb_po_payments.base',
+      'tb_po_payments.created_by',
+    );
+    $this->db->select($select);
+    $this->db->from('tb_po_payments');
+    $this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+    $this->db->where('tb_po_payments.type', 'CASH');
+    $this->db->where('tb_po_payments.cash_request', 'OPEN');
+    if(config_item('auth_role')=='PIC STAFF'){
+      $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
+    }
+    $this->db->where_in('tb_po_payments.status', ['APPROVED', 'PAID']);
+    $this->db->order_by('tb_po_payments.tanggal', 'asc');
+    $this->db->group_by(array(
+      'tb_po_payments.id',
+      'tb_po_payments.document_number',
+      'tb_po_payments.tanggal',
+      'tb_po_payments.vendor',
+      'tb_po_payments.currency',
+      'tb_po_payments.coa_kredit',
+      'tb_po_payments.status',
+      'tb_po_payments.base',
+      'tb_po_payments.created_by',
+    ));
+    $payments = $this->db->get();
+    
+    return $payments->result_array();
+  }
+
+  public function listCashPaymentsNonPo()
+  {
+    $select = array(
+      'tb_request_payments.id',
+      'tb_request_payments.document_number',
+      'tb_request_payments.tanggal',
+      'tb_request_payments.vendor',
+      'tb_request_payments.currency',
+      'tb_request_payments.coa_kredit',
+      'SUM(tb_request_payment_details.amount_paid) as amount_paid',
+      'tb_request_payments.status',
+      'tb_request_payments.base',
+      'tb_request_payments.created_by',
+    );
+    $this->connection->select($select);
+    $this->connection->from('tb_request_payments');
+    $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
+    $this->connection->where('tb_request_payments.type', 'CASH');
+    $this->connection->where('tb_request_payments.cash_request', 'OPEN');
+    if(config_item('auth_role')=='PIC STAFF'){
+      $this->db->where_in('tb_request_payments.base', config_item('auth_warehouses'));
+    }
+    $this->connection->where_in('tb_request_payments.status', ['APPROVED', 'PAID']);
+    $this->connection->order_by('tb_request_payments.tanggal', 'asc');
+    $this->connection->group_by(array(
+      'tb_request_payments.id',
+      'tb_request_payments.document_number',
+      'tb_request_payments.tanggal',
+      'tb_request_payments.vendor',
+      'tb_request_payments.currency',
+      'tb_request_payments.coa_kredit',
+      'tb_request_payments.status',
+      'tb_request_payments.base',
+      'tb_request_payments.created_by',
+    ));
+    $payments = $this->connection->get();
+    
+    return $payments->result_array();
+  }
+
+  public function infopayment($id,$source)
+  {
+    if($source=='mrp'){
+      $select = array(
+        'tb_po_payments.id',
+        'tb_po_payments.document_number',
+        'tb_po_payments.tanggal',
+        'tb_po_payments.vendor',
+        'tb_po_payments.currency',
+        'tb_po_payments.coa_kredit',
+        'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid',
+        'tb_po_payments.status',
+        'tb_po_payments.base',
+        'tb_po_payments.created_by',
+      );
+      $this->db->select($select);
+      $this->db->from('tb_po_payments');
+      $this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+      $this->db->where('tb_po_payments.id', $id);
+      $this->db->group_by(array(
+        'tb_po_payments.id',
+        'tb_po_payments.document_number',
+        'tb_po_payments.tanggal',
+        'tb_po_payments.vendor',
+        'tb_po_payments.currency',
+        'tb_po_payments.coa_kredit',
+        'tb_po_payments.status',
+        'tb_po_payments.base',
+        'tb_po_payments.created_by',
+      ));
+      $payment = $this->db->get();
+    }else{
+      $select = array(
+        'tb_request_payments.id',
+        'tb_request_payments.document_number',
+        'tb_request_payments.tanggal',
+        'tb_request_payments.vendor',
+        'tb_request_payments.currency',
+        'tb_request_payments.coa_kredit',
+        'SUM(tb_request_payment_details.amount_paid) as amount_paid',
+        'tb_request_payments.status',
+        'tb_request_payments.base',
+        'tb_request_payments.created_by',
+      );
+      $this->connection->select($select);
+      $this->connection->from('tb_request_payments');
+      $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
+      $this->connection->where('tb_request_payments.id', $id);
+      $this->connection->order_by('tb_request_payments.tanggal', 'asc');
+      $this->connection->group_by(array(
+        'tb_request_payments.id',
+        'tb_request_payments.document_number',
+        'tb_request_payments.tanggal',
+        'tb_request_payments.vendor',
+        'tb_request_payments.currency',
+        'tb_request_payments.coa_kredit',
+        'tb_request_payments.status',
+        'tb_request_payments.base',
+        'tb_request_payments.created_by',
+      ));
+      $payment = $this->connection->get();
+    }
+    
+    
+    return $payment->unbuffered_row('array');
+  }
+
+  public function isDocumentNumberExists($document_number)
+  {
+    $this->db->where('document_number', $document_number);
+    $query = $this->db->get('tb_cash_request');
+
+    if ($query->num_rows() > 0)
+      return true;
+
+    return false;
   }
 }
 

@@ -121,6 +121,46 @@ class Cash_Request extends MY_Controller
     echo json_encode($result);
   }
 
+  public function set_date()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['cash_request']['date'] = $_GET['data'];
+  }
+
+  public function set_request_by()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['cash_request']['request_by'] = $_GET['data'];
+  }
+
+  public function set_account()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['cash_request']['cash_account'] = $_GET['data'];
+  }
+
+  public function set_amount()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['cash_request']['total_amount'] = $_GET['data'];
+  }
+
+  public function set_notes()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['cash_request']['notes'] = $_GET['data'];
+  }
+
   public function info($id)
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -146,8 +186,27 @@ class Cash_Request extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
+    if ($category !== NULL) {
+      $category = urldecode($category);
+
+      $_SESSION['cash_request']['items']                  = array();
+      $_SESSION['cash_request']['category']            = $category;
+      $_SESSION['cash_request']['document_number']     = cash_request_order_number();
+      $_SESSION['cash_request']['date']                = date('Y-m-d');
+      $_SESSION['cash_request']['request_by']          = config_item('auth_person_name');
+      $_SESSION['cash_request']['notes']               = NULL;
+      $_SESSION['cash_request']['total_amount']        = 0;
+      $_SESSION['cash_request']['cash_account']        = NULL;
+      $_SESSION['cash_request']['source']              = 'mrp';
+
+      redirect($this->module['route'] . '/create');
+    }
+
+    if (!isset($_SESSION['cash_request']))
+      redirect($this->module['route']);
+
     $this->data['page']['content']    = $this->module['view'] . '/create';
-    $this->data['page']['title']      = 'create Cash request';
+    $this->data['page']['title']      = 'create cash request';
 
     $this->render_view($this->module['view'] . '/create');
   }
@@ -161,28 +220,44 @@ class Cash_Request extends MY_Controller
       $return['type'] = 'danger';
       $return['info'] = "You don't have permission to access this page!";
     } else {
-      if ($this->input->post('cash_request_id')) {
-        $update = $this->model->insert();
-        if ($update['type']) {
-          $return['type'] = 'success';
-          $return['info'] = 'Cash Request number ' . $insert['document_number'] . ' revised.';
-        } else {
-          $return['type'] = 'danger';
-          $return['info'] = 'There are error while updating data. Please try again later.';
-        }
+      if (!isset($_SESSION['cash_request']['items']) || empty($_SESSION['cash_request']['items'])) {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please add at least 1 item!';
       } else {
-        $insert = $this->model->insert();
-        if ($insert['type']) {
-          $return['type'] = 'success';
-          $return['info'] = 'Cash Request number ' . $insert['document_number'] . ' created.';
+        $_SESSION['cash_request']['document_number'] = cash_request_order_number().cash_request_format_number();
+        $document_number = $_SESSION['cash_request']['document_number'];
+        $errors = array();
+
+        if (isset($_SESSION['cash_request']['edit'])) {
+          $document_number = $_SESSION['cash_request']['edit'].'-R';
+          $_SESSION['cash_request']['document_number'] = $document_number;
+          if ($_SESSION['cash_request']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
+            $errors[] = 'Duplicate Document Number: ' . $document_number . ' !';
+          }
         } else {
-          $return['type'] = 'danger';
-          $return['info'] = 'There are error while updating data. Please try again later.';
+          if ($this->model->isDocumentNumberExists($document_number)) {
+            $errors[] = 'Duplicate Document Number: ' . $document_number . ' !';
+          }
+        }
+
+        if (!empty($errors)) {
+          $data['success'] = FALSE;
+          $data['message'] = implode('<br />', $errors);
+        } else {
+          if ($this->model->save()) {
+            unset($_SESSION['cash_request']);
+
+            $data['success'] = TRUE;
+            $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
+          } else {
+            $data['success'] = FALSE;
+            $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+          }
         }
       }
     }
 
-    echo json_encode($return);
+    echo json_encode($data);
   }
 
   public function bayar($id)
@@ -343,7 +418,7 @@ class Cash_Request extends MY_Controller
   {
     // $this->authorized($this->module, 'document');
 
-    unset($_SESSION['payment']);
+    unset($_SESSION['cash_request']);
 
     redirect($this->module['route']);
   }
@@ -375,11 +450,88 @@ class Cash_Request extends MY_Controller
 
     $entity = $this->model->findById($id);
 
-    $this->data['entity'] = $entity;
-    $this->data['id']     = $id;    
-    $_SESSION['payment']['attachment']            = array();
+    // $this->data['entity'] = $entity;
+    // $this->data['id']     = $id;    
+    // $_SESSION['payment']['attachment']            = array();
 
-    $this->render_view($this->module['view'] . '/edit');
+    // $this->render_view($this->module['view'] . '/edit');
+
+    $document_number  = sprintf('%06s', substr($entity['document_number'], 0, 6));
+
+    if (isset($_SESSION['cash_request']) === FALSE){
+      $_SESSION['cash_request']                     = $entity;
+      $_SESSION['cash_request']['id']               = $id;
+      $_SESSION['cash_request']['date']             = $entity['tanggal'];
+      $_SESSION['cash_request']['total_amount']     = $entity['request_amount'];
+      $_SESSION['cash_request']['edit']             = $entity['document_number'];
+      $_SESSION['cash_request']['document_number']  = $document_number;
+      $_SESSION['cash_request']['cash_account']        = $entity['cash_account_code'];;
+    }
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function add_item()
+  {
+    $this->authorized($this->module, 'document');
+
+
+    $this->data['entities_po'] = $this->model->listCashPaymentsPo();
+    $this->data['entities_non_po'] = $this->model->listCashPaymentsNonPo();
+    $this->data['page']['title']            = 'Add Items';
+
+    $this->render_view($this->module['view'] . '/add_item');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['payment_id']) && !empty($_POST['payment_id'])) {
+        $_SESSION['cash_request']['items'] = array();
+        $total_amount = array();
+
+        foreach ($_POST['payment_id'] as $key => $payment_id) {
+          $payment_id_explode  = explode('-', $payment_id);
+          $id = $payment_id_explode[0];
+          $source = $payment_id_explode[1];
+          $payment = $this->model->infopayment($id,$source);
+
+          $_SESSION['cash_request']['items'][$payment_id] = array(
+            'payment_id'                      => $payment['id'],
+            'source'                          => $source,
+            'no_transaksi'                    => $payment['document_number'],
+            'date'                            => $payment['tanggal'],
+            'vendor'                          => $payment['vendor'],
+            'amount'                          => $payment['amount_paid'],
+          );
+          $total_amount[] = $payment['amount_paid'];
+        }
+
+        $_SESSION['cash_request']['total_amount'] = array_sum($total_amount);
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
+    }
+
+    echo json_encode($data);
+  }
+
+  public function del_item($key)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (isset($_SESSION['cash_request']['items']))
+      unset($_SESSION['cash_request']['items'][$key]);
   }
 
 }

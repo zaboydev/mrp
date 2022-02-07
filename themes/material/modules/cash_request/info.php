@@ -71,6 +71,57 @@
         </dl>
       </div>
     </div>
+    <div class="row" id="document_details">
+      <div class="col-sm-12">
+        <div class="table-responsive">
+          <table class="table table-striped table-nowrap">
+            <thead id="table_header">
+              <th>No</th>
+              <th>No. Transaction</th>
+              <th>Date</th>
+              <th>Vendor</th>
+              <th>Amount</th>
+            </thead>
+            <tbody id="table_contents">
+              <?php $n = 0; $total_amount = array();?>
+              <?php foreach ($entity['items'] as $i => $detail):?>
+                <?php 
+                  $n++;
+                  $total_amount[] = $detail['amount'];
+                ?>
+                <tr>
+                  <td align="right">
+                    <?=print_number($n);?>
+                  </td>
+                  <td>
+                    <?=print_string($detail['no_transaksi']);?>
+                  </td>
+                  <td>
+                    <?=print_date($detail['date']);?>
+                  </td>
+                  <td>
+                    <?=print_string($detail['vendor']);?>
+                  </td>
+                  <td align="right">
+                    <?=print_number($detail['amount'], 2);?>
+                  </td>                  
+                </tr>
+              <?php endforeach;?>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Total</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th><?=print_number(array_sum($total_amount), 2);?></th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      
+    </div>
   </div>
   <?php
       $today    = date('Y-m-d');
@@ -84,7 +135,7 @@
         <small class="top right">Manage Attachment</small>
       </a>
       <?php if (is_granted($module, 'cancel')) : ?>
-      <?php if ($entity['status']!='PAID' && $entity['status']!='APPROVED' && $entity['status']!='REJECTED' && $entity['status']!='CANCELED') : ?>
+      <?php if ($entity['status']!='PAID' && $entity['status']!='APPROVED' && $entity['status']!='REJECTED' && $entity['status']!='CANCELED' && $entity['status']!='REVISI') : ?>
       <?=form_open(current_url(), array(
         'class' => 'form-xhr-cancel pull-left',
       ));?>
