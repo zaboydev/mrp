@@ -47,7 +47,7 @@
                 <label for="default_currency">Currency</label>
               </div>
 
-              <div class="form-group">
+              <div class="form-group <?= (config_item('auth_role') == 'PIC STAFF') ? 'hide' : ''; ?>">
                     <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
                       <option value="CASH" <?= ('CASH' == $_SESSION['request_closing']['type']) ? 'selected' : ''; ?>>Cash</option>
                       <option value="BANK" <?= ('BANK' == $_SESSION['request_closing']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>

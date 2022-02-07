@@ -550,7 +550,8 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->connection->set('coa_kredit', $account);
             $this->connection->set('akun_kredit', $akun_kredit->group);         
             if($type=='CASH'){
-                $this->connection->set('status','PAID');
+                $this->connection->set('status','APPROVED');
+                $this->connection->set('cash_request','OPEN');
                 $this->connection->set('paid_by', config_item('auth_person_name'));
                 $this->connection->set('paid_at', date("Y-m-d",strtotime($date)));
             }else{
@@ -562,7 +563,7 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->connection->insert('tb_request_payments');
             $request_payment_id = $this->connection->insert_id();
 
-            if($type=='CASH'){
+            if($type=='CASH2'){
                 $this->db->set('no_jurnal', $document_number);
                 $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
                 $this->db->set('source', "AP");
@@ -599,7 +600,7 @@ class Expense_Closing_Payment_Model extends MY_Model
 
             // $process_amount_expense = countProcessAmountExpense($item['request_id']);
             if($this->updateStatusExpense($item['request_id'])){
-                if($type=='CASH'){
+                if($type=='CASH2'){
                     $this->connection->set('closing_date', $closing_date);
                     $this->connection->set('status', 'close');
                     $this->connection->set('closing_notes', $notes);
@@ -612,7 +613,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $this->connection->update('tb_expense_purchase_requisitions');
             }
 
-            if($type=='CASH'){
+            if($type=='CASH2'){
                 if ($currency == 'IDR') {
                     $amount_idr = $item['total'];
                     $amount_usd = $item['total'] / $kurs;
@@ -637,7 +638,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         }
 
 
-        if($type=='CASH'){
+        if($type=='CASH2'){
             $total_amount = array_sum($total_purposed_payment);
             if ($currency == 'IDR') {
                 $amount_idr = $total_amount;

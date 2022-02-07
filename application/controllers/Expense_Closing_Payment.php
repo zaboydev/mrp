@@ -195,7 +195,7 @@ class Expense_Closing_Payment extends MY_Controller
             $_SESSION['request_closing']['closing_notes']       = NULL;
             $_SESSION['request_closing']['account']             = NULL;
             $_SESSION['request_closing']['id']                  = $expense_request_id;
-            $_SESSION['request_closing']['type']                = 'BANK';
+            $_SESSION['request_closing']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';;
             $_SESSION['request_closing']['created_by']          = config_item('auth_person_name');
             $_SESSION['request_closing']['currency']            = "IDR";
             $_SESSION['request_closing']['vendor']              = NULL;
