@@ -218,10 +218,11 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
-  public function isItemExists($part_number, $serial_number = NULL, $part_number_exception = NULL, $serial_number_exception = NULL)
+  public function isItemExists($part_number,$description, $serial_number = NULL, $part_number_exception = NULL, $serial_number_exception = NULL)
   {
     $this->db->from(config_item('module')['item']['table']);
     $this->db->where('part_number', strtoupper($part_number));
+    $this->db->where('UPPER(description)', strtoupper($description));
 
     if ($serial_number !== NULL)
       $this->db->where('serial_number != ', $serial_number);

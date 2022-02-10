@@ -48,12 +48,13 @@ if ( ! function_exists('isStoresExists')) {
 }
 
 if ( ! function_exists('isItemExists')) {
-  function isItemExists($part_number, $serial_number = NULL)
+  function isItemExists($part_number, $description, $serial_number = NULL)
   {
     $CI =& get_instance();
 
     $CI->db->from('tb_master_items');
     $CI->db->where('UPPER(part_number)', strtoupper($part_number));
+    $CI->db->where('UPPER(description)', strtoupper($description));
 
     if ($serial_number !== NULL){
       $CI->db->where('UPPER(serial_number)', strtoupper($serial_number));
@@ -66,13 +67,14 @@ if ( ! function_exists('isItemExists')) {
 }
 
 if ( ! function_exists('getItemId')) {
-  function getItemId($part_number, $serial_number = NULL)
+  function getItemId($part_number, $description, $serial_number = NULL)
   {
     $CI =& get_instance();
 
     $CI->db->select('id');
     $CI->db->from('tb_master_items');
     $CI->db->where('UPPER(part_number)', strtoupper($part_number));
+    $CI->db->where('UPPER(description)', strtoupper($description));
 
     if ($serial_number !== NULL){
       $CI->db->where('UPPER(serial_number)', strtoupper($serial_number));

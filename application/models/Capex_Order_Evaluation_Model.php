@@ -670,7 +670,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
         }
       }
 
-      if ($this->isItemExists($part_number) === FALSE) {
+      if ($this->isItemExists($part_number,$item['description']) === FALSE) {
         $this->db->set('part_number', $part_number);
         $this->db->set('serial_number', strtoupper($serial_number));
         $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));

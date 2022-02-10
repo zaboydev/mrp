@@ -606,6 +606,7 @@ class Material_Slip extends MY_Controller
 
         foreach ($_SESSION['usage']['items'] as $key => $item) {
           $part_number    = (empty($item['part_number'])) ? NULL : $item['part_number'];
+          $description    = (empty($item['description'])) ? NULL : $item['description'];
           $serial_number  = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
           $condition      = (empty($item['condition'])) ? 'SERVICEABLE' : $item['condition'];
 
@@ -613,11 +614,11 @@ class Material_Slip extends MY_Controller
             $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
           }
 
-          if (isItemExists($part_number, $serial_number) && $serial_number !== NULL){
-            $item_id = getItemId($part_number, $serial_number);
+          if (isItemExists($part_number,$description, $serial_number) && $serial_number !== NULL){
+            $item_id = getItemId($part_number, $description, $serial_number);
 
             if (isset($_SESSION['usage']['edit'])){
-              if (getStockQuantity($item_id, $condition) > 0){
+              if (getStockQuantity($item_id, $description, $condition) > 0){
                 $errors[] = 'Serial number '. $item['serial_number'] .' have quantity in stores '. $serial->stores .'/'. $serial->warehouse .'. Please recheck your document.';
               }
             } else {
@@ -790,10 +791,10 @@ class Material_Slip extends MY_Controller
               $errors[] = 'Line '. $row .': Part Number is empty!';
             } else {
               if($serial_number == NULL){
-                if (isItemExists($part_number) == FALSE){
+                if (isItemExists($part_number,$description) == FALSE){
                 $errors[] = 'Line '. $part_number .$serial_number.': Item not found!';
                 } else {
-                  $item_id  = getItemId($part_number);
+                  $item_id  = getItemId($part_number,$description);
                   if($reference_document==NULL){
                     if (isStockInStoresExists($item_id, $stores, $condition) == FALSE){
                       $errors[] = 'Line '. $row .': Stock '.$item_id.' '.$stores.' '.$condition.' '.$reference_document.' not found!';
@@ -806,10 +807,10 @@ class Material_Slip extends MY_Controller
                   
                 }
               }else{
-                if (isItemExists($part_number,$serial_number) == FALSE){
+                if (isItemExists($part_number,$description,$serial_number) == FALSE){
                 $errors[] = 'Line '. $part_number .$serial_number.': Item not found!';
                 } else {
-                  $item_id  = getItemId($part_number, $serial_number);
+                  $item_id  = getItemId($part_number,$description, $serial_number);
                   if($reference_document==NULL){
                     if (isStockInStoresExists($item_id, $stores, $condition) == FALSE){
                       $errors[] = 'Line '. $row .': Stock '.$item_id.' '.$stores.' '.$condition.' '.$reference_document.' not found!';

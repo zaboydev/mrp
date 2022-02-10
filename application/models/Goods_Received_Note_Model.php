@@ -539,7 +539,7 @@ class Goods_Received_Note_Model extends MY_Model
       /**
        * CREATE ITEM IF NOT EXISTS
        */
-      if (isItemExists($data['part_number'], $serial_number) === FALSE) {
+      if (isItemExists($data['part_number'], $data['description'], $serial_number) === FALSE) {
         $this->db->set('part_number', strtoupper($data['part_number']));
         $this->db->set('serial_number', strtoupper($data['serial_number']));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
@@ -570,7 +570,7 @@ class Goods_Received_Note_Model extends MY_Model
 
         $item_id = $this->db->insert_id();
       } else {
-        $item_id = getItemId($data['part_number'], $serial_number);
+        $item_id = getItemId($data['part_number'], $data['description'], $serial_number);
 
         if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
           $this->db->set('current_price', floatval($data['received_unit_value']));
@@ -1612,7 +1612,7 @@ class Goods_Received_Note_Model extends MY_Model
       /**
        * CREATE ITEM IF NOT EXISTS
        */
-      if (isItemExists($part_number, $serial_number) === FALSE) {
+      if (isItemExists($part_number, $description, $serial_number) === FALSE) {
         $this->db->set('part_number', $part_number);
         $this->db->set('serial_number', $serial_number);
         $this->db->set('alternate_part_number', $alternate_part_number);
@@ -1626,7 +1626,7 @@ class Goods_Received_Note_Model extends MY_Model
 
         $item_id = $this->db->insert_id();
       } else {
-        $item_id = getItemId($part_number, $serial_number);
+        $item_id = getItemId($part_number,$description, $serial_number);
       }
 
       /**

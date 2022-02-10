@@ -1141,7 +1141,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->insert('tb_master_item_units');
         }
         $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
-        if (isItemExists($data['part_number'], $serial_number) === FALSE) {
+        if (isItemExists($data['part_number'],$data['product_name'], $serial_number) === FALSE) {
           $this->db->set('part_number', strtoupper($data['part_number']));
           $this->db->set('serial_number', $serial_number);
           // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
@@ -1156,7 +1156,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->insert('tb_master_items');
           $item_id = $this->db->insert_id();
         } else {
-          $item_id = getItemId($data['part_number'], $serial_number);
+          $item_id = getItemId($data['part_number'],$data['product_name'], $serial_number);
         }
         if (isPartNumberExists($data['part_number']) === FALSE) {
           $this->db->set('part_number', strtoupper($data['part_number']));

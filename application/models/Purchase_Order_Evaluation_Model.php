@@ -586,7 +586,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         }
       }
 
-      if (isItemExists($item['part_number'], $serial_number) === FALSE) {
+      if (isItemExists($item['part_number'],$item['description'], $serial_number) === FALSE) {
         $this->db->set('part_number', strtoupper($item['part_number']));
         $this->db->set('serial_number', strtoupper($serial_number));
         $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));

@@ -178,7 +178,7 @@ class Item_Model extends MY_Model
     $this->db->insert('tb_master_part_number');
     $serial_number = NULL;
 
-    if (isItemExists($this->input->post('part_number'), $serial_number) === FALSE) {
+    if (isItemExists($this->input->post('part_number'),$this->input->post('description'), $serial_number) === FALSE) {
       $this->db->set('description', strtoupper($this->input->post('description')));
       $this->db->set('part_number', strtoupper($this->input->post('part_number')));
       $this->db->set('alternate_part_number', strtoupper($this->input->post('alternate_part_number')));
@@ -390,7 +390,7 @@ class Item_Model extends MY_Model
         $item_id = $this->db->insert_id();
       }
 
-      if (isItemExists(strtoupper($data['part_number'])) == FALSE) {
+      if (isItemExists(strtoupper($data['part_number'],$data['description'])) == FALSE) {
         $this->db->set('group', strtoupper($data['group']));
         $this->db->set('description', strtoupper($data['description']));
         $this->db->set('part_number', strtoupper($data['part_number']));
