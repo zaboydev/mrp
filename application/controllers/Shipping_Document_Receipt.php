@@ -221,8 +221,8 @@ class Shipping_Document_Receipt extends MY_Controller
           $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
         }
 
-        if (isItemExists($item['part_number']) && !empty($item['serial_number'])){
-          $item_id = getItemId($item['part_number']);
+        if (isItemExists($item['part_number'],$item['description']) && !empty($item['serial_number'])){
+          $item_id = getItemId($item['part_number'],$item['description']);
 
           if (isSerialExists($item_id, $item['serial_number'])){
             $serial = getSerial($item_id, $item['serial_number']);
