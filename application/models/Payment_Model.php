@@ -28,7 +28,7 @@ class Payment_Model extends MY_MODEL
             'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid'  => 'Amount IDR',
 			'tb_po_payments.akun_kredit'   										=> 'Amount USD',
 			'tb_po_payments.status'	                     						=> 'Status',
-			'tb_po_payments.akun_kredit'					           			=> 'Attachment',
+			'tb_po_payments.notes'					           			=> 'Attachment',
 			'tb_po_payments.base'                     							=> 'Base',
 			'tb_po_payments.created_by'           								=> 'Created by',
 			'tb_po_payments.created_at'                     					=> 'Created At',
@@ -96,7 +96,8 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.base',
 			'tb_po_payments.created_by',
 			'tb_po_payments.created_at',
-			'tb_po_payments.akun_kredit'
+			'tb_po_payments.akun_kredit',
+			'tb_po_payments.notes'
 		);
 
 		return $return;
@@ -179,6 +180,8 @@ class Payment_Model extends MY_MODEL
 				}elseif($base=='JAKARTA'){
 					$this->db->where('tb_po_payments.base','JAKARTA');
 				}	
+			}elseif(config_item('auth_role')=='PIC STAFF'){
+			    $this->db->where_in('tb_po_payments.base', config_item('auth_warehouses'));
 			}
 			
 		}
@@ -833,7 +836,8 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('coa_kredit', $coa_kredit);
 			$this->db->set('akun_kredit', $akun_kredit->group);			
 			if($type=='CASH'){
-				$this->db->set('status','PAID');
+				$this->db->set('status','APPROVED');
+				$this->db->set('cash_request','OPEN');
 				$this->db->set('paid_by', config_item('auth_person_name'));
 				$this->db->set('paid_at', date("Y-m-d",strtotime($date)));
 			}else{
@@ -845,7 +849,7 @@ class Payment_Model extends MY_MODEL
 			$this->db->insert('tb_po_payments');
 			$po_payment_id = $this->db->insert_id();
 
-			if($type=='CASH'){
+			if($type=='CASH2'){
 				$this->db->set('no_jurnal', $document_number);
 				$this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
 				$this->db->set('source', "AP");
@@ -900,7 +904,7 @@ class Payment_Model extends MY_MODEL
 					$this->db->set('kurs', 1);
 				}
 				if($type=='CASH'){
-					$this->db->set('status','PAID');
+					$this->db->set('status','APPROVED');
 				}
 				$this->db->insert('tb_purchase_order_items_payments');
 				$id = $this->db->insert_id();
@@ -908,7 +912,7 @@ class Payment_Model extends MY_MODEL
 				$val_request = $item["amount_paid"]-$item["adj_value"];
 
 				if($item['purchase_order_item_id']!=0){
-					if($type=='CASH'){						
+					if($type=='CASH2'){						
 						$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $val_request, false);
 					}
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
@@ -916,7 +920,7 @@ class Payment_Model extends MY_MODEL
 					$this->db->where('id', $item["purchase_order_item_id"]);
 					$this->db->update('tb_po_item');
 				}else{
-					if($type=='CASH'){
+					if($type=='CASH2'){
 						$this->db->set('additional_price_remaining', '"additional_price_remaining" - ' . $val_request, false);
 					}
 					$this->db->set('additional_price_remaining_request', '"additional_price_remaining_request" - ' . $val_request, false);
@@ -924,7 +928,7 @@ class Payment_Model extends MY_MODEL
 					$this->db->update('tb_po');
 				}
 
-				if($type=='CASH'){
+				if($type=='CASH2'){
 					$this->db->set('remaining_payment', '"remaining_payment" - ' . $val_request, false);
 					$this->db->set('payment', '"payment" + ' . $val_request, false);
 				}
@@ -932,7 +936,7 @@ class Payment_Model extends MY_MODEL
 				$this->db->where('id', $id_po);
 				$this->db->update('tb_po');
 
-				if($type=='CASH'){
+				if($type=='CASH2'){
 					if ($currency == 'IDR') {
 						$amount_idr = $val_request;
 						$amount_usd = $val_request / $kurs;
@@ -1905,6 +1909,9 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('vendor', $vendor);
 		$this->db->where('default_currency', $currency);
 		$this->db->where('remaining_payment_request >', 0);
+		if(config_item('auth_role')=='PIC STAFF'){
+			$this->db->where_in('tb_po.base', config_item('auth_warehouses'));
+		}
 		$this->db->where_in('status', ['OPEN', 'ORDER']);
 		$this->db->order_by('tb_po.due_date', 'asc');
 		$po = $this->db->get();

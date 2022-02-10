@@ -3,7 +3,7 @@
 <?php startblock('content') ?>
 <section class="has-actions style-default">
   <div class="section-body">
-    <?= form_open(site_url($module['route'] . '/save'), array('autocomplete' => 'off', 'class' => 'form-xhr-submit form form-validate', 'id' => 'form-create-document')); ?>
+    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form-document')); ?>
     <div class="card">
       <div class="card-body no-padding">
         <?php
@@ -16,30 +16,30 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="order_number" id="order_number" class="form-control" value="[auto]" readonly>
+                    <input type="text" name="order_number" id="order_number" class="form-control" value="<?= (isset($_SESSION['cash_request']['edit'])) ? $_SESSION['cash_request']['document_number'] : '[auto]'; ?>" readonly>
                     <label for="order_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon"><?= cash_request_format_number(); ?></span>
+                  <span class="input-group-addon"><?= cash_request_format_number();?><?= (isset($_SESSION['cash_request']['edit'])) ? '-R' : ''; ?></span>
                 </div>
               </div>
 
               <div class="form-group">
-                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= date('Y-m-d'); ?>" required>
+                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['cash_request']['date'];?>" required data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_date');?>">
                 <label for="required_date">Date</label>
               </div>
 
               <div class="form-group">
-                <input type="text" name="request_by" id="request_by" class="form-control" value="<?= config_item('auth_person_name'); ?>" required>
+                <input type="text" name="request_by" id="request_by" class="form-control" value="<?=$_SESSION['cash_request']['request_by'];?>" required data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_request_by');?>">
                 <label for="required_date">Request By</label>
               </div>
             </div>
 
             <div class="col-sm-12 col-lg-4">
               <div class="form-group">
-                <select name="cash_account" id="cash_account" class="form-control" required>
+                <select name="cash_account" id="cash_account" class="form-control" required data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_account');?>">
                   <option value="">-- SELECT Account --</option>
                   <?php foreach (getAccount('CASH') as $key => $account) : ?>
-                  <option value="<?= $account['coa']; ?>">
+                  <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['cash_request']['cash_account']) ? 'selected' : ''; ?>>
                     <?= $account['coa']; ?> <?= $account['group']; ?>
                   </option>
                   <?php endforeach; ?>
@@ -47,22 +47,75 @@
                 <label for="vendor">Cash Account</label>
               </div>
               <div class="form-group">
-                <input type="number" name="request_amount" id="request_amount" class="form-control" value="0" required="required">
+                <input type="number" name="request_amount" id="request_amount" class="form-control" value="<?=$_SESSION['cash_request']['total_amount'];?>" required="required" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_amount');?>">
                 <label for="amount">Request Amount</label>
               </div>
             </div>
 
             <div class="col-sm-12 col-lg-4">              
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
+                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_notes');?>"><?=$_SESSION['cash_request']['notes'];?></textarea>
                 <label for="notes">Notes</label>
               </div>
             </div>
           </div>
         </div>
+        <div class="document-data table-responsive">
+          <?php if (count($_SESSION['cash_request']['items'])>0) : ?>
+          <table class="table table-hover table-striped" id="table-document">
+            <thead>
+              <tr>
+                <th class="middle-alignment">#</th>
+                <th class="middle-alignment">No Transaksi</th>
+                <th class="middle-alignment">Date</th>
+                <th class="middle-alignment">Vendor</th>
+                <th class="middle-alignment">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php 
+                $no = 1; 
+                $total = array();
+              ?>
+              <?php foreach ($_SESSION['cash_request']['items'] as $i => $item) : ?>
+                <tr id="row_<?= $i; ?>">
+                  <td>
+                    <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="hide btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
+                      <i class="fa fa-trash"></i>
+                    </a>
+                    <?= $no;?>
+                  </td>
+                  <td><?= $item['no_transaksi']; ?></td>
+                  <td><?= print_date($item['date'],'d/m/Y') ?></td>
+                  <td><?= $item['vendor']; ?></td>
+                  <td><?= print_number($item['amount'], 2) ?></td>
+                </tr>
+                <?php 
+                  $no++; 
+                  $total[] = $item['amount'];
+                ?>
+              <?php endforeach;?>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" style="text-align: right;">Total Request</td>
+                <td><?= print_number(array_sum($total), 2) ?></td>
+              </tr>
+            </tfoot>
+          </table>
+          <?php endif;?>
+        </div>
       </div>
+      
       <div class="card-actionbar">
         <div class="card-actionbar-row">
+          <div class="pull-left">
+            <?php if(!isset($_SESSION['cash_request']['edit'])):?>
+            <a href="<?=site_url($module['route'] .'/add_item');?>" onClick="return popup(this, 'add_item')" class="btn btn-primary ink-reaction">
+              Add Cash Payment
+            </a>
+          <?php endif;?>
+          </div>
           <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
           </a>
@@ -74,10 +127,10 @@
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
-      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-xhr-submit btn-tooltip ink-reaction" id="btn-xhr-submit">
+      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
         <i class="md md-save"></i>
         <small class="top right">Save Document</small>
-      </button>
+      </a>
     </div>
   </div>
   <?= form_close(); ?>

@@ -103,10 +103,14 @@
 
   <div class="form-group">
     <label for="start_date">Base</label>
+    
     <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="5">
-      <option value="WISNU"  <?php if (config_item('auth_warehouse') != 'JAKARTA'):echo 'selected'; endif;?>>Bali</option>
-      <option value="JAKARTA" <?php if (config_item('auth_warehouse') == 'JAKARTA'):echo 'selected'; endif;?>>Jakarta</option>
-      <option value="ALL">All Base</option> 
+      <option value="ALL BASES">-- ALL BASES --</option>
+      <?php foreach (config_item('auth_warehouses') as $warehouse):?>
+        <option value="<?=$warehouse;?>" <?php if (config_item('auth_warehouse') == $warehouse):echo 'selected'; endif;?>>
+          <?=$warehouse;?>
+        </option>
+      <?php endforeach; ?>
     </select>
   </div>
 

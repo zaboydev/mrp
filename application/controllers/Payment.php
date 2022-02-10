@@ -119,8 +119,8 @@ class Payment extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          6 => print_number(array_sum($total_idr), 2),
-          7 => print_number(array_sum($total_usd), 2),
+          7 => print_number(array_sum($total_idr), 2),
+          8 => print_number(array_sum($total_usd), 2),
         )
       );
     }
@@ -137,7 +137,7 @@ class Payment extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(6,7);
+    $this->data['grid']['summary_columns']  = array(7,8);
 
     $this->data['grid']['order_columns']    = array();
     // $this->data['grid']['order_columns']    = array(
@@ -164,6 +164,7 @@ class Payment extends MY_Controller
     $this->render_view($this->module['view'] . '/create-2');
   }
 
+  //ini yg dipake
   public function create_2($category = NULL)
   {
     $this->authorized($this->module, 'document');
@@ -173,7 +174,7 @@ class Payment extends MY_Controller
 
       $_SESSION['payment_request']['po']                  = array();
       $_SESSION['payment_request']['category']            = $category;
-      $_SESSION['payment_request']['type']                = 'BANK';
+      $_SESSION['payment_request']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';
       $_SESSION['payment_request']['document_number']     = payment_request_last_number();
       $_SESSION['payment_request']['date']                = date('Y-m-d');
       $_SESSION['payment_request']['purposed_date']       = date('Y-m-d');

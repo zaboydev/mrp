@@ -1060,7 +1060,7 @@ class Material_Slip_Model extends MY_Model
       }
 
       // PROCESSING USAGE ITEMS
-      $item_id  = getItemId($part_number, $serial_number);
+      $item_id  = getItemId($part_number,$description, $serial_number);
       $stock_in_stores_id = getStockInStoresId($item_id, $stores, $condition, $reference_document);
       // $stock_in_stores_id = getStockInStoresId($item_id, $stores, $condition);
 

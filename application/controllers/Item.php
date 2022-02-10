@@ -338,7 +338,7 @@ class Item extends MY_Controller
             /**************************************************************
              * CHECK DUPLICATE PART NUMBER
              ******************************************/
-            if ($this->model->isItemExists($part_number))
+            if ($this->model->isItemExists($part_number,$description))
               $errors[] = 'Line ' . $row . ': Duplicate part number ' . $part_number;
 
             /* CHECK COLUMN 8

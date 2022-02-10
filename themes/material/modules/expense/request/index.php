@@ -120,6 +120,9 @@
             <option value="approved" <?php if (config_item('auth_role') == 'PIC PROCUREMENT'||config_item('auth_role') == 'AP STAFF'):echo 'selected'; endif;?>>
               Approved
             </option>
+            <option value="PAYMENT PURPOSED">
+              Payment Purposed
+            </option>
             <?php endif; ?>
             <option value="rejected">
               Rejected

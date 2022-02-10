@@ -298,7 +298,7 @@ class Doc_Receipt_Model extends MY_Model
       /**
        * CREATE ITEM IF NOT EXISTS
        */
-      if ($this->isItemExists($data['part_number']) === FALSE){
+      if ($this->isItemExists($data['part_number'],$data['description']) === FALSE){
         $this->db->set('part_number', strtoupper($data['part_number']));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
         $this->db->set('description', strtoupper($data['description']));

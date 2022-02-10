@@ -412,14 +412,15 @@ class Goods_Received_Note extends MY_Controller
         foreach ($_SESSION['receipt']['items'] as $key => $item) {
           $part_number    = (empty($item['part_number'])) ? NULL : $item['part_number'];
           $serial_number  = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
+          $description    = (empty($item['description'])) ? NULL : $item['description'];
           $condition      = (empty($item['condition'])) ? 'SERVICEABLE' : $item['condition'];
 
           if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['receipt']['category']) === FALSE){
             $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
           }
 
-          if ($serial_number !== NULL && isItemExists($part_number, $serial_number)){
-            $item_id = getItemId($part_number, $serial_number);
+          if ($serial_number !== NULL && isItemExists($part_number, $description, $serial_number)){
+            $item_id = getItemId($part_number, $description, $serial_number);
 
             // if (!isset($_SESSION['receipt']['edit']) && getStockQuantity($item_id, $condition) > 0){
             //   $errors[] = 'Item with Serial number '. $serial_number .' still contains quantity.';
@@ -493,7 +494,7 @@ class Goods_Received_Note extends MY_Controller
       );
 
       if (empty($_SESSION['receipt']['received_from'])){
-        $_SESSION['receipt']['received_from'] = trim(strtoupper($this->input->post('consignor')));
+        $_SESSION['receipt']['received_from'] = strtoupper($this->input->post('consignor'));
       }
     }
 

@@ -1346,7 +1346,7 @@ class Stock_Model extends MY_Model
 
 
       // GET ITEM_ID, CREATE OR SKIP ITEM
-      if (isItemExists($part_number, $serial_number) === FALSE){
+      if (isItemExists($part_number,$description, $serial_number) === FALSE){
         $data = array(
           'part_number'           => $part_number,
           'serial_number'         => $serial_number,
@@ -1368,7 +1368,7 @@ class Stock_Model extends MY_Model
 
         $item_id = $this->db->insert_id();
       } else {
-        $item_id = getItemId($part_number, $serial_number);
+        $item_id = getItemId($part_number,$description, $serial_number);
       }
 
       /**
