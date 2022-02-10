@@ -59,6 +59,46 @@
 
 <div class="clear"></div>
 
+<table class="table" style="margin-top: 20px;" width="100%">
+    <thead>
+        <tr>
+            <th style="text-align: center;" width="5%">#</th>
+            <th style="text-align: center;" width="15%">Account Name</th>
+            <th style="text-align: center;" width="15%">Account Code</th>
+            <th style="text-align: center;" width="15%">Amount</th>
+            <th style="text-align: center;" width="15%">Total</th>
+            <th style="text-align: center;" width="15%">Balance Budget Month to Date</th>
+            <th style="text-align: center;" width="15%">Balance Budget Year to Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $n = 0; $total_amount = array();?>
+        <?php foreach ($entity['items'] as $i => $detail):?>
+        <?php 
+            $n++;
+            $total_amount[] = $detail['amount'];
+        ?>
+        <tr>
+            <td align="right">
+                <?=print_number($n);?>
+            </td>
+            <td>
+                <?=print_string($detail['no_transaksi']);?>
+            </td>
+            <td>
+                <?=print_date($detail['date']);?>
+            </td>
+            <td>
+                <?=print_string($detail['vendor']);?>
+            </td>
+            <td align="right">
+                <?=print_number($detail['amount'], 2);?>
+            </td>                  
+        </tr>
+        <?php endforeach;?>
+    </tbody>
+    </table>
+
 <div class="clear"></div>
 
 

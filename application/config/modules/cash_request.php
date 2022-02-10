@@ -3,8 +3,8 @@
 $config['module']['cash_request']['visible']        = TRUE;
 $config['module']['cash_request']['main_warehouse'] = FALSE;
 $config['module']['cash_request']['parent']         = 'finance';
-$config['module']['cash_request']['label']          = 'Cash Request';
-$config['module']['cash_request']['name']           = 'Cash Request';
+$config['module']['cash_request']['label']          = 'Top Up Petty Cash';
+$config['module']['cash_request']['name']           = 'Top Up Petty Cash';
 $config['module']['cash_request']['route']          = 'cash_request';
 $config['module']['cash_request']['view']           = config_item('module_path') .'cash_request/';
 $config['module']['cash_request']['language']       = 'cash_request_lang';
