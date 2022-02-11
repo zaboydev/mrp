@@ -527,6 +527,7 @@
           toastr.options.timeOut = 10000;
           toastr.options.positionClass = 'toast-top-right';
           toastr.error('You must select akun for each item that you want to approve');
+          $("#modal-approve-data-button-multi").attr('disabled', false);
         }else{
           $.post(action, {
             'id_purchase_order': id_purchase_order,
