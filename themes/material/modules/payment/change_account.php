@@ -1,4 +1,4 @@
-<?=form_open(site_url($module['route'] .'/save_change_account'), array(
+<?=form_open(current_url(), array(
   'autocomplete'  => 'off',
   'id'            => 'form-edit-data',
   'class'         => 'form form-validate form-xhr ui-front',
@@ -52,7 +52,7 @@
                 <div class="form-group">
                     <select name="account" id="account" class="form-control">
                     <option value="">-- SELECT Account</option>
-                    <?php foreach (getAccount() as $key => $account) : ?>
+                    <?php foreach (getAccount($entity['type']) as $key => $account) : ?>
                         <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $entity['coa_kredit']) ? 'selected' : ''; ?>>
                         <?= $account['coa']; ?> <?= $account['group']; ?>
                         </option>
@@ -70,9 +70,9 @@
     <div class="card-foot">
 
       <div class="pull-right">
-        <button type="submit" id="modal-edit-data-submit" class="btn btn-floating-action btn-primary btn-xhr-submit ink-reaction" data-title="save and update">
+        <a href="<?=site_url($module['route'] .'/save_change_account');?>" type="button" id="modal-edit-data-submit" class="btn btn-floating-action btn-primary btn-xhr-submit ink-reaction" data-title="save and update">
           <i class="md md-save"></i>
-        </button>
+        </a>
         
       </div>
     </div>
