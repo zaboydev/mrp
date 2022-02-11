@@ -548,4 +548,14 @@ class Expense_Closing_Payment extends MY_Controller
         }
         echo json_encode($result);
     }
+
+    public function manage_attachment($id)
+    {
+        // $this->authorized($this->module, 'manage_attachment');
+
+        $this->data['manage_attachment'] = $this->model->listAttachments($id);
+        $this->data['page']['title']    = "Manage Attachment Expense Payment";
+        $this->data['id'] = $id;
+        $this->render_view($this->module['view'] . '/manage_attachment');
+    }
 }

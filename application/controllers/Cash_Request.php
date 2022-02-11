@@ -613,4 +613,14 @@ class Cash_Request extends MY_Controller
     echo json_encode($alert);
   }
 
+  public function view_manage_attachment_payment($payment_id,$source)
+  {
+    if($source=='mrp'){
+      redirect('payment/manage_attachment/'.$payment_id);
+    }else{
+      redirect('expense_closing_payment/manage_attachment/'.$payment_id);
+    }
+    
+  }
+
 }
