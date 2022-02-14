@@ -2401,7 +2401,7 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('getAccount')) {
-    function getAccount($currency=null)
+    function getAccountByCurrency($currency=null)
     {
       $CI =& get_instance();
 

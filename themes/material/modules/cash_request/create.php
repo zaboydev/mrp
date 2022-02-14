@@ -85,7 +85,7 @@
                     </a>
                     <?= $no;?>
                   </td>
-                  <td><?= $item['no_transaksi']; ?></td>
+                  <td><?= $item['no_transaksi']; ?> <a title="View Attachment Payment" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_payment/' . $item['payment_id'].'/'.$item['source']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
                   <td><?= print_date($item['date'],'d/m/Y') ?></td>
                   <td><?= $item['vendor']; ?></td>
                   <td><?= print_number($item['amount'], 2) ?></td>

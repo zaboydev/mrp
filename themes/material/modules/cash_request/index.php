@@ -523,29 +523,37 @@
       var action = $(this).data('source');
       $(this).attr('disabled', true);
       if (id_purchase_order !== "") {
-        $.post(action, {
-          'id_purchase_order': id_purchase_order,
-          // 'price': price
-        }).done(function(data) {
-          console.log(data);
-          $("#modal-approve-data-button-multi").attr('disabled', false);
-          var result = jQuery.parseJSON(data);
-          if (result.status == 'success') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success('Success aprove data the page will reload');
-            window.location.reload();
-          } else {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.danger('Failed aprove data');
-          }
-        }).fail(function() {
-          $("#modal-approve-data-button-multi").attr('disabled', false);
+        if (!encodeAkun()) {
           toastr.options.timeOut = 10000;
           toastr.options.positionClass = 'toast-top-right';
-          toastr.error('Delete Failed! This data is still being used by another document.');
-        });
+          toastr.error('You must select akun for each item that you want to approve');
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+        }else{
+          $.post(action, {
+            'id_purchase_order': id_purchase_order,
+            // 'price': price
+          }).done(function(data) {
+            console.log(data);
+            $("#modal-approve-data-button-multi").attr('disabled', false);
+            var result = jQuery.parseJSON(data);
+            if (result.status == 'success') {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.success('Success aprove data the page will reload');
+              window.location.reload();
+            } else {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.danger('Failed aprove data');
+            }
+          }).fail(function() {
+            $("#modal-approve-data-button-multi").attr('disabled', false);
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error('Delete Failed! This data is still being used by another document.');
+          });
+        }
+        
       } else {
         $(this).attr('disabled', false);
         toastr.options.timeOut = 10000;
@@ -619,15 +627,15 @@
 
     }
 
-    function encodePrice() {
+    function encodeAkun() {
       new_id_purchase_order = id_purchase_order.replace(/\|/g, "");
       new_id_purchase_order = new_id_purchase_order.substring(0, new_id_purchase_order.length - 1);
       arr = new_id_purchase_order.split(",");
-      price = "";
+      akun = "";
       y = 0;
       $.each(arr, function(i, x) {
-        if ($("#price_" + x).val() != "") {
-          price = price + "|" + $("#price_" + x).val() + "##,";
+        if ($("#coa_kredit_" + x).val() != "") {
+          akun = akun + "|" + $("#coa_kredit_" + x).val() + "##,";
           y += 1;
         } else {
           return false;
@@ -697,6 +705,11 @@
         var id = $(this).attr('data-id');
         getAttachment(id);
       } else if (e.target.nodeName === "SPAN") {
+        // var a = $(e.target).data('id');
+        // console.log(e.target.nodeName);
+        // console.log(price);
+        ///////////////////////////////////////eventdefault
+      } else if (e.target.nodeName === "A") {
         // var a = $(e.target).data('id');
         // console.log(e.target.nodeName);
         // console.log(price);
@@ -921,6 +934,7 @@
       if (confirm('Are you sure want to cancel this request? Continue?')) {
               
         $.post(action, form.serialize()).done(function(data) {
+          console.log(data);
           var obj = $.parseJSON(data);
           if (obj.type == 'danger') {
             toastr.options.timeOut = 10000;
@@ -946,6 +960,49 @@
           toastr.error('Cancel Failed!');
         });
       }
+
+      button.attr('disabled', false);
+    });
+
+    $(document).on('click', '.btn-xhr-submit', function(e) {
+      e.preventDefault();
+
+      var button = $(this);
+      button.attr('disabled', true);
+
+      // let notes = prompt("Please enter cancel notes", "");
+      // $('form.form-xhr-cancel input[name=cancel_notes]').val(notes);
+
+      var form = $('.form-xhr');
+      var action = button.attr('href');
+      // if (confirm('Are you sure want to cancel this request? Continue?')) {
+              
+        $.post(action, form.serialize()).done(function(data) {
+          var obj = $.parseJSON(data);
+          if (obj.type == 'danger') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.info);
+
+            buttonToDelete.attr('disabled', false);
+          } else {
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.info);
+
+            form.reset();
+
+            $('[data-dismiss="modal"]').trigger('click');
+
+            if (datatable) {
+              datatable.ajax.reload(null, false);
+            }
+          }
+        }).fail(function() {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Cancel Failed!');
+        });
+      // }
 
       button.attr('disabled', false);
     });

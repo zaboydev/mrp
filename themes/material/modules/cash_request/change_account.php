@@ -40,11 +40,15 @@
             </div>
             <div class="col-sm-6 col-lg-8">
                 <div class="form-group">
-                    <input type="text" name="amount_total" id="amount_total" class="form-control" value="<?=$entity['total_amount'];?>" readonly>
+                    <input type="text" name="amount_total" id="amount_total" class="form-control" value="(<?=$entity['cash_account_code'];?>) - <?=$entity['cash_account_name'];?>" readonly>
+                    <label for="amount_total">Akun Petty Cash</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="amount_total" id="amount_total" class="form-control" value="<?=$entity['request_amount'];?>" readonly>
                     <label for="amount_total">Amount Total</label>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group hide">
                     <input type="text" name="currency" id="currency" class="form-control" value="<?=$entity['currency'];?>" readonly>
                     <label for="currency">Currency</label>
                 </div>

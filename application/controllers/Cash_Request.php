@@ -82,13 +82,19 @@ class Cash_Request extends MY_Controller
         }else{
           $col[] = print_number($no);
         }
-        $col[]  = print_string($row['document_number']);
+        $col[]  = '<a data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['document_number']).'</a>';
+        // $col[]  = print_string($row['document_number']);
         $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['status']);
         $col[]  = print_string($row['request_by']);
         $col[]  = print_string($row['cash_account_code']).' '.print_string($akun_cash->group);
         $col[]  = print_number($row['request_amount'], 2);
-        $col[]  = print_string($row['coa_kredit']).' '.print_string($akun_bank->group);
+        if($row['coa_kredit']==NULL){
+          $col[] = '<a href="javascript:;" data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">--select account--</a>'.'<input type="hidden" id="coa_kredit_' . $row['id'] . '" autocomplete="off" value="' . $row['coa_kredit'] . '"/>';
+        }else{
+          $col[] = '<a href="javascript:;" data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">' . print_string($row['coa_kredit']).' '.print_string($akun_bank->group) . '</a>'.'<input type="hidden" id="coa_kredit_' . $row['id'] . '" autocomplete="off" value="' . $row['coa_kredit'] . '"/>';
+        }
+        // $col[]  = print_string($row['coa_kredit']).' '.print_string($akun_bank->group);
         $col[]  = print_string($row['notes']);
         
         $total_value[] = $row['request_amount'];
@@ -532,6 +538,89 @@ class Cash_Request extends MY_Controller
 
     if (isset($_SESSION['cash_request']['items']))
       unset($_SESSION['cash_request']['items'][$key]);
+  }
+
+  public function change_account($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'approval') === FALSE) {
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->findById($id);
+      if($entity['type']=='BANK'){
+        if($entity['status']=='PAID'){
+          $return['type'] = 'denied';
+          $return['info'] = "This Transaction already paid. You cant change account. Please contack the technician.";
+        }else{
+          $this->data['entity'] = $entity;
+          $return['type'] = 'success';
+          $return['info'] = $this->load->view($this->module['view'] . '/change_account', $this->data, TRUE);
+        }
+        
+      }else{
+        $return['type'] = 'denied';
+        $return['info'] = "This Transaction type is CASH. You cant change account. You have to edit this Transaction.";
+      }      
+    }
+
+    echo json_encode($return);
+  }
+
+  public function save_change_account2()
+  {
+    // if ($this->input->is_ajax_request() == FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'approval') == FALSE) {
+      $data['type'] = FALSE;
+      $data['info'] = 'You are not allowed to save this Document!';
+    } else {
+      if ($this->model->save_change_account()) {
+        $data['type'] = 'success';
+        $data['info'] = 'Update Success';
+      } else {
+        $data['type'] = 'danger';
+        $data['info'] = 'Error while saving this document. Please ask Technical Support.';
+      }
+    }
+
+    // echo json_encode($data);
+    redirect($this->module['route']);
+  }
+
+  public function save_change_account()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (is_granted($this->module, 'approval') === FALSE){
+      $alert['type']  = 'danger';
+      $alert['info']  = 'You are not allowed to change this data!';
+    } else {
+      if ($this->model->save_change_account()){
+        $alert['type'] = 'success';
+        $alert['info'] = 'Account changed.';
+        $alert['link'] = site_url($this->module['route']);
+      } else {
+        $alert['type'] = 'danger';
+        $alert['info'] = 'There are error while change data. Please try again later.';
+      }
+    }
+
+    echo json_encode($alert);
+  }
+
+  public function view_manage_attachment_payment($payment_id,$source)
+  {
+    if($source=='mrp'){
+      redirect('payment/manage_attachment/'.$payment_id);
+    }else{
+      redirect('expense_closing_payment/manage_attachment/'.$payment_id);
+    }
+    
   }
 
 }

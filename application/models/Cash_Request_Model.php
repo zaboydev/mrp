@@ -727,6 +727,26 @@ class Cash_Request_Model extends MY_Model
 
     return false;
   }
+
+  public function save_change_account()
+  {
+    $this->db->trans_begin();
+
+    $coa_kredit = $this->input->post('account');
+    $akun_kredit = getAccountByCode($coa_kredit);
+
+    $this->db->set('coa_kredit', $coa_kredit);
+    $this->db->set('akun_kredit', $akun_kredit->group);
+    $this->db->where('id', $this->input->post('id'));
+    $this->db->update('tb_cash_request');
+
+    if ($this->db->trans_status() === FALSE)
+    return FALSE;
+
+    $this->db->trans_commit();
+
+    return TRUE;
+  }
 }
 
 /* End of file Account_Payable_Model.php */
