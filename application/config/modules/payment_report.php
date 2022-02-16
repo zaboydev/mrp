@@ -12,10 +12,10 @@ $config['module']['payment_report']['helper']         = 'material_slip_helper';
 $config['module']['payment_report']['table']          = 'tb_po_payments';
 $config['module']['payment_report']['model']          = 'Payment_Model';
 $config['module']['payment_report']['permission']     = array(
-  'index'     => 'FINANCE SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
-  'info'      => 'FINANCE SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
-  'print'     => 'FINANCE SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
-  'document'  => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',//tambhan supervisor
-  'payment'   => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
-  'import'    => 'FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',//tambhan supervisor
+  'index'     => 'TELLER,FINANCE SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'info'      => 'TELLER,FINANCE SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'print'     => 'TELLER,FINANCE SUPERVISOR,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'document'  => 'TELLER,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',//tambhan supervisor
+  'payment'   => 'TELLER,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',
+  'import'    => 'TELLER,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER,AP STAFF',//tambhan supervisor
 );
