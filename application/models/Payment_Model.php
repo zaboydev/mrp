@@ -1830,7 +1830,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->join('tb_purchase_order_items_payments','tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		$this->connection->group_by(
             array(
-                'tb_po_payments.document_number as no_transaksi',
+                'tb_po_payments.document_number',
 				'tb_po_payments.currency',
 				'tb_po_payments.tanggal',
             )
