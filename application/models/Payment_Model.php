@@ -1368,9 +1368,9 @@ class Payment_Model extends MY_MODEL
 
 		if (config_item('auth_role')=='FINANCE MANAGER' && $po_payment['status'] == 'WAITING REVIEW BY FIN MNG') {
 			if($po_payment['base']=='JAKARTA'){
-				$this->db->set('status', 'WAITING REVIEW BY VP FINANCE');
-				$status = 'WAITING REVIEW BY VP FINANCE';
-				$level = 3;
+				$this->db->set('status', 'APPROVED');
+				$status = 'APPROVED';
+				$level = 0;
 			}else{
 				$this->db->set('status', 'APPROVED');
 				$status = 'APPROVED';
@@ -1382,15 +1382,15 @@ class Payment_Model extends MY_MODEL
 			$this->db->update('tb_po_payments');
 		}
 
-		if (config_item('auth_role')=='VP FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
-			$this->db->set('status', 'APPROVED');
-			$status = 'APPROVED';
-			$level = 0;
-			$this->db->set('known_by', config_item('auth_person_name'));
-			$this->db->set('known_at', date('Y-m-d'));
-			$this->db->where('id', $id);
-			$this->db->update('tb_po_payments');
-		}
+		// if (config_item('auth_role')=='VP FINANCE' && $po_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
+		// 	$this->db->set('status', 'APPROVED');
+		// 	$status = 'APPROVED';
+		// 	$level = 0;
+		// 	$this->db->set('known_by', config_item('auth_person_name'));
+		// 	$this->db->set('known_at', date('Y-m-d'));
+		// 	$this->db->where('id', $id);
+		// 	$this->db->update('tb_po_payments');
+		// }
 		
 		if($status!=''){
 			$this->db->set('status', $status);
