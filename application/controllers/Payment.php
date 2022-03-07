@@ -197,6 +197,7 @@ class Payment extends MY_Controller
 
     $this->render_view($this->module['view'] . '/create-2');
   }
+  //ini yg dipake
 
   public function create($category = NULL)
   {

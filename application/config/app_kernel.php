@@ -127,6 +127,7 @@ require('modules/expired_stock.php');
 require('modules/konsolidasi.php');
 
 //finance
+require('modules/saldo.php');
 require('modules/cash_request.php');
 
 //account_payable
