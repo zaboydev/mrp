@@ -623,6 +623,8 @@ class Payment_Model extends MY_MODEL
 			$this->db->set('vendor', $vendor);
 			$this->db->set('grn_no', $document_number);
 			$this->db->set('keterangan', strtoupper("pembayaran purchase order"));
+			$this->db->set('created_by',config_item('auth_person_name'));
+        	$this->db->set('created_at',date('Y-m-d'));
 			$this->db->insert('tb_jurnal');
 			$id_jurnal = $this->db->insert_id();
 		}
@@ -856,6 +858,8 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('vendor', $vendor);
 				$this->db->set('grn_no', $document_number);
 				$this->db->set('keterangan', strtoupper("pembayaran purchase order"));
+				$this->db->set('created_by',config_item('auth_person_name'));
+        		$this->db->set('created_at',date('Y-m-d'));
 				$this->db->insert('tb_jurnal');
 				$id_jurnal = $this->db->insert_id();
 
@@ -1513,6 +1517,8 @@ class Payment_Model extends MY_MODEL
 		$this->db->set('vendor', $vendor);
 		$this->db->set('grn_no', $no_jurnal);
 		$this->db->set('keterangan', strtoupper("pembayraran purchase order"));
+		$this->db->set('created_by',config_item('auth_person_name'));
+        $this->db->set('created_at',date('Y-m-d'));
 		$this->db->insert('tb_jurnal');
 		$id_jurnal = $this->db->insert_id();
 

@@ -566,10 +566,12 @@ class Expense_Closing_Payment_Model extends MY_Model
             if($type=='CASH2'){
                 $this->db->set('no_jurnal', $document_number);
                 $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
-                $this->db->set('source', "AP");
+                $this->db->set('source', "AP-EXP");
                 $this->db->set('vendor', $vendor);
                 $this->db->set('grn_no', $document_number);
                 $this->db->set('keterangan', strtoupper("pembayaran purchase order"));
+                $this->db->set('created_by',config_item('auth_person_name'));
+                $this->db->set('created_at',date('Y-m-d'));
                 $this->db->insert('tb_jurnal');
                 $id_jurnal = $this->db->insert_id();
             }
@@ -723,6 +725,8 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->db->set('vendor', $vendor);
         $this->db->set('grn_no', $no_jurnal);
         $this->db->set('keterangan', strtoupper("pembayaran expense payment"));
+        $this->db->set('created_by',config_item('auth_person_name'));
+        $this->db->set('created_at',date('Y-m-d'));
         $this->db->insert('tb_jurnal');
         $id_jurnal = $this->db->insert_id();
 
