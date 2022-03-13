@@ -851,6 +851,10 @@ class Payment_Model extends MY_MODEL
 			$this->db->insert('tb_po_payments');
 			$po_payment_id = $this->db->insert_id();
 
+			$this->db->set('document_number', $document_number);
+            $this->db->set('source', 'EXPENSE');            
+            $this->db->insert('tb_po_payment_no_transaksi');
+
 			if($type=='CASH2'){
 				$this->db->set('no_jurnal', $document_number);
 				$this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
@@ -1131,7 +1135,7 @@ class Payment_Model extends MY_MODEL
 		return $return;
 	}
 
-	public function findById($id)
+	public function findById_2($id)
 	{
 		// $this->db->where('id', $id);
 
@@ -1192,6 +1196,105 @@ class Payment_Model extends MY_MODEL
 					$payment['items'][$key]['item']				= $this->additionalPriceInfo($value['id_po']);
 				}
 			}			
+			
+		}
+		$payment['total_amount'] = $total;
+
+		return $payment;
+	}
+
+	public function findById($id)
+	{
+		// $this->db->where('id', $id);
+
+		$this->db->select('tb_po_payments.*,tb_master_coa.group');
+		$this->db->join('tb_master_coa','tb_master_coa.coa = tb_po_payments.coa_kredit','left');
+		$this->db->from('tb_po_payments');
+		$this->db->where('tb_po_payments.id', $id);
+		$query = $this->db->get();
+		$payment = $query->unbuffered_row('array');
+		$payment['no_transaksi'] = $payment['document_number'];
+
+		$select = array(
+			'sum(tb_purchase_order_items_payments.amount_paid) as amount_paid',
+			'sum(tb_purchase_order_items_payments.quantity_paid) as quantity_paid',
+			'tb_purchase_order_items_payments.id_po',
+			'tb_purchase_order_items_payments.po_payment_id',
+			'tb_po.document_number',
+			'tb_po.due_date',
+			
+		);
+
+		$this->db->select($select);
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
+		$this->db->where('tb_purchase_order_items_payments.po_payment_id', $id);
+		$this->db->order_by('tb_purchase_order_items_payments.id_po','asc');
+		$this->db->group_by(array(
+            'tb_purchase_order_items_payments.id_po',
+			'tb_purchase_order_items_payments.po_payment_id',
+			'tb_po.document_number',
+			'tb_po.due_date',
+        ));
+
+		$query_item = $this->db->get();
+		$total = 0;
+
+		foreach ($query_item->result_array() as $key => $value) {
+			$payment['po'][$key] = $value;
+			$total = $total+$value['amount_paid'];
+
+			$select = array(
+				// 'tb_po_item.part_number',
+				'tb_purchase_order_items_payments.deskripsi as description',
+				'tb_purchase_order_items_payments.amount_paid',
+				'tb_purchase_order_items_payments.quantity_paid',
+				'tb_purchase_order_items_payments.purchase_order_item_id',
+				'tb_purchase_order_items_payments.id_po',
+				'tb_purchase_order_items_payments.uang_muka',
+				'tb_purchase_order_items_payments.id',
+				'tb_purchase_order_items_payments.quantity_paid',
+				'tb_po.document_number',
+				'tb_po.default_currency',
+				'tb_po.tipe_po',
+				'tb_po.due_date',
+				'tb_po.tipe'
+				
+			);
+
+			$this->db->select($select);
+			$this->db->from('tb_purchase_order_items_payments');
+			$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
+			$this->db->where('tb_purchase_order_items_payments.po_payment_id', $value['po_payment_id']);
+			$this->db->where('tb_purchase_order_items_payments.id_po', $value['id_po']);
+			$this->db->order_by('tb_purchase_order_items_payments.purchase_order_item_id','asc');
+
+			$query_item = $this->db->get();
+			foreach ($query_item->result_array() as $i => $value) {
+				$payment['po'][$key]['items'][$i] = $value;
+				// $total = $total+$value['amount_paid'];
+				if($value['purchase_order_item_id']!=null){
+					$item 										= $this->getItemPoById($value['purchase_order_item_id']);
+					$payment['po'][$key]['items'][$i]['poe_number'] 		= $item['poe_number'];
+					$poe 										= $this->getPoe($item['poe_number']);
+					$payment['po'][$key]['items'][$i]['poe_id'] 			= $poe['id'];
+					$payment['po'][$key]['items'][$i]['poe_type'] 		= $poe['tipe'];
+					$payment['po'][$key]['items'][$i]['item'] 			= $item;
+					$payment['po'][$key]['items'][$i]['request_number'] 	= $item['purchase_request_number'];
+					$payment['po'][$key]['items'][$i]['request_id'] 		= $this->getRequestId($item['purchase_request_number'],$value['tipe_po']);
+					$payment['po'][$key]['items'][$i]['history']          = $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);	
+				}else{				
+					$payment['po'][$key]['items'][$i]['poe_number'] 		= null;
+					$payment['po'][$key]['items'][$i]['request_number'] 	= null;
+					$payment['po'][$key]['items'][$i]['history']          = $this->getHistory($value['id'],$value['id_po']);
+					$payment['po'][$key]['items'][$i]['grn']				= [];
+					if($value['id_po']!=0){
+						$payment['po'][$key]['items'][$i]['item']				= $this->additionalPriceInfo($value['id_po']);
+					}
+				}			
+				
+			}
+					
 			
 		}
 		$payment['total_amount'] = $total;
@@ -1544,105 +1647,106 @@ class Payment_Model extends MY_MODEL
 		$this->db->where('id', $po_payment_id);
 		$this->db->update('tb_po_payments');
 
+		foreach ($_SESSION['payment']['po'] as $i => $po){
+			foreach ($po['items'] as $j => $key) {
+				$id_po = $key['id_po'];
+				$status = $this->get_status_po($id_po);
 
-		foreach ($_SESSION['payment']['items'] as $i => $key) {
-			$id_po = $key['id_po'];
-			$status = $this->get_status_po($id_po);
-
-			// $this->db->set('purchase_order_item_id', $key["document_number"]);
-			// $this->db->set('amount_paid', $key["value"]);
-			// $this->db->set('created_by', config_item('auth_person_name'));
-			$this->db->set('no_cheque', $no_cheque);
-			$this->db->set('tanggal', $tanggal);
-			$this->db->set('status', "PAID");
-			$this->db->set('coa_kredit', $account);
-			$this->db->set('akun_kredit', $jenis);
-			$this->db->set('paid', $key["amount_paid"]);
-			// if ($status == "ORDER") {
-			// 	$this->db->set('uang_muka', $key["value"]);
-			// }
-			if ($currency == 'USD') {
-				$this->db->set('kurs', $kurs);
-			} else {
-				$this->db->set('kurs', 1);
-			}
-			$this->db->where('id', $key["id"]);
-			$this->db->update('tb_purchase_order_items_payments');
-
-			if($key['purchase_order_item_id']!==null){
-				$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["amount_paid"], false);
-				// $this->db->set('payment', '"payment" + ' . $key["value"], false);
-				$this->db->where('id', $key["purchase_order_item_id"]);
-				$this->db->update('tb_po_item');
-			}else{
-				$this->db->set('additional_price_remaining', '"additional_price_remaining" - ' . $key["amount_paid"], false);
-				// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
-				$this->db->where('id', $id_po);
-				$this->db->update('tb_po');
-			}
-
-			$this->db->set('remaining_payment', '"remaining_payment" - ' . $key["amount_paid"], false);
-			$this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
-			$this->db->where('id', $id_po);
-			$this->db->update('tb_po');
-
-			if ($currency == 'IDR') {
-				$amount_idr = $key["amount_paid"];
-				$amount_usd = $key["amount_paid"] / $kurs;
-			} else {
-				$amount_usd = $key["amount_paid"];
-				$amount_idr = $key["amount_paid"] * $kurs;
-			}
-
-			if ($key['uang_muka'] > 0) {
-				if ($currency == 'IDR') {
-					$id_master_akun = 3;
+				// $this->db->set('purchase_order_item_id', $key["document_number"]);
+				// $this->db->set('amount_paid', $key["value"]);
+				// $this->db->set('created_by', config_item('auth_person_name'));
+				$this->db->set('no_cheque', $no_cheque);
+				$this->db->set('tanggal', $tanggal);
+				$this->db->set('status', "PAID");
+				$this->db->set('coa_kredit', $account);
+				$this->db->set('akun_kredit', $jenis);
+				$this->db->set('paid', $key["amount_paid"]);
+				// if ($status == "ORDER") {
+				// 	$this->db->set('uang_muka', $key["value"]);
+				// }
+				if ($currency == 'USD') {
+					$this->db->set('kurs', $kurs);
 				} else {
-					$id_master_akun = 4;
+					$this->db->set('kurs', 1);
 				}
-				$jenis_transaksi = 'Down Payment Inventories ' . $currency;
-				// $this->db->set('uang_muka', '"uang_muka" + ' . $key["value"], false);
-				// $this->db->where('id', $key["document_number"]);
-				// $this->db->update('tb_po_item');
-			} else {
+				$this->db->where('id', $key["id"]);
+				$this->db->update('tb_purchase_order_items_payments');
+
+				if($key['purchase_order_item_id']!==null){
+					$this->db->set('left_paid_amount', '"left_paid_amount" - ' . $key["amount_paid"], false);
+					// $this->db->set('payment', '"payment" + ' . $key["value"], false);
+					$this->db->where('id', $key["purchase_order_item_id"]);
+					$this->db->update('tb_po_item');
+				}else{
+					$this->db->set('additional_price_remaining', '"additional_price_remaining" - ' . $key["amount_paid"], false);
+					// $this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
+					$this->db->where('id', $id_po);
+					$this->db->update('tb_po');
+				}
+
+				$this->db->set('remaining_payment', '"remaining_payment" - ' . $key["amount_paid"], false);
+				$this->db->set('payment', '"payment" + ' . $key["amount_paid"], false);
+				$this->db->where('id', $id_po);
+				$this->db->update('tb_po');
+
 				if ($currency == 'IDR') {
-					$id_master_akun = 1;
+					$amount_idr = $key["amount_paid"];
+					$amount_usd = $key["amount_paid"] / $kurs;
 				} else {
-					$id_master_akun = 2;
+					$amount_usd = $key["amount_paid"];
+					$amount_idr = $key["amount_paid"] * $kurs;
 				}
-				$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
-			}
-			$akun = get_set_up_akun($id_master_akun);
 
-			$this->db->set('id_jurnal', $id_jurnal);
-			$this->db->set('jenis_transaksi', strtoupper($akun->group));
-			$this->db->set('trs_kredit', 0);
-			$this->db->set('trs_debet', $amount_idr);
-			$this->db->set('trs_kredit_usd', 0);
-			$this->db->set('trs_debet_usd', $amount_usd);
-			$this->db->set('kode_rekening', $akun->coa);
-			$this->db->set('currency', $currency);
-			$this->db->insert('tb_jurnal_detail');
+				if ($key['uang_muka'] > 0) {
+					if ($currency == 'IDR') {
+						$id_master_akun = 3;
+					} else {
+						$id_master_akun = 4;
+					}
+					$jenis_transaksi = 'Down Payment Inventories ' . $currency;
+					// $this->db->set('uang_muka', '"uang_muka" + ' . $key["value"], false);
+					// $this->db->where('id', $key["document_number"]);
+					// $this->db->update('tb_po_item');
+				} else {
+					if ($currency == 'IDR') {
+						$id_master_akun = 1;
+					} else {
+						$id_master_akun = 2;
+					}
+					$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
+				}
+				$akun = get_set_up_akun($id_master_akun);
 
-			//    $this->db->where('id_po',$key["document_number"]);
-			//    $this->db->from('tb_hutang');
-			//    $query  = $this->db->get();
-			// $result_hutang = $query->result_array();
+				$this->db->set('id_jurnal', $id_jurnal);
+				$this->db->set('jenis_transaksi', strtoupper($akun->group));
+				$this->db->set('trs_kredit', 0);
+				$this->db->set('trs_debet', $amount_idr);
+				$this->db->set('trs_kredit_usd', 0);
+				$this->db->set('trs_debet_usd', $amount_usd);
+				$this->db->set('kode_rekening', $akun->coa);
+				$this->db->set('currency', $currency);
+				$this->db->insert('tb_jurnal_detail');
 
-			// foreach ($result_hutang as $hutang) {
-			// 	if($hutang[])
-			// }
-			$left_qty_po = leftQtyPo($id_po);
-			$left_amount_po = leftAmountPo($id_po);
-			if ($left_amount_po == 0) {
-				$this->db->where('id', $id_po);
-				$this->db->set('status', 'ADVANCE');
-				$this->db->update('tb_po');
-			}
-			if ($left_qty_po == 0 && $left_amount_po == 0) {
-				$this->db->where('id', $id_po);
-				$this->db->set('status', 'CLOSED');
-				$this->db->update('tb_po');
+				//    $this->db->where('id_po',$key["document_number"]);
+				//    $this->db->from('tb_hutang');
+				//    $query  = $this->db->get();
+				// $result_hutang = $query->result_array();
+
+				// foreach ($result_hutang as $hutang) {
+				// 	if($hutang[])
+				// }
+				$left_qty_po = leftQtyPo($id_po);
+				$left_amount_po = leftAmountPo($id_po);
+				if ($left_amount_po == 0) {
+					$this->db->where('id', $id_po);
+					$this->db->set('status', 'ADVANCE');
+					$this->db->update('tb_po');
+				}
+				if ($left_qty_po == 0 && $left_amount_po == 0) {
+					$this->db->where('id', $id_po);
+					$this->db->set('status', 'CLOSED');
+					$this->db->update('tb_po');
+				}
 			}
 		}
 

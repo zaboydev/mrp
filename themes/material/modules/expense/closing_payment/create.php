@@ -16,10 +16,10 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="[auto]" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" readonly>
+                    <input type="text" name="pr_number" maxlength="6" id="pr_number" class="form-control" value="<?= $_SESSION['request_closing']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
                     <label for="pr_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon" id="format_number"><?=request_payment_format_number($_SESSION['request_closing']['type']);?></span>
+                  <span class="input-group-addon" id="format_number"><?=payment_request_format_number($_SESSION['request_closing']['type']);?></span>
                 </div>
               </div>
 
@@ -56,7 +56,7 @@
               </div>
 
               <div class="form-group">
-                <select name="account" id="account" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account'); ?>" required>
+                <select name="account" id="account" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account'); ?>" required>
                     <option value="">-- SELECT Account --</option>
                     <?php foreach (getAccount($_SESSION['request_closing']['type']) as $key => $account) : ?>
                         <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['request_closing']['coa_kredit']) ? 'selected' : ''; ?>>
@@ -69,7 +69,7 @@
             </div>
             <div class="col-sm-12 col-lg-4">
               <div class="form-group">
-                <input type="vendor" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['request_closing']['vendor']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required">
+                <input type="text" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['request_closing']['vendor']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required" data-search="<?= site_url($module['route'] . '/search_vendor'); ?>">
                 <label for="vendor">Pay To</label>
               </div>
 
@@ -90,7 +90,6 @@
                 <tr>
                   <th></th>
                   <th>PR Number</th>
-                  <th>Akun</th>
                   <th>Ref. IPC</th>
                   <th>Expense Notes</th>
                   <th class="text-right">Amount</th>
@@ -98,31 +97,43 @@
               </thead>
               <tbody>
                 <?php foreach ($_SESSION['request_closing']['items'] as $i => $items) : ?>
-                  <?php $grand_total[] = $items['amount']; ?>
+                  <?php $grand_total[] = $items['total']; ?>
                   <tr id="row_<?= $i; ?>">
-                    <td><?= print_string($items['request_id']); ?> - <?= print_string($items['id']); ?></td>
-                    <td class="">
+                    <td>
+                      <a  href="javascript:;" title="show detail" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $i ?>" data-row="<?= $i ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                      </a>
+                    </td>
+                    <td class="" style="font-weight:500;">
                       <?= print_string($items['pr_number']); ?>
                     </td>
-                    <td class="">
-                      <?= print_string($items['account_code']); ?> - <?= print_string($items['account_name']); ?>
-                    </td>
-                    <td class="">
+                    <!-- <td class="" style="font-weight:500;">
                       <?= print_string($items['reference_ipc']); ?> 
-                    </td>
-                    <td class="">
+                    </td> -->
+                    <td class="" style="font-weight:500;word-wrap:break-word;">
                       <?= print_string($items['notes']); ?> 
                     </td>
-                    <td>
-                      <?= print_number($items['amount'], 2); ?>
+                    <td style="font-weight:500;">
+                      <?= print_number($items['total'], 2); ?>
                     </td>
                   </tr>
+                  <?php foreach ($items['request_detail'] as $j => $detail) : ?>                    
+                    <tr class="detail_<?= $i; ?> hide">
+                      <td></td>
+                      <!-- <td></td> -->
+                      <td class="" colspan="2">
+                        <?= print_string($detail['account_code']); ?> - <?= print_string($detail['account_name']); ?>
+                      </td>
+                      <td>
+                        <?= print_number($detail['total'], 2); ?>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
                 <?php endforeach; ?>
               </tbody>
               <tfoot>
                 <th></th>
                 <th>Total</th>
-                <th></th>
+                <!-- <th></th> -->
                 <th></th>
                 <th><?= print_number(array_sum($grand_total), 2); ?></th>
               </tfoot>
@@ -133,7 +144,9 @@
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
-            
+            <a href="<?=site_url($module['route'] .'/add_item');?>" onClick="return popup(this, 'add_item')" class="btn btn-primary ink-reaction">
+              Select Request
+            </a>
           </div>
           
 
@@ -337,6 +350,18 @@
       startDate: today_2,
     });
 
+    // $('#vendor').on('click focus', function() {
+      $.ajax({
+        url: $('#vendor').data('search'),
+        dataType: "json",
+        success: function(resource) {
+          $( "#vendor" ).autocomplete({
+            source: resource
+          });
+        }
+      });
+    // });
+
     $(document).on('click', '.btn-xhr-submit', function(e) {
       e.preventDefault();
 
@@ -488,6 +513,20 @@
       });
     });
 
+    //klik icon mata utk lihat item po
+    $("#table-document").on("click", ".btn_view_detail", function() {
+      console.log('klik detail');
+      var selRow = $(this).data("row");
+      var tipe = $(this).data("tipe");
+      if (tipe == "view") {
+        $(this).data("tipe", "hide");
+        $('.detail_' + selRow).removeClass('hide');
+      } else {
+        $(this).data("tipe", "view");
+        $('.detail_' + selRow).addClass('hide');
+      }
+    })
+
     $('#type').change(function() {
       type_trs = $(this).val();
       var account_view = $('#account');
@@ -507,6 +546,7 @@
 
           format_number_view.html('');
           format_number_view.html(data.format_number);
+          $('#pr_number').val(data.document_number).trigger('change');
         }
       });
 

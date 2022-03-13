@@ -176,7 +176,7 @@ class Payment extends MY_Controller
       $_SESSION['payment_request']['po']                  = array();
       $_SESSION['payment_request']['category']            = $category;
       $_SESSION['payment_request']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';
-      $_SESSION['payment_request']['document_number']     = payment_request_last_number();
+      $_SESSION['payment_request']['document_number']     = payment_request_last_number($_SESSION['payment_request']['type']);
       $_SESSION['payment_request']['date']                = date('Y-m-d');
       $_SESSION['payment_request']['purposed_date']       = date('Y-m-d');
       $_SESSION['payment_request']['created_by']          = config_item('auth_person_name');
@@ -398,7 +398,7 @@ class Payment extends MY_Controller
       } else {
         $errors = array();
 
-        $_SESSION['payment_request']['document_number'] = payment_request_last_number();
+        // $_SESSION['payment_request']['document_number'] = payment_request_last_number();
 
         $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number($_SESSION['payment_request']['type']);
 
@@ -475,10 +475,12 @@ class Payment extends MY_Controller
       $option .= '<option value="' . $account['coa'] . '">' . $account['coa'] . ' - ' . $account['group'] . '</option>';
     }
     $format_number = payment_request_format_number($type);
+    $document_number = payment_request_last_number($type);
 
     $return = [
       'account' => $option,
-      'format_number' => $format_number
+      'format_number' => $format_number,
+      'document_number' => $document_number
     ];
     echo json_encode($return);
   }
@@ -647,7 +649,7 @@ class Payment extends MY_Controller
     $_SESSION['payment']['po_payment_id']              = $item['id'];
     $_SESSION['payment']['total_amount']          = 0;
     $_SESSION['payment']['attachment']            = array();
-    foreach ($_SESSION['payment']['items'] as $i => $item){
+    foreach ($_SESSION['payment']['po'] as $i => $item){
       $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$item['amount_paid'];
     }
     // $_SESSION['payment']['total_amount']          = $item['items']->sum('amount_paid');
@@ -776,6 +778,14 @@ class Payment extends MY_Controller
     $this->render_view($this->module['view'] . '/add_item');
   }
 
+  public function set_doc_number()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['document_number'] = $_GET['data'];
+  }
+
   public function set_type_transaction()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -819,36 +829,41 @@ class Payment extends MY_Controller
 
   public function set_default_currency($currency)
   {
-    // $this->authorized($this->module, 'document');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
 
-    // $currency = urldecode($currency);
-
-    // $_SESSION['payment_request']['currency']  = $currency;
+    // $_SESSION['payment_request']['currency'] = $_GET['data'];
     // $_SESSION['payment_request']['po']   = array();
 
-    // redirect($this->module['route'] . '/create_2');
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $this->authorized($this->module, 'document');
 
-    $_SESSION['payment_request']['currency'] = $_GET['data'];
-    $_SESSION['payment_request']['po']   = array();
+    $currency = urldecode($currency);
+
+    $_SESSION['payment_request']['vendor']              = NULL;
+    $_SESSION['payment_request']['currency']            = $currency;
+    $_SESSION['payment_request']['po']                  = array();
+    $_SESSION['payment_request']['total_amount']        = 0;
+
+    redirect($this->module['route'] . '/create_2');
   }
 
   public function set_vendor($vendor)
   {
-    // $this->authorized($this->module, 'document');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
 
-    // $vendor = urldecode($vendor);
-
-    // $_SESSION['payment_request']['vendor']  = $vendor;
+    // $_SESSION['payment_request']['vendor'] = $_GET['data'];
     // $_SESSION['payment_request']['po']   = array();
 
-    // redirect($this->module['route'] . '/create_2');
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $this->authorized($this->module, 'document');
 
-    $_SESSION['payment_request']['vendor'] = $_GET['data'];
-    $_SESSION['payment_request']['po']   = array();
+    $vendor = urldecode($vendor);
+
+    $_SESSION['payment_request']['vendor']              = $vendor;
+    $_SESSION['payment_request']['po']                  = array();
+    $_SESSION['payment_request']['total_amount']        = 0;
+
+    redirect($this->module['route'] . '/create_2');
   }
 
   public function add_selected_item()
@@ -862,7 +877,7 @@ class Payment extends MY_Controller
     } else {
       if (isset($_POST['po_id']) && !empty($_POST['po_id'])) {
         $_SESSION['payment_request']['po'] = array();
-
+        $total_amount = array();
         foreach ($_POST['po_id'] as $key => $po_id) {
           // $item_id_explode  = explode('-', $item_id);
           // $po_id = $item_id_explode[0];
@@ -904,6 +919,7 @@ class Payment extends MY_Controller
                 'qty_paid'            => floatval($value['quantity']-$value['quantity_paid'])
               );
               $i++;
+              $total_amount[] = $value['left_paid_request'];
             }            
           }
 
@@ -925,10 +941,11 @@ class Payment extends MY_Controller
               'adj_value'           => floatval(0),
               'qty_paid'            => floatval(1)
             );
+            $total_amount[] = $po['additional_price_remaining_request'];
           }
         }
 
-        $_SESSION['payment_request']['total_amount'] = 0;
+        $_SESSION['payment_request']['total_amount'] = array_sum($total_amount);
 
         $data['success'] = TRUE;
       } else {
@@ -1153,6 +1170,20 @@ class Payment extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function search_vendor()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $entities = search_vendors_by_currency($_SESSION['payment_request']['currency']);
+
+    foreach ($entities as $vendor){
+      $arr_result[] = $vendor->vendor;
+    }
+
+    echo json_encode($arr_result);
   }
 
 }
