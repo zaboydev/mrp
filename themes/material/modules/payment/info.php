@@ -86,8 +86,6 @@
                 <th>Att Invoice/Other</th>
                 <th>Due Date</th>
                 <th>Currency</th>
-                <!-- <th>P/N</th> -->
-                <th>Description</th>
                 <th>POE#</th>
                 <th>Request Number</th>
                 <th align="right">Qty Request Payment</th>
@@ -125,12 +123,6 @@
                   </td>
                   <td>
                     <?= print_string($entity['currency']); ?>
-                  </td>
-                  <!-- <td>
-                    <?= print_string($detail['part_number']); ?>
-                  </td> -->
-                  <td>
-                    <?= print_string($detail['description']); ?>
                   </td>
                   <td>
                     <?php if($detail['poe_number']!=null):?>
