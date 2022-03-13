@@ -87,7 +87,7 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['payment_request']['document_number']; ?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
+                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['payment_request']['document_number']; ?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
                     <label for="document_number">Purpose Number</label>
                   </div>
                   <span class="input-group-addon" id="format_number"><?=payment_request_format_number($_SESSION['payment_request']['type']);?></span>
@@ -95,12 +95,12 @@
               </div>
 
               <div class="form-group">
-                <input type="text" name="document_date" id="document_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['payment_request']['date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_date');?>" required>
+                <input type="text" name="document_date" id="document_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['payment_request']['date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_date');?>" required>
                 <label for="document_date">Date</label>
               </div>
 
               <div class="form-group">
-                <input type="text" name="purposed_date" id="purposed_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['payment_request']['purposed_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_purposed_date');?>" required>
+                <input type="text" name="purposed_date" id="purposed_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['payment_request']['purposed_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_purposed_date');?>" required>
                 <label for="purposed_date"> Purposed Date</label>
               </div>
 
@@ -204,7 +204,7 @@
                   <td><?= print_number($detail['payment'], 2) ?></td>
                   <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment_request'] ?>" type="hidden"><?= print_number($detail['remaining_payment_request'], 2) ?></td>
                   <td></td>
-                  <td><input name="request[<?= $i; ?>]" id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="0"></td>
+                  <td><input name="request[<?= $i; ?>]" id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="<?=$detail['remaining_payment_request']?>"></td>
                   <td><button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="fa fa-angle-right"></i></button></td>
                   <td><a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['po_id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
                   <td></td>
@@ -249,7 +249,7 @@
                         <input name="qty_paid[]" id="in_qty_paid_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="in_qty_paid_<?= $no ?> form-control-payment" value="<?= $detail_po['quantity']-$detail_po['quantity_paid'] ?>">
                     </td>
                     <td>
-                        <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control-payment" value="0">
+                        <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control-payment" value="<?=$detail_po['left_paid_request']?>">
                     </td>
                     <td>
                         <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
@@ -268,7 +268,7 @@
             <tfoot>
               <tr>
                 <td colspan="11" style="text-align: right;">Total Applied</td>
-                <td id="total_general">0</td>
+                <td id="total_general"><?= print_number($_SESSION['payment_request']['total_amount'],2); ?></td>
                 <td></td>
                 <td></td>
               </tr>
@@ -716,8 +716,8 @@
         //   sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
         //   $("#in_item_" + selRow + "_" + po).val(sisa_item)
         // });
-        $('.detail_' + selRow).removeClass('hide');
-        $("#in_" + selRow).attr('readonly', true);
+        //$('.detail_' + selRow).removeClass('hide');//menghilangkan open otomatis detail po ketika value yang diinput di PO sama dengan sisa value
+        // $("#in_" + selRow).attr('readonly', true);
       }
     }else{
       $(this).val(0)

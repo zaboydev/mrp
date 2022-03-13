@@ -47,7 +47,7 @@
                     </tr>
                     <tr>
                         <td style="font-weight:bolder;">Total Payment</td>
-                        <td><?=$_SESSION['payment_request']['total_amount'];?></td>
+                        <td><?=print_number($_SESSION['payment_request']['total_amount'],2);?></td>
                     </tr>
                 </table>
             </div>

@@ -91,33 +91,46 @@
             <tbody id="table_contents">
               <?php $n = 0; ?>
               <?php $amount_paid = array(); ?>
-              <?php foreach ($entity['items'] as $i => $detail) : ?>
+              <?php foreach ($entity['request'] as $i => $request) : ?>
                 <?php $n++; ?>
                 <tr>
                   <td class="no-space">
                     <?= print_number($n); ?>
                   </td>
                   <td>
-                    <a href="<?= site_url('closing_expense_request/print_request/' . $detail['request_id'].'/'.$entity['source']) ?>" target="_blank"><?=print_string($detail['pr_number'])?></a>
-                    <span style="display:block;font-size:10px;font-style:italic;"><?= print_string($detail['tipe']); ?></span>
+                    <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                    </a>
+                    <a href="<?= site_url('closing_expense_request/print_request/' . $request['request_id'].'/'.$entity['source']) ?>" target="_blank"><?=print_string($request['pr_number'])?></a>
                   </td>                  
                   <td>
-                  <?php if($detail['request_id']!=0 && $detail['request_id']!=null):?>
-                  <?php //if(isAttachementExists($detail['id_po'],'PO')):?>
-                    <a href="<?= site_url('expense_request/manage_attachment/' . $detail['request_id']); ?>" onClick="return popup(this, 'attachment')" data-id="<?=$grn['id']?>" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
+                  <?php if($request['request_id']!=0 && $request['request_id']!=null):?>
+                    <a href="<?= site_url('expense_request/manage_attachment/' . $request['request_id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
                       <i class="fa fa-eye"></i>
                     </a>
-                  <?php //endif;?>
                   <?php endif;?>
                   </td>
                   <td>
-                    <?= print_string($detail['deskripsi']); ?>
+                    <?= print_string($request['remarks']); ?>
                   </td>
                   <td>
-                    <?= print_number($detail['amount_paid'], 2); ?>
-                    <?php $amount_paid[] = $detail['amount_paid']; ?>
+                    <?= print_number($request['amount_paid'], 2); ?>
+                    <?php $amount_paid[] = $request['amount_paid']; ?>
                   </td>
                 </tr>
+                <?php foreach ($request['items'] as $j => $item) : ?>
+                
+                  <tr class="detail_<?=$n?> hide">
+                    <td class="no-space">
+                      
+                    </td>
+                    <td colspan="3">
+                      <?= print_string($item['deskripsi']); ?>
+                    </td>
+                    <td>
+                      <?= print_number($item['amount_paid'], 2); ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
               <?php endforeach; ?>
             </tbody>
             <tfoot>
@@ -215,4 +228,18 @@
     if (!window.focus) return true;
     else return false;
   }
+
+  //klik icon mata utk lihat item po
+  $("#table_contents").on("click", ".btn_view_detail", function() {
+    console.log('klik detail');
+    var selRow = $(this).data("row");
+    var tipe = $(this).data("tipe");
+    if (tipe == "view") {
+      $(this).data("tipe", "hide");
+      $('.detail_' + selRow).removeClass('hide');
+    } else {
+      $(this).data("tipe", "view");
+      $('.detail_' + selRow).addClass('hide');
+    }
+  })
 </script>

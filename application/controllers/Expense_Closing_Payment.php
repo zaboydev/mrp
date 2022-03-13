@@ -188,14 +188,14 @@ class Expense_Closing_Payment extends MY_Controller
 
         // if (isset($_SESSION['request_closing']) === FALSE){
             $_SESSION['request_closing']['items']               = $entity['items'];
-            $_SESSION['request_closing']['document__number']    = request_payment_last_number();
+            $_SESSION['request_closing']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';
+            $_SESSION['request_closing']['document_number']     = payment_request_last_number($_SESSION['request_closing']['type']);
             $_SESSION['request_closing']['date']                = date('Y-m-d');
             $_SESSION['request_closing']['purposed_date']       = date('Y-m-d');
             $_SESSION['request_closing']['notes']               = $entity['notes'];
             $_SESSION['request_closing']['closing_notes']       = NULL;
             $_SESSION['request_closing']['account']             = NULL;
             $_SESSION['request_closing']['id']                  = $expense_request_id;
-            $_SESSION['request_closing']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';;
             $_SESSION['request_closing']['created_by']          = config_item('auth_person_name');
             $_SESSION['request_closing']['currency']            = "IDR";
             $_SESSION['request_closing']['vendor']              = NULL;
@@ -216,14 +216,19 @@ class Expense_Closing_Payment extends MY_Controller
 
             $_SESSION['request_closing']['items']               = array();
             $_SESSION['request_closing']['category']            = $category;
-            $_SESSION['request_closing']['document_number']     = request_payment_last_number();
+            $_SESSION['request_closing']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';
+            $_SESSION['request_closing']['document_number']     = payment_request_last_number($_SESSION['request_closing']['type']);
             $_SESSION['request_closing']['date']                = date('Y-m-d');
             $_SESSION['request_closing']['purposed_date']       = date('Y-m-d');
+            $_SESSION['request_closing']['notes']               = NULL;
+            $_SESSION['request_closing']['closing_notes']       = NULL;
+            $_SESSION['request_closing']['account']             = NULL;
             $_SESSION['request_closing']['created_by']          = config_item('auth_person_name');
             $_SESSION['request_closing']['currency']            = "IDR";
             $_SESSION['request_closing']['vendor']              = NULL;
-            $_SESSION['request_closing']['notes']               = NULL;
             $_SESSION['request_closing']['total_amount']        = 0;
+            $_SESSION['request_closing']['total_amount']        = 0;
+            $_SESSION['request_closing']['coa_kredit']          = NULL;
 
             redirect($this->module['route'] . '/create');
         }
@@ -247,17 +252,30 @@ class Expense_Closing_Payment extends MY_Controller
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
 
-            $_SESSION['request_closing']['document_number'] = request_payment_last_number().request_payment_format_number($_SESSION['request_closing']['type']);
+            // $_SESSION['request_closing']['document_number'] = request_payment_last_number().request_payment_format_number($_SESSION['request_closing']['type']);
+            $document_number = $_SESSION['request_closing']['document_number'].payment_request_format_number($_SESSION['request_closing']['type']);
 
             $errors = array();
+
+            if (isset($_SESSION['request_closing']['edit'])) {
+                if ($_SESSION['request_closing']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
+                    $errors[] = 'Duplicate Document Number: ' . $document_number. ' !';
+                }
+            } else {
+                if ($this->model->isDocumentNumberExists($document_number)) {
+                    $_SESSION['request_closing']['document_number']     = payment_request_last_number();
+                    $document_number = $_SESSION['request_closing']['document_number'] . payment_request_format_number($_SESSION['request_closing']['type']);
+                    // $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
+                }
+            }
 
             if (!isset($_SESSION['request_closing']['vendor']) || empty($_SESSION['request_closing']['vendor'])){
                 $errors[] = 'Pay To can not null! Please fill Paid to!';
             }
 
-            if (!isset($_SESSION['request_closing']['coa_kredit']) || empty($_SESSION['request_closing']['coa_kredit'])){
-                $errors[] = 'Account can not null! Please select account!';
-            }
+            // if (!isset($_SESSION['request_closing']['coa_kredit']) || empty($_SESSION['request_closing']['coa_kredit'])){
+            //     $errors[] = 'Account can not null! Please select account!';
+            // }
             if (!empty($errors)){
                 $data['success'] = FALSE;
                 $data['message'] = implode('<br />', $errors);
@@ -266,7 +284,7 @@ class Expense_Closing_Payment extends MY_Controller
                     unset($_SESSION['request_closing']);
 
                     $data['success'] = TRUE;
-                    $data['message'] = 'Expense '. $_SESSION['payment_request']['document_number'] .' has been purposed to payment. You will redirected now.';
+                    $data['message'] = 'Payment '. $document_number .' has been purposed to payment. You will redirected now.';
                 } else {
                     $data['success'] = FALSE;
                     $data['message'] = 'Error while saving this document. Please ask Technical Support.';
@@ -276,6 +294,14 @@ class Expense_Closing_Payment extends MY_Controller
         }
 
         echo json_encode($data);
+    }
+
+    public function set_doc_number()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['request_closing']['document_number'] = $_GET['data'];
     }
 
     public function set_type_transaction()
@@ -357,11 +383,13 @@ class Expense_Closing_Payment extends MY_Controller
         foreach ($accounts as $key => $account) {
           $option .= '<option value="' . $account['coa'] . '">' . $account['coa'] . ' - ' . $account['group'] . '</option>';
         }
-        $format_number = request_payment_format_number($type);
+        $format_number = payment_request_format_number($type);
+        $document_number = payment_request_last_number($type);
 
         $return = [
           'account' => $option,
-          'format_number' => $format_number
+          'format_number' => $format_number,
+          'document_number' => $document_number
         ];
         echo json_encode($return);
     }
@@ -557,5 +585,81 @@ class Expense_Closing_Payment extends MY_Controller
         $this->data['page']['title']    = "Manage Attachment Expense Payment";
         $this->data['id'] = $id;
         $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function add_item()
+    {
+        $this->authorized($this->module, 'document');
+
+        $this->data['entities'] = $this->model->listRequests();
+        $this->data['page']['title']            = 'Add Items';
+
+        $this->render_view($this->module['view'] . '/add_item');
+    }
+
+    public function add_selected_item()
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'document') == FALSE) {
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+            if (isset($_POST['request_id']) && !empty($_POST['request_id'])) {
+                $_SESSION['request_closing']['items'] = array();
+                $total_amount = array();
+                foreach ($_POST['request_id'] as $key => $request_id) {
+                    // $item_id_explode  = explode('-', $item_id);
+                    // $po_id = $item_id_explode[0];
+                    // $po_item_id = $item_id_explode[1];
+                    $request = $this->model->infoRequest($request_id);
+
+                    $_SESSION['request_closing']['items'][$request_id] = array(
+                        'request_id'                        => $request['id'],
+                        'cost_center_name'                  => $request['cost_center_name'],
+                        'notes'                             => $request['notes'],
+                        'created_by'                        => $request['created_by'],
+                        'status'                            => $request['status'],
+                        'required_date'                     => $request['required_date'],
+                        'pr_date'                           => $request['pr_date'],            
+                        'pr_number'                         => $request['pr_number'],            
+                        'process_amount'                    => $request['process_amount'],            
+                        'total'                             => $request['total'],            
+                        'amount'                            => $request['amount'],
+                        'reference_ipc'                     => $request['reference_ipc']
+                    );
+                    $_SESSION['request_closing']['items'][$request_id]['request_detail'] = $request['items'];
+                    $total_amount[] = $request['total'];
+                }
+
+                $_SESSION['request_closing']['total_amount'] = array_sum($total_amount);
+
+                $data['success'] = TRUE;
+            } else {
+                $data['success'] = FALSE;
+                $data['message'] = 'Please select any request!';
+            }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function search_vendor()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] .'/denied');
+
+        $entities = search_vendors_by_currency();
+
+        foreach ($entities as $vendor){
+            // $entities[$key]['label'] = $vendor;
+            // $arr_result[] = array(
+            //     'vendor'   => $vendor->vendor
+            // );
+            $arr_result[] = $vendor->vendor;
+        }
+
+        echo json_encode($arr_result);
     }
 }

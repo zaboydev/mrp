@@ -302,17 +302,37 @@ class Expense_Closing_Payment_Model extends MY_Model
         $request  = $query->unbuffered_row('array');
 
         $select = array(
-            'tb_request_payment_details.*'
+            'sum(tb_request_payment_details.amount_paid) as amount_paid',
+            'tb_request_payment_details.request_id',
+            'tb_request_payment_details.remarks',
+            'tb_request_payment_details.pr_number'
         );
 
         $this->connection->select($select);
         $this->connection->from('tb_request_payment_details');
         $this->connection->where('tb_request_payment_details.request_payment_id', $id);
+        $this->connection->group_by(array(
+            'tb_request_payment_details.request_id',
+            'tb_request_payment_details.remarks',
+            'tb_request_payment_details.pr_number'
+        ));
 
         $query = $this->connection->get();
 
-        foreach ($query->result_array() as $key => $value){
-            $request['items'][$key] = $value;
+        foreach ($query->result_array() as $key => $req){
+            $request['request'][$key] = $req;
+            $select = array(
+                'tb_request_payment_details.*'
+            );
+
+            $this->connection->select($select);
+            $this->connection->from('tb_request_payment_details');
+            $this->connection->where('tb_request_payment_details.request_id', $req['request_id']);
+            $query = $this->connection->get();
+
+            foreach ($query->result_array() as $i => $item){
+                $request['request'][$key]['items'][$i] = $item;
+            }
         }
 
         return $request;
@@ -494,8 +514,8 @@ class Expense_Closing_Payment_Model extends MY_Model
 
     public function isDocumentNumberExists($pr_number)
     {
-        $this->connection->where('order_number', $pr_number);
-        $query = $this->connection->get('tb_expense_purchase_requisitions');
+        $this->db->where('document_number', $pr_number);
+        $query = $this->db->get('tb_po_payment_no_transaksi');
 
         if ($query->num_rows() > 0)
           return true;
@@ -526,7 +546,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         $notes                  = (empty($_SESSION['request_closing']['closing_notes'])) ? NULL : $_SESSION['request_closing']['closing_notes'];
         $account                = $_SESSION['request_closing']['coa_kredit'];
         $type                   = $_SESSION['request_closing']['type'];
-        $document_number        = $_SESSION['request_closing']['document_number'];
+        $document_number        = $_SESSION['request_closing']['document_number'].payment_request_format_number($_SESSION['request_closing']['type']);
 
         $base                   = config_item('auth_warehouse');
         $akun_kredit            = getAccountByCode($account);
@@ -563,6 +583,10 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->connection->insert('tb_request_payments');
             $request_payment_id = $this->connection->insert_id();
 
+            $this->db->set('document_number', $document_number);
+            $this->db->set('source', 'EXPENSE');            
+            $this->db->insert('tb_po_payment_no_transaksi');
+
             if($type=='CASH2'){
                 $this->db->set('no_jurnal', $document_number);
                 $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
@@ -580,63 +604,66 @@ class Expense_Closing_Payment_Model extends MY_Model
             $request_payment_id = $document_id;
         }
 
-        foreach ($_SESSION['request_closing']['items'] as $key => $item) {
-            $total_purposed_payment[] = $item['total'];
-            $this->connection->set('request_payment_id', $request_payment_id);
-            $this->connection->set('request_item_id', $item['id']);
-            $this->connection->set('request_id', $item['request_id']);
-            $this->connection->set('pr_number', $item['pr_number']);
-            $this->connection->set('amount_paid', $item['total']);
-            $this->connection->set('remarks', $item['notes']);
-            $this->connection->set('account_code', $item['account_code']);
-            $this->connection->set('deskripsi', $item['account_code'].' '.$item['account_name']);
-            $this->connection->set('created_by', config_item('auth_person_name'));
-            $this->connection->set('adj_value', 0);
-            $this->connection->set('quantity_paid', 1);
-            $this->connection->set('uang_muka', 0);
-            $this->connection->insert('tb_request_payment_details');
+        foreach ($_SESSION['request_closing']['items'] as $key => $request) {
+            foreach ($request['request_detail'] as $j => $item) {
+                $total_purposed_payment[] = $item['total'];
+                $this->connection->set('request_payment_id', $request_payment_id);
+                $this->connection->set('request_item_id', $item['id']);
+                $this->connection->set('request_id', $item['expense_purchase_requisition_id']);
+                $this->connection->set('pr_number', $request['pr_number']);
+                $this->connection->set('amount_paid', $item['total']);
+                $this->connection->set('remarks', $request['notes']);
+                $this->connection->set('account_code', $item['account_code']);
+                $this->connection->set('deskripsi', $item['account_code'].' '.$item['account_name']);
+                $this->connection->set('created_by', config_item('auth_person_name'));
+                $this->connection->set('adj_value', 0);
+                $this->connection->set('quantity_paid', 1);
+                $this->connection->set('uang_muka', 0);
+                $this->connection->insert('tb_request_payment_details');
 
-            $this->connection->set('process_amount', '"process_amount" + ' . $item['total'], false);
-            $this->connection->where('id', $item['id']);
-            $this->connection->update('tb_expense_purchase_requisition_details');
+                $this->connection->set('process_amount', '"process_amount" + ' . $item['total'], false);
+                $this->connection->where('id', $item['id']);
+                $this->connection->update('tb_expense_purchase_requisition_details');
 
-            // $process_amount_expense = countProcessAmountExpense($item['request_id']);
-            if($this->updateStatusExpense($item['request_id'])){
-                if($type=='CASH2'){
-                    $this->connection->set('closing_date', $closing_date);
-                    $this->connection->set('status', 'close');
-                    $this->connection->set('closing_notes', $notes);
-                    $this->connection->set('closing_by', $closing_by);
-                    $this->connection->set('account', $account);
-                }else{
-                    $this->connection->set('status', 'PAYMENT PURPOSED');
-                }                
-                $this->connection->where('id', $item['request_id']);
-                $this->connection->update('tb_expense_purchase_requisitions');
-            }
-
-            if($type=='CASH2'){
-                if ($currency == 'IDR') {
-                    $amount_idr = $item['total'];
-                    $amount_usd = $item['total'] / $kurs;
-                } else {
-                    $amount_usd = $item['total'];
-                    $amount_idr = $item['total'] * $kurs;
+                // $process_amount_expense = countProcessAmountExpense($item['request_id']);
+                if($this->updateStatusExpense($item['request_id'])){
+                    if($type=='CASH2'){
+                        $this->connection->set('closing_date', $closing_date);
+                        $this->connection->set('status', 'close');
+                        $this->connection->set('closing_notes', $notes);
+                        $this->connection->set('closing_by', $closing_by);
+                        $this->connection->set('account', $account);
+                    }else{
+                        $this->connection->set('status', 'PAYMENT PURPOSED');
+                    }                
+                    $this->connection->where('id', $item['request_id']);
+                    $this->connection->update('tb_expense_purchase_requisitions');
                 }
 
-                    
-                $akun = getAccountBudgetControlByCode($item['account_code']);
+                if($type=='CASH2'){
+                    if ($currency == 'IDR') {
+                        $amount_idr = $item['total'];
+                        $amount_usd = $item['total'] / $kurs;
+                    } else {
+                        $amount_usd = $item['total'];
+                        $amount_idr = $item['total'] * $kurs;
+                    }
 
-                $this->db->set('id_jurnal', $id_jurnal);
-                $this->db->set('jenis_transaksi', strtoupper($akun->group));
-                $this->db->set('trs_kredit', 0);
-                $this->db->set('trs_debet', $amount_idr);
-                $this->db->set('trs_kredit_usd', 0);
-                $this->db->set('trs_debet_usd', $amount_usd);
-                $this->db->set('kode_rekening', $akun->coa);
-                $this->db->set('currency', $currency);
-                $this->db->insert('tb_jurnal_detail');
+                        
+                    $akun = getAccountBudgetControlByCode($item['account_code']);
+
+                    $this->db->set('id_jurnal', $id_jurnal);
+                    $this->db->set('jenis_transaksi', strtoupper($akun->group));
+                    $this->db->set('trs_kredit', 0);
+                    $this->db->set('trs_debet', $amount_idr);
+                    $this->db->set('trs_kredit_usd', 0);
+                    $this->db->set('trs_debet_usd', $amount_usd);
+                    $this->db->set('kode_rekening', $akun->coa);
+                    $this->db->set('currency', $currency);
+                    $this->db->insert('tb_jurnal_detail');
+                }
             }
+            
         }
 
 
@@ -1117,5 +1144,117 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->where('tipe', 'payment');
         $this->connection->where('type_att', 'payment');
         return $this->connection->get('tb_attachment')->result_array();
+    }
+
+    public function listRequests()
+	{
+		$this->connection->select(array(
+            'sum(tb_expense_purchase_requisition_details.amount) as amount',
+            'sum(tb_expense_purchase_requisition_details.total) as total',
+            'sum(tb_expense_purchase_requisition_details.process_amount) as process_amount',
+            'tb_expense_purchase_requisitions.pr_number',
+            'tb_expense_purchase_requisitions.pr_date',
+            'tb_expense_purchase_requisitions.required_date',
+            'tb_expense_purchase_requisitions.status',
+            'tb_expense_purchase_requisitions.created_by',
+            'tb_expense_purchase_requisitions.notes',
+            'tb_cost_centers.cost_center_name',
+            'tb_expense_purchase_requisitions.id'
+        ));
+
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
+        $this->connection->where('tb_expense_purchase_requisitions.status','approved');
+        $this->connection->where('tb_expense_purchase_requisitions.with_po','f');
+        $this->connection->group_by(
+            array(
+                'tb_expense_purchase_requisitions.pr_number',
+                'tb_expense_purchase_requisitions.pr_date',
+                'tb_expense_purchase_requisitions.required_date',
+                'tb_expense_purchase_requisitions.status',
+                'tb_expense_purchase_requisitions.created_by',
+                'tb_expense_purchase_requisitions.notes',
+                'tb_cost_centers.cost_center_name',
+                'tb_expense_purchase_requisitions.id'
+            )
+        );
+        $this->connection->order_by('tb_expense_purchase_requisitions.order_number', 'desc');
+
+        $query = $this->connection->get();
+        
+
+
+        return $query->result_array();
+    }
+    
+    public function infoRequest($id)
+    {
+        $this->connection->select(array(
+            'sum(tb_expense_purchase_requisition_details.amount) as amount',
+            'sum(tb_expense_purchase_requisition_details.total) as total',
+            'sum(tb_expense_purchase_requisition_details.process_amount) as process_amount',
+            'tb_expense_purchase_requisitions.pr_number',
+            'tb_expense_purchase_requisitions.pr_date',
+            'tb_expense_purchase_requisitions.required_date',
+            'tb_expense_purchase_requisitions.status',
+            'tb_expense_purchase_requisitions.created_by',
+            'tb_expense_purchase_requisitions.notes',
+            'tb_cost_centers.cost_center_name',
+            'tb_expense_purchase_requisitions.id',
+            // 'tb_expense_purchase_requisitions.reference_ipc'
+        ));
+
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->group_by(
+            array(
+                'tb_expense_purchase_requisitions.pr_number',
+                'tb_expense_purchase_requisitions.pr_date',
+                'tb_expense_purchase_requisitions.required_date',
+                'tb_expense_purchase_requisitions.status',
+                'tb_expense_purchase_requisitions.created_by',
+                'tb_expense_purchase_requisitions.notes',
+                'tb_cost_centers.cost_center_name',
+                'tb_expense_purchase_requisitions.id',
+                // 'tb_expense_purchase_requisitions.reference_ipc'
+            )
+        );
+        $this->connection->where('tb_expense_purchase_requisitions.id', $id);
+        $query      = $this->connection->get(); 
+        $request    = $query->unbuffered_row('array');
+
+        $select = array(
+            'tb_expense_purchase_requisition_details.*',
+            'tb_accounts.account_name',
+            'tb_accounts.account_code',
+            'tb_expense_monthly_budgets.account_id',
+        );
+
+        $group_by = array(
+            'tb_expense_purchase_requisition_details.id',
+            'tb_accounts.account_name',
+            'tb_accounts.account_code',
+            'tb_expense_monthly_budgets.account_id',
+        );
+
+        $this->connection->select($select);
+        $this->connection->from('tb_expense_purchase_requisition_details');
+        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $id);
+        $this->connection->group_by($group_by);
+
+        $query = $this->connection->get();
+
+        foreach ($query->result_array() as $key => $value){
+            $request['items'][$key] = $value;
+        }
+
+        return $request;
     }
 }
