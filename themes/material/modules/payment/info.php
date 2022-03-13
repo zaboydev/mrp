@@ -146,7 +146,7 @@
                 
                 <tr class="detail_<?=$n?> hide">                  
                   <td></td>
-                  <td colspan="5">
+                  <td colspan="4">
                     <?= print_string($item['description']); ?>
                   </td>
                   <td>
