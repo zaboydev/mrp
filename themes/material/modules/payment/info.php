@@ -86,8 +86,6 @@
                 <th>Att Invoice/Other</th>
                 <th>Due Date</th>
                 <th>Currency</th>
-                <!-- <th>P/N</th> -->
-                <th>Description</th>
                 <th>POE#</th>
                 <th>Request Number</th>
                 <th align="right">Qty Request Payment</th>
@@ -126,12 +124,6 @@
                   <td>
                     <?= print_string($entity['currency']); ?>
                   </td>
-                  <!-- <td>
-                    <?= print_string($detail['part_number']); ?>
-                  </td> -->
-                  <td>
-                    <?= print_string($detail['description']); ?>
-                  </td>
                   <td>
                     <?php if($detail['poe_number']!=null):?>
                     <a href="<?= site_url('payment/print_poe/' . $detail['poe_id'].'/'.$detail['poe_type']) ?>" target="_blank"><?=print_string($detail['poe_number'])?></a>
@@ -154,7 +146,7 @@
                 
                 <tr class="detail_<?=$n?> hide">                  
                   <td></td>
-                  <td colspan="5">
+                  <td colspan="4">
                     <?= print_string($item['description']); ?>
                   </td>
                   <td>
