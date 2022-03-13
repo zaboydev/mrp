@@ -201,7 +201,8 @@
             </thead>
             <tbody id="table_contents">
               <?php $n = 0;$grandtotal = array();?>              
-              <?php foreach ($entity['po'] as $i => $detail):?>
+              <?php foreach ($entity['po'] as $i => $item):?>
+              <?php foreach ($item['items'] as $j => $detail) : ?>
                 <?php 
                   $n++;                  
                 ?>
@@ -213,6 +214,7 @@
                     <?=print_string($detail['description']);?> <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?> - <?=print_string($detail['document_number']);?> <?php endif; ?>
                   </td>
                 </tr><?php $total = array();?>
+                <?php if(count($detail['history'])>0):?>
                 
                 <?php foreach ($detail['history'] as $i => $history):?>
                 <tr>
@@ -237,7 +239,13 @@
                     <?=print_string($history['status']);?>
                   </td>                  
                 </tr>                
-                <?php endforeach;?>                
+                <?php endforeach;?> 
+                <?php else: ?> 
+                <tr>
+                <td colspan="6" style="text-align:center;">No Historical Payment</td>
+                </tr>
+                <?php endif;?> 
+              <?php endforeach;?>              
               <?php endforeach;?>
             </tbody>
             <tfoot>
@@ -285,7 +293,8 @@
                 $total_quantity_over      = array();
                 $total_value_over         = array();
               ?>              
-              <?php foreach ($entity['items'] as $i => $detail):?>
+              <?php foreach ($entity['po'] as $i => $item):?>
+              <?php foreach ($item['items'] as $j => $detail) : ?>
                 <?php 
                   $n++;
                   $total_quantity_order[]     = $detail['item']['quantity'];
@@ -366,7 +375,12 @@
                   <td></td>
                 </tr>  
                 <?php endforeach;?>
+                <?php else: ?> 
+                <tr>
+                <td colspan="13" style="text-align:center;">No GRN Receipt</td>
+                </tr>
                 <?php endif;?>           
+              <?php endforeach;?>           
               <?php endforeach;?>
             </tbody>
             <tfoot>
