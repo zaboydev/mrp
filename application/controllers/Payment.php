@@ -829,36 +829,39 @@ class Payment extends MY_Controller
 
   public function set_default_currency($currency)
   {
-    // $this->authorized($this->module, 'document');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
 
-    // $currency = urldecode($currency);
-
-    // $_SESSION['payment_request']['currency']  = $currency;
+    // $_SESSION['payment_request']['currency'] = $_GET['data'];
     // $_SESSION['payment_request']['po']   = array();
 
-    // redirect($this->module['route'] . '/create_2');
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $this->authorized($this->module, 'document');
 
-    $_SESSION['payment_request']['currency'] = $_GET['data'];
+    $currency = urldecode($currency);
+
+    $_SESSION['payment_request']['vendor']  = NULL;
+    $_SESSION['payment_request']['currency'] = $currency;
     $_SESSION['payment_request']['po']   = array();
+
+    redirect($this->module['route'] . '/create_2');
   }
 
   public function set_vendor($vendor)
   {
-    // $this->authorized($this->module, 'document');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
 
-    // $vendor = urldecode($vendor);
-
-    // $_SESSION['payment_request']['vendor']  = $vendor;
+    // $_SESSION['payment_request']['vendor'] = $_GET['data'];
     // $_SESSION['payment_request']['po']   = array();
 
-    // redirect($this->module['route'] . '/create_2');
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $this->authorized($this->module, 'document');
 
-    $_SESSION['payment_request']['vendor'] = $_GET['data'];
+    $vendor = urldecode($vendor);
+
+    $_SESSION['payment_request']['vendor']  = $vendor;
     $_SESSION['payment_request']['po']   = array();
+
+    redirect($this->module['route'] . '/create_2');
   }
 
   public function add_selected_item()
@@ -1165,6 +1168,20 @@ class Payment extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function search_vendor()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $entities = search_vendors_by_currency($_SESSION['payment_request']['currency']);
+
+    foreach ($entities as $vendor){
+      $arr_result[] = $vendor->vendor;
+    }
+
+    echo json_encode($arr_result);
   }
 
 }

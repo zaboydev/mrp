@@ -118,14 +118,15 @@
                 </div>
 
                 <div class="form-group">
-                    <select name="vendor" id="vendor" class="form-control" data-source="<?= site_url($module['route'] . '/set_vendor/'); ?>" required>
+                    <!-- <select name="vendor" id="vendor" class="form-control" data-source="<?= site_url($module['route'] . '/set_vendor/'); ?>" required>
                     <option value="">-- SELECT VENDOR --</option>
                     <?php foreach (available_vendors_by_currency($_SESSION['payment_request']['currency']) as $v => $vendor) : ?>
                         <option value="<?= $vendor; ?>" <?= ($vendor == $_SESSION['payment_request']['vendor']) ? 'selected' : ''; ?>>
                         <?= $vendor; ?>
                         </option>
                     <?php endforeach; ?>
-                    </select>
+                    </select> -->
+                    <input type="text" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['payment_request']['vendor']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required" data-search="<?= site_url($module['route'] . '/search_vendor'); ?>">
                     <label for="vendor">Vendor</label>
                 </div>
 
@@ -431,6 +432,16 @@
     format: 'yyyy-mm-dd'
   });
 
+  $.ajax({
+    url: $('#vendor').data('search'),
+    dataType: "json",
+    success: function(resource) {
+      $( "#vendor" ).autocomplete({
+        source: resource
+      });
+    }
+  });
+
   function numberFormat(nStr) {
     nStr += '';
     x = nStr.split('.');
@@ -483,11 +494,44 @@
     }
 
   });
+
+  $('#default_currency').on('change', function(){
+    var prev = $(this).data('val');
+    var current = $(this).val();
+    var url = $(this).data('source');
+
+    if (prev != ''){
+      var conf = confirm("Changing the currency will remove the items that have been added. Continue?");
+
+      if (conf == false){
+        // return false;
+        window.location.href = url + '/' + current;
+      }
+    }
+
+    window.location.href = url + '/' + current;
+  });
+
+  $('#vendor').on('change', function(){
+    var prev = $(this).data('val');
+    var current = $(this).val();
+    var url = $(this).data('source');
+
+    if (prev != ''){
+      var conf = confirm("Changing the vendor will remove the items that have been added. Continue?");
+
+      if (conf == false){
+        return false;
+      }
+    }
+
+    window.location.href = url + '/' + current;
+  });
   
-  $('#default_currency').change(function() {
+  $('#default_currency2').change(function() {
     currency = $(this).val();
-    var supplier_view = $('#vendor');
-    supplier_view.html('');    
+    // var supplier_view = $('#vendor');
+    // supplier_view.html('');    
 
     $.ajax({
       type: "POST",
@@ -498,7 +542,7 @@
       cache: false,
       success: function(response) {
         var data = jQuery.parseJSON(response);
-        supplier_view.html(data);
+        $("#vendor").val();
       }
     });
 
@@ -519,7 +563,7 @@
 
   });
 
-  $("#vendor").change(function(e) {
+  $("#vendor2").change(function(e) {
     suplier = $("#vendor").val();
     currency = $("#default_currency").val();
     $("#total_general").html(0);
@@ -556,6 +600,7 @@
 
         format_number_view.html('');
         format_number_view.html(data.format_number);
+        $('#document_number').val(data.document_number).trigger('change');
       }
     });
 

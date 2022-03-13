@@ -653,10 +653,6 @@ class Expense_Closing_Payment extends MY_Controller
         $entities = search_vendors_by_currency();
 
         foreach ($entities as $vendor){
-            // $entities[$key]['label'] = $vendor;
-            // $arr_result[] = array(
-            //     'vendor'   => $vendor->vendor
-            // );
             $arr_result[] = $vendor->vendor;
         }
 

@@ -40,29 +40,41 @@
             <th style="text-align: center;">No</th>
             <th style="text-align: center;">ER#</th>
             <th style="text-align: center;">Description</th>
-            <th style="text-align: center;">Amount Request Payment</th>
+            <th style="text-align: right;">Amount Request Payment</th>
         </tr>
     </thead>
     <tbody>
         <?php $n = 0; ?>
         <?php $amount_paid = array(); ?>
-        <?php foreach ($entity['items'] as $i => $detail) : ?>
+        <?php foreach ($entity['request'] as $i => $request) : ?>
         <?php $n++; ?>
         <tr>
-            <td class="no-space">
+            <th class="no-space">
                 <?= print_number($n); ?>
-            </td>
-            <td>
-                <?=print_string($detail['pr_number'])?>
-            </td>
-            <td>
-                <?= print_string($detail['deskripsi']); ?>
+            </th>
+            <th>
+                <?=print_string($request['pr_number'])?>
+            </th> 
+            <th>
+                <?= print_string($request['remarks']); ?>
+            </th>
+            <th style="text-align: right;">
+                <?= print_number($request['amount_paid'], 2); ?>
+                <?php $amount_paid[] = $request['amount_paid']; ?>
+            </th>
+        </tr>
+        <?php foreach ($request['items'] as $j => $item) : ?>
+                
+        <tr>
+            <td class="no-space"></td>
+            <td colspan="2">
+                <?= print_string($item['deskripsi']); ?>
             </td>
             <td style="text-align: right;">
-                <?= print_number($detail['amount_paid'], 2); ?>
-                <?php $amount_paid[] = $detail['amount_paid']; ?>
+                <?= print_number($item['amount_paid'], 2); ?>
             </td>
         </tr>
+        <?php endforeach; ?>
         <?php endforeach; ?>
     </tbody>
     <tfoot>
