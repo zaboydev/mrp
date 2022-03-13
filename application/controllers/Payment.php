@@ -839,9 +839,10 @@ class Payment extends MY_Controller
 
     $currency = urldecode($currency);
 
-    $_SESSION['payment_request']['vendor']  = NULL;
-    $_SESSION['payment_request']['currency'] = $currency;
-    $_SESSION['payment_request']['po']   = array();
+    $_SESSION['payment_request']['vendor']              = NULL;
+    $_SESSION['payment_request']['currency']            = $currency;
+    $_SESSION['payment_request']['po']                  = array();
+    $_SESSION['payment_request']['total_amount']        = 0;
 
     redirect($this->module['route'] . '/create_2');
   }
@@ -858,8 +859,9 @@ class Payment extends MY_Controller
 
     $vendor = urldecode($vendor);
 
-    $_SESSION['payment_request']['vendor']  = $vendor;
-    $_SESSION['payment_request']['po']   = array();
+    $_SESSION['payment_request']['vendor']              = $vendor;
+    $_SESSION['payment_request']['po']                  = array();
+    $_SESSION['payment_request']['total_amount']        = 0;
 
     redirect($this->module['route'] . '/create_2');
   }
