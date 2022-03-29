@@ -746,9 +746,9 @@ class Expense_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
         redirect($this->modules['secure']['route'] . '/denied');
 
-        if (is_granted($this->module, 'document') === FALSE) {
-        $alert['type']  = 'danger';
-        $alert['info']  = 'You are not allowed to cancel this request!';
+        if (is_granted($this->module, 'document_change') === FALSE) {
+            $alert['type']  = 'danger';
+            $alert['info']  = 'You are not allowed to cancel this request!';
         } else {
             $change = $this->model->change();
             if ($change['status']) {
