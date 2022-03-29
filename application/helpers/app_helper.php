@@ -1650,6 +1650,24 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAccountMrpByCode')) {
+    function getAccountMrpByCode($code)
+    {
+      $CI =& get_instance();
+      // $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $CI->db->select('coa,group');
+      $CI->db->from( 'tb_master_coa' ); 
+      $CI->db->where('coa', $code);
+
+      $query    = $CI->db->get();
+      $row      = $query->unbuffered_row();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
   if ( ! function_exists('getMonthName')) {
     function getMonthName($month, $case = NULL)
     {
@@ -2483,6 +2501,106 @@ if (!function_exists('currency_for_vendor_list')) {
       $return = sprintf('%06s', $next);
 
       return $return;
+    }
+  }
+
+  if ( ! function_exists('saldo_format_number')) {
+    function saldo_format_number()
+    {
+      $div  = config_item('document_format_divider');
+      $year = date('Y');
+
+      $kode = 'SA';
+
+      $return = $div . $kode . $div . $year;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('saldo_last_number')) {
+    function saldo_last_number()
+    {
+      $CI =& get_instance();
+      $format = saldo_format_number();
+
+      $CI->db->select_max('transaction_number', 'last_number');
+      $CI->db->from('tb_saldo_awal');
+      $CI->db->like('transaction_number', $format);
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccountByCategory')) {
+    function getAccountByCategory($category)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('group,coa');
+      $CI->db->from( 'tb_master_coa' );
+
+      if (is_array($category)){
+        $CI->db->where_in('category', $category);
+      } else {
+        $CI->db->where('category', $category);
+      }
+
+      $CI->db->order_by('coa', "asc");
+
+      $query    = $CI->db->get();
+      $return = $query->result_array();
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('kurs')) {
+    function kurs($date)
+    {
+      $CI =& get_instance();
+      $kurs_dollar = 0;
+      $tanggal = $date;
+
+      while ($kurs_dollar == 0) {
+        $CI->db->select('kurs_dollar');
+        $CI->db->from('tb_master_kurs_dollar');
+        $CI->db->where('date', $tanggal);
+
+        $query = $CI->db->get();
+
+        if ($query->num_rows() > 0) {
+          $row    = $query->unbuffered_row();
+          $kurs_dollar   = $row->kurs_dollar;
+        } else {
+          $kurs_dollar = 0;
+        }
+        $tgl = strtotime('-1 day', strtotime($tanggal));
+        $tanggal = date('Y-m-d', $tgl);
+      }
+
+      return $kurs_dollar;
+    }
+  }
+
+  if ( ! function_exists('saldoAwalExists')) {
+    function saldoAwalExists($category)
+    {
+      $CI =& get_instance();
+      $CI->db->where('category', $category);
+      $query = $CI->db->get('tb_saldo_awal');
+
+      if ($query->num_rows() > 0)
+        return true;
+
+      return false;
     }
   }
 
