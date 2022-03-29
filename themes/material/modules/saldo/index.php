@@ -221,14 +221,39 @@
         </div>
         <div class="section-action style-default-bright">
             <div class="section-floating-action-row">
-                <?php if (is_granted($module, 'document')) : ?>                            
-                <a href="<?= site_url($module['route'] . '/create'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+                <?php if (is_granted($module, 'document')) : ?> 
+                <?php if (saldoAwalExists('Cash-Bank')) : ?>                               
+                <button data-href="<?= site_url($module['route'] . '/info/Cash-Bank'); ?>" type="button" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="btn-info">
+                    <i class="md md-assignment"></i>
+                    <small class="top right">Info Saldo Awal</small>
+                </button>
+                <?php else: ?>
+                <a href="<?= site_url($module['route'] . '/create/Cash-Bank'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
                     <i class="md md-add"></i>
                     <small class="top right">Create Transaksi</small>
                 </a>
                 <?php endif ?>
+                <?php endif ?>
             </div>
         </div>
+        <div id="data-modal" class="modal fade-scale" role="dialog" aria-labelledby="data-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-fs" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                        <h4 class="modal-title" id="data-modal-label"><?= strtoupper($module['parent']); ?></h4>
+                    </div>
+
+                    <div class="modal-body no-padding"></div>
+
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+
     </section>
 <?php endblock() ?>
 
@@ -354,6 +379,31 @@
                 String.fromCharCode(event.which).toLowerCase() === 'x')) {
             event.preventDefault();
         }
+    });
+
+    $("#btn-info").on('click', function(e) {
+        var dataModal = $('#data-modal');
+        // $(dataModal).modal('show');
+        $.ajax({
+            type: "GET",
+            url: $(this).data('href'),
+            cache: false,
+            success: function(response) {
+                var obj = $.parseJSON(response);
+                $(dataModal)
+                  .find('.modal-body')
+                  .empty()
+                  .append(obj.info);
+
+                $(dataModal).modal('show');
+              
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+              console.log(xhr.status);
+              console.log(xhr.responseText);
+              console.log(thrownError);
+            }
+        });
     });
     
 

@@ -306,6 +306,10 @@ class Cash_Request_Model extends MY_Model
     $this->db->insert('tb_cash_request');
     $cash_request_id = $this->db->insert_id();
 
+    $this->db->set('document_number', $document_number);
+    $this->db->set('source', 'CASH REQUEST');            
+    $this->db->insert('tb_po_payment_no_transaksi');
+
     foreach ($_SESSION['cash_request']['items'] as $key => $data) {
       if($data['source']=='mrp'){
         $this->db->set('cash_request','REQUEST');
@@ -720,7 +724,7 @@ class Cash_Request_Model extends MY_Model
   public function isDocumentNumberExists($document_number)
   {
     $this->db->where('document_number', $document_number);
-    $query = $this->db->get('tb_cash_request');
+    $query = $this->db->get('tb_po_payment_no_transaksi');
 
     if ($query->num_rows() > 0)
       return true;

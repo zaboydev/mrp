@@ -484,7 +484,7 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('document_number', $document_number);
       $this->db->set('issued_to', 'DELETE DOCUMENT');
       $this->db->set('issued_by', config_item('auth_person_name'));
-      $this->db->set('quantity', 0 - floatval($data['issued_quantity']));
+      $this->db->set('quantity', 0 + floatval($data['issued_quantity']));
       $this->db->set('unit_value', floatval($data['issued_unit_value']));
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('prev_quantity', floatval($prev_old_stock));
