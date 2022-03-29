@@ -197,7 +197,7 @@ class Cash_Request extends MY_Controller
 
       $_SESSION['cash_request']['items']                  = array();
       $_SESSION['cash_request']['category']            = $category;
-      $_SESSION['cash_request']['document_number']     = cash_request_order_number();
+      $_SESSION['cash_request']['document_number']     = payment_request_last_number('BANK');
       $_SESSION['cash_request']['date']                = date('Y-m-d');
       $_SESSION['cash_request']['request_by']          = config_item('auth_person_name');
       $_SESSION['cash_request']['notes']               = NULL;
@@ -230,7 +230,7 @@ class Cash_Request extends MY_Controller
         $data['success'] = FALSE;
         $data['message'] = 'Please add at least 1 item!';
       } else {
-        $_SESSION['cash_request']['document_number'] = cash_request_order_number().cash_request_format_number();
+        $_SESSION['cash_request']['document_number'] = payment_request_last_number('BANK').payment_request_format_number('BANK');
         $document_number = $_SESSION['cash_request']['document_number'];
         $errors = array();
 

@@ -16,10 +16,10 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="order_number" id="order_number" class="form-control" value="<?= (isset($_SESSION['cash_request']['edit'])) ? $_SESSION['cash_request']['document_number'] : '[auto]'; ?>" readonly>
+                    <input type="text" name="order_number" id="order_number" class="form-control" value="<?= (isset($_SESSION['cash_request']['edit'])) ? $_SESSION['cash_request']['document_number'] : $_SESSION['cash_request']['document_number']; ?>" readonly>
                     <label for="order_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon"><?= cash_request_format_number();?><?= (isset($_SESSION['cash_request']['edit'])) ? '-R' : ''; ?></span>
+                  <span class="input-group-addon"><?= payment_request_format_number('BANK');?><?= (isset($_SESSION['cash_request']['edit'])) ? '-R' : ''; ?></span>
                 </div>
               </div>
 
