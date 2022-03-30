@@ -75,23 +75,6 @@
                 <?php $amount_paid[] = $po['amount_paid']; ?>
             </td>
         </tr>
-        <?php foreach ($po['items'] as $i => $item) : ?>
-        <tr>
-            <td></td>
-            <td colspan="3" style="font-weight: normal;">
-                <?= print_string($item['description']); ?>
-            </td>
-            <td style="font-weight: normal;text-align: center;">
-                <?=print_string($item['poe_number'])?>
-            </td>
-            <td style="font-weight: normal;text-align: center;">
-                <?=print_string($item['request_number'])?>
-            </td>
-            <td style="text-align: right;font-weight: normal;">
-                <?= print_number($item['amount_paid'], 2); ?>
-            </td>
-        </tr>
-        <?php endforeach; ?>
         <?php endforeach; ?>
     </tbody>
     <tfoot>
@@ -149,4 +132,76 @@
         </td>
         <?php endif;?>
     </tr>
+</table>
+
+<p class="new-page">Detail</p>
+
+
+<div class="clear"></div>
+<table class="table" style="margin-top: 20px;" width="100%">
+    <thead>
+        <tr>
+            <th style="text-align: center;">No</th>
+            <th style="text-align: center;">PO#</th>
+            <th style="text-align: center;">Due Date</th>
+            <th style="text-align: center;">Currency</th>
+            <th style="text-align: center;">POE#</th>
+            <th style="text-align: center;">Request Number</th>
+            <th style="text-align: center;">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $n = 0; ?>
+        <?php $amount_paid = array(); ?>
+        <?php foreach ($entity['po'] as $i => $po) : ?>
+        <?php $n++; ?>
+        <tr>
+            <td style="font-weight: bold;" class="no-space">
+                <?= print_number($n); ?>
+            </td>
+            <td style="font-weight: bold;">
+                <?=print_string($po['document_number'])?>
+            </td>
+            <td style="font-weight: bold;text-align: center;">
+                <?= print_date($po['due_date'],'d/m/Y'); ?>
+            </td>
+            <td style="font-weight: bold;text-align: center;">
+                <?= print_string($entity['currency']); ?>
+            </td>
+            <td style="font-weight: bold;">
+                
+            </td>
+            <td style="font-weight: bold;">
+                
+            </td>
+            <td style="text-align: right;font-weight: bold;">
+                <?= print_number($po['amount_paid'], 2); ?>
+                <?php $amount_paid[] = $po['amount_paid']; ?>
+            </td>
+        </tr>
+        <?php foreach ($po['items'] as $i => $item) : ?>
+        <tr>
+            <td></td>
+            <td colspan="3" style="font-weight: normal;">
+                <?= print_string($item['description']); ?>
+            </td>
+            <td style="font-weight: normal;text-align: center;">
+                <?=print_string($item['poe_number'])?>
+            </td>
+            <td style="font-weight: normal;text-align: center;">
+                <?=print_string($item['request_number'])?>
+            </td>
+            <td style="text-align: right;font-weight: normal;">
+                <?= print_number($item['amount_paid'], 2); ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="6">Total</th>
+            <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
+        </tr>
+    </tfoot>
 </table>
