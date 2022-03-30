@@ -3,8 +3,8 @@
 $config['module']['capex_closing_payment']['visible']        = TRUE;
 $config['module']['capex_closing_payment']['main_warehouse'] = FALSE;
 $config['module']['capex_closing_payment']['parent']         = 'capex';
-$config['module']['capex_closing_payment']['label']          = 'Capex Closing Payment';
-$config['module']['capex_closing_payment']['name']           = 'Capex Closing Payment';
+$config['module']['capex_closing_payment']['label']          = 'Capex Purpose Payment';
+$config['module']['capex_closing_payment']['name']           = 'Capex Purpose Payment';
 $config['module']['capex_closing_payment']['route']          = 'capex_closing_payment';
 $config['module']['capex_closing_payment']['view']           = config_item('module_path') .'capex/closing_payment/';
 $config['module']['capex_closing_payment']['language']       = 'account_payable_lang';

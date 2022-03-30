@@ -63,18 +63,7 @@
                 <?php $amount_paid[] = $request['amount_paid']; ?>
             </th>
         </tr>
-        <?php foreach ($request['items'] as $j => $item) : ?>
-                
-        <tr>
-            <td class="no-space"></td>
-            <td colspan="2">
-                <?= print_string($item['deskripsi']); ?>
-            </td>
-            <td style="text-align: right;">
-                <?= print_number($item['amount_paid'], 2); ?>
-            </td>
-        </tr>
-        <?php endforeach; ?>
+        
         <?php endforeach; ?>
     </tbody>
     <tfoot>
@@ -162,4 +151,59 @@
             <?php endif; ?>
         <?php endif;?>
     </tr>
+</table>
+
+<p class="new-page">Detail</p>
+
+<div class="clear"></div>
+
+<table class="table" style="margin-top: 20px;" width="100%">
+    <thead>
+        <tr>
+            <th style="text-align: center;">No</th>
+            <th style="text-align: center;">ER#</th>
+            <th style="text-align: center;">Description</th>
+            <th style="text-align: right;">Amount Request Payment</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $n = 0; ?>
+        <?php $amount_paid = array(); ?>
+        <?php foreach ($entity['request'] as $i => $request) : ?>
+        <?php $n++; ?>
+        <tr>
+            <th class="no-space">
+                <?= print_number($n); ?>
+            </th>
+            <th>
+                <?=print_string($request['pr_number'])?>
+            </th> 
+            <th>
+                <?= print_string($request['remarks']); ?>
+            </th>
+            <th style="text-align: right;">
+                <?= print_number($request['amount_paid'], 2); ?>
+                <?php $amount_paid[] = $request['amount_paid']; ?>
+            </th>
+        </tr>
+        <?php foreach ($request['items'] as $j => $item) : ?>
+                
+        <tr>
+            <td class="no-space"></td>
+            <td colspan="2">
+                <?= print_string($item['deskripsi']); ?>
+            </td>
+            <td style="text-align: right;">
+                <?= print_number($item['amount_paid'], 2); ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="3">Total</th>
+            <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
+        </tr>
+    </tfoot>
 </table>
