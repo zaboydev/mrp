@@ -187,6 +187,47 @@
           </table>
         </div>
       </div>
+      <?php if($entity['status']=='PAID'):?>
+      <div class="col-sm-12">
+        <h3>Jurnal</h3>
+        <div class="table-responsive">
+          <table class="table table-striped table-nowrap">
+            <thead id="table_header">
+              <tr>
+                <th>No</th>
+                <th>Account</th>
+                <th>Debit</th>
+                <th>Kredit</th>
+              </tr>
+            </thead>
+            <tbody id="table_contents">
+              <?php $n = 0; ?>
+              <?php $amount_paid = array(); ?>
+              <?php foreach ($entity['jurnalDetail'] as $i => $jurnal) : ?>
+                <?php $n++; ?>
+                <tr>
+                  <td class="no-space">
+                    <?= print_number($n); ?>
+                  </td>
+                  <td>
+                    <?= print_string($jurnal['kode_rekening'])?> - <?= print_string($jurnal['jenis_transaksi'])?>
+                  </td> 
+                  <td>
+                    <?= print_number($jurnal['trs_debet'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($jurnal['trs_kredit'], 2); ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+              
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <?php endif;?>
       <div class="col-sm-12">
         <h3>History Payment Request</h3>
         <div class="table-responsive">

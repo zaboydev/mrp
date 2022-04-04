@@ -134,9 +134,43 @@
     </tr>
 </table>
 
+<?php if($entity['status']=='PAID'):?>
+<p class="new-page">Jurnal</p>
+<div class="clear"></div>
+<table class="table" style="margin-top: 20px;" width="100%">
+    <thead>
+        <tr>
+            <th style="text-align: center;">No</th>
+            <th style="text-align: center;">Account</th>
+            <th style="text-align: center;">Debet</th>
+            <th style="text-align: center;">Kredit</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $n = 0; ?>
+        <?php $amount_paid = array(); ?>
+        <?php foreach ($entity['jurnalDetail'] as $i => $jurnal) : ?>
+        <?php $n++; ?>
+        <tr>
+            <td class="no-space">
+                <?= print_number($n); ?>
+            </td>
+            <td>
+                <?= print_string($jurnal['kode_rekening'])?> - <?= print_string($jurnal['jenis_transaksi'])?>
+            </td> 
+            <td>
+                <?= print_number($jurnal['trs_debet'], 2); ?>
+            </td>
+            <td>
+                <?= print_number($jurnal['trs_kredit'], 2); ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+<?php endif;?>
+
 <p class="new-page">Detail</p>
-
-
 <div class="clear"></div>
 <table class="table" style="margin-top: 20px;" width="100%">
     <thead>

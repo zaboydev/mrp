@@ -1299,6 +1299,24 @@ class Payment_Model extends MY_MODEL
 		}
 		$payment['total_amount'] = $total;
 
+		if($request['status']=='PAID'){
+            $this->db->select('tb_jurnal.*');
+            $this->db->where('tb_jurnal.no_jurnal', $payment['document_number']);
+            $this->db->from('tb_jurnal');
+            $queryJurnal    = $this->db->get();
+            $jurnal         = $queryJurnal->unbuffered_row('array');
+
+            $this->db->select('tb_jurnal_detail.*');
+            $this->db->from('tb_jurnal_detail');
+            $this->db->where('tb_jurnal_detail.id_jurnal', $jurnal['id']);
+
+            $queryDetailJurnal = $this->db->get();
+
+            foreach ($queryDetailJurnal->result_array() as $key => $detail){
+                $payment['jurnalDetail'][$key] = $detail;
+            }
+        }
+
 		return $payment;
 	}
 
