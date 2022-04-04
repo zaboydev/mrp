@@ -29,9 +29,15 @@
 
                                 <label for="suplier_select">Purpose Number</label>
                             </div>
+
+                            <div class="form-group">
+                                <input type="text" name="date" id="date" class="form-control" value="<?= $_SESSION['payment']['purposed_date'] ?>" disabled>
+                                <label for="date">Purposed Date</label>
+                            </div>
+
                             <div class="form-group">
                                 <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
-                                <label for="date">Date</label>
+                                <label for="date">Payment Date</label>
                             </div>
                             
                             <div class="form-group hide">

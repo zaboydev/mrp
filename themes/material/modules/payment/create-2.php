@@ -126,7 +126,7 @@
                         </option>
                     <?php endforeach; ?>
                     </select> -->
-                    <input type="text" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['payment_request']['vendor']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required" data-search="<?= site_url($module['route'] . '/search_vendor'); ?>">
+                    <input type="text" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['payment_request']['vendor']; ?>" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required" data-search="<?= site_url($module['route'] . '/search_vendor'); ?>">
                     <label for="vendor">Vendor</label>
                 </div>
 
@@ -135,7 +135,7 @@
                       <option value="CASH" <?= ('CASH' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Cash</option>
                       <option value="BANK" <?= ('BANK' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
                     </select>
-                    <label for="vendor">Transaction Type</label>
+                    <label for="type">Transaction Type</label>
                 </div>
 
                 <div class="form-group">
@@ -147,7 +147,7 @@
                         </option>
                     <?php endforeach; ?>
                     </select>
-                    <label for="vendor">Account</label>
+                    <label for="account">Account</label>
                 </div>
 
                 
@@ -205,9 +205,19 @@
                   <td><?= print_number($detail['payment'], 2) ?></td>
                   <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment_request'] ?>" type="hidden"><?= print_number($detail['remaining_payment_request'], 2) ?></td>
                   <td></td>
-                  <td><input name="request[<?= $i; ?>]" id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="<?=$detail['remaining_payment_request']?>"></td>
-                  <td><button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="fa fa-angle-right"></i></button></td>
-                  <td><a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['po_id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view"><i class="md md-attach-file"></i></a></td>
+                  <td>
+                    <input name="request[<?= $i; ?>]" id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="<?=$detail['remaining_payment_request']?>">
+                  </td>
+                  <td>
+                    <button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view">
+                      <i class="fa fa-angle-right"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['po_id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view">
+                      <i class="md md-attach-file"></i>
+                    </a>
+                  </td>
                   <td></td>
                 </tr>
                 <div id="list_detail_po">
@@ -281,6 +291,7 @@
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
+            <?php if($_SESSION['payment_request']['vendor']!=NULL):?>
             <a href="<?=site_url($module['route'] .'/add_item');?>" onClick="return popup(this, 'add_item')" class="btn btn-primary ink-reaction">
               Select PO
             </a>
@@ -291,6 +302,7 @@
             <button type="button" class="btn btn-danger ink-reaction btn-xhr-submit">
                 Next
             </button>
+          <?php endif;?>
           </div>
           <a href="<?= site_url($module['route']); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
@@ -327,6 +339,7 @@
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
+<?=html_script('vendors/select2-pmd/js/pmd-select2.js') ?>
 
 <script>
   Pace.on('start', function() {
