@@ -604,7 +604,10 @@ class Expense_Closing_Payment_Model extends MY_Model
             $request_payment_id = $document_id;
         }
 
-        foreach ($_SESSION['request_closing']['items'] as $key => $request) {
+        $request_items_id        = $this->input->post('request_item_id');
+        $amount                 = $this->input->post('value');
+
+        /*foreach ($_SESSION['request_closing']['items'] as $key => $request) {
             foreach ($request['request_detail'] as $j => $item) {
                 $total_purposed_payment[] = $item['total'];
                 $this->connection->set('request_payment_id', $request_payment_id);
@@ -664,6 +667,68 @@ class Expense_Closing_Payment_Model extends MY_Model
                 }
             }
             
+        }*/
+
+        foreach ($request_items_id as $key=>$request_item_id){
+
+            $request_item = $this->getInfoRequestItemById($request_item_id);
+
+            $total_purposed_payment[] = $amount[$key];
+            $this->connection->set('request_payment_id', $request_payment_id);
+            $this->connection->set('request_item_id', $request_item['id']);
+            $this->connection->set('request_id', $request_item['expense_purchase_requisition_id']);
+            $this->connection->set('pr_number', $request_item['pr_number']);
+            $this->connection->set('amount_paid', $amount[$key]);
+            $this->connection->set('remarks', $request_item['notes']);
+            $this->connection->set('account_code', $request_item['account_code']);
+            $this->connection->set('deskripsi', $request_item['account_code'].' '.$request_item['account_name']);
+            $this->connection->set('created_by', config_item('auth_person_name'));
+            $this->connection->set('adj_value', 0);
+            $this->connection->set('quantity_paid', 1);
+            $this->connection->set('uang_muka', 0);
+            $this->connection->insert('tb_request_payment_details');
+
+            $this->connection->set('process_amount', '"process_amount" + ' . $amount[$key], false);
+            $this->connection->where('id', $request_item['id']);
+            $this->connection->update('tb_expense_purchase_requisition_details');
+
+            // $process_amount_expense = countProcessAmountExpense($item['request_id']);
+            if($this->updateStatusExpense($request_item['expense_purchase_requisition_id'])){
+                if($type=='CASH2'){
+                    $this->connection->set('closing_date', $closing_date);
+                    $this->connection->set('status', 'close');
+                    $this->connection->set('closing_notes', $notes);
+                    $this->connection->set('closing_by', $closing_by);
+                    $this->connection->set('account', $account);
+                }else{
+                    $this->connection->set('status', 'PAYMENT PURPOSED');
+                }                
+                $this->connection->where('id', $request_item['expense_purchase_requisition_id']);
+                $this->connection->update('tb_expense_purchase_requisitions');
+            }
+
+            if($type=='CASH2'){
+                if ($currency == 'IDR') {
+                    $amount_idr = $amount[$key];
+                    $amount_usd = $amount[$key] / $kurs;
+                } else {
+                    $amount_usd = $amount[$key];
+                    $amount_idr = $amount[$key] * $kurs;
+                }
+
+                        
+                $akun = getAccountBudgetControlByCode($item['account_code']);
+
+                $this->db->set('id_jurnal', $id_jurnal);
+                $this->db->set('jenis_transaksi', strtoupper($akun->group));
+                $this->db->set('trs_kredit', 0);
+                $this->db->set('trs_debet', $amount_idr);
+                $this->db->set('trs_kredit_usd', 0);
+                $this->db->set('trs_debet_usd', $amount_usd);
+                $this->db->set('kode_rekening', $akun->coa);
+                $this->db->set('currency', $currency);
+                $this->db->insert('tb_jurnal_detail');
+            }
         }
 
 
@@ -718,6 +783,29 @@ class Expense_Closing_Payment_Model extends MY_Model
         }
 
         return TRUE;
+    }
+
+    function getInfoRequestItemById($id){
+        $select = array(
+            'tb_expense_purchase_requisition_details.*',
+            'tb_expense_purchase_requisitions.pr_number',
+            'tb_expense_purchase_requisitions.notes',
+            'tb_accounts.account_name',
+            'tb_accounts.account_code',
+            'tb_expense_monthly_budgets.account_id',
+        );
+
+        $this->connection->select($select);
+        $this->connection->from('tb_expense_purchase_requisition_details');
+        $this->connection->join('tb_expense_purchase_requisitions', 'tb_expense_purchase_requisitions.id = tb_expense_purchase_requisition_details.expense_purchase_requisition_id');
+        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        $this->connection->where('tb_expense_purchase_requisition_details.id', $id);
+
+        $query      = $this->connection->get(); 
+        $request    = $query->unbuffered_row('array');
+
+        return $request;
     }
 
     function save_pembayaran()

@@ -1,9 +1,70 @@
 <?php include 'themes/material/template.php' ?>
 
 <?php startblock('content') ?>
+<style>
+  /* .form-control-payment {
+    padding: 0;
+    height: 25px;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom-color: rgba(12, 12, 12, 0.12);
+    background: transparent;
+    color: #0c0c0c;
+    font-size: 16px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  } */
+
+  .form-control-payment {
+    display: block;
+    width: 100%;
+    height: 30px;
+    /* padding: 4.5px 14px; */
+    font-size: 13px;
+    line-height: 1.846153846;
+    color: #0c0c0c;
+    background-color: #ffffff;
+    background-image: none;
+    border: 1px solid rgba(12, 12, 12, 0.12);
+    border-radius: 2px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  }
+  
+  .form-control-payment[readonly]{
+    background-color : #f0f0f0;
+  }
+
+  .form-control-payment:focus{
+    border: 1px solid rgba(12, 12, 12, 0.12);
+  }
+
+  @media print {
+
+    html,
+    body {
+      display: block;
+      font-family: "Tahoma";
+      margin: 0px 0px 0px 0px;
+    }
+
+    /*@page {
+                size: Faktur Besar;
+                }*/
+    #footer {
+      position: fixed;
+      bottom: 0;
+    }
+
+  }
+</style>
 <section class="has-actions style-default">
   <div class="section-body">
-    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form-create-document')); ?>
+    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form-document')); ?>
     <div class="card">
       <div class="card-body no-padding">
         <?php
@@ -90,9 +151,9 @@
                 <tr>
                   <th></th>
                   <th>PR Number</th>
-                  <th>Ref. IPC</th>
+                  <!-- <th>Ref. IPC</th> -->
                   <th>Expense Notes</th>
-                  <th class="text-right">Amount</th>
+                  <th class="text-center">Amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -113,7 +174,9 @@
                       <?= print_string($items['notes']); ?> 
                     </td>
                     <td style="font-weight:500;">
-                      <?= print_number($items['total'], 2); ?>
+                      <input name="left[<?= $i; ?>]" id="in_left_<?= $i ?>" data-row="<?= $i ?>" type="hidden" class="sel_applied form-control-payment" value="<?=$items['total']-$items['process_amount'];?>">
+                      <input name="request[<?= $i; ?>]" id="in_<?= $i ?>" data-row="<?= $i ?>" type="number" class="sel_applied form-control-payment" value="<?=$items['total']-$items['process_amount'];?>">
+                      
                     </td>
                   </tr>
                   <?php foreach ($items['request_detail'] as $j => $detail) : ?>                    
@@ -121,10 +184,12 @@
                       <td></td>
                       <!-- <td></td> -->
                       <td class="" colspan="2">
+                        <input name="request_item_id[]" id="request_item_id_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['id']?>">
                         <?= print_string($detail['account_code']); ?> - <?= print_string($detail['account_name']); ?>
                       </td>
                       <td>
-                        <?= print_number($detail['total'], 2); ?>
+                        <input name="value[]" id="in_item_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="number" class="sel_applied_item sel_applied_<?= $i ?> form-control-payment" value="<?=$detail['total']-$detail['process_amount']?>">
+                        
                       </td>
                     </tr>
                   <?php endforeach; ?>
@@ -135,7 +200,7 @@
                 <th>Total</th>
                 <!-- <th></th> -->
                 <th></th>
-                <th><?= print_number(array_sum($grand_total), 2); ?></th>
+                <th><span id="total_general"><?= print_number(array_sum($grand_total), 2); ?></span></th>
               </tfoot>
             </table>
           </div>
@@ -156,19 +221,20 @@
         </div>
       </div>
     </div>
-    <?= form_close(); ?>
+    
   </div>
 
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
-      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
+      <button type="submit" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" data-href="<?= site_url($module['route'] . '/save');?>">
         <i class="md md-save"></i>
         <small class="top right">Save Document</small>
-      </a>
+      </button>
     </div>
   </div>
 </section>
+<?= form_close(); ?>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
@@ -401,7 +467,7 @@
       e.preventDefault();
       $(buttonSubmitDocument).attr('disabled', true);
 
-      var url = $(this).attr('href');
+      var url = $(this).data('href');
       if (confirm('Are you sure want to save this request and sending email? Continue?')) {
         $.post(url, formDocument.serialize(), function(data) {
           console.log(data);
@@ -521,11 +587,93 @@
       if (tipe == "view") {
         $(this).data("tipe", "hide");
         $('.detail_' + selRow).removeClass('hide');
+        $("#in_" + selRow).attr('readonly', true);
       } else {
         $(this).data("tipe", "view");
         $('.detail_' + selRow).addClass('hide');
       }
+    });
+
+    //jika mengisi input PO
+    $("#table-document").on("change", ".sel_applied", function() {
+      // console.log('test');
+      var selRow = $(this).data("row");
+      sisa = parseFloat($("#in_left_" + selRow).val())
+      input = $(this).val();
+      if(input!=''){
+        if (parseFloat(input) < sisa) {
+          $('.detail_' + selRow).removeClass('hide');
+          $(".sis_item_"+selRow).each(function (key, val){
+            // console.log(key)
+            var po = parseInt(key)+1;
+            sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+            // $("#in_item_" + selRow + "_" + po).val(sisa_item)
+            $("#in_item_" + selRow + "_" + po).val(0)
+            $("#in_adj_" + selRow + "_" + po).val(0)
+            $("#cb_" + selRow + "_" + po).prop('checked',false);
+          });
+          alert("Amount that you enter is less than total order. Please input item amount!");
+          $("#in_" + selRow).attr('readonly', true);
+        }else if (parseFloat(input) > sisa) {
+          $('.detail_' + selRow).removeClass('hide');
+          $(".sis_item_"+selRow).each(function (key, val){
+            // console.log(key)
+            var po = parseInt(key)+1;
+            sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+            // $("#in_item_" + selRow + "_" + po).val(sisa_item)
+            $("#in_item_" + selRow + "_" + po).val(0)
+            $("#in_adj_" + selRow + "_" + po).val(0)
+            $("#cb_" + selRow + "_" + po).prop('checked',false);
+          });
+          alert("Amount that you enter is more than total order. Please input item amount!");
+          $("#in_" + selRow).attr('readonly', true);
+        } else {
+          $(".sis_item_"+selRow).each(function (key, val){
+            // console.log(key)
+            var po = parseInt(key)+1;
+            sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+            $("#in_item_" + selRow + "_" + po).val(sisa_item)
+            $("#in_adj_" + selRow + "_" + po).val(0)
+            $("#cb_" + selRow + "_" + po).prop('checked',false);
+          });
+        }
+      }else{
+        $(this).val(0)
+      }
+      
+      changeTotal();
+
     })
+
+    //jika mengisi input item PO
+    $("#table-document").on("change", ".sel_applied_item", function() {
+      // console.log('test');
+      var selRow = $(this).data("row");
+      var parent = $(this).data("parent");
+      var parent_total = $("#in_" + parent).val();
+      sisa = parseFloat($("#sis_" + selRow).val())
+      input = $(this).val()
+      if(input==''){
+        $(this).val(0)
+      }
+      var sum = 0;
+      $('.sel_applied_' + parent).each(function(key, val) {
+        var val = $(this).val();
+        sum = parseFloat(sum) + parseFloat(val);
+      });
+      $("#in_" + parent).val(sum)
+      changeTotal();
+
+    });
+
+    function changeTotal() {
+      var sum = 0
+      $('[name="value[]"]').each(function (key, val) {
+        var val = $(this).val();
+        sum = parseFloat(sum) + parseFloat(val);
+      });
+      $("#total_general").html(sum);
+    }
 
     $('#type').change(function() {
       type_trs = $(this).val();
