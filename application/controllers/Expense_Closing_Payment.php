@@ -630,7 +630,7 @@ class Expense_Closing_Payment extends MY_Controller
                         'reference_ipc'                     => $request['reference_ipc']
                     );
                     $_SESSION['request_closing']['items'][$request_id]['request_detail'] = $request['items'];
-                    $total_amount[] = $request['total'];
+                    $total_amount[] = $request['total']-$request['process_amount'];
                 }
 
                 $_SESSION['request_closing']['total_amount'] = array_sum($total_amount);

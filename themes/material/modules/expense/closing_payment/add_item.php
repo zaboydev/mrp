@@ -77,7 +77,7 @@
                             </td>
                             <td>
                                 <label for="request_id_<?= $no; ?>">
-                                    <?= print_number($entity['total'], 2) ?>
+                                    <?= print_number($entity['total']-$entity['process_amount'], 2) ?>
                                 </label>
                             </td>
                             <td>
