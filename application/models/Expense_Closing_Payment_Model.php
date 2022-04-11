@@ -321,18 +321,36 @@ class Expense_Closing_Payment_Model extends MY_Model
 
         foreach ($query->result_array() as $key => $req){
             $request['request'][$key] = $req;
-            $select = array(
-                'tb_request_payment_details.*'
-            );
+            if($req['request_id']!=NULL){
+                $select = array(
+                    'tb_request_payment_details.*'
+                );
 
-            $this->connection->select($select);
-            $this->connection->from('tb_request_payment_details');
-            $this->connection->where('tb_request_payment_details.request_id', $req['request_id']);
-            $query = $this->connection->get();
+                $this->connection->select($select);
+                $this->connection->from('tb_request_payment_details');
+                $this->connection->where('tb_request_payment_details.request_id', $req['request_id']);
+                $this->connection->where('tb_request_payment_details.request_payment_id', $id);
+                $query = $this->connection->get();
 
-            foreach ($query->result_array() as $i => $item){
-                $request['request'][$key]['items'][$i] = $item;
+                foreach ($query->result_array() as $i => $item){
+                    $request['request'][$key]['items'][$i] = $item;
+                }
+            }else{
+                $select = array(
+                    'tb_request_payment_details.*'
+                );
+
+                $this->connection->select($select);
+                $this->connection->from('tb_request_payment_details');
+                $this->connection->where('tb_request_payment_details.remarks', $req['remarks']);
+                $this->connection->where('tb_request_payment_details.request_payment_id', $id);
+                $query = $this->connection->get();
+
+                foreach ($query->result_array() as $i => $item){
+                    $request['request'][$key]['items'][$i] = $item;
+                }
             }
+            
         }
 
         if($request['status']=='PAID'){
@@ -622,8 +640,10 @@ class Expense_Closing_Payment_Model extends MY_Model
             $request_payment_id = $document_id;
         }
 
-        $request_items_id        = $this->input->post('request_item_id');
-        $amount                 = $this->input->post('value');
+        $request_items_id           = $this->input->post('request_item_id');
+        $amount                     = $this->input->post('value');
+        $remarks                    = $this->input->post('remarks');
+        $account_code               = $this->input->post('account_code');
 
         /*foreach ($_SESSION['request_closing']['items'] as $key => $request) {
             foreach ($request['request_detail'] as $j => $item) {
@@ -686,44 +706,52 @@ class Expense_Closing_Payment_Model extends MY_Model
             }
             
         }*/
-
         foreach ($request_items_id as $key=>$request_item_id){
 
-            $request_item = $this->getInfoRequestItemById($request_item_id);
+            if($request_item_id!=NULL){
+                $request_item = $this->getInfoRequestItemById($request_item_id);
+            }            
+
+            $selectedAccount = getAccountBudgetControlByCode($account_code[$key]);
 
             $total_purposed_payment[] = $amount[$key];
-            $this->connection->set('request_payment_id', $request_payment_id);
-            $this->connection->set('request_item_id', $request_item['id']);
-            $this->connection->set('request_id', $request_item['expense_purchase_requisition_id']);
-            $this->connection->set('pr_number', $request_item['pr_number']);
+            if($request_item_id!=NULL){
+                $this->connection->set('request_item_id', $request_item['id']); 
+                $this->connection->set('request_id', $request_item['expense_purchase_requisition_id']);
+                $this->connection->set('pr_number', $request_item['pr_number']);
+            }
+            $this->connection->set('request_payment_id', $request_payment_id); 
             $this->connection->set('amount_paid', $amount[$key]);
-            $this->connection->set('remarks', $request_item['notes']);
-            $this->connection->set('account_code', $request_item['account_code']);
-            $this->connection->set('deskripsi', $request_item['account_code'].' '.$request_item['account_name']);
+            $this->connection->set('remarks', $remarks[$key]);
+            $this->connection->set('account_code', $account_code[$key]);
+            $this->connection->set('deskripsi', $selectedAccount->coa.' '.$selectedAccount->group);
             $this->connection->set('created_by', config_item('auth_person_name'));
             $this->connection->set('adj_value', 0);
             $this->connection->set('quantity_paid', 1);
             $this->connection->set('uang_muka', 0);
             $this->connection->insert('tb_request_payment_details');
 
-            $this->connection->set('process_amount', '"process_amount" + ' . $amount[$key], false);
-            $this->connection->where('id', $request_item['id']);
-            $this->connection->update('tb_expense_purchase_requisition_details');
+            if($request_item_id!=NULL){
+                $this->connection->set('process_amount', '"process_amount" + ' . $amount[$key], false);
+                $this->connection->where('id', $request_item['id']);
+                $this->connection->update('tb_expense_purchase_requisition_details');
 
-            // $process_amount_expense = countProcessAmountExpense($item['request_id']);
-            if($this->updateStatusExpense($request_item['expense_purchase_requisition_id'])){
-                if($type=='CASH2'){
-                    $this->connection->set('closing_date', $closing_date);
-                    $this->connection->set('status', 'close');
-                    $this->connection->set('closing_notes', $notes);
-                    $this->connection->set('closing_by', $closing_by);
-                    $this->connection->set('account', $account);
-                }else{
-                    $this->connection->set('status', 'PAYMENT PURPOSED');
-                }                
-                $this->connection->where('id', $request_item['expense_purchase_requisition_id']);
-                $this->connection->update('tb_expense_purchase_requisitions');
+                // $process_amount_expense = countProcessAmountExpense($item['request_id']);
+                if($this->updateStatusExpense($request_item['expense_purchase_requisition_id'])){
+                    if($type=='CASH2'){
+                        $this->connection->set('closing_date', $closing_date);
+                        $this->connection->set('status', 'close');
+                        $this->connection->set('closing_notes', $notes);
+                        $this->connection->set('closing_by', $closing_by);
+                        $this->connection->set('account', $account);
+                    }else{
+                        $this->connection->set('status', 'PAYMENT PURPOSED');
+                    }                
+                    $this->connection->where('id', $request_item['expense_purchase_requisition_id']);
+                    $this->connection->update('tb_expense_purchase_requisitions');
+                }
             }
+            
 
             if($type=='CASH2'){
                 if ($currency == 'IDR') {
@@ -735,7 +763,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 }
 
                         
-                $akun = getAccountBudgetControlByCode($item['account_code']);
+                $akun = getAccountBudgetControlByCode($account_code[$key]);
 
                 $this->db->set('id_jurnal', $id_jurnal);
                 $this->db->set('jenis_transaksi', strtoupper($akun->group));
@@ -887,36 +915,46 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->update('tb_request_payments');
 
 
-        foreach ($_SESSION['payment']['items'] as $i => $key) {
+        foreach ($_SESSION['payment']['request'] as $i => $request) {
+            foreach ($request['items'] as $j => $key) {
+                if($key['request_id']!=NULL){
+                    if($this->updateStatusExpense($request_item['expense_purchase_requisition_id'])){
+                        $this->connection->set('closing_date', $tanggal);
+                        $this->connection->set('status', 'close');
+                        // $this->connection->set('closing_notes', $notes);
+                        $this->connection->set('closing_by', config_item('auth_person_name'));
+                        $this->connection->set('account', $account);         
+                        $this->connection->where('id', $key['request_id']);
+                        $this->connection->update('tb_expense_purchase_requisitions');
+                    }
+                }
+                
 
-            $this->connection->set('closing_date', $tanggal);
-            $this->connection->set('status', 'close');
-            // $this->connection->set('closing_notes', $notes);
-            $this->connection->set('closing_by', config_item('auth_person_name'));
-            $this->connection->set('account', $account);         
-            $this->connection->where('id', $key['request_id']);
-            $this->connection->update('tb_expense_purchase_requisitions');
+                if ($currency == 'IDR') {
+                    $amount_idr = $key["amount_paid"];
+                    $amount_usd = $key["amount_paid"] / $kurs;
+                } else {
+                    $amount_usd = $key["amount_paid"];
+                    $amount_idr = $key["amount_paid"] * $kurs;
+                }
 
-            if ($currency == 'IDR') {
-                $amount_idr = $key["amount_paid"];
-                $amount_usd = $key["amount_paid"] / $kurs;
-            } else {
-                $amount_usd = $key["amount_paid"];
-                $amount_idr = $key["amount_paid"] * $kurs;
+                        
+                $akun = getAccountBudgetControlByCode($key['account_code']);
+
+                $this->db->set('id_jurnal', $id_jurnal);
+                $this->db->set('jenis_transaksi', strtoupper($akun->group));
+                $this->db->set('trs_kredit', ($amount_idr<0)? ($amount_idr*-1):0);
+                $this->db->set('trs_debet', ($amount_idr>0)? $amount_idr:0);
+
+                $this->db->set('trs_kredit_usd', ($amount_usd<0)? ($amount_usd*-1):0);
+                $this->db->set('trs_debet_usd', ($amount_usd>0)? $amount_usd:0);
+
+                $this->db->set('kode_rekening', $akun->coa);
+                $this->db->set('currency', $currency);
+                $this->db->insert('tb_jurnal_detail');
             }
 
-                    
-            $akun = getAccountBudgetControlByCode($key['account_code']);
-
-            $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', strtoupper($akun->group));
-            $this->db->set('trs_kredit', 0);
-            $this->db->set('trs_debet', $amount_idr);
-            $this->db->set('trs_kredit_usd', 0);
-            $this->db->set('trs_debet_usd', $amount_usd);
-            $this->db->set('kode_rekening', $akun->coa);
-            $this->db->set('currency', $currency);
-            $this->db->insert('tb_jurnal_detail');
+            
         }
 
         foreach ($_SESSION["payment"]["attachment"] as $file) {

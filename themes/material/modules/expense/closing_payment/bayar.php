@@ -27,11 +27,15 @@
                                 <input readonly value="<?= $_SESSION['payment']['document_number'] ?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
                                 <input value="<?= $_SESSION['payment']['po_payment_id'] ?>" type="hidden" name="po_payment_id" id="po_payment_id" class="form-control">
 
-                                <label for="suplier_select">Purpose Number</label>
+                                <label for="suplier_select">Transaction Number</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="date" id="date" class="form-control" value="<?= $_SESSION['payment']['purposed_date'] ?>" disabled>
+                                <label for="date">Purposed Date</label>
                             </div>
                             <div class="form-group">
                                 <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
-                                <label for="date">Date</label>
+                                <label for="date">Payment Date</label>
                             </div>
                             
                             <div class="form-group hide">
@@ -93,45 +97,59 @@
                     </div>
                 </div>
 
-                <?php if (isset($_SESSION['payment']['items'])) : ?>
+                <?php if (isset($_SESSION['payment']['request'])) : ?>
                     <div class="document-data table-responsive">
                         <table class="table table-hover" id="table-document">
                             <thead>
                                 <tr>
-                                    <!-- <th class="middle-alignment"></th> -->
-                                    <th class="middle-alignment"></th>
-                                    <!-- <th class="middle-alignment"></th> -->
-                                    <th class="middle-alignment">Description</th>
-                                    <th class="middle-alignment text-center">Amount Paid</th>
-                                    <th class="middle-alignment">PO#</th>
+                                    <th>No</th>
+                                    <th>ER#</th>
+                                    <th>Att ER</th>
+                                    <th>Description</th>
+                                    <th align="right">Amount Request Payment</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($_SESSION['payment']['items'] as $i => $item) : ?>
-                                    <tr id="row_<?= $i; ?>">
-                                        <!-- <td width="1">
-                                            <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
-                                                <i class="fa fa-trash"></i>
+                                <?php foreach ($_SESSION['payment']['request'] as $i => $request) : ?>
+                                    <?php $n++; ?>
+                                <tr>
+                                    <td class="no-space">
+                                        <?= print_number($n); ?>
+                                    </td>
+                                    <td>
+                                        <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                                        </a>
+                                        <a href="<?= site_url('closing_expense_request/print_request/' . $request['request_id'].'/'.$entity['source']) ?>" target="_blank"><?=print_string($request['pr_number'])?></a>
+                                    </td>                  
+                                    <td>
+                                        <?php if($request['request_id']!=0 && $request['request_id']!=null):?>
+                                            <a href="<?= site_url('expense_request/manage_attachment/' . $request['request_id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
+                                                <i class="fa fa-eye"></i>
                                             </a>
-                                        </td> -->
-                                        <td>
-                                            <a href="<?= site_url($module['route'] . '/edit_item/' . $i); ?>" onClick="return popup(this, 'edit')">
-                                            </a>
-
-                                        </td>
-                                        <!-- <td class="no-space">
-                                            <?= $item['part_number']; ?>
-                                        </td> -->
-                                        <td class="no-space">
-                                            <?= $item['deskripsi']; ?>
-                                        </td>
-                                        <td class="text-center">
-                                            <?= number_format($item['amount_paid'], 2); ?>
-                                        </td>
-                                        <td>
-                                            <?= $item['pr_number']; ?>
-                                        </td>
-                                    </tr>
+                                        <?php endif;?>
+                                    </td>
+                                    <td>
+                                        <?= print_string($request['remarks']); ?>
+                                    </td>
+                                    <td>
+                                        <?= print_number($request['amount_paid'], 2); ?>
+                                        <?php $amount_paid[] = $request['amount_paid']; ?>
+                                    </td>
+                                </tr>
+                                <?php foreach ($request['items'] as $j => $item) : ?>
+                                
+                                <tr class="detail_<?=$n?> hide">
+                                    <td class="no-space">
+                                      
+                                    </td>
+                                    <td colspan="3">
+                                        <?= print_string($item['deskripsi']); ?>
+                                    </td>
+                                    <td>
+                                        <?= print_number($item['amount_paid'], 2); ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
@@ -355,6 +373,20 @@
             }
         });
 
+    })
+
+    //klik icon mata utk lihat item po
+    $("#table-document").on("click", ".btn_view_detail", function() {
+        console.log('klik detail');
+        var selRow = $(this).data("row");
+        var tipe = $(this).data("tipe");
+        if (tipe == "view") {
+            $(this).data("tipe", "hide");
+            $('.detail_' + selRow).removeClass('hide');
+        } else {
+            $(this).data("tipe", "view");
+            $('.detail_' + selRow).addClass('hide');
+        }
     })
 
     function clearForm() {
