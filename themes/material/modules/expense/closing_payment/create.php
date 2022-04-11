@@ -117,7 +117,7 @@
               </div>
 
               <div class="form-group">
-                <select name="account" id="account" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account'); ?>" required>
+                <select name="account" id="account" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account'); ?>" required>
                     <option value="">-- SELECT Account --</option>
                     <?php foreach (getAccount($_SESSION['request_closing']['type']) as $key => $account) : ?>
                         <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['request_closing']['coa_kredit']) ? 'selected' : ''; ?>>
@@ -185,6 +185,8 @@
                       <!-- <td></td> -->
                       <td class="" colspan="2">
                         <input name="request_item_id[]" id="request_item_id_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['id']?>">
+                        <input name="remarks[]" id="remarks_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="text" class="form-control-payment" value="<?=$items['notes']?>">
+                        <input name="account_code[]" id="account_code_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="text" class="form-control-payment" value="<?=$detail['account_code']?>">
                         <?= print_string($detail['account_code']); ?> - <?= print_string($detail['account_name']); ?>
                       </td>
                       <td>
@@ -212,6 +214,9 @@
             <a href="<?=site_url($module['route'] .'/add_item');?>" onClick="return popup(this, 'add_item')" class="btn btn-primary ink-reaction">
               Select Request
             </a>
+            <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction">
+              Add
+            </button>
           </div>
           
 
@@ -235,6 +240,36 @@
   </div>
 </section>
 <?= form_close(); ?>
+<table class="table-row-item hide">
+  <tbody>
+    <tr>
+      <td class="item-list">
+        <center>
+          <a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i>
+          </a>
+        </center>                      
+      </td>
+      <td class="account_code item-list">
+        <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
+        <select name="account_code[]" class="form-control-payment" style="width: 100%">
+          <option value="">-- SELECT Account --</option>
+          <?php foreach (getAccountsBudgetControl() as $key => $account) : ?>
+          <option value="<?= $account['coa']; ?>">
+          <?= $account['coa']; ?> <?= $account['group']; ?>
+          </option>
+          <?php endforeach; ?>
+        <select>
+      </td> 
+      <td class="remarks item-list">
+        <input type="hidden" name="request_item_id[]" class="form-control-payment">
+        <input type="text" name="remarks[]" class="form-control-payment">
+      </td>
+      <td class="value item-list">
+        <input type="number" name="value[]" class="form-control-payment sel_applied_item_add">
+      </td>     
+    </tr>
+  </tbody>
+</table>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
@@ -250,6 +285,8 @@
 <?= html_script('themes/material/assets/js/libs/jquery-validation/dist/additional-methods.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
+<?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+<?= html_script('vendors/select2-pmd/js/pmd-select2.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
 <script>
   Pace.on('start', function() {
@@ -283,6 +320,52 @@
     if (!window.focus) return true;
     else return false;
   }
+
+  $('.select2').select2({
+    theme: "bootstrap",
+  });
+
+  function addRow() {
+    var row_payment = $('.table-row-item tbody').html();
+    var el = $(row_payment);
+    $('#table-document tbody').append(el);
+    $('#table-document tbody tr:last').find('select[name="account_code[]"]').select2();
+
+    btn_row_delete_item();
+    sel_applied_item_add();
+    
+    // setAddValue();
+  }
+
+  function btn_row_delete_item() {
+    $('.btn-row-delete-item').click(function () {
+      $(this).parents('tr').remove();
+    });
+  }
+
+  //jika mengisi input add item 
+    function sel_applied_item_add(){
+      $("#table-document").on("change", ".sel_applied_item_add", function() {
+        // console.log('test');
+        changeTotal2();
+
+      });
+    }
+    
+
+    function changeTotal2() {
+      var sum = 0
+      $('[name="value[]"]').each(function (key, val) {
+        var val = $(this).val();
+        
+        if(val!=''){
+          console.log(val);
+          sum = parseFloat(sum) + parseFloat(val);
+        }
+        
+      });
+      $("#total_general").html(sum);
+    }
 
   (function($) {
     $.fn.reset = function() {
@@ -591,6 +674,7 @@
       } else {
         $(this).data("tipe", "view");
         $('.detail_' + selRow).addClass('hide');
+        $("#in_" + selRow).attr('readonly', false);
       }
     });
 
@@ -665,6 +749,16 @@
       changeTotal();
 
     });
+
+    //jika mengisi input add item 
+    function sel_applied_item_add(){
+      $("#table-document").on("change", ".sel_applied_item_add", function() {
+        // console.log('test');
+        changeTotal();
+
+      });
+    }
+    
 
     function changeTotal() {
       var sum = 0

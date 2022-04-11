@@ -263,7 +263,7 @@ class Expense_Closing_Payment extends MY_Controller
                 }
             } else {
                 if ($this->model->isDocumentNumberExists($document_number)) {
-                    $_SESSION['request_closing']['document_number']     = payment_request_last_number();
+                    $_SESSION['request_closing']['document_number']     = payment_request_last_number($_SESSION['request_closing']['type']);
                     $document_number = $_SESSION['request_closing']['document_number'] . payment_request_format_number($_SESSION['request_closing']['type']);
                     // $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
                 }
@@ -522,8 +522,8 @@ class Expense_Closing_Payment extends MY_Controller
         $_SESSION['payment']['po_payment_id']         = $item['id'];
         $_SESSION['payment']['total_amount']          = 0;
         $_SESSION['payment']['attachment']            = array();
-        foreach ($_SESSION['payment']['items'] as $i => $item){
-          $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$item['amount_paid'];
+        foreach ($_SESSION['payment']['request'] as $i => $request){
+          $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$request['amount_paid'];
         }
         // $_SESSION['payment']['total_amount']          = $item['items']->sum('amount_paid');
         

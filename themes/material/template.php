@@ -15,7 +15,8 @@
   <?=link_tag('themes/material/assets/css/theme-default/libs/bootstrap-datepicker/datepicker3.css') ?>
   <?=link_tag('themes/material/assets/css/app.css') ?>
   <?=link_tag('themes/material/assets/css/bootstrap.print.css') ?>
-  <?=link_tag('vendors/select2-pmd/css/pmd-select2.css') ?>
+  <?=link_tag('vendors/select2-4.0.3/dist/css/select2.min.css') ?>
+  <?=link_tag('vendors/select2-pmd/css/pmd-select2.css') ?>  
 
   <!--[if lt IE 9]>
     <?=html_script('themes/material/assets/js/libs/utils/html5shiv.js') ?>

@@ -1650,6 +1650,24 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAccountsBudgetControl')) {
+    function getAccountsBudgetControl()
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('account_code as coa,account_name as group');
+      $connection->from( 'tb_accounts' ); 
+      $connection->order_by('account_code','asc');
+
+      $query    = $connection->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
   if ( ! function_exists('getAccountMrpByCode')) {
     function getAccountMrpByCode($code)
     {
