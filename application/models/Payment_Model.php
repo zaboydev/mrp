@@ -1299,7 +1299,7 @@ class Payment_Model extends MY_MODEL
 		}
 		$payment['total_amount'] = $total;
 
-		if($request['status']=='PAID'){
+		if($payment['status']=='PAID'){
             $this->db->select('tb_jurnal.*');
             $this->db->where('tb_jurnal.no_jurnal', $payment['document_number']);
             $this->db->from('tb_jurnal');

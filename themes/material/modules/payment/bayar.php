@@ -63,7 +63,7 @@
                                 <select id="account_select" class="form-control" required>
                                     <option value="">No Account</option>
                                     <option value="">-- SELECT Account</option>
-                                    <?php foreach (getAccount() as $key => $account) : ?>
+                                    <?php foreach (getAccount($_SESSION['payment']['type']) as $key => $account) : ?>
                                     <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment']['coa_kredit']) ? 'selected' : ''; ?>>
                                     <?= $account['group']; ?>
                                     </option>

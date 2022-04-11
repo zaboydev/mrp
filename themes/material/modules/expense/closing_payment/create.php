@@ -340,6 +340,7 @@
   function btn_row_delete_item() {
     $('.btn-row-delete-item').click(function () {
       $(this).parents('tr').remove();
+      changeTotal2();
     });
   }
 

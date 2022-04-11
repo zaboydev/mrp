@@ -382,13 +382,24 @@
     '<td></td>'+
     '<td></td>'+
     '<td></td>'+
+    '<td></td>'+
     '<td><input name="value[]" type="number" class="form-control-payment"></td>'+
     '<td></td>'+
     '<td><input name="adj_value[]" type="number" class="hide sel_applied_adj sel_applied_adj" value="0" style="display: inline;"></td>'+
-    '<td></td>'+
+    '<td><center><a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i></a></center></td>'+
     '</tr>';
     $("#listView").append(row);
     setAddValue();
+
+    btn_row_delete_item();
+  }
+
+  function btn_row_delete_item() {
+    $('.btn-row-delete-item').click(function () {
+      $(this).parents('tr').remove();
+
+      changeTotal();
+    });
   }
 
   (function($) {
