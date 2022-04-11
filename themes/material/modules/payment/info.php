@@ -202,7 +202,7 @@
             </thead>
             <tbody id="table_contents">
               <?php $n = 0; ?>
-              <?php $amount_paid = array(); ?>
+              <?php $totalDebet = array(); $totalKredit = array();?>
               <?php foreach ($entity['jurnalDetail'] as $i => $jurnal) : ?>
                 <?php $n++; ?>
                 <tr>
@@ -218,11 +218,19 @@
                   <td>
                     <?= print_number($jurnal['trs_kredit'], 2); ?>
                   </td>
+                  <?php 
+                    $totalDebet[] = $jurnal['trs_debet'];
+                    $totalKredit[] = $jurnal['trs_kredit'];
+                  ?>
                 </tr>
               <?php endforeach; ?>
             </tbody>
             <tfoot>
-              
+              <tr>
+                <th colspan="2">Total</th>
+                <th><?= print_number(array_sum($totalDebet), 2); ?></th>
+                <th><?= print_number(array_sum($totalKredit), 2); ?></th>
+              </tr>
             </tfoot>
           </table>
         </div>
