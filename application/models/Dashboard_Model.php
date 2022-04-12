@@ -620,4 +620,43 @@ class Dashboard_Model extends MY_Model
     return $query->num_rows();
   }
 
+  public function count_purposed_payment($role,$source){
+    $status =['no_status'];
+    if($role=='FINANCE SUPERVISOR'){
+      $status = ['WAITING CHECK BY FIN SPV'];
+    }    
+    if($role=='FINANCE MANAGER'){
+      $status = ['WAITING REVIEW BY FIN MNG'];
+    }
+    if($role=='HEAD OF SCHOOL'){
+      $status = ['WAITING REVIEW BY HOS'];
+    }
+    if($role=='CHIEF OPERATION OFFICER'){
+      $status = ['WAITING REVIEW BY CEO'];
+    }
+    if($role=='VP FINANCE'){
+      $status = ['WAITING REVIEW BY VP FINANCE'];
+    }
+    if($role=='CHIEF OF FINANCE'){
+      $status = ['WAITING REVIEW BY CFO'];
+    }
+
+    $this->connection->select('*');
+    $this->connection->from('tb_request_payments');
+    // $this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+    $this->connection->where('tb_request_payments.source', $source);
+    $this->connection->where_in('tb_request_payments.status', $status);
+    if($role=='FINANCE MANAGER'){
+      $base = config_item('auth_warehouse');
+      if($base!='JAKARTA'){
+        $this->connection->where('tb_request_payments.base !=','JAKARTA');
+      }elseif($base=='JAKARTA'){
+        $this->connection->where('tb_request_payments.base','JAKARTA');
+      }
+    }
+    $query = $this->connection->get();
+
+    return $query->num_rows();
+  }
+
 }
