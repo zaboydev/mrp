@@ -185,8 +185,8 @@
                       <!-- <td></td> -->
                       <td class="" colspan="2">
                         <input name="request_item_id[]" id="request_item_id_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['id']?>">
-                        <input name="remarks[]" id="remarks_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="text" class="form-control-payment" value="<?=$items['notes']?>">
-                        <input name="account_code[]" id="account_code_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="text" class="form-control-payment" value="<?=$detail['account_code']?>">
+                        <input name="remarks[]" id="remarks_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$items['notes']?>">
+                        <input name="account_code[]" id="account_code_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['account_code']?>">
                         <?= print_string($detail['account_code']); ?> - <?= print_string($detail['account_name']); ?>
                       </td>
                       <td>

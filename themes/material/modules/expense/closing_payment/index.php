@@ -47,26 +47,58 @@
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
-      <div class="form force-padding">
-        <div class="form-group" style="margin-top: 40px">
-          <label for="filter_required_date">Date</label>
-          <input class="form-control input-sm filter_daterange" data-column="1" id="filter_required_date" readonly>
-        </div>
+<div class="form force-padding">
+  <div class="form-group">
+    <label for="filter_received_date">Date</label>
+    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+  </div>
 
-        <div class="form-group">
-          <label for="filter_item_category">Cost Center</label>
-          <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_item_category">
-            <option value="all">
-              Not filtered            
-            </option>
-            <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
-              <option value="<?= $annual_cost_center['cost_center_name']; ?>">
-                <?= $annual_cost_center['cost_center_name'] ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-      </div>
+  <div class="form-group">
+    <label for="start_date">Vendor</label>
+    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
+      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
+      <?php foreach (available_vendors() as $vendor) : ?>
+        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
+          <?= $vendor; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Currency</label>
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="3">
+      <option value="all">All Currency</option>
+      <option value="IDR">IDR</option>
+      <option value="USD">USD</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Base</label>
+    
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="5">
+      <option value="ALL BASES">-- ALL BASES --</option>
+      <?php foreach (config_item('auth_warehouses') as $warehouse):?>
+        <option value="<?=$warehouse;?>" <?php if (config_item('auth_warehouse') == $warehouse):echo 'selected'; endif;?>>
+          <?=$warehouse;?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Status</label>
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
+      <option value="all">All Status</option>      
+      <option value="WAITING REVIEW BY FIN MNG"<?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review By Fin Mng</option>
+      <option value="APPROVED"<?php if (config_item('auth_role') == 'TELLER'):echo 'selected'; endif;?>>Approved</option>
+      <!-- <option value="REVISI">Revisi</option> -->
+      <option value="PAID">Paid</option>
+      <option value="REJECTED">Rejected</option>
+    </select>
+  </div>
+</div>
 <?php endblock() ?>
 
       <?php startblock('scripts') ?>

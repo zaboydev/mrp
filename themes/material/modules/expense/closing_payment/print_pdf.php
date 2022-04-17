@@ -107,20 +107,7 @@
             </p>
         </td>
         <?php if($entity['type']!='CASH'): ?>
-            <?php if($entity['base']!='JAKARTA'): ?>
-            <!-- <td valign="top" align="center">
-                <p>
-                    Approved by:
-                    <br />Finance Supervisor
-                    <?php if ($entity['checked_by'] != '') : ?>
-                        <br /><?= print_date($entity['checked_at']) ?><br>
-                    <img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
-                    <?php endif; ?>
-                    <br />
-                    <br /><?= $entity['checked_by']; ?>
-                </p>
-            </td> -->
-            <?php endif; ?>
+            
 
             <td valign="top" align="center">
                 <p>
@@ -135,20 +122,6 @@
                 </p>
             </td>
 
-            <?php if($entity['base']=='JAKARTA'): ?>
-            <td valign="top" align="center">
-                <p>
-                    Approved by:
-                    <br /> VP Finance
-                    <?php if ($entity['known_by'] != '') : ?>
-                    <br /><?= print_date($entity['known_at']) ?><br>
-                    <img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
-                    <?php endif; ?>
-                    <br />
-                    <br /><?= $entity['known_by']; ?>
-                </p>
-            </td>
-            <?php endif; ?>
         <?php endif;?>
     </tr>
 </table>

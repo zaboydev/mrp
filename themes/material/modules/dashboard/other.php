@@ -147,7 +147,7 @@
                 <?php if (is_granted($modules['expense_closing_payment'], 'approval')):?>
                   <div class="card-head collapsed">
                     <header>
-                      <a href="<?=site_url($modules['payment']['route']);?>">
+                      <a href="<?=site_url($modules['expense_closing_payment']['route']);?>">
                         Expense Purposed Payment (<strong><font color="red"><?=$count_expense_purposed_payment;?></font></strong>)
                       </a>
                     </header>
@@ -156,8 +156,43 @@
                 <?php if (is_granted($modules['capex_closing_payment'], 'approval')):?>
                   <div class="card-head collapsed">
                     <header>
-                      <a href="<?=site_url($modules['payment']['route']);?>">
+                      <a href="<?=site_url($modules['capex_closing_payment']['route']);?>">
                         Capex Purposed Payment (<strong><font color="red"><?=$count_capex_purposed_payment;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+            </div>
+          </div> 
+        <?php elseif (is_granted($module, 'payment')):?>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>Payment</header>
+              </div>
+                <?php if (is_granted($modules['payment'], 'payment')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['payment']['route']);?>">
+                        Payment Request (<strong><font color="red"><?=$count_payment_request_need_to_pay;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+                <?php if (is_granted($modules['expense_closing_payment'], 'payment')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_closing_payment']['route']);?>">
+                        Expense Purposed Payment (<strong><font color="red"><?=$count_expense_purposed_payment_need_to_pay;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+                <?php if (is_granted($modules['capex_closing_payment'], 'payment')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_closing_payment']['route']);?>">
+                        Capex Purposed Payment (<strong><font color="red"><?=$count_capex_purposed_payment_need_to_pay;?></font></strong>)
                       </a>
                     </header>
                   </div>

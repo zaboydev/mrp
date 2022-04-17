@@ -422,9 +422,9 @@ class Goods_Received_Note extends MY_Controller
           if ($serial_number !== NULL && isItemExists($part_number, $description, $serial_number)){
             $item_id = getItemId($part_number, $description, $serial_number);
 
-            // if (!isset($_SESSION['receipt']['edit']) && getStockQuantity($item_id, $condition) > 0){
-            //   $errors[] = 'Item with Serial number '. $serial_number .' still contains quantity.';
-            // }
+            if (!isset($_SESSION['receipt']['edit']) && getStockQuantity($item_id, $condition) > 0){
+              $errors[] = 'Item with Serial number '. $serial_number .' still contains quantity.';
+            }
           }
           //cek kurs
           // if (!isset($_SESSION['receipt']['edit'])){

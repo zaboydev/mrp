@@ -135,7 +135,7 @@ class Expense_Closing_Payment extends MY_Controller
     public function index()
     {
         $this->authorized($this->module, 'index');
-        unset($_SESSION['payment_request']);
+        unset($_SESSION['request_closing']);
 
         $this->data['page']['title']            = $this->module['label'];
         $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
@@ -144,16 +144,16 @@ class Expense_Closing_Payment extends MY_Controller
         $this->data['grid']['summary_columns']  = array(7,8);
 
         $this->data['grid']['order_columns']    = array();
-        // $this->data['grid']['order_columns']    = array(
-        //   0   => array( 0 => 1,  1 => 'desc' ),
-        //   1   => array( 0 => 2,  1 => 'desc' ),
-        //   2   => array( 0 => 3,  1 => 'asc' ),
-        //   3   => array( 0 => 4,  1 => 'asc' ),
-        //   4   => array( 0 => 5,  1 => 'asc' ),
-        //   5   => array( 0 => 6,  1 => 'asc' ),
-        //   6   => array( 0 => 7,  1 => 'asc' ),
-        //   7   => array( 0 => 8,  1 => 'asc' ),
-        // );
+        $this->data['grid']['order_columns']    = array(
+          0   => array( 0 => 1,  1 => 'desc' ),
+          1   => array( 0 => 2,  1 => 'desc' ),
+          2   => array( 0 => 3,  1 => 'desc' ),
+          3   => array( 0 => 4,  1 => 'desc' ),
+          4   => array( 0 => 5,  1 => 'desc' ),
+          5   => array( 0 => 6,  1 => 'desc' ),
+          6   => array( 0 => 7,  1 => 'desc' ),
+          7   => array( 0 => 8,  1 => 'desc' ),
+        );
 
         $this->render_view($this->module['view'] . '/index');
     }
