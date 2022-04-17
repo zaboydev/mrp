@@ -147,7 +147,7 @@
                 <?php if (is_granted($modules['expense_closing_payment'], 'approval')):?>
                   <div class="card-head collapsed">
                     <header>
-                      <a href="<?=site_url($modules['payment']['route']);?>">
+                      <a href="<?=site_url($modules['expense_closing_payment']['route']);?>">
                         Expense Purposed Payment (<strong><font color="red"><?=$count_expense_purposed_payment;?></font></strong>)
                       </a>
                     </header>
@@ -156,7 +156,7 @@
                 <?php if (is_granted($modules['capex_closing_payment'], 'approval')):?>
                   <div class="card-head collapsed">
                     <header>
-                      <a href="<?=site_url($modules['payment']['route']);?>">
+                      <a href="<?=site_url($modules['capex_closing_payment']['route']);?>">
                         Capex Purposed Payment (<strong><font color="red"><?=$count_capex_purposed_payment;?></font></strong>)
                       </a>
                     </header>
