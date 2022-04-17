@@ -829,7 +829,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
       }
     }
 
-    if ($this->db->trans_status() === FALSE)
+    if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
       return FALSE;
 
     $this->db->trans_commit();

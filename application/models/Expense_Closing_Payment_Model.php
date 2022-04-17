@@ -217,6 +217,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_request_payments');
         $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
+        $this->connection->where('tb_request_payments.source','EXPENSE');
         $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
@@ -250,6 +251,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_request_payments');
         $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
+        $this->connection->where('tb_request_payments.source','EXPENSE');
         $this->connection->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
@@ -264,6 +266,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_request_payments');
         $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
+        $this->connection->where('tb_request_payments.source','EXPENSE');
         $this->connection->group_by($this->getGroupedColumns());
 
         $query = $this->connection->get();
@@ -414,10 +417,9 @@ class Expense_Closing_Payment_Model extends MY_Model
 
             if (config_item('auth_role')=='FINANCE MANAGER' && $request_payment['status'] == 'WAITING REVIEW BY FIN MNG') {
                 if($request_payment['base']=='JAKARTA'){
-                    $this->connection->set('status', 'WAITING REVIEW BY VP FINANCE');
-                    $status = 'WAITING REVIEW BY VP FINANCE';
-                    $level = 3;
-                    $send_to_vp_finance[] = $id;
+                    $this->db->set('status', 'APPROVED');
+                    $status = 'APPROVED';
+                    $level = 0;
                 }else{
                     $this->connection->set('status', 'APPROVED');
                     $status = 'APPROVED';
@@ -573,6 +575,7 @@ class Expense_Closing_Payment_Model extends MY_Model
     public function save()
     {
         $this->connection->trans_begin();
+        $this->db->trans_begin();
 
         $id                     = (isset($_SESSION['request_closing']['id'])) ? $_SESSION['request_closing']['id'] : NULL;
         $closing_date           = $_SESSION['request_closing']['date'];
@@ -820,10 +823,11 @@ class Expense_Closing_Payment_Model extends MY_Model
         // }
         
 
-        if ($this->connection->trans_status() === FALSE)
+        if ($this->connection->trans_status() === FALSE || $this->db->trans_status() === FALSE)
           return FALSE;
 
         $this->connection->trans_commit();
+        $this->db->trans_commit();
         if($type!='CASH'){
             $this->send_mail($request_payment_id,14,$base);
         }
@@ -918,7 +922,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         foreach ($_SESSION['payment']['request'] as $i => $request) {
             foreach ($request['items'] as $j => $key) {
                 if($key['request_id']!=NULL){
-                    if($this->updateStatusExpense($request_item['expense_purchase_requisition_id'])){
+                    if($this->updateStatusExpense($key['request_id'])){
                         $this->connection->set('closing_date', $tanggal);
                         $this->connection->set('status', 'close');
                         // $this->connection->set('closing_notes', $notes);
