@@ -129,6 +129,7 @@ require('modules/konsolidasi.php');
 //finance
 require('modules/saldo.php');
 require('modules/cash_request.php');
+require('modules/payment_voucher_purposed.php');
 
 //account_payable
 require('modules/account_payable.php');
