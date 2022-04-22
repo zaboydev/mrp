@@ -1789,7 +1789,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->trans_begin();
 
         $id = $this->input->post('id');
-        $notes = $this->input->post('notes');
+        $notes = $this->input->post('change_notes');
 
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->where('id', $id);
@@ -1826,9 +1826,13 @@ class Expense_Request_Model extends MY_Model
             $this->connection->update('tb_expense_purchase_requisitions'); 
         }
 
-        
-
-        
+        $this->connection->set('change_by', config_item('auth_person_name'));
+        $this->connection->set('notes', $notes);
+        $this->connection->set('source', 'EXPENSE');
+        $this->connection->set('request_id', $id);
+        $this->connection->set('pr_number', $pr_number);
+        $this->connection->set('date', date('Y-m-d'));
+        $this->connection->insert('tb_change_request_history');        
 
         if ($this->connection->trans_status() === FALSE)
             return ['status'=>FALSE,'info'=>'Expense gagal Diubah. Silahkan dicoba beberapa saat lagi'];
