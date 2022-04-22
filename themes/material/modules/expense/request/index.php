@@ -1051,12 +1051,13 @@
             }
             button.attr('disabled', true);
 
-            let notes = prompt("Please enter notes", "");
-            $('form.form-xhr-change input[name=change_notes]').val(notes);
-
-            var form = $('.form-xhr-change');
-            var action = button.attr('href');
             if (confirm('Expense Request ini merupakan expense request '+last_type+'? Anda yakin akan mengubah request ini menjadi request '+next_type+'?')) {
+
+              let notes = prompt("Please enter notes", "");
+              $('form.form-xhr-change input[name=change_notes]').val(notes);
+
+              var form = $('.form-xhr-change');
+              var action = button.attr('href');
               
               $.post(action, form.serialize()).done(function(data) {
                 var obj = $.parseJSON(data);

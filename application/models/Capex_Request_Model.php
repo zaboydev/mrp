@@ -410,6 +410,16 @@ class Capex_Request_Model extends MY_Model
             $request['items'][$key]['history']          = $this->getHistory($request['annual_cost_center_id'],$value['product_id'],$request['order_number']);
         }
 
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'capex');
+        $data = $this->connection->get('tb_attachment')->result();
+        $attachment = array();
+        foreach ($data as $key) {
+            array_push($attachment, $key->file);
+        }
+        $request["attachment"]  = $attachment;
+        // $request['cancel']      = getStatusCancelRequest(strtoupper($request['pr_number']));
+
         return $request;
     }
 
@@ -1664,5 +1674,69 @@ class Capex_Request_Model extends MY_Model
 
 
         return $count+$count_as_head_dept;
+    }
+
+    function change()
+    {
+        $this->connection->trans_begin();
+
+        $id = $this->input->post('id');
+        $notes = $this->input->post('change_notes');
+
+        $this->connection->from('tb_capex_purchase_requisitions');
+        $this->connection->where('id', $id);
+
+        $query  = $this->connection->get();
+        $request    = $query->unbuffered_row('array');
+
+        $pr_number = $request['pr_number'];
+        $last_status = $request['status'];
+        $level = 0;
+
+        if($request['with_po']=='t'){
+            if($last_status=='approved'){
+                $this->connection->set('status', 'WAITING FOR FINANCE REVIEW');
+                $level = 14;
+            }            
+            $this->connection->set('with_po', 'f');
+            $this->connection->set('change_notes', $notes);
+            $this->connection->where('id', $id);
+            $this->connection->update('tb_capex_purchase_requisitions'); 
+            $last_tipe = 'Tanpa PO'; 
+        }else{
+            $status = [
+                'WAITING FOR HOS REVIEW',
+                'WAITING FOR COO REVIEW',
+                'WAITING FOR VP FINANCE REVIEW',
+                'WAITING FOR CFO REVIEW'
+            ];
+            if(in_array($last_status,$status)){
+                $this->connection->set('status', 'approved');
+            }            
+            $this->connection->set('with_po', 't');
+            $this->connection->set('change_notes', $notes);
+            $this->connection->where('id', $id);
+            $this->connection->update('tb_capex_purchase_requisitions'); 
+            $last_tipe = 'Dengan PO';
+        }
+
+        $this->connection->set('change_by', config_item('auth_person_name'));
+        $this->connection->set('notes', $notes);
+        $this->connection->set('source', 'CAPEX');
+        $this->connection->set('request_id', $id);
+        $this->connection->set('pr_number', $pr_number);
+        $this->connection->set('date', date('Y-m-d'));
+        $this->connection->insert('tb_change_request_history');       
+
+        
+
+        if ($this->connection->trans_status() === FALSE)
+            return ['status'=>FALSE,'info'=>'Expense gagal Diubah. Silahkan dicoba beberapa saat lagi'];
+
+        $this->connection->trans_commit();
+        if($level>0){
+            $this->send_mail($id, $level);
+        }
+        return ['status'=>TRUE,'info'=>'Capex '.$pr_number.' Berhasil Diubah menjadi '.$last_tipe];
     }
 }

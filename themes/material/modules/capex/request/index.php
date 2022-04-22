@@ -963,6 +963,60 @@
 
             button.attr('disabled', false);
           });
+
+          $(document).on('click', '.btn-xhr-change', function(e) {
+            e.preventDefault();
+
+            var button = $(this);
+            var type = $(this).data('type-po');
+
+
+            if(type=='f'){
+              var last_type = 'tanpa PO';
+              var next_type = 'dengan PO';
+            }else{
+              var last_type = 'dengan PO';
+              var next_type = 'tanpa PO';
+            }
+            button.attr('disabled', true);
+
+            var form = $('.form-xhr-change');
+            var action = button.attr('href');
+            if (confirm('Capex Request ini merupakan Capex request '+last_type+'? Anda yakin akan mengubah request ini menjadi request '+next_type+'?')) {
+
+              let notes = prompt("Please enter notes", "");
+              $('form.form-xhr-change input[name=change_notes]').val(notes);
+              
+              $.post(action, form.serialize()).done(function(data) {
+                var obj = $.parseJSON(data);
+                if (obj.type == 'danger') {
+                  toastr.options.timeOut = 10000;
+                  toastr.options.positionClass = 'toast-top-right';
+                  toastr.error(obj.info);
+
+                  buttonToDelete.attr('disabled', false);
+                } else {
+                  toastr.options.positionClass = 'toast-top-right';
+                  toastr.success(obj.info);
+
+                  form.reset();
+
+                  $('[data-dismiss="modal"]').trigger('click');
+
+                  if (datatable) {
+                    datatable.ajax.reload(null, false);
+                  }
+                }
+              }).fail(function() {
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.error('Cancel Failed!');
+              });
+            }
+
+            button.attr('disabled', false);
+          });
+
         });
       </script>
 
