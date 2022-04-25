@@ -17,52 +17,13 @@ class Stock extends MY_Controller
   {
     $this->authorized($this->module, 'index');
 
-    if (isset($_POST['start_date']) && $_POST['start_date'] && isset($_POST['end_date']) && $_POST['end_date'] !== NULL){
-      $start_date  = $_POST['start_date'];
-      $end_date = $_POST['end_date'];
-      $periode=print_date($start_date,'d F Y').' - '.print_date($end_date,'d F Y');
-    } else {
-      $start_date  = NULL;
-      $end_date = NULL;
-      $periode = 'ALL Periode';
-
-    }
-
-    if (isset($_POST['condition']) && $_POST['condition'] !== NULL){
-      $condition  = $_POST['condition'];
-    } else {
-      $condition  = "SERVICEABLE";
-    }
-
-    if (isset($_POST['category']) && $_POST['category'] !== NULL){
-      $category = $_POST['category'];
-    } else {
-      $category = 'all';
-    }
-
-    if (isset($_POST['warehouse']) && $_POST['warehouse'] !== NULL){
-      $warehouse = $_POST['warehouse'];
-    } else {
-      $warehouse = 'ALL BASES';
-    }
-
-    if (isset($_POST['quantity']) && $_POST['quantity'] !== NULL){
-      $quantity = $_POST['quantity'];
-    } else {
-      $quantity = 'b';
-    }
-    
-    $this->data['selected_category']        = $category;
-    $this->data['selected_condition']       = $condition;
-    $this->data['selected_warehouse']       = $warehouse;
-    $this->data['selected_quantity']        = $quantity;
    
     $this->data['page']['requirement']      = array('datatable');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $condition .'/'. $warehouse.'/'. $category.'/'.$quantity.'/'.$start_date.'/'.$end_date);
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
 
     
-    $this->data['page']['title']            = $this->module['label'] .' '. $warehouse.' '. $category .' '. $condition.' / PERIODE : '.$periode;
+    $this->data['page']['title']            = $this->module['label'];
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 9 );
     if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'VP FINANCE' ){
@@ -89,39 +50,12 @@ class Stock extends MY_Controller
     $this->render_view($this->module['view'] .'/index');
   }
 
-  public function index_data_source($condition = 'SERVICEABLE', $warehouse='ALL BASES', $category = 'all', $quantity = 'b', $start_date = NULL, $end_date = NULL)
+  public function index_data_source()
   {
     $this->authorized($this->module, 'index');
 
-    if ($warehouse !== NULL){
-      $warehouse = (urldecode($warehouse) === 'ALL BASES') ? NULL : urldecode($warehouse);
-    } 
-    else {
-      $warehouse = urldecode($warehouse);
-    }
 
-    // if ($category !== NULL){
-    //   $category = urldecode($category);
-    // }
-    if ($category !== NULL){
-      $category = (urldecode($category) === 'all') ? NULL : urldecode($category);
-    } 
-    else {
-      $category = urldecode($category);
-    }
-
-    if ($quantity !== NULL){
-      $quantity = (urldecode($quantity) === 'b') ? NULL : urldecode($quantity);
-    }else {
-      $quantity = urldecode($quantity);
-    }
-
-    if ($start_date && $end_date !== NULL){
-      $start_date  = urldecode($start_date);
-      $end_date = urldecode($end_date);
-    }
-
-    $entities = $this->model->getIndex( $condition, $warehouse,$quantity, $category, $start_date, $end_date);
+    $entities = $this->model->getIndex();
 
     $data = array();
     $no = $_POST['start'];
@@ -187,8 +121,8 @@ class Stock extends MY_Controller
 
     $result = array(
       "draw" => $_POST['draw'],
-      "recordsTotal" => $this->model->countIndex($condition, $warehouse, $quantity, $start_date, $end_date, $category),
-      "recordsFiltered" => $this->model->countIndexFiltered($condition, $warehouse, $quantity, $start_date, $end_date, $category),
+      "recordsTotal" => $this->model->countIndex(),
+      "recordsFiltered" => $this->model->countIndexFiltered(),
       "data" => $data,
       "total" => array(
         9 => print_number(array_sum($quantity), 2)
