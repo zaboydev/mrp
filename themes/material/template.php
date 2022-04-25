@@ -16,7 +16,6 @@
   <?=link_tag('themes/material/assets/css/app.css') ?>
   <?=link_tag('themes/material/assets/css/bootstrap.print.css') ?>
   <?=link_tag('vendors/select2-4.0.3/dist/css/select2.min.css') ?>
-  <?=link_tag('vendors/select2-pmd/css/pmd-select2.css') ?>  
 
   <!--[if lt IE 9]>
     <?=html_script('themes/material/assets/js/libs/utils/html5shiv.js') ?>
@@ -80,7 +79,6 @@
   <?=html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
   <?=html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
   <?=html_script('vendors/twbs-pagination-master/jquery.twbsPagination.js') ?>
-  <?= html_script('vendors/select2-pmd/js/pmd-select2.js') ?>
   <?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
   
   <?php $this->load->view('material/_script') ?>
