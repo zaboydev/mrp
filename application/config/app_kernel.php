@@ -48,6 +48,7 @@ $config['module'] = array();
 
 //MASTER DATA
 require('modules/master_akun.php');
+require('modules/daftar_akun.php');
 require('modules/item.php');
 require('modules/item_category.php');
 require('modules/item_group.php');

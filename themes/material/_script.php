@@ -7,6 +7,8 @@
     $('.progress-overlay').hide();
   });
 
+  $('.select2').select2();
+
   (function($) {
     $.fn.reset = function() {
       this.find('input:text, input[type="email"], input:password, select, textarea').val('');

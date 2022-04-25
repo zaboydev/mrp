@@ -32,6 +32,28 @@ $config['currency'] = array(
   // 'ALL'       => 'All Condition',
 );
 
+$config['account_types'] = array(
+  'Asset'                   => 'Asset',
+  'Bank'                    => 'Bank',
+  'Other Asset'             => 'Other Asset',
+  'Accounts Receivable'     => 'Accounts Receivable',
+  'Other Current Asset'     => 'Other Current Asset',
+  'Cash'                    => 'Cash',
+  'Fixed Asset'             => 'Fixed Asset',
+  'Liability'               => 'Liability',
+  'Accounts Payable'        => 'Accounts Payable',
+  'Other Liability'         => 'Other Liability',
+  'Other Current Liability' => 'Other Current Liability',
+  'Credit Card'             => 'Credit Card',
+  'Long Term Liability'     => 'Long Term Liability',
+  'Equity'                  => 'Equity',
+  'Income'                  => 'Income',
+  'Cost of Sales'           => 'Cost of Sales',
+  'Expense'                 => 'Expense',
+  'Other Income'            => 'Other Income',
+  'Other Expense'           => 'Other Expense',
+);
+
 
 $config['access_from']  = 'server_mrp';
 $config['head_office_cost_center_id']  = [26,30];

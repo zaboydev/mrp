@@ -95,15 +95,12 @@
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
-<form method="post" class="form force-padding">
-  <!-- <div class="form-group">
-    <input type="text" name="start_date" id="start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control">
-    <input type="text" name="end_date" id="end_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control">
-    <label for="start_date">Date</label>
-  </div> -->
+
+<div class="form force-padding">
+  
   <div class="form-group">
-      <label for="warehouse">Base</label>
-      <select class="form-control input-sm" id="warehouse" name="warehouse">
+    <label for="warehouse">Base</label>
+      <select class="form-control input-sm filter_dropdown" data-column="1" id="warehouse" name="warehouse" data-tipe="Base">
         <option value="ALL BASES">-- ALL BASES --</option>
         <option value="all base rekondisi" <?=($selected_warehouse == 'all base rekondisi') ? 'selected' : '';?>>- ALL BASE REKONDISI-</option>
         <?php foreach (config_item('auth_warehouses') as $warehouse):?>
@@ -112,14 +109,13 @@
           </option>
         <?php endforeach; ?>
       </select>
-    </div>
-
+  </div>
+  <?php if($jenis!='mixing'):?>
   <div class="form-group">
     <label for="category">Category</label>
-    <select class="form-control input-sm" id="category" name="category">
-      <option value="all" <?=($selected_category == 'all') ? 'selected' : '';?>>-- ALL CATEGORIES --</option>
+    <select class="form-control input-sm select2 filter_dropdown" data-column="2" id="category" name="category[]" multiple="multiple">
       <?php foreach (config_item('auth_inventory') as $category):?>
-        <option value="<?=$category;?>" <?=($category == $selected_category) ? 'selected' : '';?>>
+        <option value="<?=$category;?>" <?=(in_array($category,config_item('auth_inventory'))) ? 'selected' : '';?>>
           <?=$category;?>
         </option>
       <?php endforeach; ?>
@@ -128,32 +124,25 @@
 
   <div class="form-group">
     <label for="condition">Condition</label>
-    <select class="form-control input-sm" id="condition" name="condition">
+    <select class="form-control input-sm filter_dropdown" data-column="3" id="condition" name="condition">
       <?php foreach (available_conditions() as $condition):?>
-        <option value="<?=$condition;?>" <?=($condition == $selected_condition) ? 'selected' : '';?>>
+        <option value="<?=$condition;?>" <?=($condition == 'SERVICEABLE') ? 'selected' : '';?>>
           <?=$condition;?>
         </option>
       <?php endforeach; ?>
     </select>
   </div>
+  <?php endif;?>
 
   <div class="form-group">
-      <label for="condition">Quantity</label>
-      <select class="form-control input-sm" id="quantity" name="quantity">
-          <option value="b"<?=($selected_quantity == 'b') ? 'selected' : '';?>>
-            > 0
-          </option>
-          <option value="a" <?=($selected_quantity == 'a') ? 'selected' : '';?>>
-            0
-          </option>
-          <option value="all" <?=($selected_quantity == 'all') ? 'selected' : '';?>>
-            All Qty
-          </option>
-      </select>
-    </div>
-
-  <button type="submit" class="btn btn-flat btn-danger btn-block ink-reaction">Generate</button>
-</form>
+    <label for="condition">Quantity</label>
+    <select class="form-control input-sm filter_dropdown" data-column="4" id="quantity" name="quantity">
+      <option value="b" selected="selected"> > 0 </option>
+      <option value="a"> 0 </option>
+      <option value="all"> All Qty </option>
+    </select>
+  </div>
+</div>
 <?php endblock() ?>
 
 <?php if (is_granted($module, 'import')):?>
