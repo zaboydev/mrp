@@ -18,7 +18,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipts.warehouse'                   => 'Base',
       // 'tb_stock_in_stores.stores'                   => 'Stores',
       'tb_master_items.description'             => 'Description',
-      'tb_master_items.id as item_id'                      => 'Item Id',
+      'tb_master_items.id as item_id'           => 'Item Id',
       'tb_master_items.part_number'             => 'Part Number',
       'tb_master_items.alternate_part_number'   => 'Alt. Part Number',
       'tb_master_items.serial_number'           => 'Serial Number',
@@ -31,6 +31,8 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.kode_stok'               => 'Kode Stok',
       'tb_receipt_items.purchase_order_number'  => 'Order Number',
       'tb_receipt_items.awb_number'             => 'AWB Number',
+      'tb_receipt_items.reference_number'       => 'No Inv/Nota',
+      'tb_stock_in_stores.tgl_nota'             => 'Tgl Inv/Nota',
       'tb_receipt_items.remarks'                => 'Remarks',
       'tb_receipts.received_from'               => 'Received From',
       'tb_receipts.received_by'                 => 'Received By',
@@ -65,6 +67,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.unit',
       'tb_receipt_items.purchase_order_number',
       'tb_receipt_items.awb_number',
+      'tb_receipt_items.reference_number',
       'tb_receipt_items.remarks',
       'tb_receipts.received_from',
       'tb_receipts.received_by',
@@ -77,7 +80,7 @@ class Goods_Received_Note_Model extends MY_Model
   {
     $return = array(
       null,
-      'tb_receipts.document_number',
+      'tb_receipts.id',
       'tb_receipts.received_date',
       'tb_receipts.category',
       'tb_receipts.warehouse',
@@ -90,6 +93,8 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_master_items.unit',
       'tb_receipt_items.purchase_order_number',
       'tb_receipt_items.awb_number',
+      'tb_receipt_items.reference_number',
+      'tb_stock_in_stores.tgl_nota',
       'tb_receipt_items.remarks',
       'tb_receipts.received_from',
       'tb_receipts.received_by',
@@ -114,9 +119,13 @@ class Goods_Received_Note_Model extends MY_Model
     }
 
     if (!empty($_POST['columns'][2]['search']['value'])) {
-      $search_category = $_POST['columns'][2]['search']['value'];
+      // $search_category = $_POST['columns'][2]['search']['value'];
+      // $this->db->where('tb_receipts.category', $search_category);
 
-      $this->db->where('tb_receipts.category', $search_category);
+      $search_category = $_POST['columns'][2]['search']['value'];
+      $categories  = explode(',', $search_category);
+
+      $this->db->where_in('tb_receipts.category', $categories);
     }
 
     if (!empty($_POST['columns'][3]['search']['value'])) {
@@ -160,6 +169,20 @@ class Goods_Received_Note_Model extends MY_Model
       $search_received_from = $_POST['columns'][8]['search']['value'];
 
       $this->db->like('UPPER(tb_receipts.received_from)', strtoupper($search_received_from));
+    }
+
+    if (!empty($_POST['columns'][9]['search']['value'])) {
+      $search_invoice_date = $_POST['columns'][9]['search']['value'];
+      $range_invoice_date  = explode(' ', $search_invoice_date);
+
+      $this->db->where('tb_stock_in_stores.tgl_nota >= ', $range_invoice_date[0]);
+      $this->db->where('tb_stock_in_stores.tgl_nota <= ', $range_invoice_date[1]);
+    }
+
+    if (!empty($_POST['columns'][10]['search']['value'])) {
+      $search_invoice_nota = $_POST['columns'][10]['search']['value'];
+
+      $this->db->like('UPPER(tb_receipt_items.reference_number)', strtoupper($search_invoice_nota));
     }
 
     $i = 0;
@@ -836,6 +859,7 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('qty_konvers', floatval($qty_konvers));
       $this->db->set('warehouse_id', $warehouse_id);
       $this->db->set('reference_ipc', $reference_ipc);
+      $this->db->set('tgl_nota', $data['tgl_nota']);
       $this->db->insert('tb_stock_in_stores');
 
       $stock_in_stores_id = $this->db->insert_id();

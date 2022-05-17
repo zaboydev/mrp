@@ -402,6 +402,11 @@
                 </div>
 
                 <div class="form-group">
+                  <input type="text" name="tgl_nota" id="tgl_nota" data-tag-name="tgl_nota" class="form-control input-sm tgl_nota">
+                  <label for="reference_number">Tgl Inv/Nota</label>
+                </div>
+
+                <div class="form-group">
                   <input type="text" name="reference_number" id="reference_number" data-tag-name="reference_number" class="form-control input-sm">
                   <label for="reference_number">Ref./Invoice</label>
                 </div>
@@ -660,6 +665,11 @@
                 </div>
 
                 <div class="form-group">
+                  <input type="text" name="tgl_nota" id="edit_tgl_nota" data-tag-name="tgl_nota" class="form-control input-sm tgl_nota">
+                  <label for="reference_number">Tgl Inv/Nota</label>
+                </div>
+
+                <div class="form-group">
                   <input type="text" name="reference_number" id="edit_reference_number" data-tag-name="reference_number" class="form-control input-sm">
                   <label for="reference_number">Ref./Invoice</label>
                 </div>
@@ -868,7 +878,7 @@
       // endDate: last_opname
     });
 
-    $('#expired_date').datepicker({
+    $('#expired_date,.tgl_nota').datepicker({
       autoclose: true,
       todayHighlight: true,
       format: 'yyyy-mm-dd'
@@ -1441,6 +1451,7 @@
           }
           $('input[id="edit_expired_date"]').val(response.expired_date);
           $('[name="purchase_order_number"]').val(response.purchase_order_number);
+          $('[name="tgl_nota"]').val(response.tgl_nota);
           $('[name="reference_number"]').val(response.reference_number);
           $('[name="awb_number"]').val(response.awb_number);
           $('[name="remarks"]').val(response.remarks);
