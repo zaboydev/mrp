@@ -1668,6 +1668,23 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAccountsMrp')) {
+    function getAccountsMrp()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('coa,group');
+      $CI->db->from( 'tb_master_coa' ); 
+      $CI->db->order_by('coa','asc');
+
+      $query    = $CI->db->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
   if ( ! function_exists('getAccountMrpByCode')) {
     function getAccountMrpByCode($code)
     {
