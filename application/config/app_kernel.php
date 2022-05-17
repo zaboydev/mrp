@@ -66,6 +66,7 @@ require('modules/product_category.php');
 require('modules/expense_item.php');
 require('modules/deliver.php');
 require('modules/bill.php');
+require('modules/daftar_pajak.php');
 
 //PLANNING
 require('modules/budget_cot.php');

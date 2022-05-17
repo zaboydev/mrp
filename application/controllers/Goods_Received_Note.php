@@ -199,6 +199,8 @@ class Goods_Received_Note extends MY_Controller
         $col[]  = print_string($row['kode_stok']);
         $col[]  = print_string($row['purchase_order_number']);
         $col[]  = print_string($row['awb_number']);
+        $col[]  = print_string($row['reference_number']);
+        $col[]  = print_date($row['tgl_nota']);
         $col[]  = print_string($row['remarks']);
         $col[]  = print_string($row['received_from']);
         $col[]  = print_string($row['received_by']);
@@ -268,17 +270,27 @@ class Goods_Received_Note extends MY_Controller
       $this->data['grid']['summary_columns'][] = 21;
     }
 
-    $this->data['grid']['order_columns']    = array();
-    // $this->data['grid']['order_columns']    = array(
-    //   0   => array( 0 => 1,  1 => 'desc' ),
-    //   1   => array( 0 => 2,  1 => 'desc' ),
-    //   2   => array( 0 => 3,  1 => 'asc' ),
-    //   3   => array( 0 => 4,  1 => 'asc' ),
-    //   4   => array( 0 => 5,  1 => 'asc' ),
-    //   5   => array( 0 => 6,  1 => 'asc' ),
-    //   6   => array( 0 => 7,  1 => 'asc' ),
-    //   7   => array( 0 => 8,  1 => 'asc' ),
-    // );
+    // $this->data['grid']['order_columns']    = array();
+    $this->data['grid']['order_columns']    = array(
+      0   => array( 0 => 1,  1 => 'desc' ),
+      1   => array( 0 => 2,  1 => 'desc' ),
+      2   => array( 0 => 3,  1 => 'asc' ),
+      3   => array( 0 => 4,  1 => 'asc' ),
+      4   => array( 0 => 5,  1 => 'asc' ),
+      5   => array( 0 => 6,  1 => 'asc' ),
+      6   => array( 0 => 7,  1 => 'asc' ),
+      7   => array( 0 => 8,  1 => 'asc' ),
+      8   => array( 0 => 9,  1 => 'asc' ),
+      9   => array( 0 => 10,  1 => 'asc' ),
+      10   => array( 0 => 11,  1 => 'asc' ),
+      11   => array( 0 => 12,  1 => 'asc' ),
+      12   => array( 0 => 13,  1 => 'asc' ),
+      13   => array( 0 => 14,  1 => 'asc' ),
+      14   => array( 0 => 15,  1 => 'asc' ),
+      15   => array( 0 => 16,  1 => 'asc' ),
+      16   => array( 0 => 17,  1 => 'asc' ),
+      17   => array( 0 => 18,  1 => 'asc' ),
+    );
 
     $this->render_view($this->module['view'] .'/index');
   }
@@ -490,6 +502,7 @@ class Goods_Received_Note extends MY_Controller
         'quantity_order'          => $this->input->post('quantity_order'),
         'value_order'             => $this->input->post('value_order'),
         'no_expired_date'         => $this->input->post('no_expired_date'),
+        'tgl_nota'                => $this->input->post('tgl_nota'),
 
       );
 
@@ -581,10 +594,11 @@ class Goods_Received_Note extends MY_Controller
         'unit_pakai'              => trim($this->input->post('unit_pakai')), 
         'isi'                     => trim($this->input->post('isi')),
         'quantity_order'          => $this->input->post('quantity_order'),
-        'value_order'          => $this->input->post('value_order'),
+        'value_order'             => $this->input->post('value_order'),
         'no_expired_date'         => $this->input->post('edit_no_expired_date'),
-        'stock_in_stores_id'       => trim($this->input->post('stock_in_store_id')),
-        'receipt_items_id'       => trim($this->input->post('receipt_items_id')),
+        'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
+        'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
+        'tgl_nota'                => $this->input->post('tgl_nota'),
 
       );
     }

@@ -45,15 +45,11 @@
   </div>
 
   <div class="form-group">
-    <label for="filter_item_group">Category</label>
-    <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_item_category">
-      <option value="">
-        Not filtered
-      </option>
-
-      <?php foreach (config_item('auth_inventory') as $category) : ?>
-        <option value="<?= $category; ?>">
-          <?= $category; ?>
+    <label for="category">Category</label>
+    <select class="form-control input-sm select2 filter_dropdown" data-column="2" id="category" name="category[]" multiple="multiple">
+      <?php foreach (config_item('auth_inventory') as $category):?>
+        <option value="<?=$category;?>" <?=(in_array($category,config_item('auth_inventory'))) ? 'selected' : '';?>>
+          <?=$category;?>
         </option>
       <?php endforeach; ?>
     </select>
@@ -104,6 +100,16 @@
         No
       </option>      
     </select>
+  </div>
+
+  <div class="form-group">
+    <label for="filter_received_date">Tgl Inv/Nota</label>
+    <input class="form-control input-sm filter_daterange" data-column="9" id="filter_invoice_date" readonly>
+  </div>
+
+  <div class="form-group">
+    <label for="filter_part_number">Ref. Inv/Nota</label>
+    <input type="text" class="form-control input-sm filter_numeric_text" data-column="10" id="filter_nomer_nota">
   </div>
 
   <div class="form-group">
@@ -171,6 +177,7 @@
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
+<?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
 
 <script>
   Pace.on('start', function() {
@@ -180,6 +187,8 @@
   Pace.on('done', function() {
     $('.progress-overlay').hide();
   });
+
+  $('.select2').select2();
 
   (function($) {
     $.fn.reset = function() {
