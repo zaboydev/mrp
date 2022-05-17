@@ -45,7 +45,7 @@
 
             <div class="form-group">
               <div class="radio">
-                <input type="checkbox" name="pemotongan" id="pemotongan" value="yes">
+                <input type="checkbox" name="pemotongan" id="pemotongan" value="yes" <?= ("yes" === $entity['pemotongan']) ? 'checked' : ''; ?>>
                 <label for="pemotongan">Pemotongan</label>
               </div>
               <label for="pemotongan">Pemotongan</label>

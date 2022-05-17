@@ -142,7 +142,7 @@ class Daftar_Pajak_Model extends MY_Model
 
     $this->db->set('description', $this->input->post('description'));
     $this->db->set('percentase', $this->input->post('percentase'));
-    if($this->input->post('pemotongan')=='ya'){                
+    if($this->input->post('pemotongan')=='yes'){                
       $this->db->set('pemotongan', $this->input->post('pemotongan'));
     }else{
       $this->db->set('pemotongan', 'no');
@@ -170,7 +170,7 @@ class Daftar_Pajak_Model extends MY_Model
 
     $this->db->set('description', $this->input->post('description'));
     $this->db->set('percentase', $this->input->post('percentase'));
-    if($this->input->post('pemotongan')=='ya'){                
+    if($this->input->post('pemotongan')=='yes'){                
       $this->db->set('pemotongan', $this->input->post('pemotongan'));
     }else{
       $this->db->set('pemotongan', 'no');
