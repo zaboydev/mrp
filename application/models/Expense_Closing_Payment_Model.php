@@ -15,6 +15,8 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->categories   = $this->getCategories();
         $this->budget_year  = find_budget_setting('Active Year');
         $this->budget_month = find_budget_setting('Active Month');
+        $this->modules        = config_item('module');
+        $this->data['modules']        = $this->modules;
     }
 
     public function getSelectedColumns()
@@ -34,7 +36,7 @@ class Expense_Closing_Payment_Model extends MY_Model
             'tb_request_payments.base'                                               => 'Base',
             'tb_request_payments.notes'                                              => 'Notes',
         );
-        if(is_granted($this->data['modules']['payment'], 'approval')){
+        if(is_granted($this->data['modules']['expense_closing_payment'], 'approval')){
             $return['tb_request_payments.approval_notes']  = 'Input Notes';
         }else{
             $return['tb_request_payments.approval_notes']  = 'Approval/Rejected Notes';
@@ -140,7 +142,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $this->connection->like('tb_request_payments.status', $status);
             }           
         } else {
-            if(is_granted($this->data['modules']['payment'], 'approval')){
+            if(is_granted($this->data['modules']['expense_closing_payment'], 'approval')){
                 if (config_item('auth_role') == 'FINANCE SUPERVISOR') {
                     $status[] = 'WAITING CHECK BY FIN SPV';
                 }
@@ -160,7 +162,10 @@ class Expense_Closing_Payment_Model extends MY_Model
                     $status[] = 'WAITING REVIEW BY CFO';
                 }
                 $this->db->where_in('tb_request_payments.status', $status);
-            }else{
+            }elseif(is_granted($this->data['modules']['expense_closing_payment'], 'review')){
+				$status[] = 'APPROVED';
+				$this->db->where_in('tb_request_payments.status', $status);
+			}else{
                 if (config_item('auth_role') == 'TELLER') {
                     $status[] = 'APPROVED';
                     $this->connection->where_in('tb_request_payments.status', $status);
@@ -595,7 +600,7 @@ class Expense_Closing_Payment_Model extends MY_Model
 
         
 
-        if ($document_id === NULL) {
+        if ($id === NULL) {
             $this->connection->set('document_number', $document_number);
             $this->connection->set('source', 'EXPENSE');
             $this->connection->set('vendor', strtoupper($vendor));
@@ -612,7 +617,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $this->connection->set('status','APPROVED');
                 $this->connection->set('cash_request','OPEN');
                 $this->connection->set('paid_by', config_item('auth_person_name'));
-                $this->connection->set('paid_at', date("Y-m-d",strtotime($date)));
+                $this->connection->set('paid_at', date("Y-m-d",strtotime($closing_date)));
             }else{
                 // if($base=='JAKARTA'){
                 $this->connection->set('status','WAITING REVIEW BY FIN MNG');
@@ -628,7 +633,7 @@ class Expense_Closing_Payment_Model extends MY_Model
 
             if($type=='CASH2'){
                 $this->db->set('no_jurnal', $document_number);
-                $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
+                $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($closing_date)));
                 $this->db->set('source', "AP-EXP");
                 $this->db->set('vendor', $vendor);
                 $this->db->set('grn_no', $document_number);
@@ -640,7 +645,7 @@ class Expense_Closing_Payment_Model extends MY_Model
             }
         }else{
             //utk edit
-            $request_payment_id = $document_id;
+            $request_payment_id = $id;
         }
 
         $request_items_id           = $this->input->post('request_item_id');
@@ -796,7 +801,7 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->db->set('trs_kredit', $amount_idr);
             $this->db->set('trs_debet_usd', 0);
             $this->db->set('trs_kredit_usd', $amount_usd);
-            $this->db->set('kode_rekening', $coa_kredit);
+            $this->db->set('kode_rekening', $account);
             $this->db->set('currency', $currency);
             $this->db->insert('tb_jurnal_detail');
         }
@@ -976,11 +981,11 @@ class Expense_Closing_Payment_Model extends MY_Model
         return TRUE;
     }
 
-    public function countTotalExpense(){
+    public function countTotalExpense($id){
         $this->connection->select('sum(total)');
         $this->connection->from('tb_expense_purchase_requisition_details');
         $this->connection->group_by('tb_expense_purchase_requisition_details.expense_purchase_requisition_id');
-        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $prl_item_id);
+        $this->connection->where('tb_expense_purchase_requisition_details.expense_purchase_requisition_id', $id);
         return $this->connection->get('')->row()->sum;
     }
 
