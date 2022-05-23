@@ -859,7 +859,10 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('qty_konvers', floatval($qty_konvers));
       $this->db->set('warehouse_id', $warehouse_id);
       $this->db->set('reference_ipc', $reference_ipc);
-      $this->db->set('tgl_nota', $data['tgl_nota']);
+      if($data['tgl_nota']!=NULL){
+        $this->db->set('tgl_nota', $data['tgl_nota']);
+      }
+      
       $this->db->insert('tb_stock_in_stores');
 
       $stock_in_stores_id = $this->db->insert_id();
