@@ -153,6 +153,9 @@ class Payment_Model extends MY_MODEL
 					$status[] = 'WAITING REVIEW BY CFO';
 				}
 				$this->db->where_in('tb_po_payments.status', $status);
+			}elseif(is_granted($this->data['modules']['payment'], 'review')){
+				$status[] = 'APPROVED';
+				$this->db->where_in('tb_po_payments.status', $status);
 			}else{
 				if (config_item('auth_role') == 'TELLER') {
 					$status[] = 'APPROVED';
@@ -382,7 +385,7 @@ class Payment_Model extends MY_MODEL
 
 		$document_id          	= (isset($_SESSION['payment_request']['id'])) ? $_SESSION['payment_request']['id'] : NULL;
 		$document_edit        	= (isset($_SESSION['payment_request']['edit'])) ? $_SESSION['payment_request']['edit'] : NULL;
-		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+		$document_number      	= $_SESSION['payment_request']['document_number'] . payment_request_format_number('BANK');
 		$date      				= $_SESSION['payment_request']['date'];
 		$purposed_date      	= $_SESSION['payment_request']['purposed_date'];
 		$currency      			= $_SESSION['payment_request']['currency'];

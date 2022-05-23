@@ -90,12 +90,16 @@
   <div class="form-group">
     <label for="start_date">Status</label>
     <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
+      <?php if(is_granted($module, 'document')||is_granted($module, 'approval')):?>
       <option value="all">All Status</option>      
       <option value="WAITING REVIEW BY FIN MNG"<?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review By Fin Mng</option>
+      <?php endif; ?>
       <option value="APPROVED"<?php if (config_item('auth_role') == 'TELLER'):echo 'selected'; endif;?>>Approved</option>
       <!-- <option value="REVISI">Revisi</option> -->
       <option value="PAID">Paid</option>
+      <?php if(is_granted($module, 'document')||is_granted($module, 'approval')):?>
       <option value="REJECTED">Rejected</option>
+      <?php endif; ?>
     </select>
   </div>
 </div>

@@ -1001,7 +1001,7 @@ class Payment extends MY_Controller
     $entity = $this->model->findById($id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = ($entity->status=='PAID')? $entity->type.' PAYMENT VOUCHER':strtoupper($this->module['label']);
     $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);
