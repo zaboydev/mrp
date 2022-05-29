@@ -2384,28 +2384,36 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('payment_request_format_number')) {
-    function payment_request_format_number($type)
+    function payment_request_format_number($type,$category='SPEND')
     {
       $div  = config_item('document_format_divider');
       $year = date('Y');
 
       if($type=='BANK'){
-        $kode = 'BPV';
+        $kode = 'B';
       }else{
-        $kode = 'CPV';
+        $kode = 'C';
       }
 
-      $return = $div . $kode . $div . $year;
+      if($category=='SPEND'){
+        $kode2 = 'P';
+      }elseif($category=='RECEIVE'){
+        $kode2 = 'R';
+      }
+
+      $kodeFinal = $kode.$kode2.'V';
+
+      $return = $div . $kodeFinal . $div . $year;
 
       return $return;
     }
   }
 
   if ( ! function_exists('payment_request_last_number')) {
-    function payment_request_last_number($type)
+    function payment_request_last_number($type,$category='SPEND')
     {
       $CI =& get_instance();
-      $format = payment_request_format_number($type);
+      $format = payment_request_format_number($type,$category);
 
       $CI->db->select_max('document_number', 'last_number');
       $CI->db->from('tb_po_payment_no_transaksi');
@@ -2636,6 +2644,40 @@ if (!function_exists('currency_for_vendor_list')) {
         return true;
 
       return false;
+    }
+  }
+
+  if ( ! function_exists('getTaxs')) {
+    function getTaxs()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from( 'tb_master_daftar_pajak' ); 
+      $CI->db->order_by('id','asc');
+
+      $query    = $CI->db->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccounts')) {
+    function getAccounts()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('coa,group');
+      $CI->db->from( 'tb_master_coa' ); 
+      $CI->db->order_by('coa','asc');
+
+      $query    = $CI->db->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
     }
   }
 

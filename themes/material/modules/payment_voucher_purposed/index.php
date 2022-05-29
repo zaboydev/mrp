@@ -27,10 +27,25 @@
 <div class="section-floating-action-row">
   <div class="btn-group dropup">
     <?php if (is_granted($module, 'document')) : ?>
-      <a href="<?= site_url($module['route'] . '/create/payment'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+      <!-- <a href="<?= site_url($module['route'] . '/create/payment'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
         <i class="md md-add"></i>
         <small class="top right">Create <?= $module['label']; ?></small>
-      </a>
+      </a> -->
+      <div class="btn-group dropup">
+      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
+        <i class="md md-add"></i>
+        <small class="top right">Create <?= $module['label']; ?></small>
+      </button>
+
+      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <li>
+          <a href="<?= site_url($module['route'] . '/create/SPEND'); ?>">Spend Money</a>
+        </li>
+        <li>
+          <a href="<?= site_url($module['route'] . '/create/RECEIVE'); ?>">Receive Money</a>
+        </li>
+      </ul>
+    </div>
     <?php endif ?>
     <?php if (is_granted($module, 'approval')) : ?>
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">

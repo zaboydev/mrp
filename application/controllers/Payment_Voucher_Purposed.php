@@ -63,6 +63,7 @@ class Payment_Voucher_Purposed extends MY_Controller
                     $col[] = print_number($no);
                 }        
                 $col[]  = '<a data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
+                $col[]  = print_string($row['category']);
                 $col[]  = print_date($row['tanggal']);
                 $col[]  = print_string($row['no_cheque']);
                 $col[]  = print_string($row['vendor']);
@@ -189,7 +190,7 @@ class Payment_Voucher_Purposed extends MY_Controller
             $_SESSION['request_closing']['items']               = array();
             $_SESSION['request_closing']['category']            = $category;
             $_SESSION['request_closing']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';
-            $_SESSION['request_closing']['document_number']     = payment_request_last_number($_SESSION['request_closing']['type']);
+            $_SESSION['request_closing']['document_number']     = payment_request_last_number($_SESSION['request_closing']['type'],$category);
             $_SESSION['request_closing']['date']                = date('Y-m-d');
             $_SESSION['request_closing']['purposed_date']       = date('Y-m-d');
             $_SESSION['request_closing']['notes']               = NULL;
@@ -224,7 +225,7 @@ class Payment_Voucher_Purposed extends MY_Controller
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
             // $_SESSION['request_closing']['document_number'] = request_payment_last_number().request_payment_format_number($_SESSION['request_closing']['type']);
-            $document_number = $_SESSION['request_closing']['document_number'].payment_request_format_number($_SESSION['request_closing']['type']);
+            $document_number = $_SESSION['request_closing']['document_number'].payment_request_format_number($_SESSION['request_closing']['type'],$_SESSION['request_closing']['category']);
 
             $errors = array();
 
@@ -234,8 +235,8 @@ class Payment_Voucher_Purposed extends MY_Controller
                 }
             } else {
                 if ($this->model->isDocumentNumberExists($document_number)) {
-                    $_SESSION['request_closing']['document_number']     = payment_request_last_number($_SESSION['request_closing']['type']);
-                    $document_number = $_SESSION['request_closing']['document_number'] . payment_request_format_number($_SESSION['request_closing']['type']);
+                    $_SESSION['request_closing']['document_number']     = payment_request_last_number($_SESSION['request_closing']['type'],$_SESSION['request_closing']['category']);
+                    $document_number = $_SESSION['request_closing']['document_number'] . payment_request_format_number($_SESSION['request_closing']['type'],$_SESSION['request_closing']['category']);
                     // $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
                 }
             }
@@ -354,8 +355,8 @@ class Payment_Voucher_Purposed extends MY_Controller
         foreach ($accounts as $key => $account) {
           $option .= '<option value="' . $account['coa'] . '">' . $account['coa'] . ' - ' . $account['group'] . '</option>';
         }
-        $format_number = payment_request_format_number($type);
-        $document_number = payment_request_last_number($type);
+        $format_number = payment_request_format_number($type,$_SESSION['request_closing']['category']);
+        $document_number = payment_request_last_number($type,$_SESSION['request_closing']['category']);
 
         $return = [
           'account' => $option,
