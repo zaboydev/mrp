@@ -379,6 +379,11 @@
                 </div>
 
                 <div class="form-group">
+                  <input type="text" name="group" id="group" class="form-control input-sm">
+                  <label for="group">Group</label>
+                </div>
+
+                <div class="form-group">
                   <textarea name="remarks" id="remarks" class="form-control input-sm"></textarea>
                   <label for="remarks">Remarks</label>
                 </div>
@@ -807,6 +812,7 @@
           $('#part_number').val(response.part_number);
           $('#serial_number').val(response.serial_number);
           $('#description').val(response.description);
+          $('#group').val(response.group);
           $('#quantity').val(response.quantity);
           $('#unit_price').val(response.unit_price);
           $('#core_charge').val(response.core_charge);

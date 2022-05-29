@@ -137,7 +137,7 @@ class Expense_Request extends MY_Controller
                         }
                     }
                     
-                    $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                    $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="javascript:;" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-xs ">
                         <i class="fa fa-eye"></i>
                         </a>';
                     if (config_item('as_head_department')=='yes'){

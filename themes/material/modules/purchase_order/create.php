@@ -238,6 +238,7 @@
                   <th class="middle-alignment">Description</th>
                   <th class="middle-alignment">P/N</th>
                   <th class="middle-alignment">Alt. P/N</th>
+                  <th class="middle-alignment">Group</th>
                   <th class="middle-alignment text-center" colspan="2">Quantity</th>
                   <th class="middle-alignment">Unit Price
                     <!-- <?= $_SESSION['order']['default_currency']; ?> -->
@@ -273,6 +274,9 @@
                     </td>
                     <td class="no-space">
                       <?= $item['alternate_part_number']; ?>
+                    </td>
+                    <td class="no-space">
+                      <?= $item['group']; ?>
                     </td>
                     <td class="text-right">
                       <?= number_format($item['quantity'], 2); ?>

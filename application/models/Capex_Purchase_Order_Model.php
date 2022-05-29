@@ -726,6 +726,7 @@ class Capex_Purchase_Order_Model extends MY_Model
       'tb_po_item.unit',
       'tb_po_item.poe_number as evaluation_number',
       'tb_po_item.purchase_request_number',
+      'tb_po_item.group',
     );
 
     $this->db->select($select);

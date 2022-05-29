@@ -1371,6 +1371,7 @@ class Capex_Purchase_Order extends MY_Controller
         'core_charge'           => $this->input->post('core_charge'),
         'total_amount'          => $this->input->post('total_amount'),
         'unit'                  => trim($this->input->post('unit')),
+        'group'                 => trim($this->input->post('group')),
         'evaluation_number'     => trim($this->input->post('evaluation_number')),
         'purchase_order_evaluation_items_vendors_id' => $this->input->post('purchase_order_evaluation_items_vendors_id'),
         'purchase_request_number'           => $this->input->post('purchase_request_number'),

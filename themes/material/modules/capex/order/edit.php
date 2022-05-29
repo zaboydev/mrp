@@ -203,10 +203,11 @@
               <thead>
                 <tr>
                   <th class="middle-alignment"></th>
-                  <th class="middle-alignment">Description</th>
                   <th class="middle-alignment">P/N</th>
                   <th class="middle-alignment">S/N</th>
                   <th class="middle-alignment">Alt. P/N</th>
+                  <th class="middle-alignment">Description</th>
+                  <th class="middle-alignment">Group</th>
                   <th class="middle-alignment text-center" colspan="2">Quantity</th>
                   <th class="middle-alignment">Unit Price
                     <!-- <?= $_SESSION['order']['default_currency']; ?> -->
@@ -232,11 +233,7 @@
                         <i class="fa fa-edit"></i>
                       </a>
                     </td>
-                    <td>
-                      <a href="<?= site_url($module['route'] . '/edit_item/' . $i); ?>" onClick="return popup(this, 'edit')">
-                        <?= $item['description']; ?>
-                      </a>
-                    </td>
+                    
                     <td class="no-space">
                       <?= $item['part_number']; ?> 
                     </td>
@@ -245,6 +242,14 @@
                     </td>
                     <td class="no-space">
                       <?= $item['alternate_part_number']; ?>
+                    </td>
+                    <td>
+                      <a href="<?= site_url($module['route'] . '/edit_item/' . $i); ?>" onClick="return popup(this, 'edit')">
+                        <?= $item['description']; ?>
+                      </a>
+                    </td>
+                    <td class="no-space">
+                      <?= $item['group']; ?>
                     </td>
                     <td class="text-right">
                       <?= number_format($item['quantity'], 2); ?>
@@ -350,6 +355,11 @@
                 <div class="form-group">
                   <input type="text" name="description" id="description" class="form-control input-sm">
                   <label for="description">Description</label>
+                </div>
+
+                <div class="form-group">
+                  <input type="text" name="group" id="group" class="form-control input-sm" readonly>
+                  <label for="group">Group</label>
                 </div>
 
                 <div class="form-group">
@@ -781,6 +791,7 @@
           $('#part_number').val(response.part_number);
           $('#serial_number').val(response.serial_number);
           $('#description').val(response.description);
+          $('#group').val(response.group);
           $('#quantity').val(response.quantity);
           $('#unit_price').val(response.unit_price);
           $('#core_charge').val(response.core_charge);

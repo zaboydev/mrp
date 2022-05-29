@@ -859,7 +859,10 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('qty_konvers', floatval($qty_konvers));
       $this->db->set('warehouse_id', $warehouse_id);
       $this->db->set('reference_ipc', $reference_ipc);
-      $this->db->set('tgl_nota', $data['tgl_nota']);
+      if($data['tgl_nota']!=NULL){
+        $this->db->set('tgl_nota', $data['tgl_nota']);
+      }
+      
       $this->db->insert('tb_stock_in_stores');
 
       $stock_in_stores_id = $this->db->insert_id();
@@ -1347,16 +1350,16 @@ class Goods_Received_Note_Model extends MY_Model
         'tb_po.document_number',
         'tb_po.default_currency',
         'tb_po.exchange_rate',
-        'tb_master_items.group',
-        'tb_master_items.kode_stok',
+        'tb_po_item.group',
+        // 'tb_master_items.kode_stok',
         'tb_po_item.unit as unit_pakai',
       );
 
       $this->db->select($this->column_select);
       $this->db->from('tb_po_item');
       $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
-      $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number');
-      $this->db->join('tb_master_item_groups', 'tb_master_items.group = tb_master_item_groups.group');
+      // $this->db->join('tb_master_items', 'tb_master_items.part_number = tb_po_item.part_number');
+      $this->db->join('tb_master_item_groups', 'tb_po_item.group = tb_master_item_groups.group');
       $this->db->where('tb_master_item_groups.category', $category);
       $this->db->where_in('tb_po.status', ['ORDER', 'OPEN', 'ADVANCE']);
       $this->db->where('tb_po_item.left_received_quantity > ', 0);
@@ -1373,8 +1376,8 @@ class Goods_Received_Note_Model extends MY_Model
         'tb_po.document_number',
         'tb_po.default_currency',
         'tb_po.exchange_rate',
-        'tb_master_items.group',
-        'tb_master_items.kode_stok',
+        'tb_po_item.group',
+        // 'tb_master_items.kode_stok',
       ));
 
       if ($vendor !== NULL || !empty($vendor)) {
