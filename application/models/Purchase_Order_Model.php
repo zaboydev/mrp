@@ -718,6 +718,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.unit',
       'tb_po_item.poe_number as evaluation_number',
       'tb_po_item.purchase_request_number',
+      'tb_po_item.group',
     );
 
     $this->db->select($select);
@@ -1265,6 +1266,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
       $this->db->set('serial_number', strtoupper($item['serial_number']));
+      $this->db->set('group', strtoupper($item['group']));
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       // $this->db->set('quantity_requested', floatval($item['quantity_requested']));

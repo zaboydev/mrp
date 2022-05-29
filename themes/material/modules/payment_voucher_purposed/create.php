@@ -80,7 +80,7 @@
                     <input type="text" name="pr_number" maxlength="6" id="pr_number" class="form-control" value="<?= $_SESSION['request_closing']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
                     <label for="pr_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon" id="format_number"><?=payment_request_format_number($_SESSION['request_closing']['type']);?></span>
+                  <span class="input-group-addon" id="format_number"><?=payment_request_format_number($_SESSION['request_closing']['type'],$_SESSION['request_closing']['category']);?></span>
                 </div>
               </div>
 
@@ -154,17 +154,35 @@
                   <!-- <th>Ref. IPC</th> -->
                   <th>Description</th>
                   <th class="text-center">Amount</th>
+                  <th class="text-center">Tax</th>
                 </tr>
               </thead>
               <tbody>
                 
               </tbody>
               <tfoot>
-                <th></th>
-                <th>Total</th>
-                <!-- <th></th> -->
-                <th></th>
-                <th><span id="total_general"><?= print_number(array_sum($grand_total), 2); ?></span></th>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th>Total</th>
+                  <th style="text-align:right;"><span id="subtotal"><?= print_number(array_sum($grand_total), 2); ?></span><input name="subtotal" type="hidden" value="0" step="any"/></th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th>Tax</th>
+                  <th style="text-align:right;"><span id="tax_"><?= print_number(0, 2); ?></span><input name="total_tax" type="hidden" value="0" step="any"/></th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th>Total</th>
+                  <th style="text-align:right;"><span id="grandtotal"><?= print_number(0, 2); ?></span><input name="grandtotal" type="hidden" value="0" step="any"/></th>
+                </tr>
+                
               </tfoot>
             </table>
           </div>
@@ -213,7 +231,7 @@
         <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
         <select name="account_code[]" class="form-control-payment" style="width: 100%">
           <option value="">-- SELECT Account --</option>
-          <?php foreach (getAccountsBudgetControl() as $key => $account) : ?>
+          <?php foreach (getAccounts() as $key => $account) : ?>
           <option value="<?= $account['coa']; ?>">
           <?= $account['coa']; ?> <?= $account['group']; ?>
           </option>
@@ -221,12 +239,27 @@
         <select>
       </td> 
       <td class="remarks item-list">
-        <input type="hidden" name="request_item_id[]" class="form-control-payment">
-        <input type="text" name="remarks[]" class="form-control-payment">
+        <input type="text" name="description[]" class="form-control-payment">
       </td>
       <td class="value item-list">
-        <input type="number" name="value[]" class="form-control-payment sel_applied_item_add">
-      </td>     
+        <input type="number" name="value[]" class="form-control-payment sel_applied_item_add" step="any">
+      </td> 
+      <td class="tax item-list">
+        <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
+        <select name="pajak_id[]" class="form-control-payment" style="width: 100%">
+          <option value="non_pajak">Non Tax</option>
+          <?php foreach (getTaxs() as $key => $tax) : ?>
+          <option value="<?= $tax['id']; ?>" data-percentase="<?= $tax['percentase']?>">
+          <?= $tax['description']; ?>
+          </option>
+          <?php endforeach; ?>
+        <select>
+      </td>    
+      <td class="tax_selected item-list hide">
+        <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
+        <input type="number" name="tax_percentage[]" class="form-control-payment" value="0" step="any">
+        <input type="number" name="tax[]" class="form-control-payment" value="0" step="any">
+      </td>   
     </tr>
   </tbody>
 </table>
@@ -290,17 +323,65 @@
     var el = $(row_payment);
     $('#table-document tbody').append(el);
     $('#table-document tbody tr:last').find('select[name="account_code[]"]').select2();
+    $('#table-document tbody tr:last').find('select[name="pajak_id[]"]').select2();
 
     btn_row_delete_item();
     sel_applied_item_add();
+    set_tax();
     
     // setAddValue();
+  }
+
+  function set_tax(){
+    $('[name="pajak_id[]"]').change(function () {
+      var tax_percentage_input = $(this).parents('td').siblings('td.tax_selected').children('input[name="tax_percentage[]"]');
+      var tax_nominal_input = $(this).parents('td').siblings('td.tax_selected').children('input[name="tax[]"]');
+      var total = $(this).parents('td').siblings('td.value').children('input').val();
+      var pajak_id = $(this).val();      
+      var tax_percentage = $(this).find(":selected").data("percentase");
+      
+      tax_percentage_input.val("");
+      tax_nominal_input.val(0);
+      
+
+      if(pajak_id!='non_pajak'){
+        var tax_nominal = parseFloat(total)*(parseFloat(tax_percentage)/100);
+        tax_percentage_input.val(tax_percentage);
+        tax_nominal_input.val(tax_nominal.toFixed(2));
+        sum_pajak();
+      }else{
+        tax_percentage_input.val(0);
+        tax_nominal_input.val(0);
+        sum_pajak();
+      } 
+    });
+  }
+
+  function sum_pajak() {
+    var pajak = 0;
+    $('[name="tax[]"]').each(function (key, val) {
+      var val = $(this).val();
+      if(val!=''){
+        pajak = parseFloat(pajak) + parseFloat(val);
+      }      
+    });
+    pajak = Number.parseFloat(pajak).toFixed(2);
+
+    $('[name="total_tax"]').val(pajak);
+    var currency = parseFloat(pajak).toLocaleString('id-ID', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    $('#tax_').html(currency);
+    
+    grandtotal();
   }
 
   function btn_row_delete_item() {
     $('.btn-row-delete-item').click(function () {
       $(this).parents('tr').remove();
-      changeTotal2();
+      sum_pajak();
+      subtotal();
     });
   }
 
@@ -308,13 +389,13 @@
     function sel_applied_item_add(){
       $("#table-document").on("change", ".sel_applied_item_add", function() {
         // console.log('test');
-        changeTotal2();
+        subtotal();
 
       });
     }
     
 
-    function changeTotal2() {
+    function subtotal() {
       var sum = 0
       $('[name="value[]"]').each(function (key, val) {
         var val = $(this).val();
@@ -325,11 +406,28 @@
         }
         
       });
+      $('[name="subtotal"]').val(sum);
       var currency = parseFloat(sum).toLocaleString('id-ID', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
-      $("#total_general").html(currency);
+      $("#subtotal").html(currency);
+      grandtotal();
+    }
+
+    function grandtotal(){
+      var subtotal = $('[name="subtotal"]').val();
+      var tax = $('[name="total_tax"]').val();
+
+      var grandtotal = parseFloat(subtotal)+parseFloat(tax);
+
+      $('[name="grandtotal"]').val(grandtotal);
+      var currency = parseFloat(grandtotal).toLocaleString('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      $("#grandtotal").html(currency);
+
     }
 
   (function($) {
@@ -746,7 +844,7 @@
 
       $.ajax({
         type: "post",
-        url: '<?= base_url() . "expense_closing_payment/get_accounts" ?>',
+        url: '<?= base_url() . "payment_voucher_purposed/get_accounts" ?>',
         data: {
           'type': type_trs
         },

@@ -84,7 +84,7 @@
                 <th>No</th>
                 <th>Account Code#</th>
                 <th>Description</th>
-                <th style="text-align: right;">Amount Request Payment</th>
+                <th style="text-align: right;">Amount</th>
               </tr>
             </thead>
             <tbody id="table_contents">
@@ -96,13 +96,13 @@
               <tr class="detail_<?=$n?>">
                 <td class="no-space"> </td>
                 <td>
+                  <?= print_string($item['account_code']); ?> <?= print_string($item['account_name']); ?>
+                </td>
+                <td>
                   <?= print_string($item['deskripsi']); ?>
                 </td>
                 <td>
-                  <?= print_string($item['remarks']); ?>
-                </td>
-                <td>
-                  <?= print_number($item['amount_paid'], 2); ?>
+                  <?= print_number($item['amount'], 2); ?>
                 </td>
               </tr>
               <?php $n++; $amount_paid[] = $item['amount_paid'];?>

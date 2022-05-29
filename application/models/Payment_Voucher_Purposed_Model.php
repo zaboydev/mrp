@@ -20,24 +20,25 @@ class Payment_Voucher_Purposed_Model extends MY_Model
     public function getSelectedColumns()
     {
         $return = array(
-            'tb_request_payments.id'                                                 => NULL,
-            'tb_request_payments.document_number as no_transaksi'                    => 'Transaction Number',
-            'tb_request_payments.tanggal'                                            => 'Date',
-            'tb_request_payments.no_cheque'                                          => 'No Cheque',
-            'tb_request_payments.vendor'                                             => 'Pay TO',
-            'tb_request_payments.currency'                                           => 'Currency',
-            'tb_request_payments.coa_kredit'                                         => 'Account',
-            'SUM(tb_request_payment_details.amount_paid) as amount_paid'             => 'Amount IDR',
-            'tb_request_payments.akun_kredit'                                        => 'Amount USD',
-            'tb_request_payments.status'                                             => 'Status',
-            'tb_request_payments.rejected_notes'                                     => 'Attachment',
-            'tb_request_payments.base'                                               => 'Base',
-            'tb_request_payments.notes'                                              => 'Notes',
+            'tb_bank_registers.id'                                                 => NULL,
+            'tb_bank_registers.document_number as no_transaksi'                    => 'Transaction Number',
+            'tb_bank_registers.category'                                           => 'Type',
+            'tb_bank_registers.tanggal'                                            => 'Date',
+            'tb_bank_registers.no_cheque'                                          => 'No Cheque',
+            'tb_bank_registers.vendor'                                             => 'Pay TO',
+            'tb_bank_registers.currency'                                           => 'Currency',
+            'tb_bank_registers.coa_kredit'                                         => 'Account',
+            'tb_bank_registers.grandtotal as amount_paid'                          => 'Amount IDR',
+            'tb_bank_registers.akun_kredit'                                        => 'Amount USD',
+            'tb_bank_registers.status'                                             => 'Status',
+            'tb_bank_registers.rejected_notes'                                     => 'Attachment',
+            'tb_bank_registers.base'                                               => 'Base',
+            'tb_bank_registers.notes'                                              => 'Notes',
         );
         if(is_granted($this->data['modules']['payment'], 'approval')){
-            $return['tb_request_payments.approval_notes']  = 'Input Notes';
+            $return['tb_bank_registers.approval_notes']  = 'Input Notes';
         }else{
-            $return['tb_request_payments.approval_notes']  = 'Approval/Rejected Notes';
+            $return['tb_bank_registers.approval_notes']  = 'Approval/Rejected Notes';
         }
 
 
@@ -48,17 +49,18 @@ class Payment_Voucher_Purposed_Model extends MY_Model
     public function getGroupedColumns()
     {
         $return = array(
-            'tb_request_payments.id',
-            'tb_request_payments.document_number',
-            'tb_request_payments.tanggal',
-            'tb_request_payments.no_cheque',
-            'tb_request_payments.vendor',
-            'tb_request_payments.currency',
-            'tb_request_payments.status',
-            'tb_request_payments.base',
-            'tb_request_payments.notes',
-            'tb_request_payments.approval_notes',
-            'tb_request_payments.rejected_notes'
+            'tb_bank_registers.id',
+            'tb_bank_registers.document_number',
+            'tb_bank_registers.category',
+            'tb_bank_registers.tanggal',
+            'tb_bank_registers.no_cheque',
+            'tb_bank_registers.vendor',
+            'tb_bank_registers.currency',
+            'tb_bank_registers.status',
+            'tb_bank_registers.base',
+            'tb_bank_registers.notes',
+            'tb_bank_registers.approval_notes',
+            'tb_bank_registers.rejected_notes'
         );
 
         return $return;
@@ -68,20 +70,21 @@ class Payment_Voucher_Purposed_Model extends MY_Model
     {
         $return = array(
             // 'tb_purchase_order_items_payments.id',
-            'tb_request_payments.document_number',
+            'tb_bank_registers.document_number',
+            'tb_bank_registers.category',
             // 'tb_purchase_order_items_payments.tanggal',
-            'tb_request_payments.no_cheque',
-            // 'tb_request_payments.document_number',
+            'tb_bank_registers.no_cheque',
+            // 'tb_bank_registers.document_number',
             // 'tb_po_item.part_number',
             // 'tb_purchase_order_items_payments.deskripsi',
-            'tb_request_payments.currency',
-            'tb_request_payments.coa_kredit',
-            'tb_request_payments.akun_kredit',
+            'tb_bank_registers.currency',
+            'tb_bank_registers.coa_kredit',
+            'tb_bank_registers.akun_kredit',
             // 'tb_purchase_order_items_payments.amount_paid',
-            'tb_request_payments.created_by',
-            'tb_request_payments.vendor',
-            'tb_request_payments.status',
-            'tb_request_payments.base'
+            'tb_bank_registers.created_by',
+            'tb_bank_registers.vendor',
+            'tb_bank_registers.status',
+            'tb_bank_registers.base'
             // 'tb_purchase_order_items_payments.created_at',
         );
 
@@ -92,14 +95,15 @@ class Payment_Voucher_Purposed_Model extends MY_Model
     {
         $return = array(
             NULL,
-            'tb_request_payments.document_number',
-            'tb_request_payments.tanggal',
-            'tb_request_payments.no_cheque',
-            'tb_request_payments.vendor',
-            'tb_request_payments.currency',          
-            'tb_request_payments.coa_kredit',
-            'tb_request_payments.base',
-            'tb_request_payments.notes',
+            'tb_bank_registers.document_number',
+            'tb_bank_registers.category',
+            'tb_bank_registers.tanggal',
+            'tb_bank_registers.no_cheque',
+            'tb_bank_registers.vendor',
+            'tb_bank_registers.currency',          
+            'tb_bank_registers.coa_kredit',
+            'tb_bank_registers.base',
+            'tb_bank_registers.notes',
         );
 
         return $return;
@@ -111,28 +115,28 @@ class Payment_Voucher_Purposed_Model extends MY_Model
             $search_received_date = $_POST['columns'][1]['search']['value'];
             $range_received_date  = explode(' ', $search_received_date);
 
-            $this->connection->where('tb_request_payments.tanggal >= ', $range_received_date[0]);
-            $this->connection->where('tb_request_payments.tanggal <= ', $range_received_date[1]);
+            $this->db->where('tb_bank_registers.tanggal >= ', $range_received_date[0]);
+            $this->db->where('tb_bank_registers.tanggal <= ', $range_received_date[1]);
         }
 
         if (!empty($_POST['columns'][2]['search']['value'])) {
             $vendor = $_POST['columns'][2]['search']['value'];
 
-            $this->connection->where('tb_request_payments.vendor', $vendor);
+            $this->db->where('tb_bank_registers.vendor', $vendor);
         }
 
         if (!empty($_POST['columns'][3]['search']['value'])) {
             $currency = $_POST['columns'][3]['search']['value'];
 
             if ($currency != 'all') {
-                $this->connection->where('tb_request_payments.currency', $currency);
+                $this->db->where('tb_bank_registers.currency', $currency);
             }
         }
 
         if (!empty($_POST['columns'][4]['search']['value'])) {
             $status = $_POST['columns'][4]['search']['value'];
             if($status!='all'){
-                $this->connection->like('tb_request_payments.status', $status);
+                $this->db->like('tb_bank_registers.status', $status);
             }           
         } else {
             if(is_granted($this->data['modules']['payment'], 'approval')){
@@ -154,11 +158,11 @@ class Payment_Voucher_Purposed_Model extends MY_Model
                 if (config_item('auth_role') == 'CHIEF OF FINANCE') {
                     $status[] = 'WAITING REVIEW BY CFO';
                 }
-                $this->db->where_in('tb_request_payments.status', $status);
+                $this->db->where_in('tb_bank_registers.status', $status);
             }else{
                 if (config_item('auth_role') == 'TELLER') {
                     $status[] = 'APPROVED';
-                    $this->connection->where_in('tb_request_payments.status', $status);
+                    $this->db->where_in('tb_bank_registers.status', $status);
                 }
             }       
             
@@ -168,9 +172,9 @@ class Payment_Voucher_Purposed_Model extends MY_Model
             $base = $_POST['columns'][5]['search']['value'];
             if($base!='ALL'){
                 if($base!='JAKARTA'){
-                    $this->connection->where('tb_request_payments.base !=','JAKARTA');
+                    $this->db->where('tb_bank_registers.base !=','JAKARTA');
                 }elseif($base=='JAKARTA'){
-                    $this->connection->where('tb_request_payments.base','JAKARTA');
+                    $this->db->where('tb_bank_registers.base','JAKARTA');
                 }   
             }
                     
@@ -178,9 +182,9 @@ class Payment_Voucher_Purposed_Model extends MY_Model
             if(config_item('auth_role') == 'AP STAFF' || config_item('auth_role') == 'FINANCE MANAGER'){
                 $base = config_item('auth_warehouse');
                 if($base!='JAKARTA'){
-                    $this->connection->where('tb_request_payments.base !=','JAKARTA');
+                    $this->db->where('tb_bank_registers.base !=','JAKARTA');
                 }elseif($base=='JAKARTA'){
-                    $this->connection->where('tb_request_payments.base','JAKARTA');
+                    $this->db->where('tb_bank_registers.base','JAKARTA');
                 }   
             }
             
@@ -193,14 +197,14 @@ class Payment_Voucher_Purposed_Model extends MY_Model
                 $term = strtoupper($_POST['search']['value']);
 
                 if ($i === 0) {
-                    $this->connection->group_start();
-                    $this->connection->like('UPPER(' . $item . ')', $term);
+                    $this->db->group_start();
+                    $this->db->like('UPPER(' . $item . ')', $term);
                 } else {
-                    $this->connection->or_like('UPPER(' . $item . ')', $term);
+                    $this->db->or_like('UPPER(' . $item . ')', $term);
                 }
 
                 if (count($this->getSearchableColumns()) - 1 == $i)
-                    $this->connection->group_end();
+                    $this->db->group_end();
             }
 
             $i++;
@@ -209,11 +213,11 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
     function getIndex($return = 'array')
     {
-        $this->connection->select(array_keys($this->getSelectedColumns()));
-        $this->connection->from('tb_request_payments');
-        $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
-        $this->connection->where('tb_request_payments.source','PAYMENT');
-        $this->connection->group_by($this->getGroupedColumns());
+        $this->db->select(array_keys($this->getSelectedColumns()));
+        $this->db->from('tb_bank_registers');
+        $this->db->join('tb_bank_register_details', 'tb_bank_registers.id = tb_bank_register_details.bank_register_id');
+        // $this->db->where('tb_bank_registers.source','BANK RE');
+        $this->db->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
 
@@ -221,16 +225,16 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
         if (isset($_POST['order'])) {
             foreach ($_POST['order'] as $key => $order) {
-                $this->connection->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+                $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
             }
         } else {
-            $this->connection->order_by('id', 'desc');
+            $this->db->order_by('id', 'desc');
         }
 
         if ($_POST['length'] != -1)
-            $this->connection->limit($_POST['length'], $_POST['start']);
+            $this->db->limit($_POST['length'], $_POST['start']);
 
-        $query = $this->connection->get();
+        $query = $this->db->get();
 
         if ($return === 'object') {
             return $query->result();
@@ -243,49 +247,48 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
     function countIndexFiltered()
     {
-        $this->connection->select(array_keys($this->getSelectedColumns()));
-        $this->connection->from('tb_request_payments');
-        $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
-        $this->connection->where('tb_request_payments.source','PAYMENT');
-        $this->connection->group_by($this->getGroupedColumns());
+        $this->db->select(array_keys($this->getSelectedColumns()));
+        $this->db->from('tb_bank_registers');
+        $this->db->join('tb_bank_register_details', 'tb_bank_registers.id = tb_bank_register_details.bank_register_id');
+        // $this->db->where('tb_bank_registers.source','PAYMENT');
+        $this->db->group_by($this->getGroupedColumns());
 
         $this->searchIndex();
 
-        $query = $this->connection->get();
+        $query = $this->db->get();
 
         return $query->num_rows();
     }
 
     public function countIndex()
     {
-        $this->connection->select(array_keys($this->getSelectedColumns()));
-        $this->connection->from('tb_request_payments');
-        $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
-        $this->connection->where('tb_request_payments.source','PAYMENT');
-        $this->connection->group_by($this->getGroupedColumns());
+        $this->db->select(array_keys($this->getSelectedColumns()));
+        $this->db->from('tb_bank_registers');
+        $this->db->join('tb_bank_register_details', 'tb_bank_registers.id = tb_bank_register_details.bank_register_id');
+        // $this->db->where('tb_bank_registers.source','PAYMENT');
+        $this->db->group_by($this->getGroupedColumns());
 
-        $query = $this->connection->get();
+        $query = $this->db->get();
 
         return $query->num_rows();
     }
 
     public function findById($id)
     {
-        $this->connection->select('tb_request_payments.*');
-        $this->connection->where('tb_request_payments.id', $id);
-        $this->connection->from('tb_request_payments');
-        $query    = $this->connection->get();
+        $this->db->select('tb_bank_registers.*');
+        $this->db->where('tb_bank_registers.id', $id);
+        $this->db->from('tb_bank_registers');
+        $query    = $this->db->get();
         $request  = $query->unbuffered_row('array');
 
         $select = array(
-            'tb_request_payment_details.*'
+            'tb_bank_register_details.*'
         );
 
-        $this->connection->select($select);
-        $this->connection->from('tb_request_payment_details');
-        $this->connection->where('tb_request_payment_details.request_id', $req['request_id']);
-        $this->connection->where('tb_request_payment_details.request_payment_id', $id);
-        $query = $this->connection->get();
+        $this->db->select($select);
+        $this->db->from('tb_bank_register_details');
+        $this->db->where('tb_bank_register_details.bank_register_id', $id);
+        $query = $this->db->get();
 
         foreach ($query->result_array() as $i => $item){
             $request['items'][$i] = $item;
@@ -335,16 +338,16 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
     public function approve($request_payment_id)
     {
-        $this->connection->trans_begin();
+        $this->db->trans_begin();
 
         $send_to_vp_finance = array();
 
         foreach ($request_payment_id as $key) {
             $id = $key;
-            $this->connection->select('tb_request_payments.*');
-            $this->connection->from('tb_request_payments');
-            $this->connection->where('tb_request_payments.id',$id);
-            $query          = $this->connection->get();
+            $this->db->select('tb_bank_registers.*');
+            $this->db->from('tb_bank_registers');
+            $this->db->where('tb_bank_registers.id',$id);
+            $query          = $this->db->get();
             $request_payment     = $query->unbuffered_row('array');
             $currency       = $request_payment['currency'];
             $level          = 0;
@@ -356,44 +359,44 @@ class Payment_Voucher_Purposed_Model extends MY_Model
                     $status = 'APPROVED';
                     $level = 0;
                 }else{
-                    $this->connection->set('status', 'APPROVED');
+                    $this->db->set('status', 'APPROVED');
                     $status = 'APPROVED';
                     $level = 0;
                 }           
-                $this->connection->set('review_by', config_item('auth_person_name'));
-                $this->connection->set('review_at', date('Y-m-d'));
-                $this->connection->where('id', $id);
-                $this->connection->update('tb_request_payments');
+                $this->db->set('review_by', config_item('auth_person_name'));
+                $this->db->set('review_at', date('Y-m-d'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_bank_registers');
             }
 
             if (config_item('auth_role')=='VP FINANCE' && $request_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
-                $this->connection->set('status', 'APPROVED');
+                $this->db->set('status', 'APPROVED');
                 $status = 'APPROVED';
                 $level = 0;
-                $this->connection->set('approved_by', config_item('auth_person_name'));
-                $this->connection->set('approved_at', date('Y-m-d'));
-                $this->connection->where('id', $id);
-                $this->connection->update('tb_request_payments');
+                $this->db->set('approved_by', config_item('auth_person_name'));
+                $this->db->set('approved_at', date('Y-m-d'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_bank_registers');
             }
         }
 
         
 
-        if ($this->connection->trans_status() === FALSE)
+        if ($this->db->trans_status() === FALSE)
             return FALSE;
 
         if(!empty($send_to_vp_finance)){
             $this->send_mail($send_to_vp_finance,3);
         }
 
-        $this->connection->trans_commit();        
+        $this->db->trans_commit();        
         
         return TRUE;
     }
 
     public function reject($request_payment_id,$notes)
     {
-        $this->connection->trans_begin();
+        $this->db->trans_begin();
 
         $send_to_vp_finance = array();
         $x = 0;
@@ -402,36 +405,36 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
         foreach ($request_payment_id as $key) {
             $id = $key;
-            $this->connection->select('tb_request_payments.*');
-            $this->connection->from('tb_request_payments');
-            $this->connection->where('tb_request_payments.id',$id);
-            $query          = $this->connection->get();
+            $this->db->select('tb_bank_registers.*');
+            $this->db->from('tb_bank_registers');
+            $this->db->where('tb_bank_registers.id',$id);
+            $query          = $this->db->get();
             $request_payment     = $query->unbuffered_row('array');
             $currency       = $request_payment['currency'];
             $level          = 0;
             $status         = '';
 
             if($request_payment['status']!='REJECTED' || $request_payment['status']!='REVISI' || $request_payment['status']!='PAID'){
-                $this->connection->set('status', 'REJECTED');
-                $this->connection->set('rejected_by', config_item('auth_person_name'));
-                $this->connection->set('rejected_at', date('Y-m-d'));
-                $this->connection->set('rejected_notes',$notes[$x]);
-                $this->connection->where('id', $id);
-                $this->connection->update('tb_request_payments');
+                $this->db->set('status', 'REJECTED');
+                $this->db->set('rejected_by', config_item('auth_person_name'));
+                $this->db->set('rejected_at', date('Y-m-d'));
+                $this->db->set('rejected_notes',$notes[$x]);
+                $this->db->where('id', $id);
+                $this->db->update('tb_bank_registers');
             }
             $x++;
         }
 
         
 
-        if ($this->connection->trans_status() === FALSE)
+        if ($this->db->trans_status() === FALSE)
             return FALSE;
 
         // if(!empty($send_to_vp_finance)){
         //     $this->send_mail($send_to_vp_finance,3);
         // }
 
-        $this->connection->trans_commit();        
+        $this->db->trans_commit();        
         
         return TRUE;
     }
@@ -509,7 +512,7 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
     public function save()
     {
-        $this->connection->trans_begin();
+        // $this->connection->trans_begin();
         $this->db->trans_begin();
 
         $id                     = (isset($_SESSION['request_closing']['id'])) ? $_SESSION['request_closing']['id'] : NULL;
@@ -520,59 +523,103 @@ class Payment_Voucher_Purposed_Model extends MY_Model
         $notes                  = (empty($_SESSION['request_closing']['closing_notes'])) ? NULL : $_SESSION['request_closing']['closing_notes'];
         $account                = $_SESSION['request_closing']['coa_kredit'];
         $type                   = $_SESSION['request_closing']['type'];
-        $document_number        = $_SESSION['request_closing']['document_number'].payment_request_format_number($_SESSION['request_closing']['type']);
+        $document_number        = $_SESSION['request_closing']['document_number'].payment_request_format_number($_SESSION['request_closing']['type'],$_SESSION['request_closing']['category']);
 
         $base                   = config_item('auth_warehouse');
         $akun_kredit            = getAccountByCode($account);
         $total_purposed_payment = array();
         $currency               = $_SESSION['request_closing']['currency'];
         $kurs                   = $this->tgl_kurs(date("Y-m-d"));
+        $category               = $_SESSION['request_closing']['category'];
+
+        $subtotal                = $this->input->post('subtotal');
+        $tax                     = $this->input->post('total_tax');
+        $discount                = 0;
+        $grandtotal              = $this->input->post('grandtotal');
 
         
 
-        if ($document_id === NULL) {
-            $this->connection->set('document_number', $document_number);
-            $this->connection->set('source', 'PAYMENT');
-            $this->connection->set('vendor', strtoupper($vendor));
-            $this->connection->set('tanggal', $closing_date);
-            $this->connection->set('purposed_date', $purposed_date);
-            $this->connection->set('currency', $currency);
-            $this->connection->set('created_by', config_item('auth_person_name'));
-            $this->connection->set('created_at', date('Y-m-d'));
-            $this->connection->set('base', $base);
-            $this->connection->set('notes', $notes);
-            $this->connection->set('coa_kredit', $account);
-            $this->connection->set('akun_kredit', $akun_kredit->group);         
-            if($type=='CASH'){
-                $this->connection->set('status','APPROVED');
-                $this->connection->set('cash_request','OPEN');
-                $this->connection->set('paid_by', config_item('auth_person_name'));
-                $this->connection->set('paid_at', date("Y-m-d",strtotime($date)));
-            }else{
-                // if($base=='JAKARTA'){
-                $this->connection->set('status','WAITING REVIEW BY FIN MNG');
-                // }
-            }
-            $this->connection->set('type',$type);
-            $this->connection->insert('tb_request_payments');
-            $request_payment_id = $this->connection->insert_id();
+        if ($id === NULL) {
+            $this->db->set('document_number', $document_number);
+            $this->db->set('category', strtoupper($category));
+            $this->db->set('source', 'BANK REGISTER');
+            $this->db->set('vendor', strtoupper($vendor));
+            $this->db->set('tanggal', $closing_date);
+            $this->db->set('purposed_date', $purposed_date);
+            $this->db->set('currency', $currency);
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('created_at', date('Y-m-d'));
+            $this->db->set('base', $base);
+            $this->db->set('notes', $notes);
+            $this->db->set('coa_kredit', $account);
+            $this->db->set('akun_kredit', $akun_kredit->group); 
+            $this->db->set('total', $subtotal);
+            $this->db->set('tax', $tax);
+            $this->db->set('discount', $discount);
+            $this->db->set('grandtotal', $grandtotal);
+
+            $this->db->set('status','PAID');
+            $this->db->set('cash_request','CLOSED');
+            $this->db->set('paid_by', config_item('auth_person_name'));
+            $this->db->set('paid_at', date("Y-m-d",strtotime($date)));     
+            // if($type=='CASH'){
+            //     $this->db->set('status','APPROVED');
+            //     $this->db->set('cash_request','OPEN');
+            //     $this->db->set('paid_by', config_item('auth_person_name'));
+            //     $this->db->set('paid_at', date("Y-m-d",strtotime($date)));
+            // }else{
+            //     // if($base=='JAKARTA'){
+            //     $this->db->set('status','WAITING REVIEW BY FIN MNG');
+            //     // }
+            // }
+            $this->db->set('type',$type);
+            $this->db->insert('tb_bank_registers');
+            $bank_register_id = $this->db->insert_id();
 
             $this->db->set('document_number', $document_number);
-            $this->db->set('source', 'PAYMENT');            
+            $this->db->set('source', 'BANK REGISTER');            
             $this->db->insert('tb_po_payment_no_transaksi');
 
-            if($type=='CASH2'){
+            // if($type=='CASH2'){
                 $this->db->set('no_jurnal', $document_number);
                 $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
-                $this->db->set('source', "AP-EXP");
+                $this->db->set('source', ($category=='SPEND')? "disbursements":"receipts");
                 $this->db->set('vendor', $vendor);
                 $this->db->set('grn_no', $document_number);
-                $this->db->set('keterangan', strtoupper("pembayaran purchase order"));
+                $this->db->set('keterangan', $notes);
                 $this->db->set('created_by',config_item('auth_person_name'));
                 $this->db->set('created_at',date('Y-m-d'));
                 $this->db->insert('tb_jurnal');
                 $id_jurnal = $this->db->insert_id();
+            // }
+
+            if ($currency == 'IDR') {
+                $amount_idr = $grandtotal;
+                $amount_usd = $grandtotal / $kurs;
+            } else {
+                $amount_usd = $grandtotal;
+                $amount_idr = $grandtotal * $kurs;
             }
+
+            $selectedAccountBank = getAccountByCode($account);
+
+            $this->db->set('id_jurnal', $id_jurnal);
+            $this->db->set('jenis_transaksi', strtoupper($selectedAccountBank->group));
+            if($category=='SPEND'){
+                $this->db->set('trs_debet', 0);
+                $this->db->set('trs_kredit', $amount_idr);
+                $this->db->set('trs_debet_usd', 0);
+                $this->db->set('trs_kredit_usd', $amount_usd);
+            }else{
+                $this->db->set('trs_debet', $amount_idr);
+                $this->db->set('trs_kredit', 0);
+                $this->db->set('trs_debet_usd', $amount_usd);
+                $this->db->set('trs_kredit_usd', 0);
+            }          
+
+            $this->db->set('kode_rekening', $selectedAccountBank->coa);
+            $this->db->set('currency', $currency);
+            $this->db->insert('tb_jurnal_detail');
         }else{
             //utk edit
             $request_payment_id = $document_id;
@@ -580,37 +627,73 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
         // $request_items_id           = $this->input->post('request_item_id');
         $amount                     = $this->input->post('value');
-        $remarks                    = $this->input->post('remarks');
+        $description                = $this->input->post('description');
         $account_code               = $this->input->post('account_code');
+        $pajak_id                   = $this->input->post('pajak_id');
+        $tax_percentage             = $this->input->post('tax_percentage');
+        $tax                        = $this->input->post('tax');
 
         foreach ($account_code as $key=>$account_code_item){
+            if($account_code_item!='' && $account_code_item!=0){
+                $account_code_item = $account_code_item;
+                $selectedAccount = getAccountByCode($account_code_item);
 
-            $account_code_item = $account_code_item;
-            $selectedAccount = getAccountBudgetControlByCode($account_code_item);
+                $total_purposed_payment[] = $amount[$key];
+                $this->db->set('bank_register_id', $bank_register_id);
+                $this->db->set('deskripsi', $description[$key]); 
+                $this->db->set('amount', $amount[$key]);
+                $this->db->set('account_name', $selectedAccount->group);
+                $this->db->set('account_code', $account_code_item);
+                if($pajak_id[$key]!='non_pajak'){
+                    $this->db->set('pajak_id', $pajak_id[$key]);
+                    $this->db->set('tax', $tax[$key]);
+                }                
+                $this->db->set('discount', 0);
+                $this->db->set('total', $amount[$key]);
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_bank_register_details');
 
+                if ($currency == 'IDR') {
+                    $amount_idr = $amount[$key];
+                    $amount_usd = $amount[$key] / $kurs;
+                } else {
+                    $amount_usd = $amount[$key];
+                    $amount_idr = $amount[$key] * $kurs;
+                }
 
-            $total_purposed_payment[] = $amount[$key];
-            $this->connection->set('deskripsi', $selectedAccount->coa.' '.$selectedAccount->group);
-            $this->connection->set('request_payment_id', $request_payment_id); 
-            $this->connection->set('amount_paid', $amount[$key]);
-            $this->connection->set('remarks', $remarks[$key]);
-            $this->connection->set('account_code', $account_code_item);
-            $this->connection->set('created_by', config_item('auth_person_name'));
-            $this->connection->set('adj_value', 0);
-            $this->connection->set('quantity_paid', 1);
-            $this->connection->set('uang_muka', 0);
-            $this->connection->insert('tb_request_payment_details');
+                $this->db->set('id_jurnal', $id_jurnal);
+                $this->db->set('jenis_transaksi', strtoupper($selectedAccount->group));
+
+                if($category=='SPEND'){
+                    $this->db->set('trs_kredit', ($amount_idr<0)? ($amount_idr*-1):0);
+                    $this->db->set('trs_debet', ($amount_idr>0)? $amount_idr:0);
+                    $this->db->set('trs_kredit_usd', ($amount_usd<0)? ($amount_usd*-1):0);
+                    $this->db->set('trs_debet_usd', ($amount_usd>0)? $amount_usd:0);
+                }else{
+                    $this->db->set('trs_debet', ($amount_idr<0)? ($amount_idr*-1):0);
+                    $this->db->set('trs_kredit', ($amount_idr>0)? $amount_idr:0);
+                    $this->db->set('trs_debet_usd', ($amount_usd<0)? ($amount_usd*-1):0);
+                    $this->db->set('trs_kredit_usd', ($amount_usd>0)? $amount_usd:0);
+                } 
+                
+
+                $this->db->set('kode_rekening', $selectedAccount->coa);
+                $this->db->set('currency', $currency);
+                $this->db->insert('tb_jurnal_detail');
+            }
+
+            
         }
         
 
-        if ($this->connection->trans_status() === FALSE || $this->db->trans_status() === FALSE)
+        if ($this->db->trans_status() === FALSE)
           return FALSE;
 
-        $this->connection->trans_commit();
         $this->db->trans_commit();
-        if($type!='CASH'){
-            $this->send_mail($request_payment_id,14,$base);
-        }
+        // if($type!='CASH'){
+        //     $this->send_mail($request_payment_id,14,$base);
+        // }
 
         return TRUE;
     }
@@ -707,7 +790,7 @@ class Payment_Voucher_Purposed_Model extends MY_Model
         $this->connection->set('paid_by', config_item('auth_person_name'));
         $this->connection->set('paid_at', date("Y-m-d",strtotime($tanggal)));
         $this->connection->where('id', $po_payment_id);
-        $this->connection->update('tb_request_payments');
+        $this->connection->update('tb_bank_registers');
 
 
         foreach ($_SESSION['payment']['request'] as $i => $request) {
@@ -1069,25 +1152,25 @@ class Payment_Voucher_Purposed_Model extends MY_Model
     {
         $this->connection->select(
             array(
-                'tb_request_payments.document_number',
-                'SUM(tb_request_payment_details.amount_paid) as total',
-                'tb_request_payments.tanggal',
-                'tb_request_payments.currency',
+                'tb_bank_registers.document_number',
+                'tb_bank_registers.grandtotal as total',
+                'tb_bank_registers.tanggal',
+                'tb_bank_registers.currency',
             )
         );
-        $this->connection->from('tb_request_payments');
-        $this->connection->join('tb_request_payment_details','tb_request_payments.id = tb_request_payment_details.request_payment_id');
+        $this->connection->from('tb_bank_registers');
+        $this->connection->join('tb_bank_register_details','tb_bank_registers.id = tb_bank_register_details.request_payment_id');
         $this->connection->group_by(
             array(
-                'tb_request_payments.document_number',
-                'tb_request_payments.tanggal',
-                'tb_request_payments.currency',
+                'tb_bank_registers.document_number',
+                'tb_bank_registers.tanggal',
+                'tb_bank_registers.currency',
             )
         );
         if(is_array($doc_id)){
-            $this->connection->where_in('tb_request_payments.id',$doc_id);
+            $this->connection->where_in('tb_bank_registers.id',$doc_id);
         }else{
-            $this->connection->where('tb_request_payments.id',$doc_id);
+            $this->connection->where('tb_bank_registers.id',$doc_id);
         }
         $query = $this->connection->get();
         $item_message = '<tbody>';

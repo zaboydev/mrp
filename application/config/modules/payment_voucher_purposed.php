@@ -3,8 +3,8 @@
 $config['module']['payment_voucher_purposed']['visible']        = TRUE;
 $config['module']['payment_voucher_purposed']['main_warehouse'] = FALSE;
 $config['module']['payment_voucher_purposed']['parent']         = 'finance';
-$config['module']['payment_voucher_purposed']['label']          = 'Payment Voucher Purposed';
-$config['module']['payment_voucher_purposed']['name']           = 'Payment Voucher Purposed';
+$config['module']['payment_voucher_purposed']['label']          = 'Bank Register';
+$config['module']['payment_voucher_purposed']['name']           = 'Bank Register';
 $config['module']['payment_voucher_purposed']['route']          = 'payment_voucher_purposed';
 $config['module']['payment_voucher_purposed']['view']           = config_item('module_path') .'payment_voucher_purposed/';
 $config['module']['payment_voucher_purposed']['language']       = 'account_payable_lang';
