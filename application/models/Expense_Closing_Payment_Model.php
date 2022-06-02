@@ -720,7 +720,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $request_item = $this->getInfoRequestItemById($request_item_id);
             }            
 
-            $selectedAccount = getAccountBudgetControlByCode($account_code[$key]);
+            $selectedAccount = getAccountMrpByCode($account_code[$key]);
 
             $total_purposed_payment[] = $amount[$key];
             if($request_item_id!=NULL){
@@ -771,7 +771,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 }
 
                         
-                $akun = getAccountBudgetControlByCode($account_code[$key]);
+                $akun = getAccountMrpByCode($account_code[$key]);
 
                 $this->db->set('id_jurnal', $id_jurnal);
                 $this->db->set('jenis_transaksi', strtoupper($akun->group));
@@ -948,7 +948,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 }
 
                         
-                $akun = getAccountBudgetControlByCode($key['account_code']);
+                $akun = getAccountMrpByCode($key['account_code']);
 
                 $this->db->set('id_jurnal', $id_jurnal);
                 $this->db->set('jenis_transaksi', strtoupper($akun->group));
