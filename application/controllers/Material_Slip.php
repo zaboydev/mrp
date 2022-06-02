@@ -263,7 +263,7 @@ class Material_Slip extends MY_Controller
   // }
   //edit
 
-  public function index_data_source($issued_to = 'ALL', $warehouse='ALL BASES',$category = 'all', $start_date = NULL, $end_date = NULL)
+  public function index_data_source()
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
@@ -273,33 +273,7 @@ class Material_Slip extends MY_Controller
       $return['info'] = "You don't have permission to access this page!";
     } else {
 
-      if ($warehouse !== NULL){
-        $warehouse = (urldecode($warehouse) === 'ALL BASES') ? NULL : urldecode($warehouse);
-      } 
-      else {
-        $warehouse = urldecode($warehouse);
-      }
-
-      if ($category !== NULL){
-        $category = (urldecode($category) === 'all') ? NULL : urldecode($category);
-      } 
-      else {
-        $category = urldecode($category);
-      }
-
-      if ($start_date && $end_date !== NULL){
-        $start_date  = urldecode($start_date);
-        $end_date = urldecode($end_date);
-      }
-
-      if ($issued_to !== NULL){
-        $issued_to = (urldecode($issued_to) === 'ALL') ? NULL : urldecode($issued_to);
-      } 
-      else {
-        $issued_to = urldecode($issued_to);
-      }
-
-      $entities     = $this->model->getIndex($issued_to, $warehouse, $start_date, $end_date, $category);
+      $entities     = $this->model->getIndex();
       $data         = array();
       $no           = $_POST['start'];
       $quantity     = array();
@@ -371,8 +345,8 @@ class Material_Slip extends MY_Controller
 
       $result = array(
         "draw"            => $_POST['draw'],
-        "recordsTotal"    => $this->model->countIndex($issued_to, $warehouse, $start_date, $end_date, $category),
-        "recordsFiltered" => $this->model->countIndexFiltered($issued_to, $warehouse, $start_date, $end_date, $category),
+        "recordsTotal"    => $this->model->countIndex(),
+        "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
           10 => print_number(array_sum($quantity), 2),
@@ -423,43 +397,9 @@ class Material_Slip extends MY_Controller
   {
     $this->authorized($this->module, 'index');
 
-     if (isset($_POST['start_date']) && $_POST['start_date'] && isset($_POST['end_date']) && $_POST['end_date'] !== NULL){
-      $start_date  = $_POST['start_date'];
-      $end_date = $_POST['end_date'];
-      $periode=print_date($start_date,'d F Y').' - '.print_date($end_date,'d F Y');
-    } else {
-      $start_date  = NULL;
-      $end_date = NULL;
-      $periode = 'ALL Periode';
-    }
-
-    if (isset($_POST['category']) && $_POST['category'] !== NULL){
-      $category = $_POST['category'];
-    } else {
-      $category = "all";
-    }
-
-    if (isset($_POST['warehouse']) && $_POST['warehouse'] !== NULL){
-      $warehouse = $_POST['warehouse'];
-    } else {
-      $warehouse = 'ALL BASES';
-    }
-
-    if (isset($_POST['issued_to']) && $_POST['issued_to'] !== NULL){
-      $issued_to  = $_POST['issued_to'];
-    } else {
-      $issued_to  = "ALL";
-    }
-
-
-
-    $this->data['selected_category']        = $category;
-    $this->data['selected_Issued_to']       = $issued_to;
-    $this->data['selected_warehouse']       = $warehouse;
-
-    $this->data['page']['title']            = $this->module['label'] .' | '. $warehouse.' '. $category .' | ISSUED TO : '. $issued_to.' | PERIODE : '.$periode;
+    $this->data['page']['title']            = $this->module['label'];
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'.  $issued_to.'/'.$warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/');
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 10 );
 

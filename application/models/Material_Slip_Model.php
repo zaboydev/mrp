@@ -120,42 +120,49 @@ class Material_Slip_Model extends MY_Model
 
   private function searchIndex()
   {
-    if (!empty($_POST['columns'][2]['search']['value'])) {
-      $search_issued_date = $_POST['columns'][2]['search']['value'];
-      $range_issued_date  = explode(' ', $search_issued_date);
+    if (!empty($_POST['columns'][1]['search']['value']) && !empty($_POST['columns'][2]['search']['value'])) {
+      $range_issued_date[0] = $_POST['columns'][1]['search']['value'];
+      $range_issued_date[1] = $_POST['columns'][2]['search']['value'];
+      // $range_issued_date  = explode(' ', $search_issued_date);
 
       $this->db->where('tb_issuances.issued_date >= ', $range_issued_date[0]);
       $this->db->where('tb_issuances.issued_date <= ', $range_issued_date[1]);
     }
 
     if (!empty($_POST['columns'][3]['search']['value'])) {
-      $search_category = $_POST['columns'][3]['search']['value'];
-
-      $this->db->where('tb_issuances.category', $search_category);
+      $search_warehouse = $_POST['columns'][3]['search']['value'];
+      // $this->db->where('tb_issuances.warehouse', $search_warehouse);
+      if($search_warehouse == 'WISNU'){
+        $this->db->group_start()
+        ->like('tb_issuances.warehouse', 'WISNU')
+        ->group_end();
+      }
+      else if($search_warehouse == "all base rekondisi"){
+        $this->db->group_start()
+        ->like('tb_issuances.warehouse', 'REKONDISI')
+        ->group_end();
+      }
+      else{
+        $this->db->where('tb_issuances.warehouse', $search_warehouse);
+      }   
     }
 
     if (!empty($_POST['columns'][4]['search']['value'])) {
-      $search_warehouse = $_POST['columns'][4]['search']['value'];
+      // $search_category = $_POST['columns'][4]['search']['value'];
+      // $this->db->where('tb_issuances.category', $search_category);
 
-      $this->db->where('tb_issuances.warehouse', $search_warehouse);
+      $search_category = $_POST['columns'][4]['search']['value'];
+      $categories  = explode(',', $search_category);
+
+      $this->db->where_in('tb_issuances.category', $categories);
     }
 
     if (!empty($_POST['columns'][5]['search']['value'])) {
-      $search_description = $_POST['columns'][5]['search']['value'];
+      $search_issued_to = $_POST['columns'][5]['search']['value'];
 
-      $this->db->like('UPPER(tb_master_items.description)', strtoupper($search_description));
-    }
-
-    if (!empty($_POST['columns'][6]['search']['value'])) {
-      $search_part_number = $_POST['columns'][6]['search']['value'];
-
-      $this->db->like('UPPER(tb_master_items.part_number)', strtoupper($search_part_number));
-    }
-
-    if (!empty($_POST['columns'][12]['search']['value'])) {
-      $search_issued_to = $_POST['columns'][12]['search']['value'];
-
-      $this->db->like('UPPER(tb_issuances.issued_to)', strtoupper($search_issued_to));
+      if($search_issued_to != 'ALL'){
+        $this->db->like('UPPER(tb_issuances.issued_to)', strtoupper($search_issued_to));
+      }      
     }
 
     $i = 0;
@@ -179,7 +186,7 @@ class Material_Slip_Model extends MY_Model
     }
   }
 
-  function getIndex($issued_to = NULL, $warehouse = NULL, $start_date = NULL, $end_date = NULL, $category = NULL, $return = 'array')
+  function getIndex($return = 'array')
   {
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_issuances');
@@ -194,56 +201,6 @@ class Material_Slip_Model extends MY_Model
     // $this->db->where('EXTRACT(YEAR FROM tb_issuances.issued_date)::integer = ', date('Y')-1);    
     $this->db->where('tb_issuances.issued_to !=', 'MIX');
     $this->db->like('tb_issuances.document_number', 'MS');
-
-    if ($category !== NULL) {
-      $this->db->where('tb_master_item_groups.category', $category);
-    } else {
-      $this->db->where_in('tb_master_item_groups.category', config_item('auth_inventory'));
-    }
-
-    if ($start_date && $end_date !== NULL) {
-      $this->db->where('tb_issuances.issued_date >= ', $start_date);
-      $this->db->where('tb_issuances.issued_date <= ', $end_date);
-    }
-
-    if ($warehouse !== NULL) {
-      if ($warehouse == 'WISNU') {
-        $this->db->group_start()
-          ->like('tb_issuances.warehouse', 'WISNU')
-          // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
-          ->group_end();
-      }
-      if ($warehouse == "all base rekondisi") {
-        $this->db->group_start()
-          ->like('tb_issuances.warehouse', 'REKONDISI')
-          ->group_end();
-      }
-      if ($warehouse == 'LOMBOK') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'JEMBER') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'SOLO') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'PALANGKARAYA') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'BSR REKONDISI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'BANYUWANGI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'WISNU REKONDISI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-    }
-
-    if ($issued_to !== NULL) {
-      $this->db->where('UPPER(tb_issuances.issued_to)', $issued_to);
-    }
 
     $this->searchIndex();
 
@@ -271,7 +228,7 @@ class Material_Slip_Model extends MY_Model
     }
   }
 
-  function countIndexFiltered($issued_to = NULL, $warehouse = NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  function countIndexFiltered()
   {
     $this->db->from('tb_issuances');
     $this->db->join('tb_issuance_items', 'tb_issuance_items.document_number = tb_issuances.document_number');
@@ -282,55 +239,6 @@ class Material_Slip_Model extends MY_Model
     $this->db->where_in('tb_issuances.warehouse', config_item('auth_warehouses'));
     $this->db->where('tb_issuances.issued_to !=', 'MIX');
     $this->db->like('tb_issuances.document_number', 'MS');
-
-    if ($category !== NULL) {
-      $this->db->where('tb_issuances.category', $category);
-    }
-
-    if ($start_date && $end_date !== NULL) {
-      $this->db->where('tb_issuances.issued_date >= ', $start_date);
-      $this->db->where('tb_issuances.issued_date <= ', $end_date);
-    }
-
-    if ($warehouse !== NULL) {
-      if ($warehouse == 'WISNU') {
-        $this->db->group_start()
-          ->like('tb_issuances.warehouse', 'WISNU')
-          // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
-          ->group_end();
-      }
-      if ($warehouse == "all base rekondisi") {
-        $this->db->group_start()
-          ->like('tb_issuances.warehouse', 'REKONDISI')
-          ->group_end();
-      }
-      if ($warehouse == 'LOMBOK') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'JEMBER') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'SOLO') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'PALANGKARAYA') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'BSR REKONDISI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'BANYUWANGI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'WISNU REKONDISI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-    }
-
-    if ($issued_to !== NULL) {
-      $this->db->where('UPPER(tb_issuances.issued_to)', $issued_to);
-    }
-
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -338,7 +246,7 @@ class Material_Slip_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function countIndex($issued_to = NULL, $warehouse = NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  public function countIndex()
   {
     $this->db->from('tb_issuances');
     $this->db->join('tb_issuance_items', 'tb_issuance_items.document_number = tb_issuances.document_number');
@@ -349,55 +257,6 @@ class Material_Slip_Model extends MY_Model
     $this->db->where_in('tb_issuances.warehouse', config_item('auth_warehouses'));
     $this->db->where('tb_issuances.issued_to !=', 'MIX');
     $this->db->like('tb_issuances.document_number', 'MS');
-
-    if ($category !== NULL) {
-      $this->db->where('tb_issuances.category', $category);
-    }
-
-    if ($start_date && $end_date !== NULL) {
-      $this->db->where('tb_issuances.issued_date >= ', $start_date);
-      $this->db->where('tb_issuances.issued_date <= ', $end_date);
-    }
-
-    if ($warehouse !== NULL) {
-      if ($warehouse == 'WISNU') {
-        $this->db->group_start()
-          ->like('tb_issuances.warehouse', 'WISNU')
-          // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
-          ->group_end();
-      }
-      if ($warehouse == "all base rekondisi") {
-        $this->db->group_start()
-          ->like('tb_issuances.warehouse', 'REKONDISI')
-          ->group_end();
-      }
-      if ($warehouse == 'LOMBOK') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'JEMBER') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'SOLO') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'PALANGKARAYA') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'BSR REKONDISI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'BANYUWANGI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-      if ($warehouse == 'WISNU REKONDISI') {
-        $this->db->where('tb_issuances.warehouse', $warehouse);
-      }
-    }
-
-    if ($issued_to !== NULL) {
-      $this->db->where('UPPER(tb_issuances.issued_to)', $issued_to);
-    }
-
     $query = $this->db->get();
 
     return $query->num_rows();

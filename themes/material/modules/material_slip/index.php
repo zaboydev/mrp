@@ -87,15 +87,19 @@
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
-  <form method="post" class="form force-padding">
+<div class="form force-padding">
+  <!-- <form method="post" class="form force-padding"> -->
   <div class="form-group">
-    <input type="text" name="start_date" id="start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control">
-    <input type="text" name="end_date" id="end_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control">
-    <label for="start_date">Date</label>
+    <input type="text" name="start_date" id="filter_start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control input-sm filter_date" data-column="1" readonly>
+    <label for="start_date">Start Date</label>
+  </div>
+  <div class="form-group">
+    <input type="text" name="end_date" id="filter_end_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control input-sm filter_date" data-column="2" readonly>
+    <label for="start_date">End Date</label>
   </div>
   <div class="form-group">
       <label for="warehouse">Base</label>
-      <select class="form-control input-sm" id="warehouse" name="warehouse">
+      <select class="form-control input-sm filter_dropdown" id="warehouse" name="warehouse" data-column="3" data-span="Base">
         <option value="ALL BASES">-- ALL BASES --</option>
         <option value="all base rekondisi" <?=($selected_warehouse == 'all base rekondisi') ? 'selected' : '';?>>- ALL BASE REKONDISI-</option>
         <?php foreach (config_item('auth_warehouses') as $warehouse):?>
@@ -108,7 +112,7 @@
 
   <div class="form-group">
     <label for="category">Category</label>
-    <select class="form-control input-sm select2" id="category" name="category[]" multiple="multiple">
+    <select class="form-control input-sm select2 filter_multiple" id="category" name="category[]" multiple="multiple" data-column="4" data-span="Category">
       <option value="all">-- ALL CATEGORIES --</option>
       <?php foreach (config_item('auth_inventory') as $category):?>
         <option value="<?=$category;?>" <?=(in_array($category,config_item('auth_inventory'))) ? 'selected' : '';?>>
@@ -120,7 +124,7 @@
 
   <div class="form-group">
     <label for="condition">Issued To</label>
-    <select class="form-control input-sm" id="issued_to" name="issued_to">
+    <select class="form-control input-sm filter_dropdown" id="issued_to" name="issued_to" data-column="5">
         <option value="ALL">ALL</option>
         <option value="OTHER">OTHER</option>
         <option value="MIX">MIX</option>
@@ -132,8 +136,9 @@
     </select>
   </div>
 
-  <button type="submit" class="btn btn-flat btn-danger btn-block ink-reaction">Generate</button>
-</form>
+  <!-- <button type="submit" class="btn btn-flat btn-danger btn-block ink-reaction">Generate</button> -->
+<!-- </form> -->
+</div>
 <?php endblock()?>
 
 <?php startblock('scripts')?>
@@ -512,6 +517,15 @@
     $('.filter_dropdown').on( 'change', function () {
       var i = $(this).data('column');
       var v = $(this).val();
+      var span = $(this).data('span');
+      datatable.columns(i).search(v).draw();
+      $('#'+span).html(' | '+span+' : '+v);
+    });
+
+    $('.filter_multiple').on( 'change', function () {
+      var i = $(this).data('column');
+      var v = $(this).val();
+      var span = $(this).data('span');
       datatable.columns(i).search(v).draw();
     });
 
@@ -541,6 +555,22 @@
       $(this).val('');
       var i = $(this).data('column');
       datatable.columns(i).search('').draw();
+    });
+
+    $('.filter_date').on('change', function() {
+      var start_date    = $('#filter_start_date');
+      var end_date      = $('#filter_end_date');
+
+      if(start_date.val()!='' && end_date.val()!=''){
+        var i_start_date  = start_date.data('column');
+        var v_start_date  = start_date.val();
+        var i_end_date    = end_date.data('column');
+        var v_end_date    = end_date.val();
+        datatable.columns(i_start_date).search(v_start_date).draw();
+        datatable.columns(i_end_date).search(v_end_date).draw();
+        $('#Periode').html(' | Periode : '+v_start_date+' s/d '+v_end_date);
+      }
+      
     });
 
     $('a.column-toggle').on( 'click', function (e) {
