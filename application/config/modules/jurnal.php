@@ -1,10 +1,10 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['jurnal']['visible']        = FALSE;
+$config['module']['jurnal']['visible']        = TRUE;
 $config['module']['jurnal']['main_warehouse'] = TRUE;
-$config['module']['jurnal']['parent']         = 'accounting_report';
-$config['module']['jurnal']['label']          = 'Journal';
-$config['module']['jurnal']['name']           = 'Journal';
+$config['module']['jurnal']['parent']         = 'accounting';
+$config['module']['jurnal']['label']          = 'General';
+$config['module']['jurnal']['name']           = 'General';
 $config['module']['jurnal']['route']          = 'jurnal';
 $config['module']['jurnal']['view']           = config_item('module_path') .'jurnal/';
 $config['module']['jurnal']['language']       = 'jurnal_lang';

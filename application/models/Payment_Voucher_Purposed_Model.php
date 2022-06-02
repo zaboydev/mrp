@@ -582,7 +582,7 @@ class Payment_Voucher_Purposed_Model extends MY_Model
 
             // if($type=='CASH2'){
                 $this->db->set('no_jurnal', $document_number);
-                $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($date)));
+                $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($closing_date)));
                 $this->db->set('source', ($category=='SPEND')? "disbursements":"receipts");
                 $this->db->set('vendor', $vendor);
                 $this->db->set('grn_no', $document_number);
