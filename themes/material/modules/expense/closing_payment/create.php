@@ -253,7 +253,7 @@
         <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
         <select name="account_code[]" class="form-control-payment" style="width: 100%">
           <option value="">-- SELECT Account --</option>
-          <?php foreach (getAccountsBudgetControl() as $key => $account) : ?>
+          <?php foreach (getAccounts() as $key => $account) : ?>
           <option value="<?= $account['coa']; ?>">
           <?= $account['coa']; ?> <?= $account['group']; ?>
           </option>
