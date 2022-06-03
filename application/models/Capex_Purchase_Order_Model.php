@@ -1003,7 +1003,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->set('checked_by', $checked_by);
     $this->db->set('approved_by', $approved_by);
     $this->db->set('warehouse', $warehouse);
-    $this->db->set('category', $category);
+    $this->db->set('category', 'CAPEX');
     $this->db->set('vendor', $vendor);
     $this->db->set('vendor_address', $vendor_address);
     $this->db->set('vendor_country', $vendor_country);
@@ -1233,7 +1233,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->set('checked_by', $checked_by);
     $this->db->set('approved_by', $approved_by);
     $this->db->set('warehouse', $warehouse);
-    $this->db->set('category', $category);
+    $this->db->set('category', 'CAPEX');
     $this->db->set('vendor', $vendor);
     $this->db->set('vendor_address', $vendor_address);
     $this->db->set('vendor_country', $vendor_country);
