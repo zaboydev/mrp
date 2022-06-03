@@ -790,7 +790,7 @@ class Capex_Purchase_Order extends MY_Controller
     // if ($category !== NULL){
     $item       = $this->model->findItemPoe($vendor_id);
     $order      = $this->model->findPoe($vendor_id);
-    $category   = urldecode('SPARE PART');
+    $category   = urldecode('CAPEX');
 
     $deliver    = getDefaultDeliveryTo();
     $deliver_company    = $deliver['warehouse'];
