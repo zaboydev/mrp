@@ -1196,6 +1196,23 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if (!function_exists('getItemsById')) {
+    function getItemsById($id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from('tb_master_part_number');
+
+      $CI->db->where('id', $id);
+
+      $query  = $CI->db->get();
+      $return    = $query->unbuffered_row('array');
+
+      return $return;
+    }
+  }
+
   if (!function_exists('get_set_up_akun')) {
     function get_set_up_akun($id)
     {

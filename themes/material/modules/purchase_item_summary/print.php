@@ -2,7 +2,7 @@
 if ($tipe == 'excel') {
     header("Content-type: application/octet-stream");
 
-    header("Content-Disposition: attachment; filename=" . $title . ".xls");
+    header("Content-Disposition: attachment; filename=" . $title_export . ".xls");
 
     header("Pragma: no-cache");
 
@@ -32,92 +32,77 @@ if ($tipe == 'excel') {
             margin-top: 22px;
         }
 
-        .tg {
+        * {
+            font-family: "Roboto", sans-serif, Helvetica, Arial, sans-serif;;
+        }
+
+        h3.title {
+            font-size: 20px;
+            text-align: center;
+            margin-top:2px;
+            margin-bottom: 2px;
+        }
+
+        h5.periode {
+            font-size: 15px;
+            color: #3d405c;
+            text-align: center;
+            margin-top:2px;
+            margin-bottom: 2px;
+        }
+
+        h5.sub-title {
+            font-size: 15px;
+            color: #3d405c;
+            text-align: center;
+            margin-top:2px;
+            margin-bottom: 2px;
+        }
+
+        table {
             border-collapse: collapse;
             border-spacing: 0;
-            border-color: #ccc;
-            width: 100%;
+            width:100%;
         }
 
-        .tg td {
-            font-family: Arial;
-            font-size: 13px;
-            padding: 3px 3px;
-            border-style: solid;
-            border-width: 1px;
-            overflow: hidden;
-            word-break: normal;
-            border-color: #000;
-            color: #333;
-            background-color: #fff;
+        .table-header {
+            background: #E0F7FF;
+            border-top: 2px solid #B3D7E5;
         }
 
-        .tg th {
-            font-family: Arial;
-            font-size: 14px;
-            font-weight: bold;
-            padding: 3px 3px;
-            border-style: solid;
-            border-width: 1px;
-            overflow: hidden;
-            word-break: normal;
-            border-color: #000;
-            color: #333;
-            background-color: #f0f0f0;
-        }
-
-        .tg .tg-3wr7 {
-            font-weight: bold;
+        .table>thead>tr>th {
+            padding: 0.6em 1em;
             font-size: 12px;
-            font-family: "Arial", Helvetica, sans-serif !important;
-            ;
-            text-align: center
+            color: #2980b9;
         }
 
-        .tg .tg-ti5e {
-            font-size: 10px;
-            font-family: "Arial", Helvetica, sans-serif !important;
-            ;
-            text-align: center
-        }
-
-        .tg .tg-rv4w {
-            font-size: 10px;
-            font-family: "Arial", Helvetica, sans-serif !important;
-        }
-
-        .box {
-            background-color: white;
-            width: auto;
-            height: auto;
-            border: 1px solid black;
+        .table>tbody>tr>td,
+        .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>tr
+        {
             padding: 5px;
-            margin: 2px;
+            line-height: 1.42857;
+            vertical-align: top;
+            /* border-top: 1px solid #e7ecf1; */
+            border: 1px solid #e7ecf1;
         }
 
-        .tt td {
-            font-family: Arial;
-            font-size: 12px;
-            padding: 3px 3px;
-            border-width: 1px;
-            overflow: hidden;
-            word-break: normal;
-            border-color: #000;
-            color: #333;
-            background-color: #fff;
+        .table>tbody>tr>td {                
+            font-size: 11px;
         }
 
-        .tt th {
-            font-family: Arial;
-            font-size: 13px;
-            font-weight: bold;
-            padding: 3px 3px;
-            border-width: 1px;
-            overflow: hidden;
-            word-break: normal;
-            border-color: #000;
-            color: #333;
-            background-color: #f0f0f0;
+        .table>tfoot>tr>td {                
+            font-size: 11px;
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 0;
+        }
+
+        .text-footer {
+            font-size: 10px;
+            color: #777;
+            text-align: center;
         }
 
         @media print {
@@ -161,23 +146,23 @@ if ($tipe == 'excel') {
     <div class="container-fluid" id='printMe'>
         <div class="row">
             <div class="col-xs-12">
-                <table>
-                    <tr>
-                        <td>
-                            <h3><?= $title; ?></h3>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4><?= $periode; ?></h4>
-                        </td>
-                    </tr>
-                </table>
+                <h3 class="title"><?= $title; ?></h3>
+                <h5 class="periode">Periode : <?= $periode; ?></h5>
                 <hr>
-                <br>
                 <div class="portlet light ">
-                    <table class="tg" width="100%">
-                        <thead>
+                    <table>
+                        <tr>
+                            <td>Item : <?= strtoupper($item); ?></td>
+                        </tr>
+                        <tr>
+                            <td>Vendor : <?= strtoupper($vendor); ?></td>
+                        </tr>
+                        <tr>
+                            <td>Currency : <?= $currency; ?></td>
+                        </tr>
+                    </table>
+                    <table class="table" width="100%">
+                        <thead class="table-header">
                             <tr>
                                 <th rowspan="2" width="40%" colspan="2" class="middle-alignment" style="text-align:center">Supplier Name</th>
                                 <th rowspan="2" width="10%" class="middle-alignment" style="text-align:center">Quantity</th>
