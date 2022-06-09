@@ -35,11 +35,11 @@
         </div>
         <div class="form-group">
           <label>Currency</label>
-          <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+          <?php foreach ($this->config->item('currency') as $key => $currency) : ?>
           <div class="checkbox">
-            <input type="checkbox" name="currency[]" id="item_currency_<?= $key; ?>" value="<?= $key; ?>">
+            <input type="checkbox" name="currency[]" id="item_currency_<?= $key; ?>" value="<?= $key; ?>" <?= (in_array($currency, currency_for_vendor_list($entity['vendor']))) ? 'checked' : ''; ?>>
             <label for="item_currency_<?= $key; ?>">
-              <?= $value; ?>
+              <?= $currency; ?>
             </label>
           </div>
           <?php endforeach; ?>
