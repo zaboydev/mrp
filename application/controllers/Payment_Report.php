@@ -43,7 +43,7 @@ class Payment_Report extends MY_Controller
         $no++;
         $col = array();
         $col[] = print_number($no);      
-        $col[]  = print_string($row['no_transaksi']);      
+        $col[]  = '<a class="link" data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';;      
         $col[]  = print_string($row['po_number']);     
         $col[]  = print_string($row['cash_credit']);
         $col[]  = print_string($row['vendor']);
@@ -711,7 +711,7 @@ class Payment_Report extends MY_Controller
     $entity = $this->model->findById($id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = ($entity->status=='PAID')? $entity->type.' PAYMENT VOUCHER':strtoupper('Purpose Payment Purchase');
     $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);
