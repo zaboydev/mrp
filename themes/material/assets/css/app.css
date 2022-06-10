@@ -344,3 +344,13 @@ input[type="radio"]:checked + label:before {
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
 }
+
+.link {
+  color: #0aa89e;
+}
+
+.link:hover,
+.link:focus {
+  color: #0aa89e;
+  text-decoration: underline;
+}

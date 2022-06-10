@@ -104,7 +104,7 @@
                   <td>
                     <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
                     </a>
-                    <a href="<?= site_url('payment/print_po/' . $detail['id_po'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['document_number'])?></a>
+                    <a class="link" href="<?= site_url('payment/print_po/' . $detail['id_po'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['document_number'])?></a>
                     <span style="display:block;font-size:10px;font-style:italic;"><?= print_string($detail['tipe']); ?></span>
                   </td>                  
                   <td>
@@ -126,12 +126,12 @@
                   </td>
                   <td>
                     <?php if($detail['poe_number']!=null):?>
-                    <a href="<?= site_url('payment/print_poe/' . $detail['poe_id'].'/'.$detail['poe_type']) ?>" target="_blank"><?=print_string($detail['poe_number'])?></a>
+                    <a class="link" href="<?= site_url('payment/print_poe/' . $detail['poe_id'].'/'.$detail['poe_type']) ?>" target="_blank"><?=print_string($detail['poe_number'])?></a>
                     <?php endif; ?>
                   </td>
                   <td>
                     <?php if($detail['request_number']!=null):?>
-                    <a href="<?= site_url('payment/print_prl/' . $detail['request_id'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['request_number'])?></a>
+                    <a class="link" href="<?= site_url('payment/print_prl/' . $detail['request_id'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['request_number'])?></a>
                     <?php endif; ?>
                   </td>
                   <td>
@@ -151,12 +151,12 @@
                   </td>
                   <td>
                     <?php if($item['poe_number']!=null):?>
-                    <a href="<?= site_url('payment/print_poe/' . $item['poe_id'].'/'.$item['poe_type']) ?>" target="_blank"><?=print_string($item['poe_number'])?></a>
+                    <a class="link" href="<?= site_url('payment/print_poe/' . $item['poe_id'].'/'.$item['poe_type']) ?>" target="_blank"><?=print_string($item['poe_number'])?></a>
                     <?php endif; ?>
                   </td>
                   <td>
                     <?php if($item['request_number']!=null):?>
-                    <a href="<?= site_url('payment/print_prl/' . $item['request_id'].'/'.$item['tipe_po']) ?>" target="_blank"><?=print_string($item['request_number'])?></a>
+                    <a class="link" href="<?= site_url('payment/print_prl/' . $item['request_id'].'/'.$item['tipe_po']) ?>" target="_blank"><?=print_string($item['request_number'])?></a>
                     <?php endif; ?>
                   </td>
                   <td>
@@ -404,7 +404,7 @@
                 <tr>
                   <td></td>
                   <td>
-                    <a href="<?= site_url('goods_received_note/print_pdf/' . $grn['id']) ?>" target="_blank">
+                    <a class="link" href="<?= site_url('goods_received_note/print_pdf/' . $grn['id']) ?>" target="_blank">
                       <?= print_string($grn['document_number']); ?>
                     </a> 
                        

@@ -368,6 +368,34 @@ if ( ! function_exists('category_for_vendor_list')) {
   }
 }
 
+if ( ! function_exists('currency_for_vendor_list')) {
+  function currency_for_vendor_list($vendor)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('currency');
+    $CI->db->from('tb_master_vendors_currency');
+
+    if (is_array($vendor)){
+      $CI->db->where_in('vendor', $vendor);
+    } else {
+      $CI->db->where('vendor', $vendor);
+    }
+
+    $CI->db->order_by('currency', 'ASC');
+
+    $query  = $CI->db->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['currency'];
+    }
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('user_in_category_list')) {
   function user_in_category_list($category)
   {
@@ -1191,6 +1219,23 @@ if (!function_exists('currency_for_vendor_list')) {
       $query  = $CI->db->get();
       $row    = $query->unbuffered_row();
       $return = $row->part_number;
+
+      return $return;
+    }
+  }
+
+  if (!function_exists('getItemsById')) {
+    function getItemsById($id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from('tb_master_part_number');
+
+      $CI->db->where('id', $id);
+
+      $query  = $CI->db->get();
+      $return    = $query->unbuffered_row('array');
 
       return $return;
     }

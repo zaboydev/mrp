@@ -40,6 +40,17 @@
         </select>
     </div>
 
+    <div class="form-group">
+      <label for="start_date">Status</label>
+      <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
+        <option value="all">All Status</option>      
+        <option value="WAITING REVIEW BY FIN MNG">Waiting Review By Fin Mng</option>
+        <option value="APPROVED">Approved</option>
+        <option value="PAID">Paid</option>
+        
+      </select>
+    </div>
+
 
 </div>
 <?php endblock() ?>

@@ -20,8 +20,10 @@ class Purchase_Item_Summary extends MY_Controller
         $this->data['currency']                 = 'IDR';
         $this->data['page']['title']            = $this->module['label'];
         $this->data['account']                  = array();
-        $this->data['items']                  = $this->model->getItems();
+        $this->data['items']                    = $this->model->getItems();
         $this->data['suplier']                  = $this->model->getSuplier();
+        $this->data['grid']['data_source']      = site_url($this->module['route'] .'/getPo');
+        $this->data['grid']['data_export']      = site_url($this->module['route'] .'/export');
         $this->render_view($this->module['view'] . '/index');
     }
 
@@ -29,73 +31,90 @@ class Purchase_Item_Summary extends MY_Controller
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
-
-        $items_id = $this->input->post('items');
-        if ($items_id != null && $items_id != 'all') {
-            $items    = get_part_number($items_id);
-        } else {
-            $items    = $items_id;
-        }
-        $vendor_id = $this->input->post('vendor');
-        if ($vendor_id != null && $vendor_id != 'all') {
-            $vendor    = get_vendor_name($vendor_id);
-        } else {
-            $vendor    = $vendor_id;
-        }
-        $currency = $this->input->post('currency');
-        $date = $this->input->post('date');
-        $items = $this->model->getPurchaseItemSummary($items, $currency,$vendor, $date);
+        $items = $this->model->getPurchaseItemSummary();
         $this->data['items'] = $items;
         $return['info'] = $this->load->view($this->module['view'] . '/data', $this->data, TRUE);
-        // $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency, $tipe);
-        // $return['count_po'] = $this->model->countPoByVendor($vendor, $currency, $tipe);
         echo json_encode($return);
     }
 
-    public function get_po_for_print($tipe,$currency,$items,$date=null)
+    public function export()
     {
-        // if ($this->input->is_ajax_request() === FALSE)
-        //     redirect($this->modules['secure']['route'] . '/denied');
+        if ($this->input->is_ajax_request() === FALSE)
+          redirect($this->modules['secure']['route'] . '/denied');
 
-        // $vendor = $this->input->post('vendor');
-        // $currency = $this->input->post('currency');
-        // $date = $this->input->post('date');
-        $items_id = $this->input->post('items');
-        if ($items_id != null && $items_id != 'all') {
-            $items    = get_part_number($items_id);
+        if (is_granted($this->module, 'index') === FALSE) {
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
         } else {
-            $items    = $items_id;
-        }
-        $periode = 'All Periode';
-        if ($date != null) {
-            $range_date  = explode('.', $date);
-            $start_date  = $range_date[0];
-            $end_date    = $range_date[1];
-            $periode = print_date($start_date) . ' s/d ' . print_date($end_date);
-        }
-        $this->data['periode']            = $periode;
-        $items = $this->model->getPurchaseItemSummary($items, $currency, $vendor, $date);
-        $this->data['items'] = $items;
-        $this->data['tipe'] = $tipe;
-        $this->data['title']            = $this->module['label'];
-        // $return['info'] = $this->load->view($this->module['view'] . '/print', $this->data, TRUE);
-        // // $return['count_detail'] = $this->model->countdetailPoByVendor($vendor, $currency, $tipe);
-        // // $return['count_po'] = $this->model->countPoByVendor($vendor, $currency, $tipe);
-        // echo json_encode($return);
+            $export         = $_GET['export'];
+            $date           = $_GET['date'];
+            $vendor         = $_GET['vendor'];
+            $currency       = $_GET['currency'];
+            $items         = $_GET['items'];
 
-        $this->render_view($this->module['view'] . '/print', $this->data);
+            $return['open'] = site_url($this->module['route'] .'/get_export?'.'date='.$date.'&vendor='.$vendor.'&currency='.$currency.'&items='.$items.'&export='.$export);
+          
+        }
 
+        echo json_encode($return);
+    }  
+
+    public function get_export(){
+        $date = date('Y-m-d');
+        $vendor = 'All Vendor';
+        $currency = 'All Currency';
+        $item = 'All Items';
+        $entity = $this->model->getPurchaseItemSummary();
+
+        $this->data['items']     = $entity;
+        $this->data['tipe']       = $_GET['export'];
+        if(!empty($_GET['date'])){
+            $getDate = $_GET['date'];
+            $range_date  = explode('.', $getDate);
+            $date = $range_date[0].' sd '.$range_date[1];
+        }
+        if(!empty($_GET['vendor']) && $_GET['vendor'] != 'all'){
+            $vendor = $_GET['vendor'];
+        }
+        if(!empty($_GET['currency']) && $_GET['currency'] != 'all'){
+            $currency = $_GET['currency'];
+        }
+        if(!empty($_GET['items']) && $_GET['items'] != 'all'){
+            $selected_item = getItemsById($_GET['items']);
+            $item = $selected_item['part_number'].'-'.$selected_item['description'];            
+        }
+        $this->data['title']      = $this->module['label'];
+        $this->data['periode']    = $date;
+        $this->data['currency']   = $currency;
+        $this->data['vendor']     = $vendor;
+        $this->data['item']       = $item;
+        $this->data['title_export']      = $this->module['label'].'-'.$item.'-'.$date.'-'.$vendor.'-'.$currency;
+        if($_GET['export']=='excel'){
+            $this->render_view($this->module['view'] . '/print', $this->data);
+        }else{
+            // $this->render_view($this->module['view'] . '/print', $this->data);
+            $this->data['page']['title']    = strtoupper($this->module['label']);
+            $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
+            $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+            $pdfFilePath = str_replace('/', '-', $this->data['title_export']) . ".pdf";
+
+            $this->load->library('m_pdf');
+
+            $pdf = $this->m_pdf->load(null, 'A4-L');
+            $pdf->WriteHTML($html);
+            $pdf->Output($pdfFilePath, "I");
+        }
+        
     }
 
-    public function print_report()
-    {
-        $vendor = $this->input->post('vendor');
-        $currency = $this->input->post('currency');
-        $date = $this->input->post('date');
-        $tipe = $this->input->post('tipe');
-        $items = $items = $this->model->getPurchaseItem($vendor, $currency, $date);
-        $this->data['items'] = $items;
-        $this->data['tipe'] = $tipe;
-        $this->load->view($this->module['view'] . '/print', $this->data);
+    public function getPoApi(){
+        $items = $this->model->getPurchaseItemSummary();
+        echo json_encode($items);
+    }
+
+    public function getPartNumberById($id){
+        $items = $this->model->getPartNumberById($id);
+        echo json_encode($items);
     }
 }

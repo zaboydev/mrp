@@ -2213,34 +2213,6 @@ class Payment_Model extends MY_MODEL
 			if($status!='all'){
 				$this->db->like('tb_po_payments.status', $status);
 			}			
-		} else {
-			if(is_granted($this->data['modules']['payment'], 'approval')){
-				if (config_item('auth_role') == 'FINANCE SUPERVISOR') {
-					$status[] = 'WAITING CHECK BY FIN SPV';
-				}
-				if (config_item('auth_role') == 'FINANCE MANAGER') {
-					$status[] = 'WAITING REVIEW BY FIN MNG';
-				}
-				if (config_item('auth_role') == 'HEAD OF SCHOOL') {
-					$status[] = 'WAITING REVIEW BY HOS';
-				}
-				if (config_item('auth_role') == 'CHIEF OPERATION OFFICER') {
-					$status[] = 'WAITING REVIEW BY COO';
-				}
-				if (config_item('auth_role') == 'VP FINANCE') {
-					$status[] = 'WAITING REVIEW BY VP FINANCE';
-				}
-				if (config_item('auth_role') == 'CHIEF OF FINANCE') {
-					$status[] = 'WAITING REVIEW BY CFO';
-				}
-				$this->db->where_in('tb_po_payments.status', $status);
-			}else{
-				if (config_item('auth_role') == 'TELLER') {
-					$status[] = 'APPROVED';
-					$this->db->where_in('tb_po_payments.status', $status);
-				}
-			}		
-			
 		}
 
 		$i = 0;
@@ -2270,6 +2242,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
+		$this->db->where_not_in('tb_po_payments.status',['REJECTED','CANCELED','REVISI']);
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 
@@ -2305,6 +2278,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
+		$this->db->where_not_in('tb_po_payments.status',['REJECTED','CANCELED','REVISI']);
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 
@@ -2321,6 +2295,7 @@ class Payment_Model extends MY_MODEL
 		$this->db->from('tb_purchase_order_items_payments');
 		$this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
 		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
+		$this->db->where_not_in('tb_po_payments.status',['REJECTED','CANCELED','REVISI']);
 		// $this->db->join('tb_attachment_payment', 'tb_purchase_order_items_payments.no_transaksi = tb_attachment_payment.no_transaksi', 'left');
 		// $this->db->group_by($this->getGroupedColumnsReport());
 

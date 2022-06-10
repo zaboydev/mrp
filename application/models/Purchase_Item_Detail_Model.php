@@ -15,25 +15,22 @@ class Purchase_Item_Detail_Model extends MY_Model
         // $this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
         // $this->db->where('tb_master_vendors_currency.currency', $currency);
         $this->db->from('tb_master_vendors');
-        $this->db->order_by('tb_master_vendors.id','asc');
+        $this->db->order_by('tb_master_vendors.vendor','asc');
         return $this->db->get('')->result();
     }
 
     public function getItems()
     {
-        // $this->db->select('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
-        // $this->db->group_by('tb_master_items.id,tb_master_items.part_number,tb_master_items.description');
-        // // $this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
-        // // $this->db->where('tb_master_vendors_currency.currency', $currency);
-        // $this->db->from('tb_master_items');
-        // $this->db->order_by('tb_master_items.part_number', 'asc');
-        // return $this->db->get('')->result();
         $this->db->select('tb_master_part_number.id,tb_master_part_number.part_number,tb_master_part_number.description');
         $this->db->group_by('tb_master_part_number.id,tb_master_part_number.part_number,tb_master_part_number.description');
-        // $this->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
-        // $this->db->where('tb_master_vendors_currency.currency', $currency);
         $this->db->from('tb_master_part_number');
         $this->db->order_by('tb_master_part_number.part_number', 'asc');
+        return $this->db->get('')->result();
+    }
+
+    public function getAllItems(){
+        $this->db->from('tb_master_items');
+        $this->db->order_by('tb_master_items.part_number', 'asc');
         return $this->db->get('')->result();
     }
 
@@ -331,8 +328,18 @@ class Purchase_Item_Detail_Model extends MY_Model
         return $prl_item;
     }
 
-    public function getPurchaseItemSummary($items, $currency,$vendor, $date)
+    // public function getPurchaseItemSummary($items, $currency,$vendor, $date)
+    public function getPurchaseItemSummary()
     {
+        if (!empty($_GET['items']) && $_GET['items'] != 'all') {
+            $item     = $_GET['items'];
+            $part_number    = $this->getPartNumberById($item);
+        }else{
+            $part_number = 'all';
+        }
+        $currency = 'all';
+        $vendor = 'all';
+        $date = 'all';
 
         $this->db->select(
             array(
@@ -340,7 +347,7 @@ class Purchase_Item_Detail_Model extends MY_Model
                 'tb_master_items.description'
             )
         );
-        // $this->db->from('tb_master_items');
+        $this->db->from('tb_master_items');
         $this->db->join('tb_stocks', 'tb_stocks.item_id = tb_master_items.id');
         $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.stock_id = tb_stocks.id');
         $this->db->join('tb_receipt_items', 'tb_receipt_items.stock_in_stores_id = tb_stock_in_stores.id');
@@ -351,18 +358,20 @@ class Purchase_Item_Detail_Model extends MY_Model
             'tb_master_items.part_number',
             'tb_master_items.description'
         ));
-        if ($date != null) {
-            $range_date  = explode('.', $date);
+        if (!empty($_GET['date'])) {
+            $date = $_GET['date'];
+            $range_date  = explode('.', $_GET['date']);
             $start_date  = $range_date[0];
             $end_date    = $range_date[1];
 
             $this->db->where('tb_receipts.received_date >=', $start_date);
             $this->db->where('tb_receipts.received_date <=', $end_date);
         }
-        if ($items != null && $items != 'all') {
-            $this->db->where('tb_master_items.part_number', $items);
+        if ($part_number != 'all') {
+            $this->db->where('tb_master_items.part_number', $part_number);
         }
-        if ($currency != null && $currency != 'all') {
+        if (!empty($_GET['currency']) && $_GET['currency'] != 'all') {
+            $currency = $_GET['currency'];
             if($currency=='IDR'){
                 $this->db->where('tb_receipt_items.kurs_dollar',1);
             }else{
@@ -370,10 +379,11 @@ class Purchase_Item_Detail_Model extends MY_Model
             }
         }
 
-        if ($vendor != null && $vendor != 'all') {
+        if (!empty($_GET['vendor']) && $_GET['vendor'] != 'all') {
+            $vendor = $_GET['vendor'];
             $this->db->where('tb_receipts.received_from', $vendor);
         }
-        $query      = $this->db->get('tb_master_items');
+        $query      = $this->db->get();
         $item       = $query->result_array();
 
         foreach ($item as $key => $value) {
@@ -382,6 +392,19 @@ class Purchase_Item_Detail_Model extends MY_Model
         }
 
         return $item;
+    }
+
+    public function getPartNumberById($id){
+        $this->db->select('part_number');
+        $this->db->from('tb_master_part_number');
+
+        $this->db->where('id', $id);
+
+        $query  = $this->db->get();
+        $row    = $query->unbuffered_row();
+        $return = $row->part_number;
+
+        return $return;
     }
 
     public function getBasePurchaseItemSummary($items, $currency, $vendor, $date)
@@ -402,7 +425,7 @@ class Purchase_Item_Detail_Model extends MY_Model
             'tb_receipts.warehouse',
             // 'tb_master_items.description'
         ));
-        if ($date != null) {
+        if ($date != null && $date != 'all') {
             $range_date  = explode('.', $date);
             $start_date  = $range_date[0];
             $end_date    = $range_date[1];
@@ -470,7 +493,7 @@ class Purchase_Item_Detail_Model extends MY_Model
             'tb_receipt_items.kurs_dollar'
             // 'tb_master_items.description'
         ));
-        if ($date != null) {
+        if ($date != null && $date != 'all') {
             $range_date  = explode('.', $date);
             $start_date  = $range_date[0];
             $end_date    = $range_date[1];
@@ -508,64 +531,90 @@ class Purchase_Item_Detail_Model extends MY_Model
         return $prl_item;
     }
 
-    public function getPayableReconciliation($vendor, $currency, $date, $method)
+    // public function getPayableReconciliation($vendor, $currency, $date, $method)
+    public function getPayableReconciliation()
     {
 
         $select = array(
-            'tb_hutang.vendor',
-            'tb_hutang.currency',
+            'tb_po.vendor',
+            'tb_po.default_currency as currency',
             'sum(tb_hutang.amount_idr) as idr',
             'sum(tb_hutang.amount_usd) as usd',
             'sum(tb_purchase_order_items_payments.paid) as payment'
         );
         $this->db->select($select);
-        $this->db->join('tb_po_item', 'tb_hutang.id_po_item=tb_po_item.id');
-        $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id','left');
-        $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
+        $this->db->join('tb_hutang','tb_hutang.id_po=tb_po.id','left');
+        $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.id_po=tb_po.id','left');
+        $this->db->order_by('tb_po.vendor','asc');
         $this->db->group_by(array(
-            'tb_hutang.vendor',
-            'tb_hutang.currency'
-            // 'tb_po_item.description'
+            'tb_po.vendor',
+            'tb_po.default_currency'
         ));
         $this->db->where_not_in('tb_po.review_status', ['REVISI']);
         $this->db->where_not_in('tb_po.status', ['PURPOSED']);
-        // $this->db->where('tb_purchase_order_items_payments.status', 'PAID');
-        // if ($date != null) {
-        //     $range_date  = explode('.', $date);
-        //     $start_date  = $range_date[0];
-        //     $end_date    = $range_date[1];
 
-        //     $this->db->where('tb_po.document_date >=', $start_date);
-        //     $this->db->where('tb_po.document_date <=', $end_date);
-        // }
-        if ($vendor != null && $vendor != 'all') {
+        if (!empty($_GET['vendor']) && $_GET['vendor'] != 'all') {
+            $vendor = $_GET['vendor'];
             $this->db->where('tb_po.vendor', $vendor);
         }
-        if ($currency != null && $currency != 'all') {
+        if (!empty($_GET['currency']) && $_GET['currency'] != 'all') {
+            $currency = $_GET['currency'];
             $this->db->where('tb_po.default_currency', $currency);
         }
-        $query      = $this->db->get('tb_hutang');
+        $query      = $this->db->get('tb_po');
         $item       = $query->result_array();
 
-        // $select = array(
-        //     'tb_po.document_number',
-        //     'tb_po.vendor',
-        //     'tb_po.document_date',
-        //     'tb_po.status',
-        //     'tb_po.due_date',
-        //     'tb_po_item.quantity',
-        //     'tb_po_item.total_amount'
-        // );
+
 
         foreach ($item as $key => $value) {
+            $prl_item = array();
 
-            $item[$key]['po'] = $this->getDetailPayableReconciliation($value['vendor'], $currency, $date,$method);
-            // foreach ($item[$key]['po']['po_detail'] as $key => $value_2){
-            //     $item[$key]['a'] = $value_2['a'];
-            //     $item[$key]['b'] = $value_2['b'];
-            //     $item[$key]['c'] = $value_2['c'];
-            //     $item[$key]['d'] = $value_2['d'];
-            // }
+            // $item[$key]['po'] = $this->getDetailPayableReconciliation($value['vendor'], $currency, $date,$method);
+            $select = array(
+                'tb_hutang.amount_idr',
+                'tb_hutang.amount_usd',
+                'tb_purchase_order_items_payments.paid',
+                'tb_po.due_date',
+                'tb_po.default_currency',
+                'tb_hutang.tanggal'
+            );
+            $this->db->select($select);
+            $this->db->join('tb_po_item', 'tb_hutang.id_po_item=tb_po_item.id');
+            $this->db->join('tb_purchase_order_items_payments', 'tb_purchase_order_items_payments.purchase_order_item_id=tb_po_item.id', 'left');
+            $this->db->join('tb_po', 'tb_po.id=tb_po_item.purchase_order_id');
+            $this->db->where_not_in('tb_po.review_status', ['REVISI']);
+            $this->db->where_not_in('tb_po.status', ['PURPOSED']);
+            $this->db->where('tb_po.vendor', $value['vendor']);
+            $this->db->where('tb_po.default_currency', $value['currency']);
+            
+            $query = $this->db->get('tb_hutang');
+            $prl_item['po_count'] = $query->num_rows();
+            $a=0;$b=0;$c=0;$d=0;
+
+            foreach ($query->result_array() as $key2 => $value) {
+                if($value['default_currency']=='USD'){
+                    $amount = $value['amount_usd'] - $value['paid'];
+                }else{
+                    $amount = $value['amount_idr'] - $value['paid'];
+                }
+                if($method=='PO'){
+                    $datetime2 = new DateTime($value['due_date']);
+                }else{
+                    $datetime2 = new DateTime($value['tanggal']);
+                }
+                $datetime1 = new DateTime($date);
+                $difference = $datetime1->diff($datetime2);
+                $selisih = $difference->days;
+                // if($selisih<31){
+                $a=$amount;
+                
+                $prl_item['po_detail'][$key2]['ket'] = $selisih;
+                $prl_item['po_detail'][$key2]['date'] = $datetime2;
+                $prl_item['po_detail'][$key2]['a'] = $a;
+
+            }
+            $item[$key]['po'] = $prl_item;
+
         }
 
         return $item;

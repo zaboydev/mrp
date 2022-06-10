@@ -164,7 +164,7 @@
                                                     <option value="all">All Suplier</option>
                                                     <?php foreach ($suplier as $key) {
                                                         ?>
-                                                        <option value="<?= $key->id ?>"><?= $key->id ?> - <?= $key->vendor ?></option>
+                                                        <option value="<?= $key->vendor ?>"><?= $key->vendor ?></option>
                                                     <?php
                                                     } ?>
                                                 </select>
@@ -193,17 +193,9 @@
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-md-3">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <div class="form-group">
-                                                <button type="button" class="btn btn-sm btn-danger btn-block btn-print-report" data-tipe="print">Print</button>
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-3">
-                                            <div class="form-group">
-                                                <button type="button" class="btn btn-sm btn-info btn-block btn-print-report" data-tipe="excel">Excel</button>
-                                            </div>
-                                        </div>
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-sm btn-info btn-export" data-tipe="excel">Excel</button>
+                                        <button type="button" class="btn btn-sm btn-danger btn-export" data-tipe="print">Print</button>
                                     </div>
                                 </div>
                             </div>
@@ -214,21 +206,25 @@
                                 <div class=" document-data table-responsive" id="view_data">
                                     <div class="col-xs-12">
                                         <h3 style="text-align:center;"><?=$page['title']?></h3>
-                                        <table class="tg" id="table-document" width="100%">
-                                            <thead>
-                                                <tr>
-                                                    <th width="25%" class="middle-alignment">Name</th>
-                                                    <th width="10%" class="middle-alignment">Currency</th>
-                                                    <th width="10%" class="middle-alignment">Total Due</th>
-                                                    <th width="15%" class="middle-alignment">0-30 Days</th>
-                                                    <th width="15%" class="middle-alignment">31-60 Days</th>
-                                                    <th width="15%" class="middle-alignment">61-90 Days</th>
-                                                    <th width="10%" class="middle-alignment">90+ Days</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="listView">
-                                            </tbody>
-                                        </table>
+                                        <div id="listView">
+                                            <table class="tg" id="table-document" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="middle-alignment">No</th>
+                                                        <th width="25%" class="middle-alignment">Name</th>
+                                                        <th width="10%" class="middle-alignment">Currency</th>
+                                                        <th width="10%" class="middle-alignment">Total Due</th>
+                                                        <th width="15%" class="middle-alignment">0-30 Days</th>
+                                                        <th width="15%" class="middle-alignment">31-60 Days</th>
+                                                        <th width="15%" class="middle-alignment">61-90 Days</th>
+                                                        <th width="10%" class="middle-alignment">90+ Days</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>    
+                                        </div>
+                                        
                                     </div>
                                 </div>
 
@@ -362,33 +358,6 @@
             event.preventDefault();
         }
     });
-    var row_num = 0;
-    var row = []
-    var suplier = ""
-    $("#add_item").click(function() {
-        if (id_po.length > 0) {
-            row_num += 1;
-            row.push(row_num)
-            var option = "<option>No Po</option>";
-            $.each(id_po, function(i, item) {
-                option += "<option value='" + item + "'>" + arr_po["id_" + item].document_number + "</option>"
-            })
-            var text = '<tr id="row_' + row_num + '">' +
-                '<td><a href="" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_item" data-row="' + row_num + '"><i class="fa fa-trash" ></i></a> ' + row.length + '</td>' +
-                '<td><select id="sel_' + row_num + '" data-row="' + row_num + '" class="form-control sel_item">' + option + '</select></td>' +
-                '<td id="sta_' + row_num + '"></td>' +
-                '<td id="date_' + row_num + '"></td>' +
-                '<td id="sis_' + row_num + '"></td>' +
-                '<td><input id="in_' + row_num + '" data-row="' + row_num + '" type="number" class="sel_applied" value="0"></td>' +
-                '</tr>';
-            $("#listView").append(text);
-        } else {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error("This vendor dont have PO");
-        }
-
-    });
 
     $('[data-provide="datepicker"]').datepicker({
         autoclose: true,
@@ -399,18 +368,22 @@
     });
 
     $('#date').change(function() {
-        suplier = $("#suplier_select").val();
-        currency = $("#currency_select").val();
-        date = $("#date").val();
-        method = $("#method_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        
         $("#listView").html("");
-        row = [];
-        row_detail = [];
 
-        getPo()
+        var formData = {
+          vendor       : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method
+        };
+        var url = "<?= $grid['data_source']; ?>";
+
+        getPo(url,formData);
     });
 
     $('.filter_daterange').daterangepicker({
@@ -422,395 +395,192 @@
     }).on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD') + '.' + picker.endDate.format('YYYY-MM-DD'));
         // $(".btn-print-report").attr('disabled', false);
-        suplier = $("#suplier_select").val();
-        currency = $("#currency_select").val();
-        date = $("#date").val();
-        method = $("#method_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
-        $("#listView").html("");
-        row = [];
-        row_detail = [];
 
-        getPo()
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        
+        $("#listView").html("");
+
+        var formData = {
+          vendor       : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method
+        };
+        var url = "<?= $grid['data_source']; ?>";
+
+        getPo(url,formData);
     }).on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
         // $(".btn-print-report").attr('disabled', true);
-        suplier = $("#suplier_select").val();
-        currency = $("#currency_select").val();
-        date = $("#date").val();
-        method = $("#method_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
-        $("#listView").html("");
-        row = [];
-        row_detail = [];
 
-        getPo()
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        
+        $("#listView").html("");
+
+        var formData = {
+          vendor       : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method
+        };
+        var url = "<?= $grid['data_source']; ?>";
+
+        getPo(url,formData);
     });
 
     $('#currency_select').change(function() {
-        currency = $(this).val();
-
-        suplier = $("#suplier_select").val();
-        // currency = $("#currency_select").val();
-        date = $("#date").val();
-        method = $("#method_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        
         $("#listView").html("");
-        row = [];
-        row_detail = [];
 
-        getPo()
+        var formData = {
+          vendor       : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method
+        };
+        var url = "<?= $grid['data_source']; ?>";
+
+        getPo(url,formData);
 
     });
 
     $('#method_select').change(function() {
-        method = $(this).val();
-
-        suplier = $("#suplier_select").val();
-        currency = $("#currency_select").val();
-        date = $("#date").val();
-        // method = $("#method_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        
         $("#listView").html("");
-        row = [];
-        row_detail = [];
 
-        getPo()
+        var formData = {
+          vendor       : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method
+        };
+        var url = "<?= $grid['data_source']; ?>";
+
+        getPo(url,formData);
 
     });
 
-    $("#suplier_select").change(function(e) {
+    $("#suplier_select").change(function() {
 
-        suplier = $("#suplier_select").val();
-        currency = $("#currency_select").val();
-        date = $("#date").val();
-        method = $("#method_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        
         $("#listView").html("");
-        row = [];
-        row_detail = [];
 
-        getPo()
+        var formData = {
+          vendor       : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method
+        };
+        var url = "<?= $grid['data_source']; ?>";
+
+        getPo(url,formData);
 
         // }
     });
 
     $("#tipe_select").change(function(e) {
 
-        suplier = $("#suplier_select").val();
-        currency = $("#currency_select").val();
-        tipe = $("#tipe_select").val();
-        method = $("#method_select").val();
-        $("#total_general").html(0);
-        $("#amount").val(0);
-        // row_num = 0;
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        
         $("#listView").html("");
-        row = [];
-        row_detail = [];
 
-        getPo()
+        var formData = {
+          vendor       : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method
+        };
+        var url = "<?= $grid['data_source']; ?>";
+
+        getPo(url,formData);
 
         // }
     });
 
-    $(".btn-print-report").on('click', function(e) {
-        suplier = $("#suplier_select").val();
-        currency = $("#currency_select").val();
-        date = $("#date").val();
-        tipe = $(this).data('tipe');
-
-        get_po_for_print()
-    });
-
-    var arr_po = []
-    id_po = []
-
-    function getPo() {
+    function getPo(url, formData) {
         $("#loadingScreen2").attr("style", "display:block");
         console.log(suplier);
+        
         $.ajax({
-            type: "POST",
-            url: '<?= base_url() . "payable_reconciliation_summary/getPo" ?>',
-            data: {
-                'currency': currency,
-                'vendor': suplier,
-                'date': date,
-                'method': method
-            },
-            cache: false,
-            success: function(response) {
+            url: url,
+            type: 'GET',
+            data: formData,
+            success: function (data) {
                 $("#loadingScreen2").attr("style", "display:none");
-                var data = jQuery.parseJSON(response);
-                $("#listView").html(data.info);
-
+                var obj = $.parseJSON(data);
+                $('#listView').html(obj.info);
+            },
+            error: function (request, status, error) {
+                swal({
+                    title: 'Perhatian',
+                    text: 'Data Gagal Disimpan! ',
+                    type: 'error'
+                });
             }
         });
     }
 
-    function get_po_for_print() {
+    $('.btn-export').on('click', function(e) {
+        suplier     = $("#suplier_select").val();
+        currency    = $("#currency_select").val();
+        date        = $("#date").val();
+        method      = $("#method_select").val();
+        var _export       = $(this).data('tipe');
+        
+        // $("#listView").html("");
 
-
-        var data = {
-            'currency': currency,
-            'vendor': suplier,
-            'date': date,
-            'tipe': tipe
-
+        var formData = {
+          vendor        : suplier,
+          currency      : currency,
+          date          : date,
+          method        : method,
+          export        : _export
         };
+        var url = "<?= $grid['data_export']; ?>";
+        print_report(url,formData);
+    });
 
-        var urlPrint = '<?= base_url() ?>' + 'payable_reconciliation_summary/get_po_for_print/' + tipe + '/' + currency + '/' + suplier + '/' + method + '/' + date;
-        window.open(urlPrint);
-
+    function print_report(url, formData) {
+      // $("#loadingScreen2").attr("style", "display:block");
+      $.ajax({
+        url: url,
+        type: 'GET',
+        data: formData,
+        success: function (data) {
+          var obj = $.parseJSON(data);
+          // $('#report_view').html(obj.info);
+          window.open(obj.open);
+        },
+        error: function (request, status, error) {
+          swal({
+            title: 'Perhatian',
+            text: 'Data Gagal Disimpan! ',
+            type: 'error'
+          });
+        }
+      });
     }
-
-    $("#listView").on("change", ".sel_item", function() {
-        var selData = arr_po["id_" + $(this).val()]
-        var selRow = $(this).data("row");
-        $("#sta_" + selRow).html(selData.status);
-        $("#date_" + selRow).html(selData.document_date);
-        $("#sis_" + selRow).html(selData.remaining_payment);
-    })
-
-    $("#listView").on("click", ".btn_delete_item", function(e) {
-        e.preventDefault();
-        var selRow = $(this).data("row");
-        console.log(selRow)
-        $("#row_" + selRow).remove();
-        removeRow(selRow)
-    })
-
-    function removeRow(selRow) {
-
-        for (var i = 0; i < row.length; i++) {
-            if (row[i] == selRow) {
-                row.splice(i, 1);
-            }
-        }
-        console.log(row)
-    }
-
-    $("#listView").on("change", ".sel_applied", function() {
-        // console.log('test');
-        var selRow = $(this).data("row");
-        sisa = parseFloat($("#sis_" + selRow).val())
-        input = parseFloat($(this).val())
-        if (input < sisa) {
-            $('.detail_' + selRow).removeClass('hide');
-            $.each(row_detail, function(i, po) {
-                sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-                $("#in_item_" + selRow + "_" + po).val(0)
-                $("#in_" + selRow).attr('readonly', true);
-            });
-        } else {
-            $.each(row_detail, function(i, po) {
-                sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
-                $("#in_item_" + selRow + "_" + po).val(sisa_item)
-            });
-            $('.detail_' + selRow).removeClass('hide');
-        }
-        changeTotal();
-
-    })
-
-    $("#listView").on("click", ".btn_view_detail", function() {
-        console.log('klik detail');
-        var selRow = $(this).data("row");
-        var tipe = $(this).data("tipe");
-        if (tipe == "view") {
-            $(this).data("tipe", "hide");
-            $('.detail_' + selRow).removeClass('hide');
-            $("#in_" + selRow).attr('readonly', true);
-        } else {
-            $(this).data("tipe", "view");
-            $('.detail_' + selRow).addClass('hide');
-            $("#in_" + selRow).attr('readonly', false);
-        }
-    })
-
-    $("#listView").on("change", ".sel_applied_item", function() {
-        // console.log('test');
-        var selRow = $(this).data("row");
-        var parent = $(this).data("parent");
-        var parent_total = $("#in_" + parent).val();
-        sisa = parseFloat($("#sis_" + selRow).val())
-        input = parseFloat($(this).val())
-        var sum = 0;
-        $('.sel_applied_' + parent).each(function(key, val) {
-            var val = $(this).val();
-            sum = parseFloat(sum) + parseFloat(val);
-        });
-        $("#in_" + parent).val(sum)
-        changeTotal();
-
-    })
-
-    $("#listView").on("keyup", ".sel_applied", function() {
-        var selRow = $(this).data("row");
-        sisa = parseFloat($("#sis_" + selRow).val())
-        input = parseFloat($(this).val())
-        if (sisa < input) {
-            console.log('lebih');
-            var text = $(this).val();
-            $(this).val(sisa);
-        }
-
-    })
-
-    $("#listView").on("keyup", ".sel_applied_item", function() {
-        var selRow = $(this).data("row");
-        var parent = $(this).data("parent");
-        var parent_total = $("#in" + parent).val()
-        sisa = parseFloat($("#sis_item_" + parent + "_" + selRow).val())
-        input = parseFloat($(this).val())
-        if (sisa < input) {
-            console.log('lebih');
-            var text = $(this).val();
-            $(this).val(sisa);
-            input = sisa;
-        }
-        $("#in" + parent).val(parent_total + input);
-    })
-
-    $("#listView").on("keydown", ".sel_applied", function(e) {
-        var selRow = $(this).data("row");
-        if ($("#sis_" + selRow).val() === "") {
-            // toastr.options.timeOut = 10000;
-            // toastr.options.positionClass = 'toast-top-right';
-            // toastr.error("There's no PO");
-            // e.preventDefault()
-            $("#sis_" + selRow).val(0);
-        }
-
-    })
-
-    function changeTotal() {
-        var sum = 0
-        $.each(row, function(i, item) {
-            sum += parseFloat($("#in_" + item).val())
-        });
-        console.log(row_detail)
-        // $('.sel_applied_' + parent).each(function(key, val) {
-        //   var val = $(this).val();
-        //   sum = parseFloat(sum) + parseFloat(val);
-        // });
-        $("#total_general").html(sum);
-        $("#amount").val(sum);
-    }
-    $("#amount").change(function() {
-        if ($(this).val() === "") {
-            $(this).val("0")
-        }
-        if (parseInt($(this).val()) < 0) {
-            $(this).val("0")
-        }
-    })
-    $("#btn-submit-document").click(function(e) {
-        e.preventDefault()
-        if ($("#account_select").val() === "" || $("#suplier_select").val() === "" || $("#no_cheque").val() === "" || $("#date").val() === "" || $("#amount").val() === 0) {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error("All field must be fill");
-            return
-        }
-        if (parseInt($("#amount").val()) != parseInt($("#total_general").html())) {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error("Check value and item value not match");
-            return
-        }
-        var postData = []
-        // $.each(row, function(i, item) {
-        //   if (parseFloat($("#in_" + item).val()) === 0) {
-
-        //     toastr.options.timeOut = 10000;
-        //     toastr.options.positionClass = 'toast-top-right';
-        //     toastr.error("All field must be fill");
-        //     return
-        //   }
-        //   var data = {}
-        //   data["document_number"] = $("#sel_" + item).val()
-        //   data["value"] = parseInt($("#in_" + item).val())
-        //   postData.push(data);
-        // });
-        $.each(row, function(i, po) {
-            $.each(row_detail, function(i, item) {
-                var data = {}
-                data["document_number"] = $("#sel_item_" + po + "_" + item).val()
-                data["value"] = parseInt($("#in_item_" + po + "_" + item).val())
-                postData.push(data);
-            });
-        });
-        $("#loadingScreen2").attr("style", "display:block");
-        $.ajax({
-            type: "POST",
-            url: '<?= base_url() . "payment/save" ?>',
-            data: {
-                'account': $("#account_select").val(),
-                "vendor": $("#suplier_select").val(),
-                "currency": $("#currency_select").val(),
-                "tipe": $("#tipe_select").val(),
-                "no_cheque": $("#no_cheque").val(),
-                "date": $("#date").val(),
-                "amount": $("#amount").val(),
-                "item": postData
-            },
-            cache: false,
-            success: function(response) {
-                $("#loadingScreen2").attr("style", "display:none");
-                var data = jQuery.parseJSON(response);
-                if (data.status == "success") {
-                    clearForm()
-                    toastr.options.timeOut = 10000;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.success("Your data has been saved");
-
-                } else {
-                    toastr.options.timeOut = 10000;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.error("Failed to save data");
-                }
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-                $("#loadingScreen2").attr("style", "display:none");
-                console.log(xhr.status);
-                console.log(xhr.responseText);
-                console.log(thrownError);
-            }
-        });
-
-    })
-
-    function clearForm() {
-        console.log(123)
-        $("input[type=text]").val("");
-        $("input[type=number]").val("0");
-        $("select").val($("select option:first").val());
-        row = []
-        row_num = 0;
-        arr_po = []
-        id_po = []
-        suplier = ""
-        $("#listView").html("");
-        $("#total_general").html("0");
-    }
-    $("listView").on("change", ".sel_applied", function() {
-        if ($(this).val() === "") {
-            $(this).val("0")
-        }
-        if (parseInt($(this).val()) < 0) {
-            $(this).val("0")
-        }
-    })
 </script>
 
 <?= html_script('themes/material/assets/js/core/source/App.min.js') ?>
