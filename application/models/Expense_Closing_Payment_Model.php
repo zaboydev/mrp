@@ -1320,7 +1320,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
-        $this->connection->where('tb_expense_purchase_requisitions.status','approved');
+        $this->connection->where_in('tb_expense_purchase_requisitions.status',['approved','PAYMENT PURPOSED']);
         $this->connection->where('tb_expense_purchase_requisitions.with_po','f');
         $this->connection->group_by(
             array(
@@ -1410,4 +1410,63 @@ class Expense_Closing_Payment_Model extends MY_Model
 
         return $request;
     }
+
+    public function cancel()
+	{
+		$this->connection->trans_begin();
+
+		$id = $this->input->post('id');
+        $notes = $this->input->post('cancel_notes');
+
+        $this->connection->select('tb_request_payments.*');
+        $this->connection->where('tb_request_payments.id', $id);
+        $this->connection->from('tb_request_payments');
+        $query    = $this->connection->get();
+        $request  = $query->unbuffered_row('array');
+
+		if($request['status']!='CANCELED'){
+			$this->connection->set('status', 'CANCELED');
+			$this->connection->set('canceled_by', config_item('auth_person_name'));
+			$this->connection->set('canceled_at', date('Y-m-d'));
+			$this->connection->set('rejected_notes', $notes);
+			$this->connection->where('id', $id);
+			$this->connection->update('tb_request_payments');
+			$status = 'CANCELED';
+		}		
+
+		// $this->db->select('tb_purchase_order_items_payments.*');
+        // $this->db->from('tb_purchase_order_items_payments');
+        // $this->db->where('tb_purchase_order_items_payments.po_payment_id',$id);
+		// $query    		= $this->db->get();
+
+        $this->db->select('tb_request_payment_details.*');
+        $this->connection->from('tb_request_payment_details');
+        $this->connection->where('tb_request_payment_details.request_payment_id', $id);
+
+        $query = $this->connection->get();
+		
+		foreach ($query->result_array() as $key => $item) {
+			$request_id = $item['request_id'];
+			$value = $item["amount_paid"]+$item["adj_value"];
+			if($item['request_item_id']!==null){
+                $this->connection->set('process_amount', '"process_amount" - ' . $value, false);
+                $this->connection->where('id', $item['request_item_id']);
+                $this->connection->update('tb_expense_purchase_requisition_details');
+
+                if($this->updateStatusExpense($request_item['expense_purchase_requisition_id'])){
+                    $this->connection->set('status', 'approved'); 
+                    $this->connection->where('id', $request_id);
+                    $this->connection->update('tb_expense_purchase_requisitions');
+                }
+			}
+			
+		}
+
+
+		if ($this->connection->trans_status() === FALSE)
+			return FALSE;
+
+		$this->connection->trans_commit();
+		return TRUE;
+	}
 }
