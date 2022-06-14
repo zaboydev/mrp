@@ -134,6 +134,7 @@ require('modules/cash_request.php');
 require('modules/payment_voucher_purposed.php');
 
 //account_payable
+require('modules/receipt_nota.php');
 require('modules/account_payable.php');
 require('modules/payment.php');
 require('modules/payment_report.php');
