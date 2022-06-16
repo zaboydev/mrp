@@ -702,6 +702,7 @@ class Dashboard_Model extends MY_Model
   public function getListAttachment()
   {
     $query = $this->db->get('tb_attachment_poe');
+    $count = $query->num_rows();
     $data = array();
 
     foreach($query->result_array() as $key => $att){
@@ -716,7 +717,10 @@ class Dashboard_Model extends MY_Model
         $data[] = $insert;
       }
     }
-    return $data;
+    return [
+      'count'=>$count,
+      'data'=>$data
+    ];
   }
 
 }
