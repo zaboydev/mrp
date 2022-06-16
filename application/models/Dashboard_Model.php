@@ -702,8 +702,8 @@ class Dashboard_Model extends MY_Model
   public function getListAttachment()
   {
     $query = $this->db->get('tb_attachment_poe');
-    $count = $query->num_rows();
     $data = array();
+    $count = array();
 
     foreach($query->result_array() as $key => $att){
       $is_file_exists = file_exists($att['file']);
@@ -715,10 +715,11 @@ class Dashboard_Model extends MY_Model
       ];
       if(!$is_file_exists){
         $data[] = $insert;
+        $count[] = 1;
       }
     }
     return [
-      'count'=>$count,
+      'count'=>array_sum($count),
       'data'=>$data
     ];
   }
