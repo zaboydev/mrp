@@ -164,7 +164,6 @@
                   </td>
                   <td>
                     <?= print_number($item['amount_paid'], 2); ?>
-                    <?php $amount_paid[] = $item['amount_paid']; ?>
                   </td>
                 </tr>
               <?php endforeach; ?>
