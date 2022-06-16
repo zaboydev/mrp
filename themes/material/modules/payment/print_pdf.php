@@ -41,8 +41,7 @@
             <th style="text-align: center;">PO#</th>
             <th style="text-align: center;">Due Date</th>
             <th style="text-align: center;">Currency</th>
-            <th style="text-align: center;">POE#</th>
-            <th style="text-align: center;">Request Number</th>
+            <th style="text-align: center;">GRN#</th>
             <th style="text-align: center;">Amount</th>
         </tr>
     </thead>
@@ -63,9 +62,6 @@
             </td>
             <td style="font-weight: bold;text-align: center;">
                 <?= print_string($entity['currency']); ?>
-            </td>
-            <td style="font-weight: bold;">
-                
             </td>
             <td style="font-weight: bold;">
                 

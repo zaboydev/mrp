@@ -99,7 +99,7 @@
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                   <i class="fa fa-trash"></i>
                 </a>
-                <?Php endif;?>
+                <?php endif;?>
               </td>
             </tr>
           <?php endforeach;?>
