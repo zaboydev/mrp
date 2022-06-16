@@ -142,4 +142,12 @@ class Dashboard extends MY_Controller
     $result['status'] = $send;
     echo json_encode($result);
   }
+
+  public function get_list_attachment()
+  {
+    $data = $this->model->getListAttachment();
+    
+    // $result['status'] = $send;
+    echo json_encode($data);
+  }
 }

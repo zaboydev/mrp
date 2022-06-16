@@ -1186,4 +1186,9 @@ class Payment extends MY_Controller
     echo json_encode($arr_result);
   }
 
+  public function find_by_id($id){
+    $entity = $this->model->findById($id);
+    echo json_encode($entity);
+  }
+
 }

@@ -1245,6 +1245,7 @@ class Payment_Model extends MY_MODEL
 
 		foreach ($query_item->result_array() as $key => $value) {
 			$payment['po'][$key] = $value;
+			$payment['po'][$key]['grn_list'] = $this->getReceiptListByPurchaseId($value['id_po']);
 			$total = $total+$value['amount_paid'];
 
 			$select = array(
@@ -1277,22 +1278,22 @@ class Payment_Model extends MY_MODEL
 				$payment['po'][$key]['items'][$i] = $value;
 				// $total = $total+$value['amount_paid'];
 				if($value['purchase_order_item_id']!=null){
-					$item 										= $this->getItemPoById($value['purchase_order_item_id']);
+					$item 													= $this->getItemPoById($value['purchase_order_item_id']);
 					$payment['po'][$key]['items'][$i]['poe_number'] 		= $item['poe_number'];
-					$poe 										= $this->getPoe($item['poe_number']);
+					$poe 													= $this->getPoe($item['poe_number']);
 					$payment['po'][$key]['items'][$i]['poe_id'] 			= $poe['id'];
-					$payment['po'][$key]['items'][$i]['poe_type'] 		= $poe['tipe'];
-					$payment['po'][$key]['items'][$i]['item'] 			= $item;
+					$payment['po'][$key]['items'][$i]['poe_type'] 			= $poe['tipe'];
+					$payment['po'][$key]['items'][$i]['item'] 				= $item;
 					$payment['po'][$key]['items'][$i]['request_number'] 	= $item['purchase_request_number'];
 					$payment['po'][$key]['items'][$i]['request_id'] 		= $this->getRequestId($item['purchase_request_number'],$value['tipe_po']);
-					$payment['po'][$key]['items'][$i]['history']          = $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);	
+					$payment['po'][$key]['items'][$i]['history']          	= $this->getHistory($value['id'],$value['id_po'],$value['purchase_order_item_id']);	
 				}else{				
 					$payment['po'][$key]['items'][$i]['poe_number'] 		= null;
 					$payment['po'][$key]['items'][$i]['request_number'] 	= null;
-					$payment['po'][$key]['items'][$i]['history']          = $this->getHistory($value['id'],$value['id_po']);
+					$payment['po'][$key]['items'][$i]['history']          	= $this->getHistory($value['id'],$value['id_po']);
 					$payment['po'][$key]['items'][$i]['grn']				= [];
 					if($value['id_po']!=0){
-						$payment['po'][$key]['items'][$i]['item']				= $this->additionalPriceInfo($value['id_po']);
+						$payment['po'][$key]['items'][$i]['item']			= $this->additionalPriceInfo($value['id_po']);
 					}
 				}			
 				
@@ -1337,6 +1338,27 @@ class Payment_Model extends MY_MODEL
 		$po = $query->unbuffered_row('array');
 
 		return $po;
+	}
+
+	public function getReceiptListByPurchaseId($purchase_order_id)
+	{
+	    $select = array(
+	      'tb_receipts.id',
+	      'tb_receipts.document_number'
+	      
+	    );
+
+	    $this->db->select($select);
+	    $this->db->from('tb_receipts');
+	    $this->db->join('tb_receipt_items', 'tb_receipts.document_number = tb_receipt_items.document_number');
+	    $this->db->join('tb_po_item', 'tb_po_item.id = tb_receipt_items.purchase_order_item_id');   
+	    $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id'); 
+	    $this->db->where('tb_po.id', $purchase_order_id);
+		$this->db->group_by($select);
+
+	    $query = $this->db->get();
+
+	    return $query->result_array();
 	}
 
 	public function getReceiptItems($purchase_order_item_id)
