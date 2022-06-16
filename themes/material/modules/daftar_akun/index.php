@@ -2,7 +2,7 @@
 
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
-  <?php if (is_granted($module, 'import')) : ?>
+  <?php if (is_granted($module, 'imprort')) : ?>
     <div class="btn-group dropup">
       <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-import-data" data-toggle="modal" data-target="#import-modal">
         <i class="md md-attach-file"></i>

@@ -226,17 +226,17 @@ class Dashboard_Model extends MY_Model
   public function send_mail()
   {
     $from_email = "bifa.acd@gmail.com";
-    $to_email = "aidanurul99@rocketmail.com";
+    $to_email = "kcang.ijau@gmail.com";
     
 
     //Load email library 
     $this->load->library('email');
     $this->email->set_newline("\r\n");
     $message = "<p>Dear </p>";
-    $message .= "<p>Berikut permintaan Persetujuan untuk Expense Request :</p>";
+    $message .= "<p>Ini adalah test email</p>";
     $message .= "<ul>";
     $message .= "</ul>";
-    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p></p>";
     $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
