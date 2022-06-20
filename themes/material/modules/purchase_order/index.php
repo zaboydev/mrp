@@ -614,16 +614,19 @@
         url: 'purchase_order/listAttachmentpoe/' + id,
         cache: false,
         success: function(response) {
-          var data = jQuery.parseJSON(response)
-          $("#listView").html("")
+          var data = $.parseJSON(response);
           $("#attachment_modal").modal("show");
-          $.each(data, function(i, item) {
-            var text = '<tr>' +
-              '<td>' + (i + 1) + '</td>' +
-              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-              '</tr>';
-            $("#listView").append(text);
-          });
+          $("#attachment_modal")
+          .find('.modal-body')
+          .empty()
+          .append(data.info);
+          // $.each(data, function(i, item) {
+          //   var text = '<tr>' +
+          //     '<td>' + (i + 1) + '</td>' +
+          //     '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+          //     '</tr>';
+          //   $("#listView").append(text);
+          // });
         },
         error: function(xhr, ajaxOptions, thrownError) {
           console.log(xhr.status);

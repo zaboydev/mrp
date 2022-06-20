@@ -724,4 +724,45 @@ class Dashboard_Model extends MY_Model
     ];
   }
 
+  public function isFileExist($id,$type){
+    if($type=='mrp'){
+      $this->db->select('*');
+      $this->db->from('tb_attachment_poe');
+      $this->db->where('id',$id);
+      $query    = $this->db->get();
+      $data  = $query->unbuffered_row('array');
+
+      $is_file_exists = file_exists($data['file']);
+
+    }elseif($type=='budgetcontrol'){
+      $this->connection->select('*');
+      $this->connection->from('tb_attachment');
+      $this->connection->where('id',$id);
+      $query    = $this->connection->get();
+      $data     = $query->unbuffered_row('array');
+      $is_file_exists = file_exists($data['file']);
+    }
+
+    return $is_file_exists;
+  }
+
+  public function findAttachmentbyId($id,$type){
+    if($type=='mrp'){
+      $this->db->select('*');
+      $this->db->from('tb_attachment_poe');
+      $this->db->where('id',$id);
+      $query    = $this->db->get();
+      $data  = $query->unbuffered_row('array');
+
+    }elseif($type=='budgetcontrol'){
+      $this->connection->select('*');
+      $this->connection->from('tb_attachment');
+      $this->connection->where('id',$id);
+      $query    = $this->connection->get();
+      $data  = $query->unbuffered_row('array');
+    }
+
+    return $data;
+  }
+
 }

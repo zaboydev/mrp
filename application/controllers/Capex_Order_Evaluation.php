@@ -228,13 +228,18 @@ class Capex_Order_Evaluation extends MY_Controller
     // $data = $this->model->listAttachment($id);
     // echo json_encode($data);
 
-    $data = [];
-    $data['att_poe'] = $this->model->listAttachment($id);
-    $data['count_att_poe'] = count($data['att_poe']);
+    // $data = [];
+    // $data['att_poe'] = $this->model->listAttachment($id);
+    // $data['count_att_poe'] = count($data['att_poe']);
 
-    $data['att_request'] = listAttachmentRequest($id,'CAPEX');
-    $data['count_att_request'] = count($data['att_request']);
-    echo json_encode($data);
+    // $data['att_request'] = listAttachmentRequest($id,'CAPEX');
+    // $data['count_att_request'] = count($data['att_request']);
+    // echo json_encode($data);
+
+    $this->data['entity'] = $this->model->listAttachment($id);
+    $this->data['att_request'] = listAttachmentRequest($id,'CAPEX');
+    $return['info'] = $this->load->view($this->module['view'] . '/listAttachment', $this->data, TRUE);
+    echo json_encode($return);
   }
 
   public function multi_reject()

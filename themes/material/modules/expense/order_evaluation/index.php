@@ -17,21 +17,7 @@
         <h4 class="modal-title" id="import-modal-label">Attachment</h4>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12">
-            <table style="width: 100%">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Link</th>
-                </tr>
-              </thead>
-              <tbody id="listView">
-
-              </tbody>
-            </table>
-          </div>
-        </div>
+        
       </div>
     </div>
   </div>
@@ -590,38 +576,44 @@
         url: 'expense_order_evaluation/listAttachment/' + id,
         cache: false,
         success: function(response) {
-          var data = jQuery.parseJSON(response)
-          $("#listView").html("")
+          var data = $.parseJSON(response);
           $("#attachment_modal").modal("show");
-          var a = '<tr><td colspan="2">Attachment POE</td></tr>';
-          $("#listView").append(a);
-          if(data.count_att_poe>0){
-            $.each(data.att_poe, function(i, item) {
-              var text = '<tr>' +
-                '<td>' + (i + 1) + '</td>' +
-                '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-                '</tr>';
-              $("#listView").append(text);
-            });
-          }else{
-            var no_att_poe = '<tr><td colspan="2" style="text-align:center;">POE doesnt have Attachment</td></tr>';
-            $("#listView").append(no_att_poe);
-          }
+          $("#attachment_modal")
+          .find('.modal-body')
+          .empty()
+          .append(data.info);
+          // var data = jQuery.parseJSON(response)
+          // $("#listView").html("")
+          // $("#attachment_modal").modal("show");
+          // var a = '<tr><td colspan="2">Attachment POE</td></tr>';
+          // $("#listView").append(a);
+          // if(data.count_att_poe>0){
+          //   $.each(data.att_poe, function(i, item) {
+          //     var text = '<tr>' +
+          //       '<td>' + (i + 1) + '</td>' +
+          //       '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+          //       '</tr>';
+          //     $("#listView").append(text);
+          //   });
+          // }else{
+          //   var no_att_poe = '<tr><td colspan="2" style="text-align:center;">POE doesnt have Attachment</td></tr>';
+          //   $("#listView").append(no_att_poe);
+          // }
           
-          var b = '<tr><td colspan="2">Attachment Request</td></tr>';
-          $("#listView").append(b);
-          if(data.count_att_request>0){
-            $.each(data.att_request, function(i, item) {
-              var text = '<tr>' +
-                '<td>' + (i + 1) + '</td>' +
-                '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-                '</tr>';
-              $("#listView").append(text);
-            });
-          }else{
-            var no_att_request = '<tr><td colspan="2" style="text-align:center;">Request doesnt have Attachment</td></tr>';
-            $("#listView").append(no_att_request);
-          }
+          // var b = '<tr><td colspan="2">Attachment Request</td></tr>';
+          // $("#listView").append(b);
+          // if(data.count_att_request>0){
+          //   $.each(data.att_request, function(i, item) {
+          //     var text = '<tr>' +
+          //       '<td>' + (i + 1) + '</td>' +
+          //       '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+          //       '</tr>';
+          //     $("#listView").append(text);
+          //   });
+          // }else{
+          //   var no_att_request = '<tr><td colspan="2" style="text-align:center;">Request doesnt have Attachment</td></tr>';
+          //   $("#listView").append(no_att_request);
+          // }
           
         },
         error: function(xhr, ajaxOptions, thrownError) {

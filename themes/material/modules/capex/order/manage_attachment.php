@@ -49,7 +49,7 @@
             <?php $n++;?>
             <tr>
               <td><?=$n?></td>
-              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
+              <td><a href="<?=site_url('dashboard/open_attachment/' . $detail['id'].'/mrp')?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
                 <?php if (is_granted($module, 'manage_attachment')) : ?>
                 <a title="Change to Other" href="<?=site_url($module['route'] .'/change_tipe_attachment/other/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
@@ -71,6 +71,7 @@
       </table>
     </div>
   </div>
+  <?php if($type=='purchase'):?>
   <div class="row" style="margin-top: 30px">
     <div class="col-md-12">
       <h5>Attachment Other</h5>
@@ -90,7 +91,7 @@
             <?php $n++;?>
             <tr>
               <td><?=$n?></td>
-              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
+              <td><a href="<?=site_url('dashboard/open_attachment/' . $detail['id'].'/mrp')?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
                 <?php if (is_granted($module, 'manage_attachment')) : ?>
                 <a title="Change to Invoice" href="<?=site_url($module['route'] .'/change_tipe_attachment/invoice/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
@@ -113,6 +114,7 @@
       </table>
     </div>
   </div>
+  <?php endif;?>
   <div class="clearfix"></div>
   <hr>
   <div class="clearfix">

@@ -1323,8 +1323,9 @@ class Purchase_Order extends MY_Controller
 
   public function listAttachmentpoe($id)
   {
-    $data = $this->model->listAttachmentpoe($id);
-    echo json_encode($data);
+    $this->data['entity'] = $this->model->listAttachmentpoe($id);
+    $return['info'] = $this->load->view($this->module['view'] . '/listAttachment', $this->data, TRUE);
+    echo json_encode($return);
   }
 
   public function ajax_editItem($key)
@@ -1514,13 +1515,14 @@ class Purchase_Order extends MY_Controller
     echo json_encode($alert);
   }
 
-  public function manage_attachment($id)
+  public function manage_attachment($id,$type="purchase")
   {
     // $this->authorized($this->module, 'document');
 
     $this->data['attachment_invoice'] = $this->model->listAttachment_2($id,'invoice');
     $this->data['attachment_other']   = $this->model->listAttachment_2($id,'other');
     $this->data['id'] = $id;
+    $this->data['type'] = $type;
     $this->render_view($this->module['view'] . '/manage_attachment');
   }
 

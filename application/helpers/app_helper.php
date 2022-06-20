@@ -2256,10 +2256,10 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
-        if(count($request->id)>0){
+        if(count($request_id)>0){
           $connection->where_in('id_purchase', $request_id);
           $connection->where('tipe', $tipe_request);
-          return $connection->get('tb_attachment')->result();
+          return $connection->get('tb_attachment')->result_array();
         }else{
           return [];
         }        
