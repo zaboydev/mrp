@@ -62,7 +62,7 @@ class Capex_Closing_Payment extends MY_Controller
                 }else{
                     $col[] = print_number($no);
                 }        
-                $col[]  = '<a data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
+                $col[]  = '<a class="link" data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
                 $col[]  = print_date($row['tanggal']);
                 $col[]  = print_string($row['no_cheque']);
                 $col[]  = print_string($row['vendor']);
@@ -628,5 +628,19 @@ class Capex_Closing_Payment extends MY_Controller
         }
 
         echo json_encode($arr_result);
+    }
+
+    public function print_request($request_id,$tipe)
+    {
+        if($tipe=='EXPENSE'){
+            redirect('expense_request/print_pdf/'.$request_id);
+        }elseif($tipe=='CAPEX'){
+            redirect('capex_request/print_pdf/'.$request_id);
+        }elseif($tipe=='INVENTORY'){
+            redirect('inventory_request/print_pdf/'.$request_id);
+        }else{
+            redirect('purchase_request/print_pdf/'.$request_id);
+        }
+        
     }
 }
