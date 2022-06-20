@@ -384,8 +384,11 @@ class Purchase_Order_Evaluation extends MY_Controller
   
   public function listAttachment($id)
   {
-    $data = $this->model->listAttachment($id);
-    echo json_encode($data);
+    // $data = $this->model->listAttachment($id);
+    // echo json_encode($data);
+    $this->data['entity'] = $this->model->listAttachment($id);
+    $return['info'] = $this->load->view($this->module['view'] . '/listAttachment', $this->data, TRUE);
+    echo json_encode($return);
   }
 
   public function multi_reject()

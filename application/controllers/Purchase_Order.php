@@ -1323,8 +1323,9 @@ class Purchase_Order extends MY_Controller
 
   public function listAttachmentpoe($id)
   {
-    $data = $this->model->listAttachmentpoe($id);
-    echo json_encode($data);
+    $this->data['entity'] = $this->model->listAttachmentpoe($id);
+    $return['info'] = $this->load->view($this->module['view'] . '/listAttachment', $this->data, TRUE);
+    echo json_encode($return);
   }
 
   public function ajax_editItem($key)

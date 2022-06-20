@@ -150,4 +150,14 @@ class Dashboard extends MY_Controller
     // $result['status'] = $send;
     echo json_encode($data);
   }
+
+  public function open_attachment($id,$type)
+  {
+    $file = $this->model->findAttachmentbyId($id,$type);
+    if($this->model->isFileExist($id,$type)){
+      redirect(base_url().$file['file']);
+    }else{
+      redirect(site_url().'secure/file_not_found');
+    }
+  }
 }

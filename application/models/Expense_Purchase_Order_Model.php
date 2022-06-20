@@ -1447,7 +1447,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->where('id_poe', $poe_id);
     $this->db->where('tipe', 'POE');
     $this->db->where(array('deleted_at' => NULL));
-    return $this->db->get('tb_attachment_poe')->result();
+    return $this->db->get('tb_attachment_poe')->result_array();
   }
 
   public function send_mail($doc_id, $level)

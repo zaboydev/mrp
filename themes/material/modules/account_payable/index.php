@@ -21,22 +21,7 @@
         <h4 class="modal-title" id="import-modal-label">Attachment</h4>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12">
-            <table style="width: 100%">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Link</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="listView">
-
-              </tbody>
-            </table>
-          </div>
-        </div>
+        
       </div>
     </div>
   </div>
@@ -487,34 +472,40 @@
         url: 'account_payable/listAttachment/' + id,
         cache: false,
         success: function(response) {
-          var data = jQuery.parseJSON(response)
-          $("#listView").html("")
+          var data = $.parseJSON(response);
           $("#attachment_modal").modal("show");
-          // var text = '<tr><td>'+data.no_po+'</td><td></td></tr>';$("#listView").append(text);
-          $.each(data.att_po, function(i, item) {
-            var text_att_po = '<tr>' +
-              '<td>' + (i + 1) + '</td>' +
-              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-              '<td>'+data.no_po+'</td>' +
-              '</tr>';
-            $("#listView").append(text_att_po);
-          });
-          // var text = '<tr><td>'+data.no_poe+'</td><td></td></tr>';$("#listView").append(text);
-          $.each(data.att_poe, function(i, item) {
-            var text_att_po = '<tr>' +
-              '<td>' + (i + 1) + '</td>' +
-              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-              '<td>'+data.no_poe+'</td>' +
-              '</tr>';
-            $("#listView").append(text_att_po);
-          });
-          $.each(data.att_request, function(i, item) {
-            var text_att_requeat = '<tr>' +
-              '<td>' + (i + 1) + '</td>' +
-              '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
-              '</tr>';
-            $("#listView").append(text_att_requeat);
-          });
+          $("#attachment_modal")
+          .find('.modal-body')
+          .empty()
+          .append(data.info);
+          // var data = jQuery.parseJSON(response)
+          // $("#listView").html("")
+          // $("#attachment_modal").modal("show");
+          // // var text = '<tr><td>'+data.no_po+'</td><td></td></tr>';$("#listView").append(text);
+          // $.each(data.att_po, function(i, item) {
+          //   var text_att_po = '<tr>' +
+          //     '<td>' + (i + 1) + '</td>' +
+          //     '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+          //     '<td>'+data.no_po+'</td>' +
+          //     '</tr>';
+          //   $("#listView").append(text_att_po);
+          // });
+          // // var text = '<tr><td>'+data.no_poe+'</td><td></td></tr>';$("#listView").append(text);
+          // $.each(data.att_poe, function(i, item) {
+          //   var text_att_po = '<tr>' +
+          //     '<td>' + (i + 1) + '</td>' +
+          //     '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+          //     '<td>'+data.no_poe+'</td>' +
+          //     '</tr>';
+          //   $("#listView").append(text_att_po);
+          // });
+          // $.each(data.att_request, function(i, item) {
+          //   var text_att_requeat = '<tr>' +
+          //     '<td>' + (i + 1) + '</td>' +
+          //     '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+          //     '</tr>';
+          //   $("#listView").append(text_att_requeat);
+          // });
         },
         error: function(xhr, ajaxOptions, thrownError) {
           console.log(xhr.status);

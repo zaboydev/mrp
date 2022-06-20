@@ -183,4 +183,15 @@ class Secure extends MY_Controller
   {
     $this->_model->cron_job_send_email();
   }
+
+  public function file_not_found()
+  {
+    // $this->authorized($this->module, 'denied');
+
+    $this->data['page_header']  = 'Resticted';
+    $this->data['page_title']   = 'Access Denied';
+    $this->data['page_desc']    = NULL;
+
+    $this->render_view($this->module['view'] .'/file_not_found');
+  }
 }
