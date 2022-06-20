@@ -72,14 +72,14 @@ class Expense_Purchase_Order extends MY_Controller
             $col[] = '';
           }
           $col[]  = print_string($no);
-          $col[]  = '<a href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
+          $col[]  = '<a class="link" href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
           $col[]  = print_date($row['document_date']);
           $col[]  = print_string($row['review_status']);
           // $col[]  = print_string($row['status']);
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a class="link">' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a class="link" href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
         
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
@@ -91,14 +91,14 @@ class Expense_Purchase_Order extends MY_Controller
         }
         else{
           $col[]  = print_string($no);
-          $col[]  = '<a href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
+          $col[]  = '<a class="link" href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
           $col[]  = print_date($row['document_date']);
           $col[]  = print_string($row['review_status']);
           $col[]  = print_string($row['status']);
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a class="link">' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a class="link" href="' . site_url($this->modules['expense_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
           $col[]  = print_string($row['approval_notes']);

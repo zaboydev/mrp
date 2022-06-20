@@ -3,8 +3,8 @@
 $config['module']['expense_closing_payment']['visible']        = TRUE;
 $config['module']['expense_closing_payment']['main_warehouse'] = FALSE;
 $config['module']['expense_closing_payment']['parent']         = 'expense';
-$config['module']['expense_closing_payment']['label']          = 'Expense Request Purpose Payment';
-$config['module']['expense_closing_payment']['name']           = 'Expense Request Purpose Payment';
+$config['module']['expense_closing_payment']['label']          = 'Expense Purpose Payment';
+$config['module']['expense_closing_payment']['name']           = 'Expense Purpose Payment';
 $config['module']['expense_closing_payment']['route']          = 'expense_closing_payment';
 $config['module']['expense_closing_payment']['view']           = config_item('module_path') .'expense/closing_payment/';
 $config['module']['expense_closing_payment']['language']       = 'account_payable_lang';

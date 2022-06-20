@@ -100,7 +100,7 @@
                   <td>
                     <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
                     </a>
-                    <a href="<?= site_url('closing_expense_request/print_request/' . $request['request_id'].'/'.$entity['source']) ?>" target="_blank"><?=print_string($request['pr_number'])?></a>
+                    <a class="link" href="<?= site_url('capex_closing_payment/print_request/' . $request['request_id'].'/'.$entity['source']) ?>" target="_blank"><?=print_string($request['pr_number'])?></a>
                   </td>                  
                   <td>
                   <?php if($request['request_id']!=0 && $request['request_id']!=null):?>

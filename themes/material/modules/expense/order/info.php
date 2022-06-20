@@ -122,7 +122,7 @@
                     <?php if ($detail['poe_item_id'] == null) : ?>
                       <a href="#"><?= print_string($detail['purchase_request_number']); ?></a>
                     <?php else : ?>
-                      <a href="<?= site_url('expense_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                      <a class="link" href="<?= site_url('expense_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
                     <?php endif; ?>
                   </td>
                   <td>
@@ -164,13 +164,11 @@
                 <th></th>
                 <th></th>
                 <th></th>
-                <th></th>
                 <th style="background-color: #eee;">Subtotal <?= $entity['default_currency']; ?></th>
                 <th style="background-color: #eee;" colspan="2"><?= print_number($subtotal, 2); ?></th>
               </tr>
               <?php if ($entity['discount'] > 0) : ?>
                 <tr>
-                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -197,14 +195,12 @@
                   <th></th>
                   <th></th>
                   <th></th>
-                  <th></th>
                   <th style="background-color: #eee;">VAT <?= $entity['taxes']; ?> %</th>
                   <th style="background-color: #eee;" colspan="2"><?= print_number($total_taxes, 2); ?></th>
                 </tr>
               <?php endif; ?>
               <?php if ($entity['pph'] > 0) : ?>
                 <tr>
-                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -231,13 +227,11 @@
                   <th></th>
                   <th></th>
                   <th></th>
-                  <th></th>
                   <th style="background-color: #eee;">Shipping Cost</th>
                   <th style="background-color: #eee;" colspan="2"><?= print_number($entity['shipping_cost'], 2); ?></th>
                 </tr>
               <?php endif; ?>
               <tr>
-                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
