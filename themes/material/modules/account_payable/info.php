@@ -346,13 +346,13 @@
   <div class="card-foot">
     <div class="pull-left">
     <?php if($entity['tipe_po']!='INVENTORY MRP'):?>
-      <a href="<?= site_url(strtolower($entity['tipe_po']).'_purchase_order'.'/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
+      <a href="<?= site_url(strtolower($entity['tipe_po']).'_purchase_order'.'/manage_attachment/' . $entity['id'].'/payment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
         <i class="md md-attach-file"></i>
         <small class="top right">Attachment</small>
       </a>      
     <?php endif;?>
     <?php if($entity['tipe_po']=='INVENTORY MRP'):?>
-      <a href="<?= site_url('purchase_order'.'/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
+      <a href="<?= site_url('purchase_order'.'/manage_attachment/' . $entity['id'].'/payment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
         <i class="md md-attach-file"></i>
         <small class="top right">Attachment</small>
       </a>      

@@ -71,6 +71,7 @@
       </table>
     </div>
   </div>
+  <?php if($type=='purchase'):?>
   <div class="row" style="margin-top: 30px">
     <div class="col-md-12">
       <h5>Attachment Other</h5>
@@ -113,6 +114,7 @@
       </table>
     </div>
   </div>
+  <?php endif;?>
   <div class="clearfix"></div>
   <hr>
   <div class="clearfix">

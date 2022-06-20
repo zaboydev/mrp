@@ -1515,13 +1515,14 @@ class Purchase_Order extends MY_Controller
     echo json_encode($alert);
   }
 
-  public function manage_attachment($id)
+  public function manage_attachment($id,$type="purchase")
   {
     // $this->authorized($this->module, 'document');
 
     $this->data['attachment_invoice'] = $this->model->listAttachment_2($id,'invoice');
     $this->data['attachment_other']   = $this->model->listAttachment_2($id,'other');
     $this->data['id'] = $id;
+    $this->data['type'] = $type;
     $this->render_view($this->module['view'] . '/manage_attachment');
   }
 

@@ -446,7 +446,7 @@
         </a>
       <?=form_close();?>
       <?php endif; ?>
-      <?php if (is_granted($module, 'info') && $entity['review_status'] == 'APPROVED' && $tipe != 'report') : ?>
+      <?php if (is_granted($module, 'info') && $tipe != 'report') : ?>
       <a href="<?= site_url($module['route'] . '/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
         <i class="md md-attach-file"></i>
         <small class="top right">Manage Attachment</small>
