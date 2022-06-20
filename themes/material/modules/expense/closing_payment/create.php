@@ -764,8 +764,13 @@
     function changeTotal() {
       var sum = 0
       $('[name="value[]"]').each(function (key, val) {
+        
         var val = $(this).val();
-        sum = parseFloat(sum) + parseFloat(val);
+        if(val!=''){
+          console.log(val);
+          sum = parseFloat(sum) + parseFloat(val);
+        }
+        // sum = parseFloat(sum) + parseFloat(val);
       });
       $("#total_general").html(sum);
     }
