@@ -321,7 +321,7 @@
           </div>
 
           <div class="modal-footer">
-            <input type="text" id="stock_in_stores_id" name="stock_in_stores_id">
+            <input type="hidden" id="stock_in_stores_id" name="stock_in_stores_id">
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
@@ -483,7 +483,7 @@
           </div>
 
           <div class="modal-footer">
-            <input type="text" id="edit_stock_in_stores_id" name="edit_stock_in_stores_id">
+            <input type="hidden" id="edit_stock_in_stores_id" name="edit_stock_in_stores_id">
             <input type="hidden" id="edit_item_id" name="edit_item_id">
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
