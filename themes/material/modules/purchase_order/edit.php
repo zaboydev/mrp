@@ -245,6 +245,7 @@
                   </th>
                   <th class="middle-alignment">Ref. POE</th>
                   <th class="middle-alignment">Remarks</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -292,6 +293,9 @@
                     </td>
                     <td>
                       <?= $item['remarks']; ?> <?= $item['purchase_request_number']; ?>
+                    </td>
+                    <td>
+                      <?= $item['group']; ?>
                     </td>
                   </tr>
                 <?php endforeach; ?>
@@ -379,7 +383,7 @@
                 </div>
 
                 <div class="form-group">
-                  <input type="text" name="group" id="group" class="form-control input-sm">
+                  <input type="text" name="group" id="group" class="form-control input-sm" readonly>
                   <label for="group">Group</label>
                 </div>
 

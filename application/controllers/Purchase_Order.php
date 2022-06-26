@@ -1355,7 +1355,7 @@ class Purchase_Order extends MY_Controller
         'unit_price'            => $this->input->post('unit_price'),
         'core_charge'           => $this->input->post('core_charge'),
         'total_amount'          => $this->input->post('total_amount'),
-        'group'          => $this->input->post('group'),
+        'group'                 => $this->input->post('group'),
         'unit'                  => trim($this->input->post('unit')),
         'evaluation_number'     => trim($this->input->post('evaluation_number')),
         'purchase_order_evaluation_items_vendors_id' => $this->input->post('purchase_order_evaluation_items_vendors_id'),
