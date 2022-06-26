@@ -54,6 +54,11 @@
           </div>
 
           <div class="form-group">
+            <label for="price">Group</label>
+            <input type="text" name="group" id="group" class="form-control" value="<?=$entity['group'];?>" readonly>
+          </div>
+
+          <div class="form-group">
             <label for="total">Total</label>
             <input type="text" name="total" id="total" class="form-control" value="<?=$entity['total_amount'];?>" readonly>
           </div>
