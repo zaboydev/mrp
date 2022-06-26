@@ -342,7 +342,7 @@
         <?=form_close();?>
         </div>
       </div>
-    </div>
+  </div>
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">

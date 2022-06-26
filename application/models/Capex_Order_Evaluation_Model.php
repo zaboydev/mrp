@@ -92,6 +92,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
       'tb_purchase_order_items.quantity',
       'tb_purchase_order_items.vendor',
       'tb_purchase_order_items.unit_price',
+      'tb_purchase_orders.status',
     );
   }
 
@@ -208,7 +209,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
         $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
       }
     } else {
-      $this->db->order_by('id', 'desc');
+      $this->db->order_by('tb_purchase_orders.document_date', 'desc');
     }
 
     if ($_POST['length'] != -1)
@@ -566,6 +567,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
         // $this->db->update('tb_inventory_purchase_requisition_details');
 
         $this->connection->set('process_qty', '"process_qty" - ' . $key->quantity_prl, false);
+        $this->connection->set('process_amount', '"process_amount" - ' . $key->total, false);
         $this->connection->where('id', $inventory_purchase_request_detail_id);
         $this->connection->update('tb_capex_purchase_requisition_details');
 
@@ -787,6 +789,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
             $quantity_prl = floatval($detail['quantity'] * $item['konversi']);
 
             $this->connection->set('process_qty', '"process_qty" + ' . $quantity_prl, false);
+            $this->connection->set('process_amount', '"process_qty" + ' . $detail['quantity'], false);
             $this->connection->where('id', $inventory_purchase_request_detail_id);
             $this->connection->update('tb_capex_purchase_requisition_details');
 
@@ -816,7 +819,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
       if ($document_edit === NULL) {
         $this->connection->where('id', $inventory_purchase_request_detail_id);
         $detail_request = $this->connection->get('tb_capex_purchase_requisition_details')->row();
-        if ($detail_request->quantity <= $detail_request->process_qty) {
+        if ($detail_request->total <= $detail_request->process_amount) {
 
           // $this->connection->set('status', 'closed');
           // $this->connection->where('id', $inventory_purchase_request_detail_id);
@@ -1014,30 +1017,71 @@ class Capex_Order_Evaluation_Model extends MY_Model
 
   public function searchRequestItem($category)
   {
-    $select = array(
-      'tb_inventory_purchase_requisition_details.*',
-      'tb_inventory_purchase_requisitions.pr_number',
-      'tb_inventory_purchase_requisitions.pr_date',
-      'tb_inventory_purchase_requisitions.required_date',
+    // $select = array(
+    //   'tb_capex_purchase_requisition_details.*',
+    //   'tb_capex_purchase_requisitions.pr_number',
+    //   'tb_capex_purchase_requisitions.pr_date',
+    //   'tb_capex_purchase_requisitions.required_date',
+    //   'tb_products.product_name',
+    // );
+
+    // $this->connection->select($select);
+    // $this->connection->from('tb_inventory_purchase_requisition_details');
+    // $this->connection->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+    // $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
+    // $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
+    // $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
+    // $this->connection->where('UPPER(tb_product_categories.category_name)', $category);
+    // $this->connection->where('tb_inventory_purchase_requisitions.status', 'approved');
+    // $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+
+    // $this->connection->order_by('tb_products.product_name ASC, tb_inventory_purchase_requisition_details.part_number ASC');
+
+    // $query  = $this->connection->get();
+    // $result = $query->result_array();
+
+    // return $result;
+
+    $this->connection->select(array(
+      'tb_capex_purchase_requisition_details.id',
+      'tb_capex_purchase_requisition_details.additional_info',
+      'tb_capex_purchase_requisition_details.quantity',
+      'tb_capex_purchase_requisition_details.price',
+      'tb_capex_purchase_requisition_details.process_qty',
+      'tb_capex_purchase_requisition_details.unit',
+      'tb_product_categories.category_name',
       'tb_products.product_name',
-    );
+      'tb_products.product_code',
+      'tb_capex_purchase_requisitions.pr_number',
+      'tb_capex_purchase_requisitions.pr_date',
+      'tb_capex_purchase_requisitions.required_date',
+      'tb_capex_purchase_requisitions.status',
+      'tb_capex_purchase_requisitions.suggested_supplier',
+      'tb_capex_purchase_requisitions.deliver_to',
+      'tb_capex_purchase_requisitions.created_by',
+      'tb_capex_purchase_requisitions.notes',
+      'tb_capex_purchase_requisition_details.process_amount',
+      'tb_capex_purchase_requisition_details.total',
+    ));
 
-    $this->connection->select($select);
-    $this->connection->from('tb_inventory_purchase_requisition_details');
-    $this->connection->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
-    $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_inventory_purchase_requisitions.product_category_id');
-    $this->connection->join('tb_inventory_monthly_budgets', 'tb_inventory_monthly_budgets.id = tb_inventory_purchase_requisition_details.inventory_monthly_budget_id');
-    $this->connection->join('tb_products', 'tb_products.id = tb_inventory_monthly_budgets.product_id');
-    $this->connection->where('UPPER(tb_product_categories.category_name)', $category);
-    $this->connection->where('tb_inventory_purchase_requisitions.status', 'approved');
-    $this->connection->like('tb_inventory_purchase_requisitions.pr_number', $this->budget_year);
+    $this->connection->from('tb_capex_purchase_requisitions');
+    $this->connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
+    $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
+    $this->connection->join('tb_products', 'tb_products.id = tb_capex_monthly_budgets.product_id');
+    $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
+    $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
+    $this->connection->where('tb_capex_purchase_requisitions.status', 'approved');
+    // $this->connection->group_start();
+    // $this->connection->where('tb_inventory_purchase_requisition_details.sisa >', 0);
+    // $this->connection->where('tb_inventory_purchase_requisition_details.sisa is not null', null, false);
+    // $this->connection->group_end();
+    $this->connection->order_by('tb_capex_purchase_requisitions.id', 'desc');
 
-    $this->connection->order_by('tb_products.product_name ASC, tb_inventory_purchase_requisition_details.part_number ASC');
+    $query = $this->connection->get();
+  
 
-    $query  = $this->connection->get();
-    $result = $query->result_array();
 
-    return $result;
+    return $query->result_array();
   }
 
   function add_attachment_to_db($id_poe, $url)
@@ -1242,14 +1286,14 @@ class Capex_Order_Evaluation_Model extends MY_Model
   {
     $request_id = $this->getRequestIdByItemId($prl_item_id);
     //count total expense
-    $this->connection->select('sum(quantity)');
+    $this->connection->select('sum(total)');
     $this->connection->from('tb_capex_purchase_requisition_details');
     $this->connection->where('capex_purchase_requisition_id',$request_id);
     $query_total = $this->connection->get('')->row();
     $total = $query_total->sum;
 
     //count total proses expense
-    $this->connection->select('sum(process_qty)');
+    $this->connection->select('sum(process_amount)');
     $this->connection->from('tb_capex_purchase_requisition_details');
     $this->connection->where('capex_purchase_requisition_id',$request_id);
     $query_total_proses = $this->connection->get('')->row();
@@ -1290,5 +1334,32 @@ class Capex_Order_Evaluation_Model extends MY_Model
     $query = $this->db->get();
 
     return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
+  public function searchItemsByPartNumber($category)
+  {
+    $this->column_select = array(
+      'tb_master_items.id',
+      'tb_master_items.group',
+      'tb_master_items.description',
+      'tb_master_items.part_number',
+      'tb_master_items.alternate_part_number',
+      'tb_master_items.minimum_quantity',
+      'tb_master_items.unit',
+      'tb_master_items.kode_stok'
+    );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_master_items');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
+    $this->db->where('tb_master_item_groups.category', $category);
+
+    $this->db->order_by('tb_master_items.group ASC, tb_master_items.description ASC');
+
+    $query  = $this->db->get();
+    $result = $query->result_array();
+
+    return $result;
   }
 }
