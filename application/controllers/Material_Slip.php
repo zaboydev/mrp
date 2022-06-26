@@ -870,5 +870,96 @@ class Material_Slip extends MY_Controller
     redirect($this->module['route'] .'/create');
   }
 
+  public function select_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $category = $_SESSION['usage']['category'];
+    $entities = $this->model->searchStockInStores($category);
+
+    $this->data['entities'] = $entities;
+    $this->data['page']['title']            = 'Select Item';
+
+    $this->render_view($this->module['view'] . '/select_item');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['stock_in_stores_id']) && !empty($_POST['stock_in_stores_id'])) {
+        $_SESSION['usage']['items'] = array();
+
+        foreach ($_POST['stock_in_stores_id'] as $key => $stock_in_stores_id) {
+          $stock_in_stores = $this->model->infoStockInStores($stock_in_stores_id);
+
+          $_SESSION['usage']['items'][$stock_in_stores_id] = array(
+            'stock_in_stores_id'      => $stock_in_stores['id'],
+            'stock_id'                => $stock_in_stores['stock_id'],
+            'group'                   => $stock_in_stores['group'],
+            'description'             => $stock_in_stores['description'],
+            'part_number'             => $stock_in_stores['part_number'],
+            'alternate_part_number'   => $stock_in_stores['alternate_part_number'],
+            'serial_number'           => $stock_in_stores['serial_number'],
+            'issued_quantity'         => 0,
+            'issued_unit_value'       => 0,
+            'maximum_quantity'        => $stock_in_stores['quantity'],
+            'condition'               => $stock_in_stores['condition'],
+            'stores'                  => $stock_in_stores['stores'],
+            'unit'                    => $stock_in_stores['unit'],
+            'remarks'                 => null,
+            'unit_pakai'              => $stock_in_stores['unit_pakai'],
+            'qty_konvers'             => 1,
+          );
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
+    }
+
+    echo json_encode($data);
+  }
+
+  public function edit_selected_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/edit_item');
+  }
+
+  public function update_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item']) && !empty($_POST['item'])) {
+        foreach ($_POST['item'] as $id => $item) {
+
+          $_SESSION['usage']['items'][$id]['issued_quantity']           = $item['issued_quantity'];
+          $_SESSION['usage']['items'][$id]['remarks']                   = $item['remarks'];
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'No data to update!';
+      }
+    }
+
+    echo json_encode($data);
+  }
+
   //tambahan
 }

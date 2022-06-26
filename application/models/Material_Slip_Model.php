@@ -483,245 +483,346 @@ class Material_Slip_Model extends MY_Model
     $id_jurnal = $this->db->insert_id();
     // PROCESSING USAGE ITEMS
     foreach ($_SESSION['usage']['items'] as $key => $data) {
-      $stock_id = $data['stock_id'];
+      if (in_array($_SESSION['usage']['category'],['EXPENSE','CAPEX'])){
+        $this->db->from('tb_stock_in_stores');
+        $this->db->where('id', $data['stock_in_stores_id']);
+        $query        = $this->db->get();
+        $stock_stored = $query->unbuffered_row('array');
 
-      $this->db->from('tb_stock_in_stores');
-      $this->db->where('quantity > 0');
-      $this->db->where('stock_id', $stock_id);
-      //$this->db->where('warehouse', $warehouse);
-      $this->db->where('stores', $data['stores']);
-      $this->db->order_by('tb_stock_in_stores.received_date', 'asc');
+        $stock_in_stores_id = $stock_stored['id'];
+        $ms           = $data['issued_quantity'];
+        $new_quantity = $stock_stored['quantity'] - $ms;
+        if ($stock_stored['kurs_dollar'] == 1) {
+          $currency = 'IDR';
+        } else {
+          $currency = 'USD';
+        }   
+        
+        $prev_stock   = getStockPrev($stock_stored['stock_id'], $stock_stored['stores']);
+        $next_stock   = floatval($prev_stock) - floatval($ms);
 
-      $query        = $this->db->get();
-      // $stock_stored = $query->unbuffered_row('array');
-      $stock        = $query->result_array();
+        // UPDATE STOCK in STORES
+        $this->db->set('quantity', floatval($new_quantity));
+        // $this->db->set('qty_konvers', floatval($quantity));
+        $this->db->where('id', $stock_in_stores_id);
+        $this->db->update('tb_stock_in_stores');
 
-      $ms           = $data['issued_quantity'];
+        // UPDATE STOCK in SERIAL
+        $this->db->set('quantity', 0);
+        $this->db->set('reference_document', $document_number);
+        $this->db->where('id', $stock_stored['serial_id']);
+        $this->db->update('tb_master_item_serials');
 
-      foreach ($stock as $stock_stored) {
-        if ($ms > 0) {
-          if ($stock_stored['quantity'] >= $ms) {
-            $stock_in_stores_id = $stock_stored['id'];
+        // *
+        //  * INSERT INTO USAGE ITEMS
+        $unit_value = $stock_stored['unit_value'];
 
-            // if($data['unit_pakai']!=$data['unit']){
-            //   $item_id        = getItemId($data['part_number'],$data['serial_number']);
-            //   $konversi       = getKonversi($item_id);
-            //   // $hasil_konversi = floatval($konversi)*floatval($stock_stored['quantity']);
-            //   $quantity       = floatval($data['qty_konvers'])-floatval($data['issued_quantity']);
-            //   $new_quantity   = floatval($quantity)/floatval($konversi);
-            // }else{
-            $new_quantity = $stock_stored['quantity'] - $ms;
-            if ($stock_stored['kurs_dollar'] == 1) {
-              $currency = 'IDR';
+        $this->db->set('document_number', $document_number);
+        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+        $this->db->set('issued_quantity', floatval($ms));
+        $this->db->set('issued_unit_value', floatval($stock_stored['unit_value']));
+        $this->db->set('issued_total_value', floatval($stock_stored['unit_value']) * floatval($ms));
+        $x = floatval($stock_stored['unit_value']) * floatval($ms);
+        $this->db->set('remarks', $data['remarks']);
+        $this->db->insert('tb_issuance_items');
+
+        $coa = $this->coaByGroup(strtoupper($data['group']));
+        $kode = $this->codeByDescription($stock_stored['stock_id']);
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', $data['group']);
+        $this->db->set('trs_kredit', $x);
+        $this->db->set('trs_debet', 0);
+        $this->db->set('trs_kredit_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+        $this->db->set('trs_debet_usd', 0);
+        $this->db->set('kode_rekening', $coa->coa);
+        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+        $this->db->set('currency', $currency);
+        $this->db->set('kode_rekening_lawan', $kode->kode_pemakaian);
+        $this->db->insert('tb_jurnal_detail');
+        $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', strtoupper($kode->group));
+        $this->db->set('trs_debet', $x);
+        $this->db->set('trs_kredit', 0);
+        $this->db->set('trs_debet_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+        $this->db->set('trs_kredit_usd', 0);
+        $this->db->set('kode_rekening', $kode->kode_pemakaian);
+        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+        $this->db->set('currency', $currency);
+        $this->db->set('kode_rekening_lawan', $coa->coa);
+        $this->db->insert('tb_jurnal_detail');
+        
+        /**
+          * CREATE STOCK CARD
+        */
+        $this->db->set('serial_id', $stock_stored['serial_id']);
+        $this->db->set('stock_id', $stock_stored['stock_id']);
+        $this->db->set('warehouse', $stock_stored['warehouse']);
+        $this->db->set('stores', strtoupper($stock_stored['stores']));
+        $this->db->set('date_of_entry', $issued_date);
+        $this->db->set('period_year', config_item('period_year'));
+        $this->db->set('period_month', config_item('period_month'));
+        $this->db->set('document_type', 'USAGE');
+        $this->db->set('document_number', $document_number);
+        $this->db->set('issued_to', $issued_to);
+        $this->db->set('issued_by', $issued_by);
+        $this->db->set('prev_quantity', floatval($prev_stock));
+        $this->db->set('balance_quantity', floatval($next_stock));
+        // $this->db->set('prev_quantity', floatval($data['maximum_quantity']));
+        // $this->db->set('balance_quantity', floatval($data['maximum_quantity'])-floatval($data['issued_quantity']));
+
+        $this->db->set('quantity', 0 - floatval($ms));
+        $this->db->set('unit_value', floatval($stock_stored['unit_value']));
+        $this->db->set('remarks', $data['remarks']);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+        $this->db->set('doc_type', 6);
+        $this->db->set('tgl', date('Ymd', strtotime($issued_date)));
+        $this->db->set('total_value', floatval($stock_stored['unit_value']) * (0 - floatval($ms)));
+        $this->db->insert('tb_stock_cards');
+
+      }else{
+        $stock_id = $data['stock_id'];
+
+        $this->db->from('tb_stock_in_stores');
+        $this->db->where('quantity > 0');
+        $this->db->where('stock_id', $stock_id);
+        //$this->db->where('warehouse', $warehouse);
+        $this->db->where('stores', $data['stores']);
+        $this->db->order_by('tb_stock_in_stores.received_date', 'asc');
+
+        $query        = $this->db->get();
+        // $stock_stored = $query->unbuffered_row('array');
+        $stock        = $query->result_array();
+
+        $ms           = $data['issued_quantity'];
+
+        foreach ($stock as $stock_stored) {
+          if ($ms > 0) {
+            if ($stock_stored['quantity'] >= $ms) {
+              $stock_in_stores_id = $stock_stored['id'];
+
+              // if($data['unit_pakai']!=$data['unit']){
+              //   $item_id        = getItemId($data['part_number'],$data['serial_number']);
+              //   $konversi       = getKonversi($item_id);
+              //   // $hasil_konversi = floatval($konversi)*floatval($stock_stored['quantity']);
+              //   $quantity       = floatval($data['qty_konvers'])-floatval($data['issued_quantity']);
+              //   $new_quantity   = floatval($quantity)/floatval($konversi);
+              // }else{
+              $new_quantity = $stock_stored['quantity'] - $ms;
+              if ($stock_stored['kurs_dollar'] == 1) {
+                $currency = 'IDR';
+              } else {
+                $currency = 'USD';
+              }
+              // }      
+
+              $prev_stock   = getStockPrev($stock_stored['stock_id'], $stock_stored['stores']);
+              $next_stock   = floatval($prev_stock) - floatval($ms);
+
+              // UPDATE STOCK in STORES
+              $this->db->set('quantity', floatval($new_quantity));
+              // $this->db->set('qty_konvers', floatval($quantity));
+              $this->db->where('id', $stock_in_stores_id);
+              $this->db->update('tb_stock_in_stores');
+
+              // UPDATE STOCK in SERIAL
+              $this->db->set('quantity', 0);
+              $this->db->set('reference_document', $document_number);
+              $this->db->where('id', $stock_stored['serial_id']);
+              $this->db->update('tb_master_item_serials');
+
+              //upate stock in tb master part number
+              // $qty_awal = getPartnumberQty($data['part_number']);
+
+              // $qty_baru = floatval($qty_awal) - floatval($data['issued_quantity']);
+
+              // $this->db->set('qty', $qty_baru);
+              // $this->db->where('part_number', strtoupper($data['part_number']));
+              // $this->db->update('tb_master_part_number');
+
+              // *
+              //  * INSERT INTO USAGE ITEMS
+              $unit_value = $stock_stored['unit_value'];
+
+              $this->db->set('document_number', $document_number);
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('issued_quantity', floatval($ms));
+              $this->db->set('issued_unit_value', floatval($stock_stored['unit_value']));
+              $this->db->set('issued_total_value', floatval($stock_stored['unit_value']) * floatval($ms));
+              $x = floatval($stock_stored['unit_value']) * floatval($ms);
+              $this->db->set('remarks', $data['remarks']);
+              $this->db->insert('tb_issuance_items');
+
+              $coa = $this->coaByGroup(strtoupper($data['group']));
+              $kode = $this->codeByDescription($stock_stored['stock_id']);
+              $this->db->set('id_jurnal', $id_jurnal);
+              $this->db->set('jenis_transaksi', $data['group']);
+              $this->db->set('trs_kredit', $x);
+              $this->db->set('trs_debet', 0);
+              $this->db->set('trs_kredit_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+              $this->db->set('trs_debet_usd', 0);
+              $this->db->set('kode_rekening', $coa->coa);
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('currency', $currency);
+              $this->db->set('kode_rekening_lawan', $kode->kode_pemakaian);
+              $this->db->insert('tb_jurnal_detail');
+              $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
+              $this->db->set('id_jurnal', $id_jurnal);
+              $this->db->set('jenis_transaksi', strtoupper($kode->group));
+              $this->db->set('trs_debet', $x);
+              $this->db->set('trs_kredit', 0);
+              $this->db->set('trs_debet_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+              $this->db->set('trs_kredit_usd', 0);
+              $this->db->set('kode_rekening', $kode->kode_pemakaian);
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('currency', $currency);
+              $this->db->set('kode_rekening_lawan', $coa->coa);
+              $this->db->insert('tb_jurnal_detail');
+              /**
+               * CREATE STOCK CARD
+               */
+              $this->db->set('serial_id', $stock_stored['serial_id']);
+              $this->db->set('stock_id', $stock_stored['stock_id']);
+              $this->db->set('warehouse', $stock_stored['warehouse']);
+              $this->db->set('stores', strtoupper($stock_stored['stores']));
+              $this->db->set('date_of_entry', $issued_date);
+              $this->db->set('period_year', config_item('period_year'));
+              $this->db->set('period_month', config_item('period_month'));
+              $this->db->set('document_type', 'USAGE');
+              $this->db->set('document_number', $document_number);
+              $this->db->set('issued_to', $issued_to);
+              $this->db->set('issued_by', $issued_by);
+              $this->db->set('prev_quantity', floatval($prev_stock));
+              $this->db->set('balance_quantity', floatval($next_stock));
+              // $this->db->set('prev_quantity', floatval($data['maximum_quantity']));
+              // $this->db->set('balance_quantity', floatval($data['maximum_quantity'])-floatval($data['issued_quantity']));
+
+              $this->db->set('quantity', 0 - floatval($ms));
+              $this->db->set('unit_value', floatval($stock_stored['unit_value']));
+              $this->db->set('remarks', $data['remarks']);
+              $this->db->set('created_by', config_item('auth_person_name'));
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('doc_type', 6);
+              $this->db->set('tgl', date('Ymd', strtotime($issued_date)));
+              $this->db->set('total_value', floatval($stock_stored['unit_value']) * (0 - floatval($ms)));
+              $this->db->insert('tb_stock_cards');
+              $ms = $ms - $ms;
             } else {
-              $currency = 'USD';
+              $stock_in_stores_id = $stock_stored['id'];
+              // if($data['unit_pakai']!=$data['unit']){
+              //   $item_id        = getItemId($data['part_number'],$data['serial_number']);
+              //   $konversi       = getKonversi($item_id);
+              //   // $hasil_konversi = floatval($konversi)*floatval($stock_stored['quantity']);
+              //   $quantity       = floatval($data['qty_konvers'])-floatval($data['issued_quantity']);
+              //   $new_quantity   = floatval($quantity)/floatval($konversi);
+              // }else{
+              // $new_quantity = $stock_stored['quantity'] - $data['issued_quantity'];
+              // }
+              if ($stock_stored['kurs_dollar'] == 1) {
+                $currency = 'IDR';
+              } else {
+                $currency = 'USD';
+              }
+              $new_quantity = 0;
+              $prev_stock   = getStockPrev($stock_stored['stock_id'], $data['stores']);
+              $next_stock   = floatval($prev_stock) - floatval($stock_stored['quantity']);
+              // UPDATE STOCK in STORES
+              $this->db->set('quantity', floatval($new_quantity));
+              // $this->db->set('qty_konvers', floatval($quantity));
+              $this->db->where('id', $stock_in_stores_id);
+              $this->db->update('tb_stock_in_stores');
+
+              // UPDATE STOCK in SERIAL
+              $this->db->set('quantity', 0);
+              $this->db->set('reference_document', $document_number);
+              $this->db->where('id', $stock_stored['serial_id']);
+              $this->db->update('tb_master_item_serials');
+
+              //upate stock in tb master part number
+              // $qty_awal = getPartnumberQty($data['part_number']);
+
+              // $qty_baru = floatval($qty_awal) - floatval($data['issued_quantity']);
+
+              // $this->db->set('qty', $qty_baru);
+              // $this->db->where('part_number', strtoupper($data['part_number']));
+              // $this->db->update('tb_master_part_number');
+
+              // *
+              //  * INSERT INTO USAGE ITEMS
+              $unit_value = $stock_stored['unit_value'];
+
+              $this->db->set('document_number', $document_number);
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('issued_quantity', floatval($stock_stored['quantity']));
+              $this->db->set('issued_unit_value', floatval($stock_stored['unit_value']));
+              $this->db->set('issued_total_value', floatval($stock_stored['unit_value']) * floatval($stock_stored['quantity']));
+              $x = floatval($stock_stored['unit_value']) * floatval($stock_stored['quantity']);
+              $this->db->set('remarks', $data['remarks']);
+              $this->db->insert('tb_issuance_items');
+
+              $coa = $this->coaByGroup(strtoupper($data['group']));
+              $kode = $this->codeByDescription($stock_stored['stock_id']);
+
+              $this->db->set('id_jurnal', $id_jurnal);
+              $this->db->set('jenis_transaksi', $data['group']);
+              $this->db->set('trs_kredit', $x);
+              $this->db->set('trs_debet', 0);
+              $this->db->set('trs_kredit_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+              $this->db->set('trs_debet_usd', 0);
+              $this->db->set('kode_rekening', $coa->coa);
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('currency', $currency);
+              $this->db->set('kode_rekening_lawan', $kode->kode_pemakaian);           
+              $this->db->insert('tb_jurnal_detail');
+
+              $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
+              $this->db->set('id_jurnal', $id_jurnal);
+              $this->db->set('jenis_transaksi', strtoupper($kode->group));
+              $this->db->set('trs_debet', $x);
+              $this->db->set('trs_kredit', 0);
+              $this->db->set('trs_debet_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
+              $this->db->set('trs_kredit_usd', 0);
+              $this->db->set('kode_rekening', $kode->kode_pemakaian);
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('kode_rekening_lawan', $coa->coa);
+              $this->db->set('currency', $currency);                
+              $this->db->insert('tb_jurnal_detail');
+              /**
+               * CREATE STOCK CARD
+               */
+              $this->db->set('serial_id', $stock_stored['serial_id']);
+              $this->db->set('stock_id', $stock_stored['stock_id']);
+              $this->db->set('warehouse', $stock_stored['warehouse']);
+              $this->db->set('stores', strtoupper($stock_stored['stores']));
+              $this->db->set('date_of_entry', $issued_date);
+              $this->db->set('period_year', config_item('period_year'));
+              $this->db->set('period_month', config_item('period_month'));
+              $this->db->set('document_type', 'USAGE');
+              $this->db->set('document_number', $document_number);
+              $this->db->set('issued_to', $issued_to);
+              $this->db->set('issued_by', $issued_by);
+              $this->db->set('prev_quantity', floatval($prev_stock));
+              $this->db->set('balance_quantity', floatval($next_stock));
+              // $this->db->set('prev_quantity', floatval($data['maximum_quantity']));
+              // $this->db->set('balance_quantity', floatval($data['maximum_quantity'])-floatval($data['issued_quantity']));
+
+              $this->db->set('quantity', 0 - floatval($stock_stored['quantity']));
+              $this->db->set('unit_value', floatval($stock_stored['unit_value']));
+              $this->db->set('remarks', $data['remarks']);
+              $this->db->set('created_by', config_item('auth_person_name'));
+              $this->db->set('stock_in_stores_id', $stock_in_stores_id);
+              $this->db->set('doc_type', 6);
+              $this->db->set('tgl', date('Ymd', strtotime($issued_date)));
+              $this->db->set('total_value', floatval($stock_stored['unit_value']) * (0 - floatval($stock_stored['quantity'])));
+              $this->db->insert('tb_stock_cards');
+
+              $ms = $ms - $stock_stored['quantity'];
             }
-            // }      
-
-            $prev_stock   = getStockPrev($stock_stored['stock_id'], $stock_stored['stores']);
-            $next_stock   = floatval($prev_stock) - floatval($ms);
-
-            // UPDATE STOCK in STORES
-            $this->db->set('quantity', floatval($new_quantity));
-            // $this->db->set('qty_konvers', floatval($quantity));
-            $this->db->where('id', $stock_in_stores_id);
-            $this->db->update('tb_stock_in_stores');
-
-            // UPDATE STOCK in SERIAL
-            $this->db->set('quantity', 0);
-            $this->db->set('reference_document', $document_number);
-            $this->db->where('id', $stock_stored['serial_id']);
-            $this->db->update('tb_master_item_serials');
-
-            //upate stock in tb master part number
-            // $qty_awal = getPartnumberQty($data['part_number']);
-
-            // $qty_baru = floatval($qty_awal) - floatval($data['issued_quantity']);
-
-            // $this->db->set('qty', $qty_baru);
-            // $this->db->where('part_number', strtoupper($data['part_number']));
-            // $this->db->update('tb_master_part_number');
-
-            // *
-            //  * INSERT INTO USAGE ITEMS
-            $unit_value = $stock_stored['unit_value'];
-
-            $this->db->set('document_number', $document_number);
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('issued_quantity', floatval($ms));
-            $this->db->set('issued_unit_value', floatval($stock_stored['unit_value']));
-            $this->db->set('issued_total_value', floatval($stock_stored['unit_value']) * floatval($ms));
-            $x = floatval($stock_stored['unit_value']) * floatval($ms);
-            $this->db->set('remarks', $data['remarks']);
-            $this->db->insert('tb_issuance_items');
-
-            $coa = $this->coaByGroup(strtoupper($data['group']));
-            $kode = $this->codeByDescription($stock_stored['stock_id']);
-            $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', $data['group']);
-            $this->db->set('trs_kredit', $x);
-            $this->db->set('trs_debet', 0);
-            $this->db->set('trs_kredit_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
-            $this->db->set('trs_debet_usd', 0);
-            $this->db->set('kode_rekening', $coa->coa);
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('currency', $currency);
-            $this->db->set('kode_rekening_lawan', $kode->kode_pemakaian);
-            $this->db->insert('tb_jurnal_detail');
-            $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
-            $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', strtoupper($kode->group));
-            $this->db->set('trs_debet', $x);
-            $this->db->set('trs_kredit', 0);
-            $this->db->set('trs_debet_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
-            $this->db->set('trs_kredit_usd', 0);
-            $this->db->set('kode_rekening', $kode->kode_pemakaian);
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('currency', $currency);
-            $this->db->set('kode_rekening_lawan', $coa->coa);
-            $this->db->insert('tb_jurnal_detail');
-            /**
-             * CREATE STOCK CARD
-             */
-            $this->db->set('serial_id', $stock_stored['serial_id']);
-            $this->db->set('stock_id', $stock_stored['stock_id']);
-            $this->db->set('warehouse', $stock_stored['warehouse']);
-            $this->db->set('stores', strtoupper($stock_stored['stores']));
-            $this->db->set('date_of_entry', $issued_date);
-            $this->db->set('period_year', config_item('period_year'));
-            $this->db->set('period_month', config_item('period_month'));
-            $this->db->set('document_type', 'USAGE');
-            $this->db->set('document_number', $document_number);
-            $this->db->set('issued_to', $issued_to);
-            $this->db->set('issued_by', $issued_by);
-            $this->db->set('prev_quantity', floatval($prev_stock));
-            $this->db->set('balance_quantity', floatval($next_stock));
-            // $this->db->set('prev_quantity', floatval($data['maximum_quantity']));
-            // $this->db->set('balance_quantity', floatval($data['maximum_quantity'])-floatval($data['issued_quantity']));
-
-            $this->db->set('quantity', 0 - floatval($ms));
-            $this->db->set('unit_value', floatval($stock_stored['unit_value']));
-            $this->db->set('remarks', $data['remarks']);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('doc_type', 6);
-            $this->db->set('tgl', date('Ymd', strtotime($issued_date)));
-            $this->db->set('total_value', floatval($stock_stored['unit_value']) * (0 - floatval($ms)));
-            $this->db->insert('tb_stock_cards');
-            $ms = $ms - $ms;
-          } else {
-            $stock_in_stores_id = $stock_stored['id'];
-            // if($data['unit_pakai']!=$data['unit']){
-            //   $item_id        = getItemId($data['part_number'],$data['serial_number']);
-            //   $konversi       = getKonversi($item_id);
-            //   // $hasil_konversi = floatval($konversi)*floatval($stock_stored['quantity']);
-            //   $quantity       = floatval($data['qty_konvers'])-floatval($data['issued_quantity']);
-            //   $new_quantity   = floatval($quantity)/floatval($konversi);
-            // }else{
-            // $new_quantity = $stock_stored['quantity'] - $data['issued_quantity'];
-            // }
-            if ($stock_stored['kurs_dollar'] == 1) {
-              $currency = 'IDR';
-            } else {
-              $currency = 'USD';
-            }
-            $new_quantity = 0;
-            $prev_stock   = getStockPrev($stock_stored['stock_id'], $data['stores']);
-            $next_stock   = floatval($prev_stock) - floatval($stock_stored['quantity']);
-            // UPDATE STOCK in STORES
-            $this->db->set('quantity', floatval($new_quantity));
-            // $this->db->set('qty_konvers', floatval($quantity));
-            $this->db->where('id', $stock_in_stores_id);
-            $this->db->update('tb_stock_in_stores');
-
-            // UPDATE STOCK in SERIAL
-            $this->db->set('quantity', 0);
-            $this->db->set('reference_document', $document_number);
-            $this->db->where('id', $stock_stored['serial_id']);
-            $this->db->update('tb_master_item_serials');
-
-            //upate stock in tb master part number
-            // $qty_awal = getPartnumberQty($data['part_number']);
-
-            // $qty_baru = floatval($qty_awal) - floatval($data['issued_quantity']);
-
-            // $this->db->set('qty', $qty_baru);
-            // $this->db->where('part_number', strtoupper($data['part_number']));
-            // $this->db->update('tb_master_part_number');
-
-            // *
-            //  * INSERT INTO USAGE ITEMS
-            $unit_value = $stock_stored['unit_value'];
-
-            $this->db->set('document_number', $document_number);
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('issued_quantity', floatval($stock_stored['quantity']));
-            $this->db->set('issued_unit_value', floatval($stock_stored['unit_value']));
-            $this->db->set('issued_total_value', floatval($stock_stored['unit_value']) * floatval($stock_stored['quantity']));
-            $x = floatval($stock_stored['unit_value']) * floatval($stock_stored['quantity']);
-            $this->db->set('remarks', $data['remarks']);
-            $this->db->insert('tb_issuance_items');
-
-            $coa = $this->coaByGroup(strtoupper($data['group']));
-            $kode = $this->codeByDescription($stock_stored['stock_id']);
-
-            $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', $data['group']);
-            $this->db->set('trs_kredit', $x);
-            $this->db->set('trs_debet', 0);
-            $this->db->set('trs_kredit_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
-            $this->db->set('trs_debet_usd', 0);
-            $this->db->set('kode_rekening', $coa->coa);
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('currency', $currency);
-            $this->db->set('kode_rekening_lawan', $kode->kode_pemakaian);           
-            $this->db->insert('tb_jurnal_detail');
-
-            $jenis_transaksi = $this->groupByKode($kode->kode_pemakaian);
-            $this->db->set('id_jurnal', $id_jurnal);
-            $this->db->set('jenis_transaksi', strtoupper($kode->group));
-            $this->db->set('trs_debet', $x);
-            $this->db->set('trs_kredit', 0);
-            $this->db->set('trs_debet_usd', floatval($stock_stored['unit_value_dollar']) * floatval($ms));
-            $this->db->set('trs_kredit_usd', 0);
-            $this->db->set('kode_rekening', $kode->kode_pemakaian);
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('kode_rekening_lawan', $coa->coa);
-            $this->db->set('currency', $currency);                
-            $this->db->insert('tb_jurnal_detail');
-            /**
-             * CREATE STOCK CARD
-             */
-            $this->db->set('serial_id', $stock_stored['serial_id']);
-            $this->db->set('stock_id', $stock_stored['stock_id']);
-            $this->db->set('warehouse', $stock_stored['warehouse']);
-            $this->db->set('stores', strtoupper($stock_stored['stores']));
-            $this->db->set('date_of_entry', $issued_date);
-            $this->db->set('period_year', config_item('period_year'));
-            $this->db->set('period_month', config_item('period_month'));
-            $this->db->set('document_type', 'USAGE');
-            $this->db->set('document_number', $document_number);
-            $this->db->set('issued_to', $issued_to);
-            $this->db->set('issued_by', $issued_by);
-            $this->db->set('prev_quantity', floatval($prev_stock));
-            $this->db->set('balance_quantity', floatval($next_stock));
-            // $this->db->set('prev_quantity', floatval($data['maximum_quantity']));
-            // $this->db->set('balance_quantity', floatval($data['maximum_quantity'])-floatval($data['issued_quantity']));
-
-            $this->db->set('quantity', 0 - floatval($stock_stored['quantity']));
-            $this->db->set('unit_value', floatval($stock_stored['unit_value']));
-            $this->db->set('remarks', $data['remarks']);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-            $this->db->set('doc_type', 6);
-            $this->db->set('tgl', date('Ymd', strtotime($issued_date)));
-            $this->db->set('total_value', floatval($stock_stored['unit_value']) * (0 - floatval($stock_stored['quantity'])));
-            $this->db->insert('tb_stock_cards');
-
-            $ms = $ms - $stock_stored['quantity'];
           }
         }
       }
+      
     }
 
 
@@ -1003,43 +1104,84 @@ class Material_Slip_Model extends MY_Model
 
   public function searchStockInStores($category)
   {
-    $this->column_select = array(
-      'tb_stocks.id',
-      'tb_stock_in_stores.stores',
-      // 'tb_stock_in_stores.received_date',
-      // 'tb_stock_in_stores.expired_date',
-      // 'tb_stock_in_stores.unit_value',
-      'SUM(tb_stock_in_stores.quantity) as quantity',
-      // 'tb_stock_in_stores.qty_konvers',
-      'tb_stocks.condition',
-      'tb_master_items.serial_number',
-      'tb_master_items.part_number',
-      'tb_master_items.description',
-      'tb_master_items.alternate_part_number',
-      'tb_master_items.group',
-      'tb_master_items.unit',
-      'tb_master_items.unit_pakai',
-    );
-
-    $warehouse = $_SESSION['usage']['warehouse'];
-
-    $this->db->select($this->column_select);
-    $this->db->from('tb_stock_in_stores');
-    $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
-    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
-    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
-    $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
-    $this->db->where('tb_master_item_groups.category', $category);
-    $this->db->where('tb_stocks.condition', 'SERVICEABLE');
-    $this->db->where('tb_stock_in_stores.quantity > ', 0);
-    $this->db->where('UPPER(tb_stock_in_stores.warehouse)', strtoupper($warehouse));
-    $this->db->group_by('tb_stocks.id,tb_stocks.condition,tb_master_items.serial_number,tb_master_items.part_number,tb_master_items.description,tb_master_items.alternate_part_number,tb_master_items.group,tb_master_items.unit,tb_master_items.unit_pakai,tb_stock_in_stores.stores');
-    // $this->db->order_by('tb_stock_in_stores.received_date','ASC');
-
-    $query  = $this->db->get();
-    $result = $query->result_array();
-
-    return $result;
+    if(in_array($category,['EXPENSE','CAPEX'])){
+      $this->column_select = array(
+        'tb_stock_in_stores.id',
+        'tb_stock_in_stores.stores',
+        'tb_stock_in_stores.quantity',
+        'tb_stocks.condition',
+        'tb_master_items.serial_number',
+        'tb_master_items.part_number',
+        'tb_master_items.description',
+        'tb_master_items.alternate_part_number',
+        'tb_master_items.group',
+        'tb_master_items.unit',
+        'tb_master_items.unit_pakai',
+        'tb_stock_in_stores.received_date',
+        'tb_stock_in_stores.expired_date',
+        'tb_receipt_items.purchase_order_number'
+      );
+  
+      $warehouse = $_SESSION['usage']['warehouse'];
+  
+      $this->db->select($this->column_select);
+      $this->db->from('tb_stock_in_stores');
+      $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
+      $this->db->join('tb_receipt_items', 'tb_receipt_items.stock_in_stores_id = tb_stock_in_stores.id');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+      $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+      $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
+      $this->db->where('tb_master_item_groups.category', $category);
+      $this->db->where('tb_stocks.condition', 'SERVICEABLE');
+      $this->db->where('tb_stock_in_stores.quantity > ', 0);
+      $this->db->where('UPPER(tb_stock_in_stores.warehouse)', strtoupper($warehouse));
+      // $this->db->group_by('tb_stocks.id,tb_stocks.condition,tb_master_items.serial_number,tb_master_items.part_number,tb_master_items.description,tb_master_items.alternate_part_number,tb_master_items.group,tb_master_items.unit,tb_master_items.unit_pakai,tb_stock_in_stores.stores');
+      $this->db->order_by('tb_stock_in_stores.received_date','ASC');
+  
+      $query  = $this->db->get();
+      $result = $query->result_array();
+  
+      return $result;
+    }else{
+      $this->column_select = array(
+        'tb_stocks.id',
+        'tb_stock_in_stores.stores',
+        // 'tb_stock_in_stores.received_date',
+        // 'tb_stock_in_stores.expired_date',
+        // 'tb_stock_in_stores.unit_value',
+        'SUM(tb_stock_in_stores.quantity) as quantity',
+        // 'tb_stock_in_stores.qty_konvers',
+        'tb_stocks.condition',
+        'tb_master_items.serial_number',
+        'tb_master_items.part_number',
+        'tb_master_items.description',
+        'tb_master_items.alternate_part_number',
+        'tb_master_items.group',
+        'tb_master_items.unit',
+        'tb_master_items.unit_pakai',
+      );
+  
+      $warehouse = $_SESSION['usage']['warehouse'];
+  
+      $this->db->select($this->column_select);
+      $this->db->from('tb_stock_in_stores');
+      $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+      $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+      $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
+      $this->db->where('tb_master_item_groups.category', $category);
+      $this->db->where('tb_stocks.condition', 'SERVICEABLE');
+      $this->db->where('tb_stock_in_stores.quantity > ', 0);
+      $this->db->where('UPPER(tb_stock_in_stores.warehouse)', strtoupper($warehouse));
+      $this->db->group_by('tb_stocks.id,tb_stocks.condition,tb_master_items.serial_number,tb_master_items.part_number,tb_master_items.description,tb_master_items.alternate_part_number,tb_master_items.group,tb_master_items.unit,tb_master_items.unit_pakai,tb_stock_in_stores.stores');
+      // $this->db->order_by('tb_stock_in_stores.received_date','ASC');
+  
+      $query  = $this->db->get();
+      $result = $query->result_array();
+  
+      return $result;
+    }
+    
   }
 
   function checkJurnalNumber()
@@ -1136,6 +1278,40 @@ class Material_Slip_Model extends MY_Model
 
     $query  = $this->db->get();
     $result = $query->result_array();
+
+    return $result;
+  }
+
+  public function infoStockInStores($id)
+  {
+    $this->column_select = array(
+      'tb_stock_in_stores.id',
+      'tb_stock_in_stores.stores',
+      'tb_stock_in_stores.quantity',
+      'tb_stocks.condition',
+      'tb_master_items.serial_number',
+      'tb_master_items.part_number',
+      'tb_master_items.description',
+      'tb_master_items.alternate_part_number',
+      'tb_master_items.group',
+      'tb_master_items.unit',
+      'tb_master_items.unit_pakai',
+      'tb_stock_in_stores.received_date',
+      'tb_stock_in_stores.expired_date',
+      'tb_receipt_items.purchase_order_number'
+    );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_stock_in_stores');
+    $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
+    $this->db->join('tb_receipt_items', 'tb_receipt_items.stock_in_stores_id = tb_stock_in_stores.id');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
+    $this->db->where('tb_stock_in_stores.id', $id);
+
+    $query  = $this->db->get();
+    $result = $query->unbuffered_row('array');
 
     return $result;
   }
