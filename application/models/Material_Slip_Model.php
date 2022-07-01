@@ -1132,7 +1132,7 @@ class Material_Slip_Model extends MY_Model
       $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
       $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
       $this->db->where('tb_master_item_groups.category', $category);
-      $this->db->where('tb_stocks.condition', 'SERVICEABLE');
+      $this->db->where_in('tb_stocks.condition', ['SERVICEABLE','UNSERVICEABLE']);
       $this->db->where('tb_stock_in_stores.quantity > ', 0);
       $this->db->where('UPPER(tb_stock_in_stores.warehouse)', strtoupper($warehouse));
       // $this->db->group_by('tb_stocks.id,tb_stocks.condition,tb_master_items.serial_number,tb_master_items.part_number,tb_master_items.description,tb_master_items.alternate_part_number,tb_master_items.group,tb_master_items.unit,tb_master_items.unit_pakai,tb_stock_in_stores.stores');
