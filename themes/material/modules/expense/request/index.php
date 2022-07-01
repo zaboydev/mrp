@@ -127,7 +127,7 @@
             <option value="rejected">
               Rejected
             </option>
-            <option value="cancel">
+            <option value="canceled">
               Canceled
             </option>
             <option value="close">

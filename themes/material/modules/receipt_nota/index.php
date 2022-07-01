@@ -158,7 +158,7 @@
                                                 <label for="currency">Date</label>
                                             </div>
                                         </div>
-                                        <div class="col-xs-12 col-md-3">
+                                        <div class="col-xs-12 col-md-6">
                                             <div class="form-group">
                                                 <select id="suplier_select" class="form-control">
                                                     <option value="">Pilih Supplier</option>
@@ -193,8 +193,10 @@
                                                 <thead>
                                                     <tr>
                                                         <th class="middle-alignment">No</th>
-                                                        <th class="middle-alignment">PO# / No Nota</th>
+                                                        <th class="middle-alignment">PO#</th>
+                                                        <th class="middle-alignment">No Nota</th>
                                                         <th class="middle-alignment">Date</th>
+                                                        <th class="middle-alignment">Amount PO</th>
                                                         <th class="middle-alignment">Amount Nota</th>
                                                     </tr>
                                                 </thead>
