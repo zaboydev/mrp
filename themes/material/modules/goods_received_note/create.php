@@ -173,13 +173,17 @@
       </div>
       <div class="card-actionbar">
         <div class="card-actionbar-row">
-          <?php //if (empty($_SESSION['receipt']['received_from']) === FALSE):
-          ?>
-          <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
-            Add Item
-          </a>
-          <?php //endif;
-          ?>
+          <?php if (in_array($_SESSION['receipt']['category'],['EXPENSE','CAPEX'])):?>
+            <div class="pull-left">        
+              <a href="<?=site_url($module['route'] .'/select_item');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction">
+                Select Item
+              </a>
+            </div>
+          <?php else:?>
+            <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
+              Add Item
+            </a>
+          <?php endif;?>
 
           <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
@@ -208,7 +212,7 @@
         )); ?>
 
         <div class="modal-body">
-          <div class="row">
+          <div class="row <?php if (in_array($_SESSION['receipt']['category'],['EXPENSE','CAPEX'])):?> hide <?php endif;?>">
             <div class="col-xs-12">
               <div class="form-group">
                 <div class="input-group">
@@ -468,7 +472,7 @@
         )); ?>
 
         <div class="modal-body">
-          <div class="row">
+          <div class="row <?php if (in_array($_SESSION['receipt']['category'],['EXPENSE','CAPEX'])):?> hide <?php endif;?>">
             <div class="col-xs-12">
               <div class="form-group">
                 <div class="input-group">
@@ -750,6 +754,30 @@
   Pace.on('done', function() {
     $('.progress-overlay').hide();
   });
+
+  function popup(mylink, windowname){
+    var height = window.innerHeight;
+    var widht;
+    var href;
+
+    if (screen.availWidth > 768){
+      width = 769;
+    } else {
+      width = screen.availWidth;
+    }
+
+    var left = (screen.availWidth / 2) - (width / 2);
+    var top = 0;
+    // var top = (screen.availHeight / 2) - (height / 2);
+
+    if (typeof(mylink) == 'string') href = mylink;
+    else href = mylink.href;
+
+    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+width+', height='+height+', top='+top+', left='+left);
+
+    if (! window.focus) return true;
+    else return false;
+  }
 
   (function($) {
     $.fn.reset = function() {
@@ -1315,7 +1343,7 @@
         url: $('input[id="edit_stores"]').data('source'),
         dataType: "json",
         success: function(data) {
-          $('input[id="stores"]').autocomplete({
+          $('input[id="edit_stores"]').autocomplete({
             source: function(request, response) {
               var results = $.ui.autocomplete.filter(data, request.term);
               response(results.slice(0, 10));

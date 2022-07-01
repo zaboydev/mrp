@@ -1295,6 +1295,7 @@ class Goods_Received_Note_Model extends MY_Model
         'tb_po_item.unit',
         'tb_po.vendor',
         'tb_po.document_number',
+        'tb_po.document_date',
         'tb_po.default_currency',
         'tb_po.exchange_rate',
         'tb_po_item.group',
@@ -1321,6 +1322,7 @@ class Goods_Received_Note_Model extends MY_Model
         'tb_po_item.unit',
         'tb_po.vendor',
         'tb_po.document_number',
+        'tb_po.document_date',
         'tb_po.default_currency',
         'tb_po.exchange_rate',
         'tb_po_item.group',
@@ -1331,7 +1333,7 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->where('tb_po.vendor', $vendor);
       }
 
-      $this->db->order_by('tb_po_item.part_number ASC, tb_po_item.description ASC');
+      $this->db->order_by('tb_po.document_number ASC');
       $query  = $this->db->get();
       $result = $query->result_array();
 
@@ -2020,5 +2022,52 @@ class Goods_Received_Note_Model extends MY_Model
 
     $this->db->trans_commit();
     return TRUE;
+  }
+
+  public function infoPurchaseOrderItem($id)
+  {
+    $this->column_select = array(
+      'tb_po_item.id',
+      'tb_po_item.unit_price',
+      'tb_po_item.serial_number',
+      'tb_po_item.part_number',
+      'tb_po_item.description',
+      'tb_po_item.alternate_part_number',
+      'tb_po_item.left_received_quantity',
+      'tb_po_item.unit',
+      'tb_po.vendor',
+      'tb_po.document_number',
+      'tb_po.default_currency',
+      'tb_po.exchange_rate',
+      'tb_po_item.group',
+      // 'tb_master_items.kode_stok',
+      'tb_po_item.unit as unit_pakai',
+    );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_po_item');
+    $this->db->join('tb_po', 'tb_po.id = tb_po_item.purchase_order_id');
+    $this->db->where('tb_po_item.id', $id);
+    $this->db->group_by(array(
+      'tb_po_item.id',
+      'tb_po_item.unit_price',
+      'tb_po_item.serial_number',
+      'tb_po_item.part_number',
+      'tb_po_item.description',
+      'tb_po_item.alternate_part_number',
+      'tb_po_item.left_received_quantity',
+      'tb_po_item.unit',
+      'tb_po.vendor',
+      'tb_po.document_number',
+      'tb_po.default_currency',
+      'tb_po.exchange_rate',
+      'tb_po_item.group',
+      // 'tb_master_items.kode_stok',
+    ));
+    $query  = $this->db->get();
+    $result = $query->unbuffered_row('array');
+
+    return $result;
+    
   }
 }

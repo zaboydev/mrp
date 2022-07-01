@@ -420,12 +420,17 @@ class Goods_Received_Note extends MY_Controller
             $errors[] = 'Duplicate Document Number: '. $_SESSION['receipt']['document_number'] .' !';
           }
         }
-
+        $received_quantity = array();
         foreach ($_SESSION['receipt']['items'] as $key => $item) {
           $part_number    = (empty($item['part_number'])) ? NULL : $item['part_number'];
           $serial_number  = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
           $description    = (empty($item['description'])) ? NULL : $item['description'];
           $condition      = (empty($item['condition'])) ? 'SERVICEABLE' : $item['condition'];
+          $received_quantity[] = $item['received_quantity'];
+
+          if ($item['received_quantity']==0){
+            $errors[] = 'Qty Receive cant be 0. Pleas add qty to item P/N '.$part_number;
+          }
 
           if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['receipt']['category']) === FALSE){
             $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
@@ -792,7 +797,83 @@ class Goods_Received_Note extends MY_Controller
           $result["status"] = 1;
         }
         echo json_encode($result);
+  }
+
+  public function select_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $category = $_SESSION['receipt']['category'];
+    $vendor   = (empty($_SESSION['receipt']['received_from'])) ? NULL : $_SESSION['receipt']['received_from'];
+    $entities = $this->model->searchPurchaseOrder($category, $vendor);
+
+    $this->data['entities'] = $entities;
+    $this->data['page']['title']            = 'Select Item';
+
+    $this->render_view($this->module['view'] . '/select_item');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['purchase_order_item_id']) && !empty($_POST['purchase_order_item_id'])) {
+        $_SESSION['receipt']['items'] = array();
+
+        foreach ($_POST['purchase_order_item_id'] as $key => $purchase_order_item_id) {
+          $purchase_order_item = $this->model->infoPurchaseOrderItem($purchase_order_item_id);
+
+          $_SESSION['receipt']['items'][$purchase_order_item_id] = array(
+            'group'                   => $purchase_order_item['group'],
+            'description'             => trim(strtoupper($purchase_order_item['description'])),
+            'part_number'             => trim(strtoupper($purchase_order_item['part_number'])),
+            'alternate_part_number'   => trim(strtoupper($purchase_order_item['alternate_part_number'])),
+            'serial_number'           => trim(strtoupper($purchase_order_item['serial_number'])),
+            'received_quantity'       => 0,
+            'received_unit_value'     => 0,
+            'minimum_quantity'        => 0,
+            'condition'               => null,
+            'expired_date'            => null,
+            'stores'                  => null,
+            'purchase_order_number'   => trim(strtoupper($purchase_order_item['document_number'])),
+            'purchase_order_item_id'  => $purchase_order_item_id,
+            'reference_number'        => null,
+            'awb_number'              => null,
+            'unit'                    => trim($purchase_order_item['unit_pakai']),
+            'received_unit'           => trim($purchase_order_item['unit_pakai']),
+            'remarks'                 => null,
+            'kode_stok'               => null,
+            'kurs'                    => ($purchase_order_item['default_currency']=='USD' || $purchase_order_item['default_currency']=='AUD')? 'dollar':'rupiah',
+            'unit_pakai'              => trim($purchase_order_item['unit_pakai']),
+            'isi'                     => trim($this->input->post('isi')),
+            'quantity_order'          => $purchase_order_item['left_received_quantity'],
+            'value_order'             => $purchase_order_item['unit_price'],
+            'no_expired_date'         => null,
+            'tgl_nota'                => null,
+          );
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
     }
+
+    echo json_encode($data);
+  }
+
+  public function edit_selected_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/edit_item');
+  }
 
   
 }
