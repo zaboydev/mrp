@@ -26,7 +26,7 @@ class Daftar_Akun_Model extends MY_Model
     {
         return array(
             'coa',
-            'group',
+            '"group"',
             'category',
         );
     }
@@ -36,7 +36,7 @@ class Daftar_Akun_Model extends MY_Model
         return array(
             null,
             'coa',
-            'group',
+            '"group"',
             'category',
             null
         );
