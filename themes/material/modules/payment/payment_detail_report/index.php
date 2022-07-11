@@ -359,18 +359,11 @@
 
       },
 
-      columnDefs: [
-        {
-          searchable: false,
-          orderable: false,
-          targets: [0]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [14]
-        },
-      ],
+      columnDefs: [{
+        searchable: false,
+        orderable: false,
+        targets: [0]
+      }],
 
       dom: "<'row'<'col-sm-12'tr>>" +
         "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",

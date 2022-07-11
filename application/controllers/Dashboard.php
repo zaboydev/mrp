@@ -160,4 +160,25 @@ class Dashboard extends MY_Controller
       redirect(site_url().'secure/file_not_found');
     }
   }
+
+  public function create_zip()
+  {
+    $create_zip = new ZipArchive();
+    $file_name = "./attachment/test-new.zip";
+
+    if ($create_zip->open($file_name, ZipArchive::CREATE)!==TRUE) {
+        exit("cannot open the zip file <$file_name>\n");
+    }
+    $current_dir=getcwd();
+    //Create files to add to the zip
+    $create_zip->addFromString("file1 ". time().".txt" , "#1 This is This is the test file number one.\n"); 
+    $create_zip->addFromString("file2 ". time().".txt", "#2 This is This is the test file number one.\n");
+    //add files to the zip
+    $create_zip->addFile($current_dir . "/attachment/attachment_payment/74a990fd69a293120f4ec38ec56437e9.jpg","testfromfile.jpg");
+    echo "Number of files added: " . $create_zip->numFiles;
+    echo "<br>";
+    echo "Failed to add:" . $create_zip->status ;
+    echo "direktori ".$current_dir;
+    $create_zip->close();
+  }
 }

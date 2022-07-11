@@ -98,6 +98,9 @@ class Payment extends MY_Controller
         }else{
           $total_usd[] = $row['amount_paid'];
         }
+        $col[] = '<a class="link" data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/download_all/'. $row['id']).'" target="_blank">
+                    <i class="fa fa-download"></i>
+                  </a>';
         
 
         $col['DT_RowId'] = 'row_' . $row['id'];
@@ -1189,6 +1192,239 @@ class Payment extends MY_Controller
   public function find_by_id($id){
     $entity = $this->model->findById($id);
     echo json_encode($entity);
+  }
+
+  public function download_all($id)
+  {
+    //download bpv
+    $entity = $this->model->findById($id);
+
+    $this->data['entity']           = $entity;
+    $this->data['page']['title']    = ($entity->status=='PAID')? $entity->type.' PAYMENT VOUCHER':strtoupper($this->module['label']);
+    $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
+
+    $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+    $pdfFilePath = str_replace('/', '-', $entity['document_number']);
+    $filename = $pdfFilePath.".pdf";
+
+    if(cekDirektori("./download/".$pdfFilePath)){
+      $this->load->library('m_pdf');
+
+      $pdf = $this->m_pdf->load(null, 'A4-L');
+      $pdf->WriteHTML($html);
+      // $pdf->Output($pdfFilePath, "I");
+      $pdf->Output("./download/".$pdfFilePath."/".$filename, "F");
+    }
+
+    //PO
+    $path_po = array();
+    $path_po[0]['path'] = $pdfFilePath."/".$filename;
+    $path_po[0]['file_name'] = $filename;
+    $n=1;
+
+    $path_att = array();
+    $n_att = 0;
+    foreach($entity['attachment'] as $key => $attachment){
+      $file  = explode('/', $attachment['file']);
+      $path_att[$n_att]['path'] = $attachment['file'];
+      $path_att[$n_att]['file_name'] = end($file);
+      $path_att[$n_att]['tipe_att'] = 'payment';
+      $n_att++;
+    }
+
+    foreach($entity['po'] as $key => $item){
+      $purchase_order_id = $item['id_po'];
+      if($purchase_order_id!=null){
+        //purchase order
+        if($item['tipe_po']=='INVENTORY MRP'){
+          $modules_name = 'purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }elseif ($item['tipe_po']=='EXPENSE') {
+          $modules_name = 'expense_purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }elseif ($item['tipe_po']=='CAPEX') {
+          $modules_name = 'capex_purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }elseif ($item['tipe_po']=='INVENTORY') {
+          $modules_name = 'inventory_purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }
+
+        $this->data['entity']           = $entity_po;
+        if (strpos($entity_po['document_number'], 'W') !== FALSE){
+          $this->data['page']['title']    = 'WORK ORDER';
+        }else{
+          $this->data['page']['title']    = 'PURCHASE ORDER';
+        }
+        // $this->data['page']['content']  = $this->modules['expense_purchase_order']['view'] .'/print_pdf';
+
+        $html = $this->load->view($this->modules[$modules_name]['view'] . '/pdf', $this->data, true);
+
+        $filename_po = str_replace('/', '-', $entity_po['document_number']).".pdf";
+
+        if(cekDirektori("./download/".$pdfFilePath)){
+          $this->load->library('m_pdf');
+
+          $pdf = $this->m_pdf->load(null, 'A4-L');
+          $pdf->WriteHTML($html);
+          // $pdf->Output($pdfFilePath, "I");
+          $pdf->Output("./download/".$pdfFilePath."/".$filename_po, "F");
+          $path_po[$n]['path'] = $pdfFilePath."/".$filename_po;
+          $path_po[$n]['file_name'] = $filename_po;
+          $n++;
+        }
+        foreach($entity_po['attachment'] as $key => $attachment){
+          $file  = explode('/', $attachment['file']);
+          $path_att[$n_att]['path'] = $attachment['file'];
+          $path_att[$n_att]['file_name'] = end($file);
+          $path_att[$n_att]['tipe_att'] = 'order';
+          $n_att++;
+        }
+
+        //purchase order evaluation
+        $poe_ids = array();
+        foreach ($item['items'] as $key => $item_po) {
+          if(!in_array($item_po['poe_id'],$poe_ids)){
+            $poe_ids[] = $item_po['poe_id'];
+          }          
+        }
+
+        if(!empty($poe_ids)){
+          foreach ($poe_ids as $key => $poe_id) {
+            if($item['tipe_po']=='INVENTORY MRP'){
+              $modules_name = 'purchase_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='EXPENSE') {
+              $modules_name = 'expense_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='CAPEX') {
+              $modules_name = 'capex_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='INVENTORY') {
+              $modules_name = 'inventory_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }
+    
+            $this->data['entity']           = $entity_poe;
+            $this->data['page']['title']    = 'PURCHASE ORDER EVALUATION';
+            $this->data['page']['content']  = $this->modules[$modules_name]['view'] .'/print_pdf';
+
+            $html = $this->load->view($this->pdf_theme, $this->data, true);
+    
+            $filename_poe = str_replace('/', '-', $entity_poe['evaluation_number']).".pdf";
+    
+            if(cekDirektori("./download/".$pdfFilePath)){
+              $this->load->library('m_pdf');
+    
+              $pdf = $this->m_pdf->load(null, 'A4-L');
+              $pdf->WriteHTML($html);
+              // $pdf->Output($pdfFilePath, "I");
+              $pdf->Output("./download/".$pdfFilePath."/".$filename_poe, "F");
+              $path_po[$n]['path'] = $pdfFilePath."/".$filename_poe;
+              $path_po[$n]['file_name'] = $filename_poe;
+              $n++;
+            }
+            foreach($entity_poe['attachment'] as $key => $attachment){
+              $file  = explode('/', $attachment['file']);
+              $path_att[$n_att]['path'] = $attachment['file'];
+              $path_att[$n_att]['file_name'] = end($file);
+              $path_att[$n_att]['tipe_att'] = 'evaluation';
+              $n_att++;
+            }
+
+            $request_item_ids = array();
+            foreach ($entity_poe['request'] as $key => $request) {
+              if(!in_array($request['inventory_purchase_request_detail_id'],$request_item_ids)){
+                $request_item_ids[] = $request['inventory_purchase_request_detail_id'];
+              }          
+            }
+          }
+        }
+
+        if(!empty($request_item_ids)){
+          $request_ids = array();
+          foreach ($request_item_ids as $key => $request_item_id) {
+            $request_id = $this->model->getRequestIdByItemId($request_item_id,$item['tipe_po']);
+            if(!in_array($request['id'],$request_ids)){
+              $request_ids[] = $request_id;
+            }
+          }
+        }
+
+        if(!empty($request_ids)){
+          foreach ($request_ids as $key => $request_id) {
+            if($item['tipe_po']=='INVENTORY MRP'){
+              $modules_name = 'purchase_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='EXPENSE') {
+              $modules_name = 'expense_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='CAPEX') {
+              $modules_name = 'capex_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='INVENTORY') {
+              $modules_name = 'inventory_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }
+    
+            $this->data['entity']           = $entity_request;
+            if ($item['tipe_po']!='INVENTORY MRP') {
+              $this->data['page']['title']    = $item['tipe_po'].' REQUEST';
+            }else{
+              $this->data['page']['title']    = 'PURCHASE REQUEST';
+            }
+            
+            $this->data['page']['content']  = $this->modules[$modules_name]['view'] .'/print_pdf';
+
+            $html = $this->load->view($this->pdf_theme, $this->data, true);
+    
+            $filename_request = str_replace('/', '-', $entity_request['pr_number']).".pdf";
+    
+            if(cekDirektori("./download/".$pdfFilePath)){
+              $this->load->library('m_pdf');
+    
+              $pdf = $this->m_pdf->load(null, 'A4-L');
+              $pdf->WriteHTML($html);
+              // $pdf->Output($pdfFilePath, "I");
+              $pdf->Output("./download/".$pdfFilePath."/".$filename_request, "F");
+              $path_po[$n]['path'] = $pdfFilePath."/".$filename_request;
+              $path_po[$n]['file_name'] = $filename_request;
+              $n++;
+            }
+            foreach($entity_request['attachment'] as $key => $attachment){
+              $file  = explode('/', $attachment['file']);
+              $path_att[$n_att]['path'] = $attachment['file'];
+              $path_att[$n_att]['file_name'] = end($file);
+              $path_att[$n_att]['tipe_att'] = 'request';
+              $n_att++;
+            }
+          }
+        }
+          
+        
+      }
+    }
+    
+
+    // echo json_encode($path_att);
+
+    $create_zip = new ZipArchive();
+    $zip_name = "./download/".$pdfFilePath.".zip";
+
+    if ($create_zip->open($zip_name, ZipArchive::CREATE)!==TRUE) {
+      exit("cannot open the zip file <$zip_name>\n");
+    }
+    foreach($path_po as $key=>$po){
+      $create_zip->addFile("./download/".$pdfFilePath."/".$po['file_name'] ,$po['file_name']);//add pdf PO
+    }
+    foreach($path_att as $key=>$att){
+      $create_zip->addFile($att['path'] ,$att['file_name']);//add attachment
+    }     
+    $create_zip->close();
+
+    redirect($zip_name);
+    
   }
 
 }
