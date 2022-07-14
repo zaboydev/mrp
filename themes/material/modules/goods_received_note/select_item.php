@@ -17,6 +17,7 @@
                 <th>PO#</th>
                 <th>Date</th>
                 <th>Vendor</th>
+                <th>Group</th>
                 <th>Part Number</th>
                 <th>Serial Number</th>
                 <th>Description</th>
@@ -50,6 +51,11 @@
                     <td>
                         <label for="purchase_order_item_id_<?= $e; ?>">
                         <?= print_string($entity['vendor']); ?>
+                        </label>
+                    </td>
+                    <td>
+                        <label for="purchase_order_item_id_<?= $e; ?>">
+                        <?= print_string($entity['group']); ?>
                         </label>
                     </td>
                     <td>
@@ -132,8 +138,9 @@
             toastr.options.positionClass = 'toast-top-right';
             toastr.error(obj.message);
           } else {
-            refreshParent();
-            popupClose();
+            // refreshParent();
+            // popupClose();
+            window.location.href = '<?= site_url($module['route'] . '/edit_selected_item'); ?>';
           }
         });
       }

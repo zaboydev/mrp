@@ -1261,7 +1261,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         $message .= $item_message;
         $message .= "</table>";
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_closing_payemnt/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";
         $this->email->from($from_email, 'Material Resource Planning');
         $this->email->to($recipient);

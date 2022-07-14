@@ -236,8 +236,8 @@ class Dashboard_Model extends MY_Model
     $message .= "<p>Ini adalah test email</p>";
     $message .= "<ul>";
     $message .= "</ul>";
-    $message .= "<p></p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($to_email);

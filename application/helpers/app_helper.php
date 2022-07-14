@@ -2725,4 +2725,167 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('cekDirektori')) {
+    function cekDirektori($upload_path)
+    {
+      if ( ! is_dir($upload_path))
+      {
+        if ( ! mkdir ($upload_path, 0777, TRUE))
+        {
+          return FALSE;
+        }
+      }
+  
+      if ( ! is_really_writable($upload_path))
+      {
+        if ( ! chmod($upload_path, 0777))
+        {
+          return FALSE;
+        }
+      }
+      return TRUE;
+    }
+  }
+
+  if ( ! function_exists('getReferenceIpc')) {
+    function getReferenceIpc($id,$tipe)
+    {
+      $CI =& get_instance();
+  
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+  
+      $connection->select('reference_ipc');
+      if($tipe=='capex'){
+        $connection->from('tb_capex_purchase_requisition_details');
+      }
+      if($tipe=='inventory'){
+        $connection->from('tb_inventory_purchase_requisition_details');
+      }
+      if($tipe=='expense'){
+        $connection->from('tb_expense_purchase_requisition_details');
+      }
+      $connection->where('id', $id);
+  
+      $query  = $connection->get();
+      $row    = $query->unbuffered_row();
+      $return = $row->reference_ipc;
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getRequest')) {
+    function getRequest($id,$tipe,$select)
+    {
+      $CI =& get_instance();
+  
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+  
+  
+      if($tipe=='capex'){
+        $connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
+        $connection->from('tb_capex_purchase_requisitions');
+        $connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
+        $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
+        $connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $connection->where('tb_capex_purchase_requisition_details.id', $id);
+      }
+  
+      if($tipe=='inventory'){
+        $connection->select('tb_inventory_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
+        $connection->from('tb_inventory_purchase_requisitions');
+        $connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
+        $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
+        $connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $connection->where('tb_inventory_purchase_requisition_details.id', $id);
+      }
+  
+      if($tipe=='expense'){      
+        $connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
+        $connection->from('tb_expense_purchase_requisitions');
+        $connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+        $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+        $connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $connection->where('tb_expense_purchase_requisition_details.id', $id);
+      }
+  
+      $query  = $connection->get();
+      $row    = $query->unbuffered_row('array');
+      $return = $row[$select];
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('find_poe_number')) {
+    function find_poe_number($id)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('tb_purchase_order_evaluation_items.document_number');
+      $CI->db->from('tb_purchase_order_evaluation_items_vendors');
+      $CI->db->join('tb_purchase_order_evaluation_items', 'tb_purchase_order_evaluation_items.id = tb_purchase_order_evaluation_items_vendors.poe_item_id');
+      $CI->db->where('tb_purchase_order_evaluation_items_vendors.id', $id);
+  
+      $query  = $CI->db->get();
+      $order  = $query->unbuffered_row('array');
+      $return = $order['document_number'];
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('print_person_name')) {
+    function print_person_name($username)
+    {
+      $CI =& get_instance();
+  
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+  
+      $connection->select('real_name');
+      $connection->from('tb_users');
+      $connection->where('username', $username);
+  
+      $query  = $connection->get();
+  
+      if ($query->num_rows() > 0){
+        $user   = $query->unbuffered_row('array');
+        $return = $user['real_name'];
+      } else {
+        $return = $username;
+      }
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('available_stores_by_category')) {
+    function available_stores_by_category($category)
+    {
+      $CI =& get_instance();
+      
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_stores');
+      $CI->db->where('category', $category);
+      $CI->db->where('warehouse', config_item('auth_warehouse'));
+      $CI->db->where('status', 'AVAILABLE');
+      $CI->db->order_by('stores', 'ASC');
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $data  = array();
+
+      foreach ($result as $key => $row){
+        if ($row['stores'] != null)
+          $data[] = $row['stores'];
+      }
+  
+      return $data;
+    }
+  }
+
     

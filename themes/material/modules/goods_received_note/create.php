@@ -86,7 +86,7 @@
 
         <?php if (isset($_SESSION['receipt']['items'])) : ?>
           <div class="document-data table-responsive">
-            <table class="table table-hover" id="table-document">
+            <table class="table table-hover table-striped" id="table-document">
               <thead>
                 <tr>
                   <th></th>
@@ -174,9 +174,15 @@
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <?php if (in_array($_SESSION['receipt']['category'],['EXPENSE','CAPEX'])):?>
-            <div class="pull-left">        
-              <a href="<?=site_url($module['route'] .'/select_item');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction">
+            <div class="pull-left">      
+              <?php if(!isset($_SESSION['receipt']['edit'])):?>
+              <a href="<?=site_url($module['route'] .'/select_item');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction btn-item <?=(isset($_SESSION['receipt']['received_from']))? '': 'hide'?>">
                 Select Item
+              </a>
+              <?php endif;?>
+
+              <a href="<?=site_url($module['route'] .'/edit_selected_item');?>" onClick="return popup(this, 'edit_selected_item')" class="btn btn-primary ink-reaction btn-item <?=(isset($_SESSION['receipt']['received_from']))? '': 'hide'?>">
+                Update Item
               </a>
             </div>
           <?php else:?>
@@ -1002,6 +1008,19 @@
     $(autosetInputData).on('change', function() {
       var val = $(this).val();
       var url = $(this).data('source');
+      var id = $(this).attr('id');
+
+      console.log(id);
+      console.log(val);
+      if(id=='received_from'){
+        if(val!=null){
+          $('.btn-item').removeClass('hide');
+        }else{
+          if($('.btn-item').hasClass('hide')){
+            $('.btn-item').addClass('hide');
+          }
+        }        
+      }
 
       $.get(url, {
         data: val
@@ -1320,6 +1339,11 @@
           }
         });
       }
+    });
+
+    $('input[id="edit_unit_pakai"]').keyup(function() {
+      var unit_used = $('input[id="edit_unit_pakai"]').val();
+      $('input[id="edit_unit_used"]').val(unit_used);
     });
 
     // input stores autocomplete
