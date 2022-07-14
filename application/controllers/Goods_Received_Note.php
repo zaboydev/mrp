@@ -835,7 +835,7 @@ class Goods_Received_Note extends MY_Controller
             'alternate_part_number'   => trim(strtoupper($purchase_order_item['alternate_part_number'])),
             'serial_number'           => trim(strtoupper($purchase_order_item['serial_number'])),
             'received_quantity'       => 0,
-            'received_unit_value'     => 0,
+            'received_unit_value'     => $purchase_order_item['unit_price'],
             'minimum_quantity'        => 0,
             'condition'               => null,
             'expired_date'            => null,
@@ -850,7 +850,7 @@ class Goods_Received_Note extends MY_Controller
             'kode_stok'               => null,
             'kurs'                    => ($purchase_order_item['default_currency']=='USD' || $purchase_order_item['default_currency']=='AUD')? 'dollar':'rupiah',
             'unit_pakai'              => trim($purchase_order_item['unit_pakai']),
-            'isi'                     => trim($this->input->post('isi')),
+            'isi'                     => null,
             'quantity_order'          => $purchase_order_item['left_received_quantity'],
             'value_order'             => $purchase_order_item['unit_price'],
             'no_expired_date'         => null,
@@ -873,6 +873,49 @@ class Goods_Received_Note extends MY_Controller
     $this->authorized($this->module, 'document');
 
     $this->render_view($this->module['view'] . '/edit_item');
+  }
+
+  public function update_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item']) && !empty($_POST['item'])) {
+        foreach ($_POST['item'] as $id => $item) {
+
+          $_SESSION['receipt']['items'][$id]['condition']             = $item['condition'];
+          $_SESSION['receipt']['items'][$id]['stores']                = $item['stores'];
+          $_SESSION['receipt']['items'][$id]['tgl_nota']              = $item['tgl_nota'];
+          $_SESSION['receipt']['items'][$id]['reference_number']      = $item['reference_number'];
+          $_SESSION['receipt']['items'][$id]['quantity_order']        = $item['quantity_order'];
+          $_SESSION['receipt']['items'][$id]['unit']                  = $item['unit'];
+          $_SESSION['receipt']['items'][$id]['minimum_quantity']      = $item['minimum_quantity'];
+          $_SESSION['receipt']['items'][$id]['awb_number']            = $item['awb_number'];
+          $_SESSION['receipt']['items'][$id]['received_quantity']     = $item['received_quantity'];
+          $_SESSION['receipt']['items'][$id]['unit_pakai']            = $item['unit_pakai'];
+          $_SESSION['receipt']['items'][$id]['kode_stok']             = $item['kode_stok'];
+          $_SESSION['receipt']['items'][$id]['remarks']               = $item['remarks'];
+          $_SESSION['receipt']['items'][$id]['isi']                   = $item['isi'];
+          // $_SESSION['receipt']['items'][$id]['received_unit']         = $item['received_unit'];
+          $_SESSION['receipt']['items'][$id]['expired_date']          = $item['expired_date'];
+          $_SESSION['receipt']['items'][$id]['no_expired_date']       = ($item['expired_date']==null)?'no':'yes';
+          $_SESSION['receipt']['items'][$id]['kurs']                  = $item['kurs'];
+          $_SESSION['receipt']['items'][$id]['received_unit_value']   = $item['received_unit_value'];
+          $_SESSION['receipt']['items'][$id]['value_order']           = $item['value_order'];          
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'No data to update!';
+      }
+    }
+
+    echo json_encode($data);
   }
 
   

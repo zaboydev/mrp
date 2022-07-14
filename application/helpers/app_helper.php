@@ -2863,4 +2863,30 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('available_stores_by_category')) {
+    function available_stores_by_category($category)
+    {
+      $CI =& get_instance();
+      
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_stores');
+      $CI->db->where('category', $category);
+      $CI->db->where('warehouse', config_item('auth_warehouse'));
+      $CI->db->where('status', 'AVAILABLE');
+      $CI->db->order_by('stores', 'ASC');
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $data  = array();
+
+      foreach ($result as $key => $row){
+        if ($row['stores'] != null)
+          $data[] = $row['stores'];
+      }
+  
+      return $data;
+    }
+  }
+
     
