@@ -166,7 +166,7 @@
                   </td>
                   <td>
                     <div class="col-md-6">
-                      <input type="text" name="item[<?= $id; ?>][isi]" id="item[<?= $id; ?>][isi]" data-tag-row="<?= $id; ?>" data-tag-name="isi" class="form-control input-sm" value="<?=$item['isi']?>" required>
+                      <input type="number" name="item[<?= $id; ?>][isi]" id="item[<?= $id; ?>][isi]" data-tag-row="<?= $id; ?>" data-tag-name="isi" class="form-control input-sm" value="<?=$item['isi']?>" required>
                     </div>
                     <div class="col-md-6">
                       <span name="item[<?= $id; ?>][unit_used]" id="item[<?= $id; ?>][unit_used]"><?=$item['unit_pakai']?></span>                      

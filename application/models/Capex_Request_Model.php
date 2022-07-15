@@ -1556,7 +1556,7 @@ class Capex_Request_Model extends MY_Model
         $message .= "</table>";
         // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-        $message .= "<p>[ <a href='".$this->config->item('url_mrp')." style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";
         $this->email->from($from_email, 'Material Resource Planning');
         $this->email->to($recipient);
