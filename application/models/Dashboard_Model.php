@@ -724,6 +724,31 @@ class Dashboard_Model extends MY_Model
     ];
   }
 
+  public function getListAttachmentBudgetcontrol()
+  {
+    $query = $this->connection->get('tb_attachment');
+    $data = array();
+    $count = array();
+
+    foreach($query->result_array() as $key => $att){
+      $is_file_exists = file_exists($att['file']);
+      $insert = [
+        'id' => $att['id'],
+        'id_poe' => $att['id_poe'],
+        'file'=> $att['file'],
+        'is_file_exists' => $is_file_exists
+      ];
+      if(!$is_file_exists){
+        $data[] = $insert;
+        $count[] = 1;
+      }
+    }
+    return [
+      'count'=>array_sum($count),
+      'data'=>$data
+    ];
+  }
+
   public function isFileExist($id,$type){
     if($type=='mrp'){
       $this->db->select('*');

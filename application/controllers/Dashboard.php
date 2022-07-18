@@ -151,6 +151,14 @@ class Dashboard extends MY_Controller
     echo json_encode($data);
   }
 
+  public function get_list_attachment_budgetcontrol()
+  {
+    $data = $this->model->getListAttachmentBudgetcontrol();
+    
+    // $result['status'] = $send;
+    echo json_encode($data);
+  }
+
   public function open_attachment($id,$type)
   {
     $file = $this->model->findAttachmentbyId($id,$type);
