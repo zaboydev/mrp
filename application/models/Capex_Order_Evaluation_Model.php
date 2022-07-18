@@ -1060,21 +1060,28 @@ class Capex_Order_Evaluation_Model extends MY_Model
       'tb_capex_purchase_requisitions.deliver_to',
       'tb_capex_purchase_requisitions.created_by',
       'tb_capex_purchase_requisitions.notes',
+      'tb_capex_purchase_requisitions.with_po',
       'tb_capex_purchase_requisition_details.process_amount',
-      'tb_capex_purchase_requisition_details.total',
+      'tb_capex_purchase_requisition_details.total',      
+      'tb_product_groups.group_name',
     ));
 
-    $this->connection->from('tb_capex_purchase_requisitions');
-    $this->connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
+    $this->connection->from('tb_capex_purchase_requisition_details');
+    $this->connection->join('tb_capex_purchase_requisitions', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
     $this->connection->join('tb_capex_monthly_budgets', 'tb_capex_monthly_budgets.id = tb_capex_purchase_requisition_details.capex_monthly_budget_id');
     $this->connection->join('tb_products', 'tb_products.id = tb_capex_monthly_budgets.product_id');
     $this->connection->join('tb_product_groups', 'tb_product_groups.id = tb_products.product_group_id');
     $this->connection->join('tb_product_categories', 'tb_product_categories.id = tb_product_groups.product_category_id');
+    $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
     $this->connection->where('tb_capex_purchase_requisitions.status', 'approved');
     // $this->connection->group_start();
     // $this->connection->where('tb_inventory_purchase_requisition_details.sisa >', 0);
     // $this->connection->where('tb_inventory_purchase_requisition_details.sisa is not null', null, false);
     // $this->connection->group_end();
+    
+    $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
+    // $this->connection->like('tb_capex_purchase_requisitions.pr_number', $this->budget_year);
+    $this->connection->where('tb_capex_purchase_requisitions.with_po','t');
     $this->connection->order_by('tb_capex_purchase_requisitions.id', 'desc');
 
     $query = $this->connection->get();
