@@ -18,6 +18,20 @@
           <div class="row">
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
+                <select name="source" id="source" class="form-control" data-source="<?= site_url($module['route'] . '/set_source'); ?>" required>
+                  <?php foreach ($this->config->item('source_grn') as $key => $source_grn) : ?>
+                    <option value="<?= $key; ?>" <?= ($_SESSION['receipt']['source'] == $key) ? 'selected' : ''; ?>>
+                      <?= $source_grn; ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <label for="source">Source</label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6 col-lg-3">
+              <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
 
@@ -224,7 +238,7 @@
                 <div class="input-group">
                   <div class="input-group-content">
                     <input type="text" id="search_purchase_order" data-search-for="purchase_order" class="form-control" data-source="<?= site_url($module['route'] . '/search_purchase_order'); ?>">
-                    <label for="search_item">Search item from Purchase Order</label>
+                    <label for="search_item">Search item from <?=ucwords(str_replace("_", " ", $_SESSION['receipt']['source']))?></label>
                   </div>
                   <span class="input-group-addon">
                     <i class="md md-search"></i>
@@ -409,6 +423,7 @@
                   <input type="text" name="purchase_order_number" id="purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm" readonly>
                   <label for="purchase_order_number">Order Number</label>
                   <input type="hidden" name="purchase_order_item_id" id="purchase_order_item_id" />
+                  <input type="hidden" name="internal_delivery_item_id" id="internal_delivery_item_id" />
                 </div>
 
                 <div class="form-group">
@@ -484,7 +499,7 @@
                 <div class="input-group">
                   <div class="input-group-content">
                     <input type="text" id="edit_search_purchase_order" data-search-for="purchase_order" class="form-control" data-source="<?= site_url($module['route'] . '/search_purchase_order'); ?>">
-                    <label for="search_item">Search item from Purchase Order</label>
+                    <label for="search_item">Search item from <?=ucwords(str_replace("_", " ", $_SESSION['receipt']['source']))?></label>
                   </div>
                   <span class="input-group-addon">
                     <i class="md md-search"></i>
@@ -672,6 +687,7 @@
                   <input type="text" name="purchase_order_number" id="edit_purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm" readonly>
                   <label for="purchase_order_number">Order Number</label>
                   <input type="hidden" name="purchase_order_item_id" id="edit_purchase_order_item_id" />
+                  <input type="hidden" name="internal_delivery_item_id" id="edit_internal_delivery_item_id" />
                 </div>
 
                 <div class="form-group">
@@ -1055,10 +1071,15 @@
                   var unit_value = parseFloat(ui.item.unit_price);
                 }
 
+                var source = $('#source').val();
+                // console.log(source);
+
                 $('#consignor').val(ui.item.vendor);
                 $('#serial_number').val(ui.item.serial_number);
                 $('#part_number').val(ui.item.part_number);
                 $('#description').val(ui.item.description);
+                $('#group').val(ui.item.group);
+                $('#condition').val(ui.item.condition);
                 $('#alternate_part_number').val(ui.item.alternate_part_number);
                 $('select[id="group"]').val(ui.item.group);
                 $('#received_quantity').val(parseFloat(ui.item.left_received_quantity));
@@ -1069,7 +1090,12 @@
                 $('#unit_used').val(ui.item.unit_pakai);
                 $('#received_unit_value').val(parseFloat(unit_value));
                 $('#value_order').val(parseFloat(unit_value));
-                $('#purchase_order_item_id').val(ui.item.id);
+                if(source=='purchase_order'){
+                  $('#purchase_order_item_id').val(ui.item.id);
+                }else{
+                  $('#internal_delivery_item_id').val(ui.item.id);
+                }               
+                
                 $('#purchase_order_number').val(ui.item.document_number);
                 $('#kode_stok').val(ui.item.kode_stok);
                 if (ui.item.default_currency == 'USD' || ui.item.default_currency == 'AUD') {
@@ -1543,6 +1569,7 @@
           $('[id="receipt_items_id"]').val(response.receipt_items_id);
 
           $('#edit_purchase_order_item_id').val(response.purchase_order_item_id);
+          $('#edit_internal_delivery_item_id').val(response.internal_delivery_item_id);
 
           if (response.purchase_order_item_id != '') {
             $('[name="received_unit_value"]').attr('readonly', true);
@@ -1561,6 +1588,22 @@
         }
       });
     });
+
+    $('#source').on('change', function(){
+    var prev = $(this).data('val');
+    var current = $(this).val();
+    var url = $(this).data('source');
+
+    if (prev != ''){
+      var conf = confirm("Changing the source will remove the items that have been added. Continue?");
+
+      if (conf == false){
+        return false;
+      }
+    }
+
+    window.location.href = url + '/' + current;
+  });
 
   });
 </script>

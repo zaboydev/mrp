@@ -60,3 +60,8 @@ $config['head_office_cost_center_id']  = [26,30];
 $config['unique_user']  = ['aidanurul'];
 $config['url_mrp']      = 'http://to.baliflightacademy.com:7323/';
 $config['url_budgetcontrol']      = 'http://to.baliflightacademy.com:7324/';
+
+$config['source_grn'] = array(
+  'purchase_order'    => 'Purchase Order',
+  'internal_delivery' => 'Internal Delivery',
+);
