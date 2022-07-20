@@ -1590,20 +1590,20 @@
     });
 
     $('#source').on('change', function(){
-    var prev = $(this).data('val');
-    var current = $(this).val();
-    var url = $(this).data('source');
+      var prev = $(this).data('val');
+      var current = $(this).val();
+      var url = $(this).data('source');
 
-    if (prev != ''){
-      var conf = confirm("Changing the source will remove the items that have been added. Continue?");
+      if (prev != ''){
+        var conf = confirm("Changing the source will remove the items that have been added. Continue?");
 
-      if (conf == false){
-        return false;
+        if (conf == false){
+          return false;
+        }
       }
-    }
 
-    window.location.href = url + '/' + current;
-  });
+      window.location.href = url + '/' + current;
+    });
 
   });
 </script>

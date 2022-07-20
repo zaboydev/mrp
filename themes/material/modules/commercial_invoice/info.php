@@ -130,8 +130,9 @@
     <?php
       $today    = date('Y-m-d');
       $date     = strtotime('-2 day',strtotime($today));
+	    $data     = date('Y-m-d',$date);
     ?>
-    <?php if (is_granted($module, 'delete') && $entity['issued_date'] > $date):?>
+    <?php if (is_granted($module, 'delete') && $entity['issued_date'] >= $data):?>
       <?=form_open(current_url(), array(
         'class' => 'form-xhr pull-left',
       ));?>
@@ -145,7 +146,7 @@
     <?php endif;?>
 
     <div class="pull-right">
-      <?php if (is_granted($module, 'document') && $entity['issued_date'] > $date):?>
+      <?php if (is_granted($module, 'document') && $entity['issued_date'] > $data):?>
         <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
           <i class="md md-edit"></i>
           <small class="top right">edit</small>

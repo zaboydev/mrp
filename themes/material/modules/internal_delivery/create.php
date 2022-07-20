@@ -41,7 +41,15 @@
 
                 <div class="col-sm-6 col-lg-4">
                   <div class="form-group">
-                    <input type="text" name="received_from" id="received_from" class="form-control" value="<?=$_SESSION['delivery']['received_from'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_from');?>" required>
+                    <select name="received_from" id="received_from" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_from');?>" required>
+                      <option value=""></option>
+                      <?php foreach (pesawat() as $pesawat):?>
+                      <option value="<?=$pesawat;?>" <?=($_SESSION['delivery']['received_from'] == $pesawat) ? 'selected' : '';?>>
+                        <?=$pesawat;?>
+                      </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <!-- <input type="text" name="received_from" id="received_from" class="form-control" value="<?=$_SESSION['delivery']['received_from'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_from');?>" required> -->
                     <label for="received_from">Received From</label>
                     <p class="help-block">
                       Example: PK-ROA
@@ -175,13 +183,13 @@
                       <legend>General</legend>
 
                       <div class="form-group">
-                        <input type="text" name="serial_number" id="serial_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_serial/');?>">
-                        <label for="serial_number">Serial Number</label>
+                        <input type="text" name="part_number" id="part_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_part_number/');?>" required>
+                        <label for="part_number">Part Number</label>
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="part_number" id="part_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_part_number/');?>" required>
-                        <label for="part_number">Part Number</label>
+                        <input type="text" name="serial_number" id="serial_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_serial/');?>">
+                        <label for="serial_number">Serial Number</label>
                       </div>
 
                       <div class="form-group">
@@ -260,7 +268,7 @@
 
           <div class="modal-footer">
             <input type="hidden" id="received_unit_value" name="received_unit_value" value="1">
-            <input type="text" id="item_id" name="item_id">
+            <input type="hidden" id="item_id" name="item_id">
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 

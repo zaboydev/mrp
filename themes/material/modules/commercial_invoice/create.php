@@ -18,6 +18,20 @@
               <div class="row">
                 <div class="col-sm-6 col-lg-3">
                   <div class="form-group">
+                    <select name="source" id="source" class="form-control" data-source="<?= site_url($module['route'] . '/set_source'); ?>" required>
+                      <?php foreach ($this->config->item('source_return_service') as $key => $source_return_service) : ?>
+                        <option value="<?= $key; ?>" <?= ($_SESSION['return']['source'] == $key) ? 'selected' : ''; ?>>
+                          <?= $source_return_service; ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <label for="source">Source</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-6 col-lg-3">
+                  <div class="form-group">
                     <div class="input-group">
                       <div class="input-group-content">
                         <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?=$_SESSION['return']['document_number'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
@@ -89,6 +103,9 @@
                         <td width="1">
                           <a href="<?=site_url($module['route'] .'/del_item/'. $i);?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
                             <i class="fa fa-trash"></i>
+                          </a>
+                          <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?= $i; ?>}'>
+                            <i class="fa fa-edit"></i>
                           </a>
                         </td>
                         <td>
@@ -263,6 +280,11 @@
                   </div>
 
                   <div class="form-group">
+                    <input type="text" name="received_from" id="received_from" class="form-control input-sm" readonly>
+                    <label for="received_from">Received From</label>
+                  </div>
+
+                  <div class="form-group">
                     <textarea name="remarks" id="remarks" data-tag-name="remarks" class="form-control input-sm"></textarea>
                     <label for="remarks">Remarks</label>
                   </div>
@@ -273,7 +295,9 @@
 
           <div class="modal-footer">
             <input type="hidden" id="stock_in_stores_id" name="stock_in_stores_id">
+            <input type="hidden" id="internal_delivery_item_id" name="internal_delivery_item_id">
             <input type="hidden" id="issued_unit_value" name="issued_unit_value">
+            <input type="hidden" id="item_id" name="item_id">
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
@@ -420,6 +444,7 @@ $(function(){
   var formDocument              = $('#form-document');
   var buttonSubmitDocument      = $('#btn-submit-document');
   var buttonDeleteDocumentItem  = $('.btn_delete_document_item');
+  var buttonEditDocumentItem = $('.btn_edit_document_item');
   var autosetInputData          = $('[data-input-type="autoset"]');
 
   toastr.options.closeButton = true;
@@ -555,6 +580,9 @@ $(function(){
         },
 
         select: function( event, ui ) {
+          var source = $('#source').val();
+          // var quantity = (source=='internal_delivery')? ui.item.left_received_quantity:ui.item.quantity;
+
           $('#part_number').val( ui.item.part_number );
           $('#serial_number').val( ui.item.serial_number );
           $('#description').val( ui.item.description );
@@ -564,10 +592,15 @@ $(function(){
           $('#unit').val( ui.item.unit );
           $('#condition').val( ui.item.condition );
           $('#stores').val( ui.item.stores );
-          $('#stock_in_stores_id').val( ui.item.id );
+          $('#received_from').val( ui.item.received_from );
+          if(source=='stock'){
+            $('#stock_in_stores_id').val(ui.item.id);
+          }else{
+            $('#internal_delivery_item_id').val(ui.item.id);
+          }   
           $('#issued_unit_value').val( ui.item.unit_value );
 
-          $('input[id="issued_quantity"]').attr('data-rule-max', parseInt(ui.item.quantity)).attr('data-msg-max', 'max available '+ ui.item.quantity);
+          $('input[id="issued_quantity"]').attr('data-rule-max', parseFloat(ui.item.quantity)).attr('data-msg-max', 'max available '+ ui.item.quantity);
 
           $('#issued_quantity').attr('max', ui.item.quantity).focus();
 
@@ -595,6 +628,92 @@ $(function(){
 
     return !(e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57) && e.which != 46);
   });
+
+  $('#source').on('change', function(){
+      var prev = $(this).data('val');
+      var current = $(this).val();
+      var url = $(this).data('source');
+
+      if (prev != ''){
+        var conf = confirm("Changing the source will remove the items that have been added. Continue?");
+
+        if (conf == false){
+          return false;
+        }
+      }
+
+      window.location.href = url + '/' + current;
+  });
+
+  $(buttonEditDocumentItem).on('click', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('todo').todo;
+      var data_send = {
+        id: id
+      };
+      var save_method;
+
+      save_method = 'update';
+
+      $.ajax({
+        url: "<?= site_url($module['route'] . '/ajax_editItem/') ?>/" + id,
+        type: "GET",
+        data: data_send,
+        dataType: "JSON",
+        success: function(response) {
+          var action = "<?=site_url($module['route'] .'/update_item')?>";
+          console.log(JSON.stringify(response));
+          var source = $('#source').val();
+          // var quantity = (source=='internal_delivery')? ui.item.left_received_quantity:ui.item.quantity;
+          if(response.maximum_quantity === undefined){
+            var maximum_quantity = response.issued_quantity;
+          }else{
+            var maximum_quantity = response.maximum_quantity;
+          }
+
+          $('#part_number').val( response.part_number );
+          $('#serial_number').val( response.serial_number );
+          $('#description').val( response.description );
+          $('#alternate_part_number').val( response.alternate_part_number );
+          $('#group').val( response.group );
+          $('#maximum_quantity').val( maximum_quantity );
+          $('#unit').val( response.unit );
+          $('#condition').val( response.condition );
+          $('#stores').val( response.stores );
+          $('#received_from').val( response.received_from );
+          $('#remarks').val( response.remarks );
+          $('#insurance_unit_value').val( response.insurance_unit_value );
+          $('#insurance_currency').val( response.insurance_currency );
+          $('#awb_number').val( response.awb_number );
+          if(source=='stock'){
+            $('#stock_in_stores_id').val(response.stock_in_stores_id);
+          }else{
+            $('#internal_delivery_item_id').val(response.internal_delivery_item_id);
+          }   
+          $('#issued_unit_value').val( response.issued_unit_value );
+          $('#issued_quantity').val( response.issued_quantity );
+
+          $('input[id="issued_quantity"]').attr('data-rule-max', parseFloat(maximum_quantity)).attr('data-msg-max', 'max available '+ maximum_quantity);
+
+          $('#issued_quantity').attr('max', maximum_quantity).focus();
+
+          $('#search_stock_in_stores').val('');
+          $('[name="item_id"]').val(id);
+          
+  
+  
+          $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
+          $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title
+          $('#modal-add-item-submit').text('Update Item');
+          $('#modal-add-item form').attr('action', action);
+
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert('Error get data from ajax');
+        }
+      });
+    });
 });
 </script>
 

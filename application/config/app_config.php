@@ -65,3 +65,8 @@ $config['source_grn'] = array(
   'purchase_order'    => 'Purchase Order',
   'internal_delivery' => 'Internal Delivery',
 );
+
+$config['source_return_service'] = array(
+  'stock'             => 'Stock',
+  'internal_delivery' => 'Internal Delivery',
+);

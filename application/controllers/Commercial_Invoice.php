@@ -116,13 +116,33 @@ class Commercial_Invoice extends MY_Controller
       unset($_SESSION['return']['items'][$key]);
   }
 
+  public function set_source($source)
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    // $_SESSION['receipt']['source'] = $_GET['data'];
+    $this->authorized($this->module, 'document');
+
+    $source = urldecode($source);
+
+    $_SESSION['return']['source']              = $source;
+    $_SESSION['return']['items']                  = array();
+
+    redirect($this->module['route'] . '/create');
+  }
+
   public function search_stock_in_stores()
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
 
     $category = $_SESSION['return']['category'];
-    $entities = $this->model->searchStockInStores($category);
+    if($_SESSION['return']['source']=='internal_delivery'){
+      $entities = $this->model->searchInternalDeliveryItem($category);
+    }else{
+      $entities = $this->model->searchStockInStores($category);
+    }    
 
     foreach ($entities as $key => $value){
       $entities[$key]['label'] = $value['description'];
@@ -133,8 +153,11 @@ class Commercial_Invoice extends MY_Controller
       $entities[$key]['label'] .= '<small>';
       $entities[$key]['label'] .= ($value['serial_number'] !== "") ? "SN: ". $value['serial_number'] ." || " : "";
       $entities[$key]['label'] .= 'Stores: '. $value['stores'] .' || ';
+      $entities[$key]['label'] .= 'Received From: '. $value['received_from'] .' || ';
       $entities[$key]['label'] .= 'Received date: '. date('d/m/Y', strtotime($value['received_date'])) .' || ';
-      $entities[$key]['label'] .= 'Expired date: '. date('d/m/Y', strtotime($value['expired_date'])) .' || ';
+      if($_SESSION['return']['source']=='stock'){
+        $entities[$key]['label'] .= 'Expired date: '. date('d/m/Y', strtotime($value['expired_date'])) .' || ';
+      }      
       $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['quantity']) .'</code>';
       $entities[$key]['label'] .= '</small>';
     }
@@ -347,6 +370,7 @@ class Commercial_Invoice extends MY_Controller
       $_SESSION['return']['approved_by']      = NULL;
       $_SESSION['return']['warehouse']        = config_item('auth_warehouse');
       $_SESSION['return']['notes']            = 'Not commercial value (total value for insurance purpose) ';
+      $_SESSION['return']['source']           = 'internal_delivery';
 
       redirect($this->module['route'] .'/create');
     }
@@ -450,8 +474,52 @@ class Commercial_Invoice extends MY_Controller
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'unit'                    => trim($this->input->post('unit')),
         'remarks'                 => trim($this->input->post('remarks')),
+        'internal_delivery_item_id'      => $this->input->post('internal_delivery_item_id'),
+        'received_from'      => $this->input->post('received_from'),
       );
     }
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function ajax_editItem($key)
+  {
+    $this->authorized($this->module, 'document');    
+
+    $entity = $_SESSION['return']['items'][$key];
+
+    echo json_encode($entity);
+  }
+
+  public function update_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $key=$this->input->post('item_id');
+    if (isset($_POST) && !empty($_POST)){
+      //$receipts_items_id = $this->input->post('item_id')
+      $_SESSION['return']['items'][$key] = array( 
+        'stock_in_stores_id'      => $this->input->post('stock_in_stores_id'),
+        'group'                   => $this->input->post('group'),
+        'description'             => trim(strtoupper($this->input->post('description'))),
+        'part_number'             => trim(strtoupper($this->input->post('part_number'))),
+        'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
+        'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
+        'issued_quantity'         => $this->input->post('issued_quantity'),
+        'issued_unit_value'       => $this->input->post('issued_unit_value'),
+        'maximum_quantity'        => $this->input->post('maximum_quantity'),
+        'insurance_unit_value'    => floatval($this->input->post('insurance_unit_value')),
+        'insurance_currency'      => trim(strtoupper($this->input->post('insurance_currency'))),
+        'awb_number'              => $this->input->post('awb_number'),
+        'condition'               => $this->input->post('condition'),
+        'stores'                  => trim(strtoupper($this->input->post('stores'))),
+        'unit'                    => trim($this->input->post('unit')),
+        'remarks'                 => trim($this->input->post('remarks')),
+        'internal_delivery_item_id'      => $this->input->post('internal_delivery_item_id'),
+        'received_from'      => $this->input->post('received_from'),
+      );
+    }
+    
 
     redirect($this->module['route'] .'/create');
   }
@@ -476,10 +544,10 @@ class Commercial_Invoice extends MY_Controller
     } else {
       $entity = $this->model->findById($this->input->post('id'));
 
-      if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
-        $alert['type']  = 'danger';
-        $alert['info']  = 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to delete this document. You can adjust stock to sync the quantity.';
-      } else {
+      // if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
+      //   $alert['type']  = 'danger';
+      //   $alert['info']  = 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to delete this document. You can adjust stock to sync the quantity.';
+      // } else {
         if ($this->model->delete()){
           $alert['type'] = 'success';
           $alert['info'] = 'Data deleted.';
@@ -488,7 +556,7 @@ class Commercial_Invoice extends MY_Controller
           $alert['type'] = 'danger';
           $alert['info'] = 'There are error while deleting data. Please try again later.';
         }
-      }
+      // }
     }
 
     echo json_encode($alert);
