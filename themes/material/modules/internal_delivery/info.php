@@ -94,8 +94,8 @@
                     <?=print_string($detail['serial_number']);?>
                   </td>
                   <td>
-                    <?=print_number($detail['received_quantity'], 2);?>
-                    <?php $received_quantity[] = $detail['received_quantity'];?>
+                    <?=print_number($detail['quantity'], 2);?>
+                    <?php $received_quantity[] = $detail['quantity'];?>
                   </td>
                   <td>
                     <?=print_string($detail['condition']);?>

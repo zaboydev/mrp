@@ -12,9 +12,10 @@ $config['module']['internal_delivery']['helper']           = 'internal_delivery_
 $config['module']['internal_delivery']['table']            = 'tb_receipts';
 $config['module']['internal_delivery']['model']            = 'Internal_Delivery_Model';
 $config['module']['internal_delivery']['permission']       = array(
-  'index'     => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'info'      => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'document'  => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
-  'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,PIC PROCUREMENT,SUPER ADMIN',
-  'delete'    => 'SUPERVISOR,VP FINANCE,SUPER ADMIN',
+  'index'     => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN,MECHANIC',
+  'info'      => 'PROCUREMENT,PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN,MECHANIC',
+  'document'  => 'PIC STOCK,SUPERVISOR,SUPER ADMIN,MECHANIC',
+  'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,PIC PROCUREMENT,SUPER ADMIN,MECHANIC',
+  'delete'    => 'SUPERVISOR,VP FINANCE,SUPER ADMIN,MECHANIC',
+  'approval'  => 'SUPERVISOR,PIC STOCK,MECHANIC,CHIEF OF MAINTANCE'
 );

@@ -143,7 +143,7 @@ class Internal_Delivery extends MY_Controller
         $col[]  = print_string($row['alternate_part_number']);
         $col[]  = print_string($row['serial_number']);
         $col[]  = print_string($row['condition']);
-        $col[]  = print_string($row['received_quantity']);
+        $col[]  = print_string($row['quantity']);
         $col[]  = print_string($row['unit']);
         $col[]  = print_string($row['remarks']);
         $col[]  = print_string($row['received_from']);
@@ -151,11 +151,11 @@ class Internal_Delivery extends MY_Controller
         $col[]  = print_string($row['sent_by']);
 
         if (config_item('auth_role') != 'PIC STOCK'){
-          $col[]  = print_number($row['received_unit_value'], 2);
-          $col[]  = print_number($row['received_total_value'], 2);
+          $col[]  = print_number($row['unit_price'], 2);
+          $col[]  = print_number($row['total_amount'], 2);
 
-          $unit_value[]   = $row['received_unit_value'];
-          $total_value[]  = $row['received_total_value'];
+          $unit_value[]   = $row['unit_price'];
+          $total_value[]  = $row['total_amount'];
         }
 
         $col['DT_RowId'] = 'row_'. $row['id'];
@@ -293,9 +293,9 @@ class Internal_Delivery extends MY_Controller
       $_SESSION['delivery']['category']         = $category;
       $_SESSION['delivery']['document_number']  = delivery_last_number();
       $_SESSION['delivery']['received_date']    = date('Y-m-d');
-      $_SESSION['delivery']['received_by']      = config_item('auth_person_name');
+      $_SESSION['delivery']['received_by']      = (config_item('auth_role') == 'PIC STOCK')? config_item('auth_person_name'):null;
       $_SESSION['delivery']['received_from']    = NULL;
-      $_SESSION['delivery']['sent_by']          = NULL;
+      $_SESSION['delivery']['sent_by']          = (config_item('auth_role') == 'MECHANIC')? config_item('auth_person_name'):null;
       $_SESSION['delivery']['approved_by']      = NULL;
       $_SESSION['delivery']['warehouse']        = config_item('auth_warehouse');
       $_SESSION['delivery']['notes']            = NULL;
@@ -392,8 +392,8 @@ class Internal_Delivery extends MY_Controller
         'part_number'             => trim(strtoupper($this->input->post('part_number'))),
         'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
         'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-        'received_quantity'       => $this->input->post('received_quantity'),
-        'received_unit_value'     => $this->input->post('received_unit_value'),
+        'quantity'                => $this->input->post('received_quantity'),
+        'unit_price'              => $this->input->post('received_unit_value'),
         'minimum_quantity'        => $this->input->post('minimum_quantity'),
         'condition'               => $this->input->post('condition'),
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
@@ -457,21 +457,21 @@ class Internal_Delivery extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    $key=$this->input->post('edit_item_id');
+    $key=$this->input->post('item_id');
     if (isset($_POST) && !empty($_POST)){
       $_SESSION['delivery']['items'][$key] = array(
-        'group'                   => $this->input->post('edit_group'),
-        'description'             => trim(strtoupper($this->input->post('edit_description'))),
-        'part_number'             => trim(strtoupper($this->input->post('edit_part_number'))),
-        'alternate_part_number'   => trim(strtoupper($this->input->post('edit_alternate_part_number'))),
-        'serial_number'           => trim(strtoupper($this->input->post('edit_serial_number'))),
-        'received_quantity'       => $this->input->post('edit_received_quantity'),
-        'received_unit_value'     => $this->input->post('edit_received_unit_value'),
-        'minimum_quantity'        => $this->input->post('edit_minimum_quantity'),
-        'condition'               => $this->input->post('edit_condition'),
-        'stores'                  => trim(strtoupper($this->input->post('edit_stores'))),
-        'unit'                    => trim($this->input->post('edit_unit')),
-        'remarks'                 => trim($this->input->post('edit_remarks')),
+        'group'                   => $this->input->post('group'),
+        'description'             => trim(strtoupper($this->input->post('description'))),
+        'part_number'             => trim(strtoupper($this->input->post('part_number'))),
+        'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
+        'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
+        'quantity'                => $this->input->post('received_quantity'),
+        'unit_price'              => $this->input->post('received_unit_value'),
+        'minimum_quantity'        => $this->input->post('minimum_quantity'),
+        'condition'               => $this->input->post('condition'),
+        'stores'                  => trim(strtoupper($this->input->post('stores'))),
+        'unit'                    => trim($this->input->post('unit')),
+        'remarks'                 => trim($this->input->post('remarks')),
       );
     }
 
