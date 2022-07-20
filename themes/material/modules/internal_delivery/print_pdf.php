@@ -42,7 +42,7 @@
           <?=print_string($detail['serial_number']);?>
         </td>
         <td valign="top">
-          <?=number_format($detail['received_quantity'], 2);?>
+          <?=number_format($detail['quantity'], 2);?>
         </td>
         <td valign="top">
           <?=print_string($detail['condition']);?>

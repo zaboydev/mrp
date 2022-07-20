@@ -42,7 +42,7 @@ if ( ! function_exists('delivery_last_number')) {
     $format = $div . 'DP' . $div . $row->code . $base . $div . $year;
 
     $CI->db->select_max('document_number', 'last_number');
-    $CI->db->from('tb_receipts');
+    $CI->db->from('tb_internal_delivery');
     $CI->db->like('document_number', $format, 'before');
 
     $query  = $CI->db->get();

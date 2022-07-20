@@ -29,6 +29,22 @@ class Goods_Received_Note extends MY_Controller
     $_SESSION['receipt']['document_number'] = $number;
   }
 
+  public function set_source($source)
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    // $_SESSION['receipt']['source'] = $_GET['data'];
+    $this->authorized($this->module, 'document');
+
+    $source = urldecode($source);
+
+    $_SESSION['receipt']['source']              = $source;
+    $_SESSION['receipt']['items']                  = array();
+
+    redirect($this->module['route'] . '/create');
+  }
+
   public function set_received_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -106,7 +122,12 @@ class Goods_Received_Note extends MY_Controller
 
     $category = $_SESSION['receipt']['category'];
     $vendor   = (empty($_SESSION['receipt']['received_from'])) ? NULL : $_SESSION['receipt']['received_from'];
-    $entities = $this->model->searchPurchaseOrder($category, $vendor);
+
+    if($_SESSION['receipt']['source']=='purchase_order'){
+      $entities = $this->model->searchPurchaseOrder($category, $vendor);
+    }elseif ($_SESSION['receipt']['source']=='internal_delivery') {
+      $entities = $this->model->searchInternalDelivery($category);
+    }    
 
     foreach ($entities as $key => $value){
       $entities[$key]['label'] = $value['description'];
@@ -115,15 +136,23 @@ class Goods_Received_Note extends MY_Controller
       $entities[$key]['label'] .= '<small>';
       $entities[$key]['label'] .= ($value['serial_number'] !== "") ? "SN: ". $value['serial_number'] ." || " : "";
       $entities[$key]['label'] .= 'Order Number: '. $value['document_number'] .' || ';
-      $entities[$key]['label'] .= 'Consignor: '. $value['vendor'] .' || ';
+      if($_SESSION['receipt']['category']=='purchase_order'){
+        $entities[$key]['label'] .= 'Consignor: '. $value['vendor'] .' || ';
+      }elseif ($_SESSION['receipt']['category']=='internal_delivery') {
+        $entities[$key]['label'] .= 'From: '. $value['received_from'] .' || ';
+        $entities[$key]['label'] .= 'Condition: '. $value['condition'] .' || ';
+      }
+      
       $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['left_received_quantity']) .'</code>';
       $entities[$key]['label'] .= '</small>';
 
-      if ($value['default_currency'] == 'IDR'){
-        $entities[$key]['unit_value'] = $value['unit_price'];
-      } else {
-        $entities[$key]['unit_value'] = $value['unit_price'] * $value['exchange_rate'];
-      }
+      if($_SESSION['receipt']['category']=='purchase_order'){
+        if ($value['default_currency'] == 'IDR'){
+          $entities[$key]['unit_value'] = $value['unit_price'];
+        } else {
+          $entities[$key]['unit_value'] = $value['unit_price'] * $value['exchange_rate'];
+        }
+      }      
     }
 
     echo json_encode($entities);
@@ -381,6 +410,7 @@ class Goods_Received_Note extends MY_Controller
       $_SESSION['receipt']['approved_by']      = NULL;
       $_SESSION['receipt']['warehouse']        = config_item('auth_warehouse');
       $_SESSION['receipt']['notes']            = NULL;
+      $_SESSION['receipt']['source']           = 'purchase_order';
 
       redirect($this->module['route'] .'/create');
     }
@@ -508,6 +538,7 @@ class Goods_Received_Note extends MY_Controller
         'value_order'             => $this->input->post('value_order'),
         'no_expired_date'         => $this->input->post('no_expired_date'),
         'tgl_nota'                => $this->input->post('tgl_nota'),
+        'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
 
       );
 
@@ -603,7 +634,8 @@ class Goods_Received_Note extends MY_Controller
         'no_expired_date'         => $this->input->post('edit_no_expired_date'),
         'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
         'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
-        'tgl_nota'                => $this->input->post('tgl_nota'),
+        'tgl_nota'                => $this->input->post('tgl_nota'),        
+        'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
 
       );
     }

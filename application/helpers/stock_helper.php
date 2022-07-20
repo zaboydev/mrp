@@ -523,6 +523,28 @@ if ( ! function_exists('getLastUnitValue')) {
     }
   }
 
+  if (!function_exists('countLeftQuantityInternalDelivery')) {
+    function countLeftQuantityInternalDelivery($internal_delivery_id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('left_received_quantity');
+      $CI->db->from('tb_internal_delivery_items');
+      $CI->db->where('internal_delivery_id', $internal_delivery_id);
+      // $CI->db->where('stores', strtoupper($stores));
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = 0;
+
+      foreach ($result as $row) {
+        $return = $return + $row['left_received_quantity'];
+      }
+
+      return $return;
+    }
+  }
+
   if (!function_exists('leftAmountPo')) {
     function leftAmountPo($id_po)
     {
