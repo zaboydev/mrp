@@ -12,6 +12,6 @@ $config['module']['purchase_item_summary']['helper']         = 'material_slip_he
 $config['module']['purchase_item_summary']['table']          = 'tb_purchase_orders';
 $config['module']['purchase_item_summary']['model']          = 'Purchase_Item_Detail_Model';
 $config['module']['purchase_item_summary']['permission']     = array(
-    'index'     => 'PROCUREMENT,FINANCE,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER',
+    'index'     => 'AP STAFF,PROCUREMENT,FINANCE,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER',
     
 );

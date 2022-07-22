@@ -12,6 +12,6 @@ $config['module']['account_payable_mutation']['helper']         = 'material_slip
 $config['module']['account_payable_mutation']['table']          = 'tb_purchase_orders';
 $config['module']['account_payable_mutation']['model']          = 'Purchase_Item_Detail_Model';
 $config['module']['account_payable_mutation']['permission']     = array(
-    'index'     => 'PROCUREMENT,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
+    'index'     => 'AP STAFF,PROCUREMENT,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
     
 );

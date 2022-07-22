@@ -12,9 +12,9 @@ $config['module']['purchase_item_detail']['helper']         = 'material_slip_hel
 $config['module']['purchase_item_detail']['table']          = 'tb_purchase_orders';
 $config['module']['purchase_item_detail']['model']          = 'Purchase_Item_Detail_Model';
 $config['module']['purchase_item_detail']['permission']     = array(
-  'index'     => 'PROCUREMENT,PIC PROCUREMENT,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER,FINANCE',
-  'info'      => 'PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN,FINANCE',
-  'print'     => 'PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN,FINANCE',
+  'index'     => 'AP STAFF,PROCUREMENT,PIC PROCUREMENT,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER,FINANCE',
+  'info'      => 'AP STAFF,PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN,FINANCE',
+  'print'     => 'AP STAFF,PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN,FINANCE',
   'document'  => 'PROCUREMENT,PIC PROCUREMENT,SUPER ADMIN,FINANCE',//tambhan supervisor
   'payment'   => 'FINANCE,SUPER ADMIN',//tambhan supervisor
 );
