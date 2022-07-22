@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['purchase_item_summary']['visible']        = TRUE;
-$config['module']['purchase_item_summary']['main_warehouse'] = TRUE;
+$config['module']['purchase_item_summary']['main_warehouse'] = FALSE;
 $config['module']['purchase_item_summary']['parent']         = 'account_payable';
 $config['module']['purchase_item_summary']['label']          = 'Purchase Item Summary';
 $config['module']['purchase_item_summary']['name']           = 'Purchase Item Summary';
