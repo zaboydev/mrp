@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['payable_reconciliation_summary']['visible']        = TRUE;
-$config['module']['payable_reconciliation_summary']['main_warehouse'] = TRUE;
+$config['module']['payable_reconciliation_summary']['main_warehouse'] = FALSE;
 $config['module']['payable_reconciliation_summary']['parent']         = 'account_payable';
 $config['module']['payable_reconciliation_summary']['label']          = 'Payable Reconciliation';
 $config['module']['payable_reconciliation_summary']['name']           = 'Payable Reconciliation';
