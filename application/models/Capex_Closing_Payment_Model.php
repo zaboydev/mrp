@@ -156,10 +156,10 @@ class Capex_Closing_Payment_Model extends MY_Model
                 if (config_item('auth_role') == 'CHIEF OF FINANCE') {
                     $status[] = 'WAITING REVIEW BY CFO';
                 }
-                $this->db->where_in('tb_request_payments.status', $status);
+                $this->connection->where_in('tb_request_payments.status', $status);
             }elseif(is_granted($this->data['modules']['capex_closing_payment'], 'review')){
 				$status[] = 'APPROVED';
-				$this->db->where_in('tb_request_payments.status', $status);
+				$this->connection->where_in('tb_request_payments.status', $status);
 			}else{
                 if (config_item('auth_role') == 'TELLER') {
                     $status[] = 'APPROVED';
