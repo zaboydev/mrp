@@ -28,9 +28,9 @@
                   </div>
 
                   <div class="form-group">
-                    <input type="text" name="received_date" id="received_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['delivery']['received_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_date');?>" required>
+                    <input type="text" name="send_date" id="send_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['delivery']['send_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_send_date');?>" required>
                     <input type="hidden" name="opname_start_date" id="opname_start_date" data-date-format="yyyy-mm-dd" class="form-control" value="<?=last_publish_date();?>" readonly>
-                    <label for="received_date">Date</label>
+                    <label for="send_date">Send Date</label>
                   </div>
 
                   <div class="form-group">
@@ -62,6 +62,17 @@
                   </div>
 
                   <div class="form-group">
+                    <select name="send_to_warehouse" id="send_to_warehouse" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_send_to_warehouse'); ?>" required>
+                      <?php foreach (available_warehouses() as $w => $warehouse) : ?>
+                        <option value="<?= $warehouse; ?>" <?= ($_SESSION['delivery']['send_to_warehouse'] == $warehouse) ? 'selected' : ''; ?>>
+                          <?= $warehouse; ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <label for="send_to_warehouse">Send to Warehouse</label>
+                  </div>
+
+                  <div class="form-group hide">
                     <input type="text" name="approved_by" id="approved_by" class="form-control" value="<?=$_SESSION['delivery']['approved_by'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_approved_by');?>">
                     <label for="approved_by">Approved By</label>
                   </div>
@@ -567,6 +578,7 @@ $(function(){
     todayHighlight: true,
     format: 'yyyy-mm-dd',
     startDate: today,
+    orientation: "top"
   });
 
   $(document).on('click', '.btn-xhr-submit', function(e){

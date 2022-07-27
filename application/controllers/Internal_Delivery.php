@@ -27,12 +27,12 @@ class Internal_Delivery extends MY_Controller
     $_SESSION['delivery']['document_number'] = $number;
   }
 
-  public function set_received_date()
+  public function set_send_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
 
-    $_SESSION['delivery']['received_date'] = $_GET['data'];
+    $_SESSION['delivery']['send_date'] = $_GET['data'];
   }
 
   public function set_received_by()
@@ -73,6 +73,14 @@ class Internal_Delivery extends MY_Controller
       redirect($this->modules['secure']['route'] .'/denied');
 
     $_SESSION['delivery']['notes'] = $_GET['data'];
+  }
+
+  public function set_send_to_warehouse()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['delivery']['send_to_warehouse'] = $_GET['data'];
   }
 
   public function del_item($key)
@@ -135,9 +143,11 @@ class Internal_Delivery extends MY_Controller
         $col    = array();
         $col[]  = print_number($no);
         $col[]  = print_string($row['document_number']);
-        $col[]  = print_date($row['received_date']);
+        $col[]  = print_date($row['send_date']);
+        $col[]  = print_string($row['status']);
         $col[]  = print_string($row['category']);
         $col[]  = print_string($row['warehouse']);
+        $col[]  = print_string($row['send_to_warehouse']);
         $col[]  = print_string($row['description']);
         $col[]  = print_string($row['part_number']);
         $col[]  = print_string($row['alternate_part_number']);
@@ -178,8 +188,8 @@ class Internal_Delivery extends MY_Controller
       );
 
       if (config_item('auth_role') != 'PIC STOCK'){
-        $result['total'][16] = print_number(array_sum($unit_value), 2);
-        $result['total'][17] = print_number(array_sum($total_value), 2);
+        $result['total'][18] = print_number(array_sum($unit_value), 2);
+        $result['total'][19] = print_number(array_sum($total_value), 2);
       }
     }
 
@@ -207,8 +217,8 @@ class Internal_Delivery extends MY_Controller
     );
 
     if (config_item('auth_role') != 'PIC STOCK'){
-      $this->data['grid']['summary_columns'][] = 16;
-      $this->data['grid']['summary_columns'][] = 17;
+      $this->data['grid']['summary_columns'][] = 18;
+      $this->data['grid']['summary_columns'][] = 19;
     }
 
     $this->render_view($this->module['view'] .'/index');
@@ -292,12 +302,13 @@ class Internal_Delivery extends MY_Controller
       $_SESSION['delivery']['items']            = array();
       $_SESSION['delivery']['category']         = $category;
       $_SESSION['delivery']['document_number']  = delivery_last_number();
-      $_SESSION['delivery']['received_date']    = date('Y-m-d');
+      $_SESSION['delivery']['send_date']        = date('Y-m-d');
       $_SESSION['delivery']['received_by']      = (config_item('auth_role') == 'PIC STOCK')? config_item('auth_person_name'):null;
       $_SESSION['delivery']['received_from']    = NULL;
       $_SESSION['delivery']['sent_by']          = (config_item('auth_role') == 'MECHANIC')? config_item('auth_person_name'):null;
       $_SESSION['delivery']['approved_by']      = NULL;
       $_SESSION['delivery']['warehouse']        = config_item('auth_warehouse');
+      $_SESSION['delivery']['send_to_warehouse']        = config_item('auth_warehouse');
       $_SESSION['delivery']['notes']            = NULL;
 
       redirect($this->module['route'] .'/create');

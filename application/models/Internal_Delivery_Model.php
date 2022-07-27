@@ -13,9 +13,11 @@ class Internal_Delivery_Model extends MY_Model
     $return = array(
       'tb_internal_delivery.id'                          => NULL,
       'tb_internal_delivery.document_number'             => 'Document Number',
-      'tb_internal_delivery.received_date'               => 'Received Date',
+      'tb_internal_delivery.send_date'                   => 'Send Date',
+      'tb_internal_delivery.status'                      => 'Status',
       'tb_internal_delivery.category'                    => 'Category',
       'tb_internal_delivery.warehouse'                   => 'Base',
+      'tb_internal_delivery.send_to_warehouse'                   => 'Send to Base',
       'tb_internal_delivery_items.description'           => 'Description',
       'tb_internal_delivery_items.part_number'           => 'Part Number',
       'tb_internal_delivery_items.alternate_part_number' => 'Alt. Part Number',
@@ -41,6 +43,7 @@ class Internal_Delivery_Model extends MY_Model
   {
     $return = array(
       'tb_internal_delivery.document_number',
+      'tb_internal_delivery.status',
       'tb_internal_delivery.category',
       'tb_internal_delivery.warehouse',
       'tb_internal_delivery.category',
@@ -65,6 +68,8 @@ class Internal_Delivery_Model extends MY_Model
     $return = array(
       null,
       'tb_internal_delivery.document_number',
+      'tb_internal_delivery.send_date',
+      'tb_internal_delivery.status',
       'tb_internal_delivery.category',
       'tb_internal_delivery.warehouse',
       'tb_internal_delivery.category',
@@ -157,12 +162,12 @@ class Internal_Delivery_Model extends MY_Model
 
   function countIndexFiltered()
   {
-    $this->db->from('tb_receipts');
     $this->db->from('tb_internal_delivery');
     $this->db->join('tb_internal_delivery_items', 'tb_internal_delivery_items.internal_delivery_id = tb_internal_delivery.id');
     $this->db->where_in('tb_internal_delivery.category', config_item('auth_inventory'));
     $this->db->where_in('tb_internal_delivery.warehouse', config_item('auth_warehouses'));
     $this->db->like('tb_internal_delivery.document_number', 'DP');
+
 
     $this->searchIndex();
 
@@ -254,12 +259,13 @@ class Internal_Delivery_Model extends MY_Model
     $document_id      = (isset($_SESSION['delivery']['id'])) ? $_SESSION['delivery']['id'] : NULL;
     $document_edit    = (isset($_SESSION['delivery']['edit'])) ? $_SESSION['delivery']['edit'] : NULL;
     $document_number  = sprintf('%06s', $_SESSION['delivery']['document_number']) . delivery_format_number();
-    $received_date    = $_SESSION['delivery']['received_date'];
+    $send_date        = $_SESSION['delivery']['send_date'];
     $received_by      = (empty($_SESSION['delivery']['received_by'])) ? NULL : $_SESSION['delivery']['received_by'];
     $received_from    = (empty($_SESSION['delivery']['received_from'])) ? NULL : $_SESSION['delivery']['received_from'];
     $sent_by          = (empty($_SESSION['delivery']['sent_by'])) ? NULL : $_SESSION['delivery']['sent_by'];
     $approved_by      = (empty($_SESSION['delivery']['approved_by'])) ? NULL : $_SESSION['delivery']['approved_by'];
     $warehouse        = $_SESSION['delivery']['warehouse'];
+    $send_to_warehouse        = $_SESSION['delivery']['send_to_warehouse'];
     $category         = $_SESSION['delivery']['category'];
     $notes            = (empty($_SESSION['delivery']['notes'])) ? NULL : $_SESSION['delivery']['notes'];
 
@@ -268,81 +274,21 @@ class Internal_Delivery_Model extends MY_Model
     if ($document_id === NULL){
       $this->db->set('document_number', $document_number);
       $this->db->set('received_from', $received_from);
-      $this->db->set('received_date', $received_date);
-      $this->db->set('received_by', $received_by);
+      $this->db->set('send_date', $send_date);
+      // $this->db->set('received_by', $received_by);
       $this->db->set('sent_by', $sent_by);
-      $this->db->set('approved_by', $approved_by);
+      // $this->db->set('approved_by', $approved_by);
       $this->db->set('category', $category);
       $this->db->set('warehouse', $warehouse);
+      $this->db->set('send_to_warehouse', $send_to_warehouse);
       $this->db->set('notes', $notes);
+      $this->db->set('status', 'WAITING RECEIVED BY INVENTORY');
+      $this->db->set('type', ($warehouse==$send_to_warehouse)? '1':'2');
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->insert('tb_internal_delivery');
       $document_id = $this->db->insert_id();
     } else {
-      /**
-       * EDIT DOCUMENT
-       * decrease quantity
-       * create document revision
-       */
-      // $this->db->select('document_number, warehouse,received_date');
-      // $this->db->where('id', $document_id);
-      // $this->db->from('tb_receipts');
-
-      // $query = $this->db->get();
-      // $row   = $query->unbuffered_row('array');
-
-      // $document_number  = $row['document_number'];
-      // $warehouse        = $row['warehouse'];
-      // // $received_date        = $row['received_date'];
-
-      // $old_document_number  = $row['document_number'];
-      // $old_warehouse        = $row['warehouse'];
-
-      // $this->db->select('tb_receipt_items.quantity_order, tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores,tb_receipt_items.purchase_order_item_id');
-      // $this->db->from('tb_receipt_items');
-      // $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_receipt_items.stock_in_stores_id');
-      // $this->db->where('tb_receipt_items.document_number', $old_document_number);
-
-      // $query  = $this->db->get();
-      // $result = $query->result_array();
-
-      // foreach ($result as $data) {
-      //   // $prev_old_stock = getStockActive($data['stock_id']);
-      //   // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['received_quantity']);
-
-      //   $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
-      //   $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
-
-      //   $this->db->set('stock_id', $data['stock_id']);
-      //   $this->db->set('serial_id', $data['serial_id']);
-      //   $this->db->set('warehouse', $old_warehouse);
-      //   $this->db->set('stores', $data['stores']);
-      //   $this->db->set('date_of_entry', $row['received_date']);
-      //   $this->db->set('period_year', config_item('period_year'));
-      //   $this->db->set('period_month', config_item('period_month'));
-      //   $this->db->set('document_type', 'REVISION');
-      //   $this->db->set('document_number', $old_document_number);
-      //   $this->db->set('issued_to', $old_document_number);
-      //   $this->db->set('issued_by', config_item('auth_person_name'));
-      //   $this->db->set('remarks', 'REVISION');
-      //   $this->db->set('prev_quantity', floatval($prev_old_stock));
-      //   $this->db->set('balance_quantity', $next_old_stock);
-      //   $this->db->set('quantity', 0 - floatval($data['received_quantity']));
-      //   $this->db->set('unit_value', floatval($data['received_unit_value']));
-      //   $this->db->set('created_by', config_item('auth_person_name'));
-      //   $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
-      //   $this->db->set('doc_type', 8);
-      //   $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
-      //   $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
-      //   $this->db->insert('tb_stock_cards');
-
-      //   $this->db->where('id', $data['id']);
-      //   $this->db->delete('tb_receipt_items');
-
-      //   $this->db->where('id', $data['stock_in_stores_id']);
-      //   $this->db->delete('tb_stock_in_stores');
-      // }
 
       $this->db->where('internal_delivery_id', $document_id);
       $this->db->delete('tb_internal_delivery_items');
@@ -351,16 +297,19 @@ class Internal_Delivery_Model extends MY_Model
        * CREATE DELIVERY DOCUMENT
        */
       $this->db->set('document_number', $document_number);
-      $this->db->set('received_date', $received_date);
+      $this->db->set('send_date', $send_date);
       $this->db->set('received_from', $received_from);
-      $this->db->set('received_by', $received_by);
+      // $this->db->set('received_by', $received_by);
       $this->db->set('sent_by', $sent_by);
-      $this->db->set('approved_by', $approved_by);
+      // $this->db->set('approved_by', $approved_by);
       $this->db->set('warehouse', $warehouse);
       $this->db->set('category', $category);
       $this->db->set('notes', $notes);
+      $this->db->set('status', 'WAITING RECEIVED BY INVENTORY');
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->set('send_to_warehouse', $send_to_warehouse);
+      $this->db->set('type', ($warehouse==$send_to_warehouse)? '1':'2');
       $this->db->where('id', $document_id);
       $this->db->update('tb_internal_delivery');
     }
@@ -466,61 +415,6 @@ class Internal_Delivery_Model extends MY_Model
       /**
        * ADD ITEM INTO STOCK
        */
-      // if (isStockExists($item_id, strtoupper($data['condition']))){
-      //   $stock_id = getStockId($item_id, strtoupper($data['condition']));
-      // } else {
-      //   $this->db->set('item_id', $item_id);
-      //   $this->db->set('condition', strtoupper($data['condition']));
-      //   $this->db->set('initial_total_quantity', floatval($data['received_quantity']));
-      //   $this->db->set('created_by', config_item('auth_person_name'));
-      //   $this->db->insert('tb_stocks');
-
-      //   $stock_id = $this->db->insert_id();
-      // }
-
-      // // ADD to STORES
-      // if($warehouse=='WISNU'){
-      //   $warehouse_id=1;
-      // }
-      // if($warehouse=='BANYUWANGI'){
-      //   $warehouse_id=2;
-      // }
-      // if($warehouse=='SOLO'){
-      //   $warehouse_id=3;
-      // }
-      // if($warehouse=='LOMBOK'){
-      //   $warehouse_id=4;
-      // }
-      // if($warehouse=='JEMBER'){
-      //   $warehouse_id=5;
-      // }
-      // if($warehouse=='PALANGKARAYA'){
-      //   $warehouse_id=6;
-      // }
-      // if($warehouse=='WISNU REKONDISI'){
-      //   $warehouse_id=7;
-      // }
-      // if($warehouse=='BSR REKONDISI'){
-      //   $warehouse_id=8;
-      // }
-
-      // $this->db->set('stock_id', $stock_id);
-      // $this->db->set('serial_id', $serial_id);
-      // $this->db->set('warehouse', $warehouse);
-      // $this->db->set('stores', strtoupper($data['stores']));
-      // $this->db->set('initial_quantity', floatval($data['received_quantity']));
-      // $this->db->set('initial_unit_value', floatval($data['received_unit_value']));
-      // $this->db->set('quantity', floatval($data['received_quantity']));
-      // $this->db->set('unit_value', floatval($data['received_unit_value']));
-      // $this->db->set('reference_document', $document_number);
-      // $this->db->set('received_date', $received_date);
-      // $this->db->set('received_by', $received_by);
-      // $this->db->set('created_by', config_item('auth_person_name'));
-      // $this->db->set('remarks', $data['remarks']);      
-      // $this->db->set('warehouse_id', $warehouse_id);
-      // $this->db->insert('tb_stock_in_stores');
-
-      // $stock_in_stores_id = $this->db->insert_id();
 
       /**
        * INSERT INTO DELIVERY ITEMS
@@ -545,31 +439,6 @@ class Internal_Delivery_Model extends MY_Model
       /**
        * CREATE STOCK CARD
        */
-
-      // $prev_stock   = getStockPrev($stock_id, strtoupper($data['stores']));
-      // $next_stock   = floatval($prev_stock) + floatval($data['received_quantity']);
-
-      // $this->db->set('serial_id', $serial_id);
-      // $this->db->set('stock_id', $stock_id);
-      // $this->db->set('warehouse', $warehouse);
-      // $this->db->set('stores', strtoupper($data['stores']));
-      // $this->db->set('date_of_entry', $received_date);
-      // $this->db->set('period_year', config_item('period_year'));
-      // $this->db->set('period_month', config_item('period_month'));
-      // $this->db->set('document_type', 'DELIVERY');
-      // $this->db->set('document_number', $document_number);
-      // $this->db->set('received_from', $received_from);
-      // $this->db->set('received_by', $received_by);
-      // $this->db->set('quantity', floatval($data['received_quantity']));
-      // $this->db->set('prev_quantity', floatval($prev_stock));
-      // $this->db->set('balance_quantity', $next_stock);
-      // $this->db->set('unit_value', floatval($data['received_unit_value']));
-      // $this->db->set('remarks', $data['remarks']);
-      // $this->db->set('created_by', config_item('auth_person_name'));
-      // $this->db->set('doc_type', 8);
-      // $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
-      // $this->db->set('total_value', floatval($data['received_unit_value'] * (0 + floatval($data['received_quantity']))));
-      // $this->db->insert('tb_stock_cards');
     }
 
     if ($this->db->trans_status() === FALSE)
@@ -584,56 +453,6 @@ class Internal_Delivery_Model extends MY_Model
     $this->db->trans_begin();
 
     $id = $this->input->post('id');
-
-    // $this->db->select('document_number, warehouse, received_date');
-    // $this->db->where('id', $id);
-    // $this->db->from('tb_internal_delivery');
-
-    // $query = $this->db->get();
-    // $row   = $query->unbuffered_row('array');
-
-    // $document_number  = $row['document_number'];
-    // $warehouse        = $row['warehouse'];
-
-    // $this->db->select('tb_receipt_items.id, tb_receipt_items.stock_in_stores_id, tb_receipt_items.received_quantity, tb_receipt_items.received_unit_value, tb_stock_in_stores.stock_id, tb_stock_in_stores.serial_id, tb_stock_in_stores.stores');
-    // $this->db->from('tb_receipt_items');
-    // $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_receipt_items.stock_in_stores_id');
-    // $this->db->where('tb_receipt_items.document_number', $document_number);
-
-    // $query  = $this->db->get();
-    // $result = $query->result_array();
-
-    // foreach ($result as $data) {
-    //   $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
-    //   $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
-
-    //   $this->db->set('stock_id', $data['stock_id']);
-    //   $this->db->set('serial_id', $data['serial_id']);
-    //   $this->db->set('warehouse', $warehouse);
-    //   $this->db->set('stores', $data['stores']);
-    //   $this->db->set('date_of_entry', $row['received_date']);
-    //   $this->db->set('period_year', config_item('period_year'));
-    //   $this->db->set('period_month', config_item('period_month'));
-    //   $this->db->set('document_type', 'REMOVAL');
-    //   $this->db->set('document_number', $document_number);
-    //   $this->db->set('issued_to', 'DELETE DOCUMENT');
-    //   $this->db->set('prev_quantity', floatval($prev_old_stock));
-    //   $this->db->set('balance_quantity', floatval($next_old_stock));
-    //   $this->db->set('issued_by', config_item('auth_person_name'));
-    //   $this->db->set('quantity', 0 - floatval($data['received_quantity']));
-    //   $this->db->set('unit_value', floatval($data['received_unit_value']));
-    //   $this->db->set('created_by', config_item('auth_person_name'));
-    //   $this->db->set('doc_type', 8);
-    //   $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
-    //   $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
-    //   $this->db->insert('tb_stock_cards');
-
-    //   $this->db->where('id', $data['id']);
-    //   $this->db->delete('tb_receipt_items');
-
-    //   $this->db->where('id', $data['stock_in_stores_id']);
-    //   $this->db->delete('tb_stock_in_stores');
-    // }
 
     $this->db->where('internal_delivery_id', $id);
       $this->db->delete('tb_internal_delivery_items');
@@ -704,5 +523,206 @@ class Internal_Delivery_Model extends MY_Model
     $result = $query->result_array();
 
     return $result;
+  }
+
+  public function getSelectedColumnsReceipt()
+  {
+    $return = array(
+      'tb_internal_delivery.id'                          => NULL,
+      'tb_internal_delivery.document_number'             => 'Document Number',
+      'tb_internal_delivery.send_date'                   => 'Send Date',
+      'tb_internal_delivery.status'                      => 'Status',
+      'tb_internal_delivery.category'                    => 'Category',
+      'tb_internal_delivery.warehouse'                   => 'Base',
+      'tb_internal_delivery_items.description'           => 'Description',
+      'tb_internal_delivery_items.part_number'           => 'Part Number',
+      'tb_internal_delivery_items.alternate_part_number' => 'Alt. Part Number',
+      'tb_internal_delivery_items.serial_number'         => 'Serial Number',
+      'tb_internal_delivery_items.condition'             => 'Condition',
+      'tb_internal_delivery_items.quantity'              => 'Quantity',
+      'tb_internal_delivery_items.unit'                  => 'Unit',
+      'tb_internal_delivery_items.remarks'               => 'Remarks',
+      'tb_internal_delivery.received_from'               => 'Received From',
+      'tb_internal_delivery.received_by'                 => 'Received By',
+      'tb_internal_delivery.sent_by'                     => 'Sent By',
+    );
+
+    if (config_item('auth_role') != 'PIC STOCK'){
+      $return['tb_internal_delivery_items.unit_price']  = 'Value';
+      $return['tb_internal_delivery_items.total_amount'] = 'Total Value';
+    }
+
+    return $return;
+  }
+
+  public function getSearchableColumnsReceipt()
+  {
+    $return = array(
+      'tb_internal_delivery.document_number',
+      'tb_internal_delivery.status',
+      'tb_internal_delivery.category',
+      'tb_internal_delivery.warehouse',
+      'tb_internal_delivery.category',
+      'tb_internal_delivery.warehouse',
+      'tb_internal_delivery_items.description',
+      'tb_internal_delivery_items.part_number',
+      'tb_internal_delivery_items.alternate_part_number',
+      'tb_internal_delivery_items.serial_number',
+      'tb_internal_delivery_items.condition',
+      'tb_internal_delivery_items.unit',
+      'tb_internal_delivery_items.remarks',
+      'tb_internal_delivery.received_from',
+      'tb_internal_delivery.received_by',
+      'tb_internal_delivery.sent_by',
+    );
+
+    return $return;
+  }
+
+  public function getOrderableColumnsReceipt()
+  {
+    $return = array(
+      null,
+      'tb_internal_delivery.document_number',
+      'tb_internal_delivery.send_date',
+      'tb_internal_delivery.status',
+      'tb_internal_delivery.category',
+      'tb_internal_delivery.warehouse',
+      'tb_internal_delivery.category',
+      'tb_internal_delivery.warehouse',
+      'tb_internal_delivery_items.description',
+      'tb_internal_delivery_items.part_number',
+      'tb_internal_delivery_items.alternate_part_number',
+      'tb_internal_delivery_items.serial_number',
+      'tb_internal_delivery_items.condition',
+      'tb_internal_delivery_items.unit',
+      'tb_internal_delivery_items.remarks',
+      'tb_internal_delivery.received_from',
+      'tb_internal_delivery.received_by',
+      'tb_internal_delivery.sent_by',
+    );
+
+    if (config_item('auth_role') != 'PIC STOCK'){
+      $return[] = 'tb_internal_delivery_items.unit_price';
+      $return[] = 'tb_internal_delivery_items.total_amount';
+    }
+
+    return $return;
+  }
+
+  private function searchIndexReceipt()
+  {
+    if (!empty($_POST['columns'][2]['search']['value'])){
+      $search_received_date = $_POST['columns'][2]['search']['value'];
+      $range_received_date  = explode(' ', $search_received_date);
+
+      $this->db->where('tb_internal_delivery.received_date >= ', $range_received_date[0]);
+      $this->db->where('tb_internal_delivery.received_date <= ', $range_received_date[1]);
+    }
+
+    $i = 0;
+
+    foreach ($this->getSearchableColumns() as $item){
+      if ($_POST['search']['value']){
+        $term = strtoupper($_POST['search']['value']);
+
+        if ($i === 0){
+          $this->db->group_start();
+          $this->db->like('UPPER('.$item.')', $term);
+        } else {
+          $this->db->or_like('UPPER('.$item.')', $term);
+        }
+
+        if (count($this->getSearchableColumns()) - 1 == $i)
+          $this->db->group_end();
+      }
+
+      $i++;
+    }
+  }
+
+  function getIndexReceipt($return = 'array')
+  {
+    $this->db->select(array_keys($this->getSelectedColumnsReceipt()));
+    $this->db->from('tb_internal_delivery');
+    $this->db->join('tb_internal_delivery_items', 'tb_internal_delivery_items.internal_delivery_id = tb_internal_delivery.id');
+    $this->db->where_in('tb_internal_delivery.category', config_item('auth_inventory'));
+    $this->db->where_in('tb_internal_delivery.warehouse', config_item('auth_warehouses'));
+    $this->db->like('tb_internal_delivery.document_number', 'DP');
+    $this->db->where('tb_internal_delivery.type','2');
+
+    $this->searchIndexReceipt();
+
+    $column_order = $this->getOrderableColumns();
+
+    if (isset($_POST['order'])){
+      foreach ($_POST['order'] as $key => $order){
+        $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+      }
+    } else {
+      $this->db->order_by('tb_internal_delivery.received_date', 'asc');
+    }
+
+    if ($_POST['length'] != -1)
+      $this->db->limit($_POST['length'], $_POST['start']);
+
+    $query = $this->db->get();
+
+    if ($return === 'object'){
+      return $query->result();
+    } elseif ($return === 'json'){
+      return json_encode($query->result());
+    } else {
+      return $query->result_array();
+    }
+  }
+
+  function countIndexFilteredReceipt()
+  {
+    $this->db->from('tb_internal_delivery');
+    $this->db->join('tb_internal_delivery_items', 'tb_internal_delivery_items.internal_delivery_id = tb_internal_delivery.id');
+    $this->db->where_in('tb_internal_delivery.category', config_item('auth_inventory'));
+    $this->db->where_in('tb_internal_delivery.warehouse', config_item('auth_warehouses'));
+    $this->db->like('tb_internal_delivery.document_number', 'DP');
+    $this->db->where('tb_internal_delivery.type','2');
+
+    $this->searchIndexReceipt();
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function countIndexReceipt()
+  {
+    $this->db->from('tb_internal_delivery');
+    $this->db->join('tb_internal_delivery_items', 'tb_internal_delivery_items.internal_delivery_id = tb_internal_delivery.id');
+    $this->db->where_in('tb_internal_delivery.category', config_item('auth_inventory'));
+    $this->db->where_in('tb_internal_delivery.warehouse', config_item('auth_warehouses'));
+    $this->db->like('tb_internal_delivery.document_number', 'DP');
+    $this->db->where('tb_internal_delivery.type','2');
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function receipt()
+  {
+    $this->db->trans_begin();
+
+    $id = $this->input->post('id');
+
+    $this->db->set('received_by', config_item('auth_username'));
+    $this->db->set('received_date', date('Y-m-d'));
+    $this->db->set('status','RECEIVED');
+    $this->db->where('id', $id);
+    $this->db->update('tb_internal_delivery');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
   }
 }

@@ -101,10 +101,11 @@ require('modules/report_budget_po.php');
 
 //INVENTORY PROCESS
 require('modules/goods_received_note.php');
-require('modules/internal_delivery.php');
 require('modules/material_slip.php');
 require('modules/shipping_document.php');
 require('modules/shipping_document_receipt.php');
+require('modules/internal_delivery.php');
+require('modules/internal_delivery_receipt.php');
 require('modules/commercial_invoice.php');
 require('modules/stock.php');
 require('modules/permintaan_adjustment.php');
