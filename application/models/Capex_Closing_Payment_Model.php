@@ -395,7 +395,7 @@ class Capex_Closing_Payment_Model extends MY_Model
 
             if (config_item('auth_role')=='FINANCE MANAGER' && $request_payment['status'] == 'WAITING REVIEW BY FIN MNG') {
                 if($request_payment['base']=='JAKARTA'){
-                    $this->db->set('status', 'APPROVED');
+                    $this->connection->set('status', 'APPROVED');
                     $status = 'APPROVED';
                     $level = 0;
                 }else{

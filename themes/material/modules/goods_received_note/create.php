@@ -15,7 +15,7 @@
         ?>
 
         <div class="document-header force-padding">
-          <div class="row">
+          <div class="row hide">
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="source" id="source" class="form-control" data-source="<?= site_url($module['route'] . '/set_source'); ?>" required>
