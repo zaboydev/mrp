@@ -42,13 +42,11 @@
           <dt>Sent/Delivered By</dt>
           <dd><?=$entity['sent_by'];?> from <?=$entity['warehouse'];?> at <?=(print_date($entity['send_date']));?></dd>
 
-          <?php if ($entity['warehouse']!=$entity['send_to_warehouse']):?>
           <dt>Delivered to</dt>
           <dd><?=$entity['send_to_warehouse'];?></dd>
-          <?php endif;?>
 
           <dt>Received By</dt>
-          <dd><?=$entity['received_by'];?>  at <?=(print_date($entity['received_date']));?></dd>
+          <dd><?=$entity['received_by'];?> at <?=(print_date($entity['received_date']));?></dd>
 
           <dt>Notes</dt>
           <dd><?=$entity['notes'];?></dd>
@@ -134,39 +132,27 @@
     </div>
   </div>
 
-  <div class="card-foot">
-    <?php
-      $today    = date('Y-m-d');
-      $date     = strtotime('-2 day',strtotime($today));
-	    $data     = date('Y-m-d',$date);
-    ?>
-    <?php if (is_granted($module, 'delete') && $entity['received_date'] >= $data):?>
-      <?=form_open(current_url(), array(
-        'class' => 'form-xhr pull-left',
-      ));?>
-        <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+    <div class="card-foot">
+        <div class="pull-right">
+        <?php if (is_granted($module, 'receipt')):?>
+        <?=form_open(current_url(), array(
+            'class' => 'form-xhr pull-left',
+        ));?>
+            <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
 
-        <a href="<?=site_url($module['route'] .'/delete_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-delete btn-tooltip ink-reaction" id="modal-delete-data-button">
-          <i class="md md-delete"></i>
-          <small class="top left">delete</small>
-        </a>
-      <?=form_close();?>
-    <?php endif;?>
+            <a href="<?=site_url($module['route'] .'/receipt_ajax/');?>" class="btn btn-floating-action btn-primary btn-xhr-receipt btn-tooltip ink-reaction" id="modal-delete-data-button">
+            <i class="md md-file-download"></i>
+            <small class="top left">receipt</small>
+            </a>
+        <?=form_close();?>
+        <?php endif;?>
 
-    <div class="pull-right">
-      <?php if (is_granted($module, 'document') && $entity['received_date'] >= $data):?>
-        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-          <i class="md md-edit"></i>
-          <small class="top right">edit</small>
-        </a>
-      <?php endif;?>
-
-      <?php if (is_granted($module, 'print')):?>
-        <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
-          <i class="md md-print"></i>
-          <small class="top right">print</small>
-        </a>
-      <?php endif;?>
+        <?php if (is_granted($module, 'print')):?>
+            <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
+            <i class="md md-print"></i>
+            <small class="top right">print</small>
+            </a>
+        <?php endif;?>
+        </div>
     </div>
-  </div>
 </div>
