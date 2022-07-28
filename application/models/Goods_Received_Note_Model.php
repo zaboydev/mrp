@@ -386,7 +386,7 @@ class Goods_Received_Note_Model extends MY_Model
     if (isset($_SESSION['receipt']['id'])) {
       $id = $_SESSION['receipt']['id'];
 
-      $this->db->select('document_number, warehouse,received_date');
+      $this->db->select('document_number, warehouse,received_date','status');
       $this->db->where('id', $id);
       $this->db->from('tb_receipts');
 
@@ -409,34 +409,36 @@ class Goods_Received_Note_Model extends MY_Model
       $result = $query->result_array();
 
       foreach ($result as $data) {
-        // $prev_old_stock = getStockActive($data['stock_id']);
-        // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['received_quantity']);
+        if($row['status']=='APPROVED'){
+          // $prev_old_stock = getStockActive($data['stock_id']);
+          // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['received_quantity']);
 
-        $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
-        $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
+          $prev_old_stock = getStockPrev($data['stock_id'], $data['stores']);
+          $next_old_stock = floatval($prev_old_stock) - floatval($data['received_quantity']);
 
-        $this->db->set('stock_id', $data['stock_id']);
-        $this->db->set('serial_id', $data['serial_id']);
-        $this->db->set('warehouse', $old_warehouse);
-        $this->db->set('stores', $data['stores']);
-        $this->db->set('date_of_entry', $row['received_date']);
-        $this->db->set('period_year', config_item('period_year'));
-        $this->db->set('period_month', config_item('period_month'));
-        $this->db->set('document_type', 'REVISION');
-        $this->db->set('document_number', $old_document_number);
-        $this->db->set('issued_to', $old_document_number);
-        $this->db->set('issued_by', config_item('auth_person_name'));
-        $this->db->set('remarks', 'REVISION');
-        $this->db->set('prev_quantity', floatval($prev_old_stock));
-        $this->db->set('balance_quantity', $next_old_stock);
-        $this->db->set('quantity', 0 - floatval($data['received_quantity']));
-        $this->db->set('unit_value', floatval($data['received_unit_value']));
-        $this->db->set('created_by', config_item('auth_person_name'));
-        $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
-        $this->db->set('doc_type', 5);
-        $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
-        $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
-        $this->db->insert('tb_stock_cards');
+          $this->db->set('stock_id', $data['stock_id']);
+          $this->db->set('serial_id', $data['serial_id']);
+          $this->db->set('warehouse', $old_warehouse);
+          $this->db->set('stores', $data['stores']);
+          $this->db->set('date_of_entry', $row['received_date']);
+          $this->db->set('period_year', config_item('period_year'));
+          $this->db->set('period_month', config_item('period_month'));
+          $this->db->set('document_type', 'REVISION');
+          $this->db->set('document_number', $old_document_number);
+          $this->db->set('issued_to', $old_document_number);
+          $this->db->set('issued_by', config_item('auth_person_name'));
+          $this->db->set('remarks', 'REVISION');
+          $this->db->set('prev_quantity', floatval($prev_old_stock));
+          $this->db->set('balance_quantity', $next_old_stock);
+          $this->db->set('quantity', 0 - floatval($data['received_quantity']));
+          $this->db->set('unit_value', floatval($data['received_unit_value']));
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('stock_in_stores_id', $data['stock_in_stores_id']);
+          $this->db->set('doc_type', 5);
+          $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
+          $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
+          $this->db->insert('tb_stock_cards');
+        }
 
         if ($data['purchase_order_item_id'] != null) {
           $this->db->where('id', $data['purchase_order_item_id']);

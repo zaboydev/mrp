@@ -18,5 +18,6 @@ $config['module']['goods_received_note']['permission']       = array(
   'document'  => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
   'print'     => 'FINANCE SUPERVISOR,AP STAFF,PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,PIC PROCUREMENT,SUPER ADMIN',
   'delete'    => 'SUPERVISOR,SUPER ADMIN',
-  'import'	  => 'SUPERVISOR,SUPER ADMIN'
+  'import'	  => 'SUPERVISOR,SUPER ADMIN',
+  'approval'  => 'PIC STOCK,SUPERVISOR,QUALITY CONTROL'
 );

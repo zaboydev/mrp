@@ -77,7 +77,7 @@
   <div class="form-group">
     <label for="start_date">Base</label>
     
-    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="5">
+    <select class="form-control input-sm filter_dropdown" id="warehouse" name="warehouse" data-column="5">
       <option value="ALL BASES">-- ALL BASES --</option>
       <?php foreach (config_item('auth_warehouses') as $warehouse):?>
         <option value="<?=$warehouse;?>" <?php if (config_item('auth_warehouse') == $warehouse):echo 'selected'; endif;?>>
@@ -89,7 +89,7 @@
 
   <div class="form-group">
     <label for="start_date">Status</label>
-    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
+    <select class="form-control input-sm filter_dropdown" id="status" name="status" data-column="4">
       <?php if(is_granted($module, 'document')||is_granted($module, 'approval')):?>
       <option value="all">All Status</option>      
       <option value="WAITING REVIEW BY FIN MNG"<?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review By Fin Mng</option>
