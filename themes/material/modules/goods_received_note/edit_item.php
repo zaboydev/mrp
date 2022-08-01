@@ -197,12 +197,14 @@
                 <tr id="row_10_<?= $id; ?>" style="<?=$color;?>">
                   <td>
                     <select class="form-control input-sm <?=(config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN')?'':'hide'?>" id="item[<?= $id; ?>][kurs]" name="item[<?= $id; ?>][kurs]" required>
-                      <option value="rupiah" <?= ('rupiah' === $item['kurs']) ? 'selected' : ''; ?>>Rupiah</option>
-                      <option value="dollar" <?= ('dollar' === $item['kurs']) ? 'selected' : ''; ?>>USD Dollar</option>
+                      <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+                        <option value="<?= $key; ?>" <?= ($key === $item['currency']) ? 'selected' : ''; ?>><?= $value; ?></option>
+                      <?php endforeach; ?>
                     </select>
                   </td>
                   <td>
                     <input type="number" step="0.01" name="item[<?= $id; ?>][received_unit_value]" id="item[<?= $id; ?>][received_unit_value]" data-tag-name="received_unit_value" class="form-control input-sm <?=(config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN')?'':'hide'?>" value="<?=$item['received_unit_value']?>">
+                    <input type="number" step="0.01" name="item[<?= $id; ?>][received_unit_value_dollar]" id="item[<?= $id; ?>][received_unit_value_dollar]" data-tag-name="received_unit_value_dollar" class="form-control input-sm hide" value="<?=$item['received_unit_value_dollar']?>">
                     <input name="item[<?= $id; ?>][value_order]" type="hidden" id="item[<?= $id; ?>][value_order]" data-tag-name="value_order" class="form-control input-sm" value="<?=$item['value_order']?>">
                     
                   </td>

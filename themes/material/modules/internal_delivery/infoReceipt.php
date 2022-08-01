@@ -134,7 +134,7 @@
 
     <div class="card-foot">
         <div class="pull-right">
-        <?php if (is_granted($module, 'receipt')):?>
+        <?php if (is_granted($module, 'receipt') && $entity['status']=='WAITING RECEIVED BY INVENTORY'):?>
         <?=form_open(current_url(), array(
             'class' => 'form-xhr pull-left',
         ));?>
