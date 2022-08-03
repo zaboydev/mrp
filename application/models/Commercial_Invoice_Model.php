@@ -474,6 +474,7 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('unit', strtoupper($data['unit']));
       $this->db->set('stores', strtoupper($data['stores']));
       $this->db->set('issued_quantity', floatval($data['issued_quantity']));
+      $this->db->set('left_process_quantity', floatval($data['issued_quantity']));
       $this->db->set('issued_unit_value', floatval($data['issued_unit_value']));
       $this->db->set('issued_total_value', floatval($data['issued_unit_value']) * floatval($data['issued_quantity']));
       $this->db->set('insurance_unit_value', floatval($data['insurance_unit_value']));

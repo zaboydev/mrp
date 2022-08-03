@@ -541,6 +541,30 @@ if ( ! function_exists('available_warehouses')) {
   }
 }
 
+if ( ! function_exists('get_available_warehouses')) {
+  function get_available_warehouses($warehouse = NULL)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('warehouse,address');
+    $CI->db->from('tb_master_warehouses');
+    $CI->db->where('UPPER(status)', 'AVAILABLE');
+
+    if ($warehouse !== NULL){
+      if (is_array($warehouse)){
+        $CI->db->where_not_in('warehouse', $warehouse);
+      } else {
+        $CI->db->where('warehouse != ', $warehouse);
+      }
+    }
+
+    $query  = $CI->db->get();
+    $return = $query->result_array();
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('available_item_groups')) {
   function available_item_groups($category = NULL)
   {
