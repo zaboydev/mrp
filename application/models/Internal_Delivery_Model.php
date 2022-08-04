@@ -13,11 +13,11 @@ class Internal_Delivery_Model extends MY_Model
     $return = array(
       'tb_internal_delivery.id'                          => NULL,
       'tb_internal_delivery.document_number'             => 'Document Number',
-      'tb_internal_delivery.send_date'                   => 'Send Date',
+      'tb_internal_delivery.send_date'                   => 'Date',
       'tb_internal_delivery.status'                      => 'Status',
       'tb_internal_delivery.category'                    => 'Category',
       'tb_internal_delivery.warehouse'                   => 'Base',
-      'tb_internal_delivery.send_to_warehouse'                   => 'Send to Base',
+      // 'tb_internal_delivery.send_to_warehouse'           => 'Send to Base',
       'tb_internal_delivery_items.description'           => 'Description',
       'tb_internal_delivery_items.part_number'           => 'Part Number',
       'tb_internal_delivery_items.alternate_part_number' => 'Alt. Part Number',

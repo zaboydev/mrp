@@ -135,7 +135,7 @@ class Internal_Delivery extends MY_Controller
       $data     = array();
       $no       = $_POST['start'];
       $quantity = array();
-	  $unit_value   = array();
+	    $unit_value   = array();
       $total_value  = array();
 
       foreach ($entities as $row){
@@ -147,7 +147,7 @@ class Internal_Delivery extends MY_Controller
         $col[]  = print_string($row['status']);
         $col[]  = print_string($row['category']);
         $col[]  = print_string($row['warehouse']);
-        $col[]  = print_string($row['send_to_warehouse']);
+        // $col[]  = print_string($row['send_to_warehouse']);
         $col[]  = print_string($row['description']);
         $col[]  = print_string($row['part_number']);
         $col[]  = print_string($row['alternate_part_number']);
@@ -168,6 +168,8 @@ class Internal_Delivery extends MY_Controller
           $total_value[]  = $row['total_amount'];
         }
 
+        $quantity[]  = $row['quantity'];
+
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
 
@@ -185,11 +187,14 @@ class Internal_Delivery extends MY_Controller
         "recordsTotal" => $this->model->countIndex(),
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
+        "total" => array(
+          11 => print_number(array_sum($quantity), 2),
+        )
       );
 
       if (config_item('auth_role') != 'PIC STOCK'){
-        $result['total'][18] = print_number(array_sum($unit_value), 2);
-        $result['total'][19] = print_number(array_sum($total_value), 2);
+        $result['total'][17] = print_number(array_sum($unit_value), 2);
+        $result['total'][18] = print_number(array_sum($total_value), 2);
       }
     }
 
@@ -204,7 +209,7 @@ class Internal_Delivery extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array();
+    $this->data['grid']['summary_columns']  = array(11);
     $this->data['grid']['order_columns']    = array(
       0   => array( 0 => 1,  1 => 'desc' ),
       1   => array( 0 => 2,  1 => 'desc' ),
@@ -217,8 +222,8 @@ class Internal_Delivery extends MY_Controller
     );
 
     if (config_item('auth_role') != 'PIC STOCK'){
+      $this->data['grid']['summary_columns'][] = 17;
       $this->data['grid']['summary_columns'][] = 18;
-      $this->data['grid']['summary_columns'][] = 19;
     }
 
     $this->render_view($this->module['view'] .'/index');
