@@ -21,7 +21,7 @@
           </div>
           <div class="clearfix">
             <div class="pull-left">DATE: </div>
-            <div class="pull-right"><?=print_date($entity['send_date']);?></div>
+            <div class="pull-right"><?=print_date($entity['issued_date']);?></div>
           </div>
           <div class="clearfix">
             <div class="pull-left">BASE: </div>
@@ -36,17 +36,11 @@
 
       <div class="col-sm-12 col-md-8 col-md-pull-4">
         <dl class="dl-inline">
-          <dt>Received From</dt>
-          <dd><?=$entity['received_from'];?></dd>
+          <dt>Sent To</dt>
+          <dd><?=$entity['issued_to'];?></dd>
 
-          <dt>Sent/Delivered By</dt>
-          <dd><?=$entity['sent_by'];?> from <?=$entity['warehouse'];?> at <?=(print_date($entity['send_date']));?></dd>
-
-          <dt>Delivered to</dt>
-          <dd><?=$entity['send_to_warehouse'];?></dd>
-
-          <dt>Received By</dt>
-          <dd><?=$entity['received_by'];?> at <?=(print_date($entity['received_date']));?></dd>
+          <dt>Released By</dt>
+          <dd><?=$entity['issued_by'];?></dd>
 
           <dt>Notes</dt>
           <dd><?=$entity['notes'];?></dd>
@@ -66,15 +60,15 @@
                 <th>P/N</th>
                 <th>Alt. P/N</th>
                 <th>S/N</th>
-                <th>Qty</th>
+                <th class="text-right">Qty</th>
                 <th>Condition</th>
-                <th>Location</th>
+                <th>Stores</th>
                 <th>Remark</th>
               </tr>
             </thead>
             <tbody id="table_contents">
               <?php $n = 0;?>
-              <?php $received_quantity = array();?>
+              <?php $issued_quantity = array();?>
               <?php foreach ($entity['items'] as $i => $detail):?>
                 <?php $n++;?>
                 <tr>
@@ -97,8 +91,8 @@
                     <?=print_string($detail['serial_number']);?>
                   </td>
                   <td>
-                    <?=print_number($detail['quantity'], 2);?>
-                    <?php $received_quantity[] = $detail['quantity'];?>
+                    <?=print_number($detail['issued_quantity'], 2);?>
+                    <?php $issued_quantity[] = $detail['issued_quantity'];?>
                   </td>
                   <td>
                     <?=print_string($detail['condition']);?>
@@ -120,7 +114,7 @@
                 <th></th>
                 <th></th>
                 <th></th>
-                <th><?=print_number(array_sum($received_quantity), 2);?></th>
+                <th><?=print_number(array_sum($issued_quantity), 2);?></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -132,27 +126,45 @@
     </div>
   </div>
 
-    <div class="card-foot">
-        <div class="pull-right">
-        <?php if (is_granted($module, 'receipt')):?>
-        <?=form_open(current_url(), array(
-            'class' => 'form-xhr pull-left',
-        ));?>
-            <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+  <div class="card-foot">
+    <?php
+      $today    = date('Y-m-d');
+      $date     = strtotime('-2 day',strtotime($today));
+	    $data     = date('Y-m-d',$date);
+    ?>
+    <?php if (is_granted($module, 'delete') && $entity['issued_date'] >= $data):?>
+      <?=form_open(current_url(), array(
+        'class' => 'form-xhr pull-left',
+      ));?>
+        <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
 
-            <a href="<?=site_url($module['route'] .'/receipt_ajax/');?>" class="btn btn-floating-action btn-primary btn-xhr-receipt btn-tooltip ink-reaction" id="modal-delete-data-button">
-            <i class="md md-file-download"></i>
-            <small class="top left">receipt</small>
-            </a>
-        <?=form_close();?>
-        <?php endif;?>
+        <a href="<?=site_url($module['route'] .'/delete_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-delete btn-tooltip ink-reaction" id="modal-delete-data-button">
+          <i class="md md-delete"></i>
+          <small class="top left">delete</small>
+        </a>
+      <?=form_close();?>
+    <?php endif;?>
 
-        <?php if (is_granted($module, 'print')):?>
-            <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
-            <i class="md md-print"></i>
-            <small class="top right">print</small>
-            </a>
-        <?php endif;?>
-        </div>
+    <div class="pull-right">
+      <?php if (is_granted($module, 'receipt') && empty($entity['received_by']) && $entity['left_process_quantity']>0):?>
+        <a href="<?=site_url($module['route'] .'/receive/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+          <i class="md md-file-download"></i>
+          <small class="top right">receive items</small>
+        </a>
+      <?php endif;?>
+      <?php if (is_granted($module, 'document') && $entity['issued_date'] > $data):?>
+        <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+          <i class="md md-edit"></i>
+          <small class="top right">edit</small>
+        </a>
+      <?php endif;?>
+
+      <?php if (is_granted($module, 'print')):?>
+        <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
+          <i class="md md-print"></i>
+          <small class="top right">print</small>
+        </a>
+      <?php endif;?>
     </div>
+  </div>
 </div>

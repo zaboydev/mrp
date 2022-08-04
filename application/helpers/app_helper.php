@@ -541,6 +541,30 @@ if ( ! function_exists('available_warehouses')) {
   }
 }
 
+if ( ! function_exists('get_available_warehouses')) {
+  function get_available_warehouses($warehouse = NULL)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('warehouse,address');
+    $CI->db->from('tb_master_warehouses');
+    $CI->db->where('UPPER(status)', 'AVAILABLE');
+
+    if ($warehouse !== NULL){
+      if (is_array($warehouse)){
+        $CI->db->where_not_in('warehouse', $warehouse);
+      } else {
+        $CI->db->where('warehouse != ', $warehouse);
+      }
+    }
+
+    $query  = $CI->db->get();
+    $return = $query->result_array();
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('available_item_groups')) {
   function available_item_groups($category = NULL)
   {
@@ -2885,6 +2909,28 @@ if (!function_exists('currency_for_vendor_list')) {
       }
   
       return $data;
+    }
+  }
+
+  if (!function_exists('closeReturnDocument')) {
+    function closeReturnDocument($return_id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('left_process_quantity');
+      $CI->db->from('tb_return_items');
+      $CI->db->where('return_id', $return_id);
+      // $CI->db->where('stores', strtoupper($stores));
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = 0;
+
+      foreach ($result as $row) {
+        $return = $return + $row['left_process_quantity'];
+      }
+
+      return $return==0? true:false;
     }
   }
 

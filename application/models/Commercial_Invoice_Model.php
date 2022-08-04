@@ -474,6 +474,7 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('unit', strtoupper($data['unit']));
       $this->db->set('stores', strtoupper($data['stores']));
       $this->db->set('issued_quantity', floatval($data['issued_quantity']));
+      $this->db->set('left_process_quantity', floatval($data['issued_quantity']));
       $this->db->set('issued_unit_value', floatval($data['issued_unit_value']));
       $this->db->set('issued_total_value', floatval($data['issued_unit_value']) * floatval($data['issued_quantity']));
       $this->db->set('insurance_unit_value', floatval($data['insurance_unit_value']));
@@ -726,6 +727,89 @@ class Commercial_Invoice_Model extends MY_Model
     $this->db->order_by('tb_internal_delivery.document_number ASC');
     $query  = $this->db->get();
     $result = $query->result_array();
+
+    return $result;
+    
+  }
+
+  public function infoSelecteditem($id)
+  {
+    if($_SESSION['return']['source']=='internal_delivery'){
+      $this->column_select = array(
+        'tb_internal_delivery_items.id',
+        'tb_internal_delivery_items.unit_price as unit_value',
+        'tb_internal_delivery_items.serial_number',
+        'tb_internal_delivery_items.part_number',
+        'tb_internal_delivery_items.description',
+        'tb_internal_delivery_items.alternate_part_number',
+        'tb_internal_delivery_items.left_received_quantity as quantity',
+        'tb_internal_delivery_items.unit',
+        'tb_internal_delivery.received_from',
+        'tb_internal_delivery.received_date',
+        'tb_internal_delivery.document_number',
+        'tb_internal_delivery_items.group',
+        'tb_internal_delivery_items.unit as unit_pakai',
+        'tb_internal_delivery_items.condition',
+      );
+  
+      $this->db->select($this->column_select);
+      $this->db->from('tb_internal_delivery_items');
+      $this->db->join('tb_internal_delivery', 'tb_internal_delivery.id = tb_internal_delivery_items.internal_delivery_id');
+      $this->db->where('tb_internal_delivery_items.id', $id);
+      $this->db->group_by(array(
+        'tb_internal_delivery_items.id',
+        'tb_internal_delivery_items.unit_price',
+        'tb_internal_delivery_items.serial_number',
+        'tb_internal_delivery_items.part_number',
+        'tb_internal_delivery_items.description',
+        'tb_internal_delivery_items.alternate_part_number',
+        'tb_internal_delivery_items.left_received_quantity',
+        'tb_internal_delivery_items.unit',
+        'tb_internal_delivery.received_from',
+        'tb_internal_delivery.document_number',
+        'tb_internal_delivery_items.group',
+        'tb_internal_delivery_items.condition',
+        'tb_internal_delivery.received_date'
+      ));
+  
+      $this->db->order_by('tb_internal_delivery.document_number ASC');
+      $query  = $this->db->get();
+      $result = $query->unbuffered_row('array');
+
+    }elseif ($_SESSION['return']['source']=='stock') {
+      $this->column_select = array(
+        'tb_stock_in_stores.id',
+        'tb_stock_in_stores.stores',
+        'tb_stock_in_stores.received_date',
+        'tb_stock_in_stores.expired_date',
+        'tb_stock_in_stores.unit_value',
+        'tb_stock_in_stores.quantity',
+        'tb_stocks.condition',
+        'tb_master_item_serials.serial_number',
+        'tb_master_items.part_number',
+        'tb_master_items.description',
+        'tb_master_items.alternate_part_number',
+        'tb_master_items.group',
+        'tb_master_items.unit',
+        'tb_receipts.received_from',
+      );
+  
+      $this->db->select($this->column_select);
+      $this->db->from('tb_stock_in_stores');
+      $this->db->join('tb_master_item_serials', 'tb_master_item_serials.id = tb_stock_in_stores.serial_id', 'left');
+      $this->db->join('tb_receipt_items', 'tb_receipt_items.stock_in_stores_id = tb_stock_in_stores.id');
+      $this->db->join('tb_receipts', 'tb_receipts.document_number = tb_receipt_items.document_number');
+      $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+      $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+      $this->db->where('tb_stock_in_stores.id', $id);
+  
+      $this->db->order_by('tb_stock_in_stores.received_date ASC');
+  
+      $query  = $this->db->get();
+      $result = $query->unbuffered_row('array');
+    }
+    
 
     return $result;
     

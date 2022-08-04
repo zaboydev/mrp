@@ -178,17 +178,17 @@ class Shipping_Document_Receipt extends MY_Controller
 
   public function search_stores()
   {
-	if (empty($_GET['warehouse'])){
-	  $warehouse = config_item('auth_warehouse');
-	} else {
-	  $warehouse = urldecode($_GET['warehouse']);
-	}
+    if (empty($_GET['warehouse'])){
+      $warehouse = config_item('auth_warehouse');
+    } else {
+      $warehouse = urldecode($_GET['warehouse']);
+    }
 
-	if (empty($_GET['category'])){
-	  $category = config_item('auth_inventory');
-	} else {
-	  $category = (array)urldecode($_GET['category']);
-	}
+    if (empty($_GET['category'])){
+      $category = config_item('auth_inventory');
+    } else {
+      $category = (array)urldecode($_GET['category']);
+    }
 
     $entities = $this->model->findStores($warehouse, $category);
 

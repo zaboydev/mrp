@@ -15,12 +15,12 @@
             ?>
 
             <div class="document-header force-padding">
-              <div class="row">
+              <div class="row hide">
                 <div class="col-sm-6 col-lg-3">
                   <div class="form-group">
                     <select name="source" id="source" class="form-control" data-source="<?= site_url($module['route'] . '/set_source'); ?>" required>
                       <?php foreach ($this->config->item('source_return_service') as $key => $source_return_service) : ?>
-                        <option value="<?= $key; ?>" <?= ($_SESSION['return']['source'] == $key) ? 'selected' : ''; ?>>
+                        <option value="<?= $key; ?>" <?= ($_SESSION['shipping_internal']['source'] == $key) ? 'selected' : ''; ?>>
                           <?= $source_return_service; ?>
                         </option>
                       <?php endforeach; ?>
@@ -34,21 +34,21 @@
                   <div class="form-group">
                     <div class="input-group">
                       <div class="input-group-content">
-                        <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?=$_SESSION['return']['document_number'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
+                        <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?=$_SESSION['shipping_internal']['document_number'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
                         <label for="document_number">Document No.</label>
                       </div>
-                      <span class="input-group-addon"><?=return_format_number();?></span>
+                      <span class="input-group-addon"><?=shipping_delivery_format_number();?></span>
                     </div>
                   </div>
 
                   <div class="form-group">
-                    <input type="text" name="issued_date" id="issued_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['return']['issued_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_date');?>" required>
+                    <input type="text" name="issued_date" id="issued_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['shipping_internal']['issued_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_date');?>" required>
                     <input type="hidden" name="opname_start_date" id="opname_start_date" data-date-format="yyyy-mm-dd" class="form-control" value="<?=last_publish_date();?>" readonly>
                     <label for="issued_date">Date</label>
                   </div>
 
                   <div class="form-group">
-                    <input type="text" name="issued_by" id="issued_by" class="form-control" value="<?=$_SESSION['return']['issued_by'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_by');?>" required>
+                    <input type="text" name="issued_by" id="issued_by" class="form-control" value="<?=$_SESSION['shipping_internal']['issued_by'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_by');?>" required>
                     <label for="issued_by">Released By</label>
                   </div>
                 </div>
@@ -57,31 +57,31 @@
                   <div class="form-group">
                     <select name="issued_to" id="issued_to" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_to');?>" required>
                       <option value="">-- select destination</option>
-                      <?php foreach (available_vendors(config_item('auth_inventory')) as $v => $vendor):?>
-                        <option value="<?=$vendor;?>" <?=($_SESSION['return']['issued_to'] == $vendor) ? 'selected' : '';?>>
-                          <?=$vendor;?>
+                      <?php foreach (get_available_warehouses() as $w => $warehouse):?>
+                        <option data-address="<?= $warehouse['address']; ?>" value="<?=$warehouse['warehouse'];?>" <?=($_SESSION['shipping_internal']['issued_to'] == $warehouse['warehouse']) ? 'selected' : '';?>>
+                          <?=$warehouse['warehouse'];?>
                         </option>
                       <?php endforeach;?>
                     </select>
-                    <label for="issued_to">Sent To</label>
+                    <label for="issued_to">Issued To</label>
                   </div>
 
                   <div class="form-group">
-                    <textarea name="issued_address" id="issued_address" class="form-control" rows="5" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_address');?>"><?=$_SESSION['return']['issued_address'];?></textarea>
+                    <textarea name="issued_address" id="issued_address" class="form-control" rows="5" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_issued_address');?>"><?=$_SESSION['shipping_internal']['issued_address'];?></textarea>
                     <label for="issued_address">Address</label>
                   </div>
                 </div>
 
                 <div class="col-sm-12 col-lg-5">
                   <div class="form-group">
-                    <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_notes');?>"><?=$_SESSION['return']['notes'];?></textarea>
+                    <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_notes');?>"><?=$_SESSION['shipping_internal']['notes'];?></textarea>
                     <label for="notes">Notes</label>
                   </div>
                 </div>
               </div>
             </div>
 
-            <?php if (isset($_SESSION['return']['items'])):?>
+            <?php if (isset($_SESSION['shipping_internal']['items'])):?>
               <div class="document-data table-responsive">
                 <table class="table table-hover" id="table-document">
                   <thead>
@@ -98,7 +98,7 @@
                   </tr>
                   </thead>
                   <tbody>
-                    <?php foreach ($_SESSION['return']['items'] as $i => $items):?>
+                    <?php foreach ($_SESSION['shipping_internal']['items'] as $i => $items):?>
                       <tr id="row_<?=$i;?>">
                         <td width="1">
                           <a href="<?=site_url($module['route'] .'/del_item/'. $i);?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
@@ -148,13 +148,15 @@
           <div class="card-actionbar">
             <div class="card-actionbar-row">
               <div class="pull-left">
-                <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas hide">
-                  Add Item
-                </a>
 
                 <a href="<?=site_url($module['route'] .'/select_item');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction btn-item">
                   Select Item
                 </a>
+                <?php if (isset($_SESSION['shipping_internal']['items'])):?>      
+                <a href="<?=site_url($module['route'] .'/edit_selected_item');?>" onClick="return popup(this, 'edit_selected_item')" class="btn btn-primary ink-reaction btn-item">
+                  Update Item
+                </a>
+                <?php endif;?>
               </div>
 
               <a href="<?=site_url($module['route'] .'/discard');?>" class="btn btn-flat btn-danger ink-reaction">
@@ -673,6 +675,13 @@ $(function(){
       }
 
       window.location.href = url + '/' + current;
+  });
+
+  $('#issued_to').on('change', function() {
+    var base = $(this).val();
+    var address = $('[name="issued_to"] option:selected').data('address');
+    $('#issued_address').val(address).trigger('change');
+
   });
 
   $(buttonEditDocumentItem).on('click', function(e) {

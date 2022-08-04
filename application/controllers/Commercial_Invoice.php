@@ -561,4 +561,101 @@ class Commercial_Invoice extends MY_Controller
 
     echo json_encode($alert);
   }
+
+  public function select_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $category = $_SESSION['return']['category'];
+    if($_SESSION['return']['source']=='internal_delivery'){
+      $entities = $this->model->searchInternalDeliveryItem($category);
+    }else{
+      $entities = $this->model->searchStockInStores($category);
+    }   
+
+    $this->data['entities'] = $entities;
+    $this->data['page']['title']            = 'Select Item';
+
+    $this->render_view($this->module['view'] . '/select_item');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item_id']) && !empty($_POST['item_id'])) {
+        $_SESSION['return']['items'] = array();
+
+        foreach ($_POST['item_id'] as $key => $item_id) {
+          $item = $this->model->infoSelecteditem($item_id);
+
+          $_SESSION['return']['items'][$item_id] = array(
+            'stock_in_stores_id'      => ($_SESSION['return']['source']=='stock')?$item['id']:null,
+            'group'                   => $item['group'],
+            'description'             => $item['description'],
+            'part_number'             => $item['part_number'],
+            'alternate_part_number'   => $item['alternate_part_number'],
+            'serial_number'           => $item['serial_number'],
+            'issued_quantity'         => $item['quantity'],
+            'issued_unit_value'       => $item['issued_unit_value'],
+            'maximum_quantity'        => $item['quantity'],
+            'insurance_unit_value'    => $item['insurance_unit_value'],
+            'insurance_currency'      => $item['insurance_currency'],
+            'awb_number'              => $item['awb_number'],
+            'condition'               => $item['condition'],
+            'stores'                  => $item['stores'],
+            'unit'                    => $item['unit'],
+            'remarks'                 => $item['remarks'],
+            'internal_delivery_item_id'      => ($_SESSION['return']['source']=='internal_delivery')?$item['id']:null,
+            'received_from'           => $item['received_from'],
+          );
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
+    }
+
+    echo json_encode($data);
+  }
+
+  public function edit_selected_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/edit_item');
+  }
+
+  public function update_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item']) && !empty($_POST['item'])) {
+        foreach ($_POST['item'] as $id => $item) {
+
+          $_SESSION['return']['items'][$id]['issued_quantity']             = $item['issued_quantity'];    
+          $_SESSION['return']['items'][$id]['remarks']                      = $item['remarks']; 
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'No data to update!';
+      }
+    }
+
+    echo json_encode($data);
+  }
 }
