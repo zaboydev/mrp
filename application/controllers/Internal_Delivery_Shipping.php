@@ -485,4 +485,207 @@ class Internal_Delivery_Shipping extends MY_Controller
 
         echo json_encode($data);
     }
+
+    public function receive($id)
+    {
+        $this->authorized($this->module, 'document');
+
+        $this->data['id']     = $id;
+        $this->data['entity'] = $this->model->findById($id);
+
+        $this->render_view($this->module['view'] .'/receive/receive');
+    }
+
+    public function search_stores()
+    {
+        if (empty($_GET['warehouse'])){
+            $warehouse = config_item('auth_warehouse');
+        } else {
+            $warehouse = urldecode($_GET['warehouse']);
+        }
+
+        if (empty($_GET['category'])){
+            $category = config_item('auth_inventory');
+        } else {
+            $category = (array)urldecode($_GET['category']);
+        }
+
+        $entities = $this->model->findStores($warehouse, $category);
+
+        echo $entities;
+    }
+
+    public function save_receive($id)
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'document') == FALSE){
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+            $errors = array();
+
+            foreach ($this->input->post('items') as $i => $item) {
+                if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_POST['category']) === FALSE){
+                    $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
+                }
+
+                if (isItemExists($item['part_number'],$item['description']) && !empty($item['serial_number'])){
+                    $item_id = getItemId($item['part_number'],$item['description']);
+
+                    if (isSerialExists($item_id, $item['serial_number'])){
+                        $serial = getSerial($item_id, $item['serial_number']);
+
+                        //if ($serial->quantity > 0){
+                        //$errors[] = 'Serial number '. $item['serial_number'] .' contains quantity in stores '. $serial->//stores .'/'. $serial->warehouse .'. Please recheck your document.';
+                        //}
+                    }
+                }
+            }
+
+            if (!empty($errors)){
+                $data['success'] = FALSE;
+                $data['message'] = implode('<br />', $errors);
+            } else {
+                if ($this->model->save_receive($id)){
+                    unset($_POST);
+
+                    $data['success'] = TRUE;
+                    $data['message'] = 'Document '. $this->input->post('document_number') .' has been saved. You will redirected now.';
+                } else {
+                    $data['success'] = FALSE;
+                    $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                }
+            }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function index_data_source_receipt()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'index') === FALSE){
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to access this page!";
+        } else {
+            $entities = $this->model->getIndexReceipt();
+            $data     = array();
+            $no       = $_POST['start'];
+            $quantity = array();
+            $unit_value   = array();
+            $total_value  = array();
+
+            foreach ($entities as $row){
+                $no++;
+                $col    = array();
+                $col[]  = print_number($no);
+                $col[]  = print_string($row['document_number']);
+                $col[]  = print_date($row['received_date']);
+                $col[]  = print_string($row['status']);
+                $col[]  = print_string($row['category']);
+                $col[]  = print_string($row['warehouse']);
+                $col[]  = print_string($row['description']);
+                $col[]  = print_string($row['part_number']);
+                $col[]  = print_string($row['alternate_part_number']);
+                $col[]  = print_string($row['serial_number']);
+                $col[]  = print_string($row['condition']);
+                $col[]  = print_string($row['quantity']);
+                $col[]  = print_string($row['unit']);
+                $col[]  = print_string($row['remarks']);
+                $col[]  = print_string($row['received_from']);
+                $col[]  = print_string($row['received_by']);
+                $col[]  = print_string($row['sent_by']);
+
+                if (config_item('auth_role') != 'PIC STOCK'){
+                    $col[]  = print_number($row['unit_price'], 2);
+                    $col[]  = print_number($row['total_amount'], 2);
+
+                    $unit_value[]   = $row['unit_price'];
+                    $total_value[]  = $row['total_amount'];
+                }
+
+                $quantity[] = $row['quantity'];
+
+                $col['DT_RowId'] = 'row_'. $row['id'];
+                $col['DT_RowData']['pkey']  = $row['id'];
+
+                if ($this->has_role($this->module, 'info')){
+                    $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+                    $col['DT_RowAttr']['data-target'] = '#data-modal';
+                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info_receipt/'. $row['id']);
+                }
+
+                $data[] = $col;
+            }
+
+            $result = array(
+                "draw" => $_POST['draw'],
+                "recordsTotal" => $this->model->countIndexReceipt(),
+                "recordsFiltered" => $this->model->countIndexFilteredReceipt(),
+                "data" => $data,
+                "total"           => array(
+                    11 => print_number(array_sum($quantity), 2),
+                )
+            );
+
+            if (config_item('auth_role') != 'PIC STOCK'){
+                $result['total'][17] = print_number(array_sum($unit_value), 2);
+                $result['total'][18] = print_number(array_sum($total_value), 2);
+            }
+        }
+
+        echo json_encode($result);
+    }
+
+    public function index_receipt()
+    {
+        $this->authorized($this->module, 'index');
+
+        $this->data['page']['title']            = $this->module['label']. ' Receipt';
+        $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsReceipt());
+        $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_receipt');
+        $this->data['grid']['fixed_columns']    = 3;
+        $this->data['grid']['summary_columns']  = array(11);
+        $this->data['grid']['order_columns']    = array(
+            0   => array( 0 => 1,  1 => 'desc' ),
+            1   => array( 0 => 2,  1 => 'desc' ),
+            2   => array( 0 => 3,  1 => 'asc' ),
+            3   => array( 0 => 4,  1 => 'asc' ),
+            4   => array( 0 => 5,  1 => 'asc' ),
+            5   => array( 0 => 6,  1 => 'asc' ),
+            6   => array( 0 => 7,  1 => 'asc' ),
+            7   => array( 0 => 8,  1 => 'asc' ),
+        );
+
+        if (config_item('auth_role') != 'PIC STOCK'){
+            $this->data['grid']['summary_columns'][] = 17;
+            $this->data['grid']['summary_columns'][] = 18;
+        }
+
+        $this->render_view($this->module['view'] .'/receive/index');
+    }
+
+    public function info_receipt($id)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'info') === FALSE){
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
+        } else {
+            $entity = $this->model->findByIdReceipt($id);
+
+            $this->data['entity'] = $entity;
+
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] .'/receive/info', $this->data, TRUE);
+        }
+
+        echo json_encode($return);
+    }
 }

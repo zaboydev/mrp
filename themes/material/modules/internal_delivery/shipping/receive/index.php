@@ -13,30 +13,9 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-  <div class="section-floating-action-row">
-  <?php if (is_granted($module, 'document')):?>
-    <div class="btn-group dropup">
-      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-        <i class="md md-add"></i>
-        <small class="top right">Create <?=$module['label'];?></small>
-      </button>
-
-      <ul class="dropdown-menu dropdown-menu-right" role="menu">
-        <?php foreach (config_item('auth_inventory') as $category):?>
-        <li>
-          <a href="<?=site_url($module['route'] .'/create/'. $category);?>"><?=$category;?></a>
-        </li>
-        <?php endforeach;?>
-      </ul>
+    <div class="section-floating-action-row">
+      
     </div>
-  <?php endif;?>
-  <?php if (is_granted($module, 'index')):?>
-    <a href="<?=site_url($module['route'].'/index_receipt');?>" class="btn btn-floating-action btn-danger btn-tooltip ink-reaction">
-      <i class="md md-file-download"></i>
-      <small class="top right">Shipping Internal Receive</small>
-    </a>
-    <?php endif ?>
-  </div>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
@@ -578,46 +557,6 @@
       button.attr('disabled', true);
 
       if (confirm('Are you sure want to delete this data? Beware of this data can not be restored after it is removed. Continue?')){
-        $.post( action, form.serialize() ).done(function(data){
-          var obj = $.parseJSON(data);
-          if ( obj.type == 'danger' ){
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error( obj.info );
-
-            buttonToDelete.attr('disabled', false);
-          } else {
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success( obj.info );
-
-            form.reset();
-
-            $('[data-dismiss="modal"]').trigger('click');
-
-            if ( datatable ){
-              datatable.ajax.reload( null, false );
-            }
-          }
-        }).fail(function(){
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error( 'Delete Failed! This data is still being used by another document.' );
-        });
-      }
-
-      button.attr('disabled', false);
-    });
-
-    $(document).on('click', '.btn-xhr-receipt', function(e){
-      e.preventDefault();
-
-      var button  = $( this );
-      var form    = $( '.form-xhr' );
-      var action  = button.attr('href');
-
-      button.attr('disabled', true);
-
-      if (confirm('Are you sure want to receipt this internal delivery?. Continue?')){
         $.post( action, form.serialize() ).done(function(data){
           var obj = $.parseJSON(data);
           if ( obj.type == 'danger' ){
