@@ -13,7 +13,7 @@ class Internal_Delivery_Model extends MY_Model
     $return = array(
       'tb_internal_delivery.id'                          => NULL,
       'tb_internal_delivery.document_number'             => 'Document Number',
-      'tb_internal_delivery.send_date'                   => 'Date',
+      'tb_internal_delivery.received_date'                   => 'Date',
       'tb_internal_delivery.status'                      => 'Status',
       'tb_internal_delivery.category'                    => 'Category',
       'tb_internal_delivery.warehouse'                   => 'Base',
@@ -68,7 +68,7 @@ class Internal_Delivery_Model extends MY_Model
     $return = array(
       null,
       'tb_internal_delivery.document_number',
-      'tb_internal_delivery.send_date',
+      'tb_internal_delivery.received_date',
       'tb_internal_delivery.status',
       'tb_internal_delivery.category',
       'tb_internal_delivery.warehouse',
