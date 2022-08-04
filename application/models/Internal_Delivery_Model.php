@@ -13,7 +13,7 @@ class Internal_Delivery_Model extends MY_Model
     $return = array(
       'tb_internal_delivery.id'                          => NULL,
       'tb_internal_delivery.document_number'             => 'Document Number',
-      'tb_internal_delivery.send_date'                   => 'Date',
+      'tb_internal_delivery.received_date'                   => 'Date',
       'tb_internal_delivery.status'                      => 'Status',
       'tb_internal_delivery.category'                    => 'Category',
       'tb_internal_delivery.warehouse'                   => 'Base',
@@ -68,7 +68,7 @@ class Internal_Delivery_Model extends MY_Model
     $return = array(
       null,
       'tb_internal_delivery.document_number',
-      'tb_internal_delivery.send_date',
+      'tb_internal_delivery.received_date',
       'tb_internal_delivery.status',
       'tb_internal_delivery.category',
       'tb_internal_delivery.warehouse',
@@ -275,6 +275,7 @@ class Internal_Delivery_Model extends MY_Model
       $this->db->set('document_number', $document_number);
       $this->db->set('received_from', $received_from);
       $this->db->set('send_date', $send_date);
+      $this->db->set('received_date', $send_date);
       // $this->db->set('received_by', $received_by);
       $this->db->set('sent_by', $sent_by);
       // $this->db->set('approved_by', $approved_by);
@@ -282,7 +283,7 @@ class Internal_Delivery_Model extends MY_Model
       $this->db->set('warehouse', $warehouse);
       $this->db->set('send_to_warehouse', $send_to_warehouse);
       $this->db->set('notes', $notes);
-      $this->db->set('status', 'WAITING RECEIVED BY INVENTORY');
+      $this->db->set('status', 'APPROVED');
       $this->db->set('type', ($warehouse==$send_to_warehouse)? '1':'2');
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));

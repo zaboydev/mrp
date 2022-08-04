@@ -143,7 +143,7 @@ class Internal_Delivery extends MY_Controller
         $col    = array();
         $col[]  = print_number($no);
         $col[]  = print_string($row['document_number']);
-        $col[]  = print_date($row['send_date']);
+        $col[]  = print_date($row['received_date']);
         $col[]  = print_string($row['status']);
         $col[]  = print_string($row['category']);
         $col[]  = print_string($row['warehouse']);
