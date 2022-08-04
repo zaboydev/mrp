@@ -23,7 +23,11 @@
                     <th class="middle-alignment">Condition</th>
                     <th class="middle-alignment">Stores</th>
                     <th class="middle-alignment">Qty</th>
-                    <th class="middle-alignment">Remarks</th>                
+                    <th class="middle-alignment">Insurance Currency</th>
+                    <th class="middle-alignment">Value</th>
+                    <th class="middle-alignment">Insurance Unit Value</th>
+                    <th class="middle-alignment">Remarks</th>
+                    <th class="middle-alignment">AWB Number</th>                             
                 </tr>              
             </thead>
             <tbody>
@@ -65,7 +69,23 @@
                         <input type="number" max="<?= (isset($_SESSION['return']['id']))? ($item['maximum_quantity']+$item['issued_quantity']):$_SESSION['return']['items'][$id]['maximum_quantity']; ?>" rel="quantity" name="item[<?= $id; ?>][issued_quantity]" value="<?= $_SESSION['return']['items'][$id]['issued_quantity']; ?>" class="form-control">
                     </td>
                     <td>
+                      <select name="item[<?= $id; ?>][insurance_currency]" class="form-control" required>
+                        <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+                        <option value="<?=$key?>" <?= ($key == $_SESSION['return']['items'][$id]['insurance_currency']) ? 'selected' : ''; ?>><?=$value?></option>
+                        <?php endforeach; ?>
+                      </select>
+                    </td>
+                    <td>
+                        <input type="number" rel="issued_unit_value" name="item[<?= $id; ?>][issued_unit_value]" value="<?= $_SESSION['return']['items'][$id]['issued_unit_value']; ?>" class="form-control">
+                    </td>
+                    <td>
+                        <input type="number" rel="insurance_unit_value" name="item[<?= $id; ?>][insurance_unit_value]" value="<?= $_SESSION['return']['items'][$id]['insurance_unit_value']; ?>" class="form-control">
+                    </td>
+                    <td>
                         <input type="text" rel="remarks" name="item[<?= $id; ?>][remarks]" value="<?= $_SESSION['return']['items'][$id]['remarks']; ?>" class="form-control">
+                    </td>
+                    <td>
+                        <input type="text" rel="awb_number" name="item[<?= $id; ?>][awb_number]" value="<?= $_SESSION['return']['items'][$id]['awb_number']; ?>" class="form-control">
                     </td>
                 </tr>
               <?php endforeach; ?>

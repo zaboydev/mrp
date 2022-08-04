@@ -155,6 +155,11 @@
                 <a href="<?=site_url($module['route'] .'/select_item');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction btn-item">
                   Select Item
                 </a>
+                <?php if (isset($_SESSION['return']['items'])):?>      
+                <a href="<?=site_url($module['route'] .'/edit_selected_item');?>" onClick="return popup(this, 'edit_selected_item')" class="btn btn-primary ink-reaction btn-item">
+                  Update Item
+                </a>
+                <?php endif;?>
               </div>
 
               <a href="<?=site_url($module['route'] .'/discard');?>" class="btn btn-flat btn-danger ink-reaction">
