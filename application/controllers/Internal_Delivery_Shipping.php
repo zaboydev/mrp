@@ -429,11 +429,11 @@ class Internal_Delivery_Shipping extends MY_Controller
                         'alternate_part_number'   => $item['alternate_part_number'],
                         'serial_number'           => $item['serial_number'],
                         'issued_quantity'         => $item['quantity'],
-                        'issued_unit_value'       => $item['issued_unit_value'],
+                        'issued_unit_value'       => $item['unit_value'],
                         'maximum_quantity'        => $item['quantity'],
-                        'insurance_unit_value'    => $item['insurance_unit_value'],
-                        'insurance_currency'      => $item['insurance_currency'],
-                        'awb_number'              => $item['awb_number'],
+                        'insurance_unit_value'    => 0,
+                        'insurance_currency'      => 'IDR',
+                        'awb_number'              => null,
                         'condition'               => $item['condition'],
                         'stores'                  => $item['stores'],
                         'unit'                    => $item['unit'],
@@ -473,7 +473,11 @@ class Internal_Delivery_Shipping extends MY_Controller
                 foreach ($_POST['item'] as $id => $item) {
 
                     $_SESSION['shipping_internal']['items'][$id]['issued_quantity']             = $item['issued_quantity'];    
-                    $_SESSION['shipping_internal']['items'][$id]['remarks']                      = $item['remarks']; 
+                    $_SESSION['shipping_internal']['items'][$id]['remarks']                     = $item['remarks'];
+                    $_SESSION['shipping_internal']['items'][$id]['issued_unit_value']           = $item['issued_unit_value']; 
+                    $_SESSION['shipping_internal']['items'][$id]['insurance_unit_value']        = $item['insurance_unit_value']; 
+                    $_SESSION['shipping_internal']['items'][$id]['insurance_currency']          = $item['insurance_currency']; 
+                    $_SESSION['shipping_internal']['items'][$id]['awb_number']                  = $item['awb_number']; 
                 }
 
                 $data['success'] = TRUE;
