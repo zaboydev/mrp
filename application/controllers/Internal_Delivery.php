@@ -308,7 +308,7 @@ class Internal_Delivery extends MY_Controller
       $_SESSION['delivery']['category']         = $category;
       $_SESSION['delivery']['document_number']  = delivery_last_number();
       $_SESSION['delivery']['send_date']        = date('Y-m-d');
-      $_SESSION['delivery']['received_by']      = (config_item('auth_role') == 'PIC STOCK')? config_item('auth_person_name'):null;
+      $_SESSION['delivery']['received_by']      = (config_item('auth_role') != 'MECHANIC')? config_item('auth_person_name'):null;
       $_SESSION['delivery']['received_from']    = NULL;
       $_SESSION['delivery']['sent_by']          = (config_item('auth_role') == 'MECHANIC')? config_item('auth_person_name'):null;
       $_SESSION['delivery']['approved_by']      = NULL;
