@@ -15,6 +15,7 @@
               <tr>
                 <th>No.</th>
                 <th>PO#</th>
+                <th>Currency</th>
                 <th>Date</th>
                 <th>Vendor</th>
                 <th>Group</th>
@@ -41,6 +42,11 @@
                     <td>
                         <label for="purchase_order_item_id_<?= $e; ?>">
                         <?= print_string($entity['document_number']); ?>
+                        </label>
+                    </td>
+                    <td>
+                        <label for="purchase_order_item_id_<?= $e; ?>">
+                        <?= print_string($entity['default_currency']); ?>
                         </label>
                     </td>
                     <td>

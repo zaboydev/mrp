@@ -343,43 +343,25 @@
                       <label for="minimum_quantity">Minimum Quantity</label>
                     </div>
 
-                    <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN') : ?>
-                      <div class="form-group">
+                      <div class="form-group <?=(config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN')? '':'hide';?>">
                         <div class="row">
                           <div class="col-lg-6 col-sm-6">
                             <select class="form-control input-sm" id="kurs" name="kurs" required>
                               <!-- <option>-Pilih Mata Uang-</option> -->
-                              <option value="rupiah">Rupiah</option>
-                              <option value="dollar">USD Dollar</option>
+                              <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+                              <option value="<?= $key; ?>"><?= $value; ?></option>
+                              <?php endforeach; ?>
                             </select>
 
                           </div>
                           <div class="col-lg-6 col-sm-6">
                             <input type="text" id="received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
+                            <input type="text" id="received_unit_value_dollar" class="form-control input-sm" name="received_unit_value_dollar" value="0" step=".02">
                             <input type="hidden" id="value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
                           </div>
                         </div>
                         <label for="kurs">Price per Unit</label>
                       </div>
-                    <?php else : ?>
-                      <div class="form-group hide">
-                        <div class="row">
-                          <div class="col-lg-6 col-sm-6">
-                            <select class="form-control input-sm" id="kurs" name="kurs" required>
-                              <!-- <option>-Pilih Mata Uang-</option> -->
-                              <option value="rupiah">Rupiah</option>
-                              <option value="dollar">USD Dollar</option>
-                            </select>
-
-                          </div>
-                          <div class="col-lg-6 col-sm-6">
-                            <input type="text" id="received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                            <input type="hidden" id="value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
-                          </div>
-                        </div>
-                        <label for="kurs">Price per Unit</label>
-                      </div>
-                    <?php endif; ?>
 
                     <div class="form-group">
                       <select name="condition" id="condition" class="form-control input-sm">
@@ -424,6 +406,7 @@
                   <label for="purchase_order_number">Order Number</label>
                   <input type="hidden" name="purchase_order_item_id" id="purchase_order_item_id" />
                   <input type="hidden" name="internal_delivery_item_id" id="internal_delivery_item_id" />
+                  <input type="hidden" name="item_id" id="item_id" />
                 </div>
 
                 <div class="form-group">
@@ -467,274 +450,6 @@
           </button>
 
           <input type="hidden" name="consignor" id="consignor">
-          <input type="reset" name="reset" class="sr-only">
-        </div>
-
-        <?= form_close(); ?>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-edit-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-add-item-label" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header style-primary-dark">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="modal-add-item-label"></h4>
-        </div>
-
-        <?= form_open(site_url($module['route'] . '/edit_item'), array(
-          'autocomplete' => 'off',
-          'id'    => 'ajax-form-edit-document',
-          'class' => 'form form-validate ui-front',
-          'role'  => 'form'
-        )); ?>
-
-        <div class="modal-body">
-          <div class="row <?php if (in_array($_SESSION['receipt']['category'],['EXPENSE','CAPEX'])):?> hide <?php endif;?>">
-            <div class="col-xs-12">
-              <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-content">
-                    <input type="text" id="edit_search_purchase_order" data-search-for="purchase_order" class="form-control" data-source="<?= site_url($module['route'] . '/search_purchase_order'); ?>">
-                    <label for="search_item">Search item from <?=ucwords(str_replace("_", " ", $_SESSION['receipt']['source']))?></label>
-                  </div>
-                  <span class="input-group-addon">
-                    <i class="md md-search"></i>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-sm-12 col-lg-8">
-              <div class="row">
-                <div class="col-sm-6 col-lg-6">
-                  <fieldset>
-                    <legend>General</legend>
-
-                    <div class="form-group">
-                      <input type="text" name="serial_number" id="edit_serial_number" class="form-control input-sm input-autocomplete" data-source="<?= site_url($module['route'] . '/search_items_by_serial/'); ?>">
-                      <label for="serial_number">Serial Number</label>
-                    </div>
-
-                    <div class="form-group">
-                      <input type="text" name="part_number" id="edit_part_number" class="form-control input-sm input-autocomplete" data-source="<?= site_url($module['route'] . '/search_items_by_part_number/'); ?>" required>
-                      <label for="part_number">Part Number</label>
-                    </div>
-
-                    <div class="form-group">
-                      <input type="text" name="description" id="edit_description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" data-source="<?= site_url($modules['ajax']['route'] . '/json_item_description/' . $_SESSION['receipt']['category']); ?>" required>
-                      <label for="description">Description</label>
-                    </div>
-
-                    <div class="form-group">
-                      <input type="text" name="alternate_part_number" id="edit_alternate_part_number" data-tag-name="alternate_part_number" data-source="<?= site_url($modules['ajax']['route'] . '/json_alternate_part_number/' . $_SESSION['receipt']['category']); ?>" class="form-control input-sm">
-                      <label for="alternate_part_number">Alt. Part Number</label>
-                    </div>
-
-                    <div class="form-group">
-                      <select name="group" id="edit_group" data-tag-name="group" class="form-control input-sm" required>
-                        <option>-- Select One --</option>
-                        <?php foreach (available_item_groups_2($_SESSION['receipt']['category']) as $group) : ?>
-                          <option value="<?= $group['group']; ?>">
-                            <?= $group['group']; ?> - <?= $group['coa']; ?>
-                          </option>
-                        <?php endforeach; ?>
-                      </select>
-                      <label for="group">Item Group</label>
-                    </div>
-                  </fieldset>
-                </div>
-                <div class="col-sm-6 col-lg-6">
-                  <fieldset>
-                    <legend>Storage</legend>
-
-                    <div class="form-group">
-                      <div class="row">
-                        <div class="col-lg-6 col-sm-6 col-xs-6">
-                          <input type="text" name="quantity_order" id="edit_quantity_order" data-tag-name="edit_quantity_order" class="form-control input-sm" value="1" required>
-
-                        </div>
-                        <div class="col-lg-6 col-sm-6 col-xs-6">
-                          <input type="text" name="unit" id="edit_unit" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" required>
-                        </div>
-                      </div>
-                      <label for="received_quantity">Qty & Unit Terima</label>
-                    </div>
-
-
-                    <div class="form-group">
-                      <div class="row">
-                        <div class="col-lg-6 col-sm-6 col-xs-6">
-                          <input type="text" name="unit_pakai" id="edit_unit_pakai" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm">
-                        </div>
-                        <div class="col-lg-6 col-sm-6 col-xs-6">
-
-                          <input type="text" id="edit_received_quantity" class="form-control input-sm" name="received_quantity" value="1" readonly="readonly">
-                        </div>
-                      </div>
-                      <label for="kurs">Unit Pakai</label>
-                    </div>
-
-                    <div class="form-group">
-                      <div class="row">
-                        <div class="col-lg-3 col-sm-3 col-xs-3">
-                          <input type="text" name="satuan" id="edit_satuan" data-tag-name="edit_satuan" class="form-control input-sm" value="1" readonly="readonly">
-                        </div>
-                        <div class="col-lg-3 col-sm-3 col-xs-3">
-
-                          <input type="text" name="received_unit" id="edit_received_unit" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
-                        </div>
-                        <div class="col-lg-3 col-sm-3 col-xs-3">
-                          <input type="text" id="edit_isi" class="form-control input-sm" name="isi" value="0" required>
-                        </div>
-                        <div class="col-lg-3 col-sm-3 col-xs-3">
-                          <input type="text" name="unit_used" id="edit_unit_used" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
-                        </div>
-                      </div>
-                      <label for="received_quantity">Unit Konversi</label>
-                    </div>
-
-                    <div class="form-group">
-                      <input type="text" name="minimum_quantity" id="edit_minimum_quantity" data-tag-name="minimum_quantity" class="form-control input-sm" value="0" required>
-                      <label for="minimum_quantity">Minimum Quantity</label>
-                    </div>
-
-                    <?php if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN') : ?>
-                      <div class="form-group">
-                        <div class="row">
-                          <div class="col-lg-5 col-sm-5">
-                            <select class="form-control input-sm" id="edit_kurs" name="edit_kurs">
-                              <option value="rupiah">Rupiah</option>
-                              <option value="dollar">USD Dollar</option>
-                            </select>
-
-                          </div>
-                          <div class="col-lg-7 col-sm-7">
-                            <input type="text" id="edit_received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                            <input type="hidden" id="edit_value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
-                          </div>
-                        </div>
-                        <label for="kurs">Price per Unit</label>
-                      </div>
-                    <?php else : ?>
-                      <div class="form-group hide">
-                        <div class="row">
-                          <div class="col-lg-5 col-sm-5">
-                            <select class="form-control input-sm" id="edit_kurs" name="edit_kurs">
-                              <option value="rupiah">Rupiah</option>
-                              <option value="dollar">USD Dollar</option>
-                            </select>
-
-                          </div>
-                          <div class="col-lg-7 col-sm-7">
-                            <input type="text" id="edit_received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                            <input type="text" id="edit_value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
-                          </div>
-                        </div>
-                        <label for="kurs">Price per Unit</label>
-                      </div>
-                    <?php endif; ?>
-
-                    <div class="form-group">
-                      <select name="condition" id="edit_condition" class="form-control input-sm">
-                        <?php foreach (available_conditions() as $key => $condition) : ?>
-                          <option value="<?= $condition; ?>"><?= $condition; ?></option>
-                        <?php endforeach; ?>
-                      </select>
-                      <label for="condition">Item Condition</label>
-                    </div>
-
-                    <div class="form-group">
-                      <input type="text" name="stores" id="edit_stores" data-tag-name="stores" data-search-for="stores" data-source="<?= site_url($modules['ajax']['route'] . '/json_stores/' . $_SESSION['receipt']['category']); ?>" class="form-control input-sm" required>
-                      <label for="stores">Stores</label>
-                    </div>
-                  </fieldset>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-sm-12 col-lg-4">
-              <fieldset>
-                <legend>Optional</legend>
-
-                <!-- <div class="form-group">
-                    <input type="text" name="expired_date" id="edit_expired_date" data-tag-name="expired_date" class="form-control input-sm">
-                    <label for="expired_date">Expired Date</label>
-                  </div> -->
-
-                <div class="form-group">
-                  <div class="row">
-                    <div class="col-lg-6 col-sm-6 col-xs-6">
-                      <div class="radio">
-                        <input type="checkbox" name="edit_no_expired_date" id="edit_no_expired_date" value="no">
-                        <label for="no_expired_date">No Expired Date</label>
-                      </div>
-                    </div>
-                    <div class="col-lg-6 col-sm-6 col-xs-6">
-                      <input type="text" name="edit_expired_date" id="edit_expired_date" data-tag-name="edit_expired_date" class="form-control input-sm">
-                    </div>
-                  </div>
-
-                  <label for="expired_date">Expired Date</label>
-                </div>
-
-                <div class="form-group">
-                  <input type="text" name="purchase_order_number" id="edit_purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm" readonly>
-                  <label for="purchase_order_number">Order Number</label>
-                  <input type="hidden" name="purchase_order_item_id" id="edit_purchase_order_item_id" />
-                  <input type="hidden" name="internal_delivery_item_id" id="edit_internal_delivery_item_id" />
-                </div>
-
-                <div class="form-group">
-                  <input type="text" name="tgl_nota" id="edit_tgl_nota" data-tag-name="tgl_nota" class="form-control input-sm tgl_nota">
-                  <label for="reference_number">Tgl Inv/Nota</label>
-                </div>
-
-                <div class="form-group">
-                  <input type="text" name="reference_number" id="edit_reference_number" data-tag-name="reference_number" class="form-control input-sm">
-                  <label for="reference_number">Ref./Invoice</label>
-                </div>
-
-                <div class="form-group">
-                  <input type="text" name="awb_number" id="edit_awb_number" data-tag-name="awb_number" class="form-control input-sm" required="required">
-                  <label for="awb_number">AWB Number</label>
-                </div>
-
-                <div class="form-group">
-                  <textarea name="remarks" id="edit_remarks" data-tag-name="remarks" class="form-control input-sm"></textarea>
-                  <label for="remarks">Remarks</label>
-                  <input type="hidden" name="item_id" id="item_id">
-                  <input type="hidden" name="stock_in_store_id" id="stock_in_store_id">
-                  <input type="hidden" name="receipt_items_id" id="receipt_items_id">
-                  <!-- <input type="hidden" name="document_number_receipts_items" id="document_number_receipts_items" >
-                    <input type="hidden" name="category_receipts_items" id="category_receipts_items" >
-                    <input type="hidden" name="warehouse_receipts_items" id="warehouse_receipts_items" >
-                    <input type="hidden" name="master_items_id" id="master_items_id" > -->
-                </div>
-
-                <div class="form-group">
-                  <input type="text" name="edit_kode_stok" id="edit_kode_stok" data-tag-name="edit_kode_stok" class="form-control input-sm" readonly="readonly">
-                  <label for="edit_kode_stok">Kode Stok</label>
-                </div>
-              </fieldset>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
-
-          <button type="submit" id="modal-edit-item-submit" class="btn btn-primary btn-edit ink-reaction">
-            Edit Item
-          </button>
-
-
-          <input type="hidden" name="consignor" id="edit_consignor">
           <input type="reset" name="reset" class="sr-only">
         </div>
 
@@ -1088,7 +803,13 @@
                 $('#received_unit').val(ui.item.unit);
                 $('#unit_pakai').val(ui.item.unit_pakai);
                 $('#unit_used').val(ui.item.unit_pakai);
-                $('#received_unit_value').val(parseFloat(unit_value));
+                $('#received_unit_value').val(parseFloat(unit_value)); 
+                if (ui.item.default_currency != 'IDR'){
+                  $('#received_unit_value_dollar').val(parseFloat(unit_value));
+                }else{
+                  $('#received_unit_value_dollar').val(parseFloat(0));
+                }               
+                
                 $('#value_order').val(parseFloat(unit_value));
                 if(source=='purchase_order'){
                   $('#purchase_order_item_id').val(ui.item.id);
@@ -1098,11 +819,12 @@
                 
                 $('#purchase_order_number').val(ui.item.document_number);
                 $('#kode_stok').val(ui.item.kode_stok);
-                if (ui.item.default_currency == 'USD' || ui.item.default_currency == 'AUD') {
-                  $('[name="kurs"]').val('dollar');
-                } else {
-                  $('[name="kurs"]').val('rupiah');
-                }
+                $('[name="kurs"]').val(ui.item.default_currency);
+                // if (ui.item.default_currency == 'USD' || ui.item.default_currency == 'AUD') {
+                //   $('[name="curre"]').val('dollar');
+                // } else {
+                //   $('[name="kurs"]').val('rupiah');
+                // }
                 $('#received_unit_value').attr('readonly', true);
                 $('#purchase_order_number').attr('readonly', true);
 
@@ -1278,6 +1000,7 @@
       if ($('[id="no_expired_date"]').is(':checked')) {
         $('input[id="expired_date"]').prop('readonly', true);
         $('input[id="expired_date"]').prop('required', false);
+        $('input[id="expired_date"]').val('');
       } else {
         $('input[id="expired_date"]').prop('readonly', false);
         $('input[id="expired_date"]').prop('required', true);
@@ -1287,7 +1010,7 @@
 
     $('input[id="expired_date"]').change(function() {
       if ($('input[id="expired_date"]').val() != '') {
-        $('input[id="no_expired_date"]').prop('disabled', true);
+        $('input[id="no_expired_date"]').prop('disabled', false);
         $('input[id="no_expired_date"]').prop('required', false);
       } else {
         $('input[id="no_expired_date"]').prop('disabled', false);
@@ -1510,6 +1233,7 @@
         data: data_send,
         dataType: "JSON",
         success: function(response) {
+          var action = "<?=site_url($module['route'] .'/edit_item')?>";
           console.log(JSON.stringify(response));
           $('[name="serial_number"]').val(response.serial_number);
           $('[name="part_number"]').val(response.part_number);
@@ -1525,9 +1249,15 @@
           $('[name="stores"]').val(response.stores);
           $('[name="expired_date"]').val(response.expired_date);
           if (response.no_expired_date == "no") {
-            $('[id="edit_no_expired_date"]').attr('checked', true);
+            $('[id="no_expired_date"]').attr('checked', true);
           }
-          $('input[id="edit_expired_date"]').val(response.expired_date);
+          if ($('[id="no_expired_date"]').is(':checked')) {
+            $('input[id="expired_date"]').prop('readonly', true);
+            $('input[id="expired_date"]').prop('required', false);
+          } else {
+            $('input[id="expired_date"]').prop('readonly', false);
+            $('input[id="expired_date"]').prop('required', true);
+          }
           $('[name="purchase_order_number"]').val(response.purchase_order_number);
           $('[name="tgl_nota"]').val(response.tgl_nota);
           $('[name="reference_number"]').val(response.reference_number);
@@ -1536,37 +1266,40 @@
           $('[name="item_id"]').val(id);
           $('[name="edit_kode_akunting"]').val(response.kode_akunting);
           // $('[name="edit_kurs"]').val('rupiah');
-          $('[id="edit_unit_pakai"]').val(response.unit_pakai);
-          $('[id="edit_qty_konversi"]').val(response.hasil_konversi);
+          $('[name="unit_pakai"]').val(response.unit_pakai);
+          $('[name="qty_konversi"]').val(response.hasil_konversi);
           // $('[id="edit_unit_terima"]').val(response.unit_pakai);
-          $('[id="edit_received_unit"]').val(response.received_unit);
-          $('[id="edit_isi"]').val(response.hasil_konversi);
-          $('[id="edit_unit_used"]').val(response.unit_pakai);
-          $('[name="edit_kode_stok"]').val(response.kode_stok);
+          $('[name="received_unit"]').val(response.received_unit);
+          // $('[name="isi"]').val(response.hasil_konversi);
+          $('[name="unit_used"]').val(response.unit_pakai);
+          $('[name="kode_stok"]').val(response.kode_stok);
           // if (response.isi) {
           //   $('[name="edit_isi"]').val(response.isi);
           // } else {
           //   $('[name="edit_isi"]').val(response.qty_konversi);
           // }
-          $('[id="edit_isi"]').val(response.isi);
-          $('[id="edit_value_order"]').val(response.value_order);
+          $('[name="isi"]').val(response.isi);
+          $('[name="value_order"]').val(response.value_order);
           // $('[name="edit_isi"]').val(response.isi);
           $('[name="qty_konversi"]').val(response.hasil_konversi);
-          if (response.kurs_dollar > 1) {
-            $('[name="edit_kurs"]').val('dollar');
-            $('[name="received_unit_value"]').val(response.unit_value_dollar);
+          // if (response.kurs_dollar > 1) {
+          //   $('[name="edit_kurs"]').val('dollar');
+          //   $('[name="received_unit_value"]').val(response.unit_value_dollar);
 
-          } else {
-            $('[name="edit_kurs"]').val('rupiah');
-            $('[name="received_unit_value"]').val(response.received_unit_value);
+          // } else {
+          //   $('[name="edit_kurs"]').val('rupiah');
+          //   $('[name="received_unit_value"]').val(response.received_unit_value);
 
-          }
-          if (response.kurs) {
-            $('[name="edit_kurs"]').val(response.kurs);
-          }
-          $('[id="edit_kode_stok"]').val(response.kode_stok);
-          $('[id="stock_in_store_id"]').val(response.stock_in_stores_id);
-          $('[id="receipt_items_id"]').val(response.receipt_items_id);
+          // }
+          // if (response.cu) {
+          //   $('[name="edit_kurs"]').val(response.kurs);
+          // }
+          $('[name="received_unit_value"]').val(response.received_unit_value);
+          $('[name="received_unit_value_dollar"]').val(response.received_unit_value_dollar);
+          $('[name="kurs"]').val(response.currency);
+          $('[name="kode_stok"]').val(response.kode_stok);
+          $('[name="stock_in_store_id"]').val(response.stock_in_stores_id);
+          $('[name="receipt_items_id"]').val(response.receipt_items_id);
 
           $('#edit_purchase_order_item_id').val(response.purchase_order_item_id);
           $('#edit_internal_delivery_item_id').val(response.internal_delivery_item_id);
@@ -1575,12 +1308,15 @@
             $('[name="received_unit_value"]').attr('readonly', true);
             $('[name="purchase_order_number"]').attr('readonly', true);
           }
+          
+          $('[name="item_id"]').val(id);
 
 
 
 
-          $('#modal-edit-item').modal('show'); // show bootstrap modal when complete loaded
+          $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
           $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title
+          $('#modal-add-item form').attr('action', action);// Set form action
 
         },
         error: function(jqXHR, textStatus, errorThrown) {
