@@ -563,6 +563,8 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.purchase_request_number',
       'tb_purchase_orders.id as poe_id',
       'tb_purchase_order_items.id as poe_item_id',
+      'tb_purchase_order_items.return_item_id',
+      'tb_purchase_order_items.inventory_purchase_request_detail_id',
       'tb_inventory_purchase_requisition_details.reference_ipc',
     );
 
@@ -670,8 +672,14 @@ class Purchase_Order_Model extends MY_Model
 
   public function findPoe($id)
   {
-    $this->db->where('id', $id);
-    $query  = $this->db->get('tb_purchase_order_vendors');
+    $this->db->select(array(
+      'tb_purchase_order_vendors.*',
+      'tb_purchase_orders.source'
+    ));
+    $this->db->from('tb_purchase_order_vendors');
+    $this->db->join('tb_purchase_orders','tb_purchase_orders.id=tb_purchase_order_vendors.purchase_order_id');
+    $this->db->where('tb_purchase_order_vendors.id', $id);
+    $query  = $this->db->get();
     $vendor    = $query->unbuffered_row('array');
 
     $this->db->from('tb_master_vendors');
@@ -689,6 +697,7 @@ class Purchase_Order_Model extends MY_Model
     // $query  = $this->db->get();
     // $poe  = $query->unbuffered_row('array');
     $result['default_currency'] = $vendor['currency'];
+    $result['source']    = $vendor['source'];
     return $result;
   }
 
@@ -982,6 +991,7 @@ class Purchase_Order_Model extends MY_Model
     $term_payment             = $_SESSION['order']['term_payment'];
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
     $vendor_po               = $_SESSION['order']['vendor_po'];
+    $source               = $_SESSION['order']['source'];
 
     $this->db->trans_begin();
 
@@ -1021,6 +1031,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('updated_by', config_item('auth_person_name'));
     $this->db->set('review_status', strtoupper('waiting for finance review'));
     $this->db->set('tipe', strtoupper($payment_type));
+    $this->db->set('source', $source);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
 
@@ -1190,6 +1201,7 @@ class Purchase_Order_Model extends MY_Model
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
     $vendor_po            = $_SESSION['order']['vendor_po'];
     $id_po_lama           = $_SESSION['order']['id_po'];
+    $source               = $_SESSION['order']['source'];
 
     $this->db->trans_begin();
 
@@ -1229,6 +1241,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('review_status', strtoupper('waiting for finance review'));
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('revision_of_po_id', $id_po_lama);
+    $this->db->set('source', $source);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
     $id_po = $this->db->insert_id();

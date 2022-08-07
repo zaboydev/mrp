@@ -793,6 +793,7 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['items']               = $item;
       $_SESSION['order']['vendor_po']           = $vendor_id;
       $_SESSION['order']['vendor']              = $order['vendor'];
+      $_SESSION['order']['source']              = $order['source'];
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
       $_SESSION['order']['format_number']       = order_format_number();
@@ -865,6 +866,7 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['vendor_po']           = '';
       $_SESSION['order']['id_po']               = $id;
       $_SESSION['order']['vendor']              = $order['vendor'];
+      $_SESSION['order']['source']              = $order['source'];
       $_SESSION['order']['warehouse']           = config_item('main_warehouse');
       $_SESSION['order']['category']            = $category;
       $_SESSION['order']['old_document_number'] = $order['document_number'];
@@ -1594,5 +1596,17 @@ class Purchase_Order extends MY_Controller
 
     redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
     // echo json_encode($result);
+  }
+
+  public function print_return($return_item_id)
+  {
+    $return_id = getReturnIdByReturnItemId($return_item_id);
+    if($return_id!=null){
+      redirect('commercial_invoice/print_pdf/'.$return_id);
+    }else{
+      redirect($this->modules['secure']['route'] . '/denied');
+    }
+    
+    
   }
 }

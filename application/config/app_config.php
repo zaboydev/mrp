@@ -70,3 +70,8 @@ $config['source_return_service'] = array(
   'stock'             => 'Stock',
   'internal_delivery' => 'Internal Delivery',
 );
+
+$config['source_poe'] = array(
+  'request'             => 'Purchase Request',
+  'return'              => 'Return & Service',
+);

@@ -386,7 +386,7 @@ class Goods_Received_Note_Model extends MY_Model
     if (isset($_SESSION['receipt']['id'])) {
       $id = $_SESSION['receipt']['id'];
 
-      $this->db->select('document_number, warehouse,received_date','status');
+      $this->db->select('document_number, warehouse,received_date,status');
       $this->db->where('id', $id);
       $this->db->from('tb_receipts');
 
