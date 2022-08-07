@@ -409,7 +409,7 @@ class Goods_Received_Note_Model extends MY_Model
       $result = $query->result_array();
 
       foreach ($result as $data) {
-        if($row['status']=='APPROVED'){
+        // if($row['status']=='APPROVED'){
           // $prev_old_stock = getStockActive($data['stock_id']);
           // $next_old_stock = floatval($prev_old_stock->total_quantity) - floatval($data['received_quantity']);
 
@@ -438,7 +438,7 @@ class Goods_Received_Note_Model extends MY_Model
           $this->db->set('tgl', date('Ymd', strtotime($row['received_date'])));
           $this->db->set('total_value', floatval($data['received_unit_value'] * (0 - floatval($data['received_quantity']))));
           $this->db->insert('tb_stock_cards');
-        }
+        // }
 
         if ($data['purchase_order_item_id'] != null) {
           $this->db->where('id', $data['purchase_order_item_id']);
@@ -593,23 +593,15 @@ class Goods_Received_Note_Model extends MY_Model
           $this->db->set('unit', strtoupper($data['unit']));
           $qty_konvers = floatval($data['received_quantity']);
         }
-        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
-          $this->db->set('current_price', floatval($data['received_unit_value']));
-        } else {
-          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
-        }
+        
+        $this->db->set('current_price', ($data['currency']=='IDR')? floatval($data['received_unit_value']):floatval($kurs) * floatval($data['received_unit_value']));
         $this->db->insert('tb_master_items');
 
         $item_id = $this->db->insert_id();
       } else {
         $item_id = getItemId($data['part_number'], $data['description'], $serial_number);
 
-        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
-          $this->db->set('current_price', floatval($data['received_unit_value']));
-        } else {
-          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
-        }
+        $this->db->set('current_price', ($data['currency']=='IDR')? floatval($data['received_unit_value']):floatval($kurs) * floatval($data['received_unit_value']));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
         $this->db->where('id',$item_id);
         $this->db->update('tb_master_items');
@@ -635,41 +627,15 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('unit', strtoupper($data['unit']));
         $this->db->set('group', strtoupper($data['group']));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
-          $this->db->set('current_price', floatval($data['received_unit_value']));
-        } else {
-          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
-        }
+        $this->db->set('current_price', ($data['currency']=='IDR')? floatval($data['received_unit_value']):floatval($kurs) * floatval($data['received_unit_value']));
         $this->db->insert('tb_master_part_number');
       }else{
         $part_number_id = getParNumberId($data['part_number']);
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
-          $this->db->set('current_price', floatval($data['received_unit_value']));
-        } else {
-          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('current_price', floatval($kurs) * floatval($data['received_unit_value']));
-        }
+        $this->db->set('current_price', ($data['currency']=='IDR')? floatval($data['received_unit_value']):floatval($kurs) * floatval($data['received_unit_value']));
         $this->db->where('id', $part_number_id);
         $this->db->update('tb_master_part_number');
       }
-      // else{
-      //   if (isset($_SESSION['receipt']['id'])){
-
-      //   }else{
-      //     $qty_awal = getPartnumberQty($data['part_number']);
-
-      //     $qty_baru = floatval($data['received_quantity']) + floatval($qty_awal);
-
-      //     $this->db->set('qty', $qty_baru);
-      //     $this->db->where('part_number', strtoupper($data['part_number']));
-      //     $this->db->update('tb_master_part_number');
-      //   }
-      // }
-
-
-
 
       /**
        * CREATE SERIAL NUMBER IF NOT EXISTS
@@ -708,44 +674,6 @@ class Goods_Received_Note_Model extends MY_Model
        */
       if (isStockExists($item_id, strtoupper($data['condition']))) {
         $stock_id = getStockId($item_id, strtoupper($data['condition']));
-        /**
-         * CREATE STOCK CARD
-         */
-        // $prev_stock   = getStockActive($stock_id);
-        $prev_stock   = getStockPrev($stock_id, strtoupper($data['stores']));
-        $next_stock   = floatval($prev_stock) + floatval($data['received_quantity']);
-
-        // if (!isset($_SESSION['receipt']['id'])){
-        $this->db->set('serial_id', $serial_id);
-        $this->db->set('stock_id', $stock_id);
-        $this->db->set('warehouse', $warehouse);
-        $this->db->set('stores', strtoupper($data['stores']));
-        $this->db->set('date_of_entry', $received_date);
-        $this->db->set('period_year', config_item('period_year'));
-        $this->db->set('period_month', config_item('period_month'));
-        $this->db->set('document_type', 'RECEIPT');
-        $this->db->set('document_number', $document_number);
-        $this->db->set('received_from', $received_from);
-        $this->db->set('received_by', $received_by);
-        $this->db->set('prev_quantity', floatval($prev_stock));
-        $this->db->set('balance_quantity', $next_stock);
-        $this->db->set('quantity', floatval($qty_konvers));
-        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
-          $this->db->set('unit_value', floatval($data['received_unit_value']));
-        } else {
-          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('unit_value', floatval($kurs) * floatval($data['received_unit_value']));
-        }
-        // $this->db->set('kurs_dollar', floatval($kurs));
-        $this->db->set('remarks', $data['remarks']);
-        $this->db->set('created_by', config_item('auth_person_name'));
-        $this->db->set('doc_type', 5);
-        $this->db->set('tgl', date('Ymd', strtotime($received_date)));
-        $this->db->insert('tb_stock_cards');
-        $stock_card_id = $this->db->insert_id();
-        // }
-
-
       } else {
         $this->db->set('item_id', $item_id);
         $this->db->set('condition', strtoupper($data['condition']));
@@ -754,45 +682,18 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->insert('tb_stocks');
 
         $stock_id = $this->db->insert_id();
-
-        /**
-         * CREATE STOCK CARD
-         */
-        // $prev_stock   = getStockActive($stock_id);
-        // $next_stock   = floatval($prev_stock->total_quantity) + floatval($data['received_quantity']);
-
-        // if (!isset($_SESSION['receipt']['id'])){
-        $this->db->set('serial_id', $serial_id);
-        $this->db->set('stock_id', $stock_id);
-        $this->db->set('warehouse', $warehouse);
-        $this->db->set('stores', strtoupper($data['stores']));
-        $this->db->set('date_of_entry', $received_date);
-        $this->db->set('period_year', config_item('period_year'));
-        $this->db->set('period_month', config_item('period_month'));
-        $this->db->set('document_type', 'RECEIPT');
-        $this->db->set('document_number', $document_number);
-        $this->db->set('received_from', $received_from);
-        $this->db->set('received_by', $received_by);
-        $this->db->set('prev_quantity', floatval(0));
-        $this->db->set('balance_quantity', floatval(0) + floatval($data['received_quantity']));
-        $this->db->set('quantity', floatval($qty_konvers));
-        if ($data['kurs'] == 'rupiah' || $data['kurs_dollar'] == 1) {
-          $this->db->set('unit_value', floatval($data['received_unit_value']));
-        } else {
-          // $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('unit_value', floatval($kurs) * floatval($data['received_unit_value']));
-        }
-        // $this->db->set('kurs_dollar', floatval($kurs));
-        $this->db->set('remarks', $data['remarks']);
-        $this->db->set('created_by', config_item('auth_person_name'));
-        $this->db->set('doc_type', 5);
-        $this->db->set('tgl', date('Ymd', strtotime($received_date)));
-        $this->db->insert('tb_stock_cards');
-        $stock_card_id = $this->db->insert_id();
-        // }
       }
 
-      $base = ['WISNU' => 1, 'BANYUWANGI' => 2, 'SOLO' => 3, 'LOMBOK' => 4, 'JEMBER' => 5, 'PALANGKARAYA' => 6, 'WISNU REKONDISI' => 7, 'BSR REKONDISI' => 8,];
+      $base = [
+        'WISNU'           => 1, 
+        'BANYUWANGI'      => 2, 
+        'SOLO'            => 3, 
+        'LOMBOK'          => 4, 
+        'JEMBER'          => 5, 
+        'PALANGKARAYA'    => 6, 
+        'WISNU REKONDISI' => 7, 
+        'BSR REKONDISI'   => 8
+      ];
       $warehouse_id = $base[$warehouse];
       $date = date('Y-m-d');
       $kurs = tgl_kurs($received_date);
@@ -805,53 +706,18 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('warehouse', $warehouse);
       $this->db->set('stores', strtoupper($data['stores']));
       $this->db->set('initial_quantity', floatval($data['received_quantity']));
-      // $this->db->set('quantity', floatval($data['received_quantity']));
       $this->db->set('quantity', floatval($qty_konvers));
 
+      $received_unit_value = ($data['currency']=='IDR')? floatval($data['received_unit_value']):floatval($data['received_unit_value_dollar'])*floatval($kurs);
+      $received_unit_value_dollar = ($data['currency']=='IDR')? (floatval($data['received_unit_value'])/ floatval($kurs)):floatval($data['received_unit_value_dollar']);
 
-      if ($data['kurs_dollar'] == 1 || $data['kurs'] == 'rupiah') {
-        $this->db->set('unit_value', floatval($data['received_unit_value']));
-        $this->db->set('initial_unit_value', floatval($data['received_unit_value']));
-        $this->db->set('unit_value_dollar', floatval($data['received_unit_value']) / floatval($kurs));
-        $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value']) / floatval($kurs));
-        $this->db->set('kurs_dollar', 1);
-        $harga = $data['received_unit_value'];
-        $currency = 'IDR';
-        $harga_usd = floatval($data['received_unit_value']) / floatval($kurs);
-
-        // $this->db->set('current_price',floatval($data['received_unit_value']));
-        // $this->db->where('id',$item_id);
-        // $this->db->update('tb_master_items');
-      } else {
-        if ($data['kurs'] == 'dollar') {
-          $this->db->set('unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('unit_value', floatval($kurs) * floatval($data['received_unit_value']));
-          $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('kurs_dollar', floatval($kurs));
-          $this->db->set('initial_unit_value', floatval($kurs) * floatval($data['received_unit_value']));
-          $harga = floatval($kurs) * floatval($data['received_unit_value']);
-          $currency = 'USD';
-          $harga_usd = floatval($data['received_unit_value']);
-          // $this->db->set('current_price',floatval($harga));
-          // $this->db->where('id',$item_id);
-          // $this->db->update('tb_master_items');
-
-        } else {
-
-          $this->db->set('unit_value_dollar', floatval($data['received_unit_value_dollar']));
-          $this->db->set('unit_value', floatval($data['received_unit_value']));
-          $this->db->set('initial_unit_value_dollar', floatval($data['received_unit_value_dollar']));
-          $this->db->set('kurs_dollar', floatval($data['kurs_dollar']));
-          $this->db->set('initial_unit_value', floatval($kurs) * floatval($data['received_unit_value']));
-          $harga = floatval($data['received_unit_value']);
-          $currency = 'IDR';
-          $harga_usd = floatval($data['received_unit_value_dollar']);
-          // $this->db->set('current_price',floatval($harga));
-          // $this->db->where('id',$item_id);
-          // $this->db->update('tb_master_items');
-
-        }
-      }
+      $this->db->set('unit_value', floatval($received_unit_value));
+      $this->db->set('initial_unit_value', floatval($received_unit_value));
+      $this->db->set('unit_value_dollar', floatval($received_unit_value_dollar));
+      $this->db->set('initial_unit_value_dollar', floatval($received_unit_value_dollar));
+      $this->db->set('currency', $data['currency']);
+      $this->db->set('kurs_dollar', ($data['currency']=='IDR')? 1:floatval($kurs));
+      $currency = $data['currency'];
 
       $this->db->set('reference_document', $document_number);
       $this->db->set('received_date', $received_date);
@@ -871,25 +737,46 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('reference_ipc', $reference_ipc);
       if($data['tgl_nota']!=NULL){
         $this->db->set('tgl_nota', $data['tgl_nota']);
-      }
-      
+      }      
       $this->db->insert('tb_stock_in_stores');
-
       $stock_in_stores_id = $this->db->insert_id();
 
+      /**
+        * CREATE STOCK CARD
+      */      
+      $prev_stock   = getStockActive($stock_id);
+      $next_stock   = floatval($prev_stock->total_quantity) + floatval($data['received_quantity']);
+      
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
-      $this->db->set('unit_value', $harga);
-      $this->db->set('total_value', floatval($qty_konvers) * floatval($harga));
-      $this->db->where('id', $stock_card_id);
-      $this->db->update('tb_stock_cards');
+      $this->db->set('serial_id', $serial_id);
+      $this->db->set('stock_id', $stock_id);
+      $this->db->set('warehouse', $warehouse);
+      $this->db->set('stores', strtoupper($data['stores']));
+      $this->db->set('date_of_entry', $received_date);
+      $this->db->set('period_year', config_item('period_year'));
+      $this->db->set('period_month', config_item('period_month'));
+      $this->db->set('document_type', 'RECEIPT');
+      $this->db->set('document_number', $document_number);
+      $this->db->set('received_from', $received_from);
+      $this->db->set('received_by', $received_by);
+      $this->db->set('prev_quantity', floatval(0));
+      $this->db->set('balance_quantity', floatval(0) + floatval($qty_konvers));
+      $this->db->set('quantity', floatval($qty_konvers));
+      $this->db->set('unit_value', floatval($received_unit_value));
+      $this->db->set('total_value', floatval($qty_konvers) * floatval($received_unit_value));
+      $this->db->set('remarks', $data['remarks']);
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('doc_type', 5);
+      $this->db->set('tgl', date('Ymd', strtotime($received_date)));
+      $this->db->insert('tb_stock_cards');
+      $stock_card_id = $this->db->insert_id();
+        
 
-      $this->db->set('current_price', floatval($harga));
+      $this->db->set('current_price', floatval($received_unit_value));
       $this->db->where('id', $item_id);
       $this->db->update('tb_master_items');
 
       // }
-
-
       /**
        * INSERT INTO RECEIPT ITEMS
        */
@@ -951,37 +838,20 @@ class Goods_Received_Note_Model extends MY_Model
       $this->db->set('document_number', $document_number);
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
       $this->db->set('received_quantity', floatval($qty_konvers));
-      if ($data['kurs_dollar'] == 1 || $data['kurs'] == 'rupiah') {
-        $this->db->set('received_unit_value', floatval($data['received_unit_value']));
-        $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($qty_konvers));
-        $received_total_value +=  floatval($data['received_unit_value']) * floatval($qty_konvers);
-        $x = floatval($data['received_unit_value']) * floatval($qty_konvers);
-        $this->db->set('kurs_dollar', 1);
-      } else {
-        if ($data['kurs'] == 'dollar') {
-          $this->db->set('received_unit_value_dollar', floatval($data['received_unit_value']));
-          $this->db->set('received_unit_value', floatval($kurs) * floatval($data['received_unit_value']));
-          $this->db->set('received_total_value', floatval($kurs) * floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-          $received_total_value += floatval($kurs) * floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-          $x = floatval($kurs) * floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-          $this->db->set('received_total_value_dollar', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-          $this->db->set('kurs_dollar', floatval($kurs));
-        } else {
-          $this->db->set('received_unit_value_dollar', floatval($data['received_unit_value_dollar']));
-          $this->db->set('received_unit_value', floatval($data['received_unit_value']));
-          $this->db->set('received_total_value', floatval($data['received_unit_value']) * floatval($data['received_quantity']));
-          $received_total_value += floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-          $x = floatval($data['received_unit_value']) * floatval($data['received_quantity']);
-          $this->db->set('received_total_value_dollar', floatval($data['received_unit_value_dollar']) * floatval($data['received_quantity']));
-          $this->db->set('kurs_dollar', floatval($data['kurs_dollar']));
-        }
-      }
+      $this->db->set('received_unit_value_dollar', floatval($received_unit_value_dollar));
+      $this->db->set('received_unit_value', floatval($received_unit_value));
+      $this->db->set('received_total_value', floatval($received_unit_value) * floatval($qty_konvers));
+      $received_total_value += (floatval($received_unit_value) * floatval($qty_konvers));
+      $x = (floatval($received_unit_value) * floatval($qty_konvers));
+      $this->db->set('received_total_value_dollar', floatval($received_unit_value_dollar) * floatval($qty_konvers));
+      $this->db->set('kurs_dollar', floatval($kurs));
 
       $this->db->set('purchase_order_number', $data['purchase_order_number']);
       $this->db->set('reference_number', $data['reference_number']);
       $this->db->set('awb_number', $data['awb_number']);
       $this->db->set('remarks', $data['remarks']);
       $this->db->set('received_date_item', $received_date);
+      $this->db->set('currency', $currency);
       $this->db->set('quantity_order', floatval($data['quantity_order']));
       $this->db->set('value_order', floatval($data['value_order']));
       $this->db->set('isi', floatval($data['isi']));
@@ -989,10 +859,7 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('received_unit', strtoupper($data['received_unit']));
       } else {
         $this->db->set('received_unit', strtoupper($data['received_unit']));
-      }
-
-      // $this->db->set('group', strtoupper($data['group']));
-      // $this->db->set('doc_type', 3);     
+      }  
       $this->db->insert('tb_receipt_items');
       $receipt_items_id = $this->db->insert_id();
 
@@ -1001,15 +868,11 @@ class Goods_Received_Note_Model extends MY_Model
         if ($currency == 'IDR') {
           $id_master_akun = 1;
           $id_master_akun_uang_muka = 3;
-          $amount     = $harga * floatval($data['received_quantity']);
-          // $kode = "2-101";
-          // $x_total = $harga*floatval($data['received_quantity']);
+          $amount     = $received_unit_value * floatval($qty_konvers);
         } else {
           $id_master_akun = 2;
           $id_master_akun_uang_muka = 4;
-          $amount     = $harga_usd * floatval($data['received_quantity']);
-          // $kode = "2-1102";
-          // $x_total = $harga_usd*floatval($data['received_quantity']);
+          $amount     = $received_unit_value_dollar * floatval($qty_konvers);
         }
 
         $akun_payable = get_set_up_akun($id_master_akun);
@@ -1018,9 +881,9 @@ class Goods_Received_Note_Model extends MY_Model
         $coa = $this->coaByGroup(strtoupper($data['group']));
         $this->db->set('id_jurnal', $id_jurnal);
         $this->db->set('jenis_transaksi', $data['group']);
-        $this->db->set('trs_debet', $harga * floatval($data['received_quantity']));
+        $this->db->set('trs_debet', $received_unit_value * floatval($qty_konvers));
         $this->db->set('trs_kredit', 0);
-        $this->db->set('trs_debet_usd', $harga_usd * floatval($data['received_quantity']));
+        $this->db->set('trs_debet_usd', $received_unit_value_dollar * floatval($qty_konvers));
         $this->db->set('trs_kredit_usd', 0);
         $this->db->set('kode_rekening', $coa->coa);
         $this->db->set('stock_in_stores_id', $stock_in_stores_id);
@@ -1067,7 +930,6 @@ class Goods_Received_Note_Model extends MY_Model
                   $this->db->set('amount', $uang_muka['uang_muka']);
                   $this->db->set('created_by', config_item('auth_person_name'));
                   $this->db->insert('tb_uang_muka');
-
 
                 }else{
                   $this->db->set('id_jurnal', $id_jurnal);
@@ -1123,9 +985,9 @@ class Goods_Received_Note_Model extends MY_Model
             $this->db->set('id_jurnal', $id_jurnal);
             $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
             $this->db->set('trs_debet', 0);
-            $this->db->set('trs_kredit', $harga * floatval($data['received_quantity']));
+            $this->db->set('trs_kredit', $received_unit_value * floatval($qty_konvers));
             $this->db->set('trs_debet_usd', 0);
-            $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
+            $this->db->set('trs_kredit_usd', $received_unit_value_dollar * floatval($qty_konvers));
             $this->db->set('kode_rekening', $akun_payable->coa);
             $this->db->set('stock_in_stores_id', $stock_in_stores_id);
             $this->db->set('currency', $currency);
@@ -1137,9 +999,9 @@ class Goods_Received_Note_Model extends MY_Model
           $this->db->set('id_jurnal', $id_jurnal);
           $this->db->set('jenis_transaksi', strtoupper($akun_payable->group));
           $this->db->set('trs_debet', 0);
-          $this->db->set('trs_kredit', $harga * floatval($data['received_quantity']));
+          $this->db->set('trs_kredit', $received_unit_value * floatval($qty_konvers));
           $this->db->set('trs_debet_usd', 0);
-          $this->db->set('trs_kredit_usd', $harga_usd * floatval($data['received_quantity']));
+          $this->db->set('trs_kredit_usd', $received_unit_value_dollar * floatval($qty_konvers));
           $this->db->set('kode_rekening', $akun_payable->coa);
           $this->db->set('stock_in_stores_id', $stock_in_stores_id);
           $this->db->set('currency', $currency);
@@ -1177,8 +1039,8 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('tanggal', date("Y-m-d"));
         $this->db->set('no_grn', $document_number);
         $this->db->set('vendor', $received_from);
-        $this->db->set('amount_idr', $harga * floatval($data['received_quantity']));
-        $this->db->set('amount_usd', $harga_usd * floatval($data['received_quantity']));
+        $this->db->set('amount_idr', $received_unit_value * floatval($qty_konvers));
+        $this->db->set('amount_usd', $received_unit_value_dollar * floatval($qty_konvers));
         $this->db->set('payment', 0);
         $this->db->set('no_po', $data['purchase_order_number']);
         if (!empty($data['purchase_order_item_id'])) {
@@ -1190,24 +1052,13 @@ class Goods_Received_Note_Model extends MY_Model
         $this->db->set('stock_in_stores_id', $stock_in_stores_id);
         $this->db->insert('tb_hutang');
 
-        $this->db->set('current_price',floatval($harga));
+        $this->db->set('current_price',floatval($received_unit_value));
         $this->db->where('id',$item_id);
         $this->db->update('tb_master_items');
       }
 
       
     } //end foreach items
-
-
-
-
-    // $this->db->set('id_jurnal',$id_jurnal);
-    // $this->db->set('jenis_transaksi',strtoupper("kredit"));
-    // $this->db->set('trs_debet',0);
-    // $this->db->set('trs_kredit',$received_total_value);
-    // $this->db->set('kode_rekening','2-1101');
-    // $this->db->insert('tb_jurnal_detail');
-
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

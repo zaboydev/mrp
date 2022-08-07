@@ -136,13 +136,16 @@ class Goods_Received_Note extends MY_Controller
       $entities[$key]['label'] .= '<small>';
       $entities[$key]['label'] .= ($value['serial_number'] !== "") ? "SN: ". $value['serial_number'] ." || " : "";
       $entities[$key]['label'] .= 'Order Number: '. $value['document_number'] .' || ';
-      if($_SESSION['receipt']['category']=='purchase_order'){
+      if($_SESSION['receipt']['source']=='purchase_order'){
         $entities[$key]['label'] .= 'Consignor: '. $value['vendor'] .' || ';
-      }elseif ($_SESSION['receipt']['category']=='internal_delivery') {
+        if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'){
+          $entities[$key]['label'] .= 'Currency: '. $value['default_currency'] .' || ';
+          $entities[$key]['label'] .= 'Price: '. $value['unit_price'] .' || ';
+        }        
+      }elseif ($_SESSION['receipt']['source']=='internal_delivery') {
         $entities[$key]['label'] .= 'From: '. $value['received_from'] .' || ';
         $entities[$key]['label'] .= 'Condition: '. $value['condition'] .' || ';
-      }
-      
+      }      
       $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['left_received_quantity']) .'</code>';
       $entities[$key]['label'] .= '</small>';
 
@@ -519,6 +522,7 @@ class Goods_Received_Note extends MY_Controller
         'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
         'received_quantity'       => $this->input->post('received_quantity'),
         'received_unit_value'     => $this->input->post('received_unit_value'),
+        'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
         'minimum_quantity'        => $this->input->post('minimum_quantity'),
         'condition'               => $this->input->post('condition'),
         'expired_date'            => $this->input->post('expired_date'),
@@ -528,10 +532,10 @@ class Goods_Received_Note extends MY_Controller
         'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
         'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
         'unit'                    => trim($this->input->post('unit')),
-        'received_unit'                    => trim($this->input->post('received_unit')),
+        'received_unit'           => trim($this->input->post('received_unit')),
         'remarks'                 => trim($this->input->post('remarks')),
         'kode_stok'               => trim($this->input->post('kode_stok')),
-        'kurs'                    => trim($this->input->post('kurs')),
+        'currency'                => trim($this->input->post('kurs')),
         'unit_pakai'              => trim($this->input->post('unit_pakai')),
         'isi'                     => trim($this->input->post('isi')),
         'quantity_order'          => $this->input->post('quantity_order'),
@@ -616,7 +620,7 @@ class Goods_Received_Note extends MY_Controller
         'received_unit_value'     => $this->input->post('received_unit_value'),
         'minimum_quantity'        => $this->input->post('minimum_quantity'),
         'condition'               => $this->input->post('condition'),
-        'expired_date'            => $this->input->post('edit_expired_date'),
+        'expired_date'            => $this->input->post('expired_date'),
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
         'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
@@ -625,13 +629,13 @@ class Goods_Received_Note extends MY_Controller
         'unit'                    => trim($this->input->post('unit')),
         'received_unit'           => trim($this->input->post('received_unit')),
         'remarks'                 => trim($this->input->post('remarks')),
-        'kode_stok'               => trim($this->input->post('edit_kode_stok')),
-        'kurs'                    => trim($this->input->post('edit_kurs')),        
+        'kode_stok'               => trim($this->input->post('kode_stok')),
+        'currency'                => trim($this->input->post('kurs')),        
         'unit_pakai'              => trim($this->input->post('unit_pakai')), 
         'isi'                     => trim($this->input->post('isi')),
         'quantity_order'          => $this->input->post('quantity_order'),
         'value_order'             => $this->input->post('value_order'),
-        'no_expired_date'         => $this->input->post('edit_no_expired_date'),
+        'no_expired_date'         => $this->input->post('no_expired_date'),
         'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
         'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
         'tgl_nota'                => $this->input->post('tgl_nota'),        
@@ -880,13 +884,14 @@ class Goods_Received_Note extends MY_Controller
             'received_unit'           => trim($purchase_order_item['unit_pakai']),
             'remarks'                 => null,
             'kode_stok'               => null,
-            'kurs'                    => ($purchase_order_item['default_currency']=='USD' || $purchase_order_item['default_currency']=='AUD')? 'dollar':'rupiah',
+            'currency'                => $purchase_order_item['default_currency'],
             'unit_pakai'              => trim($purchase_order_item['unit_pakai']),
             'isi'                     => null,
             'quantity_order'          => $purchase_order_item['left_received_quantity'],
             'value_order'             => $purchase_order_item['unit_price'],
             'no_expired_date'         => null,
             'tgl_nota'                => null,
+            'received_unit_value_dollar'     => ($purchase_order_item['default_currency']!='IDR')?$purchase_order_item['unit_price']:1,
           );
         }
 
@@ -935,8 +940,9 @@ class Goods_Received_Note extends MY_Controller
           // $_SESSION['receipt']['items'][$id]['received_unit']         = $item['received_unit'];
           $_SESSION['receipt']['items'][$id]['expired_date']          = $item['expired_date'];
           $_SESSION['receipt']['items'][$id]['no_expired_date']       = ($item['expired_date']==null)?'no':'yes';
-          $_SESSION['receipt']['items'][$id]['kurs']                  = $item['kurs'];
+          $_SESSION['receipt']['items'][$id]['currency']              = $item['kurs'];
           $_SESSION['receipt']['items'][$id]['received_unit_value']   = $item['received_unit_value'];
+          $_SESSION['receipt']['items'][$id]['received_unit_value_dollar']   = $item['received_unit_value_dollar'];
           $_SESSION['receipt']['items'][$id]['value_order']           = $item['value_order'];          
         }
 
