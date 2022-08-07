@@ -2505,12 +2505,6 @@ class Purchase_Request_Model extends MY_Model
 
   public function findPrlByPoeItemid($poe_item_id)
   {
-    // $this->db->select('tb_inventory_purchase_requisition_details.*');
-    // $this->db->from('tb_inventory_purchase_requisition_details');
-    // $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
-
-    // $query_detail    = $this->db->get();
-    // $request_detail  = $query_detail->unbuffered_row();
     $this->db->select('tb_inventory_purchase_requisitions.id');
     $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id=tb_inventory_purchase_requisitions.id');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.inventory_purchase_request_detail_id=tb_inventory_purchase_requisition_details.id');

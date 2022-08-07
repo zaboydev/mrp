@@ -78,12 +78,12 @@
                 <label for="received_from">Received From</label>
               </div>
 
-              <div class="form-group hide">
+              <div class="form-group">
                 <input type="text" name="known_by" id="known_by" class="form-control" value="<?= $_SESSION['receipt']['known_by']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_known_by'); ?>">
                 <label for="known_by">Known By</label>
               </div>
 
-              <div class="form-group hide">
+              <div class="form-group">
                 <input type="text" name="approved_by" id="approved_by" class="form-control" value="<?= $_SESSION['receipt']['approved_by']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_approved_by'); ?>">
                 <label for="approved_by">Approved By</label>
               </div>

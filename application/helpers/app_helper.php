@@ -2934,4 +2934,21 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getReturnIdByReturnItemId')) {
+    function getReturnIdByReturnItemId($return_item_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_return_items.*');
+      $CI->db->from( 'tb_return_items' );
+      $CI->db->where('tb_return_items.id', $return_item_id);
+
+      $query    = $CI->db->get();
+      $row      = $query->unbuffered_row('array');
+      $return   = $row['return_id'];
+
+      return $return;
+    }
+  }
+
     

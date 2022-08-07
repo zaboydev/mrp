@@ -127,7 +127,11 @@
                     <?php if ($detail['poe_item_id'] == null) : ?>
                       <a href="#"><?= print_string($detail['purchase_request_number']); ?></a>
                     <?php else : ?>
+                      <?php if ($entity['source'] == 'request') : ?>
                       <a class="link" href="<?= site_url('purchase_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                      <?php elseif ($entity['source'] == 'return') : ?>
+                      <a class="link" href="<?= site_url($module['route'].'/print_return/' . $detail['return_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                      <?php endif; ?>
                     <?php endif; ?>
                   </td>
                   <td>

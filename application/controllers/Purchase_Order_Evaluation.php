@@ -14,10 +14,23 @@ class Purchase_Order_Evaluation extends MY_Controller
     $this->load->library('upload');
     $this->load->helper('string');
     $this->data['module'] = $this->module;
-    if (empty($_SESSION['poe']['source']))
-      $_SESSION['poe']['source'] = 1;
+    if (empty($_SESSION['poe']['source_request']))
+      $_SESSION['poe']['source_request'] = 1;
     if (empty($_SESSION['poe']['attachment']))
       $_SESSION['poe']['attachment'] = array();
+  }
+
+  public function set_source($source)
+  {
+    $this->authorized($this->module, 'document');
+
+    $source = urldecode($source);
+
+    $_SESSION['poe']['source']              = $source;
+    $_SESSION['poe']['request']             = array();
+      $_SESSION['poe']['vendors']             = array();
+
+    redirect($this->module['route'] . '/create');
   }
 
   public function set_doc_number()
@@ -567,6 +580,7 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['grand_total']         = NULL;
       $_SESSION['poe']['notes']               = NULL;
       $_SESSION['poe']['tipe']                = 'INVENTORY MRP';
+      $_SESSION['poe']['source']                = 'request';
 
       redirect($this->module['route'] . '/create');
     }
@@ -640,12 +654,12 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     echo json_encode($data);
   }
-  public function set_source()
+  public function set_source_request()
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] . '/denied');
 
-    $_SESSION['poe']['source'] = $_GET['data'];
+    $_SESSION['poe']['source_request'] = $_GET['data'];
     $result['status'] = "success";
     echo json_encode($result);
   }
@@ -695,7 +709,8 @@ class Purchase_Order_Evaluation extends MY_Controller
             'group'                   => $request['group_name'],
           );
 
-          $_SESSION['poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
+          $_SESSION['poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = ($_SESSION['poe']['source']=='request')?$request_id:null;
+          $_SESSION['poe']['request'][$request_id]['return_item_id'] = ($_SESSION['poe']['source']=='return')?$request_id:null;
           $_SESSION['poe']['request'][$request_id]['vendors'] = array();
         }
 

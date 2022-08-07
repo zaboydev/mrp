@@ -11,9 +11,9 @@
         <!-- <div class="col-md-12" style="margin-top: 10px;"> -->
 
           <label class="radio-inline hide">
-            <input type="radio" <?= $_SESSION['poe']['source'] == 0 ? "checked" : ""  ?> name="source" style="display:inline;" value="0" data-source="<?= site_url($module['route'] . '/set_source'); ?>">Budget Control</label>
+            <input type="radio" <?= $_SESSION['poe']['source_request'] == 0 ? "checked" : ""  ?> name="source" style="display:inline;" value="0" data-source="<?= site_url($module['route'] . '/set_source_request'); ?>">Budget Control</label>
           <label class="radio-inline">
-            <input type="radio" <?= $_SESSION['poe']['source'] == 1 ? "checked" : ""  ?> value="1" style="display: inline;" name="source" data-source="<?= site_url($module['route'] . '/set_source'); ?>">MRP
+            <input type="radio" <?= $_SESSION['poe']['source_request'] == 1 ? "checked" : ""  ?> value="1" style="display: inline;" name="source" data-source="<?= site_url($module['route'] . '/set_source_request'); ?>">MRP
           </label>
         <!-- </div> -->
         <div class="table-responsive">
