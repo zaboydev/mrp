@@ -203,12 +203,12 @@ class Commercial_Invoice extends MY_Controller
         $col[]  = print_string($row['issued_by']);
         $col[]  = print_string($row['received_from']);
         if (config_item('auth_role') != 'PIC STOCK'){
-          $col[]          = print_number($row['issued_unit_value'], 2);
-          $col[]          = print_number($row['issued_total_value'], 2);
+          $col[]          = print_number($row['insurance_unit_value'], 2);
+          $col[]          = print_number($row['insurance_unit_value']*$row['issued_quantity'], 2);
 
 
-          $unit_value[]   = $row['issued_unit_value'];
-          $total_value[]  = $row['issued_total_value'];
+          $unit_value[]   = $row['insurance_unit_value'];
+          $total_value[]  = $row['insurance_unit_value']*$row['issued_quantity'];
         }
         if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){          
           $col[]  = print_number($row['kurs_dollar'], 2);

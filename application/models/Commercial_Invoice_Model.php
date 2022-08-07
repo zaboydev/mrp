@@ -29,7 +29,7 @@ class Commercial_Invoice_Model extends MY_Model
     );
 
     if (config_item('auth_role') != 'PIC STOCK'){
-      $selected['tb_return_items.issued_unit_value']  = 'Value';
+      $selected['tb_return_items.insurance_unit_value']  = 'Value';
       $selected['tb_return_items.issued_total_value'] = 'Total Value IDR';
     }
 
