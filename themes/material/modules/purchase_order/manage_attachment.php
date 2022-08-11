@@ -117,7 +117,9 @@
   <div class="clearfix"></div>
   <hr>
   <div class="clearfix">
+    <?php if(config_item('auth_role') != 'FINANCE MANAGER' && config_item('auth_role') != 'FINANCE'):?>
     <a type="button" href="<?=site_url($module['route'] .'/add_attachment_poe/'.$id);?>" class="btn btn-primary pull-left">Add Attachment POE</a>
+    <?php endif;?>
     <button type="button" class="btn btn-default pull-right" onclick="popupClose()">Close</button>
   </div>
   <div class="clearfix"></div>
