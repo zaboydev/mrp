@@ -19,5 +19,5 @@ $config['module']['purchase_order']['permission']     = array(
   'payment'   => 'FINANCE,SUPER ADMIN',//tambhan supervisor
   'approval'  => 'FINANCE MANAGER,VP FINANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,CHIEF OPERATION OFFICER',
   'order'     => 'PROCUREMENT,SUPER ADMIN',
-  'manage_attachment' => 'PIC PROCUREMENT,PROCUREMENT,SUPER ADMIN,AP STAFF'
+  'manage_attachment' => 'PIC PROCUREMENT,PROCUREMENT,SUPER ADMIN,AP STAFF,FINANCE MANAGER,FINANCE'
 );
