@@ -691,7 +691,7 @@ class Purchase_Order_Evaluation extends MY_Controller
           $_SESSION['poe']['request'][$request_id] = array(
             'description'             => $request['product_name'],
             'part_number'             => $request['product_code'],
-            'alternate_part_number'   => NULL,
+            'alternate_part_number'   => ($_SESSION['poe']['source']=='return')?$request['alternate_part_number']:null,
             'serial_number'           => $request['serial_number'],
             'unit'                    => $request['unit'],
             'quantity'                => floatval($request['sisa']),
