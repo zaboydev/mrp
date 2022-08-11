@@ -29,6 +29,14 @@
                 <th>
                   Part Number
                 </th>
+                <?php if($_SESSION['poe']['source']=='return'):?>
+                <th>
+                  Alt. Part Number
+                </th>
+                <th>
+                  Serial Number
+                </th>
+                <?php endif;?>
                 <th>
                   Additional Info
                 </th>
@@ -78,6 +86,18 @@
                       <?= print_string($entity['product_code']); ?>
                     </label>
                   </td>
+                  <?php if($_SESSION['poe']['source']=='return'):?>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_string($entity['alternate_part_number']); ?>
+                    </label>
+                  </td>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_string($entity['serial_number']); ?>
+                    </label>
+                  </td>
+                  <?php endif;?>
                   <td>
                     <label for="request_id_<?= $e; ?>">
                       <?= print_string($entity['additional_info']); ?>
