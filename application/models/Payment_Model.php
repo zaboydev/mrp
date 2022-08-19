@@ -804,6 +804,7 @@ class Payment_Model extends MY_MODEL
 		return TRUE;
 	}
 
+	/**ini yang dipakai */
 	function save(){
 		$this->db->trans_begin();
 
@@ -908,6 +909,7 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('coa_kredit', null);
 				$this->db->set('adj_value', $item["adj_value"]);
 				$this->db->set('quantity_paid', $item['qty_paid']);
+				$this->db->set('account_code', $item['account_code']);
 				if ($status == "ORDER") {
 					$this->db->set('uang_muka', $item["amount_paid"]);
 				}
@@ -1266,7 +1268,8 @@ class Payment_Model extends MY_MODEL
 				'tb_po.default_currency',
 				'tb_po.tipe_po',
 				'tb_po.due_date',
-				'tb_po.tipe'
+				'tb_po.tipe',
+				'account_code'
 				
 			);
 
@@ -1766,7 +1769,12 @@ class Payment_Model extends MY_MODEL
 					}
 					$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
 				}
-				$akun = get_set_up_akun($id_master_akun);
+				if($key['account_code']!=null){
+					$akun = getAccountByCode($key['account_code']);
+				}else{
+					$akun = get_set_up_akun($id_master_akun);
+				}
+				
 
 				$this->db->set('id_jurnal', $id_jurnal);
 				$this->db->set('jenis_transaksi', strtoupper($akun->group));
