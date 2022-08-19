@@ -196,6 +196,20 @@ class Expense_Closing_Payment_Model extends MY_Model
             
         }
 
+        if (!empty($_POST['columns'][6]['search']['value'])) {
+			$type = $_POST['columns'][6]['search']['value'];
+			if($type!='all'){
+				$this->connection->like('tb_request_payments.type', $type);
+			}			
+		}
+
+		if (!empty($_POST['columns'][7]['search']['value'])) {
+			$account = $_POST['columns'][7]['search']['value'];
+			if($account!='all'){
+				$this->connection->like('tb_request_payments.coa_kredit', $account);
+			}			
+		}
+
         $i = 0;
 
         foreach ($this->getSearchableColumns() as $item) {
