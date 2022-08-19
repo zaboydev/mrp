@@ -191,6 +191,20 @@ class Payment_Model extends MY_MODEL
 			
 		}
 
+		if (!empty($_POST['columns'][6]['search']['value'])) {
+			$type = $_POST['columns'][6]['search']['value'];
+			if($type!='all'){
+				$this->db->like('tb_po_payments.type', $type);
+			}			
+		}
+
+		if (!empty($_POST['columns'][7]['search']['value'])) {
+			$account = $_POST['columns'][7]['search']['value'];
+			if($account!='all'){
+				$this->db->like('tb_po_payments.coa_kredit', $account);
+			}			
+		}
+
 		$i = 0;
 
 		foreach ($this->getSearchableColumns() as $item) {
@@ -2249,10 +2263,24 @@ class Payment_Model extends MY_MODEL
 			}
 		}
 
-		if (!empty($_POST['columns'][4]['search']['value'])) {
-			$status = $_POST['columns'][4]['search']['value'];
+		if (!empty($_POST['columns'][3]['search']['value'])) {
+			$status = $_POST['columns'][3]['search']['value'];
 			if($status!='all'){
 				$this->db->like('tb_po_payments.status', $status);
+			}			
+		}
+
+		if (!empty($_POST['columns'][4]['search']['value'])) {
+			$type = $_POST['columns'][4]['search']['value'];
+			if($type!='all'){
+				$this->db->like('tb_po_payments.type', $type);
+			}			
+		}
+
+		if (!empty($_POST['columns'][5]['search']['value'])) {
+			$account = $_POST['columns'][5]['search']['value'];
+			if($account!='all'){
+				$this->db->like('tb_po_payments.coa_kredit', $account);
 			}			
 		}
 
