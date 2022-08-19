@@ -50,10 +50,11 @@
                             <th>Qty</th>
                             <th>Unit</th>
                             <th>Condition</th>
-                            <th>Stores</th>
-                            <th>Order Number</th>
-                            <th>Ref./Invoice</th>
-                            <th>AWB Number</th>
+                            <th>Interval</th>
+                            <th>Installation Date</th>
+                            <th>AF TSN</th>
+                            <th>Equip TSN</th>
+                            <th>TSO</th>
                             <th>Remarks</th>
                             </tr>
                         </thead>
@@ -86,32 +87,31 @@
                                   <?= $items['serial_number']; ?>
                                 </td>
                                 <td>
-                                  <?= number_format($items['received_quantity'], 2); ?>
+                                  <?= number_format($items['quantity'], 2); ?>
                                 </td>
                                 <td>
-                                <?= $items['unit_pakai']; ?>
+                                <?= $items['unit']; ?>
                                 </td>
                                 <td>
                                   <?= $items['condition']; ?>
                                 </td>
                                 <td>
-                                  <?= $items['stores']; ?>
+                                  <?= $items['interval']; ?>
                                 </td>
                                 <td>
-                                  <?= $items['purchase_order_number']; ?>
+                                  <?= $items['installation_date']; ?>
+                                </td>
+                                <td> 
+                                  <?= $items['af_tsn']; ?>
                                 </td>
                                 <td>
-                                  <?= $items['reference_number']; ?>
+                                  <?= $items['equip_tsn']; ?>
                                 </td>
                                 <td>
-                                <?= $items['awb_number']; ?>
+                                  <?= $items['tso']; ?>
                                 </td>
                                 <td>
                                   <?= $items['remarks']; ?>
-                                </td>
-                                <td>
-                                  <?= $items['received_unit_value']; ?>
-                                  <?= $items['kurs_dollar']; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -637,7 +637,7 @@
           toastr.success(obj.message);
 
           window.setTimeout(function() {
-            window.location.href = '<?= site_url($module['route']); ?>';
+            window.location.href = '<?= $page['route']; ?>';
           }, 5000);
         }
 

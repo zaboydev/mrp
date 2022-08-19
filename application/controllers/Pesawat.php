@@ -255,6 +255,7 @@ class Pesawat extends MY_Controller
   {
     $this->authorized($this->module, 'create_component');
 
+
     if ($type !== NULL && $aircraft_id!=NULL){
       $type = urldecode($type);
       $aircraft = $this->model->findById($aircraft_id);
@@ -277,6 +278,7 @@ class Pesawat extends MY_Controller
     $this->data['page']['content']    = $this->module['view'] .'/component/create';
     $this->data['page']['offcanvas']  = $this->module['view'] .'/component/create_offcanvas_add_item';
     $this->data['page']['title']      = "Create Aircraft Component";
+    $this->data['page']['route']      = site_url($this->module['route'] . '/index_aircraft_component/' . $_SESSION['component']['aircraft_id']);
 
     $this->render_view($this->module['view'] .'/component/create');
   }
@@ -326,6 +328,9 @@ class Pesawat extends MY_Controller
             'remarks'                 => null,
             'issuance_document_number'  => trim(strtoupper($issuance_item['document_number'])),
             'issued_item_id'          => $issuance_item_id,
+            'quantity'                => $issuance_item['issued_quantity'],
+            'condition'               => $issuance_item['condition'],
+            'unit'                    => $issuance_item['unit'],
           );
         }
 
