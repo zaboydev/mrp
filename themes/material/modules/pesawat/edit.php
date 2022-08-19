@@ -38,7 +38,7 @@
     </div>
 
     <div class="card-foot">
-      <input type="text" name="id" id="id" value="<?=$entity['id'];?>">
+      <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
       <input type="hidden" name="nama_pesawat_exception" id="nama_pesawat_exception" value="<?=$entity['nama_pesawat'];?>">
 
       <?php if (is_granted($module, 'delete')):?>

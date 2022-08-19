@@ -6,6 +6,9 @@ $config['parent']['dashboard']['icon']   = 'md md-home';
 $config['parent']['master']['label']  = 'Master Data';
 $config['parent']['master']['icon']   = 'md md-storage';
 
+$config['parent']['aircraft']['label']  = 'Aircraft';
+$config['parent']['aircraft']['icon']   = 'md md-flight';
+
 $config['parent']['stock']['label']  = 'Inventory Report';
 $config['parent']['stock']['icon']   = 'md md-assessment';
 
