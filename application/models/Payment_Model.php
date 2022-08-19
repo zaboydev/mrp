@@ -932,6 +932,9 @@ class Payment_Model extends MY_MODEL
 					}
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
 					$this->db->set('quantity_paid', '"quantity_paid" + ' . $item['qty_paid'], false);
+					if ($status == "ORDER") {
+						$this->db->set('uang_muka', '"uang_muka" + ' . $val_request, false);
+					}
 					$this->db->where('id', $item["purchase_order_item_id"]);
 					$this->db->update('tb_po_item');
 				}else{
