@@ -75,3 +75,11 @@ $config['source_poe'] = array(
   'request'             => 'Purchase Request',
   'return'              => 'Return & Service',
 );
+
+$config['component_type'] = array(
+  'system'                        => 'system',
+  'engine instrument'             => 'engine instrument',
+  'flight instrument'             => 'flight instrument',
+  'avionics'                      => 'avionics',
+  'modification'                  => 'modification',
+);
