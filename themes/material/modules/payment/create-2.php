@@ -233,6 +233,7 @@
                     <td>
                         <?= print_string($detail_po['description']) ?>
                         <input name="desc[]" id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['description'] ?>" type="hidden">
+                        <input name="account_code[]" id="account_code_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['account_code'] ?>" type="hidden">
                     </td>
                     <td>
                         <?= $detail_po['due_date'] ?>
@@ -321,8 +322,45 @@
       </button>
     </div>
   </div>
-  <?= form_close(); ?>
 </section>
+<?= form_close(); ?>
+<table class="table-row-item hide">
+  <tbody>
+    <tr>
+      <td class="item-list">
+                             
+      </td>
+      <td colspan="4">
+        <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
+        <select name="account_code[]" class="form-control-payment" style="width: 100%">
+          <option value="">-- SELECT Account --</option>
+          <?php foreach (getAccounts() as $key => $account) : ?>
+          <option value="<?= $account['coa']; ?>">
+          <?= $account['coa']; ?> <?= $account['group']; ?>
+          </option>
+          <?php endforeach; ?>
+        <select>
+      </td> 
+      <td colspan="6">
+        <input type="hidden" value="0" name="po_item_id[]" class="form-control-payment">
+        <input type="hidden" value="0" name="po_id[]">
+        <input type="text" name="desc[]" class="form-control-payment" placeholder="Deskripsi">
+      </td>
+      <td>
+        <input name="adj_value[]" type="number" class="hide sel_applied_adj sel_applied_adj" value="0" style="display: inline;">
+        <input type="number" name="value[]" class="form-control-payment sel_applied_item_add">
+      </td>     
+      <td colspan="2">
+      </td>
+      <td>
+        <center>
+          <a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i>
+          </a>
+        </center>                      
+      </td>
+    </tr>
+  </tbody>
+</table>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
@@ -339,7 +377,8 @@
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
-<?=html_script('vendors/select2-pmd/js/pmd-select2.js') ?>
+<?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+<?= html_script('vendors/select2-pmd/js/pmd-select2.js') ?>
 
 <script>
   Pace.on('start', function() {
@@ -374,6 +413,10 @@
     else return false;
   }
 
+  $('.select2').select2({
+    theme: "bootstrap",
+  });
+
   function addRow() {
     var row = '<tr>'+
     '<td colspan="5"><input name="desc[]" type="text" class="form-control-payment"></td>'+
@@ -388,7 +431,11 @@
     '<td><input name="adj_value[]" type="number" class="hide sel_applied_adj sel_applied_adj" value="0" style="display: inline;"></td>'+
     '<td><center><a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i></a></center></td>'+
     '</tr>';
-    $("#listView").append(row);
+    // $("#listView").append(row);
+    var row_payment = $('.table-row-item tbody').html();
+    var el = $(row_payment);
+    $('#table-document tbody').append(el);
+    $('#table-document tbody tr:last').find('select[name="account_code[]"]').select2();
     setAddValue();
 
     btn_row_delete_item();
@@ -885,28 +932,24 @@
 
   })
 
-  function setAddValue() {
-    $('[name="value[]"]').change(function () {
+  function setAddValue() {    
+    $('[name="value[]"]').on("change", function() {
       changeTotal();
     });
   }
 
   function changeTotal() {
     var sum = 0
-    // $.each(row, function(i, item) {
-    //   sum += parseFloat($("#in_" + item).val())
-    // });
+    
     $('[name="value[]"]').each(function (key, val) {
       var val = $(this).val();
-      sum = parseFloat(sum) + parseFloat(val);
+      if(val!=''){
+        console.log(val)
+        sum = parseFloat(sum) + parseFloat(val);
+      }
     });
-    // console.log(row_detail)
-    // $('.sel_applied_' + parent).each(function(key, val) {
-    //   var val = $(this).val();
-    //   sum = parseFloat(sum) + parseFloat(val);
-    // });
+    
     $("#total_general").html(sum);
-    // $("#amount").val(sum);
 
     $('#amount').val(sum).trigger('change');
   }

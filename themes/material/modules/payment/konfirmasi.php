@@ -91,6 +91,7 @@
             <?php 
                 $total_amount = array();
                 $total_qty = array();
+                $no = 1;
             ?>
                 <?php foreach ($_SESSION['payment_request']['items'] as $id => $request) : ?>
                 <?php 
@@ -99,10 +100,10 @@
                 ?>
                 <tr id="row_<?= $id; ?>">
                     <td>
-                        <?= $request['po_id']; ?><?= $request['purchase_order_item_id']; ?>
+                        <?= $no++;?>
                     </td>
                     <td>
-                        <?= $request['po_number']; ?>
+                        <?= ($request['po_number']!=NULL)? $request['po_number']:$request['account_code']; ?>
                     </td>
                     <td>
                         <?= $request['deskripsi']; ?>

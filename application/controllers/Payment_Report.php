@@ -145,6 +145,25 @@ class Payment_Report extends MY_Controller
     $this->render_view($this->module['view'] . '/index-report');
   }
 
+  public function get_accounts()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+    // $vendor = $this->input->post('vendor');
+
+    $type = $this->input->post('type');
+    $accounts = getAccount($type);
+    $option = '<option value="all">--All Account--</option>';
+    foreach ($accounts as $key => $account) {
+      $option .= '<option value="' . $account['coa'] . '">' . $account['coa'] . ' - ' . $account['group'] . '</option>';
+    }
+
+    $return = [
+      'account' => $option
+    ];
+    echo json_encode($return);
+  }
+
   public function create_2($category = NULL)
   {
     $this->data['currency']                 = 'IDR';

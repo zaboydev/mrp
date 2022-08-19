@@ -191,6 +191,20 @@ class Payment_Model extends MY_MODEL
 			
 		}
 
+		if (!empty($_POST['columns'][6]['search']['value'])) {
+			$type = $_POST['columns'][6]['search']['value'];
+			if($type!='all'){
+				$this->db->like('tb_po_payments.type', $type);
+			}			
+		}
+
+		if (!empty($_POST['columns'][7]['search']['value'])) {
+			$account = $_POST['columns'][7]['search']['value'];
+			if($account!='all'){
+				$this->db->like('tb_po_payments.coa_kredit', $account);
+			}			
+		}
+
 		$i = 0;
 
 		foreach ($this->getSearchableColumns() as $item) {
@@ -804,6 +818,7 @@ class Payment_Model extends MY_MODEL
 		return TRUE;
 	}
 
+	/**ini yang dipakai */
 	function save(){
 		$this->db->trans_begin();
 
@@ -908,6 +923,7 @@ class Payment_Model extends MY_MODEL
 				$this->db->set('coa_kredit', null);
 				$this->db->set('adj_value', $item["adj_value"]);
 				$this->db->set('quantity_paid', $item['qty_paid']);
+				$this->db->set('account_code', $item['account_code']);
 				if ($status == "ORDER") {
 					$this->db->set('uang_muka', $item["amount_paid"]);
 				}
@@ -930,6 +946,9 @@ class Payment_Model extends MY_MODEL
 					}
 					$this->db->set('left_paid_request', '"left_paid_request" - ' . $val_request, false);
 					$this->db->set('quantity_paid', '"quantity_paid" + ' . $item['qty_paid'], false);
+					if ($status == "ORDER") {
+						$this->db->set('uang_muka', '"uang_muka" + ' . $val_request, false);
+					}
 					$this->db->where('id', $item["purchase_order_item_id"]);
 					$this->db->update('tb_po_item');
 				}else{
@@ -1266,7 +1285,8 @@ class Payment_Model extends MY_MODEL
 				'tb_po.default_currency',
 				'tb_po.tipe_po',
 				'tb_po.due_date',
-				'tb_po.tipe'
+				'tb_po.tipe',
+				'account_code'
 				
 			);
 
@@ -1766,7 +1786,12 @@ class Payment_Model extends MY_MODEL
 					}
 					$jenis_transaksi = 'SUPLIER PAYABLE ' . $currency;
 				}
-				$akun = get_set_up_akun($id_master_akun);
+				if($key['account_code']!=null){
+					$akun = getAccountByCode($key['account_code']);
+				}else{
+					$akun = get_set_up_akun($id_master_akun);
+				}
+				
 
 				$this->db->set('id_jurnal', $id_jurnal);
 				$this->db->set('jenis_transaksi', strtoupper($akun->group));
@@ -2238,10 +2263,24 @@ class Payment_Model extends MY_MODEL
 			}
 		}
 
-		if (!empty($_POST['columns'][4]['search']['value'])) {
-			$status = $_POST['columns'][4]['search']['value'];
+		if (!empty($_POST['columns'][3]['search']['value'])) {
+			$status = $_POST['columns'][3]['search']['value'];
 			if($status!='all'){
 				$this->db->like('tb_po_payments.status', $status);
+			}			
+		}
+
+		if (!empty($_POST['columns'][4]['search']['value'])) {
+			$type = $_POST['columns'][4]['search']['value'];
+			if($type!='all'){
+				$this->db->like('tb_po_payments.type', $type);
+			}			
+		}
+
+		if (!empty($_POST['columns'][5]['search']['value'])) {
+			$account = $_POST['columns'][5]['search']['value'];
+			if($account!='all'){
+				$this->db->like('tb_po_payments.coa_kredit', $account);
 			}			
 		}
 

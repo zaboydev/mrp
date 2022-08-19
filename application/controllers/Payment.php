@@ -248,6 +248,7 @@ class Payment extends MY_Controller
     echo json_encode($return);
   }
 
+  /**ini dipakai untuk ke halaman konfirmasi */
   public function save_2()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -269,6 +270,7 @@ class Payment extends MY_Controller
       $value_items		 	  = $this->input->post('value');
       $adj_value_items	 	= $this->input->post('adj_value');
       $qty_paid	 			    = $this->input->post('qty_paid');
+      $account_code		    = $this->input->post('account_code');
       $_SESSION['payment_request']['items'] = array();
 
       $amount_paid = array();
@@ -301,6 +303,7 @@ class Payment extends MY_Controller
               'adj_value'               => floatval($adj_value_items[$key]),
               'qty_paid'                => $qty_paid[$key],
               'po_id'                   => $pos_id[$key],
+              'account_code'            => $account_code[$key]
             );
 
             $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
@@ -320,6 +323,7 @@ class Payment extends MY_Controller
                 'adj_value'               => floatval($adj_value_items[$key]),
                 'qty_paid'                => $qty_paid[$key],
                 'po_id'                   => $pos_id[$key],
+                'account_code'            => $account_code[$key]
               );
               $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
             }else{
@@ -336,6 +340,7 @@ class Payment extends MY_Controller
                 'adj_value'               => floatval($adj_value_items[$key]),
                 'qty_paid'                => 0,
                 'po_id'                   => $pos_id[$key],
+                'account_code'            => $account_code[$key]
               );
               $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
             }
@@ -389,6 +394,7 @@ class Payment extends MY_Controller
     echo json_encode($data);
   }
 
+  /**ini yang dipakai */
   public function save()
   {
     if (is_granted($this->module, 'document') == FALSE) {

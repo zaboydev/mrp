@@ -605,6 +605,7 @@ if ( ! function_exists('available_vendors')) {
     $CI->db->select('tb_master_vendors.vendor');
     $CI->db->from('tb_master_vendors');
     $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
+    $CI->db->order_by('tb_master_vendors.vendor','ASC');
 
     // if ($category !== NULL){
     //   $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
