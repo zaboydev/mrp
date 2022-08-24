@@ -185,6 +185,20 @@ class Ajax_Model extends MY_Model
     return ($query->num_rows() > 0) ? FALSE : TRUE;
   }
 
+  public function warehouse_alternate_name_validation($value, $old_value = NULL)
+  {
+    $this->db->from(config_item('module')['warehouse']['table']);
+
+    if ($old_value !== NULL)
+      $this->db->where('UPPER(alternate_warehouse_name) != ', strtoupper($old_value));
+
+    $this->db->where('UPPER(alternate_warehouse_name)', strtoupper($value));
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
+
   public function listItems(array $category = NULL)
   {
     $this->column_select = array(

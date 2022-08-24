@@ -14,16 +14,20 @@ class Warehouse_Model extends MY_Model
   public function getSelectedColumns()
   {
     return array(
-      'id'          => NULL,
-      'warehouse'   => 'Warehouse',
-      'address'     => 'Address',
-      'updated_at'  => 'Last Update',
+      'id'                          => NULL,
+      'code'                        => 'Code',
+      'warehouse'                   => 'Warehouse',
+      'alternate_warehouse_name'    => 'Alternate Name',
+      'address'                     => 'Address',
+      'updated_at'                  => 'Last Update',
     );
   }
 
   public function getSearchableColumns()
   {
     return array(
+      'code',
+      'alternate_warehouse_name',
       'warehouse',
       'address',
     );
@@ -33,7 +37,9 @@ class Warehouse_Model extends MY_Model
   {
     return array(
       null,
+      'code',
       'warehouse',
+      'alternate_warehouse_name',
       'address',
       'updated_at',
     );
@@ -125,6 +131,7 @@ class Warehouse_Model extends MY_Model
 
     $this->db->set('warehouse', strtoupper($this->input->post('warehouse')));
     $this->db->set('code', strtoupper($this->input->post('code')));
+    $this->db->set('alternate_warehouse_name', strtoupper($this->input->post('alternate_warehouse_name')));
     $this->db->set('address', $this->input->post('address'));
     $this->db->set('notes', $this->input->post('notes'));
     $this->db->set('created_by', config_item('auth_username'));
@@ -152,6 +159,7 @@ class Warehouse_Model extends MY_Model
 
     $this->db->set('warehouse', strtoupper($this->input->post('warehouse')));
     $this->db->set('code', strtoupper($this->input->post('code')));
+    $this->db->set('alternate_warehouse_name', strtoupper($this->input->post('alternate_warehouse_name')));
     $this->db->set('address', $this->input->post('address'));
     $this->db->set('notes', $this->input->post('notes'));
     $this->db->set('updated_at', date('Y-m-d H:i:s'));
