@@ -13,6 +13,7 @@
             <thead>
                 <tr>
                     <th>No</th>
+                    <th class="middle-alignment">Item yg off</th>
                     <th class="middle-alignment">P/N</th>
                     <th class="middle-alignment">S/N</th>
                     <th class="middle-alignment">Alt. P/N</th>
@@ -31,6 +32,9 @@
                 
                 <tr id="row_2_<?= $id; ?>" style="<?=$color;?>">
                     <td> <?= $no++; ?></td>
+                    <td> 
+                        <input type="text" data-search-for="interval" name="items[<?= $id; ?>][interval]" class="form-control input-sm" value="<?=$item['interval']?>" required>
+                    </td>
                     <td> <?= $item['part_number']?></td>
                     <td> <?= $item['serial_number']?></td>
                     <td> <?= $item['alternate_part_number']?></td>
