@@ -117,8 +117,11 @@ class Pesawat_Model extends MY_Model
   {
     $this->db->where('id', $id);
     $query = $this->db->get('tb_master_pesawat');
+    $aircraft = $query->row_array();
+    $aircraft['instrument_nf_array']  = explode(',', $aircraft['instrument_nf']);
+    $aircraft['instrument_avionic_array']  = explode(',', $aircraft['instrument_avionic']);
 
-    return $query->row_array();
+    return $aircraft;
   }
 
   public function insert()
@@ -126,6 +129,15 @@ class Pesawat_Model extends MY_Model
     $this->db->trans_begin();
 
     $this->db->set('nama_pesawat', strtoupper($this->input->post('nama_pesawat')));
+    $this->db->set('base', strtoupper($this->input->post('base')));
+    $this->db->set('aircraft_serial_number', strtoupper($this->input->post('aircraft_serial_number')));
+    $this->db->set('engine_serial_number', strtoupper($this->input->post('engine_serial_number')));
+    $this->db->set('propeler_serial_number', strtoupper($this->input->post('engine_serial_number')));
+    $this->db->set('fuel_capacity_usage', strtoupper($this->input->post('fuel_capacity_usage')));
+    $this->db->set('fuel_capacity_mix', strtoupper($this->input->post('fuel_capacity_mix')));
+    $this->db->set('instrument_nf', strtoupper($this->input->post('instrument_nf')));
+    $this->db->set('instrument_avionic', strtoupper($this->input->post('instrument_avionic')));
+    $this->db->set('date_of_manufacture', strtoupper($this->input->post('date_of_manufacture')));
     $this->db->set('keterangan', strtoupper($this->input->post('keterangan')));
     $this->db->set('created_by', config_item('auth_username'));
     $this->db->set('updated_by', config_item('auth_username'));
@@ -143,8 +155,40 @@ class Pesawat_Model extends MY_Model
   public function update($id)
   {
     $this->db->trans_begin();
+    $instrument_nf = '';
+    $instrument_nf_count = count($this->input->post('instrument_nf'));
+    $nf = 1; 
+    foreach ($this->input->post('instrument_nf') as $key => $instrument_nf_value){
+      if($nf==$instrument_nf_count){
+        $instrument_nf .= $instrument_nf_value;
+      }else{
+        $instrument_nf .= $instrument_nf_value.',';
+      }
+      $nf++;
+    }
+
+    $instrument_avionic = '';
+    $instrument_avionic_count = count($this->input->post('instrument_avionic'));
+    $avionic = 1; 
+    foreach ($this->input->post('instrument_avionic') as $key => $instrument_avionic_value){
+      if($avionic==$instrument_avionic_count){
+        $instrument_avionic .= $instrument_avionic_value;
+      }else{
+        $instrument_avionic .= $instrument_avionic_value.',';
+      }
+      $avionic++;
+    }
 
     $this->db->set('nama_pesawat', strtoupper($this->input->post('nama_pesawat')));
+    $this->db->set('base', strtoupper($this->input->post('base')));
+    $this->db->set('aircraft_serial_number', strtoupper($this->input->post('aircraft_serial_number')));
+    $this->db->set('engine_serial_number', strtoupper($this->input->post('engine_serial_number')));
+    $this->db->set('propeler_serial_number', strtoupper($this->input->post('engine_serial_number')));
+    $this->db->set('fuel_capacity_usage', strtoupper($this->input->post('fuel_capacity_usage')));
+    $this->db->set('fuel_capacity_mix', strtoupper($this->input->post('fuel_capacity_mix')));
+    $this->db->set('instrument_nf', $instrument_nf);
+    $this->db->set('instrument_avionic', $instrument_avionic);
+    $this->db->set('date_of_manufacture', $this->input->post('date_of_manufacture'));
     $this->db->set('keterangan', strtoupper($this->input->post('keterangan')));
     $this->db->set('updated_at', date('Y-m-d H:i:s'));
     $this->db->set('updated_by', config_item('auth_username'));

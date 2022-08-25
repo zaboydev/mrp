@@ -2952,4 +2952,34 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('available_warehouses_alternate_name')) {
+    function available_warehouses_alternate_name($warehouse = NULL)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('alternate_warehouse_name');
+      $CI->db->from('tb_master_warehouses');
+      $CI->db->where('UPPER(status)', 'AVAILABLE');
+      $CI->db->where('alternate_warehouse_name is NOT NULL', NULL, FALSE);
+  
+      if ($warehouse !== NULL){
+        if (is_array($warehouse)){
+          $CI->db->where_not_in('warehouse', $warehouse);
+        } else {
+          $CI->db->where('warehouse != ', $warehouse);
+        }
+      }
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = array();
+  
+      foreach ($result as $row) {
+        $return[] = $row['alternate_warehouse_name'];
+      }
+  
+      return $return;
+    }
+  }
+
     

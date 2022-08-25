@@ -38,7 +38,7 @@
                 <?= print_string('Opening Balance'); ?>
             </td>
             <td>
-                <?= print_number($saldo_awal['saldo_awal'],2); ?>
+                <?= print_number($saldo_awal,2); ?>
             </td>
             <td>
                 <?= print_number(0,2); ?>

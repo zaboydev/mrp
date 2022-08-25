@@ -202,11 +202,11 @@
                                         <label for="vendor">Account</label>
                                     </div>
                                     <div class="form-group">
-                                        <input class="form-control input-sm" data-column="2" id="start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd">
+                                        <input class="form-control input-sm" data-column="2" id="start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" value="<?=date('Y-m-d')?>" required>
                                         <label for="currency">Start Date</label>
                                     </div>
                                     <div class="form-group">
-                                        <input class="form-control input-sm" data-column="2" id="end_date" data-provide="datepicker" data-date-format="yyyy-mm-dd">
+                                        <input class="form-control input-sm" data-column="2" id="end_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" value="<?=date('Y-m-d')?>" required>
                                         <label for="currency">End Date</label>
                                     </div>
                                     <button id="btn-generate" type="button" class="btn btn-danger btn-block ink-reaction">Generate</button>
@@ -420,7 +420,38 @@
         account     = $("#account").val();
         start_date  = $("#start_date").val();
         end_date    = $("#end_date").val();
-        get_data()
+        if(account==''){
+            $('#account').parents('.form-group').addClass('has-error');
+            $('#account').after('<span class="help-block">This field is required</span>');
+        }else{
+            if($('#account').parents('.form-group').hasClass('has-error')){
+                $('#account').parents('.form-group').removeClass('has-error');
+            }
+            $('#account').siblings('.help-block').remove();
+        }
+        if(start_date==''){
+            $('#start_date').parents('.form-group').addClass('has-error');
+            $('#start_date').after('<span class="help-block">This field is required</span>');
+        }else{
+            if($('#start_date').parents('.form-group').hasClass('has-error')){
+                $('#start_date').parents('.form-group').removeClass('has-error');
+            }
+            $('#start_date').siblings('.help-block').remove();
+        }
+        if(end_date==''){
+            $('#end_date').parents('.form-group').addClass('has-error');
+            $('#end_date').after('<span class="help-block">This field is required</span>');
+        }else{
+            if($('#end_date').parents('.form-group').hasClass('has-error')){
+                $('#end_date').parents('.form-group').removeClass('has-error');
+            }
+            
+            $('#end_date').siblings('.help-block').remove();
+        }
+
+        if(start_date!='' && end_date!='' && account!=''){
+            get_data()
+        }
     });
 
     function get_data() {

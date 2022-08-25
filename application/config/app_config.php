@@ -83,3 +83,16 @@ $config['component_type'] = array(
   'avionics'                      => 'avionics',
   'modification'                  => 'modification',
 );
+
+$config['instrument_nf'] = array(
+  'IFR' => 'IFR',
+  'NF'  => 'NF',
+  'VN'  => 'VN',
+  'N'   => 'N',
+);
+
+$config['instrument_avionic'] = array(
+  'GTX'     => 'GTX',
+  'ASPEN'   => 'ASPEN',
+  'GNS'     => 'GNS'
+);

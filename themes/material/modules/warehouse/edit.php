@@ -32,6 +32,11 @@
           </div>
 
           <div class="form-group">
+            <input type="text" name="alternate_warehouse_name" id="alternate_warehouse_name" class="form-control" data-validation-rule="unique" data-validation-url="<?=site_url('ajax/warehouse_alternate_name_validation');?>" data-validation-exception="" required>
+            <label for="alternate_warehouse_name">Alternate Name</label>
+          </div>
+
+          <div class="form-group">
             <textarea name="address" id="address" class="form-control"><?=$entity['address'];?></textarea>
             <label for="address">Address</label>
           </div>
@@ -48,6 +53,7 @@
     <div class="card-foot">
       <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
       <input type="hidden" name="warehouse_exception" id="warehouse_exception" value="<?=$entity['warehouse'];?>">
+      <input type="hidden" name="warehouse_alternate_name_exception" id="alternate_warehouse_name_exception" value="<?=$entity['alternate_warehouse_name'];?>">
 
       <?php if (is_granted($module, 'delete')):?>
         <a href="<?=site_url($module['route']. '/delete');?>" class="btn btn-floating-action btn-danger btn-xhr-delete ink-reaction" id="modal-delete-data-button" data-title="delete">
