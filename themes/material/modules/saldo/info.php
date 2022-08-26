@@ -89,7 +89,7 @@
       
     </div>
     <div class="pull-right">
-      <?php if (is_granted($module, 'document') && $entity['created_at'] >= $data):?>
+      <?php if (is_granted($module, 'document')):?>
       <a href="<?= site_url($module['route'] . '/edit/' . $category); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
         <i class="md md-edit"></i>
         <small class="top right">edit</small>
