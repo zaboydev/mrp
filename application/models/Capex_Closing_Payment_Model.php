@@ -1307,4 +1307,18 @@ class Capex_Closing_Payment_Model extends MY_Model
 		$this->connection->trans_commit();
 		return TRUE;
 	}
+
+    function delete_attachment_in_db($id_att)
+	{
+		$this->connection->trans_begin();
+
+		$this->connection->where('id', $id_att);
+		$this->connection->delete('tb_attachment');
+
+		if ($this->connection->trans_status() === FALSE)
+		return FALSE;
+
+		$this->connection->trans_commit();
+		return TRUE;
+	}
 }
