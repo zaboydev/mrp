@@ -613,7 +613,7 @@ class Capex_Order_Evaluation extends MY_Controller
     } else {
 
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       array_push($_SESSION['capex_poe']["attachment"], $url);
       $result["status"] = 1;
     }
@@ -635,7 +635,7 @@ class Capex_Order_Evaluation extends MY_Controller
       $error = array('error' => $this->upload->display_errors());
     } else {
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       // array_push($_SESSION['capex_poe']["attachment"], $url);
       $this->model->add_attachment_to_db($id_poe, $url);
       $result["status"] = 1;

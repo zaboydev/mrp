@@ -827,7 +827,7 @@ class Goods_Received_Note extends MY_Controller
           $error = array('error' => $this->upload->display_errors());
         } else {
           $data = array('upload_data' => $this->upload->data());
-          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          $url = $config['upload_path'] . $data['upload_data']['file_name'];
           // array_push($_SESSION["poe"]["attachment"], $url);
           $this->model->add_attachment_to_db($id, $url);
           $result["status"] = 1;
