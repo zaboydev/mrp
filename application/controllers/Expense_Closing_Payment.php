@@ -555,7 +555,7 @@ class Expense_Closing_Payment extends MY_Controller
         } else {
 
           $data = array('upload_data' => $this->upload->data());
-          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          $url = $config['upload_path'] . $data['upload_data']['file_name'];
           array_push($_SESSION["payment"]["attachment"], $url);
           $result["status"] = 1;
         }
