@@ -1290,4 +1290,21 @@ class Capex_Closing_Payment_Model extends MY_Model
         $this->connection->where('type_att', 'payment');
         return $this->connection->get('tb_attachment')->result_array();
     }
+
+    function add_attachment_to_db($id, $url)
+	{
+		$this->connection->trans_begin();
+
+		$this->connection->set('id_purchase', $id);
+        $this->connection->set('tipe', "payment");
+        $this->connection->set('file', $url);
+        $this->connection->set('type_att', "payment");
+        $this->connection->insert('tb_attachment');
+
+		if ($this->connection->trans_status() === FALSE)
+			return FALSE;
+
+		$this->connection->trans_commit();
+		return TRUE;
+	}
 }
