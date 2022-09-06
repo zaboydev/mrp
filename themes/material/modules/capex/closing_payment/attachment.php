@@ -35,10 +35,10 @@
           </tr>
         </thead>
         <tbody>
-          <?php if(sizeof($_SESSION['expense']["attachment"])>0) {
+          <?php if(sizeof($_SESSION['payment']["attachment"])>0) {
               $x=0; 
               $y=0;
-              foreach ($_SESSION['expense']["attachment"] as $key) {
+              foreach ($_SESSION['payment']["attachment"] as $key) {
                     $x++;
                   ?>
                   <tr>
