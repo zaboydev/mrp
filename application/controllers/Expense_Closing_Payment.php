@@ -562,6 +562,16 @@ class Expense_Closing_Payment extends MY_Controller
         echo json_encode($result);
     }
 
+    public function delete_attachment($index)
+    {
+        $file = FCPATH . $_SESSION["payment"]["attachment"][$index];
+        if (unlink($file)) {
+            unset($_SESSION["payment"]["attachment"][$index]);
+            $_SESSION["payment"]["attachment"] = array_values($_SESSION["payment"]["attachment"]);
+            redirect($this->module['route'] . "/attachment", 'refresh');
+        }
+    }
+
     public function save_pembayaran()
     {
         if ($this->input->is_ajax_request() === FALSE)

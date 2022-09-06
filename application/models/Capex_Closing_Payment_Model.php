@@ -1281,4 +1281,13 @@ class Capex_Closing_Payment_Model extends MY_Model
 
         return $kurs_dollar;
     }
+
+    public function listAttachments($id)
+    {
+      
+        $this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'payment');
+        $this->connection->where('type_att', 'payment');
+        return $this->connection->get('tb_attachment')->result_array();
+    }
 }
