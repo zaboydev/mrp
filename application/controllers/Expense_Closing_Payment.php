@@ -597,6 +597,37 @@ class Expense_Closing_Payment extends MY_Controller
         $this->render_view($this->module['view'] . '/manage_attachment');
     }
 
+    public function add_attachment_to_db($id)
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+        $config['upload_path'] = 'attachment/expense_payment/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+        $error = array('error' => $this->upload->display_errors());
+        } else {
+        $data = array('upload_data' => $this->upload->data());
+        $url = $config['upload_path'] . $data['upload_data']['file_name'];
+        // array_push($_SESSION["poe"]["attachment"], $url);
+        $this->model->add_attachment_to_db($id, $url);
+        $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function delete_attachment_in_db($id_att, $id_poe)
+    {
+        $this->model->delete_attachment_in_db($id_att);
+
+        redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+        // echo json_encode($result);
+    }
+
     public function add_item()
     {
         $this->authorized($this->module, 'document');
