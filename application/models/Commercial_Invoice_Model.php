@@ -331,6 +331,22 @@ class Commercial_Invoice_Model extends MY_Model
           $this->db->set('tgl', date('Ymd', strtotime($row['issued_date'])));
           $this->db->set('total_value', floatval($data['issued_unit_value']) * (0 + floatval($data['issued_quantity'])));
           $this->db->insert('tb_stock_cards');
+
+          $this->db->from('tb_stock_in_stores');
+          $this->db->where('id', $data['stock_in_stores_id']);
+
+          $query        = $this->db->get();
+          $stock_stored = $query->unbuffered_row('array');
+          $new_quantity = $stock_stored['quantity'] + $data['issued_quantity'];
+
+          $this->db->where('id', $data['stock_in_stores_id']);
+          $this->db->set('quantity', floatval($new_quantity));
+          $this->db->update('tb_stock_in_stores');
+
+          $this->db->where('id', $data['serial_id']);
+          $this->db->set('quantity', 1);
+          $this->db->update('tb_master_item_serials');
+
         }elseif($row['source']=='internal_delivery'){
           if ($data['internal_delivery_item_id'] != null) {
             $this->db->where('id', $data['internal_delivery_item_id']);
@@ -617,6 +633,22 @@ class Commercial_Invoice_Model extends MY_Model
         $this->db->set('tgl', date('Ymd', strtotime($row['issued_date'])));
         $this->db->set('total_value', floatval($data['issued_unit_value']) * (0 + floatval($data['issued_quantity'])));
         $this->db->insert('tb_stock_cards');
+
+        $this->db->from('tb_stock_in_stores');
+        $this->db->where('id', $data['stock_in_stores_id']);
+
+        $query        = $this->db->get();
+        $stock_stored = $query->unbuffered_row('array');
+        $new_quantity = $stock_stored['quantity'] + $data['issued_quantity'];
+
+        $this->db->where('id', $data['stock_in_stores_id']);
+        $this->db->set('quantity', floatval($new_quantity));
+        $this->db->update('tb_stock_in_stores');
+
+        $this->db->where('id', $data['serial_id']);
+        $this->db->set('quantity', 1);
+        $this->db->update('tb_master_item_serials');
+
       }elseif($row['source']=='internal_delivery'){
         if (!empty($data['internal_delivery_item_id'])) {
           $this->db->where('id', $data['internal_delivery_item_id']);
