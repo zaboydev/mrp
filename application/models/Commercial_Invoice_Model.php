@@ -300,7 +300,7 @@ class Commercial_Invoice_Model extends MY_Model
       foreach ($query->result_array() as $data) {
         if($row['source'] == 'stock'){
           $this->db->select('tb_stock_in_stores.*');
-          $this->db->where('id', $row['stock_in_stores_id']);
+          $this->db->where('id', $data['stock_in_stores_id']);
           $this->db->from('tb_stock_in_stores');
 
           $query = $this->db->get();
@@ -375,9 +375,9 @@ class Commercial_Invoice_Model extends MY_Model
       /**
        * UPDATE SERIAL
        */
-      $this->db->where('reference_document', $document_edit);
-      $this->db->set('quantity', 1);
-      $this->db->delete('tb_master_item_serials');
+      // $this->db->where('reference_document', $document_edit);
+      // $this->db->set('quantity', 1);
+      // $this->db->update('tb_master_item_serials');
     }
 
     /**
@@ -586,7 +586,7 @@ class Commercial_Invoice_Model extends MY_Model
     foreach ($query->result_array() as $data) {
       if($row['source'] == 'stock' && !empty($data['stock_in_stores_id'])){
         $this->db->select('tb_stock_in_stores.*');
-        $this->db->where('id', $row['stock_in_stores_id']);
+        $this->db->where('id', $data['stock_in_stores_id']);
         $this->db->from('tb_stock_in_stores');
 
         $query = $this->db->get();
@@ -595,17 +595,17 @@ class Commercial_Invoice_Model extends MY_Model
         $prev_old_stock = getStockPrev($stock_in_stores['stock_id'], $stock_in_stores['stores']);
         $next_old_stock = floatval($prev_old_stock) + floatval($data['issued_quantity']);
 
-        $this->db->set('stock_id', $data['stock_id']);
-        $this->db->set('serial_id', $data['serial_id']);
+        $this->db->set('stock_id', $stock_in_stores['stock_id']);
+        $this->db->set('serial_id', $stock_in_stores['serial_id']);
         $this->db->set('warehouse', $old_warehouse);
-        $this->db->set('stores', $data['stores']);
+        $this->db->set('stores', $stock_in_stores['stores']);
         $this->db->set('date_of_entry', $row['issued_date']);
         $this->db->set('period_year', config_item('period_year'));
         $this->db->set('period_month', config_item('period_month'));
         $this->db->set('document_type', 'REVISION RETURN');
         $this->db->set('remarks', 'REVISION');
-        $this->db->set('document_number', $document_edit);
-        $this->db->set('received_from', $document_edit);
+        $this->db->set('document_number', $old_document_number);
+        $this->db->set('received_from', $old_document_number);
         $this->db->set('received_by', config_item('auth_person_name'));
         $this->db->set('prev_quantity', floatval($prev_old_stock));
         $this->db->set('balance_quantity', $next_old_stock);
