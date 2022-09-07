@@ -343,7 +343,7 @@ class Commercial_Invoice_Model extends MY_Model
           $this->db->set('quantity', floatval($new_quantity));
           $this->db->update('tb_stock_in_stores');
 
-          $this->db->where('id', $data['serial_id']);
+          $this->db->where('id', $stock_in_stores['serial_id']);
           $this->db->set('quantity', 1);
           $this->db->update('tb_master_item_serials');
 
@@ -645,7 +645,7 @@ class Commercial_Invoice_Model extends MY_Model
         $this->db->set('quantity', floatval($new_quantity));
         $this->db->update('tb_stock_in_stores');
 
-        $this->db->where('id', $data['serial_id']);
+        $this->db->where('id', $stock_in_stores['serial_id']);
         $this->db->set('quantity', 1);
         $this->db->update('tb_master_item_serials');
 
