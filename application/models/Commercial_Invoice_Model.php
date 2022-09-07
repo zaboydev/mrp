@@ -300,7 +300,7 @@ class Commercial_Invoice_Model extends MY_Model
       foreach ($query->result_array() as $data) {
         if($row['source'] == 'stock'){
           $this->db->select('tb_stock_in_stores.*');
-          $this->db->where('id', $row['stock_in_stores_id']);
+          $this->db->where('id', $data['stock_in_stores_id']);
           $this->db->from('tb_stock_in_stores');
 
           $query = $this->db->get();
@@ -375,9 +375,9 @@ class Commercial_Invoice_Model extends MY_Model
       /**
        * UPDATE SERIAL
        */
-      $this->db->where('reference_document', $document_edit);
-      $this->db->set('quantity', 1);
-      $this->db->delete('tb_master_item_serials');
+      // $this->db->where('reference_document', $document_edit);
+      // $this->db->set('quantity', 1);
+      // $this->db->delete('tb_master_item_serials');
     }
 
     /**
