@@ -411,9 +411,9 @@ class Commercial_Invoice extends MY_Controller
         }
 
         foreach ($_SESSION['return']['items'] as $key => $item) {
-          if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['return']['category']) === FALSE){
-            $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
-          }
+          // if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['return']['category']) === FALSE){
+          //   $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
+          // }
 
           if (isItemExists($item['part_number'],$item['description']) && !empty($item['serial_number'])){
             $item_id = getItemId($item['part_number'],$item['description']);
