@@ -550,9 +550,9 @@ class Material_Slip extends MY_Controller
           $serial_number  = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
           $condition      = (empty($item['condition'])) ? 'SERVICEABLE' : $item['condition'];
 
-          if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['usage']['category']) === FALSE){
-            $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
-          }
+          // if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['usage']['category']) === FALSE){
+          //   $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
+          // }
 
           if (isItemExists($part_number,$description, $serial_number) && $serial_number !== NULL){
             $item_id = getItemId($part_number, $description, $serial_number);
