@@ -27,23 +27,41 @@
           </div>
 
           <div class="form-group">
-            <input type="date" name="date_of_manufacture" id="date_of_manufacture" class="form-control" autofocus>
+            <input type="date" name="date_of_manufacture" id="date_of_manufacture" class="form-control">
             <label for="date_of_manufacture">Date of Manufacture</label>
           </div>
 
           <div class="form-group">
-            <input type="text" name="aircraft_serial_number" id="aircraft_serial_number" class="form-control" autofocus>
+            <input type="text" name="aircraft_serial_number" id="aircraft_serial_number" class="form-control">
             <label for="aircraft_serial_number">Aircraft Serial Number</label>
           </div>
 
           <div class="form-group">
-            <input type="text" name="engine_serial_number" id="engine_serial_number" class="form-control" autofocus>
-            <label for="engine_serial_number">Engine Serial Number</label>
+            <select name="engine_type" id="engine_type" class="form-control" required>
+              <option value="single">Single Engine</option>
+              <option value="multi">Multi Engine</option>
+            </select>
+            <label for="base">Engine Type</label>
           </div>
 
           <div class="form-group">
-            <input type="text" name="propeler_serial_number" id="propeler_serial_number" class="form-control" autofocus>
+            <input type="text" name="engine_serial_number" id="engine_serial_number" class="form-control">
+            <label for="engine_serial_number">Engine Serial Number</label>
+          </div>
+
+          <div class="form-group hide multi_engine">
+            <input type="text" name="engine_serial_number_2" id="engine_serial_number_2" class="form-control">
+            <label for="engine_serial_number_2">Engine Serial Number 2</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" name="propeler_serial_number" id="propeler_serial_number" class="form-control">
             <label for="propeler_serial_number">Prepoller Serial Number</label>
+          </div>
+
+          <div class="form-group hide multi_engine">
+            <input type="text" name="propeler_serial_number_2" id="propeler_serial_number_2" class="form-control">
+            <label for="propeler_serial_number">Prepoller Serial Number 2</label>
           </div>
 
           <div class="form-group">
@@ -64,7 +82,7 @@
         </div>        
         <div class="col-sm-6">
           <div class="form-group">
-            <input type="text" name="fuel_capacity_usage" id="fuel_capacity_usage" class="form-control" autofocus>
+            <input type="text" name="fuel_capacity_usage" id="fuel_capacity_usage" class="form-control">
             <label for="fuel_capacity_usage">Fuel Capacity Usage</label>
           </div>
 
@@ -132,4 +150,22 @@
 
 <script>
   $('.select2').select2();
+  $('#engine_type').on("change", function(e) {
+    var value = $(this).val();
+
+    if(value=='multi'){
+      if($('.multi_engine').hasClass('hide')==true){
+        $('.multi_engine').removeClass('hide');
+        $('[name="engine_serial_number_2"]').attr('required',true);
+        $('[name="propeler_serial_number_2"]').attr('required',true);
+      }
+    }else{
+      if($('.multi_engine').hasClass('hide')==false){
+        $('.multi_engine').addClass('hide');
+        $('[name="engine_serial_number_2"]').attr('required',false);
+        $('[name="propeler_serial_number_2"]').attr('required',false);
+      }
+    }
+    
+  });
 </script>

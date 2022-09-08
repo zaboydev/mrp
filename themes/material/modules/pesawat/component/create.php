@@ -16,12 +16,12 @@
 
                 <div class="document-header force-padding">                
                     <div class="row">
-                        <div class="col-sm-6 col-lg-3">
+                        <div class="col-sm-6 col-lg-3 hide">
                             <div class="form-group">
-                                <input type="text" name="installation_date" id="installation_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['component']['installation_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_installation_date'); ?>" required>
-                                <label for="installation_date">Installation Date</label>
+                                <input type="text" name="installation_date" id="installation_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['component']['installation_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_installation_date'); ?>" required readonly>
+                                <label for="installation_date">Status Date</label>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group hide">
                                 <input type="text" name="installation_by" id="installation_by" class="form-control" value="<?= $_SESSION['component']['installation_by']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_installation_by'); ?>" required>
                                 <label for="installation_by">Received By</label>
                             </div>
@@ -47,15 +47,17 @@
                             <th>P/N</th>
                             <th>Alt. P/N</th>
                             <th>S/N</th>
-                            <th>Qty</th>
+                            <!-- <th>Qty</th> -->
                             <th>Unit</th>
-                            <th>Condition</th>
-                            <th>Interval</th>
+                            <!-- <th>Condition</th> -->
+                            <!-- <th>Interval</th>-->
                             <th>Installation Date</th>
-                            <th>AF TSN</th>
+                            <!-- <th>AF TSN</th>
                             <th>Equip TSN</th>
                             <th>TSO</th>
-                            <th>Remarks</th>
+                            <th>Due At AF TSN</th>
+                            <th>Remaining</th>
+                            <th>Remarks</th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -69,7 +71,7 @@
                                 
                                 </td>
                                 <td>
-                                  <?= $items['id']; ?>
+                                  <?= $items['item_id']; ?>
                                 </td>
                                 <td>
                                   <?= $items['group']; ?>
@@ -86,31 +88,37 @@
                                 <td>
                                   <?= $items['serial_number']; ?>
                                 </td>
-                                <td>
+                                <td class="hide">
                                   <?= number_format($items['quantity'], 2); ?>
                                 </td>
                                 <td>
                                 <?= $items['unit']; ?>
                                 </td>
-                                <td>
+                                <td class="hide">
                                   <?= $items['condition']; ?>
                                 </td>
-                                <td>
+                                <td class="hide">
                                   <?= $items['interval']; ?>
                                 </td>
                                 <td>
                                   <?= $items['installation_date']; ?>
                                 </td>
-                                <td> 
+                                <td class="hide"> 
                                   <?= $items['af_tsn']; ?>
                                 </td>
-                                <td>
+                                <td class="hide">
                                   <?= $items['equip_tsn']; ?>
                                 </td>
-                                <td>
+                                <td class="hide">
                                   <?= $items['tso']; ?>
                                 </td>
-                                <td>
+                                <td class="hide">
+                                  <?= $items['due_at_af_tsn']; ?>
+                                </td>
+                                <td class="hide">
+                                  <?= $items['remaining']; ?>
+                                </td>
+                                <td class="hide">
                                   <?= $items['remarks']; ?>
                                 </td>
                             </tr>
@@ -123,9 +131,21 @@
             <div class="card-actionbar">
               <div class="card-actionbar-row">
                 <div class="pull-left">
-                  <a href="<?=site_url($module['route'] .'/select_item');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction btn-item">
-                    Select Item
+                <?php if (empty($_SESSION['component']['items'])):?>
+                  <?php if(isComponentExist($_SESSION['component']['aircraft_code'])):?>
+                    <a href="<?=site_url($module['route'] .'/select_item/change');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction btn-item">
+                      Add Component From Material Slip
+                    </a>
+                  <?php else:?>                    
+                      <a href="<?=site_url($module['route'] .'/select_item/new');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction btn-item">
+                        Add New Component
+                      </a>
+                  <?php endif;?>                  
+                <?php else:?>
+                  <a href="<?=site_url($module['route'] .'/edit_selected_item');?>" onClick="return popup(this, 'edit_request')" class="btn btn-primary ink-reaction">
+                    Edit Request
                   </a>
+                <?php endif;?>
                   
                 </div>
 
@@ -136,250 +156,6 @@
             </div>
         </div>
         <?= form_close(); ?>
-    </div>
-
-    <div id="modal-add-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-add-item-label" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header style-primary-dark">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title" id="modal-add-item-label">Add Item</h4>
-            </div>
-
-            <?= form_open(site_url($module['route'] . '/add_item'), array(
-            'autocomplete' => 'off',
-            'id'    => 'ajax-form-create-document',
-            'class' => 'form form-validate ui-front',
-            'role'  => 'form'
-            )); ?>
-
-            <div class="modal-body">
-            <div class="row <?php if (in_array($_SESSION['receipt']['category'],['EXPENSE','CAPEX'])):?> hide <?php endif;?>">
-                <div class="col-xs-12">
-                <div class="form-group">
-                    <div class="input-group">
-                    <div class="input-group-content">
-                        <input type="text" id="search_purchase_order" data-search-for="purchase_order" class="form-control" data-source="<?= site_url($module['route'] . '/search_purchase_order'); ?>">
-                        <label for="search_item">Search item from <?=ucwords(str_replace("_", " ", $_SESSION['receipt']['source']))?></label>
-                    </div>
-                    <span class="input-group-addon">
-                        <i class="md md-search"></i>
-                    </span>
-                    </div>
-                </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12 col-lg-8">
-                <div class="row">
-                    <div class="col-sm-6 col-lg-6">
-                    <fieldset>
-                        <legend>General</legend>
-
-                        <div class="form-group">
-                        <input type="text" name="serial_number" id="serial_number" class="form-control input-sm input-autocomplete" data-source="<?= site_url($module['route'] . '/search_items_by_serial/'); ?>">
-                        <label for="serial_number">Serial Number</label>
-                        </div>
-
-                        <div class="form-group">
-                        <input type="text" name="part_number" id="part_number" class="form-control input-sm input-autocomplete" data-source="<?= site_url($module['route'] . '/search_items_by_part_number/'); ?>" required>
-                        <label for="part_number">Part Number</label>
-                        </div>
-
-                        <div class="form-group">
-                        <input type="text" name="description" id="description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" data-source="<?= site_url($modules['ajax']['route'] . '/json_item_description/' . $_SESSION['receipt']['category']); ?>" required>
-                        <label for="description">Description</label>
-                        </div>
-
-                        <div class="form-group">
-                        <input type="text" name="alternate_part_number" id="alternate_part_number" data-tag-name="alternate_part_number" data-source="<?= site_url($modules['ajax']['route'] . '/json_alternate_part_number/' . $_SESSION['receipt']['category']); ?>" class="form-control input-sm">
-                        <label for="alternate_part_number">Alt. Part Number</label>
-                        </div>
-
-                        <div class="form-group">
-                        <select name="group" id="group" data-tag-name="group" class="form-control input-sm" required>
-                            <option>-- Select One --</option>
-                            <?php foreach (available_item_groups_2($_SESSION['receipt']['category']) as $group) : ?>
-                            <option value="<?= $group['group']; ?>">
-                                <?= $group['group']; ?> - <?= $group['coa']; ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <label for="group">Item Group</label>
-                        </div>
-                    </fieldset>
-                    </div>
-                    <div class="col-sm-6 col-lg-6">
-                    <fieldset>
-                        <legend>Storage</legend>
-
-                        <div class="form-group">
-                        <div class="row">
-                            <div class="col-lg-6 col-sm-6 col-xs-6">
-                            <input type="text" name="quantity_order" id="quantity_order" data-tag-name="quantity_order" class="form-control input-sm" value="1" required>
-
-                            </div>
-                            <div class="col-lg-6 col-sm-6 col-xs-6">
-                            <input type="text" name="unit" id="unit" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" required>
-                            </div>
-                        </div>
-                        <label for="received_quantity">Qty & Unit Terima</label>
-                        </div>
-
-
-                        <div class="form-group">
-                        <div class="row">
-                            <div class="col-lg-6 col-sm-6 col-xs-6">
-                            <input type="text" name="unit_pakai" id="unit_pakai" data-tag-name="unit_pakai" data-search-for="unit_pakai" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm">
-                            </div>
-                            <div class="col-lg-6 col-sm-6 col-xs-6">
-
-                            <input type="text" id="received_quantity" class="form-control input-sm" name="received_quantity" value="1" readonly="readonly">
-                            </div>
-                        </div>
-                        <label for="kurs">Unit Pakai</label>
-                        </div>
-
-                        <div class="form-group">
-                        <div class="row">
-                            <div class="col-lg-3 col-sm-3 col-xs-3">
-                            <input type="text" name="satuan" id="satuan" data-tag-name="received_quantity" class="form-control input-sm" value="1" readonly="readonly">
-                            </div>
-                            <div class="col-lg-3 col-sm-3 col-xs-3">
-
-                            <input type="text" name="received_unit" id="received_unit" data-tag-name="received_unit" data-search-for="received_unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
-                            </div>
-                            <div class="col-lg-3 col-sm-3 col-xs-3">
-                            <input type="text" id="isi" class="form-control input-sm" name="isi" value="1" required>
-                            </div>
-                            <div class="col-lg-3 col-sm-3 col-xs-3">
-                            <input type="text" name="unit_used" id="unit_used" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" readonly>
-                            </div>
-                        </div>
-                        <label for="received_quantity">Unit Konversi</label>
-                        </div>
-
-                        <div class="form-group">
-                        <input type="text" name="minimum_quantity" id="minimum_quantity" data-tag-name="minimum_quantity" class="form-control input-sm" value="0" required>
-                        <label for="minimum_quantity">Minimum Quantity</label>
-                        </div>
-
-                        <div class="form-group <?=(config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN')? '':'hide';?>">
-                            <div class="row">
-                            <div class="col-lg-6 col-sm-6">
-                                <select class="form-control input-sm" id="kurs" name="kurs" required>
-                                <!-- <option>-Pilih Mata Uang-</option> -->
-                                <?php foreach ($this->config->item('currency') as $key => $value) : ?>
-                                <option value="<?= $key; ?>"><?= $value; ?></option>
-                                <?php endforeach; ?>
-                                </select>
-
-                            </div>
-                            <div class="col-lg-6 col-sm-6">
-                                <input type="text" id="received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                                <input type="text" id="received_unit_value_dollar" class="form-control input-sm" name="received_unit_value_dollar" value="0" step=".02">
-                                <input type="hidden" id="value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
-                            </div>
-                            </div>
-                            <label for="kurs">Price per Unit</label>
-                        </div>
-
-                        <div class="form-group">
-                        <select name="condition" id="condition" class="form-control input-sm">
-                            <?php foreach (available_conditions() as $key => $condition) : ?>
-                            <option value="<?= $condition; ?>"><?= $condition; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <label for="condition">Item Condition</label>
-                        </div>
-
-                        <div class="form-group">
-                        <input type="text" name="stores" id="stores" data-tag-name="stores" data-search-for="stores" data-source="<?= site_url($modules['ajax']['route'] . '/json_stores/' . $_SESSION['receipt']['category']); ?>" class="form-control input-sm" required>
-                        <label for="stores">Stores</label>
-                        </div>
-                    </fieldset>
-                    </div>
-                </div>
-                </div>
-
-                <div class="col-sm-12 col-lg-4">
-                <fieldset>
-                    <legend>Optional</legend>
-
-                    <div class="form-group">
-                    <div class="row">
-                        <div class="col-lg-6 col-sm-6 col-xs-6">
-                        <div class="radio">
-                            <input type="checkbox" name="no_expired_date" id="no_expired_date" value="no" required="required">
-                            <label for="no_expired_date">No Expired Date</label>
-                        </div>
-                        </div>
-                        <div class="col-lg-6 col-sm-6 col-xs-6">
-                        <input type="text" name="expired_date" id="expired_date" data-tag-name="expired_date" class="form-control input-sm" required="required">
-                        </div>
-                    </div>
-
-                    <label for="expired_date">Expired Date</label>
-                    </div>
-
-                    <div class="form-group">
-                    <input type="text" name="purchase_order_number" id="purchase_order_number" data-tag-name="purchase_order_number" class="form-control input-sm" readonly>
-                    <label for="purchase_order_number">Order Number</label>
-                    <input type="hidden" name="purchase_order_item_id" id="purchase_order_item_id" />
-                    <input type="hidden" name="internal_delivery_item_id" id="internal_delivery_item_id" />
-                    <input type="hidden" name="item_id" id="item_id" />
-                    </div>
-
-                    <div class="form-group">
-                    <input type="text" name="tgl_nota" id="tgl_nota" data-tag-name="tgl_nota" class="form-control input-sm tgl_nota">
-                    <label for="reference_number">Tgl Inv/Nota</label>
-                    </div>
-
-                    <div class="form-group">
-                    <input type="text" name="reference_number" id="reference_number" data-tag-name="reference_number" class="form-control input-sm">
-                    <label for="reference_number">Ref./Invoice</label>
-                    </div>
-
-                    <div class="form-group">
-                    <input type="text" name="awb_number" id="awb_number" data-tag-name="awb_number" class="form-control input-sm" required="required">
-                    <label for="awb_number">AWB Number</label>
-                    </div>
-
-                    <div class="form-group">
-                    <textarea name="remarks" id="remarks" data-tag-name="remarks" class="form-control input-sm"></textarea>
-                    <label for="remarks">Remarks</label>
-                    </div>
-
-                    <div class="form-group">
-                    <input type="text" name="kode_stok" id="kode_stok" data-tag-name="kode_stok" class="form-control input-sm" readonly="readonly">
-                    <label for="kode_stok">Kode Stok</label>
-                    </div>
-
-                    <!-- <div class="form-group">
-                        <textarea name="kode_akunting" id="kode_akunting" data-tag-name="kode_akunting" class="form-control input-sm"></textarea>
-                        <label for="remarks">Kode Akunting</label>
-                    </div> -->
-                </fieldset>
-                </div>
-            </div>
-            </div>
-
-            <div class="modal-footer">
-            <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction">
-                Add Item
-            </button>
-
-            <input type="hidden" name="consignor" id="consignor">
-            <input type="reset" name="reset" class="sr-only">
-            </div>
-
-            <?= form_close(); ?>
-        </div>
-        </div>
     </div>
 
     <div class="section-action style-default-bright">
@@ -563,7 +339,7 @@
       autoclose: true,
       todayHighlight: true,
       format: 'yyyy-mm-dd',
-      startDate: today,
+      // startDate: today,
       // endDate: last_opname
     });
 

@@ -177,7 +177,7 @@ class Pesawat extends MY_Controller
     $this->data['page']['aircraft_id']      = $aircraft_id;
     $this->data['page']['aircraft_code']    = $aircraft['nama_pesawat'];
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsAircraftComponent());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_aircraft_component');
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_aircraft_component/'.$aircraft_id);
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = NULL;
     $this->data['grid']['order_columns']    = array (
@@ -189,7 +189,7 @@ class Pesawat extends MY_Controller
     $this->render_view($this->module['view'] .'/component/index');
   }
 
-  public function index_data_source_aircraft_component()
+  public function index_data_source_aircraft_component($aircraft_id)
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
@@ -198,7 +198,7 @@ class Pesawat extends MY_Controller
       $return['type'] = 'danger';
       $return['info'] = "You don't have permission to access this page!";
     } else {
-      $entities = $this->model->getIndexAircraftComponent();
+      $entities = $this->model->getIndexAircraftComponent($aircraft_id);
 
       $data = array();
       $no   = $_POST['start'];
@@ -207,7 +207,7 @@ class Pesawat extends MY_Controller
         $no++;
         $col = array();
         $col[] = print_number($no);
-        $col[] = print_string($row['type']);
+        $col[] = print_string(strtoupper($row['type']));
         $col[] = print_string($row['description']);
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['alternate_part_number']);
@@ -233,8 +233,8 @@ class Pesawat extends MY_Controller
 
       $return = array(
           "draw"            => $_POST['draw'],
-          "recordsTotal"    => $this->model->countIndexAircraftComponent(),
-          "recordsFiltered" => $this->model->countIndexFilteredAircraftComponent(),
+          "recordsTotal"    => $this->model->countIndexAircraftComponent($aircraft_id),
+          "recordsFiltered" => $this->model->countIndexFilteredAircraftComponent($aircraft_id),
           "data"            => $data,
        );
     }
@@ -251,6 +251,22 @@ class Pesawat extends MY_Controller
     redirect($this->module['route'].'/index_aircraft_component/'.$aircraft_id);
   }
 
+  public function set_installation_date()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['component']['installation_date'] = $_GET['data'];
+  }
+
+  public function set_installation_by()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['component']['installation_by'] = $_GET['data'];
+  }
+
   public function create_component($type = NULL,$aircraft_id=NULL)
   {
     $this->authorized($this->module, 'create_component');
@@ -264,10 +280,11 @@ class Pesawat extends MY_Controller
       $_SESSION['component']['aircraft_id']           = $aircraft_id;
       $_SESSION['component']['aircraft_code']         = $aircraft['nama_pesawat'];
       $_SESSION['component']['base']                  = $aircraft['base'];
+      $_SESSION['component']['warehouse']             = $aircraft['warehouse'];
       $_SESSION['component']['type']                  = $type;
       $_SESSION['component']['installation_date']     = date('Y-m-d');
       $_SESSION['component']['installation_by']       = config_item('auth_person_name');
-      $_SESSION['component']['source']           = 'purchase_order';
+      $_SESSION['component']['source']                = isComponentExist($aircraft['nama_pesawat'])? 'change':'new';
 
       redirect($this->module['route'] .'/create_component');
     }
@@ -283,14 +300,20 @@ class Pesawat extends MY_Controller
     $this->render_view($this->module['view'] .'/component/create');
   }
 
-  public function select_item()
+  public function select_item($type)
   {
     $this->authorized($this->module, 'create_component');
 
     $aircraft_code = $_SESSION['component']['aircraft_code'];
-    $entities = $this->model->searchIssuanceItems();
+    if($_SESSION['component']['source']=='change'){
+      $entities = $this->model->searchIssuanceItems();
+    }elseif ($type=='new') {
+      $entities = $this->model->searchItems();
+    }
+    
 
     $this->data['entities'] = $entities;
+    $this->data['type']     = $type;
     $this->data['page']['title']            = 'Select Item';
 
     $this->render_view($this->module['view'] . '/component/select_item');
@@ -309,7 +332,12 @@ class Pesawat extends MY_Controller
         $_SESSION['component']['items'] = array();
 
         foreach ($_POST['issuance_item_id'] as $key => $issuance_item_id) {
-          $issuance_item = $this->model->infoIssuanceItem($issuance_item_id);
+          
+          if($_SESSION['component']['source']=='change'){
+            $issuance_item = $this->model->infoIssuanceItem($issuance_item_id);
+          }elseif ($_SESSION['component']['source']=='new') {
+            $issuance_item = $this->model->infoItem($issuance_item_id);
+          }
 
           $_SESSION['component']['items'][$issuance_item_id] = array(
             'group'                   => $issuance_item['group'],
@@ -317,20 +345,21 @@ class Pesawat extends MY_Controller
             'part_number'             => trim(strtoupper($issuance_item['part_number'])),
             'alternate_part_number'   => trim(strtoupper($issuance_item['alternate_part_number'])),
             'serial_number'           => trim(strtoupper($issuance_item['serial_number'])),
-            'item_id'                 => trim(strtoupper($issuance_item['item_id'])),
-            'interval'                => null,
-            'installation_date'       => $issuance_item['issued_date'],
-            'af_tsn'                  => null,
-            'equip_tsn'               => null,
-            'tso'                     => null,
-            'due_at_af_tsn'           => null,
-            'remaining'               => null,
-            'remarks'                 => null,
-            'issuance_document_number'  => trim(strtoupper($issuance_item['document_number'])),
-            'issued_item_id'          => $issuance_item_id,
-            'quantity'                => $issuance_item['issued_quantity'],
-            'condition'               => $issuance_item['condition'],
+            'item_id'                 => ($_SESSION['component']['source']=='new')? $issuance_item['id']:$issuance_item['item_id'],
+            'installation_date'       => $_SESSION['component']['source']=='change'?$issuance_item['issued_date']:null,
+            'issuance_document_number'=> $_SESSION['component']['source']=='change'?trim(strtoupper($issuance_item['document_number'])):null,
+            'issuance_item_id'        => $_SESSION['component']['source']=='change'?$issuance_item_id:null,
             'unit'                    => $issuance_item['unit'],
+            // 'interval'                => null,
+            // 'af_tsn'                  => null,
+            // 'equip_tsn'               => null,
+            // 'tso'                     => null,
+            // 'due_at_af_tsn'           => null,
+            // 'remaining'               => null,
+            // 'remarks'                 => null,
+            // 'quantity'                => $_SESSION['component']['source']=='change'?$issuance_item['issued_quantity']:null,
+            // 'condition'               => $_SESSION['component']['source']=='change'?$issuance_item['condition']:null,
+            
           );
         }
 
@@ -361,16 +390,43 @@ class Pesawat extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (isset($_POST['items']) && !empty($_POST['items'])) {
-        foreach ($_POST['items'] as $id => $item) {
+      if (isset($_POST) && !empty($_POST)){
+        $item_id                  = $this->input->post('item_id');
+        $part_number              = $this->input->post('part_number');
+        $issuance_document_number = $this->input->post('issuance_document_number');
+        $issued_item_id           = $this->input->post('issued_item_id');
+        $serial_number            = $this->input->post('serial_number');
+        $alternate_part_number    = $this->input->post('alternate_part_number');
+        $description              = $this->input->post('description');
+        $unit                     = $this->input->post('unit');
+        $group                    = $this->input->post('group');
+        $previous_component_id    = $this->input->post('previous_component_id');
+        $installation_date        = $this->input->post('installation_date');
 
-          $_SESSION['component']['items'][$id]['interval']              = $item['interval'];
-          $_SESSION['component']['items'][$id]['installation_date']     = $item['installation_date'];
-          $_SESSION['component']['items'][$id]['af_tsn']                = $item['af_tsn'];
-          $_SESSION['component']['items'][$id]['equip_tsn']             = $item['equip_tsn'];
-          $_SESSION['component']['items'][$id]['tso']                   = $item['tso'];
-          $_SESSION['component']['items'][$id]['due_at_af_tsn']         = $item['due_at_af_tsn'];
-          $_SESSION['component']['items'][$id]['remarks']               = $item['remarks'];        
+        $_SESSION['component']['items'] = array();
+        foreach ($part_number as $key=>$part_number) {
+          $_SESSION['component']['items'][] = array(
+            'group'                   => $group[$key],
+            'description'             => trim(strtoupper($description[$key])),
+            'part_number'             => trim(strtoupper($part_number)),
+            'alternate_part_number'   => trim(strtoupper($alternate_part_number[$key])),
+            'serial_number'           => trim(strtoupper($serial_number[$key])),
+            'item_id'                 => $item_id[$key],
+            'issuance_document_number'=> $issuance_document_number[$key],
+            'issuance_item_id'        => $issuance_item_id[$key],
+            'unit'                    => $unit[$key],
+            'previous_component_id'   => $previous_component_id[$key],
+            'installation_date'       => $installation_date[$key],
+            'interval'                => null,
+            'af_tsn'                  => null,
+            'equip_tsn'               => null,
+            'tso'                     => null,
+            'due_at_af_tsn'           => null,
+            'remaining'               => null,
+            'remarks'                 => null,
+            'quantity'                => null,
+            'condition'               => null,
+          );
         }
 
         $data['success'] = TRUE;
@@ -381,6 +437,15 @@ class Pesawat extends MY_Controller
     }
 
     echo json_encode($data);
+  }
+
+  public function del_item($key)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (isset($_SESSION['component']['items']))
+      unset($_SESSION['component']['items'][$key]);
   }
 
   public function save_component()

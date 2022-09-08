@@ -2983,4 +2983,37 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('findWarehouseByAlternateName')) {
+    function findWarehouseByAlternateName($alternate_warehouse_name)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('tb_master_warehouses.*');
+      $CI->db->from('tb_master_warehouses');
+      $CI->db->where('UPPER(status)', 'AVAILABLE');
+      $CI->db->where('alternate_warehouse_name',$alternate_warehouse_name);
+  
+  
+      $query  = $CI->db->get();
+      $result = $query->row_array();
+      $return = $result['warehouse'];
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('isComponentExist')) {
+    function isComponentExist($aircraft_code)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->from('tb_aircraft_components');
+      $CI->db->where('aircraft_code', strtoupper($aircraft_code));
+
+      $num_rows = $CI->db->count_all_results();
+
+      return ($num_rows > 0) ? TRUE : FALSE;
+    }
+  }
+
     
