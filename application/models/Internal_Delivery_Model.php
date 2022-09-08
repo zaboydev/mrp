@@ -306,7 +306,7 @@ class Internal_Delivery_Model extends MY_Model
       $this->db->set('warehouse', $warehouse);
       $this->db->set('category', $category);
       $this->db->set('notes', $notes);
-      $this->db->set('status', 'WAITING RECEIVED BY INVENTORY');
+      $this->db->set('status', 'APPROVED');
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->set('send_to_warehouse', $send_to_warehouse);

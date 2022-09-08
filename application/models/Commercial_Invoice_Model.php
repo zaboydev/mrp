@@ -618,7 +618,7 @@ class Commercial_Invoice_Model extends MY_Model
         $this->db->set('date_of_entry', $row['issued_date']);
         $this->db->set('period_year', config_item('period_year'));
         $this->db->set('period_month', config_item('period_month'));
-        $this->db->set('document_type', 'REVISION RETURN');
+        $this->db->set('document_type', 'HAPUS RETURN');
         $this->db->set('remarks', 'REVISION');
         $this->db->set('document_number', $old_document_number);
         $this->db->set('received_from', $old_document_number);
