@@ -731,6 +731,7 @@ class Commercial_Invoice_Model extends MY_Model
       'tb_internal_delivery_items.group',
       'tb_internal_delivery_items.unit as unit_pakai',
       'tb_internal_delivery_items.condition',
+      'tb_internal_delivery_items.stores',
     );
 
     $this->db->select($this->column_select);
@@ -753,7 +754,8 @@ class Commercial_Invoice_Model extends MY_Model
       'tb_internal_delivery.document_number',
       'tb_internal_delivery_items.group',
       'tb_internal_delivery_items.condition',
-      'tb_internal_delivery.received_date'
+      'tb_internal_delivery.received_date',
+      'tb_internal_delivery_items.stores'
     ));
 
     $this->db->order_by('tb_internal_delivery.document_number ASC');
