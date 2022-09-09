@@ -692,4 +692,25 @@ class Internal_Delivery_Shipping extends MY_Controller
 
         echo json_encode($return);
     }
+
+    public function print_pdf_receipt($id)
+    {
+        $this->authorized($this->module, 'print');
+
+        $entity = $this->model->findByIdReceipt($id);
+
+        $this->data['entity']           = $entity;
+        $this->data['page']['title']    = strtoupper($this->module['label']).' RECEIPT';
+        $this->data['page']['content']  = $this->module['view'] .'/receive/print_pdf';
+
+        $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+        $pdfFilePath = str_replace('/', '-', $entity['document_number']) .".pdf";
+
+        $this->load->library('m_pdf');
+
+        $pdf = $this->m_pdf->load(null, 'A4-L');
+        $pdf->WriteHTML($html);
+        $pdf->Output($pdfFilePath, "I");
+    }
 }
