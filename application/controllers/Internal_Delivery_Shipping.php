@@ -394,7 +394,7 @@ class Internal_Delivery_Shipping extends MY_Controller
         $this->authorized($this->module, 'document');
 
         $category = $_SESSION['shipping_internal']['category'];
-            if($_SESSION['shipping_internal']['source']=='internal_delivery'){
+        if($_SESSION['shipping_internal']['source']=='internal_delivery'){
             $entities = $this->model->searchInternalDeliveryItem($category);
         }else{
             $entities = $this->model->searchStockInStores($category);

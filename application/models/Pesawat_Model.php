@@ -551,4 +551,90 @@ class Pesawat_Model extends MY_Model
     return $query->unbuffered_row('array');
   }
 
+  public function findAircraftComponetByAircraftId($aircraft_id)
+  {
+    $this->db->where('aircraft_id', $aircraft_id);
+    $this->db->where('active',true);
+    $query = $this->db->get('tb_aircraft_components');
+    $aircraft_components = $query->result_array();
+
+    return $aircraft_components;
+  }
+
+  public function getDocumentNumberComponentStatus()
+  {
+    $format = date('Ymd');
+    $this->db->select_max('document_number', 'last_number');
+    $this->db->like('tb_aircraft_component_status.document_number', $format, 'after');
+    $this->db->from('tb_aircraft_component_status');
+
+    $query  = $this->db->get();
+    $row    = $query->unbuffered_row();
+    $last   = $row->last_number;
+    $number = substr($last, 3, 6);
+    $next   = $number + 1;
+    $return = sprintf('%03s', $next);
+
+    return $format.$return;
+  }
+
+  public function saveComponentStatus()
+  {
+    $this->db->trans_begin();
+
+    $status_date  = $this->input->post('status_date');
+    $prepared_by  = $this->input->post('prepared_by');
+    $aircraft_id  = $this->input->post('aircraft_id');
+    $base         = $this->input->post('base');
+    $tsn          = $this->input->post('tsn');
+    $notes          = $this->input->post('notes');
+    $document_number = $this->getDocumentNumberComponentStatus();
+
+    $this->db->set('document_number', $document_number);
+    $this->db->set('status_date', $status_date);
+    $this->db->set('prepared_by', $prepared_by);
+    $this->db->set('aircraft_id', $aircraft_id);
+    $this->db->set('tsn', $tsn);
+    $this->db->set('status', 'WAITING FOR CHECKED BY COM');
+    $this->db->set('base', $base);
+    $this->db->set('notes', $notes);
+    $this->db->set('created_by', config_item('auth_person_name'));
+    $this->db->set('updated_by', config_item('auth_person_name'));
+    $this->db->insert('tb_aircraft_component_status');
+    $aircraft_component_status_id = $this->db->insert_id();
+
+    foreach ($_POST['items'] as $id => $data){
+      $this->db->set('aircraft_component_status_id', $aircraft_component_status_id);
+      $this->db->set('aircraft_component_id', $data['aircraft_component_id']);
+      $this->db->set('interval', $data['interval']);
+      $this->db->set('af_tsn', $data['af_tsn']);
+      $this->db->set('equip_tsn', $data['equip_tsn']);
+      $this->db->set('tso', $data['tso']);
+      $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
+      $this->db->set('remaining', $data['remaining']);
+      $this->db->set('remarks', $data['remarks']);
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->insert('tb_aircraft_component_status_details');
+
+      $this->db->set('interval', $data['interval']);
+      $this->db->set('af_tsn', $data['af_tsn']);
+      $this->db->set('equip_tsn', $data['equip_tsn']);
+      $this->db->set('tso', $data['tso']);
+      $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
+      $this->db->set('remaining', $data['remaining']);
+      $this->db->set('remarks', $data['remarks']);
+      $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->where('id',$data['aircraft_component_id']);
+      $this->db->update('tb_aircraft_components');
+    }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+
+  }
+
 }

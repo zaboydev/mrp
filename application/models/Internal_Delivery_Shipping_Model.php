@@ -732,6 +732,7 @@ class Internal_Delivery_Shipping_Model extends MY_Model
         $this->db->from('tb_internal_delivery_items');
         $this->db->join('tb_internal_delivery', 'tb_internal_delivery.id = tb_internal_delivery_items.internal_delivery_id');
         $this->db->where('tb_internal_delivery.category', $category);
+        $this->db->where('tb_internal_delivery.warehouse',$_SESSION['shipping_internal']['warehouse']);
         // $this->db->where_in('tb_internal_delivery.status', ['APPROVED']);
         $this->db->where('tb_internal_delivery_items.left_received_quantity > ', 0);
         $this->db->group_by(array(
