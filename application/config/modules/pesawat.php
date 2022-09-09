@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['pesawat']['visible']         = TRUE;
+$config['module']['pesawat']['visible']         = FALSE;
 $config['module']['pesawat']['main_warehouse']  = TRUE;
 $config['module']['pesawat']['parent']          = 'aircraft';
 $config['module']['pesawat']['label']           = 'Aircraft & Component';
@@ -17,5 +17,6 @@ $config['module']['pesawat']['permission']      = array(
   'save'    => 'PPC,MECHANIC,ADMIN,SUPERVISOR,SUPER ADMIN',
   'delete'  => 'PPC,MECHANIC,ADMIN,SUPERVISOR,SUPER ADMIN',
   'index'  	=> 'PPC,MECHANIC,ADMIN,SUPERVISOR,SUPER ADMIN',
-  'create_component' => 'SUPER ADMIN,PPC,MECHANIC'
+  'create_component' => 'SUPER ADMIN,PPC,MECHANIC',  
+  'create_component_status' => 'SUPER ADMIN,PPC,MECHANIC'
   );
