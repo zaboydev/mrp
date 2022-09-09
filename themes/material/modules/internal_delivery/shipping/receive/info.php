@@ -146,7 +146,7 @@
       
 
         <?php if (is_granted($module, 'print')):?>
-            <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
+            <a href="<?=site_url($module['route'] .'/print_pdf_receipt/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
             <i class="md md-print"></i>
             <small class="top right">print</small>
             </a>

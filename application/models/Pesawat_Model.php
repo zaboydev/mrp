@@ -120,6 +120,7 @@ class Pesawat_Model extends MY_Model
     $aircraft = $query->row_array();
     $aircraft['instrument_nf_array']  = explode(',', $aircraft['instrument_nf']);
     $aircraft['instrument_avionic_array']  = explode(',', $aircraft['instrument_avionic']);
+    $aircraft['warehouse']  = findWarehouseByAlternateName($aircraft['base']);
 
     return $aircraft;
   }
@@ -139,6 +140,11 @@ class Pesawat_Model extends MY_Model
     $this->db->set('instrument_avionic', strtoupper($this->input->post('instrument_avionic')));
     $this->db->set('date_of_manufacture', strtoupper($this->input->post('date_of_manufacture')));
     $this->db->set('keterangan', strtoupper($this->input->post('keterangan')));
+    $this->db->set('engine_type', $this->input->post('engine_type'));
+    if($this->input->post('engine_type')=='multi'){
+      $this->db->set('engine_serial_number_2', strtoupper($this->input->post('engine_serial_number_2')));
+      $this->db->set('propeler_serial_number_2', strtoupper($this->input->post('propeler_serial_number_2')));
+    }   
     $this->db->set('created_by', config_item('auth_username'));
     $this->db->set('updated_by', config_item('auth_username'));
     $this->db->set('crreated_at', date('Y-m-d H:i:s'));
@@ -184,6 +190,11 @@ class Pesawat_Model extends MY_Model
     $this->db->set('aircraft_serial_number', strtoupper($this->input->post('aircraft_serial_number')));
     $this->db->set('engine_serial_number', strtoupper($this->input->post('engine_serial_number')));
     $this->db->set('propeler_serial_number', strtoupper($this->input->post('engine_serial_number')));
+    $this->db->set('engine_type', $this->input->post('engine_type'));
+    if($this->input->post('engine_type')=='multi'){
+      $this->db->set('engine_serial_number_2', strtoupper($this->input->post('engine_serial_number_2')));
+      $this->db->set('propeler_serial_number_2', strtoupper($this->input->post('propeler_serial_number_2')));
+    }  
     $this->db->set('fuel_capacity_usage', strtoupper($this->input->post('fuel_capacity_usage')));
     $this->db->set('fuel_capacity_mix', strtoupper($this->input->post('fuel_capacity_mix')));
     $this->db->set('instrument_nf', $instrument_nf);
@@ -303,10 +314,11 @@ class Pesawat_Model extends MY_Model
     }
   }
 
-  function getIndexAircraftComponent($return = 'array')
+  function getIndexAircraftComponent($aircraft_id,$return = 'array')
   {
     $this->db->select(array_keys($this->getSelectedColumnsAircraftComponent()));
     $this->db->from('tb_aircraft_components');
+    $this->db->where('tb_aircraft_components.aircraft_id',$aircraft_id);
 
     $this->searchIndexAircraftComponent();
 
@@ -334,9 +346,10 @@ class Pesawat_Model extends MY_Model
     }
   }
 
-  function countIndexFilteredAircraftComponent()
+  function countIndexFilteredAircraftComponent($aircraft_id)
   {
     $this->db->from('tb_aircraft_components');
+    $this->db->where('tb_aircraft_components.aircraft_id',$aircraft_id);
     $this->searchIndexAircraftComponent();
 
     $query = $this->db->get();
@@ -344,9 +357,10 @@ class Pesawat_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function countIndexAircraftComponent()
+  public function countIndexAircraftComponent($aircraft_id)
   {
     $this->db->from('tb_aircraft_components');
+    $this->db->where('tb_aircraft_components.aircraft_id',$aircraft_id);
 
     $query = $this->db->get();
 
@@ -389,7 +403,7 @@ class Pesawat_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->like('tb_issuances.document_number', 'MS');
     $this->db->where_not_in('tb_issuances.category', ['BAHAN BAKAR']);
-    $this->db->where('tb_issuances.warehouse', $_SESSION['component']['base']);
+    // $this->db->where('tb_issuances.warehouse', $_SESSION['component']['warehouse']);
     $this->db->where('tb_issuances.issued_to', $_SESSION['component']['aircraft_code']);
     $this->db->order_by('tb_issuances.issued_date','desc');
     $query = $this->db->get();
@@ -447,14 +461,43 @@ class Pesawat_Model extends MY_Model
     $base                         = $_SESSION['component']['base'];
 
     foreach ($_SESSION['component']['items'] as $key => $data) {
+      $item_id = $data['item_id'];
+      $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
+      if(empty($item_id)){
+        if (isItemExists($data['part_number'], $data['description'], $serial_number) === FALSE) {
+          $this->db->set('part_number', strtoupper($data['part_number']));
+          $this->db->set('serial_number', strtoupper($data['serial_number']));
+          $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+          $this->db->set('description', strtoupper($data['description']));
+          $this->db->set('group', strtoupper($data['group']));
+          $this->db->set('minimum_quantity', floatval(1));
+          $this->db->set('kode_stok', null);
+          $this->db->set('unit', strtoupper($data['unit']));
+          $this->db->set('unit_pakai', strtoupper($data['unit']));
+          $this->db->set('qty_konversi', 1);
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->set('current_price', 1);
+          $this->db->insert('tb_master_items');
+          $item_id = $this->db->insert_id();
+        }else{
+          $item_id = getItemId($data['part_number'], $data['description'], $serial_number);
+        }
+      }
+
+      if($data['previous_component_id']!=null){
+        $this->db->set('active', false);
+        $this->db->where('id',$data['previous_component_id']);
+        $this->db->update('tb_aircraft_components');
+      }
       $this->db->set('type', $type);
       $this->db->set('aircraft_id', $aircraft_id);
       $this->db->set('aircraft_code', $aircraft_code);
-      $this->db->set('item_id', $data['item_id']);
+      $this->db->set('item_id', $item_id);
       $this->db->set('part_number', $data['part_number']);
       $this->db->set('description', $data['description']);
       $this->db->set('alternate_part_number', $data['alternate_part_number']);
-      $this->db->set('serial_number', $data['serial_number']);
+      $this->db->set('serial_number', $serial_number);
       $this->db->set('interval', $data['interval']);
       $this->db->set('installation_date', $data['installation_date']);
       $this->db->set('installation_by', $installation_by);
@@ -464,10 +507,17 @@ class Pesawat_Model extends MY_Model
       $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
       $this->db->set('remaining', $data['remaining']);
       $this->db->set('remarks', $data['remarks']);
-      $this->db->set('issuance_item_id', $data['issued_item_id']);
+      if(!empty($data['issuance_item_id'])){
+        $this->db->set('issuance_item_id', $data['issued_item_id']);
+      }      
       $this->db->set('issuance_document_number', $data['issuance_document_number']);
       $this->db->set('active', true);
+      if(!empty($data['previous_component_id'])){
+        $this->db->set('previous_component_id', $data['previous_component_id']);
+      }
       $this->db->insert('tb_aircraft_components');
+
+
     }
 
     if ($this->db->trans_status() === FALSE)
@@ -475,6 +525,30 @@ class Pesawat_Model extends MY_Model
 
     $this->db->trans_commit();
     return TRUE;
+  }
+
+  public function searchItems()
+  {
+    $selected = array(
+      'tb_master_items.*',
+    );
+    $this->db->select($selected);
+    $this->db->from('tb_master_items');
+    $this->db->order_by('tb_master_items.part_number','asc');
+    $query = $this->db->get();
+    return $query->result_array();
+  }
+
+  public function infoItem($id)
+  {
+    $selected = array(
+      'tb_master_items.*'
+    );
+    $this->db->select($selected);
+    $this->db->from('tb_master_items');
+    $this->db->where('tb_master_items.id', $id);
+    $query = $this->db->get();
+    return $query->unbuffered_row('array');
   }
 
 }

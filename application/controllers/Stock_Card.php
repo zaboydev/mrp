@@ -104,63 +104,14 @@ class Stock_Card extends MY_Controller
   {
     $this->authorized($this->module, 'detail');
 
-    // if (isset($_GET['part_number']) && $_GET['part_number'] !== NULL){
-    //   $part_number = $_GET['part_number'];
-    // } else {
-    //   $part_number = NULL;
-    // }
-
-    // if (isset($_GET['serial_number']) && $_GET['serial_number'] !== NULL){
-    //   $serial_number = $_GET['serial_number'];
-    // } else {
-    //   $serial_number = NULL;
-    // }
-
-    // if (isset($_GET['desc']) && $_GET['desc'] !== NULL){
-    //   $description = $_GET['desc'];
-    // } else {
-    //   $description = NULL;
-    // }
-
-    // if (isset($_GET['unit']) && $_GET['unit'] !== NULL){
-    //   $unit  = $_GET['unit'];
-    // } else {
-    //   $unit  = NULL;
-    // }
-
-    // if (isset($_GET['category']) && $_GET['category'] !== NULL){
-    //   $category = $_GET['category'];
-    // } else {
-    //   $category = NULL;
-    // }
-
     if (isset($_GET['stock_id']) && $_GET['stock_id'] !== NULL){
       $stock_id = $_GET['stock_id'];
     } else {
       $stock_id = NULL;
     }
 
-    // if (!empty($_POST['stores'])){
-    //   $stores = $_POST['stores'];
-    //   // $range_issued_date  = explode(' ', $search_issued_date);
-    // }
-
     $item = $this->model->getItem($stock_id);
 
-    // if (isset($_GET['coa']) && $_GET['coa'] !== NULL){
-    //   $coa = $_GET['coa'];
-    // } else {
-    //   $coa = NULL;
-    // }
-
-    // if (isset($_GET['kode_stok']) && $_GET['kode_stok'] !== NULL){
-    //   $kode_stok = $_GET['kode_stok'];
-    // } else {
-    //   $kode_stok = NULL;
-    // }
-
-    // $this->data['selected_month']           = $period_month;
-    // $this->data['selected_year']            = $period_year;
     $this->data['stock_id']               = $stock_id;
     $this->data['selected_stores']        = $stores;
 
@@ -182,50 +133,6 @@ class Stock_Card extends MY_Controller
   public function detail_data_source()
   {
     $this->authorized($this->module, 'detail');
-
-    
-
-    // if (isset($_GET['part_number']) && $_GET['part_number'] !== NULL){
-    //   $part_number = $_GET['part_number'];
-    // } else {
-    //   $part_number = NULL;
-    // }
-
-    // if (isset($_GET['serial_number']) && $_GET['serial_number'] !== NULL){
-    //   $serial_number = $_GET['serial_number'];
-    // } else {
-    //   $serial_number = NULL;
-    // }
-
-    // if (isset($_GET['desc']) && $_GET['desc'] !== NULL){
-    //   $description = $_GET['desc'];
-    // } else {
-    //   $description = NULL;
-    // }
-
-    // if (isset($_GET['unit']) && $_GET['unit'] !== NULL){
-    //   $unit  = $_GET['unit'];
-    // } else {
-    //   $unit  = NULL;
-    // }
-
-    // if (isset($_GET['category']) && $_GET['category'] !== NULL){
-    //   $category = $_GET['category'];
-    // } else {
-    //   $category = NULL;
-    // }
-
-    // if (isset($_GET['base']) && $_GET['base'] !== NULL){
-    //   $base = $_GET['base'];
-    // } else {
-    //   $base = NULL;
-    // }
-
-    // if (isset($_GET['stores']) && $_GET['stores'] !== NULL){
-    //   $stores = $_GET['stores'];
-    // } else {
-    //   $stores = NULL;
-    // }
 
     if (isset($_GET['stock_id']) && $_GET['stock_id'] !== NULL){
       $stock_id = $_GET['stock_id'];

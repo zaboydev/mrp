@@ -14,15 +14,20 @@
             <thead>
               <tr>
                 <th>No.</th>
+                <?php if($type=='change'):?>
+                <th>Base</th>
                 <th>Issued to</th>
                 <th>MS#</th>
                 <th>Date</th>
+                <?php endif;?>
                 <th>Group</th>
                 <th>Part Number</th>
                 <th>Alt. P/N</th>
                 <th>Serial Number</th>
                 <th>Description</th>
+                <?php if($type=='change'):?>
                 <th>Quantity</th>
+                <?php endif;?>
                 <th>Unit</th>                
               </tr>
             </thead>
@@ -37,6 +42,12 @@
                             <?= $e + 1; ?>
                         </label>
                         </div>
+                    </td>
+                    <?php if($type=='change'):?>
+                    <td>
+                        <label for="issuance_item_id_<?= $e; ?>">
+                        <?= print_string($entity['warehouse']); ?>
+                        </label>
                     </td>
                     <td>
                         <label for="issuance_item_id_<?= $e; ?>">
@@ -53,6 +64,7 @@
                         <?= print_date($entity['issued_date']); ?>
                         </label>
                     </td>
+                    <?php endif;?>
                     <td>
                         <label for="issuance_item_id_<?= $e; ?>">
                         <?= print_string($entity['group']); ?>
@@ -78,11 +90,13 @@
                         <?= print_string($entity['description']); ?>
                         </label>
                     </td>
+                    <?php if($type=='change'):?>
                     <td>
                         <label for="issuance_item_id_<?= $e; ?>">
                         <?= print_number($entity['issued_quantity'], 2); ?>
                         </label>
                     </td>
+                    <?php endif;?>
                     <td>
                         <label for="issuance_item_id_<?= $e; ?>">
                         <?= print_string($entity['unit']); ?>

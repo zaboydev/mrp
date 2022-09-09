@@ -6,6 +6,7 @@
   <?=link_tag('themes/material/assets/css/theme-default/bootstrap.css') ?>
   <?=link_tag('themes/material/assets/css/theme-default/font-awesome.min.css') ?>
   <?=link_tag('themes/material/assets/css/app.css') ?>
+  <?=link_tag('vendors/select2-4.0.3/dist/css/select2.min.css') ?>
 
   <?php emptyblock('simple_styles') ?>
 
