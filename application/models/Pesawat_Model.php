@@ -637,4 +637,121 @@ class Pesawat_Model extends MY_Model
 
   }
 
+  public function getSelectedColumnsComponentStatus()
+  {
+    return array(
+      'tb_aircraft_component_status.id'                   => NULL,
+      'tb_aircraft_component_status.status'               => 'Status',
+      'tb_master_pesawat.nama_pesawat'                    => 'Aircraft Code',
+      'tb_aircraft_component_status.base'                 => 'Base',
+      'tb_aircraft_component_status.status_date'          => 'Status Date',
+      'tb_aircraft_component_status.tsn'                  => 'TSN',
+      'tb_aircraft_component_status.notes'                => 'Notes',
+      'tb_aircraft_component_status.prepared_by'          => 'Prepared By',
+    );
+  }
+
+  public function getSearchableColumnsComponentStatus()
+  {
+    return array(
+      // 'tb_aircraft_component_status.id',
+      'tb_aircraft_component_status.status',
+      'tb_master_pesawat.nama_pesawat',
+      'tb_aircraft_component_status.base',
+      // 'tb_aircraft_component_status.status_date',
+      // 'tb_aircraft_component_status.tsn',
+      'tb_aircraft_component_status.notes',
+      'tb_aircraft_component_status.prepared_by',
+    );
+  }
+
+  public function getOrderableColumnsComponentStatus()
+  {
+    return array(
+      null,
+      'tb_aircraft_component_status.status',
+      'tb_master_pesawat.nama_pesawat',
+      'tb_aircraft_component_status.base',
+      'tb_aircraft_component_status.status_date',
+      'tb_aircraft_component_status.tsn',
+      'tb_aircraft_component_status.notes',
+      'tb_aircraft_component_status.prepared_by',
+    );
+  }
+
+  private function searchIndexComponentStatus()
+  {
+    $i = 0;
+
+    foreach ($this->getSearchableColumnsComponentStatus() as $item){
+      if ($_POST['search']['value']){
+        if ($i === 0){
+          $this->db->group_start();
+          $this->db->like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+        } else {
+          $this->db->or_like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+        }
+
+        if (count($this->getSearchableColumnsComponentStatus()) - 1 == $i){
+          $this->db->group_end();
+        }
+      }
+
+      $i++;
+    }
+  }
+
+  function getIndexComponentStatus($return = 'array')
+  {
+    $this->db->select(array_keys($this->getSelectedColumnsComponentStatus()));
+    $this->db->from('tb_aircraft_component_status');
+    $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+
+    $this->searchIndexComponentStatus();
+
+    $column_order = $this->getOrderableColumnsComponentStatus();
+
+    if (isset($_POST['order'])){
+      foreach ($_POST['order'] as $key => $order){
+        $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+      }
+    } else {
+      $this->db->order_by('nama_pesawat','asc');
+    }
+
+    if ($_POST['length'] != -1)
+      $this->db->limit($_POST['length'], $_POST['start']);
+
+    $query = $this->db->get();
+
+    if ($return === 'object'){
+      return $query->result();
+    } elseif ($return === 'json'){
+      return json_encode($query->result());
+    } else {
+      return $query->result_array();
+    }
+  }
+
+  function countIndexFilteredComponentStatus()
+  {
+    $this->db->from('tb_aircraft_component_status');
+    $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+    $this->searchIndex();
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function countIndexComponentStatus()
+  {
+    $this->db->from('tb_aircraft_component_status');
+    $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
 }

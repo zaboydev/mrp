@@ -22,7 +22,7 @@
                                 <label for="status_date">Status Date</label>
                             </div>
                             <div class="form-group">
-                                <input type="text" name="prepared_by" id="prepared_by" class="form-control" value="<?= $_SESSION['component_status']['prepared_by']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_installation_by'); ?>" required>
+                                <input type="text" name="prepared_by" id="prepared_by" class="form-control" value="<?= $_SESSION['component_status']['prepared_by']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_prepared_by'); ?>" required>
                                 <label for="prepared_by">Prepared By</label>
                             </div>
                         </div>
@@ -157,7 +157,7 @@
                     
                     </div>
 
-                    <a href="<?= site_url($module['route'] . '/discard/'.$_SESSION['component_status']['aircraft_id']); ?>" class="btn btn-flat btn-danger ink-reaction">
+                    <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
                     Discard
                     </a>
                 </div>

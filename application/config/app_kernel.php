@@ -62,7 +62,6 @@ require('modules/user.php');
 require('modules/vendor.php');
 require('modules/warehouse.php');
 require('modules/kurs.php');
-require('modules/pesawat.php');
 require('modules/departements.php');
 require('modules/annual_cost_centers.php');
 require('modules/product_category.php');
@@ -70,6 +69,10 @@ require('modules/expense_item.php');
 require('modules/deliver.php');
 require('modules/bill.php');
 require('modules/daftar_pajak.php');
+
+//aircraft
+require('modules/pesawat.php');
+require('modules/aircraft_component_status.php');
 
 //PLANNING
 require('modules/budget_cot.php');

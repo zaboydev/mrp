@@ -18,13 +18,13 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
 
     $this->data['page']['title']            = 'Pesawat';
-    $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
+    // $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = NULL;
     $this->data['grid']['order_columns']    = array (
-      // 0 => array ( 0 => 1, 1 => 'asc' ),
+      0 => array ( 0 => 1, 1 => 'asc' ),
       // 1 => array ( 0 => 2, 1 => 'asc' ),
       // 2 => array ( 0 => 3, 1 => 'desc' ),
     );
