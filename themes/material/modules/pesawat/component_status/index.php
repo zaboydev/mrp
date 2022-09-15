@@ -50,7 +50,24 @@
 
 <?php startblock('datafilter') ?>
 <div class="form force-padding">
+    <div class="form-group">
+        <label for="filter_received_date">Status Date</label>
+        <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+    </div>
 
+    <div class="form-group">
+        <label for="filter_item_group">Aircraft</label>
+        <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_aircraft_id">
+            <option value="all">
+            Not filtered
+            </option>
+            <?php foreach (available_aircrafts() as $aircraft) : ?>
+            <option value="<?= $aircraft['id']; ?>">
+                <?= $aircraft['nama_pesawat']; ?>
+            </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
 </div>
 <?php endblock() ?>
 

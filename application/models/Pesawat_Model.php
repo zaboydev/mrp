@@ -681,6 +681,21 @@ class Pesawat_Model extends MY_Model
 
   private function searchIndexComponentStatus()
   {
+
+    if (!empty($_POST['columns'][1]['search']['value'])){
+      $search_required_date = $_POST['columns'][1]['search']['value'];
+      $range_date  = explode(' ', $search_required_date);
+
+      $this->db->where('tb_aircraft_component_status.status_date >= ', $range_date[0]);
+      $this->db->where('tb_aircraft_component_status.status_date <= ', $range_date[1]);
+    }
+
+    if (!empty($_POST['columns'][2]['search']['value'])){
+      $aircraft_id = $_POST['columns'][2]['search']['value'];
+      if($aircraft_id!='all'){
+          $this->db->where('tb_aircraft_component_status.aircraft_id', $aircraft_id);
+      }            
+    }
     $i = 0;
 
     foreach ($this->getSearchableColumnsComponentStatus() as $item){
