@@ -12,6 +12,7 @@ class Commercial_Invoice_Model extends MY_Model
     $selected = array(
       'tb_returns.id'                       => NULL,
       'tb_returns.document_number'          => 'Document Number',
+      'tb_returns.status'          => 'Status',
       'tb_returns.issued_date'              => 'Date',
       'tb_returns.category'                 => 'Category',
       'tb_returns.warehouse'                => 'Base',
@@ -40,6 +41,7 @@ class Commercial_Invoice_Model extends MY_Model
   {
     return array(
       'tb_returns.document_number',
+      'tb_returns.status',
       'tb_returns.category',
       'tb_returns.warehouse',
       'tb_return_items.description',
@@ -60,6 +62,7 @@ class Commercial_Invoice_Model extends MY_Model
     return array(
       null,
       'tb_returns.document_number',
+      'tb_returns.status',
       'tb_returns.category',
       'tb_returns.warehouse',
       'tb_return_items.description',

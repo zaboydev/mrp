@@ -188,6 +188,7 @@ class Commercial_Invoice extends MY_Controller
 
         $col[]  = print_number($no);
         $col[]  = print_string($row['document_number']);
+        $col[]  = print_string($row['status']);
         $col[]  = print_date($row['issued_date']);
         $col[]  = print_string($row['category']);
         $col[]  = print_string($row['warehouse']);
