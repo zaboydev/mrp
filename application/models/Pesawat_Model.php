@@ -551,4 +551,222 @@ class Pesawat_Model extends MY_Model
     return $query->unbuffered_row('array');
   }
 
+  public function findAircraftComponetByAircraftId($aircraft_id)
+  {
+    $this->db->where('aircraft_id', $aircraft_id);
+    $this->db->where('active',true);
+    $query = $this->db->get('tb_aircraft_components');
+    $aircraft_components = $query->result_array();
+
+    return $aircraft_components;
+  }
+
+  public function getDocumentNumberComponentStatus()
+  {
+    $format = date('Ymd');
+    $this->db->select_max('document_number', 'last_number');
+    $this->db->like('tb_aircraft_component_status.document_number', $format, 'after');
+    $this->db->from('tb_aircraft_component_status');
+
+    $query  = $this->db->get();
+    $row    = $query->unbuffered_row();
+    $last   = $row->last_number;
+    $number = substr($last, 3, 6);
+    $next   = $number + 1;
+    $return = sprintf('%03s', $next);
+
+    return $format.$return;
+  }
+
+  public function saveComponentStatus()
+  {
+    $this->db->trans_begin();
+
+    $status_date  = $this->input->post('status_date');
+    $prepared_by  = $this->input->post('prepared_by');
+    $aircraft_id  = $this->input->post('aircraft_id');
+    $base         = $this->input->post('base');
+    $tsn          = $this->input->post('tsn');
+    $notes          = $this->input->post('notes');
+    $document_number = $this->getDocumentNumberComponentStatus();
+
+    $this->db->set('document_number', $document_number);
+    $this->db->set('status_date', $status_date);
+    $this->db->set('prepared_by', $prepared_by);
+    $this->db->set('aircraft_id', $aircraft_id);
+    $this->db->set('tsn', $tsn);
+    $this->db->set('status', 'WAITING FOR CHECKED BY COM');
+    $this->db->set('base', $base);
+    $this->db->set('notes', $notes);
+    $this->db->set('created_by', config_item('auth_person_name'));
+    $this->db->set('updated_by', config_item('auth_person_name'));
+    $this->db->insert('tb_aircraft_component_status');
+    $aircraft_component_status_id = $this->db->insert_id();
+
+    foreach ($_POST['items'] as $id => $data){
+      $this->db->set('aircraft_component_status_id', $aircraft_component_status_id);
+      $this->db->set('aircraft_component_id', $data['aircraft_component_id']);
+      $this->db->set('interval', $data['interval']);
+      $this->db->set('af_tsn', $data['af_tsn']);
+      $this->db->set('equip_tsn', $data['equip_tsn']);
+      $this->db->set('tso', $data['tso']);
+      $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
+      $this->db->set('remaining', $data['remaining']);
+      $this->db->set('remarks', $data['remarks']);
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->insert('tb_aircraft_component_status_details');
+
+      $this->db->set('interval', $data['interval']);
+      $this->db->set('af_tsn', $data['af_tsn']);
+      $this->db->set('equip_tsn', $data['equip_tsn']);
+      $this->db->set('tso', $data['tso']);
+      $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
+      $this->db->set('remaining', $data['remaining']);
+      $this->db->set('remarks', $data['remarks']);
+      $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->where('id',$data['aircraft_component_id']);
+      $this->db->update('tb_aircraft_components');
+    }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+
+  }
+
+  public function getSelectedColumnsComponentStatus()
+  {
+    return array(
+      'tb_aircraft_component_status.id'                   => NULL,
+      'tb_aircraft_component_status.status'               => 'Status',
+      'tb_master_pesawat.nama_pesawat'                    => 'Aircraft Code',
+      'tb_aircraft_component_status.base'                 => 'Base',
+      'tb_aircraft_component_status.status_date'          => 'Status Date',
+      'tb_aircraft_component_status.tsn'                  => 'TSN',
+      'tb_aircraft_component_status.notes'                => 'Notes',
+      'tb_aircraft_component_status.prepared_by'          => 'Prepared By',
+    );
+  }
+
+  public function getSearchableColumnsComponentStatus()
+  {
+    return array(
+      // 'tb_aircraft_component_status.id',
+      'tb_aircraft_component_status.status',
+      'tb_master_pesawat.nama_pesawat',
+      'tb_aircraft_component_status.base',
+      // 'tb_aircraft_component_status.status_date',
+      // 'tb_aircraft_component_status.tsn',
+      'tb_aircraft_component_status.notes',
+      'tb_aircraft_component_status.prepared_by',
+    );
+  }
+
+  public function getOrderableColumnsComponentStatus()
+  {
+    return array(
+      null,
+      'tb_aircraft_component_status.status',
+      'tb_master_pesawat.nama_pesawat',
+      'tb_aircraft_component_status.base',
+      'tb_aircraft_component_status.status_date',
+      'tb_aircraft_component_status.tsn',
+      'tb_aircraft_component_status.notes',
+      'tb_aircraft_component_status.prepared_by',
+    );
+  }
+
+  private function searchIndexComponentStatus()
+  {
+
+    if (!empty($_POST['columns'][1]['search']['value'])){
+      $search_required_date = $_POST['columns'][1]['search']['value'];
+      $range_date  = explode(' ', $search_required_date);
+
+      $this->db->where('tb_aircraft_component_status.status_date >= ', $range_date[0]);
+      $this->db->where('tb_aircraft_component_status.status_date <= ', $range_date[1]);
+    }
+
+    if (!empty($_POST['columns'][2]['search']['value'])){
+      $aircraft_id = $_POST['columns'][2]['search']['value'];
+      if($aircraft_id!='all'){
+          $this->db->where('tb_aircraft_component_status.aircraft_id', $aircraft_id);
+      }            
+    }
+    $i = 0;
+
+    foreach ($this->getSearchableColumnsComponentStatus() as $item){
+      if ($_POST['search']['value']){
+        if ($i === 0){
+          $this->db->group_start();
+          $this->db->like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+        } else {
+          $this->db->or_like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+        }
+
+        if (count($this->getSearchableColumnsComponentStatus()) - 1 == $i){
+          $this->db->group_end();
+        }
+      }
+
+      $i++;
+    }
+  }
+
+  function getIndexComponentStatus($return = 'array')
+  {
+    $this->db->select(array_keys($this->getSelectedColumnsComponentStatus()));
+    $this->db->from('tb_aircraft_component_status');
+    $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+
+    $this->searchIndexComponentStatus();
+
+    $column_order = $this->getOrderableColumnsComponentStatus();
+
+    if (isset($_POST['order'])){
+      foreach ($_POST['order'] as $key => $order){
+        $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+      }
+    } else {
+      $this->db->order_by('nama_pesawat','asc');
+    }
+
+    if ($_POST['length'] != -1)
+      $this->db->limit($_POST['length'], $_POST['start']);
+
+    $query = $this->db->get();
+
+    if ($return === 'object'){
+      return $query->result();
+    } elseif ($return === 'json'){
+      return json_encode($query->result());
+    } else {
+      return $query->result_array();
+    }
+  }
+
+  function countIndexFilteredComponentStatus()
+  {
+    $this->db->from('tb_aircraft_component_status');
+    $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+    $this->searchIndex();
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function countIndexComponentStatus()
+  {
+    $this->db->from('tb_aircraft_component_status');
+    $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
 }

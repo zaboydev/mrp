@@ -3015,4 +3015,26 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('available_aircrafts')) {
+    function available_aircrafts()
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select(
+        array(
+          'id',
+          'nama_pesawat',
+          'base'
+        )
+      );
+      $CI->db->order_by('nama_pesawat','asc');
+      $CI->db->from('tb_master_pesawat');
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+  
+      return $result;
+    }
+  }
+
     

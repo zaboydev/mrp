@@ -18,13 +18,13 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
 
     $this->data['page']['title']            = 'Pesawat';
-    $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
+    // $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = NULL;
     $this->data['grid']['order_columns']    = array (
-      // 0 => array ( 0 => 1, 1 => 'asc' ),
+      0 => array ( 0 => 1, 1 => 'asc' ),
       // 1 => array ( 0 => 2, 1 => 'asc' ),
       // 2 => array ( 0 => 3, 1 => 'desc' ),
     );
@@ -172,7 +172,7 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
     $aircraft = $this->model->findById($aircraft_id);
 
-    $this->data['page']['title']            = 'Component Status : '.$aircraft['nama_pesawat'];
+    $this->data['page']['title']            = 'Component : '.$aircraft['nama_pesawat'];
     $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
     $this->data['page']['aircraft_id']      = $aircraft_id;
     $this->data['page']['aircraft_code']    = $aircraft['nama_pesawat'];
@@ -488,5 +488,101 @@ class Pesawat extends MY_Controller
     $entity = $this->model->findById($id);
 
     echo json_encode($entity);
+  }
+
+  public function create_component_status($type=NULL)
+  {
+    $this->authorized($this->module, 'create_component_status');
+
+
+    if ($type !== NULL){
+      $type = urldecode($type);
+
+      $_SESSION['component_status']['items']                  = array();
+      $_SESSION['component_status']['aircraft_id']            = null;
+      $_SESSION['component_status']['aircraft_code']          = null;
+      $_SESSION['component_status']['base']                   = null;
+      $_SESSION['component_status']['tsn']                    = null;
+      $_SESSION['component_status']['notes']                  = null;
+      $_SESSION['component_status']['type']                   = $type;
+      $_SESSION['component_status']['status_date']            = date('Y-m-d');
+      $_SESSION['component_status']['prepared_by']            = config_item('auth_person_name');
+
+      redirect($this->module['route'] .'/create_component_status');
+    }
+
+    if (!isset($_SESSION['component_status']))
+      redirect($this->module['route']);
+
+    $this->data['page']['content']    = $this->module['view'] .'/component_status/create';
+    $this->data['page']['offcanvas']  = $this->module['view'] .'/component_status/create_offcanvas_add_item';
+    $this->data['page']['title']      = "Create Aircraft Component Status";
+    $this->data['page']['route']      = site_url($this->module['route'] . '/index_aircraft_component/' . $_SESSION['component']['aircraft_id']);
+
+    $this->render_view($this->module['view'] .'/component_status/create');
+  }
+
+  public function set_aircraft_id($aircraft_id)
+  {
+
+    $this->authorized($this->module, 'create_component_status');
+
+    $aircraft_id = urldecode($aircraft_id);
+
+    $aircraft = $this->model->findById($aircraft_id);
+    $aircraft_component = $this->model->findAircraftComponetByAircraftId($aircraft_id);
+
+    $_SESSION['component_status']['aircraft_id']              = $aircraft_id;
+    $_SESSION['component_status']['items']                    = $aircraft_component;
+    $_SESSION['component_status']['aircraft_code']            = $aircraft['nama_pesawat'];
+    $_SESSION['component_status']['base']                     = $aircraft['base'];
+
+    redirect($this->module['route'] . '/create_component_status');
+  }
+
+  public function set_tsn()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['component_status']['tsn'] = $_GET['data'];
+  }
+
+  public function set_notes()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['component_status']['notes'] = $_GET['data'];
+  }
+
+  public function save_component_status()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'create_component_status') == FALSE){
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      $errors = array();
+
+      if (!empty($errors)){
+        $data['success'] = FALSE;
+        $data['message'] = implode('<br />', $errors);
+      } else {
+        if ($this->model->saveComponentStatus()){
+          unset($_POST);
+
+          $data['success'] = TRUE;
+          $data['message'] = 'Document '. $this->input->post('document_number') .' has been saved. You will redirected now.';
+        } else {
+          $data['success'] = FALSE;
+          $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+        }
+      }
+    }
+
+    echo json_encode($data);
   }
 }

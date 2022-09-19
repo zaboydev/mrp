@@ -19,10 +19,10 @@
 <?php startblock('actions_right') ?>
 <?php if (is_granted($module, 'create_component')) : ?>
     <div class="section-floating-action-row">
-        <!-- <a href="<?= site_url($module['route'] . '/create/' . $category); ?>" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+        <a href="<?= site_url($module['route'] . '/create_component_status/COMPONENT STATUS'); ?>" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
             <i class="md md-add"></i>
             <small class="top right">Add Component</small>
-        </a> -->
+        </a>
         <div class="btn-group dropup">
             <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
                 <i class="md md-add"></i>
