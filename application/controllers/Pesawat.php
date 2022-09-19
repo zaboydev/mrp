@@ -18,7 +18,7 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
 
     $this->data['page']['title']            = 'Pesawat';
-    // $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
+    $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;

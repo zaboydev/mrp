@@ -684,4 +684,10 @@ class Capex_Closing_Payment extends MY_Controller
         redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
         // echo json_encode($result);
     }
+
+    public function list_attachment($id)
+    {
+        $data = $this->model->getListAttachments($id);
+        echo json_encode($data);
+    }
 }

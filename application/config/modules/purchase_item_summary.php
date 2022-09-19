@@ -2,7 +2,7 @@
 
 $config['module']['purchase_item_summary']['visible']        = TRUE;
 $config['module']['purchase_item_summary']['main_warehouse'] = FALSE;
-$config['module']['purchase_item_summary']['parent']         = 'account_payable';
+$config['module']['purchase_item_summary']['parent']         = 'finance_report';
 $config['module']['purchase_item_summary']['label']          = 'Purchase Item Summary';
 $config['module']['purchase_item_summary']['name']           = 'Purchase Item Summary';
 $config['module']['purchase_item_summary']['route']          = 'purchase_item_summary';

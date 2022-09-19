@@ -3544,6 +3544,156 @@ class Payment_Model extends MY_MODEL
 
 		return $query->num_rows();
 	}
+
+	function getTransaksiPayment()
+	{
+		$currency 			= $this->input->post('currency');
+        $start_date 	    = $this->input->post('start_date');
+        $end_date 			= $this->input->post('end_date');
+
+		$return = array(
+			'tb_po_payments.id',
+			'tb_po_payments.document_number',
+			'tb_po_payments.tanggal',
+			'tb_po_payments.no_cheque',
+			'tb_po_payments.vendor',
+			'tb_po_payments.currency',
+			'tb_po_payments.coa_kredit',
+            'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid',
+			'tb_po_payments.akun_kredit',
+			'tb_po_payments.status',
+			'tb_po_payments.notes',
+			'tb_po_payments.base',
+			'tb_po_payments.created_by',
+			'tb_po_payments.created_at',
+			'tb_po_payments.checked_by',
+			'tb_po_payments.notes',
+		);
+		$this->db->select($return);
+		$this->db->from('tb_po_payments');
+		$this->db->join('tb_purchase_order_items_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+		$this->db->group_by($this->getGroupedColumns());
+		$this->db->order_by('tanggal', 'desc');
+		$this->db->where('tb_po_payments.status','PAID');
+		if(!empty($currency) && $currency!='all'){
+            $this->db->where('tb_po_payments.currency',$currency);
+        }
+
+        if(!empty($start_date)&&!empty($end_date)){
+            $this->db->where('tb_po_payments.tanggal >=',$start_date);
+            $this->db->where('tb_po_payments.tanggal <=',$end_date);
+        }
+
+		$query = $this->db->get();
+
+		// return $query->result_array();
+		$data = array();
+		foreach ($query->result_array() as $key => $value) {
+			$data[$key] = $value;
+			$data[$key]['link'] = site_url('payment/info/'.$value['id']);
+			$data[$key]['link_attachment'] = site_url('payment/listAttachment/'.$value['id']);
+			$data[$key]['attachment'] = $this->checkAttachment($value['id']);
+		}
+		return $data;
+	}
+
+	function getTransaksiRequestPayment()
+    {
+		$currency 			= $this->input->post('currency');
+        $start_date 	    = $this->input->post('start_date');
+        $end_date 			= $this->input->post('end_date');
+
+		$return = array(
+            'tb_request_payments.id',
+            'tb_request_payments.document_number',
+            'tb_request_payments.tanggal',
+            'tb_request_payments.no_cheque',
+            'tb_request_payments.vendor',
+            'tb_request_payments.currency',
+            'tb_request_payments.coa_kredit',
+            'SUM(tb_request_payment_details.amount_paid) as amount_paid',
+            'tb_request_payments.akun_kredit',
+            'tb_request_payments.status',
+            'tb_request_payments.rejected_notes',
+            'tb_request_payments.base',
+            'tb_request_payments.notes',
+            'tb_request_payments.approval_notes',
+            'tb_request_payments.source',
+        );
+
+		$groupBy = array(
+            'tb_request_payments.id',
+            'tb_request_payments.document_number',
+            'tb_request_payments.tanggal',
+            'tb_request_payments.no_cheque',
+            'tb_request_payments.vendor',
+            'tb_request_payments.currency',
+            'tb_request_payments.status',
+            'tb_request_payments.base',
+            'tb_request_payments.notes',
+            'tb_request_payments.approval_notes',
+            'tb_request_payments.rejected_notes',
+            'tb_request_payments.source',
+        );
+        $this->connection->select($return);
+        $this->connection->from('tb_request_payments');
+        $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
+        $this->connection->where('tb_request_payments.status','PAID');
+        $this->connection->group_by($groupBy);
+		$this->connection->order_by('tanggal', 'desc');
+
+		if(!empty($currency) && $currency!='all'){
+            $this->connection->where('tb_request_payments.currency',$currency);
+        }
+
+        if(!empty($start_date)&&!empty($end_date)){
+            $this->connection->where('tb_request_payments.tanggal >=',$start_date);
+            $this->connection->where('tb_request_payments.tanggal <=',$end_date);
+        }
+
+        $query = $this->connection->get();
+
+        // return $query->result_array();
+		$data = array();
+		foreach ($query->result_array() as $key => $value) {
+			$data[$key] = $value;
+			if($value['source']=='EXPENSE'){
+				$link = site_url('expense_closing_payment/info/'.$value['id']);
+				$link_attachment = site_url('expense_closing_payment/list_attachment/'.$value['id']);
+			}else{
+				$link = site_url('capex_closing_payment/info/'.$value['id']);
+				$link_attachment = site_url('capex_closing_payment/list_attachment/'.$value['id']);
+			}
+			$data[$key]['link'] = $link;
+			$data[$key]['link_attachment'] = $link_attachment;
+			$data[$key]['attachment'] = $this->checkAttachmentPaymentBudgetControl($value['id']);
+		}
+		return $data;
+    }
+
+	function getTransaksi()
+    {
+		$purchase_payment = $this->getTransaksiPayment();
+		$request_payment = $this->getTransaksiRequestPayment();
+
+		$result = array_merge($purchase_payment, $request_payment);
+		$tanggal  = array_column($result, 'tanggal');
+
+		$return = array_multisort($tanggal, SORT_DESC, $result);
+
+		return $result;
+    }
+
+	public function checkAttachmentPaymentBudgetControl($id)
+	{
+		$this->connection->where('id_purchase', $id);
+        $this->connection->where('tipe', 'payment');
+        $this->connection->where('type_att', 'payment');
+		$this->connection->from('tb_attachment');
+		$num_rows = $this->connection->count_all_results();
+
+		return $num_rows;
+	}
 }
 
 /* End of file Payment_Model.php */
