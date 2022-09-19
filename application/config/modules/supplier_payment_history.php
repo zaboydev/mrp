@@ -2,7 +2,7 @@
 
 $config['module']['supplier_payment_history']['visible']        = TRUE;
 $config['module']['supplier_payment_history']['main_warehouse'] = FALSE;
-$config['module']['supplier_payment_history']['parent']         = 'account_payable';
+$config['module']['supplier_payment_history']['parent']         = 'finance_report';
 $config['module']['supplier_payment_history']['label']          = 'Supplier Payment History';
 $config['module']['supplier_payment_history']['name']           = 'Supplier Payment History';
 $config['module']['supplier_payment_history']['route']          = 'supplier_payment_history';

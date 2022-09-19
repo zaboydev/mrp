@@ -2,7 +2,7 @@
 
 $config['module']['purchase_supplier_summary']['visible']        = TRUE;
 $config['module']['purchase_supplier_summary']['main_warehouse'] = FALSE;
-$config['module']['purchase_supplier_summary']['parent']         = 'account_payable';
+$config['module']['purchase_supplier_summary']['parent']         = 'finance_report';
 $config['module']['purchase_supplier_summary']['label']          = 'Purchase Supplier Summary';
 $config['module']['purchase_supplier_summary']['name']           = 'Purchase Supplier Summary';
 $config['module']['purchase_supplier_summary']['route']          = 'purchase_supplier_summary';

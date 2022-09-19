@@ -2,7 +2,7 @@
 
 $config['module']['account_payable_mutation']['visible']        = TRUE;
 $config['module']['account_payable_mutation']['main_warehouse'] = FALSE;
-$config['module']['account_payable_mutation']['parent']         = 'account_payable';
+$config['module']['account_payable_mutation']['parent']         = 'finance_report';
 $config['module']['account_payable_mutation']['label']          = 'Account Payable Mutation';
 $config['module']['account_payable_mutation']['name']           = 'Account Payable Mutation';
 $config['module']['account_payable_mutation']['route']          = 'account_payable_mutation';

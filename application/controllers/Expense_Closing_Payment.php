@@ -735,4 +735,10 @@ class Expense_Closing_Payment extends MY_Controller
         }
         
     }
+
+    public function list_attachment($id)
+    {
+        $data = $this->model->getListAttachments($id);
+        echo json_encode($data);
+    }
 }

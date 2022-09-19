@@ -2,7 +2,7 @@
 
 $config['module']['payable_reconciliation_summary']['visible']        = TRUE;
 $config['module']['payable_reconciliation_summary']['main_warehouse'] = FALSE;
-$config['module']['payable_reconciliation_summary']['parent']         = 'account_payable';
+$config['module']['payable_reconciliation_summary']['parent']         = 'finance_report';
 $config['module']['payable_reconciliation_summary']['label']          = 'Payable Reconciliation';
 $config['module']['payable_reconciliation_summary']['name']           = 'Payable Reconciliation';
 $config['module']['payable_reconciliation_summary']['route']          = 'payable_reconciliation_summary';

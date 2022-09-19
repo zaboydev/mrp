@@ -45,6 +45,9 @@ $config['parent']['inventory']['icon']   = 'fa fa-cubes';
 $config['parent']['expense']['label']  = 'Expense';
 $config['parent']['expense']['icon']   = 'fa fa-money';
 
+$config['parent']['finance_report']['label']  = 'Finance Report';
+$config['parent']['finance_report']['icon']   = 'fa fa-money';
+
 $config['module'] = array();
 
 
@@ -145,6 +148,8 @@ require('modules/receipt_nota.php');
 require('modules/account_payable.php');
 require('modules/payment.php');
 require('modules/payment_report.php');
+//finance report
+require('modules/payment_voucher_report.php');
 require('modules/payment_detail_report.php');
 require('modules/purchase_item_detail.php');
 require('modules/purchase_supplier_summary.php');
