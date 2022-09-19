@@ -168,7 +168,7 @@
 
     <div class="section-action style-default-bright">
         <div class="section-floating-action-row">
-            <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save_component_status'); ?>">
+            <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
                 <i class="md md-save"></i>
                 <small class="top right">Save Document</small>
             </a>
