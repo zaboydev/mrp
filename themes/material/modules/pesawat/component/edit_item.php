@@ -48,7 +48,7 @@
                   <input value="<?= $item['issuance_item_id']?>" type="hidden" name="issuance_item_id[]" class="form-control input-sm">
                 </td>
                 <td rowspan="1">
-                  <input value="<?= $item['serial_number']?>" type="text" name="serial_number[]" data-tag-name="serial_number" data-search-for="serial_number" class="form-control input-sm" placeholder="Serial Number" required>
+                  <input value="<?= $item['serial_number']?>" type="text" name="serial_number[]" data-tag-name="serial_number" data-search-for="serial_number" class="form-control input-sm" placeholder="Serial Number">
                 </td>
                 <td rowspan="1">
                   <input value="<?= $item['alternate_part_number']?>" type="text" name="alternate_part_number[]" data-tag-name="alternate_part_number" data-search-for="alternate_part_number" class="form-control input-sm" placeholder="Alt Part Number">
@@ -132,7 +132,7 @@
         <td rowspan="1">
           <input value="" type="hidden" name="issuance_document_number[]" class="form-control input-sm">
           <input value="" type="hidden" name="issuance_item_id[]" class="form-control input-sm">
-          <input value="" type="hidden" name="item_id[]" data-tag-name="item_id" data-search-for="item_id" class="form-control input-sm" placeholder="item_id" required>
+          <input value="" type="hidden" name="item_id[]" data-tag-name="item_id" data-search-for="item_id" class="form-control input-sm" placeholder="item_id">
           <input value="" type="text" name="part_number[]" data-tag-name="part_number" data-search-for="part_number" class="form-control input-sm" placeholder="Part Number" required>
         </td>
         <td rowspan="1">
