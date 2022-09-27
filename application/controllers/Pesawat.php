@@ -172,7 +172,7 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
     $aircraft = $this->model->findById($aircraft_id);
 
-    $this->data['page']['title']            = 'Component : '.$aircraft['nama_pesawat'];
+    $this->data['page']['title']            = 'Component Status '.$aircraft['nama_pesawat'];
     $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
     $this->data['page']['aircraft_id']      = $aircraft_id;
     $this->data['page']['aircraft_code']    = $aircraft['nama_pesawat'];
@@ -212,15 +212,18 @@ class Pesawat extends MY_Controller
         $col[] = print_string($row['part_number']);
         $col[] = print_string($row['alternate_part_number']);
         $col[] = print_string($row['serial_number']);
-        $col[] = print_string($row['interval']);
-        $col[] = print_date($row['installation_date']);
+        $col[] = print_string($row['interval']).' / '.print_date($row['interval_date'],'d F Y');
+        $col[] = print_string($row['histrical']);
+        $col[] = print_date($row['installation_date'],'d F Y');
         $col[] = print_string($row['installation_by']);
         $col[] = print_string($row['af_tsn']);
         $col[] = print_string($row['equip_tsn']);
         $col[] = print_string($row['tso']);
-        $col[] = print_string($row['due_at_af_tsn']);
-        $col[] = print_string($row['remaining']);
+        $col[] = print_string($row['due_at_af_tsn']).' / '.print_date($row['due_at_af_tsn_date'],'d F Y');
+        $col[] = print_string($row['remaining']).' / '.print_date($row['remaining_date'],'d F Y');
         $col[] = print_string($row['remarks']);
+        $col[] = print_date($row['updated_at'],'d F Y');
+        $col[] = print_string($row['updated_by']);
         
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
@@ -350,6 +353,7 @@ class Pesawat extends MY_Controller
             'issuance_document_number'=> $_SESSION['component']['source']=='change'?trim(strtoupper($issuance_item['document_number'])):null,
             'issuance_item_id'        => $_SESSION['component']['source']=='change'?$issuance_item_id:null,
             'unit'                    => $issuance_item['unit'],
+            'historical'              => NULL,
             // 'interval'                => null,
             // 'af_tsn'                  => null,
             // 'equip_tsn'               => null,
@@ -402,6 +406,7 @@ class Pesawat extends MY_Controller
         $group                    = $this->input->post('group');
         $previous_component_id    = $this->input->post('previous_component_id');
         $installation_date        = $this->input->post('installation_date');
+        $historical        = $this->input->post('historical');
 
         $_SESSION['component']['items'] = array();
         foreach ($part_number as $key=>$part_number) {
@@ -416,7 +421,8 @@ class Pesawat extends MY_Controller
             'issuance_item_id'        => $issuance_item_id[$key],
             'unit'                    => $unit[$key],
             'previous_component_id'   => $previous_component_id[$key],
-            'installation_date'       => $installation_date[$key],
+            'installation_date'       => $installation_date[$key],            
+            'historical'              => $historical[$key],
             'interval'                => null,
             'af_tsn'                  => null,
             'equip_tsn'               => null,

@@ -3002,12 +3002,13 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('isComponentExist')) {
-    function isComponentExist($aircraft_code)
+    function isComponentExist($aircraft_code,$type)
     {
       $CI =& get_instance();
   
       $CI->db->from('tb_aircraft_components');
       $CI->db->where('aircraft_code', strtoupper($aircraft_code));
+      $CI->db->where('type', strtoupper($type));
 
       $num_rows = $CI->db->count_all_results();
 

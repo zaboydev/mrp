@@ -24,8 +24,8 @@
                     <th class="middle-alignment">Group</th>
                     <!-- <th class="middle-alignment">Interval</th> -->
                     <th class="middle-alignment">Installation Date</th>
-                    <!-- <th class="middle-alignment">AF TSN</th>
-                    <th class="middle-alignment">Equip TSN</th>
+                    <th class="middle-alignment">Historical</th>
+                    <!-- <th class="middle-alignment">Equip TSN</th>
                     <th class="middle-alignment">TSO</th>
                     <th class="middle-alignment">Remarks</th> -->
                     <th class="middle-alignment"></th>
@@ -59,12 +59,14 @@
                 <td>
                   <input value="<?= $item['unit']?>" type="text" name="unit[]" data-tag-name="unit" data-search-for="unit" class="form-control input-sm" placeholder="unit" required>
                 </td>
-                <td>
-                  
+                <td>                  
                   <input value="<?= $item['group']?>" type="text" name="group[]" data-tag-name="group" data-search-for="description" class="form-control input-sm" placeholder="Description" required>
                 </td>
                 <td> 
                   <input type="date" name="installation_date[]" class="form-control input-sm" value="<?=$item['installation_date']?>" required>
+                </td>
+                <td>                  
+                  <input value="<?= $item['historical']?>" type="text" name="historical[]" data-tag-name="historical" data-search-for="historical" class="form-control input-sm" placeholder="Historical" required>
                 </td>
                 <!-- <td> 
                   <input type="number" data-search-for="interval" name="items[<?= $id; ?>][interval]" class="form-control input-sm" value="<?=$item['interval']?>" required>
@@ -160,6 +162,9 @@
         <td> 
           <input type="date" name="installation_date[]" class="form-control input-sm" value="<?=$item['installation_date']?>" required>
         </td>  
+        <td>                  
+          <input value="<?= $item['historical']?>" type="text" name="historical[]" data-tag-name="historical" data-search-for="historical" class="form-control input-sm" placeholder="Historical" required>
+        </td>
         <td class="item-list">
           <center>
             <a  href="javascript:;" title="Delete" class="btn btn-danger btn-xs btn-row-delete-item" data-tipe="delete"> Delete

@@ -132,7 +132,7 @@
               <div class="card-actionbar-row">
                 <div class="pull-left">
                 <?php if (empty($_SESSION['component']['items'])):?>
-                  <?php if(isComponentExist($_SESSION['component']['aircraft_code'])):?>
+                  <?php if(isComponentExist($_SESSION['component']['aircraft_code'],$_SESSION['component']['type'])):?>
                     <a href="<?=site_url($module['route'] .'/select_item/change');?>" onClick="return popup(this, 'add_select_item')" class="btn btn-primary ink-reaction btn-item">
                       Add Component From Material Slip
                     </a>
