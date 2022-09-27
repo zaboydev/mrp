@@ -239,15 +239,18 @@ class Pesawat_Model extends MY_Model
       'part_number'           => 'Part Number',
       'alternate_part_number' => 'Alt. Part Number',
       'serial_number'         => 'Serial Number',
-      'interval'              => 'Interval',
+      'interval'              => 'Interval (Hour & Date)',
+      'historical'              => 'Historical',
       'installation_date'     => 'Installation Date',
       'installation_by'       => 'Installation By',
       'af_tsn'                => 'AF TSN',
       'equip_tsn'             => 'EQUIP TSN',
       'tso'                   => 'TSO',
-      'due_at_af_tsn'         => 'Due at AF TSN',
-      'remaining'             => 'Remaining',
+      'due_at_af_tsn'         => 'Due at AF TSN (Hour & Date)',
+      'remaining'             => 'Remaining (Hour & Date)',
       'remarks'               => 'Remarks',
+      'updated_at'               => 'Last Updated at',
+      'updated_by'               => 'Last Updated By',
     );
   }
 
@@ -280,15 +283,15 @@ class Pesawat_Model extends MY_Model
       'part_number',
       'alternate_part_number',
       'serial_number',
-      'interval',
-      'installation_date',
-      'installation_by',
-      'af_tsn',
-      'equip_tsn',
-      'tso',
-      'due_at_af_tsn',
-      'remaining',
-      'remarks',
+      // 'interval',
+      // 'installation_date',
+      // 'installation_by',
+      // 'af_tsn',
+      // 'equip_tsn',
+      // 'tso',
+      // 'due_at_af_tsn',
+      // 'remaining',
+      // 'remarks',
     );
   }
 
@@ -316,7 +319,11 @@ class Pesawat_Model extends MY_Model
 
   function getIndexAircraftComponent($aircraft_id,$return = 'array')
   {
-    $this->db->select(array_keys($this->getSelectedColumnsAircraftComponent()));
+    $selected = array(
+      'tb_aircraft_components.*'
+    );
+    $this->db->select($selected);
+    // $this->db->select(array_keys($this->getSelectedColumnsAircraftComponent()));
     $this->db->from('tb_aircraft_components');
     $this->db->where('tb_aircraft_components.aircraft_id',$aircraft_id);
 
@@ -500,6 +507,7 @@ class Pesawat_Model extends MY_Model
       $this->db->set('serial_number', $serial_number);
       $this->db->set('interval', $data['interval']);
       $this->db->set('installation_date', $data['installation_date']);
+      $this->db->set('historical', $data['historical']);
       $this->db->set('installation_by', $installation_by);
       $this->db->set('af_tsn', $data['af_tsn']);
       $this->db->set('equip_tsn', $data['equip_tsn']);
@@ -607,24 +615,31 @@ class Pesawat_Model extends MY_Model
       $this->db->set('aircraft_component_status_id', $aircraft_component_status_id);
       $this->db->set('aircraft_component_id', $data['aircraft_component_id']);
       $this->db->set('interval', $data['interval']);
+      $this->db->set('interval_date', $data['interval_date']);
       $this->db->set('af_tsn', $data['af_tsn']);
       $this->db->set('equip_tsn', $data['equip_tsn']);
       $this->db->set('tso', $data['tso']);
       $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
+      $this->db->set('due_at_af_tsn_date', $data['due_at_af_tsn_date']);
       $this->db->set('remaining', $data['remaining']);
+      $this->db->set('remaining_date', $data['remaining_date']);
       $this->db->set('remarks', $data['remarks']);
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->insert('tb_aircraft_component_status_details');
 
       $this->db->set('interval', $data['interval']);
+      $this->db->set('interval_date', $data['interval_date']);
       $this->db->set('af_tsn', $data['af_tsn']);
       $this->db->set('equip_tsn', $data['equip_tsn']);
       $this->db->set('tso', $data['tso']);
       $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
+      $this->db->set('due_at_af_tsn_date', $data['due_at_af_tsn_date']);
       $this->db->set('remaining', $data['remaining']);
+      $this->db->set('remaining_date', $data['remaining_date']);
       $this->db->set('remarks', $data['remarks']);
       $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->set('updated_at', date('Y-m-d H:i:s'));
       $this->db->where('id',$data['aircraft_component_id']);
       $this->db->update('tb_aircraft_components');
     }

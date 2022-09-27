@@ -65,20 +65,20 @@
                                 <th></th>
                                 <th class="hide">id</th>
                                 <th class="hide">Group</th>
-                                <th>Description</th>
-                                <th>P/N</th>
-                                <th>Alt. P/N</th>
-                                <th>S/N</th>
+                                <th class="middle-alignment">Description</th>
+                                <th class="middle-alignment">P/N</th>
+                                <th class="middle-alignment">Alt. P/N</th>
+                                <th class="middle-alignment">S/N</th>
                                 <!-- <th>Qty</th> -->
                                 <th class="hide">Unit</th>
-                                <th>Installation Date</th>
-                                <th>Interval</th>
-                                <th>AF TSN</th>
-                                <th>Equip TSN</th>
-                                <th>TSO</th>
-                                <th>Due At AF TSN</th>
-                                <th>Remaining</th>
-                                <th>Remarks</th>
+                                <th class="middle-alignment">Installation Date</th>
+                                <th class="middle-alignment" colspan="2">Interval (Hour & Date)</th>
+                                <th class="middle-alignment">AF TSN</th>
+                                <th class="middle-alignment">Equip TSN</th>
+                                <th class="middle-alignment">TSO</th>
+                                <th class="middle-alignment" colspan="2">Due At AF TSN (Hour & Date)</th>
+                                <th class="middle-alignment" colspan="2">Remaining (Hour & Date)</th>
+                                <th class="middle-alignment">Remarks</th>
                             </tr>
                         </thead>
                         <tbody id="item-body">
@@ -123,25 +123,41 @@
                                 </td>
                                 <td class="interval">
                                 <input type="hidden" name="items[<?=$items['id'];?>][aircraft_component_id]" value="<?=$items['id'];?>" class="form-control input-sm" required>
-                                  <input type="text" name="items[<?=$items['id'];?>][interval]" value="<?=$items['interval'];?>" class="form-control input-sm" required>
+                                  <input type="text" name="items[<?=$items['id'];?>][interval]" value="" class="form-control input-sm" placeholder="hour" required>
+                                </td>
+                                <td class="interval_date">
+                                    <input type="date" name="items[<?=$items['id'];?>][interval_date]" value="" class="form-control input-sm" required>
                                 </td>
                                 <td class="af_tsn"> 
-                                  <input type="text" name="items[<?=$items['id'];?>][af_tsn]" value="<?=$items['af_tsn'];?>" class="form-control input-sm" required>
+                                  <input type="text" name="items[<?=$items['id'];?>][af_tsn]" value="" class="form-control input-sm" required>
                                 </td>
                                 <td class="equip_tsn">
-                                  <input type="text" name="items[<?=$items['id'];?>][equip_tsn]" value="<?=$items['equip_tsn'];?>" class="form-control input-sm" required>
+                                  <input type="text" name="items[<?=$items['id'];?>][equip_tsn]" value="" class="form-control input-sm" required>
                                 </td>
                                 <td class="tso">
-                                  <input type="text" name="items[<?=$items['id'];?>][tso]" value="<?=$items['tso'];?>" class="form-control input-sm" required>
+                                  <input type="text" name="items[<?=$items['id'];?>][tso]" value="" class="form-control input-sm" required>
                                 </td>
                                 <td class="due_at_af_tsn">
-                                  <input type="text" name="items[<?=$items['id'];?>][due_at_af_tsn]" value="<?=$items['due_at_af_tsn'];?>" class="form-control input-sm due_at_af_tsn_input" required>
+                                  <input type="text" name="items[<?=$items['id'];?>][due_at_af_tsn]" value="" placeholder="hour" class="form-control input-sm due_at_af_tsn_input" required>
+                                </td>
+                                <td class="due_at_af_tsn_date">
+                                    <input type="date" name="items[<?=$items['id'];?>][due_at_af_tsn_date]" value="" class="form-control input-sm" required>
                                 </td>
                                 <td class="remaining">
-                                  <input type="text" name="items[<?=$items['id'];?>][remaining]" value="<?=$items['remaining'];?>" class="form-control input-sm" readonly>
+                                  <input type="text" name="items[<?=$items['id'];?>][remaining]" value="" placeholder="hour" class="form-control input-sm" readonly>
+                                </td>
+                                <td class="remaining_date">
+                                    <input type="date" name="items[<?=$items['id'];?>][remaining_date]" value="" class="form-control input-sm" required>
                                 </td>
                                 <td class="remarks">
-                                  <input type="text" name="items[<?=$items['id'];?>][remarks]" value="<?=$items['remarks'];?>" class="form-control input-sm" required>
+                                    <select name="items[<?=$items['id'];?>][remarks]" class="form-control input-sm" required style="width: 100%">
+                                        <option>-- Select One --</option>
+                                        <option value="OVERHAUL">OVERHAUL</option>
+                                        <option value="INSPECTION">INSPECTION</option>
+                                        <option value="CHECK">CHECK</option>
+                                        <option value="REPLACE">REPLACE</option>
+                                        <option value="SWING">SWING</option>
+                                    </select>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

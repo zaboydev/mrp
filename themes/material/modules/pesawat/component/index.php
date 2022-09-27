@@ -286,11 +286,73 @@
         }
       },
 
-      columnDefs: [{
-        searchable: false,
-        orderable: false,
-        targets: [0]
-      }],
+      columnDefs: [
+        {
+          searchable: false,
+          orderable: false,
+          targets: [0]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [6]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [7]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [8]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [9]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [10]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [11]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [12]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [13]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [14]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [15]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [16]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [17]
+        },
+      ],
 
       dom: "<'row'<'col-sm-12'tr>>" +
         "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
