@@ -29,6 +29,7 @@ class Aircraft_Component_Status extends MY_Controller
 
             foreach ($entities as $row) {
                 $no++;
+                $col = array();
                 if ($row['status'] == 'WAITING FOR CHECKED BY COM' && (config_item('auth_role')=='CHIEF OF MAINTANCE' || config_item('auth_role')=='SUPER ADMIN')) {
                     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                 }else{
@@ -41,6 +42,13 @@ class Aircraft_Component_Status extends MY_Controller
                 $col[] = print_string($row['tsn']);
                 $col[] = print_string($row['notes']);
                 $col[] = print_string($row['prepared_by']);
+                if($row['status']=='APPROVED' || $row['status']=='REJECTED'){
+                    $col[] = $row['approval_notes'];
+                }else{
+                    if (is_granted($this->module, 'approval') === TRUE) {
+                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                    }
+                }
 
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
@@ -241,5 +249,99 @@ class Aircraft_Component_Status extends MY_Controller
         redirect($this->modules['secure']['route'] .'/denied');
 
         $_SESSION['component_status']['prepared_by'] = $_GET['data'];
+    }
+
+    public function multi_approve()
+    {
+        $document_id = $this->input->post('document_id');
+        $document_id = str_replace("|", "", $document_id);
+        $document_id = substr($document_id, 0, -1);
+        $document_id = explode(",", $document_id);
+
+        $str_notes = $this->input->post('notes');
+        $notes = str_replace("|", "", $str_notes);
+        $notes = substr($notes, 0, -3);
+        $notes = explode("##,", $notes);
+
+        $total = 0;
+        $success = 0;
+        $failed = sizeof($document_id);
+        $x = 0;
+        foreach ($document_id as $key) {
+            if ($this->model->approve($key, $notes[$x])) {
+                $total++;
+                $success++;
+                $failed--;
+                // $this->model->send_mail_approved($key,'approved');
+            }
+            $x++;
+        }
+        if ($success > 0) {
+            $this->model->send_mail_approval($document_id, 'approve', config_item('auth_person_name'),$notes);
+            $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => $success . " data has been update!"
+            ));
+        }
+        if ($failed > 0) {
+            $this->session->set_flashdata('alert', array(
+                'type' => 'danger',
+                'info' => "There are " . $failed . " errors"
+            ));
+        }
+        if ($total == 0) {
+            $result['status'] = 'failed';
+        } else {
+        //$this->sendEmailHOS();
+            $result['status'] = 'success';
+        }
+        echo json_encode($result);
+    }
+
+    public function multi_reject()
+    {
+        $document_id = $this->input->post('document_id');
+        $document_id = str_replace("|", "", $document_id);
+        $document_id = substr($document_id, 0, -1);
+        $document_id = explode(",", $document_id);
+
+        $str_notes = $this->input->post('notes');
+        $notes = str_replace("|", "", $str_notes);
+        $notes = substr($notes, 0, -3);
+        $notes = explode("##,", $notes);
+
+        $total = 0;
+        $success = 0;
+        $failed = sizeof($document_id);
+        $x = 0;
+        foreach ($document_id as $key) {
+            if ($this->model->reject($key, $notes[$x])) {
+                $total++;
+                $success++;
+                $failed--;
+                // $this->model->send_mail_approved($key,'approved');
+            }
+            $x++;
+        }
+        if ($success > 0) {
+            $this->model->send_mail_approval($document_id, 'reject', config_item('auth_person_name'),$notes);
+            $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => $success . " data has been update!"
+            ));
+        }
+        if ($failed > 0) {
+            $this->session->set_flashdata('alert', array(
+                'type' => 'danger',
+                'info' => "There are " . $failed . " errors"
+            ));
+        }
+        if ($total == 0) {
+            $result['status'] = 'failed';
+        } else {
+        //$this->sendEmailHOS();
+            $result['status'] = 'success';
+        }
+        echo json_encode($result);
     }
 }

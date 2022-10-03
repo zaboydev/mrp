@@ -509,7 +509,7 @@
                 $("#modal-reject-data-button-multi").attr('disabled', true);
                 if (id_purchase_order !== "") {
                     $.post(action, {
-                        'id_capex_request': id_purchase_order,
+                        'document_id': id_purchase_order,
                         'notes': notes
                     }).done(function(data) {
                         console.log(data);

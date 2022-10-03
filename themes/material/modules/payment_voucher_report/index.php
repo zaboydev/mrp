@@ -107,6 +107,10 @@
             font-family:"Tahoma";
         }
 
+        .table-responsive {
+            max-height: 500px;
+        }
+
         @media print {
 
             html,

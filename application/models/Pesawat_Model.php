@@ -628,26 +628,29 @@ class Pesawat_Model extends MY_Model
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->insert('tb_aircraft_component_status_details');
 
-      $this->db->set('interval', $data['interval']);
-      $this->db->set('interval_date', $data['interval_date']);
-      $this->db->set('af_tsn', $data['af_tsn']);
-      $this->db->set('equip_tsn', $data['equip_tsn']);
-      $this->db->set('tso', $data['tso']);
-      $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
-      $this->db->set('due_at_af_tsn_date', $data['due_at_af_tsn_date']);
-      $this->db->set('remaining', $data['remaining']);
-      $this->db->set('remaining_date', $data['remaining_date']);
-      $this->db->set('remarks', $data['remarks']);
-      $this->db->set('updated_by', config_item('auth_person_name'));
-      $this->db->set('updated_at', date('Y-m-d H:i:s'));
-      $this->db->where('id',$data['aircraft_component_id']);
-      $this->db->update('tb_aircraft_components');
+      // $this->db->set('interval', $data['interval']);
+      // $this->db->set('interval_date', $data['interval_date']);
+      // $this->db->set('af_tsn', $data['af_tsn']);
+      // $this->db->set('equip_tsn', $data['equip_tsn']);
+      // $this->db->set('tso', $data['tso']);
+      // $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
+      // $this->db->set('due_at_af_tsn_date', $data['due_at_af_tsn_date']);
+      // $this->db->set('remaining', $data['remaining']);
+      // $this->db->set('remaining_date', $data['remaining_date']);
+      // $this->db->set('remarks', $data['remarks']);
+      // $this->db->set('updated_by', config_item('auth_person_name'));
+      // $this->db->set('updated_at', date('Y-m-d H:i:s'));
+      // $this->db->where('id',$data['aircraft_component_id']);
+      // $this->db->update('tb_aircraft_components');
     }
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;
 
     $this->db->trans_commit();
+
+    $this->send_mail($aircraft_component_status_id);
+
     return TRUE;
 
   }
@@ -663,6 +666,7 @@ class Pesawat_Model extends MY_Model
       'tb_aircraft_component_status.tsn'                  => 'TSN',
       'tb_aircraft_component_status.notes'                => 'Notes',
       'tb_aircraft_component_status.prepared_by'          => 'Prepared By',
+      'tb_aircraft_component_status.approval_notes'       => 'Approval Notes',
     );
   }
 
@@ -782,6 +786,182 @@ class Pesawat_Model extends MY_Model
     $query = $this->db->get();
 
     return $query->num_rows();
+  }
+
+  public function approve($id,$notes)
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('status', 'APPROVED');
+    $this->db->set('approval_notes', $notes);
+    $this->db->set('checked_by', config_item('auth_person_name'));
+    $this->db->set('checked_at', date('Y-m-d'));
+    $this->db->where('id', $id);
+    $this->db->update('tb_aircraft_component_status');
+
+    $this->db->from('tb_aircraft_component_status_details');
+    $this->db->where('tb_aircraft_component_status_details.aircraft_component_status_id', $id);
+
+    $query = $this->db->get();
+
+    foreach ($query->result_array() as $key => $value) {
+      $this->db->set('interval', $value['interval']);
+      $this->db->set('interval_date', $value['interval_date']);
+      $this->db->set('af_tsn', $value['af_tsn']);
+      $this->db->set('equip_tsn', $value['equip_tsn']);
+      $this->db->set('tso', $value['tso']);
+      $this->db->set('due_at_af_tsn', $value['due_at_af_tsn']);
+      $this->db->set('due_at_af_tsn_date', $value['due_at_af_tsn_date']);
+      $this->db->set('remaining', $value['remaining']);
+      $this->db->set('remaining_date', $value['remaining_date']);
+      $this->db->set('remarks', $value['remarks']);
+      $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->set('updated_at', date('Y-m-d H:i:s'));
+      $this->db->where('id',$value['aircraft_component_id']);
+      $this->db->update('tb_aircraft_components');
+    }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  public function send_mail($doc_id)
+  {
+    $this->db->from('tb_aircraft_component_status');
+    $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+    $this->db->where('id', $doc_id);
+    $query = $this->db->get();
+    $row = $query->unbuffered_row('array');
+
+    $recipientList = $this->getNotifRecipient(9);
+    $recipient = array();
+    foreach ($recipientList as $key) {
+      array_push($recipient, $key->email);
+    }
+
+    $from_email = "bifa.acd@gmail.com";
+    $to_email = "aidanurul99@rocketmail.com";
+
+    //Load email library 
+    $this->load->library('email');
+    // $config = array();
+    // $config['protocol'] = 'mail';
+    // $config['smtp_host'] = 'smtp.live.com';
+    // $config['smtp_user'] = 'bifa.acd@gmail.com';
+    // $config['smtp_pass'] = 'b1f42019';
+    // $config['smtp_port'] = 587;
+    // $config['smtp_auth']        = true;
+    // $config['mailtype']         = 'html';
+    // $this->email->initialize($config);
+    $this->email->set_newline("\r\n");
+    $message = "<p>Dear Chief Of Maintenance</p>";
+    $message .= "<p>Berikut permintaan Pengecekan untuk Laporan Aircraft Component Status :</p>";
+    $message .= "<ul>";
+    $message .= "</ul>";
+    $message .= "<p>Document Number : " . $row['document_number'] . "</p>";
+    $message .= "<p>Aircrat Reg No : " . $row['nama_pesawat'] . "</p>";
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list approval</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning');
+    $this->email->to($recipient);
+    $this->email->subject('Permintaan Approval Laporan Aircraft Component Status No : ' . $row['document_number']).' Aircraft Reg. No : '. $row['nama_pesawat'];
+    $this->email->message($message);
+
+    //Send mail 
+    if ($this->email->send())
+      return true;
+    else
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient($level)
+  {
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('auth_level', $level);
+    return $this->db->get('')->result();
+  }
+
+  public function send_mail_approval($id, $ket, $by, $notes)
+  {
+		$item_message = '<tbody>';
+		$x = 0;
+    foreach ($id as $key) {
+      $this->db->from('tb_aircraft_component_status');
+      $this->db->join('tb_master_pesawat', 'tb_master_pesawat.id = tb_aircraft_component_status.aircraft_id');
+      $this->db->where('id', $key);
+      $query = $this->db->get();
+      $row = $query->unbuffered_row('array');
+            
+      $item_message .= "<tr>";
+      $item_message .= "<td>" . $row['document_number'] . "</td>";
+			$item_message .= "<td>" . $row['nama_pesawat'] . "</td>";
+			$item_message .= "<td>" . $notes[$x] . "</td>";
+      $item_message .= "</tr>";
+
+      $prepared_by = $row['prepared_by'];
+
+      $recipientList = $this->getNotifRecipient_approval($prepared_by);
+      $recipient = array();
+      foreach ($recipientList as $key) {
+        array_push($recipient, $key->email);
+			}
+			$x++;
+    }
+    $item_message .= '</tbody>';
+
+    $from_email = "bifa.acd@gmail.com";
+    $to_email = "aidanurul99@rocketmail.com";
+    if ($ket == 'approve') {
+			$ket_level = 'Disetujui';
+			$tindakan = 'Approval';
+    } else {
+			$ket_level = 'Ditolak';
+			$tindakan = 'Rejection';
+    }
+
+    //Load email library 
+    $this->load->library('email');
+        
+    $this->email->set_newline("\r\n");
+    $message = "<p>Hello</p>";
+    $message .= "<p>Laporan Aircraft Component Status Berikut telah " . $ket_level . " oleh " . $by . "</p>";
+    $message .= "<table>";
+    $message .= "<thead>";
+    $message .= "<tr>";
+    $message .= "<th>Document Number</th>";
+		$message .= "<th>Aircraft Reg. No</th>";
+		$message .= "<th>".ucwords($ket)." Notes</th>";   
+    $message .= "</tr>";
+    $message .= "</thead>";
+    $message .= $item_message;
+    $message .= "</table>";
+    // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
+    $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>Thanks and regards</p>";
+    $this->email->from($from_email, 'Material Resource Planning');
+    $this->email->to($recipient);
+    $this->email->subject('Notification '.$tindakan);
+    $this->email->message($message);
+
+    //Send mail 
+    if ($this->email->send())
+      return true;
+    else
+      return $this->email->print_debugger();
+  }
+
+  public function getNotifRecipient_approval($name)
+  {
+    $this->db->select('email');
+    $this->db->from('tb_auth_users');
+    $this->db->where('person_name', $name);
+    return $this->db->get('')->result();
   }
 
 }
