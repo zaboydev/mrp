@@ -744,8 +744,8 @@ class Goods_Received_Note_Model extends MY_Model
       /**
         * CREATE STOCK CARD
       */     
-      $prev_stock = getStockPrev($data['stock_id'], $data['stores']);
-      $next_stock = floatval($prev_old_stock) + floatval($qty_konvers);
+      $prev_stock = getStockPrev($stock_id, strtoupper($data['stores']));
+      $next_stock = floatval($prev_stock) + floatval($qty_konvers);
       
       $this->db->set('stock_in_stores_id', $stock_in_stores_id);
       $this->db->set('serial_id', $serial_id);
