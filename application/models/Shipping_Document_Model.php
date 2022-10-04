@@ -744,12 +744,12 @@ class Shipping_Document_Model extends MY_Model
       $this->db->set('date_of_entry', $row['issued_date']);
       $this->db->set('period_year', config_item('period_year'));
       $this->db->set('period_month', config_item('period_month'));
-      $this->db->set('document_type', 'REMOVAL');
+      $this->db->set('document_type', 'REMOVAL SHIPPING');
       $this->db->set('remarks', 'DELETE DOCUMENT');
       $this->db->set('document_number', $document_number);
       $this->db->set('received_from', $document_number);
       $this->db->set('received_by', config_item('auth_person_name'));
-      $this->db->set('prev_quantity', floatval($prev_old_stock->total_quantity));
+      $this->db->set('prev_quantity', floatval($prev_old_stock));
       $this->db->set('balance_quantity', $next_old_stock);
       $this->db->set('quantity', 0 + floatval($data['issued_quantity']));
       $this->db->set('unit_value', floatval($data['issued_unit_value']));
