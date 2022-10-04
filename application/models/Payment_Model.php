@@ -872,7 +872,7 @@ class Payment_Model extends MY_MODEL
 			$po_payment_id = $this->db->insert_id();
 
 			$this->db->set('document_number', $document_number);
-            $this->db->set('source', 'EXPENSE');            
+            $this->db->set('source', 'PURCHASE ORDER');            
             $this->db->insert('tb_po_payment_no_transaksi');
 
 			if($type=='CASH2'){
@@ -1051,7 +1051,7 @@ class Payment_Model extends MY_MODEL
 	public function isDocumentNumberExists($document_number)
 	{
 		$this->db->where('document_number', $document_number);
-		$query = $this->db->get('tb_po_payments');
+		$query = $this->db->get('tb_po_payment_no_transaksi');
 
 		if ($query->num_rows() > 0)
 			return true;
