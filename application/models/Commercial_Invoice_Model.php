@@ -413,17 +413,6 @@ class Commercial_Invoice_Model extends MY_Model
         $stock_stored = $query->unbuffered_row('array');
         $new_quantity = $stock_stored['quantity'] - $data['issued_quantity'];
 
-        // UPDATE STOCK in STORES
-        $this->db->set('quantity', floatval($new_quantity));
-        $this->db->where('id', $stock_in_stores_id);
-        $this->db->update('tb_stock_in_stores');
-
-        // UPDATE STOCK in SERIAL
-        $this->db->set('quantity', 0);
-        $this->db->set('reference_document', $document_number);
-        $this->db->where('id', $stock_stored['serial_id']);
-        $this->db->update('tb_master_item_serials');
-
         /**
          * CREATE STOCK CARD
          */
@@ -453,6 +442,18 @@ class Commercial_Invoice_Model extends MY_Model
         $this->db->set('tgl', date('Ymd',strtotime($issued_date)));
         $this->db->set('total_value', floatval($data['issued_unit_value'])*(0 - floatval($data['issued_quantity'])));
         $this->db->insert('tb_stock_cards');
+
+        // UPDATE STOCK in STORES
+        $this->db->set('quantity', floatval($new_quantity));
+        $this->db->where('id', $stock_in_stores_id);
+        $this->db->update('tb_stock_in_stores');
+
+        // UPDATE STOCK in SERIAL
+        $this->db->set('quantity', 0);
+        $this->db->set('reference_document', $document_number);
+        $this->db->where('id', $stock_stored['serial_id']);
+        $this->db->update('tb_master_item_serials');
+        
       }elseif ($source=='internal_delivery') {
         if (!empty($data['internal_delivery_item_id'])) {
           $this->db->from('tb_internal_delivery_items');

@@ -878,7 +878,7 @@ class Material_Slip_Model extends MY_Model
       $this->db->set('document_number', $document_number);
       $this->db->set('received_from', $document_number);
       $this->db->set('received_by', config_item('auth_person_name'));
-      $this->db->set('prev_quantity', floatval($prev_old_stock->total_quantity));
+      $this->db->set('prev_quantity', floatval($prev_old_stock));
       $this->db->set('balance_quantity', $next_old_stock);
       $this->db->set('quantity', 0 + floatval($data['issued_quantity']));
       $this->db->set('unit_value', floatval($data['issued_unit_value']));
