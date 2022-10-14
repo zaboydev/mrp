@@ -114,15 +114,17 @@ class Capex_Order_Evaluation extends MY_Controller
     $entities = $this->model->searchRequestItem($category);
 
     foreach ($entities as $key => $value) {
-      $entities[$key]['label'] = $value['product_name'];
-      $entities[$key]['label'] .= ' || PN: ';
-      $entities[$key]['label'] .= $value['part_number'];
-      $entities[$key]['label'] .= '<small>';
-      $entities[$key]['label'] .= 'PR number: ' . $value['pr_number'] . ' || ';
-      $entities[$key]['label'] .= 'PR date: ' . date('d/m/Y', strtotime($value['pr_date'])) . ' || ';
-      $entities[$key]['label'] .= 'Required date: ' . date('d/m/Y', strtotime($value['required_date'])) . ' || ';
-      $entities[$key]['label'] .= 'Quantity: <code>' . number_format($value['quantity']) . '</code>';
-      $entities[$key]['label'] .= '</small>';
+      if($value['total']-$value['process_amount']>0){
+        $entities[$key]['label'] = $value['product_name'];
+        $entities[$key]['label'] .= ' || Product Code: ';
+        $entities[$key]['label'] .= $value['product_code'];
+        $entities[$key]['label'] .= '<small>';
+        $entities[$key]['label'] .= 'PR number: ' . $value['pr_number'] . ' || ';
+        $entities[$key]['label'] .= 'PR date: ' . date('d/m/Y', strtotime($value['pr_date'])) . ' || ';
+        $entities[$key]['label'] .= 'Required date: ' . date('d/m/Y', strtotime($value['required_date'])) . ' || ';
+        $entities[$key]['label'] .= 'Amount: <code>' . number_format($value['total']-$value['process_amount']) . '</code>';
+        $entities[$key]['label'] .= '</small>';
+      }
     }
 
     echo json_encode($entities);
@@ -138,6 +140,8 @@ class Capex_Order_Evaluation extends MY_Controller
 
     foreach ($entities as $key => $value) {
       $entities[$key]['label'] = $value['part_number'];
+      $entities[$key]['label'] .= ' || Desc: ';
+      $entities[$key]['label'] .= $value['description'];
     }
 
     echo json_encode($entities);
@@ -228,13 +232,18 @@ class Capex_Order_Evaluation extends MY_Controller
     // $data = $this->model->listAttachment($id);
     // echo json_encode($data);
 
-    $data = [];
-    $data['att_poe'] = $this->model->listAttachment($id);
-    $data['count_att_poe'] = count($data['att_poe']);
+    // $data = [];
+    // $data['att_poe'] = $this->model->listAttachment($id);
+    // $data['count_att_poe'] = count($data['att_poe']);
 
-    $data['att_request'] = listAttachmentRequest($id,'CAPEX');
-    $data['count_att_request'] = count($data['att_request']);
-    echo json_encode($data);
+    // $data['att_request'] = listAttachmentRequest($id,'CAPEX');
+    // $data['count_att_request'] = count($data['att_request']);
+    // echo json_encode($data);
+
+    $this->data['entity'] = $this->model->listAttachment($id);
+    $this->data['att_request'] = listAttachmentRequest($id,'CAPEX');
+    $return['info'] = $this->load->view($this->module['view'] . '/listAttachment', $this->data, TRUE);
+    echo json_encode($return);
   }
 
   public function multi_reject()
@@ -604,7 +613,7 @@ class Capex_Order_Evaluation extends MY_Controller
     } else {
 
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       array_push($_SESSION['capex_poe']["attachment"], $url);
       $result["status"] = 1;
     }
@@ -626,7 +635,7 @@ class Capex_Order_Evaluation extends MY_Controller
       $error = array('error' => $this->upload->display_errors());
     } else {
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       // array_push($_SESSION['capex_poe']["attachment"], $url);
       $this->model->add_attachment_to_db($id_poe, $url);
       $result["status"] = 1;
@@ -857,5 +866,45 @@ class Capex_Order_Evaluation extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function add_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    if (isset($_POST) && !empty($_POST)) {
+          $request_id = $this->input->post('inventory_purchase_request_detail_id');
+          $_SESSION['capex_poe']['request'][] = array(
+            'description'             => $this->input->post('description'),
+            'part_number'             => $this->input->post('part_number'),
+            'alternate_part_number'   => NULL,
+            'serial_number'           => NULL,
+            'unit'                    => $this->input->post('unit'),
+            'group'                   => $this->input->post('group'),
+            'quantity'                => $this->input->post('quantity'),
+            'sisa'                    => $this->input->post('quantity'),
+            'unit_price'              => $this->input->post('price'),
+            'amount'                  => $this->input->post('total'),
+            'core_charge'             => floatval(0),
+            'total_amount'            => $this->input->post('total'),
+            'quantity_requested'      => $this->input->post('quantity'),
+            'unit_price_requested'    => $this->input->post('price'),
+            'total_amount_requested'  => $this->input->post('total'),
+            'remarks'                 => $this->input->post('remarks'),
+            'purchase_request_number' => $this->input->post('purchase_request_number'),
+            'konversi'                => 1,
+            'inventory_purchase_request_detail_id' => $this->input->post('inventory_purchase_request_detail_id'),
+            'vendors'                 => array()
+          );
+
+          // $_SESSION['expense_poe']['request'][$request_id]['inventory_purchase_request_detail_id'] = $request_id;
+          // $_SESSION['expense_poe']['request'][$request_id]['vendors'] = array();
+    }
+
+    if(count($_SESSION['capex_poe']['request'])==1){
+      $_SESSION['capex_poe']['vendors'] = array();
+    }
+
+    redirect($this->module['route'] . '/create');
   }
 }

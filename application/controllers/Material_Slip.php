@@ -263,7 +263,7 @@ class Material_Slip extends MY_Controller
   // }
   //edit
 
-  public function index_data_source($issued_to = 'ALL', $warehouse='ALL BASES',$category = 'all', $start_date = NULL, $end_date = NULL)
+  public function index_data_source()
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
@@ -273,33 +273,7 @@ class Material_Slip extends MY_Controller
       $return['info'] = "You don't have permission to access this page!";
     } else {
 
-      if ($warehouse !== NULL){
-        $warehouse = (urldecode($warehouse) === 'ALL BASES') ? NULL : urldecode($warehouse);
-      } 
-      else {
-        $warehouse = urldecode($warehouse);
-      }
-
-      if ($category !== NULL){
-        $category = (urldecode($category) === 'all') ? NULL : urldecode($category);
-      } 
-      else {
-        $category = urldecode($category);
-      }
-
-      if ($start_date && $end_date !== NULL){
-        $start_date  = urldecode($start_date);
-        $end_date = urldecode($end_date);
-      }
-
-      if ($issued_to !== NULL){
-        $issued_to = (urldecode($issued_to) === 'ALL') ? NULL : urldecode($issued_to);
-      } 
-      else {
-        $issued_to = urldecode($issued_to);
-      }
-
-      $entities     = $this->model->getIndex($issued_to, $warehouse, $start_date, $end_date, $category);
+      $entities     = $this->model->getIndex();
       $data         = array();
       $no           = $_POST['start'];
       $quantity     = array();
@@ -371,8 +345,8 @@ class Material_Slip extends MY_Controller
 
       $result = array(
         "draw"            => $_POST['draw'],
-        "recordsTotal"    => $this->model->countIndex($issued_to, $warehouse, $start_date, $end_date, $category),
-        "recordsFiltered" => $this->model->countIndexFiltered($issued_to, $warehouse, $start_date, $end_date, $category),
+        "recordsTotal"    => $this->model->countIndex(),
+        "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
           10 => print_number(array_sum($quantity), 2),
@@ -423,43 +397,9 @@ class Material_Slip extends MY_Controller
   {
     $this->authorized($this->module, 'index');
 
-     if (isset($_POST['start_date']) && $_POST['start_date'] && isset($_POST['end_date']) && $_POST['end_date'] !== NULL){
-      $start_date  = $_POST['start_date'];
-      $end_date = $_POST['end_date'];
-      $periode=print_date($start_date,'d F Y').' - '.print_date($end_date,'d F Y');
-    } else {
-      $start_date  = NULL;
-      $end_date = NULL;
-      $periode = 'ALL Periode';
-    }
-
-    if (isset($_POST['category']) && $_POST['category'] !== NULL){
-      $category = $_POST['category'];
-    } else {
-      $category = "all";
-    }
-
-    if (isset($_POST['warehouse']) && $_POST['warehouse'] !== NULL){
-      $warehouse = $_POST['warehouse'];
-    } else {
-      $warehouse = 'ALL BASES';
-    }
-
-    if (isset($_POST['issued_to']) && $_POST['issued_to'] !== NULL){
-      $issued_to  = $_POST['issued_to'];
-    } else {
-      $issued_to  = "ALL";
-    }
-
-
-
-    $this->data['selected_category']        = $category;
-    $this->data['selected_Issued_to']       = $issued_to;
-    $this->data['selected_warehouse']       = $warehouse;
-
-    $this->data['page']['title']            = $this->module['label'] .' | '. $warehouse.' '. $category .' | ISSUED TO : '. $issued_to.' | PERIODE : '.$periode;
+    $this->data['page']['title']            = $this->module['label'];
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'.  $issued_to.'/'.$warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
+    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/');
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 10 );
 
@@ -606,18 +546,19 @@ class Material_Slip extends MY_Controller
 
         foreach ($_SESSION['usage']['items'] as $key => $item) {
           $part_number    = (empty($item['part_number'])) ? NULL : $item['part_number'];
+          $description    = (empty($item['description'])) ? NULL : $item['description'];
           $serial_number  = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
           $condition      = (empty($item['condition'])) ? 'SERVICEABLE' : $item['condition'];
 
-          if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['usage']['category']) === FALSE){
-            $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
-          }
+          // if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['usage']['category']) === FALSE){
+          //   $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
+          // }
 
-          if (isItemExists($part_number, $serial_number) && $serial_number !== NULL){
-            $item_id = getItemId($part_number, $serial_number);
+          if (isItemExists($part_number,$description, $serial_number) && $serial_number !== NULL){
+            $item_id = getItemId($part_number, $description, $serial_number);
 
             if (isset($_SESSION['usage']['edit'])){
-              if (getStockQuantity($item_id, $condition) > 0){
+              if (getStockQuantity($item_id, $description, $condition) > 0){
                 $errors[] = 'Serial number '. $item['serial_number'] .' have quantity in stores '. $serial->stores .'/'. $serial->warehouse .'. Please recheck your document.';
               }
             } else {
@@ -790,10 +731,10 @@ class Material_Slip extends MY_Controller
               $errors[] = 'Line '. $row .': Part Number is empty!';
             } else {
               if($serial_number == NULL){
-                if (isItemExists($part_number) == FALSE){
+                if (isItemExists($part_number,$description) == FALSE){
                 $errors[] = 'Line '. $part_number .$serial_number.': Item not found!';
                 } else {
-                  $item_id  = getItemId($part_number);
+                  $item_id  = getItemId($part_number,$description);
                   if($reference_document==NULL){
                     if (isStockInStoresExists($item_id, $stores, $condition) == FALSE){
                       $errors[] = 'Line '. $row .': Stock '.$item_id.' '.$stores.' '.$condition.' '.$reference_document.' not found!';
@@ -806,10 +747,10 @@ class Material_Slip extends MY_Controller
                   
                 }
               }else{
-                if (isItemExists($part_number,$serial_number) == FALSE){
+                if (isItemExists($part_number,$description,$serial_number) == FALSE){
                 $errors[] = 'Line '. $part_number .$serial_number.': Item not found!';
                 } else {
-                  $item_id  = getItemId($part_number, $serial_number);
+                  $item_id  = getItemId($part_number,$description, $serial_number);
                   if($reference_document==NULL){
                     if (isStockInStoresExists($item_id, $stores, $condition) == FALSE){
                       $errors[] = 'Line '. $row .': Stock '.$item_id.' '.$stores.' '.$condition.' '.$reference_document.' not found!';
@@ -927,6 +868,97 @@ class Material_Slip extends MY_Controller
       );
     }
     redirect($this->module['route'] .'/create');
+  }
+
+  public function select_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $category = $_SESSION['usage']['category'];
+    $entities = $this->model->searchStockInStores($category);
+
+    $this->data['entities'] = $entities;
+    $this->data['page']['title']            = 'Select Item';
+
+    $this->render_view($this->module['view'] . '/select_item');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['stock_in_stores_id']) && !empty($_POST['stock_in_stores_id'])) {
+        $_SESSION['usage']['items'] = array();
+
+        foreach ($_POST['stock_in_stores_id'] as $key => $stock_in_stores_id) {
+          $stock_in_stores = $this->model->infoStockInStores($stock_in_stores_id);
+
+          $_SESSION['usage']['items'][$stock_in_stores_id] = array(
+            'stock_in_stores_id'      => $stock_in_stores['id'],
+            'stock_id'                => $stock_in_stores['stock_id'],
+            'group'                   => $stock_in_stores['group'],
+            'description'             => $stock_in_stores['description'],
+            'part_number'             => $stock_in_stores['part_number'],
+            'alternate_part_number'   => $stock_in_stores['alternate_part_number'],
+            'serial_number'           => $stock_in_stores['serial_number'],
+            'issued_quantity'         => 0,
+            'issued_unit_value'       => 0,
+            'maximum_quantity'        => $stock_in_stores['quantity'],
+            'condition'               => $stock_in_stores['condition'],
+            'stores'                  => $stock_in_stores['stores'],
+            'unit'                    => $stock_in_stores['unit'],
+            'remarks'                 => null,
+            'unit_pakai'              => $stock_in_stores['unit_pakai'],
+            'qty_konvers'             => 1,
+          );
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
+    }
+
+    echo json_encode($data);
+  }
+
+  public function edit_selected_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/edit_item');
+  }
+
+  public function update_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item']) && !empty($_POST['item'])) {
+        foreach ($_POST['item'] as $id => $item) {
+
+          $_SESSION['usage']['items'][$id]['issued_quantity']           = $item['issued_quantity'];
+          $_SESSION['usage']['items'][$id]['remarks']                   = $item['remarks'];
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'No data to update!';
+      }
+    }
+
+    echo json_encode($data);
   }
 
   //tambahan

@@ -116,13 +116,33 @@ class Commercial_Invoice extends MY_Controller
       unset($_SESSION['return']['items'][$key]);
   }
 
+  public function set_source($source)
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    // $_SESSION['receipt']['source'] = $_GET['data'];
+    $this->authorized($this->module, 'document');
+
+    $source = urldecode($source);
+
+    $_SESSION['return']['source']              = $source;
+    $_SESSION['return']['items']                  = array();
+
+    redirect($this->module['route'] . '/create');
+  }
+
   public function search_stock_in_stores()
   {
     if ($this->input->is_ajax_request() === FALSE)
       redirect($this->modules['secure']['route'] .'/denied');
 
     $category = $_SESSION['return']['category'];
-    $entities = $this->model->searchStockInStores($category);
+    if($_SESSION['return']['source']=='internal_delivery'){
+      $entities = $this->model->searchInternalDeliveryItem($category);
+    }else{
+      $entities = $this->model->searchStockInStores($category);
+    }    
 
     foreach ($entities as $key => $value){
       $entities[$key]['label'] = $value['description'];
@@ -133,8 +153,11 @@ class Commercial_Invoice extends MY_Controller
       $entities[$key]['label'] .= '<small>';
       $entities[$key]['label'] .= ($value['serial_number'] !== "") ? "SN: ". $value['serial_number'] ." || " : "";
       $entities[$key]['label'] .= 'Stores: '. $value['stores'] .' || ';
+      $entities[$key]['label'] .= 'Received From: '. $value['received_from'] .' || ';
       $entities[$key]['label'] .= 'Received date: '. date('d/m/Y', strtotime($value['received_date'])) .' || ';
-      $entities[$key]['label'] .= 'Expired date: '. date('d/m/Y', strtotime($value['expired_date'])) .' || ';
+      if($_SESSION['return']['source']=='stock'){
+        $entities[$key]['label'] .= 'Expired date: '. date('d/m/Y', strtotime($value['expired_date'])) .' || ';
+      }      
       $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['quantity']) .'</code>';
       $entities[$key]['label'] .= '</small>';
     }
@@ -180,12 +203,12 @@ class Commercial_Invoice extends MY_Controller
         $col[]  = print_string($row['issued_by']);
         $col[]  = print_string($row['received_from']);
         if (config_item('auth_role') != 'PIC STOCK'){
-          $col[]          = print_number($row['issued_unit_value'], 2);
-          $col[]          = print_number($row['issued_total_value'], 2);
+          $col[]          = print_number($row['insurance_unit_value'], 2);
+          $col[]          = print_number($row['insurance_unit_value']*$row['issued_quantity'], 2);
 
 
-          $unit_value[]   = $row['issued_unit_value'];
-          $total_value[]  = $row['issued_total_value'];
+          $unit_value[]   = $row['insurance_unit_value'];
+          $total_value[]  = $row['insurance_unit_value']*$row['issued_quantity'];
         }
         if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){          
           $col[]  = print_number($row['kurs_dollar'], 2);
@@ -347,6 +370,7 @@ class Commercial_Invoice extends MY_Controller
       $_SESSION['return']['approved_by']      = NULL;
       $_SESSION['return']['warehouse']        = config_item('auth_warehouse');
       $_SESSION['return']['notes']            = 'Not commercial value (total value for insurance purpose) ';
+      $_SESSION['return']['source']           = 'internal_delivery';
 
       redirect($this->module['route'] .'/create');
     }
@@ -387,12 +411,12 @@ class Commercial_Invoice extends MY_Controller
         }
 
         foreach ($_SESSION['return']['items'] as $key => $item) {
-          if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['return']['category']) === FALSE){
-            $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
-          }
+          // if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['return']['category']) === FALSE){
+          //   $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
+          // }
 
-          if (isItemExists($item['part_number']) && !empty($item['serial_number'])){
-            $item_id = getItemId($item['part_number']);
+          if (isItemExists($item['part_number'],$item['description']) && !empty($item['serial_number'])){
+            $item_id = getItemId($item['part_number'],$item['description']);
 
             if (isSerialExists($item_id, $item['serial_number'])){
               $serial = getSerial($item_id, $item['serial_number']);
@@ -450,8 +474,52 @@ class Commercial_Invoice extends MY_Controller
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'unit'                    => trim($this->input->post('unit')),
         'remarks'                 => trim($this->input->post('remarks')),
+        'internal_delivery_item_id'      => $this->input->post('internal_delivery_item_id'),
+        'received_from'      => $this->input->post('received_from'),
       );
     }
+
+    redirect($this->module['route'] .'/create');
+  }
+
+  public function ajax_editItem($key)
+  {
+    $this->authorized($this->module, 'document');    
+
+    $entity = $_SESSION['return']['items'][$key];
+
+    echo json_encode($entity);
+  }
+
+  public function update_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $key=$this->input->post('item_id');
+    if (isset($_POST) && !empty($_POST)){
+      //$receipts_items_id = $this->input->post('item_id')
+      $_SESSION['return']['items'][$key] = array( 
+        'stock_in_stores_id'      => $this->input->post('stock_in_stores_id'),
+        'group'                   => $this->input->post('group'),
+        'description'             => trim(strtoupper($this->input->post('description'))),
+        'part_number'             => trim(strtoupper($this->input->post('part_number'))),
+        'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
+        'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
+        'issued_quantity'         => $this->input->post('issued_quantity'),
+        'issued_unit_value'       => $this->input->post('issued_unit_value'),
+        'maximum_quantity'        => $this->input->post('maximum_quantity'),
+        'insurance_unit_value'    => floatval($this->input->post('insurance_unit_value')),
+        'insurance_currency'      => trim(strtoupper($this->input->post('insurance_currency'))),
+        'awb_number'              => $this->input->post('awb_number'),
+        'condition'               => $this->input->post('condition'),
+        'stores'                  => trim(strtoupper($this->input->post('stores'))),
+        'unit'                    => trim($this->input->post('unit')),
+        'remarks'                 => trim($this->input->post('remarks')),
+        'internal_delivery_item_id'      => $this->input->post('internal_delivery_item_id'),
+        'received_from'      => $this->input->post('received_from'),
+      );
+    }
+    
 
     redirect($this->module['route'] .'/create');
   }
@@ -476,10 +544,10 @@ class Commercial_Invoice extends MY_Controller
     } else {
       $entity = $this->model->findById($this->input->post('id'));
 
-      if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
-        $alert['type']  = 'danger';
-        $alert['info']  = 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to delete this document. You can adjust stock to sync the quantity.';
-      } else {
+      // if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
+      //   $alert['type']  = 'danger';
+      //   $alert['info']  = 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to delete this document. You can adjust stock to sync the quantity.';
+      // } else {
         if ($this->model->delete()){
           $alert['type'] = 'success';
           $alert['info'] = 'Data deleted.';
@@ -488,9 +556,110 @@ class Commercial_Invoice extends MY_Controller
           $alert['type'] = 'danger';
           $alert['info'] = 'There are error while deleting data. Please try again later.';
         }
-      }
+      // }
     }
 
     echo json_encode($alert);
+  }
+
+  public function select_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $category = $_SESSION['return']['category'];
+    if($_SESSION['return']['source']=='internal_delivery'){
+      $entities = $this->model->searchInternalDeliveryItem($category);
+    }else{
+      $entities = $this->model->searchStockInStores($category);
+    }   
+
+    $this->data['entities'] = $entities;
+    $this->data['page']['title']            = 'Select Item';
+
+    $this->render_view($this->module['view'] . '/select_item');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item_id']) && !empty($_POST['item_id'])) {
+        $_SESSION['return']['items'] = array();
+
+        foreach ($_POST['item_id'] as $key => $item_id) {
+          $item = $this->model->infoSelecteditem($item_id);
+
+          $_SESSION['return']['items'][$item_id] = array(
+            'stock_in_stores_id'      => ($_SESSION['return']['source']=='stock')?$item['id']:null,
+            'group'                   => $item['group'],
+            'description'             => $item['description'],
+            'part_number'             => $item['part_number'],
+            'alternate_part_number'   => $item['alternate_part_number'],
+            'serial_number'           => $item['serial_number'],
+            'issued_quantity'         => $item['quantity'],
+            'issued_unit_value'       => $item['unit_value'],
+            'maximum_quantity'        => $item['quantity'],
+            'insurance_unit_value'    => 0,
+            'insurance_currency'      => 'IDR',
+            'awb_number'              => $item['awb_number'],
+            'condition'               => $item['condition'],
+            'stores'                  => $item['stores'],
+            'unit'                    => $item['unit'],
+            'remarks'                 => $item['remarks'],
+            'internal_delivery_item_id'      => ($_SESSION['return']['source']=='internal_delivery')?$item['id']:null,
+            'received_from'           => $item['received_from'],
+          );
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
+    }
+
+    echo json_encode($data);
+  }
+
+  public function edit_selected_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/edit_item');
+  }
+
+  public function update_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item']) && !empty($_POST['item'])) {
+        foreach ($_POST['item'] as $id => $item) {
+
+          $_SESSION['return']['items'][$id]['issued_quantity']             = $item['issued_quantity'];    
+          $_SESSION['return']['items'][$id]['remarks']                     = $item['remarks'];   
+          $_SESSION['return']['items'][$id]['issued_unit_value']           = $item['issued_unit_value']; 
+          $_SESSION['return']['items'][$id]['insurance_unit_value']        = $item['insurance_unit_value']; 
+          $_SESSION['return']['items'][$id]['insurance_currency']          = $item['insurance_currency']; 
+          $_SESSION['return']['items'][$id]['awb_number']                  = $item['awb_number']; 
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'No data to update!';
+      }
+    }
+
+    echo json_encode($data);
   }
 }

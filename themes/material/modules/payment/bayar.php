@@ -29,9 +29,15 @@
 
                                 <label for="suplier_select">Purpose Number</label>
                             </div>
+
+                            <div class="form-group">
+                                <input type="text" name="date" id="date" class="form-control" value="<?= $_SESSION['payment']['purposed_date'] ?>" disabled>
+                                <label for="date">Purposed Date</label>
+                            </div>
+
                             <div class="form-group">
                                 <input type="text" name="date" id="date" class="form-control" value="<?= date('Y-m-d') ?>">
-                                <label for="date">Date</label>
+                                <label for="date">Payment Date</label>
                             </div>
                             
                             <div class="form-group hide">
@@ -57,7 +63,7 @@
                                 <select id="account_select" class="form-control" required>
                                     <option value="">No Account</option>
                                     <option value="">-- SELECT Account</option>
-                                    <?php foreach (getAccount() as $key => $account) : ?>
+                                    <?php foreach (getAccount($_SESSION['payment']['type']) as $key => $account) : ?>
                                     <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment']['coa_kredit']) ? 'selected' : ''; ?>>
                                     <?= $account['group']; ?>
                                     </option>
@@ -94,37 +100,42 @@
                     </div>
                 </div>
 
-                <?php if (isset($_SESSION['payment']['items'])) : ?>
+                <?php if (isset($_SESSION['payment']['po'])) : ?>
                     <div class="document-data table-responsive">
                         <table class="table table-hover" id="table-document">
                             <thead>
                                 <tr>
                                     <!-- <th class="middle-alignment"></th> -->
                                     <th class="middle-alignment"></th>
-                                    <!-- <th class="middle-alignment"></th> -->
+                                    <th class="middle-alignment">PO#</th>
                                     <th class="middle-alignment">Description</th>
                                     <th class="middle-alignment text-center">Qty Paid</th>
                                     <th class="middle-alignment text-center">Amount Paid</th>
-                                    <th class="middle-alignment">PO#</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($_SESSION['payment']['items'] as $i => $item) : ?>
-                                    <tr id="row_<?= $i; ?>">
-                                        <!-- <td width="1">
-                                            <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
-                                                <i class="fa fa-trash"></i>
+                                <?php foreach ($_SESSION['payment']['po'] as $i => $po) : ?>
+                                    <tr>
+                                        <td></td>
+                                        <td style="font-weight: bolder;" class="middle-alignment">
+                                            <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $i ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
                                             </a>
-                                        </td> -->
-                                        <td>
-                                            <a href="<?= site_url($module['route'] . '/edit_item/' . $i); ?>" onClick="return popup(this, 'edit')">
-                                            </a>
-
+                                            <?= $po['document_number']; ?>
                                         </td>
-                                        <!-- <td class="no-space">
-                                            <?= $item['part_number']; ?>
-                                        </td> -->
-                                        <td class="no-space">
+                                        <td style="font-weight: bolder;" class="middle-alignment">
+                                            
+                                        </td>
+                                        <td style="font-weight: bolder;" class="text-center">
+                                            <?= number_format($po['quantity_paid'], 2); ?>
+                                        </td>
+                                        <td style="font-weight: bolder;" class="text-center">
+                                            <?= number_format($po['amount_paid'], 2); ?>
+                                        </td>
+                                    </tr>
+                                <?php foreach ($po['items'] as $j => $item) : ?>
+                                    <tr class="detail_<?= $i; ?> hide">
+                                        <td></td>
+                                        <td class="text-center" colspan="2">
                                             <?= $item['description']; ?>
                                         </td>
                                         <td class="text-center">
@@ -133,12 +144,19 @@
                                         <td class="text-center">
                                             <?= number_format($item['amount_paid'], 2); ?>
                                         </td>
-                                        <td>
-                                            <?= $item['document_number']; ?>
-                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
+                                <?php endforeach; ?>
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th style="text-align: center;">Total</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th style="text-align: center;"><?= print_number($_SESSION['payment']['total_amount'],2)?></th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 <?php endif; ?>
@@ -323,6 +341,20 @@
         }
 
     });
+
+    //klik icon mata utk lihat item po
+    $("#table-document").on("click", ".btn_view_detail", function() {
+        console.log('klik detail');
+        var selRow = $(this).data("row");
+        var tipe = $(this).data("tipe");
+        if (tipe == "view") {
+            $(this).data("tipe", "hide");
+            $('.detail_' + selRow).removeClass('hide');
+        } else {
+            $(this).data("tipe", "view");
+            $('.detail_' + selRow).addClass('hide');
+        }
+    })
     // $('#currency_select').change(function() {
     //     currency = $(this).val();
 

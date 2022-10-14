@@ -164,9 +164,10 @@
                                 <hr>
                                 <div class="row">
                                     <!-- <div class="table-responsive" id="view_data"> -->
-                                        <h3 style="text-align:center;"><?= $page['title'] ?></h3>
+                                    <h3 style="text-align:center;"><?= $page['title'] ?></h3>
+                                    <div class="col-sm-12">
                                         <div class="table-responsive">
-                                        <table class="tg" id="table-document">
+                                        <table class="table table-bordered table-nowrap" id="table-document">
                                             <thead>
                                                 <tr>
                                                     <th rowspan="2">CC Code</th>
@@ -199,7 +200,7 @@
 
                                         </table>
                                         </div>
-                                    <!-- </div> -->
+                                    </div>
                                 </div>
 
 

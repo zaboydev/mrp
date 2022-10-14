@@ -90,7 +90,7 @@
                     <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="[auto]" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
                     <label for="document_number">Purpose Number</label>
                   </div>
-                  <span class="input-group-addon"><?=payment_request_format_number();?></span>
+                  <span class="input-group-addon"><?=payment_request_format_number($_SESSION['payment_request']['type']);?></span>
                 </div>
               </div>
 
@@ -130,11 +130,32 @@
                 </div>
 
                 <div class="form-group">
+                    <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
+                      <option value="CASH" <?= ('CASH' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Cash</option>
+                      <option value="BANK" <?= ('BANK' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
+                    </select>
+                    <label for="vendor">Transaction Type</label>
+                </div>
+
+                <div class="form-group">
+                    <select name="account" id="account" class="form-control" data-source="<?= site_url($module['route'] . '/set_account/'); ?>" required data-input-type="autoset">
+                    <option value="">-- SELECT Account --</option>
+                    <?php foreach (getAccount($_SESSION['payment_request']['type']) as $key => $account) : ?>
+                        <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment_request']['coa_kredit']) ? 'selected' : ''; ?>>
+                        <?= $account['coa']; ?> <?= $account['group']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                    </select>
+                    <label for="vendor">Account</label>
+                </div>
+
+                
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="form-group">
                     <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment_request']['total_amount']; ?>" readonly="readonly">
                     <label for="amount">Amount</label>
                 </div>
-            </div>
-            <div class="col-sm-6 col-lg-4">
                 <div class="form-group">
                     <textarea name="notes" id="notes" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['payment_request']['notes']; ?></textarea>
                     <label for="notes">Notes</label>
@@ -145,18 +166,19 @@
         </div>
 
         <div class="document-data table-responsive">
-          <table class="table table-hover table-bordered table-nowrap" id="table-document" width="100%">
+          <table class="table table-hover table-bordered table-nowrap" id="table-document">
             <thead>
               <tr>
                 <!-- <th class="middle-alignment">No.</th> -->
                 <th width="15%" class="middle-alignment">No PO</th>
                 <th width="13%" class="middle-alignment">Description</th>
                 <th width="7%" class="middle-alignment">Due Date</th>
-                <th width="5%" class="middle-alignment">Received Qty</th>
-                <th width="7%" class="middle-alignment">Received Val.</th>
+                <th width="5%" class="middle-alignment">GRN Qty</th>
+                <th width="7%" class="middle-alignment">GRN Val.</th>
                 <th width="7%" class="middle-alignment">Amount</th>
                 <th width="7%" class="middle-alignment">Purposed Amount</th>
                 <th width="7%" class="middle-alignment">Remaining Purposed</th>
+                <th width="8%" class="middle-alignment">Qty Paid</th>
                 <th width="8%" class="middle-alignment">Amount Purposed</th>
                 <th width="5%" class="middle-alignment"></th>
                 <th width="8%" class="middle-alignment">Adjustment</th>
@@ -166,10 +188,10 @@
                 <?php foreach ($_SESSION['payment_request']['items'] as $id => $items):?> 
                 <tr>
                 <td>
-                  <?=$items['document_number']?> <input id="po_item_id_<?= $id; ?>" name="po_item_id[]" value="<?=$items['purchase_order_item_id']?>" type="text" class="form-control-payment">
+                  <?=$items['document_number']?> <input id="po_item_id_<?= $id; ?>" name="po_item_id[]" value="<?=$items['purchase_order_item_id']?>" type="hidden" class="form-control-payment">
                 </td>
                 <td><?=$items['description']?> <input id="desc_<?= $id; ?>" name="desc[]" value="<?=$items['description']?>" type="hidden" class="form-control-payment"></td>
-                <td><?=$items['due_date']?> <input id="po_id_<?= $id; ?>" name="po_id[]" value="<?=$items['id_po']?>" type="text" class="form-control-payment"></td>
+                <td><?=$items['due_date']?> <input id="po_id_<?= $id; ?>" name="po_id[]" value="<?=$items['id_po']?>" type="hidden" class="form-control-payment"></td>
                 <td><?=print_number($items['item']['quantity_received'],2)?></td>
                 <td>
                   <?= print_number($items['item']['quantity_received'] * ($items['item']['unit_price'] + $items['item']['core_charge']), 2) ?>
@@ -202,6 +224,9 @@
                 <?php endif; ?>
                 </td>
                 <td>
+                    <input name="qty_paid[]" id="in_qty_paid_<?= $id; ?>" data-id="<?= $id; ?>" type="number" class="form-control-payment sel_applied_item" value="<?=$items['quantity_paid']?>">
+                </td>
+                <td>
                     <input name="value[]" id="in_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" class="form-control-payment sel_applied_item" value="<?=$items['amount_paid']?>">
                 </td>
                 <td>
@@ -216,6 +241,7 @@
             <tfoot>
               <tr>
                 <td colspan="8" style="text-align: right;">Total Applied</td>
+                <td></td>
                 <td id="total_general"><?= print_number($_SESSION['payment_request']['total_amount'],2); ?></td>
                 <td></td>
                 <td></td>

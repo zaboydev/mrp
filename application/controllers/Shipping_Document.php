@@ -400,27 +400,27 @@ class Shipping_Document extends MY_Controller
           }
         }
 
-        foreach ($_SESSION['shipment']['items'] as $key => $item) {
-          if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['shipment']['category']) === FALSE){
-            $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
-          }
+        // foreach ($_SESSION['shipment']['items'] as $key => $item) {
+        //   if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['shipment']['category']) === FALSE){
+        //     $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
+        //   }
 
-          if (isItemExists($item['part_number']) && !empty($item['serial_number'])){
-            $item_id = getItemId($item['part_number']);
+        //   if (isItemExists($item['part_number'],$item['description']) && !empty($item['serial_number'])){
+        //     $item_id = getItemId($item['part_number'],$item['description']);
 
-            if (isSerialExists($item_id, $item['serial_number'])){
-              $serial = getSerial($item_id, $item['serial_number']);
+        //     if (isSerialExists($item_id, $item['serial_number'])){
+        //       $serial = getSerial($item_id, $item['serial_number']);
 
-              if (isset($_SESSION['shipment']['document_edit']) && !empty($_SESSION['shipment']['document_edit'])){
-                if ($serial->reference_document != $_SESSION['shipment']['document_edit']){
-                  if ($serial->quantity > 0){
-                    $errors[] = 'Serial number '. $item['serial_number'] .' contains quantity in stores '. $serial->stores .'/'. $serial->warehouse .'. Please recheck your document.';
-                  }
-                }
-              }
-            }
-          }
-        }
+        //       if (isset($_SESSION['shipment']['document_edit']) && !empty($_SESSION['shipment']['document_edit'])){
+        //         if ($serial->reference_document != $_SESSION['shipment']['document_edit']){
+        //           if ($serial->quantity > 0){
+        //             $errors[] = 'Serial number '. $item['serial_number'] .' contains quantity in stores '. $serial->stores .'/'. $serial->warehouse .'. Please recheck your document.';
+        //           }
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
 
         if (!empty($errors)){
           $data['success'] = FALSE;

@@ -57,87 +57,63 @@ class Jurnal_Model extends MY_MODEL {
   private function searchIndex()
   {
 
-    if (!empty($_POST['columns'][1]['search']['value'])){
-      $search_received_date = $_POST['columns'][1]['search']['value'];
-      $range_received_date  = explode(' ', $search_received_date);
-
-      $this->db->where('tb_jurnal.tanggal_jurnal >= ', $range_received_date[0]);
-      $this->db->where('tb_jurnal.tanggal_jurnal <= ', $range_received_date[1]);
+    if (!empty($_GET['start_date'])){
+      $start_date = $_GET['start_date'];
+      $this->db->where('tb_jurnal.tanggal_jurnal >= ', $start_date);
     }
 
-    if (!empty($_POST['columns'][2]['search']['value'])){
-      $vendor = $_POST['columns'][2]['search']['value'];
-
-      $this->db->where('tb_jurnal.vendor', $vendor);
+    if (!empty($_GET['end_date'])){
+      $end_date = $_GET['end_date'];
+      $this->db->where('tb_jurnal.tanggal_jurnal <= ', $end_date);
     }
 
-    if (!empty($_POST['columns'][3]['search']['value'])) {
-      $tipe = $_POST['columns'][3]['search']['value'];
-      if ($tipe!='all') {
-        if($tipe=='Purchase') {
-          $this->db->where('tb_jurnal.source', 'INV-IN');
-        }
-        if ($tipe == 'Inventory') {
-          $this->db->where('tb_jurnal.source', 'INV-OUT');
-        }
-        if ($tipe == 'Payment') {
-          $this->db->where('tb_jurnal.source', 'AP');
-        }
-      }         
-    }
-
-    $i = 0;
-    foreach ($this->getSearchableColumns() as $item){
-      if ($_POST['search']['value']){
-        $term = strtoupper($_POST['search']['value']);
-
-        if ($i === 0){
-          $this->db->group_start();
-          $this->db->like('UPPER('.$item.')', $term);
-        } else {
-          $this->db->or_like('UPPER('.$item.')', $term);
-        }
-
-        if (count($this->getSearchableColumns()) - 1 == $i)
-          $this->db->group_end();
+    if (!empty($_GET['type'])){
+      $type = $_GET['type'];
+      if($type!='general'){
+        $this->db->where('tb_jurnal.source', $type);
       }
-
-      $i++;
+      
     }
+
+    
   }
   
   function getIndex($return = 'array')
   {
-    $this->db->select(array_keys($this->getSelectedColumns()));
+    $column_select_jurnal = array(
+      'tb_jurnal.id',
+      'tb_jurnal.tanggal_jurnal',
+      'tb_jurnal.no_jurnal',
+      'tb_jurnal.keterangan'
+    );
+    $this->db->select($column_select_jurnal);
     $this->db->from('tb_jurnal');
-    $this->db->join('tb_jurnal_detail', 'tb_jurnal.id = tb_jurnal_detail.id_jurnal');
-    // $this->db->where('source', 'INV-IN');
-    $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening",'tb_jurnal.no_jurnal',
-      'tb_jurnal.vendor','tb_jurnal_detail.jenis_transaksi', 'tb_jurnal.id'));
     $this->searchIndex();
-    $column_order = $this->getOrderableColumns();
-
-    if (isset($_POST['order'])){
-      foreach ($_POST['order'] as $key => $order){
-        $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
-      }
-    } else {
-      $this->db->order_by('tb_jurnal.id', 'desc');
-      // $this->db->order_by('tb_jurnal_detail.id', 'desc');
-    }
-    // $this->db->group_by(array("tb_jurnal.tanggal_jurnal", "tb_jurnal_detail.kode_rekening"));
-    if ($_POST['length'] != -1)
-      $this->db->limit($_POST['length'], $_POST['start']);
-
+    $this->db->order_by('tb_jurnal.tanggal_jurnal','asc');
     $query = $this->db->get();
 
-    if ($return === 'object'){
-      return $query->result();
-    } elseif ($return === 'json'){
-      return json_encode($query->result());
-    } else {
-      return $query->result_array();
+    $jurnals = $query->result_array();
+
+    foreach($jurnals as $key => $value){
+      $column_select_items_jurnal = array(
+        'tb_jurnal_detail.jenis_transaksi',
+        'tb_jurnal_detail.trs_debet',
+        'tb_jurnal_detail.trs_kredit',
+        'tb_jurnal_detail.trs_debet_usd',
+        'tb_jurnal_detail.trs_kredit_usd',
+        'tb_jurnal_detail.kode_rekening'
+      );
+      $this->db->select($column_select_items_jurnal);
+      $this->db->from('tb_jurnal_detail');
+      $this->db->where('tb_jurnal_detail.id_jurnal',$value['id']);
+      $this->db->order_by('tb_jurnal_detail.trs_debet','desc');
+      $query_detail = $this->db->get();
+      $jurnals[$key]['items'] = $query_detail->result_array();     
+      
     }
+
+
+    return $jurnals;
   }
 
   

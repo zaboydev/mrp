@@ -178,17 +178,17 @@ class Shipping_Document_Receipt extends MY_Controller
 
   public function search_stores()
   {
-	if (empty($_GET['warehouse'])){
-	  $warehouse = config_item('auth_warehouse');
-	} else {
-	  $warehouse = urldecode($_GET['warehouse']);
-	}
+    if (empty($_GET['warehouse'])){
+      $warehouse = config_item('auth_warehouse');
+    } else {
+      $warehouse = urldecode($_GET['warehouse']);
+    }
 
-	if (empty($_GET['category'])){
-	  $category = config_item('auth_inventory');
-	} else {
-	  $category = (array)urldecode($_GET['category']);
-	}
+    if (empty($_GET['category'])){
+      $category = config_item('auth_inventory');
+    } else {
+      $category = (array)urldecode($_GET['category']);
+    }
 
     $entities = $this->model->findStores($warehouse, $category);
 
@@ -221,8 +221,8 @@ class Shipping_Document_Receipt extends MY_Controller
           $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
         }
 
-        if (isItemExists($item['part_number']) && !empty($item['serial_number'])){
-          $item_id = getItemId($item['part_number']);
+        if (isItemExists($item['part_number'],$item['description']) && !empty($item['serial_number'])){
+          $item_id = getItemId($item['part_number'],$item['description']);
 
           if (isSerialExists($item_id, $item['serial_number'])){
             $serial = getSerial($item_id, $item['serial_number']);

@@ -168,18 +168,26 @@ class Account_Payable extends MY_Controller
     $data = [];
     //get attachent PO
     $selectedPo  = $this->model->findById($po_id);
-    $data['no_po']  = $selectedPo['document_number'];
-    $data['att_po'] = $this->model->listAttachmentPoePo($po_id,'PO');
+    // $data['no_po']  = $selectedPo['document_number'];
+    // $data['att_po'] = $this->model->listAttachmentPoePo($po_id,'PO');
 
     //get attachment POE
     $poe_id = $this->model->getEvaluationId($po_id);
     $selectedPoe = $this->model->getSelectedPoe($poe_id);
     $tipe = $selectedPoe->tipe;
-    $data['no_poe']   = $selectedPoe->evaluation_number;
-    $data['att_poe'] = $this->model->listAttachmentPoePo($poe_id,'POE');
+    // $data['no_poe']   = $selectedPoe->evaluation_number;
+    // $data['att_poe'] = $this->model->listAttachmentPoePo($poe_id,'POE');
 
-    //get attchment request
-    $data['att_request'] = $this->model->listAttachmentRequest($poe_id,$tipe);
-    echo json_encode($data);
+    // //get attchment request
+    // $data['att_request'] = $this->model->listAttachmentRequest($poe_id,$tipe);
+    // echo json_encode($data);
+
+    $this->data['no_po'] = $selectedPo['document_number'];
+    $this->data['no_poe'] = $selectedPoe->evaluation_number;
+    $this->data['entity'] = $this->model->listAttachmentPoePo($po_id,'PO');
+    $this->data['att_poe'] = $this->model->listAttachmentPoePo($poe_id,'POE');
+    $this->data['att_request'] = $this->model->listAttachmentRequest($poe_id,$tipe);
+    $return['info'] = $this->load->view($this->module['view'] . '/listAttachment', $this->data, TRUE);
+    echo json_encode($return);
   }
 }

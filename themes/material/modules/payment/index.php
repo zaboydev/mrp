@@ -49,7 +49,6 @@
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
   <div class="btn-group dropup">
-
     <?php if (is_granted($module, 'document')) : ?>
       <a href="<?= site_url($module['route'] . '/create/payment'); ?>" type="button" class="hide btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
         <i class="md md-add"></i>
@@ -104,31 +103,48 @@
 
   <div class="form-group">
     <label for="start_date">Base</label>
+    
     <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="5">
-      <option value="WISNU"  <?php if (config_item('auth_warehouse') != 'JAKARTA'):echo 'selected'; endif;?>>Bali</option>
-      <option value="JAKARTA" <?php if (config_item('auth_warehouse') == 'JAKARTA'):echo 'selected'; endif;?>>Jakarta</option>
-      <option value="ALL">All Base</option> 
+      <option value="ALL BASES">-- ALL BASES --</option>
+      <?php foreach (config_item('auth_warehouses') as $warehouse):?>
+        <option value="<?=$warehouse;?>" <?php if (config_item('auth_warehouse') == $warehouse):echo 'selected'; endif;?>>
+          <?=$warehouse;?>
+        </option>
+      <?php endforeach; ?>
     </select>
   </div>
 
   <div class="form-group">
     <label for="start_date">Status</label>
     <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
-      <option value="all">All Status</option>
-      <option value="WAITING CHECK BY FIN SPV" <?php if (config_item('auth_role') == 'FINANCE SUPERVISOR'):echo 'selected'; endif;?>>Waiting Check By Fin Spv</option>
+      <?php if(is_granted($module, 'document')||is_granted($module, 'approval')):?>
+      <option value="all">All Status</option>      
       <option value="WAITING REVIEW BY FIN MNG"<?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review By Fin Mng</option>
-      <!-- <option value="WAITING REVIEW BY FIN HOS"<?php if (config_item('auth_role') == 'HEAD OF SCHOOL'):echo 'selected'; endif;?>>Waiting Review By Head Of School</option> -->
-      <option value="WAITING REVIEW BY CEO"<?php if (config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>Waiting Review By CEO</option>
-      <option value="WAITING REVIEW BY VP FINANCE"<?php if (config_item('auth_role') == 'VP FINANCE'):echo 'selected'; endif;?>>Waiting Review By VP Finance</option>
-      <option value="WAITING REVIEW BY CFO"<?php if (config_item('auth_role') == 'CHIEF OF FINANCE'):echo 'selected'; endif;?>>Waiting Review By CFO</option>
+      <?php endif;?>
       <option value="APPROVED"<?php if (config_item('auth_role') == 'TELLER'):echo 'selected'; endif;?>>Approved</option>
-      <option value="REVISI">Revisi</option>
+      <!-- <option value="REVISI">Revisi</option> -->
       <option value="PAID">Paid</option>
+      <?php if(is_granted($module, 'document')||is_granted($module, 'approval')):?>
       <option value="REJECTED">Rejected</option>
+      <?php endif;?>
     </select>
   </div>
 
+  <div class="form-group">
+    <label for="start_date">Transaction Type</label>
+    <select class="form-control input-sm filter_dropdown" id="type" name="type" data-column="6">
+      <option value="all">All Transaction Type</option>      
+      <option value="BANK">Bank Transfer</option>
+      <option value="CASH">Cash</option>        
+    </select>
+  </div>
 
+  <div class="form-group">
+    <label for="start_date">Account</label>
+    <select class="form-control input-sm filter_dropdown" id="account" name="account" data-column="7">
+      <option value="all">All Account</option>
+    </select>
+  </div>
 </div>
 <?php endblock() ?>
 
@@ -359,11 +375,18 @@
 
       },
 
-      columnDefs: [{
-        searchable: false,
-        orderable: false,
-        targets: [0]
-      }],
+      columnDefs: [
+        {
+          searchable: false,
+          orderable: false,
+          targets: [0]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [14]
+        },
+      ],
 
       dom: "<'row'<'col-sm-12'tr>>" +
         "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
@@ -561,29 +584,36 @@
       var action = $(this).data('source');
       $(this).attr('disabled', true);
       if (id_purchase_order !== "") {
-        $.post(action, {
-          'id_purchase_order': id_purchase_order,
-          // 'price': price
-        }).done(function(data) {
-          console.log(data);
-          $("#modal-approve-data-button-multi").attr('disabled', false);
-          var result = jQuery.parseJSON(data);
-          if (result.status == 'success') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success('Success aprove data the page will reload');
-            window.location.reload();
-          } else {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.danger('Failed aprove data');
-          }
-        }).fail(function() {
-          $("#modal-approve-data-button-multi").attr('disabled', false);
+        if (!encodeAkun()) {
           toastr.options.timeOut = 10000;
           toastr.options.positionClass = 'toast-top-right';
-          toastr.error('Delete Failed! This data is still being used by another document.');
-        });
+          toastr.error('You must select akun for each item that you want to approve');
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+        }else{
+          $.post(action, {
+            'id_purchase_order': id_purchase_order,
+            // 'price': price
+          }).done(function(data) {
+            console.log(data);
+            $("#modal-approve-data-button-multi").attr('disabled', false);
+            var result = jQuery.parseJSON(data);
+            if (result.status == 'success') {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.success('Success aprove data the page will reload');
+              window.location.reload();
+            } else {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.danger('Failed aprove data');
+            }
+          }).fail(function() {
+            $("#modal-approve-data-button-multi").attr('disabled', false);
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error('Delete Failed! This data is still being used by another document.');
+          });
+        }
       } else {
         $(this).attr('disabled', false);
         toastr.options.timeOut = 10000;
@@ -666,6 +696,28 @@
       $.each(arr, function(i, x) {
         if ($("#price_" + x).val() != "") {
           price = price + "|" + $("#price_" + x).val() + "##,";
+          y += 1;
+        } else {
+          return false;
+        }
+      });
+      if (y == arr.length) {
+        return true
+      } else {
+        return false
+      }
+
+    }
+
+    function encodeAkun() {
+      new_id_purchase_order = id_purchase_order.replace(/\|/g, "");
+      new_id_purchase_order = new_id_purchase_order.substring(0, new_id_purchase_order.length - 1);
+      arr = new_id_purchase_order.split(",");
+      akun = "";
+      y = 0;
+      $.each(arr, function(i, x) {
+        if ($("#coa_kredit_" + x).val() != "") {
+          akun = akun + "|" + $("#coa_kredit_" + x).val() + "##,";
           y += 1;
         } else {
           return false;
@@ -776,18 +828,27 @@
       // tulis disini
       var id = $(this).data('id');
       if (id == 'item') {
+        var url = $(this).data('href');
         var a = $(this).data('item-row');
         $.ajax({
-          url: "<?= site_url($module['route'] . '/info_item/'); ?>" + "/" + a,
+          url: url,
           type: 'get',
           success: function(data) {
-            var dataModal = $('#modal-item');
+            var dataModal = $('#data-modal');
             var obj = $.parseJSON(data);
-            $(dataModal)
-              .find('.modal-body')
-              .empty()
-              .append(obj.info);
-            $(dataModal).modal('show');
+
+            if (obj.type == 'denied') {
+              toastr.options.timeOut = 10000;
+              toastr.options.positionClass = 'toast-top-right';
+              toastr.error(obj.info, 'ACCESS DENIED!');
+            }else{
+              $(dataModal)
+                .find('.modal-body')
+                .empty()
+                .append(obj.info);
+              $(dataModal).modal('show');
+            }
+            
           }
         });
       }
@@ -807,6 +868,11 @@
             $(dataModal).modal('show');
           }
         });
+      }
+
+      if (id == 'openPo') {
+        var url = $(this).data('href');
+        window.open(url, '_blank').focus();
       }
 
 
@@ -840,17 +906,7 @@
       parentEl: '#offcanvas-datatable-filter',
       locale: {
         cancelLabel: 'Clear'
-      },
-      ranges: {
-        'Today': [moment(), moment()],
-        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        'This Month': [moment().startOf('month'), moment().endOf('month')],
-        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-        'Last 3 Months': [moment().subtract(2, 'month').startOf('month'), moment().subtract('month').endOf('month')]
-      },
-      showCustomRangeLabel: false
+      }
     }).on('apply.daterangepicker', function(ev, picker) {
       $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
       var i = $(this).data('column');
@@ -972,6 +1028,69 @@
       }
 
       button.attr('disabled', false);
+    });
+
+    $(document).on('click', '.btn-xhr-submit', function(e) {
+      e.preventDefault();
+
+      var button = $(this);
+      button.attr('disabled', true);
+
+      // let notes = prompt("Please enter cancel notes", "");
+      // $('form.form-xhr-cancel input[name=cancel_notes]').val(notes);
+
+      var form = $('.form-xhr');
+      var action = button.attr('href');
+      // if (confirm('Are you sure want to cancel this request? Continue?')) {
+              
+        $.post(action, form.serialize()).done(function(data) {
+          var obj = $.parseJSON(data);
+          if (obj.type == 'danger') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.info);
+
+            buttonToDelete.attr('disabled', false);
+          } else {
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.info);
+
+            form.reset();
+
+            $('[data-dismiss="modal"]').trigger('click');
+
+            if (datatable) {
+              datatable.ajax.reload(null, false);
+            }
+          }
+        }).fail(function() {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Cancel Failed!');
+        });
+      // }
+
+      button.attr('disabled', false);
+    });
+
+    $('#type').change(function() {
+      type_trs = $(this).val();
+      var account_view = $('#account');
+      account_view.html('');    
+
+      $.ajax({
+        type: "post",
+        url: '<?= base_url() . "payment_report/get_accounts" ?>',
+        data: {
+          'type': type_trs
+        },
+        cache: false,
+        success: function(response) {
+          var data = jQuery.parseJSON(response);
+          account_view.html(data.account);
+        }
+      });
+
     });
   });
 </script>

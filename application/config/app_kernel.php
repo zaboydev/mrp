@@ -6,6 +6,9 @@ $config['parent']['dashboard']['icon']   = 'md md-home';
 $config['parent']['master']['label']  = 'Master Data';
 $config['parent']['master']['icon']   = 'md md-storage';
 
+$config['parent']['aircraft']['label']  = 'Aircraft';
+$config['parent']['aircraft']['icon']   = 'md md-flight';
+
 $config['parent']['stock']['label']  = 'Inventory Report';
 $config['parent']['stock']['icon']   = 'md md-assessment';
 
@@ -24,7 +27,7 @@ $config['parent']['setting']['icon']   = 'md md-settings';
 $config['parent']['budget']['label']  = 'Planning';
 $config['parent']['budget']['icon']   = 'md md-attach-money';
 
-$config['parent']['accounting']['label']  = 'Accounting Report';
+$config['parent']['accounting']['label']  = 'Journal Report';
 $config['parent']['accounting']['icon']   = 'md md-account-balance-wallet';
 
 $config['parent']['finance']['label']  = 'Finance';
@@ -42,12 +45,16 @@ $config['parent']['inventory']['icon']   = 'fa fa-cubes';
 $config['parent']['expense']['label']  = 'Expense';
 $config['parent']['expense']['icon']   = 'fa fa-money';
 
+$config['parent']['finance_report']['label']  = 'Finance Report';
+$config['parent']['finance_report']['icon']   = 'fa fa-money';
+
 $config['module'] = array();
 
 
 
 //MASTER DATA
 require('modules/master_akun.php');
+require('modules/daftar_akun.php');
 require('modules/item.php');
 require('modules/item_category.php');
 require('modules/item_group.php');
@@ -58,13 +65,17 @@ require('modules/user.php');
 require('modules/vendor.php');
 require('modules/warehouse.php');
 require('modules/kurs.php');
-require('modules/pesawat.php');
 require('modules/departements.php');
 require('modules/annual_cost_centers.php');
 require('modules/product_category.php');
 require('modules/expense_item.php');
 require('modules/deliver.php');
 require('modules/bill.php');
+require('modules/daftar_pajak.php');
+
+//aircraft
+require('modules/pesawat.php');
+require('modules/aircraft_component_status.php');
 
 //PLANNING
 require('modules/budget_cot.php');
@@ -84,8 +95,8 @@ require('modules/expense_request.php');
 require('modules/expense_order_evaluation.php');
 require('modules/expense_purchase_order.php');
 require('modules/expense_closing_payment.php');
-// require('modules/expense_report_konsolidasi.php');
-// require('modules/expense_report_konsolidasi_detail.php');
+require('modules/expense_report_konsolidasi.php');
+require('modules/expense_report_konsolidasi_detail.php');
 
 //PROCUREMENT
 require('modules/purchase_request.php');
@@ -99,10 +110,11 @@ require('modules/report_budget_po.php');
 
 //INVENTORY PROCESS
 require('modules/goods_received_note.php');
-require('modules/internal_delivery.php');
 require('modules/material_slip.php');
 require('modules/shipping_document.php');
 require('modules/shipping_document_receipt.php');
+require('modules/internal_delivery.php');
+require('modules/internal_delivery_shipping.php');
 require('modules/commercial_invoice.php');
 require('modules/stock.php');
 require('modules/permintaan_adjustment.php');
@@ -126,9 +138,19 @@ require('modules/low_stock.php');
 require('modules/expired_stock.php');
 require('modules/konsolidasi.php');
 
+//finance
+require('modules/saldo.php');
+require('modules/cash_request.php');
+require('modules/payment_voucher_purposed.php');
+
+//account_payable
+require('modules/receipt_nota.php');
 require('modules/account_payable.php');
 require('modules/payment.php');
 require('modules/payment_report.php');
+//finance report
+require('modules/payment_voucher_report.php');
+require('modules/payment_detail_report.php');
 require('modules/purchase_item_detail.php');
 require('modules/purchase_supplier_summary.php');
 require('modules/supplier_payment_history.php');

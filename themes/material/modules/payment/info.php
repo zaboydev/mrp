@@ -54,10 +54,16 @@
           <dt>Currency</dt>
           <dd><?= $entity['currency']; ?></dd>
 
-          <?php if($entity['status']=='PAID'):?>
-          <dt>Pay From</dt>
-          <dd>(<?= $entity['coa_kredit']; ?>) <?= $entity['akun_kredit']; ?></dd>
+          <dt>Transaction By</dt>
+          <dd><?= ($entity['type']=='BANK')? 'BANK TRANSFER':'CASH';?></dd>
 
+          <?php if($entity['status']=='PAID'):?>
+          <dt>Account</dt>
+          <?php else: ?>
+          <dt>Request Selected Account</dt>
+          <?php endif;?>
+          <dd> <?= ($entity['coa_kredit']!='')? '('.$entity['coa_kredit'].')':'n/b'; ?> <?= $entity['akun_kredit']; ?></dd>
+          <?php if($entity['status']=='PAID'):?>
           <dt>No Konfirmasi</dt>
           <dd><?= ($entity['no_konfirmasi']!='')? $entity['no_konfirmasi']:'-'; ?></dd>
 
@@ -80,31 +86,31 @@
                 <th>Att Invoice/Other</th>
                 <th>Due Date</th>
                 <th>Currency</th>
-                <!-- <th>P/N</th> -->
-                <th>Description</th>
                 <th>POE#</th>
                 <th>Request Number</th>
+                <th align="right">Qty Request Payment</th>
                 <th align="right">Amount Request Payment</th>
               </tr>
             </thead>
             <tbody id="table_contents">
               <?php $n = 0; ?>
               <?php $amount_paid = array(); ?>
-              <?php foreach ($entity['items'] as $i => $detail) : ?>
+              <?php foreach ($entity['po'] as $i => $detail) : ?>
                 <?php $n++; ?>
                 <tr>
                   <td class="no-space">
                     <?= print_number($n); ?>
                   </td>
                   <td>
-                    <a href="<?= site_url('payment/print_po/' . $detail['id_po'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['document_number'])?></a>
+                    <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                    </a>
+                    <a class="link" href="<?= site_url('payment/print_po/' . $detail['id_po'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['document_number'])?></a>
                     <span style="display:block;font-size:10px;font-style:italic;"><?= print_string($detail['tipe']); ?></span>
-                  </td>
-                  
+                  </td>                  
                   <td>
                   <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?>
                   <?php //if(isAttachementExists($detail['id_po'],'PO')):?>
-                    <a href="<?= site_url('purchase_order/manage_attachment/' . $detail['id_po']); ?>" onClick="return popup(this, 'attachment')" data-id="<?=$grn['id']?>" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
+                    <a href="<?= site_url('purchase_order/manage_attachment/' . $detail['id_po'].'/payment'); ?>" onClick="return popup(this, 'attachment')" data-id="<?=$grn['id']?>" class="btn btn-icon-toggle btn-info btn-sm btn-show-att-grn">
                       <i class="fa fa-eye"></i>
                     </a>
                   <?php //endif;?>
@@ -118,27 +124,49 @@
                   <td>
                     <?= print_string($entity['currency']); ?>
                   </td>
-                  <!-- <td>
-                    <?= print_string($detail['part_number']); ?>
-                  </td> -->
-                  <td>
-                    <?= print_string($detail['description']); ?>
-                  </td>
                   <td>
                     <?php if($detail['poe_number']!=null):?>
-                    <a href="<?= site_url('payment/print_poe/' . $detail['poe_id'].'/'.$detail['poe_type']) ?>" target="_blank"><?=print_string($detail['poe_number'])?></a>
+                    <a class="link" href="<?= site_url('payment/print_poe/' . $detail['poe_id'].'/'.$detail['poe_type']) ?>" target="_blank"><?=print_string($detail['poe_number'])?></a>
                     <?php endif; ?>
                   </td>
                   <td>
                     <?php if($detail['request_number']!=null):?>
-                    <a href="<?= site_url('payment/print_prl/' . $detail['request_id'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['request_number'])?></a>
+                    <a class="link" href="<?= site_url('payment/print_prl/' . $detail['request_id'].'/'.$detail['tipe_po']) ?>" target="_blank"><?=print_string($detail['request_number'])?></a>
                     <?php endif; ?>
+                  </td>
+                  <td>
+                    <?= print_number($detail['quantity_paid'], 2); ?>
                   </td>
                   <td>
                     <?= print_number($detail['amount_paid'], 2); ?>
                     <?php $amount_paid[] = $detail['amount_paid']; ?>
                   </td>
                 </tr>
+                <?php foreach ($detail['items'] as $j => $item) : ?>
+                
+                <tr class="detail_<?=$n?> hide">                  
+                  <td></td>
+                  <td colspan="4">
+                    <?= print_string($item['description']); ?>
+                  </td>
+                  <td>
+                    <?php if($item['poe_number']!=null):?>
+                    <a class="link" href="<?= site_url('payment/print_poe/' . $item['poe_id'].'/'.$item['poe_type']) ?>" target="_blank"><?=print_string($item['poe_number'])?></a>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <?php if($item['request_number']!=null):?>
+                    <a class="link" href="<?= site_url('payment/print_prl/' . $item['request_id'].'/'.$item['tipe_po']) ?>" target="_blank"><?=print_string($item['request_number'])?></a>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <?= print_number($item['quantity_paid'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($item['amount_paid'], 2); ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
               <?php endforeach; ?>
             </tbody>
             <tfoot>
@@ -158,6 +186,55 @@
           </table>
         </div>
       </div>
+      <?php if($entity['status']=='PAID'):?>
+      <div class="col-sm-12">
+        <h3>Jurnal</h3>
+        <div class="table-responsive">
+          <table class="table table-striped table-nowrap">
+            <thead id="table_header">
+              <tr>
+                <th>No</th>
+                <th>Account</th>
+                <th>Debit</th>
+                <th>Kredit</th>
+              </tr>
+            </thead>
+            <tbody id="table_contents">
+              <?php $n = 0; ?>
+              <?php $totalDebet = array(); $totalKredit = array();?>
+              <?php foreach ($entity['jurnalDetail'] as $i => $jurnal) : ?>
+                <?php $n++; ?>
+                <tr>
+                  <td class="no-space">
+                    <?= print_number($n); ?>
+                  </td>
+                  <td>
+                    <?= print_string($jurnal['kode_rekening'])?> - <?= print_string($jurnal['jenis_transaksi'])?>
+                  </td> 
+                  <td>
+                    <?= print_number($jurnal['trs_debet'], 2); ?>
+                  </td>
+                  <td>
+                    <?= print_number($jurnal['trs_kredit'], 2); ?>
+                  </td>
+                  <?php 
+                    $totalDebet[] = $jurnal['trs_debet'];
+                    $totalKredit[] = $jurnal['trs_kredit'];
+                  ?>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th colspan="2">Total</th>
+                <th><?= print_number(array_sum($totalDebet), 2); ?></th>
+                <th><?= print_number(array_sum($totalKredit), 2); ?></th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <?php endif;?>
       <div class="col-sm-12">
         <h3>History Payment Request</h3>
         <div class="table-responsive">
@@ -172,10 +249,10 @@
             </thead>
             <tbody id="table_contents">
               <?php $n = 0;$grandtotal = array();?>              
-              <?php foreach ($entity['items'] as $i => $detail):?>
+              <?php foreach ($entity['po'] as $i => $item):?>
+              <?php foreach ($item['items'] as $j => $detail) : ?>
                 <?php 
-                  $n++;
-                  
+                  $n++;                  
                 ?>
                 <tr>
                   <td style="text-align: center;">
@@ -185,6 +262,7 @@
                     <?=print_string($detail['description']);?> <?php if($detail['id_po']!=0 && $detail['id_po']!=null):?> - <?=print_string($detail['document_number']);?> <?php endif; ?>
                   </td>
                 </tr><?php $total = array();?>
+                <?php if(count($detail['history'])>0):?>
                 
                 <?php foreach ($detail['history'] as $i => $history):?>
                 <tr>
@@ -209,7 +287,13 @@
                     <?=print_string($history['status']);?>
                   </td>                  
                 </tr>                
-                <?php endforeach;?>                
+                <?php endforeach;?> 
+                <?php else: ?> 
+                <tr>
+                <td colspan="6" style="text-align:center;">No Historical Payment</td>
+                </tr>
+                <?php endif;?> 
+              <?php endforeach;?>              
               <?php endforeach;?>
             </tbody>
             <tfoot>
@@ -257,7 +341,8 @@
                 $total_quantity_over      = array();
                 $total_value_over         = array();
               ?>              
-              <?php foreach ($entity['items'] as $i => $detail):?>
+              <?php foreach ($entity['po'] as $i => $item):?>
+              <?php foreach ($item['items'] as $j => $detail) : ?>
                 <?php 
                   $n++;
                   $total_quantity_order[]     = $detail['item']['quantity'];
@@ -318,7 +403,7 @@
                 <tr>
                   <td></td>
                   <td>
-                    <a href="<?= site_url('goods_received_note/print_pdf/' . $grn['id']) ?>" target="_blank">
+                    <a class="link" href="<?= site_url('goods_received_note/print_pdf/' . $grn['id']) ?>" target="_blank">
                       <?= print_string($grn['document_number']); ?>
                     </a> 
                        
@@ -338,7 +423,12 @@
                   <td></td>
                 </tr>  
                 <?php endforeach;?>
+                <?php else: ?> 
+                <tr>
+                <td colspan="13" style="text-align:center;">No GRN Receipt</td>
+                </tr>
                 <?php endif;?>           
+              <?php endforeach;?>           
               <?php endforeach;?>
             </tbody>
             <tfoot>
@@ -363,6 +453,11 @@
       </div>
     </div>
   </div>
+  <?php
+      $today    = date('Y-m-d');
+      $date     = strtotime('-2 day',strtotime($today));
+      $data     = date('Y-m-d',$date);
+  ?>
   <div class="card-foot">
     <div class="pull-left">
       <a href="<?= site_url($module['route'] . '/manage_attachment/' . $id); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
@@ -387,15 +482,24 @@
     </div>
     <div class="pull-right">
       <?php if ($entity['revisi']=='t') : ?>
-      <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
-      <?php if (is_granted($module, 'document')) : ?>
-        <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-          <i class="md md-edit"></i>
-          <small class="top right">edit</small>
-        </a>
-      <?php endif; ?>
-      <?php endif; ?>
-      <?php endif; ?>
+        <?php if ($entity['type']=='CASH') : ?>
+          <?php if($entity['tanggal'] >= $data):?>
+            <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+              <i class="md md-edit"></i>
+              <small class="top right">edit</small>
+            </a>
+          <?php endif;  ?>
+        <?php else: ?>
+          <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
+            <?php if (is_granted($module, 'document')) : ?>
+              <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+                <i class="md md-edit"></i>
+                <small class="top right">edit</small>
+              </a>
+            <?php endif;  ?>
+          <?php endif;  ?>
+        <?php endif;  ?>  
+      <?php endif;  ?>
       <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>
         <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
           <i class="md md-attach-money"></i>
@@ -433,4 +537,18 @@
     if (!window.focus) return true;
     else return false;
   }
+
+  //klik icon mata utk lihat item po
+  $("#table_contents").on("click", ".btn_view_detail", function() {
+    console.log('klik detail');
+    var selRow = $(this).data("row");
+    var tipe = $(this).data("tipe");
+    if (tipe == "view") {
+      $(this).data("tipe", "hide");
+      $('.detail_' + selRow).removeClass('hide');
+    } else {
+      $(this).data("tipe", "view");
+      $('.detail_' + selRow).addClass('hide');
+    }
+  })
 </script>

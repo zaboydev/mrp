@@ -42,7 +42,7 @@ if ( ! function_exists('return_last_number')) {
     $format = $div . 'CI' . $div . $row->code . $base . $div . $year;
 
     $CI->db->select_max('document_number', 'last_number');
-    $CI->db->from('tb_issuances');
+    $CI->db->from('tb_returns');
     $CI->db->like('document_number', $format, 'before');
 
     $query  = $CI->db->get();

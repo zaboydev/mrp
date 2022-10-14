@@ -29,6 +29,22 @@ class Goods_Received_Note extends MY_Controller
     $_SESSION['receipt']['document_number'] = $number;
   }
 
+  public function set_source($source)
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    // $_SESSION['receipt']['source'] = $_GET['data'];
+    $this->authorized($this->module, 'document');
+
+    $source = urldecode($source);
+
+    $_SESSION['receipt']['source']              = $source;
+    $_SESSION['receipt']['items']                  = array();
+
+    redirect($this->module['route'] . '/create');
+  }
+
   public function set_received_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -106,7 +122,12 @@ class Goods_Received_Note extends MY_Controller
 
     $category = $_SESSION['receipt']['category'];
     $vendor   = (empty($_SESSION['receipt']['received_from'])) ? NULL : $_SESSION['receipt']['received_from'];
-    $entities = $this->model->searchPurchaseOrder($category, $vendor);
+
+    if($_SESSION['receipt']['source']=='purchase_order'){
+      $entities = $this->model->searchPurchaseOrder($category, $vendor);
+    }elseif ($_SESSION['receipt']['source']=='internal_delivery') {
+      $entities = $this->model->searchInternalDelivery($category);
+    }    
 
     foreach ($entities as $key => $value){
       $entities[$key]['label'] = $value['description'];
@@ -115,15 +136,26 @@ class Goods_Received_Note extends MY_Controller
       $entities[$key]['label'] .= '<small>';
       $entities[$key]['label'] .= ($value['serial_number'] !== "") ? "SN: ". $value['serial_number'] ." || " : "";
       $entities[$key]['label'] .= 'Order Number: '. $value['document_number'] .' || ';
-      $entities[$key]['label'] .= 'Consignor: '. $value['vendor'] .' || ';
+      if($_SESSION['receipt']['source']=='purchase_order'){
+        $entities[$key]['label'] .= 'Consignor: '. $value['vendor'] .' || ';
+        if (config_item('auth_role') == 'SUPERVISOR' || config_item('auth_role') == 'SUPER ADMIN'){
+          $entities[$key]['label'] .= 'Currency: '. $value['default_currency'] .' || ';
+          $entities[$key]['label'] .= 'Price: '. $value['unit_price'] .' || ';
+        }        
+      }elseif ($_SESSION['receipt']['source']=='internal_delivery') {
+        $entities[$key]['label'] .= 'From: '. $value['received_from'] .' || ';
+        $entities[$key]['label'] .= 'Condition: '. $value['condition'] .' || ';
+      }      
       $entities[$key]['label'] .= 'Quantity: <code>'. number_format($value['left_received_quantity']) .'</code>';
       $entities[$key]['label'] .= '</small>';
 
-      if ($value['default_currency'] == 'IDR'){
-        $entities[$key]['unit_value'] = $value['unit_price'];
-      } else {
-        $entities[$key]['unit_value'] = $value['unit_price'] * $value['exchange_rate'];
-      }
+      if($_SESSION['receipt']['category']=='purchase_order'){
+        if ($value['default_currency'] == 'IDR'){
+          $entities[$key]['unit_value'] = $value['unit_price'];
+        } else {
+          $entities[$key]['unit_value'] = $value['unit_price'] * $value['exchange_rate'];
+        }
+      }      
     }
 
     echo json_encode($entities);
@@ -199,6 +231,8 @@ class Goods_Received_Note extends MY_Controller
         $col[]  = print_string($row['kode_stok']);
         $col[]  = print_string($row['purchase_order_number']);
         $col[]  = print_string($row['awb_number']);
+        $col[]  = print_string($row['reference_number']);
+        $col[]  = print_date($row['tgl_nota']);
         $col[]  = print_string($row['remarks']);
         $col[]  = print_string($row['received_from']);
         $col[]  = print_string($row['received_by']);
@@ -268,17 +302,27 @@ class Goods_Received_Note extends MY_Controller
       $this->data['grid']['summary_columns'][] = 21;
     }
 
-    $this->data['grid']['order_columns']    = array();
-    // $this->data['grid']['order_columns']    = array(
-    //   0   => array( 0 => 1,  1 => 'desc' ),
-    //   1   => array( 0 => 2,  1 => 'desc' ),
-    //   2   => array( 0 => 3,  1 => 'asc' ),
-    //   3   => array( 0 => 4,  1 => 'asc' ),
-    //   4   => array( 0 => 5,  1 => 'asc' ),
-    //   5   => array( 0 => 6,  1 => 'asc' ),
-    //   6   => array( 0 => 7,  1 => 'asc' ),
-    //   7   => array( 0 => 8,  1 => 'asc' ),
-    // );
+    // $this->data['grid']['order_columns']    = array();
+    $this->data['grid']['order_columns']    = array(
+      0   => array( 0 => 1,  1 => 'desc' ),
+      1   => array( 0 => 2,  1 => 'desc' ),
+      2   => array( 0 => 3,  1 => 'asc' ),
+      3   => array( 0 => 4,  1 => 'asc' ),
+      4   => array( 0 => 5,  1 => 'asc' ),
+      5   => array( 0 => 6,  1 => 'asc' ),
+      6   => array( 0 => 7,  1 => 'asc' ),
+      7   => array( 0 => 8,  1 => 'asc' ),
+      8   => array( 0 => 9,  1 => 'asc' ),
+      9   => array( 0 => 10,  1 => 'asc' ),
+      10   => array( 0 => 11,  1 => 'asc' ),
+      11   => array( 0 => 12,  1 => 'asc' ),
+      12   => array( 0 => 13,  1 => 'asc' ),
+      13   => array( 0 => 14,  1 => 'asc' ),
+      14   => array( 0 => 15,  1 => 'asc' ),
+      15   => array( 0 => 16,  1 => 'asc' ),
+      16   => array( 0 => 17,  1 => 'asc' ),
+      17   => array( 0 => 18,  1 => 'asc' ),
+    );
 
     $this->render_view($this->module['view'] .'/index');
   }
@@ -369,6 +413,7 @@ class Goods_Received_Note extends MY_Controller
       $_SESSION['receipt']['approved_by']      = NULL;
       $_SESSION['receipt']['warehouse']        = config_item('auth_warehouse');
       $_SESSION['receipt']['notes']            = NULL;
+      $_SESSION['receipt']['source']           = 'purchase_order';
 
       redirect($this->module['route'] .'/create');
     }
@@ -408,22 +453,28 @@ class Goods_Received_Note extends MY_Controller
             $errors[] = 'Duplicate Document Number: '. $_SESSION['receipt']['document_number'] .' !';
           }
         }
-
+        $received_quantity = array();
         foreach ($_SESSION['receipt']['items'] as $key => $item) {
           $part_number    = (empty($item['part_number'])) ? NULL : $item['part_number'];
           $serial_number  = (empty($item['serial_number'])) ? NULL : $item['serial_number'];
+          $description    = (empty($item['description'])) ? NULL : $item['description'];
           $condition      = (empty($item['condition'])) ? 'SERVICEABLE' : $item['condition'];
+          $received_quantity[] = $item['received_quantity'];
+
+          if ($item['received_quantity']==0){
+            $errors[] = 'Qty Receive cant be 0. Pleas add qty to item P/N '.$part_number;
+          }
 
           if (isStoresExists($item['stores']) && isStoresExists($item['stores'], $_SESSION['receipt']['category']) === FALSE){
             $errors[] = 'Stores '. $item['stores'] .' exists for other inventory! Please change the stores.';
           }
 
-          if ($serial_number !== NULL && isItemExists($part_number, $serial_number)){
-            $item_id = getItemId($part_number, $serial_number);
+          if ($serial_number !== NULL && isItemExists($part_number, $description, $serial_number)){
+            $item_id = getItemId($part_number, $description, $serial_number);
 
-            // if (!isset($_SESSION['receipt']['edit']) && getStockQuantity($item_id, $condition) > 0){
-            //   $errors[] = 'Item with Serial number '. $serial_number .' still contains quantity.';
-            // }
+            if (!isset($_SESSION['receipt']['edit']) && getStockQuantity($item_id, $condition) > 0){
+              $errors[] = 'Item with Serial number '. $serial_number .' still contains quantity.';
+            }
           }
           //cek kurs
           // if (!isset($_SESSION['receipt']['edit'])){
@@ -471,6 +522,7 @@ class Goods_Received_Note extends MY_Controller
         'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
         'received_quantity'       => $this->input->post('received_quantity'),
         'received_unit_value'     => $this->input->post('received_unit_value'),
+        'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
         'minimum_quantity'        => $this->input->post('minimum_quantity'),
         'condition'               => $this->input->post('condition'),
         'expired_date'            => $this->input->post('expired_date'),
@@ -480,20 +532,22 @@ class Goods_Received_Note extends MY_Controller
         'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
         'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
         'unit'                    => trim($this->input->post('unit')),
-        'received_unit'                    => trim($this->input->post('received_unit')),
+        'received_unit'           => trim($this->input->post('received_unit')),
         'remarks'                 => trim($this->input->post('remarks')),
         'kode_stok'               => trim($this->input->post('kode_stok')),
-        'kurs'                    => trim($this->input->post('kurs')),
+        'currency'                => trim($this->input->post('kurs')),
         'unit_pakai'              => trim($this->input->post('unit_pakai')),
         'isi'                     => trim($this->input->post('isi')),
         'quantity_order'          => $this->input->post('quantity_order'),
         'value_order'             => $this->input->post('value_order'),
         'no_expired_date'         => $this->input->post('no_expired_date'),
+        'tgl_nota'                => $this->input->post('tgl_nota'),
+        'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
 
       );
 
       if (empty($_SESSION['receipt']['received_from'])){
-        $_SESSION['receipt']['received_from'] = trim(strtoupper($this->input->post('consignor')));
+        $_SESSION['receipt']['received_from'] = strtoupper($this->input->post('consignor'));
       }
     }
 
@@ -566,7 +620,7 @@ class Goods_Received_Note extends MY_Controller
         'received_unit_value'     => $this->input->post('received_unit_value'),
         'minimum_quantity'        => $this->input->post('minimum_quantity'),
         'condition'               => $this->input->post('condition'),
-        'expired_date'            => $this->input->post('edit_expired_date'),
+        'expired_date'            => $this->input->post('expired_date'),
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
         'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
@@ -575,15 +629,17 @@ class Goods_Received_Note extends MY_Controller
         'unit'                    => trim($this->input->post('unit')),
         'received_unit'           => trim($this->input->post('received_unit')),
         'remarks'                 => trim($this->input->post('remarks')),
-        'kode_stok'               => trim($this->input->post('edit_kode_stok')),
-        'kurs'                    => trim($this->input->post('edit_kurs')),        
+        'kode_stok'               => trim($this->input->post('kode_stok')),
+        'currency'                => trim($this->input->post('kurs')),        
         'unit_pakai'              => trim($this->input->post('unit_pakai')), 
         'isi'                     => trim($this->input->post('isi')),
         'quantity_order'          => $this->input->post('quantity_order'),
-        'value_order'          => $this->input->post('value_order'),
-        'no_expired_date'         => $this->input->post('edit_no_expired_date'),
-        'stock_in_stores_id'       => trim($this->input->post('stock_in_store_id')),
-        'receipt_items_id'       => trim($this->input->post('receipt_items_id')),
+        'value_order'             => $this->input->post('value_order'),
+        'no_expired_date'         => $this->input->post('no_expired_date'),
+        'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
+        'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
+        'tgl_nota'                => $this->input->post('tgl_nota'),        
+        'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
 
       );
     }
@@ -771,13 +827,134 @@ class Goods_Received_Note extends MY_Controller
           $error = array('error' => $this->upload->display_errors());
         } else {
           $data = array('upload_data' => $this->upload->data());
-          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          $url = $config['upload_path'] . $data['upload_data']['file_name'];
           // array_push($_SESSION["poe"]["attachment"], $url);
           $this->model->add_attachment_to_db($id, $url);
           $result["status"] = 1;
         }
         echo json_encode($result);
+  }
+
+  public function select_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $category = $_SESSION['receipt']['category'];
+    $vendor   = (empty($_SESSION['receipt']['received_from'])) ? NULL : $_SESSION['receipt']['received_from'];
+    $entities = $this->model->searchPurchaseOrder($category, $vendor);
+
+    $this->data['entities'] = $entities;
+    $this->data['page']['title']            = 'Select Item';
+
+    $this->render_view($this->module['view'] . '/select_item');
+  }
+
+  public function add_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['purchase_order_item_id']) && !empty($_POST['purchase_order_item_id'])) {
+        $_SESSION['receipt']['items'] = array();
+
+        foreach ($_POST['purchase_order_item_id'] as $key => $purchase_order_item_id) {
+          $purchase_order_item = $this->model->infoPurchaseOrderItem($purchase_order_item_id);
+
+          $_SESSION['receipt']['items'][$purchase_order_item_id] = array(
+            'group'                   => $purchase_order_item['group'],
+            'description'             => trim(strtoupper($purchase_order_item['description'])),
+            'part_number'             => trim(strtoupper($purchase_order_item['part_number'])),
+            'alternate_part_number'   => trim(strtoupper($purchase_order_item['alternate_part_number'])),
+            'serial_number'           => trim(strtoupper($purchase_order_item['serial_number'])),
+            'received_quantity'       => 0,
+            'received_unit_value'     => $purchase_order_item['unit_price'],
+            'minimum_quantity'        => 0,
+            'condition'               => null,
+            'expired_date'            => null,
+            'stores'                  => null,
+            'purchase_order_number'   => trim(strtoupper($purchase_order_item['document_number'])),
+            'purchase_order_item_id'  => $purchase_order_item_id,
+            'reference_number'        => null,
+            'awb_number'              => null,
+            'unit'                    => trim($purchase_order_item['unit_pakai']),
+            'received_unit'           => trim($purchase_order_item['unit_pakai']),
+            'remarks'                 => null,
+            'kode_stok'               => null,
+            'currency'                => $purchase_order_item['default_currency'],
+            'unit_pakai'              => trim($purchase_order_item['unit_pakai']),
+            'isi'                     => null,
+            'quantity_order'          => $purchase_order_item['left_received_quantity'],
+            'value_order'             => $purchase_order_item['unit_price'],
+            'no_expired_date'         => null,
+            'tgl_nota'                => null,
+            'received_unit_value_dollar'     => ($purchase_order_item['default_currency']!='IDR')?$purchase_order_item['unit_price']:1,
+          );
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'Please select any request!';
+      }
     }
+
+    echo json_encode($data);
+  }
+
+  public function edit_selected_item()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/edit_item');
+  }
+
+  public function update_selected_item()
+  {
+    if ($this->input->is_ajax_request() == FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'document') == FALSE) {
+      $data['success'] = FALSE;
+      $data['message'] = 'You are not allowed to save this Document!';
+    } else {
+      if (isset($_POST['item']) && !empty($_POST['item'])) {
+        foreach ($_POST['item'] as $id => $item) {
+
+          $_SESSION['receipt']['items'][$id]['condition']             = $item['condition'];
+          $_SESSION['receipt']['items'][$id]['stores']                = $item['stores'];
+          $_SESSION['receipt']['items'][$id]['tgl_nota']              = $item['tgl_nota'];
+          $_SESSION['receipt']['items'][$id]['reference_number']      = $item['reference_number'];
+          $_SESSION['receipt']['items'][$id]['quantity_order']        = $item['quantity_order'];
+          $_SESSION['receipt']['items'][$id]['unit']                  = $item['unit'];
+          $_SESSION['receipt']['items'][$id]['minimum_quantity']      = $item['minimum_quantity'];
+          $_SESSION['receipt']['items'][$id]['awb_number']            = $item['awb_number'];
+          $_SESSION['receipt']['items'][$id]['received_quantity']     = $item['received_quantity'];
+          $_SESSION['receipt']['items'][$id]['unit_pakai']            = $item['unit_pakai'];
+          $_SESSION['receipt']['items'][$id]['kode_stok']             = $item['kode_stok'];
+          $_SESSION['receipt']['items'][$id]['remarks']               = $item['remarks'];
+          $_SESSION['receipt']['items'][$id]['isi']                   = $item['isi'];
+          // $_SESSION['receipt']['items'][$id]['received_unit']         = $item['received_unit'];
+          $_SESSION['receipt']['items'][$id]['expired_date']          = $item['expired_date'];
+          $_SESSION['receipt']['items'][$id]['no_expired_date']       = ($item['expired_date']==null)?'no':'yes';
+          $_SESSION['receipt']['items'][$id]['currency']              = $item['kurs'];
+          $_SESSION['receipt']['items'][$id]['received_unit_value']   = $item['received_unit_value'];
+          $_SESSION['receipt']['items'][$id]['received_unit_value_dollar']   = $item['received_unit_value_dollar'];
+          $_SESSION['receipt']['items'][$id]['value_order']           = $item['value_order'];          
+        }
+
+        $data['success'] = TRUE;
+      } else {
+        $data['success'] = FALSE;
+        $data['message'] = 'No data to update!';
+      }
+    }
+
+    echo json_encode($data);
+  }
 
   
 }

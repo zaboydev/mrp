@@ -563,6 +563,8 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.purchase_request_number',
       'tb_purchase_orders.id as poe_id',
       'tb_purchase_order_items.id as poe_item_id',
+      'tb_purchase_order_items.return_item_id',
+      'tb_purchase_order_items.inventory_purchase_request_detail_id',
       'tb_inventory_purchase_requisition_details.reference_ipc',
     );
 
@@ -670,8 +672,14 @@ class Purchase_Order_Model extends MY_Model
 
   public function findPoe($id)
   {
-    $this->db->where('id', $id);
-    $query  = $this->db->get('tb_purchase_order_vendors');
+    $this->db->select(array(
+      'tb_purchase_order_vendors.*',
+      'tb_purchase_orders.source'
+    ));
+    $this->db->from('tb_purchase_order_vendors');
+    $this->db->join('tb_purchase_orders','tb_purchase_orders.id=tb_purchase_order_vendors.purchase_order_id');
+    $this->db->where('tb_purchase_order_vendors.id', $id);
+    $query  = $this->db->get();
     $vendor    = $query->unbuffered_row('array');
 
     $this->db->from('tb_master_vendors');
@@ -689,6 +697,7 @@ class Purchase_Order_Model extends MY_Model
     // $query  = $this->db->get();
     // $poe  = $query->unbuffered_row('array');
     $result['default_currency'] = $vendor['currency'];
+    $result['source']    = $vendor['source'];
     return $result;
   }
 
@@ -713,6 +722,7 @@ class Purchase_Order_Model extends MY_Model
       'tb_po_item.unit',
       'tb_po_item.poe_number as evaluation_number',
       'tb_po_item.purchase_request_number',
+      'tb_po_item.group',
     );
 
     $this->db->select($select);
@@ -981,6 +991,7 @@ class Purchase_Order_Model extends MY_Model
     $term_payment             = $_SESSION['order']['term_payment'];
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
     $vendor_po               = $_SESSION['order']['vendor_po'];
+    $source               = $_SESSION['order']['source'];
 
     $this->db->trans_begin();
 
@@ -1020,6 +1031,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('updated_by', config_item('auth_person_name'));
     $this->db->set('review_status', strtoupper('waiting for finance review'));
     $this->db->set('tipe', strtoupper($payment_type));
+    $this->db->set('source', $source);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
 
@@ -1140,6 +1152,7 @@ class Purchase_Order_Model extends MY_Model
    
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'POE');
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe');
   }
 
@@ -1148,6 +1161,7 @@ class Purchase_Order_Model extends MY_Model
    
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', 'PO');
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe');
   }
 
@@ -1187,6 +1201,7 @@ class Purchase_Order_Model extends MY_Model
     $notes                = (empty($_SESSION['order']['notes'])) ? NULL : $_SESSION['order']['notes'];
     $vendor_po            = $_SESSION['order']['vendor_po'];
     $id_po_lama           = $_SESSION['order']['id_po'];
+    $source               = $_SESSION['order']['source'];
 
     $this->db->trans_begin();
 
@@ -1226,6 +1241,7 @@ class Purchase_Order_Model extends MY_Model
     $this->db->set('review_status', strtoupper('waiting for finance review'));
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('revision_of_po_id', $id_po_lama);
+    $this->db->set('source', $source);
     // $this->db->where('id', $id);
     $this->db->insert('tb_po');
     $id_po = $this->db->insert_id();
@@ -1258,6 +1274,7 @@ class Purchase_Order_Model extends MY_Model
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
       $this->db->set('serial_number', strtoupper($item['serial_number']));
+      $this->db->set('group', strtoupper($item['group']));
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       // $this->db->set('quantity_requested', floatval($item['quantity_requested']));
@@ -1461,7 +1478,9 @@ class Purchase_Order_Model extends MY_Model
     $poe_id = $id;
 
     $this->db->where('id_poe', $poe_id);
-    return $this->db->get('tb_attachment_poe')->result();
+    $this->db->where('tipe', 'POE');
+    $this->db->where(array('deleted_at' => NULL));
+    return $this->db->get('tb_attachment_poe')->result_array();
   }
 
   public function send_mail($doc_id, $level,$tipe=null)
@@ -1509,7 +1528,7 @@ class Purchase_Order_Model extends MY_Model
       $message .= "<p>No Purchase Order Evaluation : " . $row['evaluation_number'] . "</p>";
     }
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -1624,7 +1643,7 @@ class Purchase_Order_Model extends MY_Model
     $message .= "</table>";
     // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2191,6 +2210,7 @@ class Purchase_Order_Model extends MY_Model
     if($tipe_att!=null){
       $this->db->where('tipe_att', $tipe_att);
     }
+    $this->db->where(array('deleted_at' => NULL));
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
@@ -2216,8 +2236,10 @@ class Purchase_Order_Model extends MY_Model
   {
     $this->db->trans_begin();
 
+    $this->db->set('deleted_at',date('Y-m-d'));
+    $this->db->set('deleted_by', config_item('auth_person_name'));
     $this->db->where('id', $id_att);
-    $this->db->delete('tb_attachment_poe');
+    $this->db->update('tb_attachment_poe');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

@@ -28,9 +28,9 @@
                   </div>
 
                   <div class="form-group">
-                    <input type="text" name="received_date" id="received_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['delivery']['received_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_date');?>" required>
+                    <input type="text" name="send_date" id="send_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['delivery']['send_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_send_date');?>" required>
                     <input type="hidden" name="opname_start_date" id="opname_start_date" data-date-format="yyyy-mm-dd" class="form-control" value="<?=last_publish_date();?>" readonly>
-                    <label for="received_date">Received Date</label>
+                    <label for="send_date">Date</label>
                   </div>
 
                   <div class="form-group">
@@ -41,7 +41,15 @@
 
                 <div class="col-sm-6 col-lg-4">
                   <div class="form-group">
-                    <input type="text" name="received_from" id="received_from" class="form-control" value="<?=$_SESSION['delivery']['received_from'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_from');?>" required>
+                    <select name="received_from" id="received_from" class="form-control" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_from');?>" required>
+                      <option value=""></option>
+                      <?php foreach (pesawat() as $pesawat):?>
+                      <option value="<?=$pesawat;?>" <?=($_SESSION['delivery']['received_from'] == $pesawat) ? 'selected' : '';?>>
+                        <?=$pesawat;?>
+                      </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <!-- <input type="text" name="received_from" id="received_from" class="form-control" value="<?=$_SESSION['delivery']['received_from'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_received_from');?>" required> -->
                     <label for="received_from">Received From</label>
                     <p class="help-block">
                       Example: PK-ROA
@@ -53,7 +61,18 @@
                     <label for="sent_by">Sent/Delivered By</label>
                   </div>
 
-                  <div class="form-group">
+                  <div class="form-group hide">
+                    <select name="send_to_warehouse" id="send_to_warehouse" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_send_to_warehouse'); ?>" required>
+                      <?php foreach (available_warehouses() as $w => $warehouse) : ?>
+                        <option value="<?= $warehouse; ?>" <?= ($_SESSION['delivery']['send_to_warehouse'] == $warehouse) ? 'selected' : ''; ?>>
+                          <?= $warehouse; ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <label for="send_to_warehouse">Send to Warehouse</label>
+                  </div>
+
+                  <div class="form-group hide">
                     <input type="text" name="approved_by" id="approved_by" class="form-control" value="<?=$_SESSION['delivery']['approved_by'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_approved_by');?>">
                     <label for="approved_by">Approved By</label>
                   </div>
@@ -113,7 +132,7 @@
                           <?=$items['serial_number'];?>
                         </td>
                         <td>
-                          <?=number_format($items['received_quantity'], 2);?>
+                          <?=number_format($items['quantity'], 2);?>
                         </td>
                         <td>
                           <?=$items['unit'];?>
@@ -175,13 +194,13 @@
                       <legend>General</legend>
 
                       <div class="form-group">
-                        <input type="text" name="serial_number" id="serial_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_serial/');?>">
-                        <label for="serial_number">Serial Number</label>
+                        <input type="text" name="part_number" id="part_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_part_number/');?>" required>
+                        <label for="part_number">Part Number</label>
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="part_number" id="part_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_part_number/');?>" required>
-                        <label for="part_number">Part Number</label>
+                        <input type="text" name="serial_number" id="serial_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_serial/');?>">
+                        <label for="serial_number">Serial Number</label>
                       </div>
 
                       <div class="form-group">
@@ -227,12 +246,17 @@
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="condition" id="condition" class="form-control input-sm" value="UNSERVICEABLE" readonly>
+                        <select name="condition" id="condition" class="form-control input-sm">
+                          <?php foreach (available_conditions() as $key => $condition) : ?>
+                            <option value="<?= $condition; ?>"><?= $condition; ?></option>
+                          <?php endforeach; ?>
+                        </select>
+                        <!-- <input type="text" name="condition" id="condition" class="form-control input-sm" value="UNSERVICEABLE" readonly> -->
                         <label for="condition">Item Condition</label>
                       </div>
 
                       <div class="form-group">
-                        <input type="text" name="stores" id="stores" data-tag-name="stores" data-search-for="stores" data-source="<?=site_url($modules['ajax']['route'] .'/json_stores/'. $_SESSION['delivery']['category']);?>" class="form-control input-sm" required>
+                        <input type="text" name="stores" id="stores" data-tag-name="stores" data-search-for="stores" data-source="<?=site_url($modules['ajax']['route'] .'/json_stores/'. $_SESSION['delivery']['category']);?>" class="form-control input-sm">
                         <label for="stores">Stores</label>
                       </div>
                     </fieldset>
@@ -255,6 +279,7 @@
 
           <div class="modal-footer">
             <input type="hidden" id="received_unit_value" name="received_unit_value" value="1">
+            <input type="hidden" id="item_id" name="item_id">
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
@@ -270,7 +295,7 @@
       </div>
     </div>
 
-    <div id="modal-edit-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-edit-item-label" aria-hidden="true">
+    <!-- <div id="modal-edit-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-edit-item-label" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header style-primary-dark">
@@ -390,7 +415,7 @@
         <?=form_close();?>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div class="section-action style-default-bright">
       <div class="section-floating-action-row">
@@ -553,6 +578,7 @@ $(function(){
     todayHighlight: true,
     format: 'yyyy-mm-dd',
     startDate: today,
+    orientation: "top"
   });
 
   $(document).on('click', '.btn-xhr-submit', function(e){
@@ -823,24 +849,25 @@ $(function(){
       dataType: "JSON",
       success: function(response)
       { 
+        var action = "<?=site_url($module['route'] .'/edit_item')?>";
         console.log(JSON.stringify(response));
-        $('[name="edit_serial_number"]').val(response.serial_number);
-        $('[name="edit_part_number"]').val(response.part_number);
-        $('[name="edit_description"]').val(response.description);
-        $('[name="edit_alternate_part_number"]').val(response.alternate_part_number);
-        $('[name="edit_group"]').val(response.group);
-        $('[name="edit_received_quantity"]').val(response.received_quantity);
-        $('[name="edit_minimum_quantity"]').val(response.minimum_quantity);
-        $('[name="edit_unit"]').val(response.unit);
-        $('[name="edit_received_unit_value"]').val(response.received_unit_value);
-        $('[name="edit_condition"]').val(response.condition);
-        $('[name="edit_stores"]').val(response.stores);
+        $('[name="serial_number"]').val(response.serial_number);
+        $('[name="part_number"]').val(response.part_number);
+        $('[name="description"]').val(response.description);
+        $('[name="alternate_part_number"]').val(response.alternate_part_number);
+        $('[name="group"]').val(response.group);
+        $('[name="received_quantity"]').val(response.quantity);
+        $('[name="minimum_quantity"]').val(response.minimum_quantity);
+        $('[name="unit"]').val(response.unit);
+        $('[name="received_unit_value"]').val(response.unit_price);
+        $('[name="condition"]').val(response.condition);
+        $('[name="stores"]').val(response.stores);
         // $('[name="expired_date"]').val(response.expired_date);
         // $('[name="purchase_order_number"]').val(response.purchase_order_number);
         // $('[name="reference_number"]').val(response.reference_number);
         // $('[name="awb_number"]').val(response.awb_number);
-        $('[name="edit_remarks"]').val(response.remarks);
-        $('[name="edit_item_id"]').val(id);
+        $('[name="remarks"]').val(response.remarks);
+        $('[name="item_id"]').val(id);
         // $('[name="document_number_receipts_items"]').val(response.document_number);
         // $('[name="category_receipts_items"]').val(response.category);
         // $('[name="warehouse_receipts_items"]').val(response.warehouse);
@@ -848,8 +875,9 @@ $(function(){
         
  
  
-        $('#modal-edit-item').modal('show'); // show bootstrap modal when complete loaded
+        $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
         $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title
+        $('#modal-add-item form').attr('action', action);
  
       },
       error: function (jqXHR, textStatus, errorThrown)

@@ -1,8 +1,8 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['supplier_payment_history']['visible']        = TRUE;
-$config['module']['supplier_payment_history']['main_warehouse'] = TRUE;
-$config['module']['supplier_payment_history']['parent']         = 'account_payable';
+$config['module']['supplier_payment_history']['main_warehouse'] = FALSE;
+$config['module']['supplier_payment_history']['parent']         = 'finance_report';
 $config['module']['supplier_payment_history']['label']          = 'Supplier Payment History';
 $config['module']['supplier_payment_history']['name']           = 'Supplier Payment History';
 $config['module']['supplier_payment_history']['route']          = 'supplier_payment_history';
@@ -12,6 +12,6 @@ $config['module']['supplier_payment_history']['helper']         = 'material_slip
 $config['module']['supplier_payment_history']['table']          = 'tb_purchase_orders';
 $config['module']['supplier_payment_history']['model']          = 'Purchase_Item_Detail_Model';
 $config['module']['supplier_payment_history']['permission']     = array(
-    'index'     => 'PROCUREMENT,FINANCE,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER',
+    'index'     => 'AP STAFF,PROCUREMENT,FINANCE,CHIEF OF MAINTANCE,HEAD OF SCHOOL,CHIEF OF FINANCE,FINANCE MANAGER,SUPER ADMIN,VP FINANCE,OPERATION SUPPORT,CHIEF OPERATION OFFICER',
     
 );

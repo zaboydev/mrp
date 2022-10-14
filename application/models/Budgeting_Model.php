@@ -377,7 +377,7 @@ class Budgeting_Model extends MY_Model {
           $this->db->insert('tb_master_item_units');
       }
 
-      if (isItemExists($part_number, $serial_number) === FALSE){
+      if (isItemExists($part_number,$description, $serial_number) === FALSE){
         $data = array(
           'part_number'           => $part_number,
           'serial_number'         => $serial_number,
@@ -399,7 +399,7 @@ class Budgeting_Model extends MY_Model {
 
         $item_id = $this->db->insert_id();
       } else {
-        $item_id = getItemId($part_number, $serial_number);
+        $item_id = getItemId($part_number,$description, $serial_number);
       }
 
       $this->db->from('tb_budget_cot');

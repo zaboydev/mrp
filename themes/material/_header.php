@@ -5,7 +5,7 @@
       <li class="header-nav-brand" >
         <div class="brand-holder">
           <a href="<?=site_url();?>">
-            <span class="text-lg text-bold text-primary"><?=strtoupper($module['parent']);?></span>
+            <span class="text-lg text-bold text-primary"><?=strtoupper(str_replace("_", " ", $module['parent']));?></span>
           </a>
         </div>
       </li>

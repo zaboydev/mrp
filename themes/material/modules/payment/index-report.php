@@ -40,6 +40,32 @@
         </select>
     </div>
 
+    <div class="form-group">
+      <label for="start_date">Status</label>
+      <select class="form-control input-sm filter_dropdown" id="status" name="status" data-column="3">
+        <option value="all">All Status</option>      
+        <option value="WAITING REVIEW BY FIN MNG">Waiting Review By Fin Mng</option>
+        <option value="APPROVED">Approved</option>
+        <option value="PAID">Paid</option>
+        
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="start_date">Transaction Type</label>
+      <select class="form-control input-sm filter_dropdown" id="type" name="type" data-column="4">
+        <option value="all">All Transaction Type</option>      
+        <option value="BANK">Bank Transfer</option>
+        <option value="CASH">Cash</option>        
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="start_date">Account</label>
+      <select class="form-control input-sm filter_dropdown" id="account" name="account" data-column="5">
+        <option value="all">All Account</option>
+      </select>
+    </div>
 
 </div>
 <?php endblock() ?>
@@ -774,17 +800,7 @@
       parentEl: '#offcanvas-datatable-filter',
       locale: {
         cancelLabel: 'Clear'
-      },
-      ranges: {
-        'Today': [moment(), moment()],
-        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        'This Month': [moment().startOf('month'), moment().endOf('month')],
-        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-        'Last 3 Months': [moment().subtract(2, 'month').startOf('month'), moment().subtract('month').endOf('month')]
-      },
-      showCustomRangeLabel: false
+      }
     }).on('apply.daterangepicker', function(ev, picker) {
       $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
       var i = $(this).data('column');
@@ -863,6 +879,26 @@
       }
 
       button.attr('disabled', false);
+    });
+
+    $('#type').change(function() {
+      type_trs = $(this).val();
+      var account_view = $('#account');
+      account_view.html('');    
+
+      $.ajax({
+        type: "post",
+        url: '<?= base_url() . "payment_report/get_accounts" ?>',
+        data: {
+          'type': type_trs
+        },
+        cache: false,
+        success: function(response) {
+          var data = jQuery.parseJSON(response);
+          account_view.html(data.account);
+        }
+      });
+
     });
   });
 </script>

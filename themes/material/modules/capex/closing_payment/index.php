@@ -25,31 +25,100 @@
 
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
-
+  <div class="btn-group dropup">
+    <?php if (is_granted($module, 'document')) : ?>
+      <a href="<?= site_url($module['route'] . '/create/expense'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+        <i class="md md-add"></i>
+        <small class="top right">Create <?= $module['label']; ?></small>
+      </a>
+    <?php endif ?>
+    <?php if (is_granted($module, 'approval')) : ?>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+        <i class="md md-clear"></i>
+        <small class="top right">reject</small>
+      </button>
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
+        <i class="md md-spellcheck"></i>
+        <small class="top right">approve</small>
+      </button>
+    <?php endif ?>
+  </div>
 </div>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
-      <div class="form force-padding">
-        <div class="form-group" style="margin-top: 40px">
-          <label for="filter_required_date">Date</label>
-          <input class="form-control input-sm filter_daterange" data-column="1" id="filter_required_date" readonly>
-        </div>
+<div class="form force-padding">
+  <div class="form-group">
+    <label for="filter_received_date">Date</label>
+    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+  </div>
 
-        <div class="form-group">
-          <label for="filter_item_category">Cost Center</label>
-          <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_item_category">
-            <option value="all">
-              Not filtered            
-            </option>
-            <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
-              <option value="<?= $annual_cost_center['cost_center_name']; ?>">
-                <?= $annual_cost_center['cost_center_name'] ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-      </div>
+  <div class="form-group">
+    <label for="start_date">Vendor</label>
+    <select class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
+      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
+      <?php foreach (available_vendors() as $vendor) : ?>
+        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
+          <?= $vendor; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Currency</label>
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="3">
+      <option value="all">All Currency</option>
+      <option value="IDR">IDR</option>
+      <option value="USD">USD</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Base</label>
+    
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="5">
+      <option value="ALL BASES">-- ALL BASES --</option>
+      <?php foreach (config_item('auth_warehouses') as $warehouse):?>
+        <option value="<?=$warehouse;?>" <?php if (config_item('auth_warehouse') == $warehouse):echo 'selected'; endif;?>>
+          <?=$warehouse;?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Status</label>
+    <select class="form-control input-sm filter_dropdown" id="currency" name="currency" data-column="4">
+      <?php if(is_granted($module, 'document')||is_granted($module, 'approval')):?>
+      <option value="all">All Status</option>      
+      <option value="WAITING REVIEW BY FIN MNG"<?php if (config_item('auth_role') == 'FINANCE MANAGER'):echo 'selected'; endif;?>>Waiting Review By Fin Mng</option>
+      <?php endif; ?>
+      <option value="APPROVED"<?php if (config_item('auth_role') == 'TELLER'):echo 'selected'; endif;?>>Approved</option>
+      <!-- <option value="REVISI">Revisi</option> -->
+      <option value="PAID">Paid</option>
+      <?php if(is_granted($module, 'document')||is_granted($module, 'approval')):?>
+      <option value="REJECTED">Rejected</option>
+      <?php endif; ?>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Transaction Type</label>
+    <select class="form-control input-sm filter_dropdown" id="type" name="type" data-column="6">
+      <option value="all">All Transaction Type</option>      
+      <option value="BANK">Bank Transfer</option>
+      <option value="CASH">Cash</option>        
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="start_date">Account</label>
+    <select class="form-control input-sm filter_dropdown" id="account" name="account" data-column="7">
+      <option value="all">All Account</option>
+    </select>
+  </div>
+</div>
 <?php endblock() ?>
 
       <?php startblock('scripts') ?>
@@ -478,17 +547,12 @@
           });
 
           $("#modal-approve-data-button-multi").click(function() {
-            var action = $(this).data('source');
-            if (!encodeNotes()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
-            } else {
+            var action = $(this).data('source');            
               $(this).attr('disabled', true);
               if (id_purchase_order !== "") {
                 $.post(action, {
                   'id_expense_request': id_purchase_order,
-                  'notes': notes
+                  // 'notes': notes
                 }).done(function(data) {
                   console.log(data);
                   $("#modal-approve-data-button-multi").attr('disabled', false);
@@ -507,7 +571,7 @@
                   $("#modal-approve-data-button-multi").attr('disabled', false);
                   toastr.options.timeOut = 10000;
                   toastr.options.positionClass = 'toast-top-right';
-                  toastr.error('Delete Failed! This data is still being used by another document.');
+                  toastr.error('Delete Failed! Silahkan Hubungi Teknisi.');
                 });
               } else {
                 $(this).attr('disabled', false);
@@ -515,7 +579,6 @@
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('Empty selected data');
               }
-            }
 
           });
 
@@ -606,24 +669,26 @@
           }
 
           $("#modal-reject-data-button-multi").click(function() {
+            $(this).attr('disabled', true);
+            $("#modal-approve-data-button-multi").attr('disabled', true);
+
             if (!encodeNotes()) {
               toastr.options.timeOut = 10000;
               toastr.options.positionClass = 'toast-top-right';
               toastr.error('You must filled notes for each item that you want to reject');
-            } else if (!encodePrice()) {
-              toastr.options.timeOut = 10000;
-              toastr.options.positionClass = 'toast-top-right';
-              toastr.error('You must filled Price for each item that you want to approve');
+              $(this).attr('disabled', false);
+              $("#modal-approve-data-button-multi").attr('disabled', false);
             } else {
-
               if (id_purchase_order == "") {
                 toastr.options.timeOut = 10000;
                 toastr.options.positionClass = 'toast-top-right';
                 toastr.error('You must select item that you want to reject');
+                $(this).attr('disabled', false);
+                $("#modal-approve-data-button-multi").attr('disabled', false);
               } else {
                 $.ajax({
                   type: "POST",
-                  url: 'purchase_request/multi_reject',
+                  url: 'expense_closing_payment/multi_reject',
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,
@@ -664,6 +729,7 @@
                   id_purchase_order = id_purchase_order.replace("|" + $(this).attr('data-id') + ",", "");
                 }
               }
+              console.log(id_purchase_order);
 
             } else if (e.target.nodeName === "SPAN") {
               var a = $(e.target).data('id');
@@ -715,6 +781,11 @@
               });
             }
 
+            if (id == 'openPo') {
+              var url = $(this).data('href');
+              window.open(url, '_blank').focus();
+            }
+
 
           });
 
@@ -746,17 +817,7 @@
             parentEl: '#offcanvas-datatable-filter',
             locale: {
               cancelLabel: 'Clear'
-            },
-            ranges: {
-              'Today': [moment(), moment()],
-              'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-              'This Month': [moment().startOf('month'), moment().endOf('month')],
-              'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-              'Last 3 Months': [moment().subtract(2, 'month').startOf('month'), moment().subtract('month').endOf('month')]
-            },
-            showCustomRangeLabel: false
+            }
           }).on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
             var i = $(this).data('column');
@@ -835,6 +896,26 @@
             }
 
             button.attr('disabled', false);
+          });
+
+          $('#type').change(function() {
+            type_trs = $(this).val();
+            var account_view = $('#account');
+            account_view.html('');    
+
+            $.ajax({
+              type: "post",
+              url: '<?= base_url() . "payment_report/get_accounts" ?>',
+              data: {
+                'type': type_trs
+              },
+              cache: false,
+              success: function(response) {
+                var data = jQuery.parseJSON(response);
+                account_view.html(data.account);
+              }
+            });
+
           });
         });
       </script>

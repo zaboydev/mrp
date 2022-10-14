@@ -380,7 +380,7 @@ class User extends MY_Controller
     else
     {
       $data = array('upload_data' => $this->upload->data());
-      $url = $data['upload_data']['orig_name'];
+      $url = $data['upload_data']['file_name'];
       // array_push($_SESSION["poe"]["attachment"], $url);
       $this->model->add_attachment_to_db($user_id,$url);
       $result["status"] = 1;

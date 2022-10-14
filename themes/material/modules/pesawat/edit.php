@@ -23,22 +23,119 @@
         <div class="col-sm-6">
           <div class="form-group">
             <input type="text" name="nama_pesawat" id="nama_pesawat" class="form-control" value="<?=$entity['nama_pesawat'];?>" data-validation-exception="<?=$entity['nama_pesawat'];?>"  autofocus>
-            <label for="nama_pesawat">Nama Pesawat</label>
+            <label for="nama_pesawat">Aircraft Register Number</label>
           </div>
-        </div>        
-      </div>
-      <div class="row">
-        <div class="col-sm-6">
+
+          <div class="form-group">
+            <input type="date" name="date_of_manufacture" id="date_of_manufacture" class="form-control" value="<?=$entity['date_of_manufacture'];?>">
+            <label for="date_of_manufacture">Date of Manufacture</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" name="aircraft_serial_number" id="aircraft_serial_number" class="form-control" value="<?=$entity['aircraft_serial_number'];?>">
+            <label for="aircraft_serial_number">Aircraft Serial Number</label>
+          </div>
+
+          <div class="form-group">
+            <select name="engine_type" id="engine_type" class="form-control" required>
+              <option value="single">Single Engine</option>
+              <option value="multi">Multi Engine</option>
+            </select>
+            <label for="base">Engine Type</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" name="engine_serial_number" id="engine_serial_number" class="form-control" value="<?=$entity['engine_serial_number'];?>">
+            <label for="engine_serial_number">Engine Serial Number</label>
+          </div>
+
+          <div class="form-group hide multi_engine">
+            <input type="text" name="engine_serial_number_2" id="engine_serial_number_2" class="form-control"  value="<?=$entity['engine_serial_number_2'];?>">
+            <label for="engine_serial_number_2">Engine Serial Number 2</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" name="propeler_serial_number" id="propeler_serial_number" class="form-control" value="<?=$entity['propeler_serial_number'];?>">
+            <label for="propeler_serial_number">Prepoller Serial Number</label>
+          </div>
+
+          <div class="form-group hide multi_engine">
+            <input type="text" name="propeler_serial_number_2" id="propeler_serial_number_2" class="form-control" value="<?=$entity['propeler_serial_number_2'];?>">
+            <label for="propeler_serial_number">Prepoller Serial Number 2</label>
+          </div>
+
+          <div class="form-group">
+            <select name="base" id="base" class="form-control" required>
+              <option value=""></option>
+              <?php foreach (available_warehouses_alternate_name() as $base_alternate_name) : ?>
+                <option value="<?= $base_alternate_name; ?>" <?= ($entity['base'] == $base_alternate_name) ? 'selected' : ''; ?>>
+                  <?= $base_alternate_name; ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+            <label for="base">Base</label>
+          </div>
+
           <div class="form-group">
             <textarea name="keterangan" id="keterangan" class="form-control" rows="4" data-validation-exception="<?=$entity['keterangan'];?>"><?=$entity['keterangan'];?></textarea>
             <label for="keterangan">Keterangan</label>
           </div>
+
+        </div>  
+        <div class="col-sm-6">
+          <div class="form-group">
+            <input type="text" name="fuel_capacity_usage" id="fuel_capacity_usage" class="form-control" value="<?=$entity['fuel_capacity_usage'];?>">
+            <label for="fuel_capacity_usage">Fuel Capacity Usage</label>
+          </div>
+
+          <div class="form-group">
+            <label for="fuel_capacity_mix">Fuel Capacity Mix</label>
+            <div class="radio">
+              <input type="radio" name="fuel_capacity_mix" id="MIX" value="MIX" <?= ($entity['fuel_capacity_mix'] == 'MIX') ? 'checked' : ''; ?>>
+              <label for="mix">
+                MIX
+              </label>
+            </div>
+            <div class="radio">
+              <input type="radio" name="fuel_capacity_mix" id="AVGAS" value="AVGAS" <?= ($entity['fuel_capacity_mix'] == 'AVGAS') ? 'checked' : ''; ?>>
+              <label for="avgas">
+                AVGAS
+              </label>
+            </div>
+          </div>
+          <div class="form-group" style="padding-top: 25px;">
+            <label for="instrument_nf">Instrument NF</label>
+            <select style="width: 100%" multiple="multiple" name="instrument_nf[]" id="instrument_nf" class="form-control select2" required>
+            <?php foreach ($this->config->item('instrument_nf') as $instrument_nf) : ?>
+              <option value="<?= $instrument_nf; ?>" <?= (in_array($instrument_nf,$entity['instrument_nf_array'])) ? 'selected' : ''; ?>>
+                <?= $instrument_nf; ?>
+              </option>
+            <?php endforeach; ?>
+            </select>
+          </div>
+
+          <div class="form-group" style="padding-top: 25px;">
+            <label for="instrument_avionic">Instrument Avionic</label>
+            <select style="width: 100%" multiple="multiple" name="instrument_avionic[]" id="instrument_avionic" class="form-control select2" required>
+            <?php foreach ($this->config->item('instrument_avionic') as $instrument_avionic) : ?>
+              <option value="<?= $instrument_avionic; ?>" <?= (in_array($instrument_avionic,$entity['instrument_avionic_array'])) ? 'selected' : ''; ?>>
+                <?= $instrument_avionic; ?>
+              </option>
+            <?php endforeach; ?>
+            </select>
+          </div>
+
+        </div>      
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          
         </div>        
       </div>      
     </div>
 
     <div class="card-foot">
-      <input type="text" name="id" id="id" value="<?=$entity['id'];?>">
+      <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
       <input type="hidden" name="nama_pesawat_exception" id="nama_pesawat_exception" value="<?=$entity['nama_pesawat'];?>">
 
       <?php if (is_granted($module, 'delete')):?>
@@ -58,3 +155,25 @@
   </div>
 
 <?=form_close();?>
+
+<script>
+  $('.select2').select2();
+  $('#engine_type').on("change", function(e) {
+    var value = $(this).val();
+
+    if(value=='multi'){
+      if($('.multi_engine').hasClass('hide')==true){
+        $('.multi_engine').removeClass('hide');
+        $('[name="engine_serial_number_2"]').attr('required',true);
+        $('[name="propeler_serial_number_2"]').attr('required',true);
+      }
+    }else{
+      if($('.multi_engine').hasClass('hide')==false){
+        $('.multi_engine').addClass('hide');
+        $('[name="engine_serial_number_2"]').attr('required',false);
+        $('[name="propeler_serial_number_2"]').attr('required',false);
+      }
+    }
+    
+  });
+</script>

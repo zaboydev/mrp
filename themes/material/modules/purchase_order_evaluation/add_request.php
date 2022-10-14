@@ -11,9 +11,9 @@
         <!-- <div class="col-md-12" style="margin-top: 10px;"> -->
 
           <label class="radio-inline hide">
-            <input type="radio" <?= $_SESSION['poe']['source'] == 0 ? "checked" : ""  ?> name="source" style="display:inline;" value="0" data-source="<?= site_url($module['route'] . '/set_source'); ?>">Budget Control</label>
+            <input type="radio" <?= $_SESSION['poe']['source_request'] == 0 ? "checked" : ""  ?> name="source" style="display:inline;" value="0" data-source="<?= site_url($module['route'] . '/set_source_request'); ?>">Budget Control</label>
           <label class="radio-inline">
-            <input type="radio" <?= $_SESSION['poe']['source'] == 1 ? "checked" : ""  ?> value="1" style="display: inline;" name="source" data-source="<?= site_url($module['route'] . '/set_source'); ?>">MRP
+            <input type="radio" <?= $_SESSION['poe']['source_request'] == 1 ? "checked" : ""  ?> value="1" style="display: inline;" name="source" data-source="<?= site_url($module['route'] . '/set_source_request'); ?>">MRP
           </label>
         <!-- </div> -->
         <div class="table-responsive">
@@ -29,6 +29,14 @@
                 <th>
                   Part Number
                 </th>
+                <?php if($_SESSION['poe']['source']=='return'):?>
+                <th>
+                  Alt. Part Number
+                </th>
+                <th>
+                  Serial Number
+                </th>
+                <?php endif;?>
                 <th>
                   Additional Info
                 </th>
@@ -78,6 +86,18 @@
                       <?= print_string($entity['product_code']); ?>
                     </label>
                   </td>
+                  <?php if($_SESSION['poe']['source']=='return'):?>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_string($entity['alternate_part_number']); ?>
+                    </label>
+                  </td>
+                  <td>
+                    <label for="request_id_<?= $e; ?>">
+                      <?= print_string($entity['serial_number']); ?>
+                    </label>
+                  </td>
+                  <?php endif;?>
                   <td>
                     <label for="request_id_<?= $e; ?>">
                       <?= print_string($entity['additional_info']); ?>

@@ -231,11 +231,13 @@ class Expense_Request_Model extends MY_Model
             }            
         }
 
-        // if (!empty($_POST['columns'][4]['search']['value'])){
-        //     $search_category = $_POST['columns'][4]['search']['value'];
+        if (!empty($_POST['columns'][4]['search']['value'])){
+            $year = $_POST['columns'][4]['search']['value'];
 
-        //     $this->connection->where('UPPER(tb_product_categories.category_name)', strtoupper($search_category));
-        // }
+            $this->connection->where('tb_annual_cost_centers.year_number',$year);
+        }else{
+            $this->connection->where('tb_annual_cost_centers.year_number', $this->budget_year);
+        }
 
         $i = 0;
 
@@ -290,7 +292,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
@@ -333,7 +335,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
@@ -357,7 +359,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
             $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
         }
@@ -1249,7 +1251,7 @@ class Expense_Request_Model extends MY_Model
             $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
         }
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";
         $this->email->from($from_email, 'Material Resource Planning');
         $this->email->to($recipient);
@@ -1304,7 +1306,7 @@ class Expense_Request_Model extends MY_Model
         $message .= "</ul>";
         $message .= "<p>No Expense Request : " . $row['pr_number'] . "</p>";
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-        $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";
         $this->email->from($from_email, 'Material Resource Planning');
         $this->email->to($recipient);
@@ -1486,7 +1488,7 @@ class Expense_Request_Model extends MY_Model
         $message .= "</table>";
         // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
         $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-        $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
         $message .= "<p>Thanks and regards</p>";
         $this->email->from($from_email, 'Material Resource Planning');
         $this->email->to($recipient);
@@ -1585,36 +1587,61 @@ class Expense_Request_Model extends MY_Model
         $status[] = 'WAITING FOR COO REVIEW';
         }
 
-        $this->connection->select('*');
+        $this->connection->select(array_keys($this->getSelectedColumns()));
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
         $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
+            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
+        }
+        $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
+        $this->connection->group_by($this->getGroupedColumns());
+
+        $this->searchIndex();
+
+        $query = $this->connection->get();
+
+        return $query->num_rows();
+
+        $this->connection->select(array_keys($this->getSelectedColumns()));
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
+        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
         $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
+        $this->connection->group_by($this->getGroupedColumns());
+        $this->searchIndex();
         $query = $this->connection->get();
         $count = $query->num_rows();
 
         $count_as_head_dept = 0;
         if(config_item('as_head_department')=='yes'){
-        $status = 'WAITING FOR HEAD DEPT';
-        $this->connection->select('*');
-        $this->connection->from('tb_expense_purchase_requisitions');
-        $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
-        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
-        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
-        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
-        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-        $this->connection->where('tb_expense_purchase_requisitions.status', $status);
-        $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
-        $this->connection->where_in('tb_departments.department_name', config_item('head_department'));
-        $this->connection->where('tb_expense_purchase_requisitions.head_dept', config_item('auth_username'));
-        $query = $this->connection->get();
-        $count_as_head_dept = $query->num_rows();
+            $status = 'WAITING FOR HEAD DEPT';
+            $this->connection->select(array_keys($this->getSelectedColumns()));
+            $this->connection->from('tb_expense_purchase_requisitions');
+            $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+            $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+            $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
+            $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+            $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+            $this->connection->where('tb_expense_purchase_requisitions.status', $status);
+            // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
+            $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
+            $this->connection->where_in('tb_departments.department_name', config_item('head_department'));
+            $this->connection->where('tb_expense_purchase_requisitions.head_dept', config_item('auth_username'));
+            $this->connection->group_by($this->getGroupedColumns());
+            $this->searchIndex();
+            $query = $this->connection->get();
+            $count_as_head_dept = $query->num_rows();
         }
 
         return $count+$count_as_head_dept;
@@ -1762,7 +1789,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->trans_begin();
 
         $id = $this->input->post('id');
-        $notes = $this->input->post('notes');
+        $notes = $this->input->post('change_notes');
 
         $this->connection->from('tb_expense_purchase_requisitions');
         $this->connection->where('id', $id);
@@ -1799,9 +1826,13 @@ class Expense_Request_Model extends MY_Model
             $this->connection->update('tb_expense_purchase_requisitions'); 
         }
 
-        
-
-        
+        $this->connection->set('change_by', config_item('auth_person_name'));
+        $this->connection->set('notes', $notes);
+        $this->connection->set('source', 'EXPENSE');
+        $this->connection->set('request_id', $id);
+        $this->connection->set('pr_number', $pr_number);
+        $this->connection->set('date', date('Y-m-d'));
+        $this->connection->insert('tb_change_request_history');        
 
         if ($this->connection->trans_status() === FALSE)
             return ['status'=>FALSE,'info'=>'Expense gagal Diubah. Silahkan dicoba beberapa saat lagi'];

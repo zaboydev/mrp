@@ -120,11 +120,14 @@
             <option value="approved" <?php if (config_item('auth_role') == 'PIC PROCUREMENT'||config_item('auth_role') == 'AP STAFF'):echo 'selected'; endif;?>>
               Approved
             </option>
+            <option value="PAYMENT PURPOSED">
+              Payment Purposed
+            </option>
             <?php endif; ?>
             <option value="rejected">
               Rejected
             </option>
-            <option value="cancel">
+            <option value="canceled">
               Canceled
             </option>
             <option value="close">
@@ -142,6 +145,17 @@
             <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
               <option value="<?= $annual_cost_center['cost_center_name']; ?>">
                 <?= $annual_cost_center['cost_center_name'] ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="filter_item_category">Year</label>
+          <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_year">
+            <?php foreach (getYears() as $year) : ?>
+              <option value="<?= $year['year_number']; ?>" <?php if(find_budget_setting('Active Year')==$year['year_number']):echo 'selected'; endif;?>>
+                <?= $year['year_number'] ?>
               </option>
             <?php endforeach; ?>
           </select>
@@ -1037,12 +1051,13 @@
             }
             button.attr('disabled', true);
 
-            let notes = prompt("Please enter notes", "");
-            $('form.form-xhr-change input[name=change_notes]').val(notes);
-
-            var form = $('.form-xhr-change');
-            var action = button.attr('href');
             if (confirm('Expense Request ini merupakan expense request '+last_type+'? Anda yakin akan mengubah request ini menjadi request '+next_type+'?')) {
+
+              let notes = prompt("Please enter notes", "");
+              $('form.form-xhr-change input[name=change_notes]').val(notes);
+
+              var form = $('.form-xhr-change');
+              var action = button.attr('href');
               
               $.post(action, form.serialize()).done(function(data) {
                 var obj = $.parseJSON(data);

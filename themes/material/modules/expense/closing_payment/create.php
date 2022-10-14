@@ -1,9 +1,70 @@
 <?php include 'themes/material/template.php' ?>
 
 <?php startblock('content') ?>
+<style>
+  /* .form-control-payment {
+    padding: 0;
+    height: 25px;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom-color: rgba(12, 12, 12, 0.12);
+    background: transparent;
+    color: #0c0c0c;
+    font-size: 16px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  } */
+
+  .form-control-payment {
+    display: block;
+    width: 100%;
+    height: 30px;
+    /* padding: 4.5px 14px; */
+    font-size: 13px;
+    line-height: 1.846153846;
+    color: #0c0c0c;
+    background-color: #ffffff;
+    background-image: none;
+    border: 1px solid rgba(12, 12, 12, 0.12);
+    border-radius: 2px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  }
+  
+  .form-control-payment[readonly]{
+    background-color : #f0f0f0;
+  }
+
+  .form-control-payment:focus{
+    border: 1px solid rgba(12, 12, 12, 0.12);
+  }
+
+  @media print {
+
+    html,
+    body {
+      display: block;
+      font-family: "Tahoma";
+      margin: 0px 0px 0px 0px;
+    }
+
+    /*@page {
+                size: Faktur Besar;
+                }*/
+    #footer {
+      position: fixed;
+      bottom: 0;
+    }
+
+  }
+</style>
 <section class="has-actions style-default">
   <div class="section-body">
-    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form-create-document')); ?>
+    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form-document')); ?>
     <div class="card">
       <div class="card-body no-padding">
         <?php
@@ -16,46 +77,72 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['expense_closing']['document__number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
+                    <input type="text" name="pr_number" maxlength="6" id="pr_number" class="form-control" value="<?= $_SESSION['request_closing']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
                     <label for="pr_number">Document No.</label>
                   </div>
-                  <span class="input-group-addon"></span>
+                  <span class="input-group-addon" id="format_number"><?=payment_request_format_number($_SESSION['request_closing']['type']);?></span>
                 </div>
               </div>
 
               <div class="form-group">
-                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['expense_closing']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_date'); ?>" required>
-                <label for="date">Closing Date</label>
+                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['request_closing']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_date'); ?>" required>
+                <label for="date">Date</label>
+              </div>
+
+              <div class="form-group">
+                <input type="text" name="purposed_date" id="purposed_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['request_closing']['purposed_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_purposed_date'); ?>" required>
+                <label for="purposed_date">Purposed Date</label>
               </div>
               
             </div>
 
             <div class="col-sm-12 col-lg-4">
+              
+
+              <div class="form-group">
+                <select name="default_currency" id="default_currency" class="form-control" data-source="<?= site_url($module['route'] . '/set_default_currency'); ?>" required>
+                <?php foreach ($this->config->item('currency') as $key => $value) : ?>
+                  <option value="<?=$key?>" <?= ($key == $_SESSION['request_closing']['currency']) ? 'selected' : ''; ?>><?=$value?></option>
+                <?php endforeach; ?>
+                </select>
+                <label for="default_currency">Currency</label>
+              </div>
+
+              <div class="form-group <?= (config_item('auth_role') == 'PIC STAFF') ? 'hide' : ''; ?>">
+                    <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
+                      <option value="CASH" <?= ('CASH' == $_SESSION['request_closing']['type']) ? 'selected' : ''; ?>>Cash</option>
+                      <option value="BANK" <?= ('BANK' == $_SESSION['request_closing']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
+                    </select>
+                    <label for="vendor">Transaction Type</label>
+              </div>
+
               <div class="form-group">
                 <select name="account" id="account" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account'); ?>" required>
-                  <option value="">No Account</option>
-                  <?php foreach (getAccount() as $key):?>
-                  <option value="<?= $key['coa'] ?>" <?= ($_SESSION['expense_closing']['account'] == $key['coa']) ? 'selected' : ''; ?>><?= $key['coa'] ?> - <?= $key['group'] ?></option>
-                  <?php endforeach;?>
+                    <option value="">-- SELECT Account --</option>
+                    <?php foreach (getAccount($_SESSION['request_closing']['type']) as $key => $account) : ?>
+                        <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['request_closing']['coa_kredit']) ? 'selected' : ''; ?>>
+                        <?= $account['coa']; ?> <?= $account['group']; ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
-                <label for="account">Account</label>
-              </div>
-              
-              <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['expense_closing']['closing_notes']; ?></textarea>
-                <label for="notes">Notes</label>
+                <label for="vendor">Account</label>
               </div>
             </div>
             <div class="col-sm-12 col-lg-4">
               <div class="form-group">
-                <p class="form-control"><?= $_SESSION['expense_closing']['notes']; ?></p>
-                <label for="notes">Expense Request Notes</label>
+                <input type="text" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['request_closing']['vendor']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required" data-search="<?= site_url($module['route'] . '/search_vendor'); ?>">
+                <label for="vendor">Pay To</label>
+              </div>
+
+              <div class="form-group">
+                <textarea name="notes" id="notes" class="form-control" rows="2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['request_closing']['closing_notes']; ?></textarea>
+                <label for="notes">Notes</label>
               </div>
             </div>
           </div>
         </div>
 
-        <?php if (isset($_SESSION['expense_closing']['items'])) : ?>
+        <?php if (isset($_SESSION['request_closing']['items'])) : ?>
           <?php $grand_total = array(); ?>
           <?php $total_quantity = array(); ?>
           <div class="document-data table-responsive">
@@ -63,40 +150,59 @@
               <thead>
                 <tr>
                   <th></th>
-                  <th>Akun</th>
-                  <th>Ref. IPC</th>
-                  <th>Remarks</th>
-                  <th class="text-right">Amount</th>
+                  <th>PR Number</th>
+                  <!-- <th>Ref. IPC</th> -->
+                  <th>Expense Notes</th>
+                  <th class="text-center">Amount</th>
                 </tr>
               </thead>
               <tbody>
-                <?php foreach ($_SESSION['expense_closing']['items'] as $i => $items) : ?>
-                  <?php $grand_total[] = $items['amount']; ?>
+                <?php foreach ($_SESSION['request_closing']['items'] as $i => $items) : ?>
+                  <?php $grand_total[] = $items['total']; ?>
                   <tr id="row_<?= $i; ?>">
-                    <td width="100">
+                    <td>
+                      <a  href="javascript:;" title="show detail" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $i ?>" data-row="<?= $i ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                      </a>
+                    </td>
+                    <td class="" style="font-weight:500;">
+                      <?= print_string($items['pr_number']); ?>
+                    </td>
+                    <!-- <td class="" style="font-weight:500;">
+                      <?= print_string($items['reference_ipc']); ?> 
+                    </td> -->
+                    <td class="" style="font-weight:500;word-wrap:break-word;">
+                      <?= print_string($items['notes']); ?> 
+                    </td>
+                    <td style="font-weight:500;">
+                      <input name="left[<?= $i; ?>]" id="in_left_<?= $i ?>" data-row="<?= $i ?>" type="hidden" class="sel_applied form-control-payment" value="<?=$items['total']-$items['process_amount'];?>">
+                      <input name="request[<?= $i; ?>]" id="in_<?= $i ?>" data-row="<?= $i ?>" type="number" class="sel_applied form-control-payment" value="<?=$items['total']-$items['process_amount'];?>">
                       
                     </td>
-                    <td class="">
-                      <?= print_string($items['account_code']); ?> - <?= print_string($items['account_name']); ?>
-                    </td>
-                    <td class="">
-                      <?= print_string($items['reference_ipc']); ?> 
-                    </td>
-                    <td class="">
-                      <?= print_string($items['additional_info']); ?> 
-                    </td>
-                    <td>
-                      <?= print_number($items['amount'], 2); ?>
-                    </td>
                   </tr>
+                  <?php foreach ($items['request_detail'] as $j => $detail) : ?>                    
+                    <tr class="detail_<?= $i; ?> hide">
+                      <td></td>
+                      <!-- <td></td> -->
+                      <td class="" colspan="2">
+                        <input name="request_item_id[]" id="request_item_id_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['id']?>">
+                        <input name="remarks[]" id="remarks_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$items['notes']?>">
+                        <input name="account_code[]" id="account_code_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['account_code']?>">
+                        <?= print_string($detail['account_code']); ?> - <?= print_string($detail['account_name']); ?>
+                      </td>
+                      <td>
+                        <input name="value[]" id="in_item_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="number" class="sel_applied_item sel_applied_<?= $i ?> form-control-payment" value="<?=$detail['total']-$detail['process_amount']?>">
+                        
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
                 <?php endforeach; ?>
               </tbody>
               <tfoot>
                 <th></th>
                 <th>Total</th>
+                <!-- <th></th> -->
                 <th></th>
-                <th></th>
-                <th><?= print_number(array_sum($grand_total), 2); ?></th>
+                <th><span id="total_general"><?= print_number(array_sum($grand_total), 2); ?></span></th>
               </tfoot>
             </table>
           </div>
@@ -105,7 +211,12 @@
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
-            
+            <a href="<?=site_url($module['route'] .'/add_item');?>" onClick="return popup(this, 'add_item')" class="btn btn-primary ink-reaction">
+              Select Request
+            </a>
+            <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction">
+              Add
+            </button>
           </div>
           
 
@@ -115,19 +226,50 @@
         </div>
       </div>
     </div>
-    <?= form_close(); ?>
+    
   </div>
 
 
   <div class="section-action style-default-bright">
     <div class="section-floating-action-row">
-      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
+      <button type="submit" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" data-href="<?= site_url($module['route'] . '/save');?>">
         <i class="md md-save"></i>
         <small class="top right">Save Document</small>
-      </a>
+      </button>
     </div>
   </div>
 </section>
+<?= form_close(); ?>
+<table class="table-row-item hide">
+  <tbody>
+    <tr>
+      <td class="item-list">
+        <center>
+          <a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i>
+          </a>
+        </center>                      
+      </td>
+      <td class="account_code item-list">
+        <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
+        <select name="account_code[]" class="form-control-payment" style="width: 100%">
+          <option value="">-- SELECT Account --</option>
+          <?php foreach (getAccounts() as $key => $account) : ?>
+          <option value="<?= $account['coa']; ?>">
+          <?= $account['coa']; ?> <?= $account['group']; ?>
+          </option>
+          <?php endforeach; ?>
+        <select>
+      </td> 
+      <td class="remarks item-list">
+        <input type="hidden" name="request_item_id[]" class="form-control-payment">
+        <input type="text" name="remarks[]" class="form-control-payment">
+      </td>
+      <td class="value item-list">
+        <input type="number" name="value[]" class="form-control-payment sel_applied_item_add">
+      </td>     
+    </tr>
+  </tbody>
+</table>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
@@ -143,6 +285,8 @@
 <?= html_script('themes/material/assets/js/libs/jquery-validation/dist/additional-methods.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
+<?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+<?= html_script('vendors/select2-pmd/js/pmd-select2.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
 <script>
   Pace.on('start', function() {
@@ -176,6 +320,53 @@
     if (!window.focus) return true;
     else return false;
   }
+
+  $('.select2').select2({
+    theme: "bootstrap",
+  });
+
+  function addRow() {
+    var row_payment = $('.table-row-item tbody').html();
+    var el = $(row_payment);
+    $('#table-document tbody').append(el);
+    $('#table-document tbody tr:last').find('select[name="account_code[]"]').select2();
+
+    btn_row_delete_item();
+    sel_applied_item_add();
+    
+    // setAddValue();
+  }
+
+  function btn_row_delete_item() {
+    $('.btn-row-delete-item').click(function () {
+      $(this).parents('tr').remove();
+      changeTotal2();
+    });
+  }
+
+  //jika mengisi input add item 
+    function sel_applied_item_add(){
+      $("#table-document").on("change", ".sel_applied_item_add", function() {
+        // console.log('test');
+        changeTotal2();
+
+      });
+    }
+    
+
+    function changeTotal2() {
+      var sum = 0
+      $('[name="value[]"]').each(function (key, val) {
+        var val = $(this).val();
+        
+        if(val!=''){
+          console.log(val);
+          sum = parseFloat(sum) + parseFloat(val);
+        }
+        
+      });
+      $("#total_general").html(sum);
+    }
 
   (function($) {
     $.fn.reset = function() {
@@ -309,6 +500,18 @@
       startDate: today_2,
     });
 
+    // $('#vendor').on('click focus', function() {
+      $.ajax({
+        url: $('#vendor').data('search'),
+        dataType: "json",
+        success: function(resource) {
+          $( "#vendor" ).autocomplete({
+            source: resource
+          });
+        }
+      });
+    // });
+
     $(document).on('click', '.btn-xhr-submit', function(e) {
       e.preventDefault();
 
@@ -348,7 +551,7 @@
       e.preventDefault();
       $(buttonSubmitDocument).attr('disabled', true);
 
-      var url = $(this).attr('href');
+      var url = $(this).data('href');
       if (confirm('Are you sure want to save this request and sending email? Continue?')) {
         $.post(url, formDocument.serialize(), function(data) {
           console.log(data);
@@ -460,119 +663,160 @@
       });
     });
 
-    $.ajax({
-      url: $('#search_budget').data('target'),
-      dataType: "json",
-      error: function(xhr, response, results) {
-        console.log(xhr.responseText);
-      },
-      success: function(resource) {
-        $('#search_budget').autocomplete({
-            autoFocus: true,
-            minLength: 1,
-
-            source: function(request, response) {
-              var results = $.ui.autocomplete.filter(resource, request.term);
-              response(results.slice(0, 5));
-              console.log(results);
-            },
-
-            focus: function(event, ui) {
-              return false;
-            },
-
-            select: function(event, ui) {
-              // var maximum_quantity = parseFloat(ui.item.maximum_quantity);
-              var maximum_price = parseFloat(ui.item.maximum_price);
-              var mtd_budget = parseFloat(ui.item.mtd_budget);
-              
-
-              $('#account_id').val(ui.item.account_id);
-              $('#account_name').val(ui.item.account_name);
-              $('#account_code').val(ui.item.account_code);
-              $('#annual_cost_center_id').val(ui.item.annual_cost_center_id);
-              $('#maximum_price').val(maximum_price);
-              $('#mtd_budget').val(mtd_budget);
-              $('#expense_monthly_budget_id').val(ui.item.expense_monthly_budget_id);
-
-              $('input[id="amount"]').attr('data-rule-max', parseFloat(ui.item.maximum_price)).attr('data-msg-max', 'max available '+ parseInt(ui.item.maximum_price));
-
-              // $('#issued_quantity').attr('max', parseInt(ui.item.qty_konvers)).focus();
-              $('#amount').attr('max', parseFloat(ui.item.maximum_price)).focus();
-
-              $('#unbudgeted_item').val(0);
-
-              $('#account_name').prop("readonly", true);
-              $('#account_code').prop("readonly", true);
-
-              $('#search_budget').val('');
-
-              return false;
-            }
-          })
-          .data("ui-autocomplete")._renderItem = function(ul, item) {
-            $(ul).addClass('list divider-full-bleed');
-
-            return $("<li class='tile'>")
-              .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
-              .appendTo(ul);
-          };
-      }
-    });
-
-    $('input[id="amount"]').on('keydown keyup', function (e) {
-      if (parseFloat($(this).val()) > parseFloat($('input[id="maximum_price"]').val())){
-        alert('Maximum limit is ' + $('input[id="maximum_price"]').val());
-        $(this).val($('input[id="maximum_price"]').val());
-        $(this).focus();
-      }else{
-        $("#modal-add-item-submit").prop("disabled", false);
-      }
-
-      if (parseFloat($(this).val()) == 0){
-        $("#modal-add-item-submit").prop("disabled", true);
-      }else{
-        $("#modal-add-item-submit").prop("disabled", false);
-      }
-
-      return !(e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57) && e.which != 46);
-    });
-
-
-    $("#relocation_budget").on("change", function() {
-      var budget_value = $("#budget_value").val();
-      if (parseFloat($(this).val()) > parseFloat($("#budget_value").val())) {
-
-        // $("#modal-add-item-submit").prop("disabled", true);
-
-        $("#relocation_budget").closest("div").addClass("has-error").append('<p class="help-block total-error">Not allowed! max available ' + budget_value + '</p>').focus();
-        $(this).val(budget_value);
-        $(this).focus();
-        // toastr.options.timeOut = 10000;
-        // toastr.options.positionClass = 'toast-top-right';
-        // toastr.error('Price or total price is over maximum price allowed! You can not add this item.');
+    //klik icon mata utk lihat item po
+    $("#table-document").on("click", ".btn_view_detail", function() {
+      console.log('klik detail');
+      var selRow = $(this).data("row");
+      var tipe = $(this).data("tipe");
+      if (tipe == "view") {
+        $(this).data("tipe", "hide");
+        $('.detail_' + selRow).removeClass('hide');
+        $("#in_" + selRow).attr('readonly', true);
       } else {
-        console.log(321)
-        $("#relocation_budget").closest("div").removeClass("has-error");
-        // $(".total-error").remove();
-        $("#modal-add-item-submit").prop("disabled", false);
+        $(this).data("tipe", "view");
+        $('.detail_' + selRow).addClass('hide');
+        $("#in_" + selRow).attr('readonly', false);
       }
     });
-  });
 
-  function sum() {
-    var total = parseInt($("#quantity").val()) * parseInt($("#price").val());
+    //jika mengisi input PO
+    $("#table-document").on("change", ".sel_applied", function() {
+      // console.log('test');
+      var selRow = $(this).data("row");
+      sisa = parseFloat($("#in_left_" + selRow).val())
+      input = $(this).val();
+      if(input!=''){
+        if (parseFloat(input) < sisa) {
+          $('.detail_' + selRow).removeClass('hide');
+          $(".sis_item_"+selRow).each(function (key, val){
+            // console.log(key)
+            var po = parseInt(key)+1;
+            sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+            // $("#in_item_" + selRow + "_" + po).val(sisa_item)
+            $("#in_item_" + selRow + "_" + po).val(0)
+            $("#in_adj_" + selRow + "_" + po).val(0)
+            $("#cb_" + selRow + "_" + po).prop('checked',false);
+          });
+          alert("Amount that you enter is less than total order. Please input item amount!");
+          $("#in_" + selRow).attr('readonly', true);
+        }else if (parseFloat(input) > sisa) {
+          $('.detail_' + selRow).removeClass('hide');
+          $(".sis_item_"+selRow).each(function (key, val){
+            // console.log(key)
+            var po = parseInt(key)+1;
+            sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+            // $("#in_item_" + selRow + "_" + po).val(sisa_item)
+            $("#in_item_" + selRow + "_" + po).val(0)
+            $("#in_adj_" + selRow + "_" + po).val(0)
+            $("#cb_" + selRow + "_" + po).prop('checked',false);
+          });
+          alert("Amount that you enter is more than total order. Please input item amount!");
+          $("#in_" + selRow).attr('readonly', true);
+        } else {
+          $(".sis_item_"+selRow).each(function (key, val){
+            // console.log(key)
+            var po = parseInt(key)+1;
+            sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+            $("#in_item_" + selRow + "_" + po).val(sisa_item)
+            $("#in_adj_" + selRow + "_" + po).val(0)
+            $("#cb_" + selRow + "_" + po).prop('checked',false);
+          });
+        }
+      }else{
+        $(this).val(0)
+      }
+      
+      changeTotal();
 
-    $("#total").val(total).trigger("change");
-  }
+    })
 
-  function unbudgeted() {
-    var status = $('#inventory_monthly_budget_id').val();
+    //jika mengisi input item PO
+    $("#table-document").on("change", ".sel_applied_item", function() {
+      // console.log('test');
+      var selRow = $(this).data("row");
+      var parent = $(this).data("parent");
+      var parent_total = $("#in_" + parent).val();
+      sisa = parseFloat($("#sis_" + selRow).val())
+      input = $(this).val()
+      if(input==''){
+        $(this).val(0)
+      }
+      var sum = 0;
+      $('.sel_applied_' + parent).each(function(key, val) {
+        var val = $(this).val();
+        sum = parseFloat(sum) + parseFloat(val);
+      });
+      $("#in_" + parent).val(sum)
+      changeTotal();
 
-    if (status == null) {
-      $('.form-unbudgeted').removeClass('hide');
+    });
+
+    //jika mengisi input add item 
+    function sel_applied_item_add(){
+      $("#table-document").on("change", ".sel_applied_item_add", function() {
+        // console.log('test');
+        changeTotal();
+
+      });
     }
-  }
+    
+
+    function changeTotal() {
+      var sum = 0
+      $('[name="value[]"]').each(function (key, val) {
+        
+        var val = $(this).val();
+        if(val!=''){
+          console.log(val);
+          sum = parseFloat(sum) + parseFloat(val);
+        }
+        // sum = parseFloat(sum) + parseFloat(val);
+      });
+      $("#total_general").html(sum);
+    }
+
+    $('#type').change(function() {
+      type_trs = $(this).val();
+      var account_view = $('#account');
+      var format_number_view = $('#format_number');
+      account_view.html('');    
+
+      $.ajax({
+        type: "post",
+        url: '<?= base_url() . "expense_closing_payment/get_accounts" ?>',
+        data: {
+          'type': type_trs
+        },
+        cache: false,
+        success: function(response) {
+          var data = jQuery.parseJSON(response);
+          account_view.html(data.account);
+
+          format_number_view.html('');
+          format_number_view.html(data.format_number);
+          $('#pr_number').val(data.document_number).trigger('change');
+        }
+      });
+
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      $.get( url, { data: val });
+
+    });
+
+    $('#default_currency').change(function() {
+
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      $.get( url, { data: val });
+
+      $('#account').val('').trigger('change');
+
+    });
+
+  });
 </script>
 
 <?= html_script('themes/material/assets/js/core/source/App.min.js') ?>

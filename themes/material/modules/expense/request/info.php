@@ -64,10 +64,10 @@
           <?php endif;?>
           <dd>
           <?php if ($entity['with_po']=='f'):?>
-            Expense Request ini merupakasn expense request tanpa PO.
+            Expense Request ini merupakan expense request tanpa PO.
           <?php endif;?>
           <?php if ($entity['with_po']=='t'):?>
-            Expense Request ini merupakasn expense request dengan PO.
+            Expense Request ini merupakan expense request dengan PO.
           <?php endif;?>
           </dd>
         </dl>
@@ -259,7 +259,7 @@
           <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
           <input type="hidden" name="change_notes" id="change_notes" class="form-control">
 
-          <a data-type-po="<?=$entity['with_po']?>" href="<?=site_url($module['route'] .'/change_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-change btn-tooltip ink-reaction" id="modal-cancel-data-button">
+          <a data-type-po="<?=$entity['with_po']?>" href="<?=site_url($module['route'] .'/change_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-change btn-tooltip ink-reaction" id="modal-change-data-button">
             <!-- <i class="md md-shuffle"></i> -->
             <i class="md md-swap-horiz"></i>
             <small class="top left">Change Type PO</small>
@@ -285,7 +285,7 @@
       <?php if ($entity['with_po'] == 'f'):?>
         <?php if ($entity['status'] == 'approved'):?>
         <?php if (is_granted($module, 'payment')):?>
-        <a href="<?= site_url($modules['expense_closing_payment']['route'] . '/create/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-approval-data-button">
+        <a href="<?= site_url($modules['expense_closing_payment']['route'] . '/closing_payment/' . $entity['id']); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-approval-data-button">
           <i class="md md-check"></i>
           <small class="top right">Closing Request</small>
         </a>

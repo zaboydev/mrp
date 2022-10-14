@@ -49,7 +49,7 @@
             <?php $n++;?>
             <tr>
               <td><?=$n?></td>
-              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
+              <td><a href="<?=site_url('dashboard/open_attachment/' . $detail['id'].'/mrp')?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
                 <?php if (is_granted($module, 'manage_attachment')) : ?>
                 <a title="Change to Other" href="<?=site_url($module['route'] .'/change_tipe_attachment/other/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
@@ -71,6 +71,7 @@
       </table>
     </div>
   </div>
+  <?php if($type=='purchase'):?>
   <div class="row" style="margin-top: 30px">
     <div class="col-md-12">
       <h5>Attachment Other</h5>
@@ -90,7 +91,7 @@
             <?php $n++;?>
             <tr>
               <td><?=$n?></td>
-              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
+              <td><a href="<?=site_url('dashboard/open_attachment/' . $detail['id'].'/mrp')?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
                 <?php if (is_granted($module, 'manage_attachment')) : ?>
                 <a title="Change to Invoice" href="<?=site_url($module['route'] .'/change_tipe_attachment/invoice/'. $detail['id'].'/'.$id);?>" style="color: green" class="btn-change-att">
@@ -99,7 +100,7 @@
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                   <i class="fa fa-trash"></i>
                 </a>
-                <?Php endif;?>
+                <?php endif;?>
               </td>
             </tr>
           <?php endforeach;?>
@@ -112,10 +113,13 @@
       </table>
     </div>
   </div>
+  <?php endif;?>
   <div class="clearfix"></div>
   <hr>
   <div class="clearfix">
+    <?php if(config_item('auth_role') != 'FINANCE MANAGER' && config_item('auth_role') != 'FINANCE'):?>
     <a type="button" href="<?=site_url($module['route'] .'/add_attachment_poe/'.$id);?>" class="btn btn-primary pull-left">Add Attachment POE</a>
+    <?php endif;?>
     <button type="button" class="btn btn-default pull-right" onclick="popupClose()">Close</button>
   </div>
   <div class="clearfix"></div>

@@ -351,7 +351,7 @@ class Shipping_Document_Receipt_Model extends MY_Model
       if(!empty($data['stores'])){
         if ($data['received_quantity'] > 0) {
           $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
-          $item_id = getItemId($data['part_number'], $serial_number);
+          $item_id = getItemId($data['part_number'], $data['description'], $serial_number);
           if (!empty($data['serial_number'])) {
             $serial     = getSerial($item_id, $data['serial_number']);
             $serial_id  = $serial->id;

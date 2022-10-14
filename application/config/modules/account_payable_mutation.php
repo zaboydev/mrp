@@ -1,8 +1,8 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['account_payable_mutation']['visible']        = TRUE;
-$config['module']['account_payable_mutation']['main_warehouse'] = TRUE;
-$config['module']['account_payable_mutation']['parent']         = 'account_payable';
+$config['module']['account_payable_mutation']['main_warehouse'] = FALSE;
+$config['module']['account_payable_mutation']['parent']         = 'finance_report';
 $config['module']['account_payable_mutation']['label']          = 'Account Payable Mutation';
 $config['module']['account_payable_mutation']['name']           = 'Account Payable Mutation';
 $config['module']['account_payable_mutation']['route']          = 'account_payable_mutation';
@@ -12,6 +12,5 @@ $config['module']['account_payable_mutation']['helper']         = 'material_slip
 $config['module']['account_payable_mutation']['table']          = 'tb_purchase_orders';
 $config['module']['account_payable_mutation']['model']          = 'Purchase_Item_Detail_Model';
 $config['module']['account_payable_mutation']['permission']     = array(
-    'index'     => 'PROCUREMENT,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
-    
+    'index'     => 'AP STAFF,PROCUREMENT,FINANCE,VP FINANCE,SUPER ADMIN,FINANCE MANAGER',
 );

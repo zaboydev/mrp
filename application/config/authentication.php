@@ -52,7 +52,10 @@ $config['levels_and_roles'] = array(
 	'23'	=> 'PIC STAFF UNIQ JKT',
 	'24'	=> 'HEAD DEPT UNIQ JKT',
 	'25'	=> 'PIC STAFF JKT',
-	'26'	=> 'FINANCE SUPERVISOR'
+	'26'	=> 'FINANCE SUPERVISOR',
+	'27' 	=> 'MECHANIC',
+	'28'	=> 'QUALITY CONTROL',
+	'29'	=> 'PPC'
 );
 
 /*

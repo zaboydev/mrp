@@ -20,7 +20,7 @@
     display: block;
     width: 100%;
     height: 30px;
-    padding: 4.5px 14px;
+    /* padding: 4.5px 14px; */
     font-size: 13px;
     line-height: 1.846153846;
     color: #0c0c0c;
@@ -87,20 +87,20 @@
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
-                    <input readonly type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="[auto]" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
+                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['payment_request']['document_number']; ?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_doc_number');?>" required>
                     <label for="document_number">Purpose Number</label>
                   </div>
-                  <span class="input-group-addon"><?=payment_request_format_number();?></span>
+                  <span class="input-group-addon" id="format_number"><?=payment_request_format_number($_SESSION['payment_request']['type']);?></span>
                 </div>
               </div>
 
               <div class="form-group">
-                <input type="text" name="document_date" id="document_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['payment_request']['date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_date');?>" required>
+                <input type="text" name="document_date" id="document_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['payment_request']['date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_date');?>" required>
                 <label for="document_date">Date</label>
               </div>
 
               <div class="form-group">
-                <input type="text" name="purposed_date" id="purposed_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-end-date="0d" class="form-control" value="<?=$_SESSION['payment_request']['purposed_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_purposed_date');?>" required>
+                <input type="text" name="purposed_date" id="purposed_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?=$_SESSION['payment_request']['purposed_date'];?>" data-input-type="autoset" data-source="<?=site_url($module['route'] .'/set_purposed_date');?>" required>
                 <label for="purposed_date"> Purposed Date</label>
               </div>
 
@@ -118,35 +118,45 @@
                 </div>
 
                 <div class="form-group">
-                    <select name="vendor" id="vendor" class="form-control" data-source="<?= site_url($module['route'] . '/set_vendor/'); ?>" required>
-                    <option value="">-- SELECT VENDOR</option>
+                    <!-- <select name="vendor" id="vendor" class="form-control" data-source="<?= site_url($module['route'] . '/set_vendor/'); ?>" required>
+                    <option value="">-- SELECT VENDOR --</option>
                     <?php foreach (available_vendors_by_currency($_SESSION['payment_request']['currency']) as $v => $vendor) : ?>
                         <option value="<?= $vendor; ?>" <?= ($vendor == $_SESSION['payment_request']['vendor']) ? 'selected' : ''; ?>>
                         <?= $vendor; ?>
                         </option>
                     <?php endforeach; ?>
-                    </select>
+                    </select> -->
+                    <input type="text" name="vendor" id="vendor" class="form-control" value="<?= $_SESSION['payment_request']['vendor']; ?>" data-source="<?= site_url($module['route'] . '/set_vendor'); ?>" required="required" data-search="<?= site_url($module['route'] . '/search_vendor'); ?>">
                     <label for="vendor">Vendor</label>
+                </div>
+
+                <div class="form-group <?= (config_item('auth_role') == 'PIC STAFF') ? 'hide' : ''; ?>">
+                    <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
+                      <option value="CASH" <?= ('CASH' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Cash</option>
+                      <option value="BANK" <?= ('BANK' == $_SESSION['payment_request']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
+                    </select>
+                    <label for="type">Transaction Type</label>
                 </div>
 
                 <div class="form-group">
                     <select name="account" id="account" class="form-control" data-source="<?= site_url($module['route'] . '/set_account/'); ?>" required data-input-type="autoset">
-                    <option value="">-- SELECT Account</option>
-                    <?php foreach (getAccount() as $key => $account) : ?>
+                    <option value="">-- SELECT Account --</option>
+                    <?php foreach (getAccount($_SESSION['payment_request']['type']) as $key => $account) : ?>
                         <option value="<?= $account['coa']; ?>" <?= ($account['coa'] == $_SESSION['payment_request']['coa_kredit']) ? 'selected' : ''; ?>>
-                        <?= $account['group']; ?>
+                        <?= $account['coa']; ?> <?= $account['group']; ?>
                         </option>
                     <?php endforeach; ?>
                     </select>
-                    <label for="vendor">Account</label>
+                    <label for="account">Account</label>
                 </div>
 
+                
+            </div>
+            <div class="col-sm-6 col-lg-4">
                 <div class="form-group">
                     <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment_request']['total_amount']; ?>" readonly="readonly">
                     <label for="amount">Amount</label>
                 </div>
-            </div>
-            <div class="col-sm-6 col-lg-4">
                 <div class="form-group">
                     <textarea name="notes" id="notes" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['payment_request']['notes']; ?></textarea>
                     <label for="notes">Notes</label>
@@ -157,42 +167,135 @@
         </div>
 
         <div class="document-data table-responsive">
-          <table class="table table-hover table-bordered table-nowrap" id="table-document" width="100%">
+          <table class="table table-hover table-bordered" id="table-document">
             <thead>
               <tr>
-                <!-- <th class="middle-alignment">No.</th> -->
-                <th width="15%" class="middle-alignment">No PO</th>
-                <th width="13%" class="middle-alignment">Status</th>
-                <th width="7%" class="middle-alignment">Due Date</th>
-                <th width="5%" class="middle-alignment">GRN Qty</th>
-                <th width="7%" class="middle-alignment">GRN Val.</th>
-                <th width="7%" class="middle-alignment">Amount</th>
-                <th width="7%" class="middle-alignment">Purposed Amount</th>
-                <th width="7%" class="middle-alignment">Remaining Purposed</th>
-                <th width="8%" class="middle-alignment">Qty Paid</th>
-                <th width="8%" class="middle-alignment">Amount Purposed</th>
-                <th width="3%" class="middle-alignment"></th>
-                <th width="3%" class="middle-alignment"></th>
-                <th width="8%" class="middle-alignment">Adjustment</th>
+                <th class="middle-alignment">#</th>
+                <th class="middle-alignment">No PO</th>
+                <th class="middle-alignment">Status</th>
+                <th class="middle-alignment">Due Date</th>
+                <th class="middle-alignment">Qty PO</th>
+                <th class="middle-alignment">Total PO</th>
+                <th class="middle-alignment">GRN Qty</th>
+                <th class="middle-alignment">GRN Val.</th>
+                <th class="middle-alignment">Purposed Amount</th>
+                <th class="middle-alignment">Remaining Purposed</th>
+                <th class="middle-alignment">Qty Paid</th>
+                <th class="middle-alignment">Amount</th>
+                <th class="middle-alignment"></th>
+                <th class="middle-alignment"></th>
+                <th class="middle-alignment">Adjustment</th>
               </tr>
             </thead>
+            <?php if (count($_SESSION['payment_request']['po'])>0):?>
             <tbody id="listView">
-
+              <?php 
+                $no = 1; 
+              ?>
+              <?php foreach ($_SESSION['payment_request']['po'] as $i => $detail) : ?>
+                <tr id="row_<?= $no ?>">
+                  <td><?= $no ?></td>
+                  <td><input id="sel_<?= $no ?>" value="<?= $detail['po_id'] ?>" type="hidden"><?= print_string($detail['document_number']) ?></td>
+                  <td><?= print_string($detail['status']) ?></td>
+                  <td><?= print_date($detail['due_date'],'d/m/Y') ?></td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td><?= print_number($detail['grand_total'], 2) ?></td>
+                  <td><?= print_number($detail['payment'], 2) ?></td>
+                  <td><input id="sis_<?= $no ?>" value="<?= $detail['remaining_payment_request'] ?>" type="hidden"><?= print_number($detail['remaining_payment_request'], 2) ?></td>
+                  <td></td>
+                  <td>
+                    <input name="request[<?= $i; ?>]" id="in_<?= $no ?>" data-row="<?= $no ?>" type="number" class="sel_applied form-control-payment" value="<?=$detail['remaining_payment_request']?>">
+                  </td>
+                  <td>
+                    <button title="View Detail PO" type="button" class="btn btn-xs btn-primary btn_view_detail" id="btn_<? $no ?>" data-row="<?= $no ?>" data-tipe="view">
+                      <i class="fa fa-angle-right"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <a title="View Attachment PO" onClick="return popup(this, 'attachment')"  href="<?= site_url($module['route'] . '/view_manage_attachment_po/' . $detail['po_id'].'/'.$detail['tipe_po']); ?>" type="button" class="btn btn-xs btn-info" id="btn_attachment_<? $no ?>" data-row="<?= $no ?>" data-tipe="view">
+                      <i class="md md-attach-file"></i>
+                    </a>
+                  </td>
+                  <td></td>
+                </tr>
+                <div id="list_detail_po">
+                <?php $no_item = 1;?>
+                <?php foreach ($detail['items_po'] as $id => $detail_po) : ?>
+                  <tr id="row_item_<?= $no_item ?>" class="hide detail_<?= $no ?>">
+                    <td><?=$no?>.<?=$no_item?></td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input name="po_item_id[]" id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['po_item_id'] ?>" type="hidden">
+                        <input name="po_id[]" id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['po_id'] ?>" type="hidden">
+                        <?= print_string($detail_po['part_number']) ?>
+                    </td>
+                    <td>
+                        <?= print_string($detail_po['description']) ?>
+                        <input name="desc[]" id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['description'] ?>" type="hidden">
+                        <input name="account_code[]" id="account_code_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['account_code'] ?>" type="hidden">
+                    </td>
+                    <td>
+                        <?= $detail_po['due_date'] ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['total_amount'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity_received'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity_received'] * ($detail_po['unit_price'] + $detail_po['core_charge']), 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['total_amount'] - $detail_po['left_paid_request'], 2) ?>
+                    </td>
+                    <td>
+                        <input id="sis_item_<?= $no ?>_<?= $no_item ?>" class="sis_item_<?= $no ?>" value="<?= $detail_po['left_paid_request'] ?>" type="hidden">
+                        <?= print_number($detail_po['left_paid_request'], 2) ?>
+                    </td>
+                    <td>
+                        <input name="qty_paid[]" id="in_qty_paid_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="in_qty_paid_<?= $no ?> form-control-payment" value="<?= $detail_po['quantity']-$detail_po['quantity_paid'] ?>">
+                    </td>
+                    <td>
+                        <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control-payment" value="<?=$detail_po['left_paid_request']?>">
+                    </td>
+                    <td>
+                        <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
+                    </td>
+                    <!-- <td></td> -->
+                    <td colspan="2">
+                        <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                    </td>
+                    <?php $no_item++; ?>
+                  </tr>
+                <?php endforeach; ?>
+                </div>
+                <?php $no++; ?>
+              <?php endforeach;?>
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="8" style="text-align: right;">Total Applied</td>
-                <td id="total_general">0</td>
+                <td colspan="11" style="text-align: right;">Total Applied</td>
+                <td id="total_general"><?= print_number($_SESSION['payment_request']['total_amount'],2); ?></td>
                 <td></td>
                 <td></td>
               </tr>
             </tfoot>
+            <?php endif;?>
           </table>
         </div>
       </div>
       <div class="card-actionbar">
         <div class="card-actionbar-row">
           <div class="pull-left">
+            <?php if($_SESSION['payment_request']['vendor']!=NULL):?>
+            <a href="<?=site_url($module['route'] .'/add_item');?>" onClick="return popup(this, 'add_item')" class="btn btn-primary ink-reaction">
+              Select PO
+            </a>
             <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction">
               Add
             </button>
@@ -200,6 +303,7 @@
             <button type="button" class="btn btn-danger ink-reaction btn-xhr-submit">
                 Next
             </button>
+          <?php endif;?>
           </div>
           <a href="<?= site_url($module['route']); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
@@ -218,8 +322,45 @@
       </button>
     </div>
   </div>
-  <?= form_close(); ?>
 </section>
+<?= form_close(); ?>
+<table class="table-row-item hide">
+  <tbody>
+    <tr>
+      <td class="item-list">
+                             
+      </td>
+      <td colspan="4">
+        <!-- <input type="text" name="account_code[]" class="form-control-payment"> -->
+        <select name="account_code[]" class="form-control-payment" style="width: 100%">
+          <option value="">-- SELECT Account --</option>
+          <?php foreach (getAccounts() as $key => $account) : ?>
+          <option value="<?= $account['coa']; ?>">
+          <?= $account['coa']; ?> <?= $account['group']; ?>
+          </option>
+          <?php endforeach; ?>
+        <select>
+      </td> 
+      <td colspan="6">
+        <input type="hidden" value="0" name="po_item_id[]" class="form-control-payment">
+        <input type="hidden" value="0" name="po_id[]">
+        <input type="text" name="desc[]" class="form-control-payment" placeholder="Deskripsi">
+      </td>
+      <td>
+        <input name="adj_value[]" type="number" class="hide sel_applied_adj sel_applied_adj" value="0" style="display: inline;">
+        <input type="number" name="value[]" class="form-control-payment sel_applied_item_add">
+      </td>     
+      <td colspan="2">
+      </td>
+      <td>
+        <center>
+          <a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i>
+          </a>
+        </center>                      
+      </td>
+    </tr>
+  </tbody>
+</table>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
@@ -236,6 +377,8 @@
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
+<?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+<?= html_script('vendors/select2-pmd/js/pmd-select2.js') ?>
 
 <script>
   Pace.on('start', function() {
@@ -270,12 +413,15 @@
     else return false;
   }
 
+  $('.select2').select2({
+    theme: "bootstrap",
+  });
+
   function addRow() {
     var row = '<tr>'+
-    '<td colspan="2"><input name="desc[]" type="text" class="form-control-payment"></td>'+
+    '<td colspan="5"><input name="desc[]" type="text" class="form-control-payment"></td>'+
     '<td><input type="hidden" value="0" name="po_item_id[]"></td>'+
     '<td><input type="hidden" value="0" name="po_id[]"></td>'+
-    '<td></td>'+
     '<td></td>'+
     '<td></td>'+
     '<td></td>'+
@@ -283,9 +429,24 @@
     '<td><input name="value[]" type="number" class="form-control-payment"></td>'+
     '<td></td>'+
     '<td><input name="adj_value[]" type="number" class="hide sel_applied_adj sel_applied_adj" value="0" style="display: inline;"></td>'+
+    '<td><center><a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i></a></center></td>'+
     '</tr>';
-    $("#listView").append(row);
+    // $("#listView").append(row);
+    var row_payment = $('.table-row-item tbody').html();
+    var el = $(row_payment);
+    $('#table-document tbody').append(el);
+    $('#table-document tbody tr:last').find('select[name="account_code[]"]').select2();
     setAddValue();
+
+    btn_row_delete_item();
+  }
+
+  function btn_row_delete_item() {
+    $('.btn-row-delete-item').click(function () {
+      $(this).parents('tr').remove();
+
+      changeTotal();
+    });
   }
 
   (function($) {
@@ -342,6 +503,16 @@
     format: 'yyyy-mm-dd'
   });
 
+  $.ajax({
+    url: $('#vendor').data('search'),
+    dataType: "json",
+    success: function(resource) {
+      $( "#vendor" ).autocomplete({
+        source: resource
+      });
+    }
+  });
+
   function numberFormat(nStr) {
     nStr += '';
     x = nStr.split('.');
@@ -394,11 +565,44 @@
     }
 
   });
+
+  $('#default_currency').on('change', function(){
+    var prev = $(this).data('val');
+    var current = $(this).val();
+    var url = $(this).data('source');
+
+    if (prev != ''){
+      var conf = confirm("Changing the currency will remove the items that have been added. Continue?");
+
+      if (conf == false){
+        // return false;
+        window.location.href = url + '/' + current;
+      }
+    }
+
+    window.location.href = url + '/' + current;
+  });
+
+  $('#vendor').on('change', function(){
+    var prev = $(this).data('val');
+    var current = $(this).val();
+    var url = $(this).data('source');
+
+    if (prev != ''){
+      var conf = confirm("Changing the vendor will remove the items that have been added. Continue?");
+
+      if (conf == false){
+        return false;
+      }
+    }
+
+    window.location.href = url + '/' + current;
+  });
   
-  $('#default_currency').change(function() {
+  $('#default_currency2').change(function() {
     currency = $(this).val();
-    var supplier_view = $('#vendor');
-    supplier_view.html('');    
+    // var supplier_view = $('#vendor');
+    // supplier_view.html('');    
 
     $.ajax({
       type: "POST",
@@ -409,7 +613,7 @@
       cache: false,
       success: function(response) {
         var data = jQuery.parseJSON(response);
-        supplier_view.html(data);
+        $("#vendor").val();
       }
     });
 
@@ -421,7 +625,7 @@
     $("#listView").html("");
     row = [];
     row_detail = [];
-    getPo()
+    // getPo()
 
     var val = $(this).val();
     var url = $(this).data('source');
@@ -430,7 +634,7 @@
 
   });
 
-  $("#vendor").change(function(e) {
+  $("#vendor2").change(function(e) {
     suplier = $("#vendor").val();
     currency = $("#default_currency").val();
     $("#total_general").html(0);
@@ -440,14 +644,44 @@
     row = [];
     row_detail = [];
 
-    getPo()
+    // getPo()
+
+    var val = $(this).val();
+    var url = $(this).data('source');
+
+    $.get( url, { data: val });
+  });
+
+  $('#type').change(function() {
+    type_trs = $(this).val();
+    var account_view = $('#account');
+    var format_number_view = $('#format_number');
+    account_view.html('');    
+
+    $.ajax({
+      type: "post",
+      url: '<?= base_url() . "payment/get_accounts" ?>',
+      data: {
+        'type': type_trs
+      },
+      cache: false,
+      success: function(response) {
+        var data = jQuery.parseJSON(response);
+        account_view.html(data.account);
+
+        format_number_view.html('');
+        format_number_view.html(data.format_number);
+        $('#document_number').val(data.document_number).trigger('change');
+      }
+    });
+
+    // getPo()
 
     var val = $(this).val();
     var url = $(this).data('source');
 
     $.get( url, { data: val });
 
-    // }
   });
 
   $("#tipe_select").change(function(e) {
@@ -561,17 +795,45 @@
     if(input!=''){
       if (parseFloat(input) < sisa) {
         $('.detail_' + selRow).removeClass('hide');
-        $.each(row_detail, function(i, po) {
+        $(".sis_item_"+selRow).each(function (key, val){
+          // console.log(key)
+          var po = parseInt(key)+1;
           sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+          // $("#in_item_" + selRow + "_" + po).val(sisa_item)
           $("#in_item_" + selRow + "_" + po).val(0)
-          $("#in_" + selRow).attr('readonly', true);
+          $("#in_adj_" + selRow + "_" + po).val(0)
+          $("#cb_" + selRow + "_" + po).prop('checked',false);
         });
+        alert("Amount that you enter is less than total order. Please input item amount!");
+        $("#in_" + selRow).attr('readonly', true);
+      }else if (parseFloat(input) > sisa) {
+        $('.detail_' + selRow).removeClass('hide');
+        $(".sis_item_"+selRow).each(function (key, val){
+          // console.log(key)
+          var po = parseInt(key)+1;
+          sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+          // $("#in_item_" + selRow + "_" + po).val(sisa_item)
+          $("#in_item_" + selRow + "_" + po).val(0)
+          $("#in_adj_" + selRow + "_" + po).val(0)
+          $("#cb_" + selRow + "_" + po).prop('checked',false);
+        });
+        alert("Amount that you enter is more than total order. Please input item amount!");
+        $("#in_" + selRow).attr('readonly', true);
       } else {
-        $.each(row_detail, function(i, po) {
+        $(".sis_item_"+selRow).each(function (key, val){
+          // console.log(key)
+          var po = parseInt(key)+1;
           sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
           $("#in_item_" + selRow + "_" + po).val(sisa_item)
+          $("#in_adj_" + selRow + "_" + po).val(0)
+          $("#cb_" + selRow + "_" + po).prop('checked',false);
         });
-        $('.detail_' + selRow).removeClass('hide');
+        // $.each(row_detail, function(i, po) {
+        //   sisa_item = parseFloat($("#sis_item_" + selRow + "_" + po).val())
+        //   $("#in_item_" + selRow + "_" + po).val(sisa_item)
+        // });
+        //$('.detail_' + selRow).removeClass('hide');//menghilangkan open otomatis detail po ketika value yang diinput di PO sama dengan sisa value
+        // $("#in_" + selRow).attr('readonly', true);
       }
     }else{
       $(this).val(0)
@@ -627,6 +889,7 @@
       // $(this).val(sisa);
       // input = sisa;
       $("#in_adj_" + parent + "_" + selRow).val(selisih.toFixed(2));
+      $("#cb_" + parent + "_" + selRow).prop('checked',true);
       $("#in_adj_" + parent + "_" + selRow).removeClass('hide');
     }else{
       $("#in_adj_" + parent + "_" + selRow).val(0);
@@ -647,7 +910,8 @@
     var selisih = parseFloat(input)-parseFloat(sisa)
     if($(this).prop('checked')){
       console.log('checkbox-check');
-      $("#in_adj_" + id).val(selisih.toFixed(2));
+      // $("#in_adj_" + id).val(selisih.toFixed(2));
+      $("#in_adj_" + id).val(0);
       $("#in_adj_" + id).removeClass('hide');
     }else{
       console.log('checkbox-uncheck');
@@ -668,28 +932,26 @@
 
   })
 
-  function setAddValue() {
-    $('[name="value[]"]').change(function () {
+  function setAddValue() {    
+    $('[name="value[]"]').on("change", function() {
       changeTotal();
     });
   }
 
   function changeTotal() {
     var sum = 0
-    // $.each(row, function(i, item) {
-    //   sum += parseFloat($("#in_" + item).val())
-    // });
+    
     $('[name="value[]"]').each(function (key, val) {
       var val = $(this).val();
-      sum = parseFloat(sum) + parseFloat(val);
+      if(val!=''){
+        console.log(val)
+        sum = parseFloat(sum) + parseFloat(val);
+      }
     });
-    // console.log(row_detail)
-    // $('.sel_applied_' + parent).each(function(key, val) {
-    //   var val = $(this).val();
-    //   sum = parseFloat(sum) + parseFloat(val);
-    // });
+    
     $("#total_general").html(sum);
-    $("#amount").val(sum);
+
+    $('#amount').val(sum).trigger('change');
   }
 
   $("#amount").change(function() {

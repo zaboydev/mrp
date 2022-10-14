@@ -7,22 +7,28 @@
 </style>
 <table class="table-no-strip condensed">
     <tr>
-        <td>Payment to</td>
-        <th widtd="40%">: <?= $entity['vendor']; ?></th>
         <td>TRANSACTION NO </td>
         <th>: <?= print_string($entity['no_transaksi']); ?></th>
+        <td>Payment to</td>
+        <th>: <?= $entity['vendor']; ?></th>
+        <td>Paid at</td>
+        <th>: <?= ($entity['paid_at']!='')? print_date($entity['paid_at']):'-'; ?></th>
     </tr>
     <tr>
-        <td></td>
-        <th></th>
         <td>Date.</td>
         <th>: <?= print_date($entity['tanggal']); ?></th>
+        <td>Payment Status</td>
+        <th>: <?= $entity['status']; ?></th>
+        <td>No. Konfirmasi</td>
+        <th>: <?= ($entity['status']=='PAID')? $entity['no_konfirmasi']:'n/b'; ?></th>
     </tr>
     <tr>
-        <td></td>
-        <th></th>
         <td>Purposed Date</td>
         <th>: <?= print_date($entity['purposed_date']); ?></th>
+        <td>Account</td>
+        <th>: <?= $entity['coa_kredit']; ?> <?= $entity['group']; ?></th>
+        <td>No. Cheque</td>
+        <th>: <?= ($entity['status']=='PAID')? $entity['no_cheque']:'n/b'; ?></th>
     </tr>
 </table>
 
@@ -35,49 +41,41 @@
             <th style="text-align: center;">PO#</th>
             <th style="text-align: center;">Due Date</th>
             <th style="text-align: center;">Currency</th>
-            <th style="text-align: center;">Description</th>
-            <th style="text-align: center;">POE#</th>
-            <th style="text-align: center;">Request Number</th>
-            <th style="text-align: center;">Amount Request Payment</th>
+            <th style="text-align: center;">GRN#</th>
+            <th style="text-align: center;">Amount</th>
         </tr>
     </thead>
     <tbody>
         <?php $n = 0; ?>
         <?php $amount_paid = array(); ?>
-        <?php foreach ($entity['items'] as $i => $detail) : ?>
+        <?php foreach ($entity['po'] as $i => $po) : ?>
         <?php $n++; ?>
         <tr>
-            <td class="no-space">
+            <td style="font-weight: bold;" class="no-space">
                 <?= print_number($n); ?>
             </td>
-            <td>
-                <?=print_string($detail['document_number'])?>
+            <td style="font-weight: bold;">
+                <?=print_string($po['document_number'])?>
             </td>
-            <td>
-                <?= print_date($detail['due_date'],'d/m/Y'); ?>
+            <td style="font-weight: bold;text-align: center;">
+                <?= print_date($po['due_date'],'d/m/Y'); ?>
             </td>
-            <td>
-                <?= print_string($detail['default_currency']); ?>
+            <td style="font-weight: bold;text-align: center;">
+                <?= print_string($entity['currency']); ?>
             </td>
-            <td>
-                <?= print_string($detail['description']); ?>
+            <td style="font-weight: bold;">
+                
             </td>
-            <td>
-                <?=print_string($detail['poe_number'])?>
-            </td>
-            <td>
-                <?=print_string($detail['request_number'])?>
-            </td>
-            <td style="text-align: right;">
-                <?= print_number($detail['amount_paid'], 2); ?>
-                <?php $amount_paid[] = $detail['amount_paid']; ?>
+            <td style="text-align: right;font-weight: bold;">
+                <?= print_number($po['amount_paid'], 2); ?>
+                <?php $amount_paid[] = $po['amount_paid']; ?>
             </td>
         </tr>
         <?php endforeach; ?>
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="7">Total</th>
+            <th colspan="6">Total</th>
             <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
         </tr>
     </tfoot>
@@ -101,7 +99,11 @@
     <tr>
         <td valign="top" align="center">
             <p>
-                Request by:
+                <?php if($entity['type']!='CASH'): ?>
+                Prepared by:
+                <?php else:?>
+                Prepared & Approved
+                <?php endif; ?>
                 <br />AP STAFF
                 <br />&nbsp;<br>
                 <?php if ($entity['created_by'] != '') : ?>
@@ -111,22 +113,7 @@
                 <br /><?= $entity['created_by']; ?>
             </p>
         </td>
-
-        <?php if($entity['base']!='JAKARTA'): ?>
-        <td valign="top" align="center">
-            <p>
-                Approved by:
-                <br />Finance Supervisor
-                <?php if ($entity['checked_by'] != '') : ?>
-                    <br /><?= print_date($entity['checked_at']) ?><br>
-                <img src="<?= base_url('ttd_user/' . get_ttd($entity['checked_by'])); ?>" width="auto" height="50">
-                <?php endif; ?>
-                <br />
-                <br /><?= $entity['checked_by']; ?>
-            </p>
-        </td>
-        <?php endif; ?>
-
+        <?php if($entity['type']!='CASH'): ?>
         <td valign="top" align="center">
             <p>
                 Approved by:
@@ -139,34 +126,120 @@
                 <br /><?= $entity['review_by']; ?>
             </p>
         </td>
-
-        <?php if($entity['base']=='JAKARTA'): ?>
-        <td valign="top" align="center">
-            <p>
-                Approved by:
-                <br /> <?= ($entity['base']=='JAKARTA') ? 'VP Finance' : 'Head of School'; ?>
-                <?php if ($entity['known_by'] != '') : ?>
-                <br /><?= print_date($entity['known_at']) ?><br>
-                <img src="<?= base_url('ttd_user/' . get_ttd($entity['known_by'])); ?>" width="auto" height="50">
-                <?php endif; ?>
-                <br />
-                <br /><?= $entity['known_by']; ?>
-            </p>
-        </td>
-        <?php endif; ?>
-
-        <td valign="top" align="center">
-            <p>
-                Release by:
-                <br /> 
-                <?= ($entity['base']=='JAKARTA') ? 'Chief of Finance' : 'Chief Executive Officer'; ?>
-                <?php if ($entity['approved_by'] != '') : ?>
-                <br /><?= print_date($entity['approved_at']) ?><br>
-                <img src="<?= base_url('ttd_user/' . get_ttd($entity['approved_by'])); ?>" width="auto" height="50">
-                <?php endif; ?>
-                <br />
-                <br /><?= $entity['approved_by']; ?>
-            </p>
-        </td>
+        <?php endif;?>
     </tr>
+</table>
+
+<?php if($entity['status']=='PAID'):?>
+<p class="new-page">Jurnal</p>
+<div class="clear"></div>
+<table class="table" style="margin-top: 20px;" width="100%">
+    <thead>
+        <tr>
+            <th style="text-align: center;">No</th>
+            <th style="text-align: center;">Account</th>
+            <th style="text-align: center;">Debet</th>
+            <th style="text-align: center;">Kredit</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $n = 0; ?>
+        <?php $total_debet = array(); $total_kredit = array(); ?>
+        <?php foreach ($entity['jurnalDetail'] as $i => $jurnal) : ?>
+        <?php $n++; ?>
+        <tr>
+            <td class="no-space">
+                <?= print_number($n); ?>
+            </td>
+            <td>
+                <?= print_string($jurnal['kode_rekening'])?> - <?= print_string($jurnal['jenis_transaksi'])?>
+            </td> 
+            <td>
+                <?= print_number($jurnal['trs_debet'], 2); ?>
+            </td>
+            <td>
+                <?= print_number($jurnal['trs_kredit'], 2); ?>
+            </td>
+        </tr>
+        <?php $total_debet[] = $jurnal['trs_debet']; $total_kredit[] = $jurnal['trs_kredit']; ?>
+        <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="2">Total</th>
+            <th style="text-align: right;"><?= print_number(array_sum($total_debet), 2); ?></th>
+            <th style="text-align: right;"><?= print_number(array_sum($total_kredit), 2); ?></th>
+        </tr>
+    </tfoot>
+</table>
+<?php endif;?>
+
+<p class="new-page">Detail</p>
+<div class="clear"></div>
+<table class="table" style="margin-top: 20px;" width="100%">
+    <thead>
+        <tr>
+            <th style="text-align: center;">No</th>
+            <th style="text-align: center;">PO#</th>
+            <th style="text-align: center;">Due Date</th>
+            <th style="text-align: center;">Currency</th>
+            <th style="text-align: center;">POE#</th>
+            <th style="text-align: center;">Request Number</th>
+            <th style="text-align: center;">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $n = 0; ?>
+        <?php $amount_paid = array(); ?>
+        <?php foreach ($entity['po'] as $i => $po) : ?>
+        <?php $n++; ?>
+        <tr>
+            <td style="font-weight: bold;" class="no-space">
+                <?= print_number($n); ?>
+            </td>
+            <td style="font-weight: bold;">
+                <?=print_string($po['document_number'])?>
+            </td>
+            <td style="font-weight: bold;text-align: center;">
+                <?= print_date($po['due_date'],'d/m/Y'); ?>
+            </td>
+            <td style="font-weight: bold;text-align: center;">
+                <?= print_string($entity['currency']); ?>
+            </td>
+            <td style="font-weight: bold;">
+                
+            </td>
+            <td style="font-weight: bold;">
+                
+            </td>
+            <td style="text-align: right;font-weight: bold;">
+                <?= print_number($po['amount_paid'], 2); ?>
+                <?php $amount_paid[] = $po['amount_paid']; ?>
+            </td>
+        </tr>
+        <?php foreach ($po['items'] as $i => $item) : ?>
+        <tr>
+            <td></td>
+            <td colspan="3" style="font-weight: normal;">
+                <?= print_string($item['description']); ?>
+            </td>
+            <td style="font-weight: normal;text-align: center;">
+                <?=print_string($item['poe_number'])?>
+            </td>
+            <td style="font-weight: normal;text-align: center;">
+                <?=print_string($item['request_number'])?>
+            </td>
+            <td style="text-align: right;font-weight: normal;">
+                <?= print_number($item['amount_paid'], 2); ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="6">Total</th>
+            <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
+        </tr>
+    </tfoot>
 </table>

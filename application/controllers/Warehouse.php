@@ -26,7 +26,9 @@ class Warehouse extends MY_Controller
     $this->data['grid']['order_columns']    = array (
       0 => array ( 0 => 1, 1 => 'asc' ),
       1 => array ( 0 => 2, 1 => 'asc' ),
-      2 => array ( 0 => 3, 1 => 'desc' )
+      2 => array ( 0 => 3, 1 => 'desc' ),
+      3 => array ( 0 => 4, 1 => 'desc' ),
+      4 => array ( 0 => 5, 1 => 'desc' ),
     );
 
     $this->render_view($this->module['view'] .'/index');
@@ -50,7 +52,9 @@ class Warehouse extends MY_Controller
         $no++;
         $col = array();
         $col[] = print_number($no);
+        $col[] = print_string($row['code']);
         $col[] = print_string($row['warehouse']);
+        $col[] = print_string($row['alternate_warehouse_name']);
         $col[] = print_string($row['address'], '');
         $col[] = print_date($row['updated_at']);
         $col['DT_RowId'] = 'row_'. $row['id'];

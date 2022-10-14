@@ -21,6 +21,20 @@
           <div class="row">
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
+                <select name="source" id="source" class="form-control" data-source="<?= site_url($module['route'] . '/set_source'); ?>" required>
+                  <?php foreach ($this->config->item('source_poe') as $key => $poe) : ?>
+                    <option value="<?= $key; ?>" <?= ($_SESSION['poe']['source'] == $key) ? 'selected' : ''; ?>>
+                      <?= $poe; ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <label for="source">Source</label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6 col-lg-3">
+              <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
                     <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['poe']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
@@ -529,6 +543,22 @@
               .appendTo(ul);
           };
       }
+    });
+
+    $('#source').on('change', function(){
+      var prev = $(this).data('val');
+      var current = $(this).val();
+      var url = $(this).data('source');
+
+      if (prev != ''){
+        var conf = confirm("Changing the source will remove the items that have been added. Continue?");
+
+        if (conf == false){
+          return false;
+        }
+      }
+
+      window.location.href = url + '/' + current;
     });
   });
 </script>

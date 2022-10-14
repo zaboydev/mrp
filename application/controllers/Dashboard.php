@@ -58,7 +58,16 @@ class Dashboard extends MY_Controller
     $this->data['count_expense_req_not_approved']               = $this->model->count_prl_local_not_approved('expense');
     $this->data['count_expense_evaluation_not_approved']        = $this->model->count_poe_local_not_approved('expense');
     $this->data['count_expense_order_not_approved']             = $this->model->count_po_local_not_approved('expense');
-    $this->data['count_payment_request']                        = $this->model->count_payment_request(config_item('auth_role'));
+
+    $this->data['count_payment_request']                        = $this->model->count_payment_request(config_item('auth_role'));    
+    $this->data['count_expense_purposed_payment']               = $this->model->count_purposed_payment(config_item('auth_role'),'EXPENSE');    
+    $this->data['count_capex_purposed_payment']                 = $this->model->count_purposed_payment(config_item('auth_role'),'CAPEX');
+
+    $this->data['count_payment_request_need_to_pay']                        = $this->model->count_payment_request_need_to_pay();    
+    $this->data['count_expense_purposed_payment_need_to_pay']               = $this->model->count_purposed_payment_need_to_pay('EXPENSE');    
+    $this->data['count_capex_purposed_payment_need_to_pay']                 = $this->model->count_purposed_payment_need_to_pay('CAPEX');
+
+
     $this->data['ap_maintenance']                               = $this->model->count_ap('maintenance');
     $this->data['ap_local']                                     = $this->model->count_ap('local');
     $this->data['ap_expense']                                     = $this->model->count_ap_expense();
@@ -132,5 +141,52 @@ class Dashboard extends MY_Controller
     
     $result['status'] = $send;
     echo json_encode($result);
+  }
+
+  public function get_list_attachment()
+  {
+    $data = $this->model->getListAttachment();
+    
+    // $result['status'] = $send;
+    echo json_encode($data);
+  }
+
+  public function get_list_attachment_budgetcontrol()
+  {
+    $data = $this->model->getListAttachmentBudgetcontrol();
+    
+    // $result['status'] = $send;
+    echo json_encode($data);
+  }
+
+  public function open_attachment($id,$type)
+  {
+    $file = $this->model->findAttachmentbyId($id,$type);
+    if($this->model->isFileExist($id,$type)){
+      redirect(base_url().$file['file']);
+    }else{
+      redirect(site_url().'secure/file_not_found');
+    }
+  }
+
+  public function create_zip()
+  {
+    $create_zip = new ZipArchive();
+    $file_name = "./attachment/test-new.zip";
+
+    if ($create_zip->open($file_name, ZipArchive::CREATE)!==TRUE) {
+        exit("cannot open the zip file <$file_name>\n");
+    }
+    $current_dir=getcwd();
+    //Create files to add to the zip
+    $create_zip->addFromString("file1 ". time().".txt" , "#1 This is This is the test file number one.\n"); 
+    $create_zip->addFromString("file2 ". time().".txt", "#2 This is This is the test file number one.\n");
+    //add files to the zip
+    $create_zip->addFile($current_dir . "/attachment/attachment_payment/74a990fd69a293120f4ec38ec56437e9.jpg","testfromfile.jpg");
+    echo "Number of files added: " . $create_zip->numFiles;
+    echo "<br>";
+    echo "Failed to add:" . $create_zip->status ;
+    echo "direktori ".$current_dir;
+    $create_zip->close();
   }
 }

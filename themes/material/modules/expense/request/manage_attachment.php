@@ -39,7 +39,7 @@
             <?php $n++;?>
             <tr>
               <td><?=$n?></td>
-              <td><a href="<?=base_url().$detail['file']?>" target="_blank"><?=$detail['file'];?></a></td>
+              <td><a href="<?=site_url('dashboard/open_attachment/' . $detail['id'].'/budgetcontrol')?>" target="_blank"><?=$detail['file'];?></a></td>
               <td>
               <?php if (is_granted($module, 'document_attachment')) : ?>
                 <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">

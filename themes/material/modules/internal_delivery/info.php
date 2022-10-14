@@ -21,7 +21,7 @@
           </div>
           <div class="clearfix">
             <div class="pull-left">DATE: </div>
-            <div class="pull-right"><?=print_date($entity['received_date']);?></div>
+            <div class="pull-right"><?=print_date($entity['send_date']);?></div>
           </div>
           <div class="clearfix">
             <div class="pull-left">BASE: </div>
@@ -39,11 +39,16 @@
           <dt>Received From</dt>
           <dd><?=$entity['received_from'];?></dd>
 
-          <dt>Received By</dt>
-          <dd><?=$entity['received_by'];?></dd>
-
           <dt>Sent/Delivered By</dt>
-          <dd><?=$entity['sent_by'];?></dd>
+          <dd><?=$entity['sent_by'];?> from <?=$entity['warehouse'];?> at <?=(print_date($entity['send_date']));?></dd>
+
+          <?php if ($entity['warehouse']!=$entity['send_to_warehouse']):?>
+          <dt>Delivered to</dt>
+          <dd><?=$entity['send_to_warehouse'];?></dd>
+          <?php endif;?>
+
+          <dt>Received By</dt>
+          <dd><?=$entity['received_by'];?>  at <?=(print_date($entity['received_date']));?></dd>
 
           <dt>Notes</dt>
           <dd><?=$entity['notes'];?></dd>
@@ -94,8 +99,8 @@
                     <?=print_string($detail['serial_number']);?>
                   </td>
                   <td>
-                    <?=print_number($detail['received_quantity'], 2);?>
-                    <?php $received_quantity[] = $detail['received_quantity'];?>
+                    <?=print_number($detail['quantity'], 2);?>
+                    <?php $received_quantity[] = $detail['quantity'];?>
                   </td>
                   <td>
                     <?=print_string($detail['condition']);?>

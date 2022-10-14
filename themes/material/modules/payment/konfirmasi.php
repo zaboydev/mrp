@@ -18,7 +18,7 @@
 
   <h4 class="page-header">Confirmation Request</h4>
 
-  <form id="form_update_request" class="form form-validate ui-front" role="form" method="post" action="<?= site_url($module['route'] . '/update_item'); ?>">
+  <form id="form_update_request" class="form form-validate ui-front" role="form" method="post" action="<?= site_url($module['route'] . '/save'); ?>">
     <div class="row">
         <div class="col-sm-4">
             <div class="table-responsive">
@@ -44,6 +44,10 @@
                     <tr>
                         <td style="font-weight:bolder;">Vendor</td>
                         <td><?=$_SESSION['payment_request']['vendor'];?></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bolder;">Total Payment</td>
+                        <td><?=print_number($_SESSION['payment_request']['total_amount'],2);?></td>
                     </tr>
                 </table>
             </div>
@@ -87,6 +91,7 @@
             <?php 
                 $total_amount = array();
                 $total_qty = array();
+                $no = 1;
             ?>
                 <?php foreach ($_SESSION['payment_request']['items'] as $id => $request) : ?>
                 <?php 
@@ -95,10 +100,10 @@
                 ?>
                 <tr id="row_<?= $id; ?>">
                     <td>
-                        
+                        <?= $no++;?>
                     </td>
                     <td>
-                        <?= $request['po_number']; ?>
+                        <?= ($request['po_number']!=NULL)? $request['po_number']:$request['account_code']; ?>
                     </td>
                     <td>
                         <?= $request['deskripsi']; ?>
@@ -130,14 +135,14 @@
                         <?= print_number($request['amount_paid'],2) ?>
                         <input id="in_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" rel="amount_paid" name="item[<?= $id; ?>][amount_paid]" value="<?= $request['amount_paid']; ?>" class="hide form-control sel_applied_item">
                     </td>
-                    <td>
+                    <td class="hide">
                         <input type="checkbox" id="cb_<?= $id ?>" data-row="<?= $id ?>" data-id="<?= $id ?>" name="" style="display: inline;" class="hide check_adj" <?= ($request['adj_value']!=0) ? 'checked' : ''; ?>>
                     </td>
                     <td>
                         <?php if($request['adj_value']!=0):?>
                         <?= print_number($request['adj_value'],2) ?>
                         <?php endif; ?>
-                        <input id="in_adj_<?= $id ?>" name="item[<?= $id; ?>][adj_value]" data-parent="<?= $no ?>" data-row="<?= $id ?>" type="number" class="<?= ($request['adj_value']==0) ? 'hide' : ''; ?>  form-control sel_applied_adj sel_applied_adj<?= $id ?>" value="<?= $request['adj_value']; ?>" style="display: inline;">
+                        <input id="in_adj_<?= $id ?>" name="item[<?= $id; ?>][adj_value]" data-parent="<?= $no ?>" data-row="<?= $id ?>" type="hidden" class="<?= ($request['adj_value']==0) ? 'hide' : ''; ?>  form-control sel_applied_adj sel_applied_adj<?= $id ?>" value="<?= $request['adj_value']; ?>" style="display: inline;">
                     </td>
                 </tr>
                 <?php endforeach; ?>

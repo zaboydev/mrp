@@ -34,7 +34,7 @@
                     </select>
 
                   </div>
-                  <div class="col-xs-6"">
+                  <div class="col-xs-6">
                     <input type=" text" name="document_number" id="document_number" class="form-control" maxlength="7" value="<?= $_SESSION['order']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
                     <input type="hidden" name="pom_number" id="pom_number" value="<?= $_SESSION['order']['pom_document_number']; ?>">
                     <input type="hidden" name="wom_number" id="wom_number" value="<?= $_SESSION['order']['wom_document_number']; ?>">
@@ -238,6 +238,7 @@
                   <th class="middle-alignment">Description</th>
                   <th class="middle-alignment">P/N</th>
                   <th class="middle-alignment">Alt. P/N</th>
+                  <th class="middle-alignment">Group</th>
                   <th class="middle-alignment text-center" colspan="2">Quantity</th>
                   <th class="middle-alignment">Unit Price
                     <!-- <?= $_SESSION['order']['default_currency']; ?> -->
@@ -273,6 +274,9 @@
                     </td>
                     <td class="no-space">
                       <?= $item['alternate_part_number']; ?>
+                    </td>
+                    <td class="no-space">
+                      <?= $item['group']; ?>
                     </td>
                     <td class="text-right">
                       <?= number_format($item['quantity'], 2); ?>

@@ -32,6 +32,11 @@
           </div>
 
           <div class="form-group">
+            <input type="text" name="alternate_warehouse_name" id="alternate_warehouse_name" class="form-control" data-validation-rule="unique" data-validation-url="<?=site_url('ajax/warehouse_alternate_name_validation');?>" data-validation-exception="" required>
+            <label for="alternate_warehouse_name">Alternate Name</label>
+          </div>
+
+          <div class="form-group">
             <textarea name="address" id="address" class="form-control"></textarea>
             <label for="address">Address</label>
           </div>

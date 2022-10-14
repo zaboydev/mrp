@@ -741,6 +741,7 @@ class Expense_Purchase_Order_Model extends MY_Model
       'tb_po_item.unit',
       'tb_po_item.poe_number as evaluation_number',
       'tb_po_item.purchase_request_number',
+      'tb_po_item.group',
     );
 
     $this->db->select($select);
@@ -1283,6 +1284,7 @@ class Expense_Purchase_Order_Model extends MY_Model
       $this->db->set('description', strtoupper($item['description']));
       $this->db->set('part_number', strtoupper($item['part_number']));
       $this->db->set('serial_number', strtoupper($item['serial_number']));
+      $this->db->set('group', strtoupper($item['group']));
       $this->db->set('alternate_part_number', strtoupper($item['alternate_part_number']));
       $this->db->set('remarks', trim($item['remarks']));
       $this->db->set('unit', trim($item['unit']));
@@ -1443,7 +1445,9 @@ class Expense_Purchase_Order_Model extends MY_Model
     $poe_id = $id;
 
     $this->db->where('id_poe', $poe_id);
-    return $this->db->get('tb_attachment_poe')->result();
+    $this->db->where('tipe', 'POE');
+    $this->db->where(array('deleted_at' => NULL));
+    return $this->db->get('tb_attachment_poe')->result_array();
   }
 
   public function send_mail($doc_id, $level)
@@ -1486,7 +1490,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     $message .= "</ul>";
     $message .= "<p>No Expense Purchase Order : " . $row['document_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -1601,7 +1605,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     $message .= "</table>";
     // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_order/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2186,6 +2190,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     if($tipe_att!=null){
       $this->db->where('tipe_att', $tipe_att);
     }
+    $this->db->where(array('deleted_at' => NULL));
     
     return $this->db->get('tb_attachment_poe')->result_array();
   }
@@ -2212,8 +2217,13 @@ class Expense_Purchase_Order_Model extends MY_Model
   {
     $this->db->trans_begin();
 
+    // $this->db->where('id', $id_att);
+    // $this->db->delete('tb_attachment_poe');
+
+    $this->db->set('deleted_at',date('Y-m-d'));
+    $this->db->set('deleted_by', config_item('auth_person_name'));
     $this->db->where('id', $id_att);
-    $this->db->delete('tb_attachment_poe');
+    $this->db->update('tb_attachment_poe');
 
     if ($this->db->trans_status() === FALSE)
       return FALSE;

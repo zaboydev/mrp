@@ -9,7 +9,7 @@
 
       <?php startblock('page_head') ?>
       <div class="card-head style-primary-dark">
-        <header><?= PAGE_TITLE; ?> <span id="Periode"></span><span id="Base"></span><span id="Category"></span><span id="Vendor"></span><span id="Source"></span></header>
+        <header><?= PAGE_TITLE; ?> <span id="Periode"></span> <span id="Base"></span> <span id="Category"></span> <span id="Vendor"></span> <span id="Source"></span></header>
 
         <?php emptyblock('page_head_tools') ?>
       </div>

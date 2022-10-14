@@ -151,6 +151,24 @@ if ( ! function_exists('print_number')) {
   }
 }
 
+if ( ! function_exists('print_number_left')) {
+  function print_number_left($number, $decimal = 0, $force_right = TRUE)
+  {
+    if (trim($number) === '' || empty($number))
+      $number = 0;
+
+    if ($force_right === TRUE)
+      $text = '<span style="display:block; text-align:left">';
+    else
+      $text = '<span>';
+
+    $text.= number_format($number, $decimal);
+    $text.= '</span>';
+
+    return $text;
+  }
+}
+
 if ( ! function_exists('print_config')) {
   function print_config($config, $data)
   {
@@ -350,6 +368,34 @@ if ( ! function_exists('category_for_vendor_list')) {
   }
 }
 
+if ( ! function_exists('currency_for_vendor_list')) {
+  function currency_for_vendor_list($vendor)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('currency');
+    $CI->db->from('tb_master_vendors_currency');
+
+    if (is_array($vendor)){
+      $CI->db->where_in('vendor', $vendor);
+    } else {
+      $CI->db->where('vendor', $vendor);
+    }
+
+    $CI->db->order_by('currency', 'ASC');
+
+    $query  = $CI->db->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['currency'];
+    }
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('user_in_category_list')) {
   function user_in_category_list($category)
   {
@@ -495,6 +541,30 @@ if ( ! function_exists('available_warehouses')) {
   }
 }
 
+if ( ! function_exists('get_available_warehouses')) {
+  function get_available_warehouses($warehouse = NULL)
+  {
+    $CI =& get_instance();
+
+    $CI->db->select('warehouse,address');
+    $CI->db->from('tb_master_warehouses');
+    $CI->db->where('UPPER(status)', 'AVAILABLE');
+
+    if ($warehouse !== NULL){
+      if (is_array($warehouse)){
+        $CI->db->where_not_in('warehouse', $warehouse);
+      } else {
+        $CI->db->where('warehouse != ', $warehouse);
+      }
+    }
+
+    $query  = $CI->db->get();
+    $return = $query->result_array();
+
+    return $return;
+  }
+}
+
 if ( ! function_exists('available_item_groups')) {
   function available_item_groups($category = NULL)
   {
@@ -535,6 +605,7 @@ if ( ! function_exists('available_vendors')) {
     $CI->db->select('tb_master_vendors.vendor');
     $CI->db->from('tb_master_vendors');
     $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
+    $CI->db->order_by('tb_master_vendors.vendor','ASC');
 
     // if ($category !== NULL){
     //   $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
@@ -566,19 +637,12 @@ if ( ! function_exists('available_vendors_by_currency')) {
     $CI->db->distinct();
     $CI->db->select('tb_master_vendors.vendor');
     $CI->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
-		$CI->db->where('tb_master_vendors_currency.currency', $currency);
+    if($currency!=NULL){
+      $CI->db->where('tb_master_vendors_currency.currency', $currency);
+    }		
     $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
     $CI->db->from('tb_master_vendors');
-
-    // if ($category !== NULL){
-    //   $CI->db->join('tb_master_vendor_categories', 'tb_master_vendors.vendor = tb_master_vendor_categories.vendor');
-
-    //   if (is_array($category)){
-    //     $CI->db->where_in('tb_master_vendor_categories.category', $category);
-    //   } else {
-    //     $CI->db->where('tb_master_vendor_categories.category', $category);
-    //   }
-    // }
+    $CI->db->order_by('tb_master_vendors.vendor', 'asc');
 
     $query  = $CI->db->get();
     $result = $query->result_array();
@@ -588,6 +652,28 @@ if ( ! function_exists('available_vendors_by_currency')) {
       $return[] = $row['vendor'];
     }
 
+    return $return;
+  }
+}
+
+if ( ! function_exists('search_vendors_by_currency')) {
+  function search_vendors_by_currency($currency = NULL)
+  {
+    $CI =& get_instance();
+
+    // $CI->db->distinct();
+    $CI->db->select(array('tb_master_vendors.vendor'));
+    if($currency!=NULL){
+      $CI->db->join('tb_master_vendors_currency', 'tb_master_vendors_currency.vendor=tb_master_vendors.vendor');
+      $CI->db->where('tb_master_vendors_currency.currency', $currency);
+    }		
+    $CI->db->where('UPPER(tb_master_vendors.status)', 'AVAILABLE');
+    $CI->db->from('tb_master_vendors');
+    $CI->db->order_by('tb_master_vendors.vendor', 'asc');
+
+    $query  = $CI->db->get();
+    $return = $query->result();
+    
     return $return;
   }
 }
@@ -1163,6 +1249,23 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if (!function_exists('getItemsById')) {
+    function getItemsById($id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from('tb_master_part_number');
+
+      $CI->db->where('id', $id);
+
+      $query  = $CI->db->get();
+      $return    = $query->unbuffered_row('array');
+
+      return $return;
+    }
+  }
+
   if (!function_exists('get_set_up_akun')) {
     function get_set_up_akun($id)
     {
@@ -1558,16 +1661,21 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('getAccount')) {
-    function getAccount($currency=NULL)
+    function getAccount($type=NULL)
     {
       $CI =& get_instance();
 
       $CI->db->select('group,coa');
       $CI->db->from( 'tb_master_coa' );
-      if($currency!=NULL){
-        $CI->db->like('group', $currency);
+      if($type!=NULL){
+        if($type=='CASH'){
+          $CI->db->like('coa', '1-11');
+        }else{
+          $CI->db->like('coa', '1-12');
+          $CI->db->or_like('coa', '1-13');
+        }        
       }    
-      $CI->db->where('category', "Bank");
+      // $CI->db->where('category', "Bank");
       $CI->db->order_by('coa', "asc");
 
       $query    = $CI->db->get();
@@ -1583,6 +1691,77 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI =& get_instance();
 
       $CI->db->select('group,coa');
+      $CI->db->from( 'tb_master_coa' ); 
+      $CI->db->where('coa', $code);
+
+      $query    = $CI->db->get();
+      $row      = $query->unbuffered_row();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccountBudgetControlByCode')) {
+    function getAccountBudgetControlByCode($code)
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('account_code as coa,account_name as group');
+      $connection->from( 'tb_accounts' ); 
+      $connection->where('account_code', $code);
+
+      $query    = $connection->get();
+      $row      = $query->unbuffered_row();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccountsBudgetControl')) {
+    function getAccountsBudgetControl()
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('account_code as coa,account_name as group');
+      $connection->from( 'tb_accounts' ); 
+      $connection->order_by('account_code','asc');
+
+      $query    = $connection->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccountsMrp')) {
+    function getAccountsMrp()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('coa,group');
+      $CI->db->from( 'tb_master_coa' ); 
+      $CI->db->order_by('coa','asc');
+
+      $query    = $CI->db->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccountMrpByCode')) {
+    function getAccountMrpByCode($code)
+    {
+      $CI =& get_instance();
+      // $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $CI->db->select('coa,group');
       $CI->db->from( 'tb_master_coa' ); 
       $CI->db->where('coa', $code);
 
@@ -2102,9 +2281,14 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
-        $connection->where_in('id_purchase', $request_id);
-        $connection->where('tipe', $tipe_request);
-        return $connection->get('tb_attachment')->result();
+        if(count($request_id)>0){
+          $connection->where_in('id_purchase', $request_id);
+          $connection->where('tipe', $tipe_request);
+          return $connection->get('tb_attachment')->result_array();
+        }else{
+          return [];
+        }
+        
       }else{
         return [];
       }
@@ -2162,10 +2346,15 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
-        $connection->where_in('id_purchase', $request_id);
-        $connection->where('tipe', $tipe_request);
-        $query_request = $connection->get('tb_attachment');
-        $att_request = $query_request->num_rows();
+        if(count($request_id)>0){
+          $connection->where_in('id_purchase', $request_id);
+          $connection->where('tipe', $tipe_request);
+          $query_request = $connection->get('tb_attachment');
+          $att_request = $query_request->num_rows();
+        }else{
+          $att_request = 0;
+        }
+        
       }else{
         $att_request = 0;
       }
@@ -2265,26 +2454,40 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('payment_request_format_number')) {
-    function payment_request_format_number()
+    function payment_request_format_number($type,$category='SPEND')
     {
       $div  = config_item('document_format_divider');
       $year = date('Y');
 
-      $return = $div . 'BPV' . $div . $year;
+      if($type=='BANK'){
+        $kode = 'B';
+      }else{
+        $kode = 'C';
+      }
+
+      if($category=='SPEND'){
+        $kode2 = 'P';
+      }elseif($category=='RECEIVE'){
+        $kode2 = 'R';
+      }
+
+      $kodeFinal = $kode.$kode2.'V';
+
+      $return = $div . $kodeFinal . $div . $year;
 
       return $return;
     }
   }
 
   if ( ! function_exists('payment_request_last_number')) {
-    function payment_request_last_number()
+    function payment_request_last_number($type,$category='SPEND')
     {
       $CI =& get_instance();
-      $format = payment_request_format_number();
+      $format = payment_request_format_number($type,$category);
 
       $CI->db->select_max('document_number', 'last_number');
-      $CI->db->from('tb_po_payments');
-      $CI->db->like('document_number', $format, 'before');
+      $CI->db->from('tb_po_payment_no_transaksi');
+      $CI->db->like('document_number', $format);
 
       $query  = $CI->db->get();
       $row    = $query->unbuffered_row();
@@ -2338,12 +2541,13 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $CI->db->where('id_poe', $poe_id);
       $CI->db->where('tipe', 'POE');
+      $CI->db->where(array('deleted_at' => NULL));
       return $CI->db->get('tb_attachment_poe');
     }
   }
 
   if ( ! function_exists('getAccount')) {
-    function getAccount($currency=null)
+    function getAccountByCurrency($currency=null)
     {
       $CI =& get_instance();
 
@@ -2351,9 +2555,487 @@ if (!function_exists('currency_for_vendor_list')) {
 		  $CI->db->from('tb_master_coa');
       // $CI->db->like('group', $currency);
       $CI->db->where('category', "Bank");
-      $query    = $CI->db->get('tb_purchase_orders');
+      $query    = $CI->db->get();
       $accounts = $query->result_array();
       return $accounts;
+    }
+  }
+
+  if ( ! function_exists('getYears')) {
+    function getYears()
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select('year_number');
+      $connection->group_by('year_number');
+      $connection->order_by('year_number','desc');      
+      $query    = $connection->get('tb_annual_cost_centers');
+      $year = $query->result_array();
+      return $year;
+    }
+  }
+
+  if ( ! function_exists('request_payment_format_number')) {
+    function request_payment_format_number($type)
+    {
+      $div  = config_item('document_format_divider');
+      $year = date('Y');
+      $category = $_SESSION['request_closing']['category'];
+
+      if($type=='BANK'){
+        $kode = 'BPV';
+      }else{
+        $kode = 'CPV';
+      }
+
+      $return = $div. $category. $div . $kode . $div . $year;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('request_payment_last_number')) {
+    function request_payment_last_number()
+    {
+      $CI =& get_instance();
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+      $format = request_payment_format_number($_SESSION['request_closing']['type']);
+
+      $connection->select_max('document_number', 'last_number');
+      $connection->from('tb_request_payments');
+      $connection->like('document_number', $format);
+
+      $query  = $connection->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('saldo_format_number')) {
+    function saldo_format_number()
+    {
+      $div  = config_item('document_format_divider');
+      $year = date('Y');
+
+      $kode = 'SA';
+
+      $return = $div . $kode . $div . $year;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('saldo_last_number')) {
+    function saldo_last_number()
+    {
+      $CI =& get_instance();
+      $format = saldo_format_number();
+
+      $CI->db->select_max('transaction_number', 'last_number');
+      $CI->db->from('tb_saldo_awal');
+      $CI->db->like('transaction_number', $format);
+
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccountByCategory')) {
+    function getAccountByCategory($category)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('group,coa');
+      $CI->db->from( 'tb_master_coa' );
+
+      if (is_array($category)){
+        $CI->db->where_in('category', $category);
+      } else {
+        $CI->db->where('category', $category);
+      }
+
+      $CI->db->order_by('coa', "asc");
+
+      $query    = $CI->db->get();
+      $return = $query->result_array();
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('kurs')) {
+    function kurs($date)
+    {
+      $CI =& get_instance();
+      $kurs_dollar = 0;
+      $tanggal = $date;
+
+      while ($kurs_dollar == 0) {
+        $CI->db->select('kurs_dollar');
+        $CI->db->from('tb_master_kurs_dollar');
+        $CI->db->where('date', $tanggal);
+
+        $query = $CI->db->get();
+
+        if ($query->num_rows() > 0) {
+          $row    = $query->unbuffered_row();
+          $kurs_dollar   = $row->kurs_dollar;
+        } else {
+          $kurs_dollar = 0;
+        }
+        $tgl = strtotime('-1 day', strtotime($tanggal));
+        $tanggal = date('Y-m-d', $tgl);
+      }
+
+      return $kurs_dollar;
+    }
+  }
+
+  if ( ! function_exists('saldoAwalExists')) {
+    function saldoAwalExists($category)
+    {
+      $CI =& get_instance();
+      $CI->db->where('category', $category);
+      $query = $CI->db->get('tb_saldo_awal');
+
+      if ($query->num_rows() > 0)
+        return true;
+
+      return false;
+    }
+  }
+
+  if ( ! function_exists('getTaxs')) {
+    function getTaxs()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from( 'tb_master_daftar_pajak' ); 
+      $CI->db->order_by('id','asc');
+
+      $query    = $CI->db->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getAccounts')) {
+    function getAccounts()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('coa,group');
+      $CI->db->from( 'tb_master_coa' ); 
+      $CI->db->order_by('coa','asc');
+
+      $query    = $CI->db->get();
+      $row      = $query->result_array();
+      $return   = $row;
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('cekDirektori')) {
+    function cekDirektori($upload_path)
+    {
+      if ( ! is_dir($upload_path))
+      {
+        if ( ! mkdir ($upload_path, 0777, TRUE))
+        {
+          return FALSE;
+        }
+      }
+  
+      if ( ! is_really_writable($upload_path))
+      {
+        if ( ! chmod($upload_path, 0777))
+        {
+          return FALSE;
+        }
+      }
+      return TRUE;
+    }
+  }
+
+  if ( ! function_exists('getReferenceIpc')) {
+    function getReferenceIpc($id,$tipe)
+    {
+      $CI =& get_instance();
+  
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+  
+      $connection->select('reference_ipc');
+      if($tipe=='capex'){
+        $connection->from('tb_capex_purchase_requisition_details');
+      }
+      if($tipe=='inventory'){
+        $connection->from('tb_inventory_purchase_requisition_details');
+      }
+      if($tipe=='expense'){
+        $connection->from('tb_expense_purchase_requisition_details');
+      }
+      $connection->where('id', $id);
+  
+      $query  = $connection->get();
+      $row    = $query->unbuffered_row();
+      $return = $row->reference_ipc;
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getRequest')) {
+    function getRequest($id,$tipe,$select)
+    {
+      $CI =& get_instance();
+  
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+  
+  
+      if($tipe=='capex'){
+        $connection->select('tb_capex_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
+        $connection->from('tb_capex_purchase_requisitions');
+        $connection->join('tb_capex_purchase_requisition_details', 'tb_capex_purchase_requisition_details.capex_purchase_requisition_id = tb_capex_purchase_requisitions.id');
+        $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_capex_purchase_requisitions.annual_cost_center_id');
+        $connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $connection->where('tb_capex_purchase_requisition_details.id', $id);
+      }
+  
+      if($tipe=='inventory'){
+        $connection->select('tb_inventory_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
+        $connection->from('tb_inventory_purchase_requisitions');
+        $connection->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id');
+        $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_inventory_purchase_requisitions.annual_cost_center_id');
+        $connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $connection->where('tb_inventory_purchase_requisition_details.id', $id);
+      }
+  
+      if($tipe=='expense'){      
+        $connection->select('tb_expense_purchase_requisitions.*, tb_cost_centers.cost_center_name, tb_cost_centers.cost_center_code, tb_cost_centers.department_id,tb_departments.department_name');
+        $connection->from('tb_expense_purchase_requisitions');
+        $connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+        $connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+        $connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+        $connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+        $connection->where('tb_expense_purchase_requisition_details.id', $id);
+      }
+  
+      $query  = $connection->get();
+      $row    = $query->unbuffered_row('array');
+      $return = $row[$select];
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('find_poe_number')) {
+    function find_poe_number($id)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('tb_purchase_order_evaluation_items.document_number');
+      $CI->db->from('tb_purchase_order_evaluation_items_vendors');
+      $CI->db->join('tb_purchase_order_evaluation_items', 'tb_purchase_order_evaluation_items.id = tb_purchase_order_evaluation_items_vendors.poe_item_id');
+      $CI->db->where('tb_purchase_order_evaluation_items_vendors.id', $id);
+  
+      $query  = $CI->db->get();
+      $order  = $query->unbuffered_row('array');
+      $return = $order['document_number'];
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('print_person_name')) {
+    function print_person_name($username)
+    {
+      $CI =& get_instance();
+  
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+  
+      $connection->select('real_name');
+      $connection->from('tb_users');
+      $connection->where('username', $username);
+  
+      $query  = $connection->get();
+  
+      if ($query->num_rows() > 0){
+        $user   = $query->unbuffered_row('array');
+        $return = $user['real_name'];
+      } else {
+        $return = $username;
+      }
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('available_stores_by_category')) {
+    function available_stores_by_category($category)
+    {
+      $CI =& get_instance();
+      
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_stores');
+      $CI->db->where('category', $category);
+      $CI->db->where('warehouse', config_item('auth_warehouse'));
+      $CI->db->where('status', 'AVAILABLE');
+      $CI->db->order_by('stores', 'ASC');
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $data  = array();
+
+      foreach ($result as $key => $row){
+        if ($row['stores'] != null)
+          $data[] = $row['stores'];
+      }
+  
+      return $data;
+    }
+  }
+
+  if (!function_exists('closeReturnDocument')) {
+    function closeReturnDocument($return_id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('left_process_quantity');
+      $CI->db->from('tb_return_items');
+      $CI->db->where('return_id', $return_id);
+      // $CI->db->where('stores', strtoupper($stores));
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = 0;
+
+      foreach ($result as $row) {
+        $return = $return + $row['left_process_quantity'];
+      }
+
+      return $return==0? true:false;
+    }
+  }
+
+  if ( ! function_exists('getReturnIdByReturnItemId')) {
+    function getReturnIdByReturnItemId($return_item_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_return_items.*');
+      $CI->db->from( 'tb_return_items' );
+      $CI->db->where('tb_return_items.id', $return_item_id);
+
+      $query    = $CI->db->get();
+      $row      = $query->unbuffered_row('array');
+      $return   = $row['return_id'];
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('available_warehouses_alternate_name')) {
+    function available_warehouses_alternate_name($warehouse = NULL)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('alternate_warehouse_name');
+      $CI->db->from('tb_master_warehouses');
+      $CI->db->where('UPPER(status)', 'AVAILABLE');
+      $CI->db->where('alternate_warehouse_name is NOT NULL', NULL, FALSE);
+  
+      if ($warehouse !== NULL){
+        if (is_array($warehouse)){
+          $CI->db->where_not_in('warehouse', $warehouse);
+        } else {
+          $CI->db->where('warehouse != ', $warehouse);
+        }
+      }
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = array();
+  
+      foreach ($result as $row) {
+        $return[] = $row['alternate_warehouse_name'];
+      }
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('findWarehouseByAlternateName')) {
+    function findWarehouseByAlternateName($alternate_warehouse_name)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('tb_master_warehouses.*');
+      $CI->db->from('tb_master_warehouses');
+      $CI->db->where('UPPER(status)', 'AVAILABLE');
+      $CI->db->where('alternate_warehouse_name',$alternate_warehouse_name);
+  
+  
+      $query  = $CI->db->get();
+      $result = $query->row_array();
+      $return = $result['warehouse'];
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('isComponentExist')) {
+    function isComponentExist($aircraft_code,$type)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->from('tb_aircraft_components');
+      $CI->db->where('aircraft_code', strtoupper($aircraft_code));
+      $CI->db->where('type', strtoupper($type));
+
+      $num_rows = $CI->db->count_all_results();
+
+      return ($num_rows > 0) ? TRUE : FALSE;
+    }
+  }
+
+  if ( ! function_exists('available_aircrafts')) {
+    function available_aircrafts()
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select(
+        array(
+          'id',
+          'nama_pesawat',
+          'base'
+        )
+      );
+      $CI->db->order_by('nama_pesawat','asc');
+      $CI->db->from('tb_master_pesawat');
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+  
+      return $result;
     }
   }
 

@@ -73,14 +73,14 @@ class Capex_Purchase_Order extends MY_Controller
             $col[] = '';
           }
           $col[]  = print_string($no);
-          $col[]  = '<a href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
+          $col[]  = '<a class="link" href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
           $col[]  = print_date($row['document_date']);
           $col[]  = print_string($row['review_status']);
           // $col[]  = print_string($row['status']);
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['capex_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a class="link">' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a class="link" href="' . site_url($this->modules['capex_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
         
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
@@ -92,14 +92,14 @@ class Capex_Purchase_Order extends MY_Controller
         }
         else{
           $col[]  = print_string($no);
-          $col[]  = '<a href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
+          $col[]  = '<a class="link" href="' . site_url($this->module['route'] . '/print_pdf/' . $row['id']) . '" target="_blank" >' . print_string($row['document_number']) . '</a>';
           $col[]  = print_date($row['document_date']);
           $col[]  = print_string($row['review_status']);
           $col[]  = print_string($row['status']);
           $col[]  = print_string($row['default_currency']);
           $col[]  = print_string($row['vendor']);
           $col[]  = print_string($row['reference_quotation']);
-          $col[] = $row['poe_id'] == null ? '<a>' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a href="' . site_url($this->modules['capex_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
+          $col[] = $row['poe_id'] == null ? '<a class="link">' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-id="0"></i></a>' : '<a class="link" href="' . site_url($this->modules['capex_order_evaluation']['route'] . '/print_pdf/' . $row['poe_id']) . '" target="_blank" >' . print_string($row['poe_number']) . '</a><a href="#" class="btn btn-icon-toggle btn-info btn-sm "><i class="fa fa-eye" data-type="POE" data-id="' . $row['poe_id'] . '"></i></a>';
           $col[]  = print_number($row['grand_total'], 2);
           $col[]  = print_string($row['notes']);
           $col[]  = print_string($row['approval_notes']);
@@ -790,7 +790,7 @@ class Capex_Purchase_Order extends MY_Controller
     // if ($category !== NULL){
     $item       = $this->model->findItemPoe($vendor_id);
     $order      = $this->model->findPoe($vendor_id);
-    $category   = urldecode('SPARE PART');
+    $category   = urldecode('CAPEX');
 
     $deliver    = getDefaultDeliveryTo();
     $deliver_company    = $deliver['warehouse'];
@@ -1371,6 +1371,7 @@ class Capex_Purchase_Order extends MY_Controller
         'core_charge'           => $this->input->post('core_charge'),
         'total_amount'          => $this->input->post('total_amount'),
         'unit'                  => trim($this->input->post('unit')),
+        'group'                 => trim($this->input->post('group')),
         'evaluation_number'     => trim($this->input->post('evaluation_number')),
         'purchase_order_evaluation_items_vendors_id' => $this->input->post('purchase_order_evaluation_items_vendors_id'),
         'purchase_request_number'           => $this->input->post('purchase_request_number'),
@@ -1529,7 +1530,7 @@ class Capex_Purchase_Order extends MY_Controller
     echo json_encode($alert);
   }
 
-  public function manage_attachment($id)
+  public function manage_attachment($id,$type="purchase")
   {
     // $this->authorized($this->module, 'document');
 
@@ -1537,6 +1538,7 @@ class Capex_Purchase_Order extends MY_Controller
     $this->data['attachment_invoice'] = $this->model->listAttachment_2($id,'invoice');
     $this->data['attachment_other']   = $this->model->listAttachment_2($id,'other');
     $this->data['id'] = $id;
+    $this->data['type'] = $type;
     $this->render_view($this->module['view'] . '/manage_attachment');
   }
 
@@ -1556,7 +1558,7 @@ class Capex_Purchase_Order extends MY_Controller
       $error = array('error' => $this->upload->display_errors());
     } else {
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       // array_push($_SESSION["poe"]["attachment"], $url);
       $this->model->add_attachment_to_db($id, $url, $tipe_att);
       $result["status"] = 1;

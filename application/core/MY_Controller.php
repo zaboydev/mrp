@@ -191,6 +191,20 @@ class MY_Controller extends CI_Controller
       $return[] = $_SESSION['warehouse'];
     } elseif ($this->get_auth_role() == 'AP STAFF'){
       $return[] = $_SESSION['warehouse'];
+    } elseif ($this->get_auth_role() == 'PIC STAFF'){
+      if($this->as_head_department()=='yes'){
+        $this->db->select('warehouse');
+        $this->db->from('tb_master_warehouses');
+
+        $query = $this->db->get();
+        $result = $query->result_array();
+
+        foreach ($result as $row) {
+          $return[] = $row['warehouse'];
+        }
+      }else{
+        $return[] = $_SESSION['warehouse'];
+      }      
     } else {
       $this->db->select('warehouse');
       $this->db->from('tb_master_warehouses');

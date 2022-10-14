@@ -43,7 +43,7 @@ class Payment_Report extends MY_Controller
         $no++;
         $col = array();
         $col[] = print_number($no);      
-        $col[]  = print_string($row['no_transaksi']);      
+        $col[]  = '<a class="link" data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';;      
         $col[]  = print_string($row['po_number']);     
         $col[]  = print_string($row['cash_credit']);
         $col[]  = print_string($row['vendor']);
@@ -143,6 +143,25 @@ class Payment_Report extends MY_Controller
     );
 
     $this->render_view($this->module['view'] . '/index-report');
+  }
+
+  public function get_accounts()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+    // $vendor = $this->input->post('vendor');
+
+    $type = $this->input->post('type');
+    $accounts = getAccount($type);
+    $option = '<option value="all">--All Account--</option>';
+    foreach ($accounts as $key => $account) {
+      $option .= '<option value="' . $account['coa'] . '">' . $account['coa'] . ' - ' . $account['group'] . '</option>';
+    }
+
+    $return = [
+      'account' => $option
+    ];
+    echo json_encode($return);
   }
 
   public function create_2($category = NULL)
@@ -494,7 +513,7 @@ class Payment_Report extends MY_Controller
       $error = array('error' => $this->upload->display_errors());
     } else {
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       // array_push($_SESSION["poe"]["attachment"], $url);
       $this->model->add_attachment_to_db($id, $url);
       $result["status"] = 1;
@@ -711,7 +730,7 @@ class Payment_Report extends MY_Controller
     $entity = $this->model->findById($id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = ($entity->status=='PAID')? $entity->type.' PAYMENT VOUCHER':strtoupper('Purpose Payment Purchase');
     $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);

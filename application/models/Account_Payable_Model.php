@@ -347,7 +347,8 @@ class Account_Payable_Model extends MY_Model
   {
     $this->db->where('id_poe', $id);
     $this->db->where('tipe', $tipe);
-    return $this->db->get('tb_attachment_poe')->result();
+    $this->db->where(array('deleted_at' => NULL));
+    return $this->db->get('tb_attachment_poe')->result_array();
   }
 
   public function listAttachmentRequest($poe_id,$tipe)
@@ -407,7 +408,7 @@ class Account_Payable_Model extends MY_Model
     if($tipe=='EXPENSE' || $tipe=='CAPEX' || $tipe=='INVENTORY'){
       $this->connection->where_in('id_purchase', $request_id);
       $this->connection->where('tipe', $tipe_request);
-      return $this->connection->get('tb_attachment')->result();
+      return $this->connection->get('tb_attachment')->result_array();
     }else{
       return [];
     }

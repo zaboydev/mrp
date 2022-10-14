@@ -48,12 +48,13 @@ if ( ! function_exists('isStoresExists')) {
 }
 
 if ( ! function_exists('isItemExists')) {
-  function isItemExists($part_number, $serial_number = NULL)
+  function isItemExists($part_number, $description, $serial_number = NULL)
   {
     $CI =& get_instance();
 
     $CI->db->from('tb_master_items');
     $CI->db->where('UPPER(part_number)', strtoupper($part_number));
+    $CI->db->where('UPPER(description)', strtoupper($description));
 
     if ($serial_number !== NULL){
       $CI->db->where('UPPER(serial_number)', strtoupper($serial_number));
@@ -66,13 +67,14 @@ if ( ! function_exists('isItemExists')) {
 }
 
 if ( ! function_exists('getItemId')) {
-  function getItemId($part_number, $serial_number = NULL)
+  function getItemId($part_number, $description, $serial_number = NULL)
   {
     $CI =& get_instance();
 
     $CI->db->select('id');
     $CI->db->from('tb_master_items');
     $CI->db->where('UPPER(part_number)', strtoupper($part_number));
+    $CI->db->where('UPPER(description)', strtoupper($description));
 
     if ($serial_number !== NULL){
       $CI->db->where('UPPER(serial_number)', strtoupper($serial_number));
@@ -507,6 +509,28 @@ if ( ! function_exists('getLastUnitValue')) {
       $CI->db->select('left_received_quantity');
       $CI->db->from('tb_po_item');
       $CI->db->where('purchase_order_id', $id_po);
+      // $CI->db->where('stores', strtoupper($stores));
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = 0;
+
+      foreach ($result as $row) {
+        $return = $return + $row['left_received_quantity'];
+      }
+
+      return $return;
+    }
+  }
+
+  if (!function_exists('countLeftQuantityInternalDelivery')) {
+    function countLeftQuantityInternalDelivery($internal_delivery_id)
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('left_received_quantity');
+      $CI->db->from('tb_internal_delivery_items');
+      $CI->db->where('internal_delivery_id', $internal_delivery_id);
       // $CI->db->where('stores', strtoupper($stores));
 
       $query  = $CI->db->get();

@@ -34,6 +34,7 @@ class Payment extends MY_Controller
 
       foreach ($entities as $row) {
         $attachment = $this->model->checkAttachment($row['id']);
+        $account = ($row['coa_kredit']!=NULL)?print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']):'--select account--';
         $no++;
         $col = array();
         if (is_granted($this->module, 'approval') === TRUE) {
@@ -67,7 +68,7 @@ class Payment extends MY_Controller
         }else{
           $col[] = print_number($no);
         }        
-        $col[]  = '<a href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
+        $col[]  = '<a class="link" data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/print_pdf/'. $row['id']).'" target="_blank" >'.print_string($row['no_transaksi']).'</a>';
         $col[]  = print_date($row['tanggal']);
         $col[]  = print_string($row['no_cheque']);
         // $col[]  = print_string($row['document_number']);
@@ -75,6 +76,8 @@ class Payment extends MY_Controller
         // $col[]  = print_string($row['part_number']);
         // $col[]  = print_string($row['description']);
         $col[]  = print_string($row['currency']);
+        // $col[]  = print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']);
+        $col[]  = '<a href="javascript:;" data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">' . $account . '</a>'.'<input type="hidden" id="coa_kredit_' . $row['id'] . '" autocomplete="off" value="' . $row['coa_kredit'] . '"/>';
         if($row['currency']=='IDR'){
           $col[]  = print_number($row['amount_paid'], 2);
           $col[]  = print_number(0, 2);
@@ -95,6 +98,9 @@ class Payment extends MY_Controller
         }else{
           $total_usd[] = $row['amount_paid'];
         }
+        $col[] = '<a class="link" data-id="openPo" href="javascript:;" data-item-row="' . $row['id'] . '" data-href="'.site_url($this->module['route'] .'/download_all/'. $row['id']).'" target="_blank">
+                    <i class="fa fa-download"></i>
+                  </a>';
         
 
         $col['DT_RowId'] = 'row_' . $row['id'];
@@ -117,8 +123,8 @@ class Payment extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          6 => print_number(array_sum($total_idr), 2),
-          7 => print_number(array_sum($total_usd), 2),
+          7 => print_number(array_sum($total_idr), 2),
+          8 => print_number(array_sum($total_usd), 2),
         )
       );
     }
@@ -135,7 +141,7 @@ class Payment extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array(6,7);
+    $this->data['grid']['summary_columns']  = array(7,8);
 
     $this->data['grid']['order_columns']    = array();
     // $this->data['grid']['order_columns']    = array(
@@ -162,6 +168,7 @@ class Payment extends MY_Controller
     $this->render_view($this->module['view'] . '/create-2');
   }
 
+  //ini yg dipake
   public function create_2($category = NULL)
   {
     $this->authorized($this->module, 'document');
@@ -169,9 +176,10 @@ class Payment extends MY_Controller
     if ($category !== NULL) {
       $category = urldecode($category);
 
-      // $_SESSION['payment_request']['items']               = array();
+      $_SESSION['payment_request']['po']                  = array();
       $_SESSION['payment_request']['category']            = $category;
-      $_SESSION['payment_request']['document_number']     = payment_request_last_number();
+      $_SESSION['payment_request']['type']                = (config_item('auth_role')=='PIC STAFF')? 'CASH':'BANK';
+      $_SESSION['payment_request']['document_number']     = payment_request_last_number($_SESSION['payment_request']['type']);
       $_SESSION['payment_request']['date']                = date('Y-m-d');
       $_SESSION['payment_request']['purposed_date']       = date('Y-m-d');
       $_SESSION['payment_request']['created_by']          = config_item('auth_person_name');
@@ -192,6 +200,7 @@ class Payment extends MY_Controller
 
     $this->render_view($this->module['view'] . '/create-2');
   }
+  //ini yg dipake
 
   public function create($category = NULL)
   {
@@ -239,6 +248,7 @@ class Payment extends MY_Controller
     echo json_encode($return);
   }
 
+  /**ini dipakai untuk ke halaman konfirmasi */
   public function save_2()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -254,12 +264,16 @@ class Payment extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = implode('<br />', $errors);
     } else {
-      $po_items_id 			= $this->input->post('po_item_id');
-      $pos_id 				= $this->input->post('po_id');
-      $desc_items 			= $this->input->post('desc');
-      $value_items		 	= $this->input->post('value');
+      $po_items_id 			  = $this->input->post('po_item_id');
+      $pos_id 				    = $this->input->post('po_id');
+      $desc_items 			  = $this->input->post('desc');
+      $value_items		 	  = $this->input->post('value');
       $adj_value_items	 	= $this->input->post('adj_value');
-      $qty_paid	 			= $this->input->post('qty_paid');
+      $qty_paid	 			    = $this->input->post('qty_paid');
+      $account_code		    = $this->input->post('account_code');
+      $_SESSION['payment_request']['items'] = array();
+
+      $amount_paid = array();
 
       foreach ($po_items_id as $key=>$po_item) {
         // if ($value_items[$key] != 0) {
@@ -275,7 +289,7 @@ class Payment extends MY_Controller
         if ($value_items[$key] != 0){
                   
           if($po_item!=0){
-            $request = $this->model->infoItem($pos_id[$key],$po_item);
+            $request = $this->model->infoItemPo($pos_id[$key],$po_item);
             $_SESSION['payment_request']['items'][$key] = array(
               'po_number'               => $request['document_number'],
               'deskripsi'               => $request['part_number'].' | '.$request['description'],
@@ -289,12 +303,13 @@ class Payment extends MY_Controller
               'adj_value'               => floatval($adj_value_items[$key]),
               'qty_paid'                => $qty_paid[$key],
               'po_id'                   => $pos_id[$key],
+              'account_code'            => $account_code[$key]
             );
 
             $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
           }else{
             if($pos_id[$key]!=0){
-              $request = $this->model->infoItem($pos_id[$key],$po_item);
+              $request = $this->model->infoItemPo($pos_id[$key],$po_item);
               $_SESSION['payment_request']['items'][$key] = array(
                 'po_number'               => $request['document_number'],
                 'deskripsi'               => 'Additional Price (PPN, DISC, SHIPPING COST)',
@@ -308,6 +323,7 @@ class Payment extends MY_Controller
                 'adj_value'               => floatval($adj_value_items[$key]),
                 'qty_paid'                => $qty_paid[$key],
                 'po_id'                   => $pos_id[$key],
+                'account_code'            => $account_code[$key]
               );
               $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
             }else{
@@ -324,13 +340,17 @@ class Payment extends MY_Controller
                 'adj_value'               => floatval($adj_value_items[$key]),
                 'qty_paid'                => 0,
                 'po_id'                   => $pos_id[$key],
+                'account_code'            => $account_code[$key]
               );
               $_SESSION['payment_request']['items'][$key]['purchase_order_item_id'] = $po_item;
             }
             
           }
+          $amount_paid[] = $value_items[$key];
         }
       }
+
+      $_SESSION['payment_request']['total_amount'] = array_sum($amount_paid);
       // if ($this->model->save_2()) {
       //   unset($_SESSION['payment_request']);
       //   // $this->sendEmail();
@@ -374,6 +394,7 @@ class Payment extends MY_Controller
     echo json_encode($data);
   }
 
+  /**ini yang dipakai */
   public function save()
   {
     if (is_granted($this->module, 'document') == FALSE) {
@@ -386,7 +407,9 @@ class Payment extends MY_Controller
       } else {
         $errors = array();
 
-        $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+        // $_SESSION['payment_request']['document_number'] = payment_request_last_number();
+
+        $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number($_SESSION['payment_request']['type']);
 
         if (isset($_SESSION['payment_request']['edit'])) {
           if ($_SESSION['payment_request']['edit'] != $document_number && $this->model->isDocumentNumberExists($document_number)) {
@@ -395,7 +418,7 @@ class Payment extends MY_Controller
         } else {
           if ($this->model->isDocumentNumberExists($document_number)) {
             $_SESSION['payment_request']['document_number']     = payment_request_last_number();
-            $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number();
+            $document_number = $_SESSION['payment_request']['document_number'] . payment_request_format_number($_SESSION['payment_request']['type']);
             // $errors[] = 'Duplicate Document Number: ' . $_SESSION['poe']['document_number'] . ' !';
           }
         }
@@ -446,6 +469,29 @@ class Payment extends MY_Controller
       $option .= '<option value="' . $key->vendor . '">' . $key->vendor . ' - ' . $key->code . '</option>';
     }
     echo json_encode($option);
+  }
+
+  public function get_accounts()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+    // $vendor = $this->input->post('vendor');
+
+    $type = $this->input->post('type');
+    $accounts = getAccount($type);
+    $option = '<option>--SELECT ACCOUNT--</option>';
+    foreach ($accounts as $key => $account) {
+      $option .= '<option value="' . $account['coa'] . '">' . $account['coa'] . ' - ' . $account['group'] . '</option>';
+    }
+    $format_number = payment_request_format_number($type);
+    $document_number = payment_request_last_number($type);
+
+    $return = [
+      'account' => $option,
+      'format_number' => $format_number,
+      'document_number' => $document_number
+    ];
+    echo json_encode($return);
   }
 
   public function getPoDetail()
@@ -612,7 +658,7 @@ class Payment extends MY_Controller
     $_SESSION['payment']['po_payment_id']              = $item['id'];
     $_SESSION['payment']['total_amount']          = 0;
     $_SESSION['payment']['attachment']            = array();
-    foreach ($_SESSION['payment']['items'] as $i => $item){
+    foreach ($_SESSION['payment']['po'] as $i => $item){
       $_SESSION['payment']['total_amount']          = $_SESSION['payment']['total_amount']+$item['amount_paid'];
     }
     // $_SESSION['payment']['total_amount']          = $item['items']->sum('amount_paid');
@@ -640,7 +686,7 @@ class Payment extends MY_Controller
 
   public function discard()
   {
-    $this->authorized($this->module, 'document');
+    // $this->authorized($this->module, 'document');
 
     unset($_SESSION['payment_request']);
 
@@ -678,7 +724,7 @@ class Payment extends MY_Controller
       $error = array('error' => $this->upload->display_errors());
     } else {
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       // array_push($_SESSION["poe"]["attachment"], $url);
       $this->model->add_attachment_to_db($id, $url);
       $result["status"] = 1;
@@ -741,6 +787,23 @@ class Payment extends MY_Controller
     $this->render_view($this->module['view'] . '/add_item');
   }
 
+  public function set_doc_number()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['document_number'] = $_GET['data'];
+  }
+
+  public function set_type_transaction()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['payment_request']['type'] = $_GET['data'];
+    $_SESSION['payment_request']['coa_kredit'] = null;
+  }
+
   public function set_date()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -775,34 +838,41 @@ class Payment extends MY_Controller
 
   public function set_default_currency($currency)
   {
-    // $this->authorized($this->module, 'document');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
 
-    // $currency = urldecode($currency);
+    // $_SESSION['payment_request']['currency'] = $_GET['data'];
+    // $_SESSION['payment_request']['po']   = array();
 
-    // $_SESSION['payment_request']['currency']  = $currency;
-    // $_SESSION['payment_request']['items']   = array();
+    $this->authorized($this->module, 'document');
 
-    // redirect($this->module['route'] . '/create');
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $currency = urldecode($currency);
 
-    $_SESSION['payment_request']['currency'] = $_GET['data'];
+    $_SESSION['payment_request']['vendor']              = NULL;
+    $_SESSION['payment_request']['currency']            = $currency;
+    $_SESSION['payment_request']['po']                  = array();
+    $_SESSION['payment_request']['total_amount']        = 0;
+
+    redirect($this->module['route'] . '/create_2');
   }
 
   public function set_vendor($vendor)
   {
-    // $this->authorized($this->module, 'document');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
 
-    // $vendor = urldecode($vendor);
+    // $_SESSION['payment_request']['vendor'] = $_GET['data'];
+    // $_SESSION['payment_request']['po']   = array();
 
-    // $_SESSION['payment_request']['vendor']  = $vendor;
-    // $_SESSION['payment_request']['items']   = array();
+    $this->authorized($this->module, 'document');
 
-    // redirect($this->module['route'] . '/create');
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $vendor = urldecode($vendor);
 
-    $_SESSION['payment_request']['vendor'] = $_GET['data'];
+    $_SESSION['payment_request']['vendor']              = $vendor;
+    $_SESSION['payment_request']['po']                  = array();
+    $_SESSION['payment_request']['total_amount']        = 0;
+
+    redirect($this->module['route'] . '/create_2');
   }
 
   public function add_selected_item()
@@ -814,48 +884,77 @@ class Payment extends MY_Controller
       $data['success'] = FALSE;
       $data['message'] = 'You are not allowed to save this Document!';
     } else {
-      if (isset($_POST['item_id']) && !empty($_POST['item_id'])) {
-        $_SESSION['payment_request']['items'] = array();
+      if (isset($_POST['po_id']) && !empty($_POST['po_id'])) {
+        $_SESSION['payment_request']['po'] = array();
+        $total_amount = array();
+        foreach ($_POST['po_id'] as $key => $po_id) {
+          // $item_id_explode  = explode('-', $item_id);
+          // $po_id = $item_id_explode[0];
+          // $po_item_id = $item_id_explode[1];
+          $po = $this->model->infoPo($po_id);
 
-        foreach ($_POST['item_id'] as $key => $item_id) {
-          $item_id_explode  = explode('-', $item_id);
-          $po_id = $item_id_explode[0];
-          $po_item_id = $item_id_explode[1];
-          $request = $this->model->infoItem($po_id,$po_item_id);
+          $_SESSION['payment_request']['po'][$po_id] = array(
+            'po_id'                     => $po['id'],
+            'document_number'           => $po['document_number'],
+            'status'                    => $po['status'],
+            'due_date'                  => $po['due_date'],
+            'grand_total'               => $po['grand_total'],
+            'payment'                   => $po['payment'],
+            'remaining_payment_request' => $po['remaining_payment_request'],            
+            'tipe_po'                   => $po['tipe_po']
+          );
+          $_SESSION['payment_request']['po'][$po_id]['items_po'] = array();
 
-          if($po_item_id!=0){
-            $_SESSION['payment_request']['items'][$item_id] = array(
-              'po_number'               => $request['document_number'],
-              'deskripsi'               => $request['part_number'].' | '.$request['description'],
-              'quantity_received'       => floatval($request['quantity_received']),
-              'amount_received'         => floatval($request['quantity_received'])*(floatval($request['unit_price'])+floatval($request['core_charge'])),
-              'total_amount'            => floatval($request['total_amount']),
-              'left_paid_request'       => floatval($request['left_paid_request']),
-              'status'                  => $request['status'],
-              'due_date'                => $request['due_date'],
-              'amount_paid'             => floatval(0),
-              'adj_value'               => floatval(0),
-            );
+          $po_items = $this->model->infoItem($po_id);
+          $i = 0;
 
-            $_SESSION['payment_request']['items'][$item_id]['purchase_order_item_id'] = $po_item_id;
-          }else{
-            $_SESSION['payment_request']['items'][$item_id] = array(
-              'po_number'               => $request['document_number'],
-              'deskripsi'               => 'Additional Price (PPN, DISC, SHIPPING COST)',
-              'quantity_received'       => floatval(0),
-              'amount_received'         => floatval(0),
-              'total_amount'            => floatval($request['additional_price']),
-              'left_paid_request'       => floatval($request['additional_price_remaining_request']),
-              'status'                  => $request['status'],
-              'due_date'                => $request['due_date'],
-              'amount_paid'             => floatval(0),
-              'adj_value'               => floatval(0),
-            );
-            $_SESSION['payment_request']['items'][$item_id]['purchase_order_item_id'] = $po_item_id;
+          foreach ($po_items as $key => $value) {
+            if($value['left_paid_request']>0){
+              $_SESSION['payment_request']['po'][$po_id]['items_po'][$key] = array(
+                'po_id'               => $value['purchase_order_id'],
+                'po_item_id'          => $value['id'],
+                'part_number'         => $value['part_number'],
+                'description'         => $value['description'],
+                'due_date'            => $po['due_date'],
+                'quantity_received'   => $value['quantity_received'],
+                'unit_price'          => $value['unit_price'],
+                'core_charge'         => $value['core_charge'],
+                'total_amount'        => $value['total_amount'],
+                'left_paid_request'   => $value['left_paid_request'],
+                'quantity'            => $value['quantity'],
+                'quantity_paid'       => $value['quantity_paid'],
+                'value'               => floatval(0),
+                'adj_value'           => floatval(0),
+                'qty_paid'            => floatval($value['quantity']-$value['quantity_paid'])
+              );
+              $i++;
+              $total_amount[] = $value['left_paid_request'];
+            }            
           }
-          
-          $_SESSION['payment_request']['items'][$item_id]['id_po'] = $po_id;
+
+          if($po['additional_price_remaining_request']!=0){
+            $_SESSION['payment_request']['po'][$po_id]['items_po'][$i] = array(
+              'po_id'               => $po['id'],
+              'po_item_id'          => 0,
+              'part_number'         => 'Additional Price',
+              'description'         => 'Additional Price (PPN, Diskon, Shipping Cost)',
+              'due_date'            => $po['due_date'],
+              'quantity_received'   => floatval(1),
+              'unit_price'          => floatval(0),
+              'core_charge'         => floatval(0),
+              'total_amount'        => floatval($po['additional_price']),
+              'left_paid_request'   => floatval($po['additional_price_remaining_request']),
+              'quantity'            => floatval(1),
+              'quantity_paid'       => floatval(1),
+              'value'               => floatval(0),
+              'adj_value'           => floatval(0),
+              'qty_paid'            => floatval(1)
+            );
+            $total_amount[] = $po['additional_price_remaining_request'];
+          }
         }
+
+        $_SESSION['payment_request']['total_amount'] = array_sum($total_amount);
 
         $data['success'] = TRUE;
       } else {
@@ -911,7 +1010,7 @@ class Payment extends MY_Controller
     $entity = $this->model->findById($id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = ($entity->status=='PAID')? $entity->type.' PAYMENT VOUCHER':strtoupper($this->module['label']);
     $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);
@@ -948,7 +1047,7 @@ class Payment extends MY_Controller
     } else {
 
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       array_push($_SESSION["payment"]["attachment"], $url);
       $result["status"] = 1;
     }
@@ -1007,6 +1106,331 @@ class Payment extends MY_Controller
     $this->data['page']['title']            = 'Confirmation Request';
 
     $this->render_view($this->module['view'] . '/konfirmasi');
+  }
+
+  public function change_account($id)
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'approval') === FALSE) {
+      $return['type'] = 'denied';
+      $return['info'] = "You don't have permission to access this data. You may need to login again.";
+    } else {
+      $entity = $this->model->findById($id);
+      if($entity['type']=='BANK'){
+        if($entity['status']=='PAID'){
+          $return['type'] = 'denied';
+          $return['info'] = "This Transaction already paid. You cant change account. Please contack the technician.";
+        }else{
+          $this->data['entity'] = $entity;
+          $return['type'] = 'success';
+          $return['info'] = $this->load->view($this->module['view'] . '/change_account', $this->data, TRUE);
+        }
+        
+      }else{
+        $return['type'] = 'denied';
+        $return['info'] = "This Transaction type is CASH. You cant change account. You have to edit this Transaction.";
+      }      
+    }
+
+    echo json_encode($return);
+  }
+
+  public function save_change_account2()
+  {
+    // if ($this->input->is_ajax_request() == FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
+
+    if (is_granted($this->module, 'change_account') == FALSE) {
+      $data['type'] = FALSE;
+      $data['info'] = 'You are not allowed to save this Document!';
+    } else {
+      if ($this->model->save_change_account()) {
+        $data['type'] = 'success';
+        $data['info'] = 'Update Success';
+      } else {
+        $data['type'] = 'danger';
+        $data['info'] = 'Error while saving this document. Please ask Technical Support.';
+      }
+    }
+
+    // echo json_encode($data);
+    redirect($this->module['route']);
+  }
+
+  public function save_change_account()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    if (is_granted($this->module, 'approval') === FALSE){
+      $alert['type']  = 'danger';
+      $alert['info']  = 'You are not allowed to change this data!';
+    } else {
+      if ($this->model->save_change_account()){
+        $alert['type'] = 'success';
+        $alert['info'] = 'Account changed.';
+        $alert['link'] = site_url($this->module['route']);
+      } else {
+        $alert['type'] = 'danger';
+        $alert['info'] = 'There are error while change data. Please try again later.';
+      }
+    }
+
+    echo json_encode($alert);
+  }
+
+  public function search_vendor()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $entities = search_vendors_by_currency($_SESSION['payment_request']['currency']);
+
+    foreach ($entities as $vendor){
+      $arr_result[] = $vendor->vendor;
+    }
+
+    echo json_encode($arr_result);
+  }
+
+  public function find_by_id($id){
+    $entity = $this->model->findById($id);
+    echo json_encode($entity);
+  }
+
+  public function download_all($id)
+  {
+    //download bpv
+    $entity = $this->model->findById($id);
+
+    $this->data['entity']           = $entity;
+    $this->data['page']['title']    = ($entity->status=='PAID')? $entity->type.' PAYMENT VOUCHER':strtoupper($this->module['label']);
+    $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
+
+    $html = $this->load->view($this->pdf_theme, $this->data, true);
+
+    $pdfFilePath = str_replace('/', '-', $entity['document_number']);
+    $filename = $pdfFilePath.".pdf";
+
+    if(cekDirektori("./download/".$pdfFilePath)){
+      $this->load->library('m_pdf');
+
+      $pdf = $this->m_pdf->load(null, 'A4-L');
+      $pdf->WriteHTML($html);
+      // $pdf->Output($pdfFilePath, "I");
+      $pdf->Output("./download/".$pdfFilePath."/".$filename, "F");
+    }
+
+    //PO
+    $path_po = array();
+    $path_po[0]['path'] = $pdfFilePath."/".$filename;
+    $path_po[0]['file_name'] = $filename;
+    $n=1;
+
+    $path_att = array();
+    $n_att = 0;
+    foreach($entity['attachment'] as $key => $attachment){
+      $file  = explode('/', $attachment['file']);
+      $path_att[$n_att]['path'] = $attachment['file'];
+      $path_att[$n_att]['file_name'] = end($file);
+      $path_att[$n_att]['tipe_att'] = 'payment';
+      $n_att++;
+    }
+
+    foreach($entity['po'] as $key => $item){
+      $purchase_order_id = $item['id_po'];
+      if($purchase_order_id!=null){
+        //purchase order
+        if($item['tipe_po']=='INVENTORY MRP'){
+          $modules_name = 'purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }elseif ($item['tipe_po']=='EXPENSE') {
+          $modules_name = 'expense_purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }elseif ($item['tipe_po']=='CAPEX') {
+          $modules_name = 'capex_purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }elseif ($item['tipe_po']=='INVENTORY') {
+          $modules_name = 'inventory_purchase_order';
+          $entity_po  = $this->model->findPurchaseOrderById($purchase_order_id,$item['tipe_po']);
+        }
+
+        $this->data['entity']           = $entity_po;
+        if (strpos($entity_po['document_number'], 'W') !== FALSE){
+          $this->data['page']['title']    = 'WORK ORDER';
+        }else{
+          $this->data['page']['title']    = 'PURCHASE ORDER';
+        }
+        // $this->data['page']['content']  = $this->modules['expense_purchase_order']['view'] .'/print_pdf';
+
+        $html = $this->load->view($this->modules[$modules_name]['view'] . '/pdf', $this->data, true);
+
+        $filename_po = str_replace('/', '-', $entity_po['document_number']).".pdf";
+
+        if(cekDirektori("./download/".$pdfFilePath)){
+          $this->load->library('m_pdf');
+
+          $pdf = $this->m_pdf->load(null, 'A4-L');
+          $pdf->WriteHTML($html);
+          // $pdf->Output($pdfFilePath, "I");
+          $pdf->Output("./download/".$pdfFilePath."/".$filename_po, "F");
+          $path_po[$n]['path'] = $pdfFilePath."/".$filename_po;
+          $path_po[$n]['file_name'] = $filename_po;
+          $n++;
+        }
+        foreach($entity_po['attachment'] as $key => $attachment){
+          $file  = explode('/', $attachment['file']);
+          $path_att[$n_att]['path'] = $attachment['file'];
+          $path_att[$n_att]['file_name'] = end($file);
+          $path_att[$n_att]['tipe_att'] = 'order';
+          $n_att++;
+        }
+
+        //purchase order evaluation
+        $poe_ids = array();
+        foreach ($item['items'] as $key => $item_po) {
+          if(!in_array($item_po['poe_id'],$poe_ids)){
+            $poe_ids[] = $item_po['poe_id'];
+          }          
+        }
+
+        if(!empty($poe_ids)){
+          foreach ($poe_ids as $key => $poe_id) {
+            if($item['tipe_po']=='INVENTORY MRP'){
+              $modules_name = 'purchase_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='EXPENSE') {
+              $modules_name = 'expense_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='CAPEX') {
+              $modules_name = 'capex_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='INVENTORY') {
+              $modules_name = 'inventory_order_evaluation';
+              $entity_poe  = $this->model->findPurchaseOrderEvaluationById($poe_id,$item['tipe_po']);
+            }
+    
+            $this->data['entity']           = $entity_poe;
+            $this->data['page']['title']    = 'PURCHASE ORDER EVALUATION';
+            $this->data['page']['content']  = $this->modules[$modules_name]['view'] .'/print_pdf';
+
+            $html = $this->load->view($this->pdf_theme, $this->data, true);
+    
+            $filename_poe = str_replace('/', '-', $entity_poe['evaluation_number']).".pdf";
+    
+            if(cekDirektori("./download/".$pdfFilePath)){
+              $this->load->library('m_pdf');
+    
+              $pdf = $this->m_pdf->load(null, 'A4-L');
+              $pdf->WriteHTML($html);
+              // $pdf->Output($pdfFilePath, "I");
+              $pdf->Output("./download/".$pdfFilePath."/".$filename_poe, "F");
+              $path_po[$n]['path'] = $pdfFilePath."/".$filename_poe;
+              $path_po[$n]['file_name'] = $filename_poe;
+              $n++;
+            }
+            foreach($entity_poe['attachment'] as $key => $attachment){
+              $file  = explode('/', $attachment['file']);
+              $path_att[$n_att]['path'] = $attachment['file'];
+              $path_att[$n_att]['file_name'] = end($file);
+              $path_att[$n_att]['tipe_att'] = 'evaluation';
+              $n_att++;
+            }
+
+            $request_item_ids = array();
+            foreach ($entity_poe['request'] as $key => $request) {
+              if(!in_array($request['inventory_purchase_request_detail_id'],$request_item_ids)){
+                $request_item_ids[] = $request['inventory_purchase_request_detail_id'];
+              }          
+            }
+          }
+        }
+
+        if(!empty($request_item_ids)){
+          $request_ids = array();
+          foreach ($request_item_ids as $key => $request_item_id) {
+            $request_id = $this->model->getRequestIdByItemId($request_item_id,$item['tipe_po']);
+            if(!in_array($request['id'],$request_ids)){
+              $request_ids[] = $request_id;
+            }
+          }
+        }
+
+        if(!empty($request_ids)){
+          foreach ($request_ids as $key => $request_id) {
+            if($item['tipe_po']=='INVENTORY MRP'){
+              $modules_name = 'purchase_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='EXPENSE') {
+              $modules_name = 'expense_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='CAPEX') {
+              $modules_name = 'capex_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }elseif ($item['tipe_po']=='INVENTORY') {
+              $modules_name = 'inventory_request';
+              $entity_request  = $this->model->findPurchaseRequestById($request_id,$item['tipe_po']);
+            }
+    
+            $this->data['entity']           = $entity_request;
+            if ($item['tipe_po']!='INVENTORY MRP') {
+              $this->data['page']['title']    = $item['tipe_po'].' REQUEST';
+            }else{
+              $this->data['page']['title']    = 'PURCHASE REQUEST';
+            }
+            
+            $this->data['page']['content']  = $this->modules[$modules_name]['view'] .'/print_pdf';
+
+            $html = $this->load->view($this->pdf_theme, $this->data, true);
+    
+            $filename_request = str_replace('/', '-', $entity_request['pr_number']).".pdf";
+    
+            if(cekDirektori("./download/".$pdfFilePath)){
+              $this->load->library('m_pdf');
+    
+              $pdf = $this->m_pdf->load(null, 'A4-L');
+              $pdf->WriteHTML($html);
+              // $pdf->Output($pdfFilePath, "I");
+              $pdf->Output("./download/".$pdfFilePath."/".$filename_request, "F");
+              $path_po[$n]['path'] = $pdfFilePath."/".$filename_request;
+              $path_po[$n]['file_name'] = $filename_request;
+              $n++;
+            }
+            foreach($entity_request['attachment'] as $key => $attachment){
+              $file  = explode('/', $attachment['file']);
+              $path_att[$n_att]['path'] = $attachment['file'];
+              $path_att[$n_att]['file_name'] = end($file);
+              $path_att[$n_att]['tipe_att'] = 'request';
+              $n_att++;
+            }
+          }
+        }
+          
+        
+      }
+    }
+    
+
+    // echo json_encode($path_att);
+
+    $create_zip = new ZipArchive();
+    $zip_name = "./download/".$pdfFilePath.".zip";
+
+    if ($create_zip->open($zip_name, ZipArchive::CREATE)!==TRUE) {
+      exit("cannot open the zip file <$zip_name>\n");
+    }
+    foreach($path_po as $key=>$po){
+      $create_zip->addFile("./download/".$pdfFilePath."/".$po['file_name'] ,$po['file_name']);//add pdf PO
+    }
+    foreach($path_att as $key=>$att){
+      $create_zip->addFile($att['path'] ,$att['file_name']);//add attachment
+    }     
+    $create_zip->close();
+
+    redirect($zip_name);
+    
   }
 
 }

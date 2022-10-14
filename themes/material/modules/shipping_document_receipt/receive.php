@@ -141,6 +141,8 @@
 
                           <input type="hidden" name="items[<?=$items['id'];?>][part_number]" value="<?=$items['part_number'];?>">
 
+                          <input type="hidden" name="items[<?=$items['id'];?>][description]" value="<?=$items['description'];?>">
+
                           <input type="hidden" name="items[<?=$items['id'];?>][serial_number]" value="<?=$items['serial_number'];?>">
 
                           <input type="hidden" name="items[<?=$items['id'];?>][condition]" value="<?=$items['condition'];?>">

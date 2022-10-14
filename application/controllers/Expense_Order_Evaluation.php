@@ -248,13 +248,17 @@ class Expense_Order_Evaluation extends MY_Controller
   
   public function listAttachment($id)
   {
-    $data = [];
-    $data['att_poe'] = $this->model->listAttachment($id);
-    $data['count_att_poe'] = count($data['att_poe']);
+    // $data = [];
+    // $data['att_poe'] = $this->model->listAttachment($id);
+    // $data['count_att_poe'] = count($data['att_poe']);
 
-    $data['att_request'] = listAttachmentRequest($id,'EXPENSE');
-    $data['count_att_request'] = count($data['att_request']);
-    echo json_encode($data);
+    // $data['att_request'] = listAttachmentRequest($id,'EXPENSE');
+    // $data['count_att_request'] = count($data['att_request']);
+    // echo json_encode($data);
+    $this->data['entity'] = $this->model->listAttachment($id);
+    $this->data['att_request'] = listAttachmentRequest($id,'EXPENSE');
+    $return['info'] = $this->load->view($this->module['view'] . '/listAttachment', $this->data, TRUE);
+    echo json_encode($return);
   }
 
   public function multi_reject()
@@ -630,7 +634,7 @@ class Expense_Order_Evaluation extends MY_Controller
     } else {
 
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       array_push($_SESSION['expense_poe']["attachment"], $url);
       $result["status"] = 1;
     }
@@ -652,7 +656,7 @@ class Expense_Order_Evaluation extends MY_Controller
       $error = array('error' => $this->upload->display_errors());
     } else {
       $data = array('upload_data' => $this->upload->data());
-      $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
       // array_push($_SESSION['expense_poe']["attachment"], $url);
       $this->model->add_attachment_to_db($id_poe, $url);
       $result["status"] = 1;

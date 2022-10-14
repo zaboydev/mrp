@@ -137,7 +137,7 @@ class Expense_Request extends MY_Controller
                         }
                     }
                     
-                    $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
+                    $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="javascript:;" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-xs ">
                         <i class="fa fa-eye"></i>
                         </a>';
                     if (config_item('as_head_department')=='yes'){
@@ -618,7 +618,7 @@ class Expense_Request extends MY_Controller
         } else {
 
           $data = array('upload_data' => $this->upload->data());
-          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          $url = $config['upload_path'] . $data['upload_data']['file_name'];
           array_push($_SESSION["expense"]["attachment"], $url);
           $result["status"] = 1;
         }
@@ -687,7 +687,7 @@ class Expense_Request extends MY_Controller
         $error = array('error' => $this->upload->display_errors());
         } else {
         $data = array('upload_data' => $this->upload->data());
-        $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+        $url = $config['upload_path'] . $data['upload_data']['file_name'];
         // array_push($_SESSION["poe"]["attachment"], $url);
         $this->model->add_attachment_to_db($id, $url);
         $result["status"] = 1;
@@ -746,9 +746,9 @@ class Expense_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
         redirect($this->modules['secure']['route'] . '/denied');
 
-        if (is_granted($this->module, 'document') === FALSE) {
-        $alert['type']  = 'danger';
-        $alert['info']  = 'You are not allowed to cancel this request!';
+        if (is_granted($this->module, 'document_change') === FALSE) {
+            $alert['type']  = 'danger';
+            $alert['info']  = 'You are not allowed to cancel this request!';
         } else {
             $change = $this->model->change();
             if ($change['status']) {

@@ -1,4 +1,4 @@
-<div id="data-modal" class="modal fade-scale" tabindex="-1" role="dialog" aria-labelledby="data-modal-label" aria-hidden="true">
+<div id="data-modal" class="modal fade-scale" role="dialog" aria-labelledby="data-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-fs" role="document">
     <div class="modal-content">
       <div class="modal-header">

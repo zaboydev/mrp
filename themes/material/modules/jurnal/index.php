@@ -1,67 +1,99 @@
-<?php include 'themes/material/page.php' ?>
+<?php include 'themes/material/template.php' ?>
 
-<!--tambahan 9/Mei/2018-->
-
-<!--tambahan 9/Mei/2018-->
-
-<?php startblock('page_head_tools') ?>
-<?php $this->load->view('material/templates/datatable_tools') ?>
-<?php endblock() ?>
-
-<?php startblock('page_body') ?>
-<?php $this->load->view('material/templates/datatable') ?>
-<?php endblock() ?>
-
-<?php startblock('page_modals') ?>
-<?php $this->load->view('material/templates/modal_fs') ?>
-<?php endblock() ?>
-
-<?php startblock('actions_right') ?>
-
-<?php endblock() ?>
-
-<?php startblock('datafilter') ?>
-<div class="form force-padding">
-  <div class="form-group">
-    <label for="filter_received_date">Date</label>
-    <input data-tipe="Periode" class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+<?php startblock('content') ?>
+<section class="has-actions style-default">
+  <div class="section-body">
+    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form-create-document')); ?>
+    <div class="card">
+      <div class="card-head style-primary-dark">
+        <header><?= PAGE_TITLE; ?></header>
+      </div>
+      <div class="card-body no-padding">
+        <?php
+        if ($this->session->flashdata('alert'))
+          render_alert($this->session->flashdata('alert')['info'], $this->session->flashdata('alert')['type']);
+        ?>
+        <div class="document-header force-padding">
+          
+          <div class="row">
+            <div class="col-sm-12 col-md-4">
+              <div class="form-group">
+                <input type="text" name="start_date" id="start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control filter_date" readonly>
+                <label for="start_date">Date From</label>
+              </div>
+            </div>
+            <div class="col-sm-12 col-md-4">
+              <div class="form-group">
+                <input type="text" name="end_date" id="end_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control filter_date" readonly>
+                <input type="hidden" name="type" id="type" class="form-control" value="general">
+                <label for="end_date">To</label>
+              </div>
+            </div>
+            <div class="col-sm-12 col-md-4">
+              <div class="form-group">
+                <button type="button" class="btn btn-sm btn-info btn-export" data-tipe="excel">Excel</button>
+                <button type="button" class="btn btn-sm btn-danger btn-export" data-tipe="print">Print</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="document-data table-responsive">
+          <div class="row">
+            <div class="col-sm-12 col-md-offset-1 col-md-10 ">
+              <div id="report_view">
+                <div class="newoverlay" id="loadingScreen2" style="display: none;">
+                  <i class="fa fa-refresh fa-spin"></i>
+                </div>
+                <table class="table table-hover table-bordered" id="table-document">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Date</th>
+                      <th>Document Number</th>
+                      <th>Account</th>
+                      <th>Debit</th>
+                      <th>Credit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr></tr>
+                  </tbody>
+                </table>
+              </div>   
+            </div>
+          </div>
+                 
+        </div>
+      </div>
+    </div>
+    <?= form_close(); ?>
   </div>
-  <div class="form-group">
-    <label for="start_date">Supplier</label>
-    <select data-tipe="Vendor" class="form-control input-sm filter_dropdown" id="vendor" name="vendor" data-column="2">
-      <option value="all" <?= ('all' == $selected_vendor) ? 'selected' : ''; ?>>All Supplier</option>
-      <?php foreach (available_vendors() as $vendor) : ?>
-        <option value="<?= $vendor; ?>" <?= ($vendor == $selected_vendor) ? 'selected' : ''; ?>>
-          <?= $vendor; ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
+
+  <div class="section-action style-default-bright">
+    <div class="section-floating-action-row">
+      <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
+        <i class="md md-save"></i>
+        <small class="top right">Save Document</small>
+      </a>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="start_date">Journal Type</label>
-    <select data-tipe="Source" class="form-control input-sm filter_dropdown" id="source" name="source" data-column="3">
-      <option value="all" <?= ('all' == $selected_tipe) ? 'selected' : ''; ?>>All</option>
-      <option value="Purchase" <?= ('INV-IN' == $selected_tipe) ? 'selected' : ''; ?>>Purchase</option>
-      <option value="Inventory" <?= ('INV-OUT' == $selected_tipe) ? 'selected' : ''; ?>>Inventory</option>
-      <option value="AP" <?= ('AP' == $selected_tipe) ? 'selected' : ''; ?>>Payment</option>
-    </select>
-  </div>
-</div>
+</section>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
 <?= html_script('vendors/pace/pace.min.js') ?>
 <?= html_script('vendors/jQuery/jQuery-2.2.1.min.js') ?>
+<?= html_script('themes/material/assets/js/libs/jquery-ui/jquery-ui.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap/bootstrap.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/nanoscroller/jquery.nanoscroller.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/spin.js/spin.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/autosize/jquery.autosize.min.js') ?>
 <?= html_script('themes/material/assets/js/libs/toastr/toastr.js') ?>
-<?= html_script('vendors/DataTables-1.10.12/datatables.min.js') ?>
+<?= html_script('themes/material/assets/js/libs/jquery-validation/dist/jquery.validate.min.js') ?>
+<?= html_script('themes/material/assets/js/libs/jquery-validation/dist/additional-methods.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
 <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
 <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
-
 <script>
   Pace.on('start', function() {
     $('.progress-overlay').show();
@@ -162,372 +194,95 @@
   });
 
   $(function() {
-    toastr.options.closeButton = true;
-
-    $('[data-toggle="redirect"]').on('click', function(e) {
-      e.preventDefault;
-
-      var url = $(this).data('url');
-
-      window.document.location = url;
-    });
-
-    $('[data-toggle="back"]').on('click', function(e) {
-      e.preventDefault;
-
-      history.back();
-    });
-
     $('[data-provide="datepicker"]').datepicker({
       autoclose: true,
       todayHighlight: true,
-      format: 'yyyy-mm-dd'
+      format: 'yyyy-mm-dd',
     });
 
-    var datatableElement = $('[data-provide="datatable"]');
-    var datatableOptions = new Object();
+    $('.filter_date').on('change', function() {
+      var start_date    = $('#start_date').val();
+      var end_date      = $('#end_date').val();
+      var type          = $('#type').val();
 
-    datatableOptions.selectedRows = [];
-    datatableOptions.selectedIds = [];
-    datatableOptions.clickDelay = 700;
-    datatableOptions.clickCount = 0;
-    datatableOptions.clickTimer = null;
-    datatableOptions.summaryColumns = <?= json_encode($grid['summary_columns']); ?>;
+      if(start_date!='' && end_date!=''){
+        var formData = {
+          start_date    : start_date,
+          end_date      : end_date,
+          type          : type,
+        };
+        var url = "<?= $grid['data_source']; ?>";
 
-    $(datatableElement)
-      .addClass('stripe row-border cell-border order-column nowrap')
-      .attr('width', '100%');
-
-    $(datatableElement).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
-    $(datatableElement).find('table td:first-child').attr('align', 'right');
-
-    $.fn.dataTable.ext.errMode = 'throw';
-
-    var datatable = $(datatableElement).DataTable({
-      searchDelay: 350,
-      scrollY: 410,
-      scrollX: true,
-      scrollCollapse: true,
-      lengthMenu: [
-        [10, 50, 100, -1],
-        [10, 50, 100, "All"]
-      ],
-      pageLength: 10,
-      pagingType: 'full',
-
-      order: <?= json_encode($grid['order_columns']); ?>,
-      fixedColumns: {
-        leftColumns: <?= $grid['fixed_columns']; ?>
-      },
-
-      language: {
-        info: "Total _TOTAL_ entries"
-      },
-
-      processing: true,
-      serverSide: true,
-      ajax: {
-        url: "<?= $grid['data_source']; ?>",
-        type: "POST",
-        error: function(xhr, ajaxOptions, thrownError) {
-          console.log(xhr.responseText)
-          if (xhr.status == 404) {
-            toastr.clear();
-            toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
-            alert("page not found");
-          } else {
-            toastr.clear();
-            toastr.error(textStatus + ': ' + errorThrown + '. Report this error!', 'Loading data failed!');
-          }
-        }
-      },
-
-      rowCallback: function(row, data) {
-        if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
-          $(row).addClass('selected');
-        }
-      },
-
-      columnDefs: [{
-        searchable: false,
-        orderable: false,
-        targets: [0]
-      }],
-
-      dom: "<'row'<'col-sm-12'tr>>" +
-        "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
+        view_report(url,formData);
+      }
+      
     });
 
-    new $.fn.dataTable.Buttons(datatable, {
-      dom: {
-        container: {
-          className: 'btn-group pull-left'
-        },
-        button: {
-          className: 'btn btn-lg btn-icon-toggle ink-reaction'
-        }
-      },
-      buttons: [{
-          extend: 'print',
-          className: 'btn-tooltip',
-          text: '<i class="fa fa-print"></i><small class="top center">Quick Print</small>',
-          // titleAttr: 'Quick print',
-          autoPrint: false,
-          footer: true,
-          exportOptions: {
-            columns: ':visible'
-          }
-        },
-        {
-          extend: 'csv',
-          name: 'csv',
-          text: '<i class="fa fa-file-text-o"></i><small class="top center">export to CSV</small>',
-          // titleAttr: 'export to CSV',
-          className: 'btn-tooltip',
-          footer: true,
-          key: {
-            ctrlKey: true,
-            key: 's'
-          },
-          exportOptions: {
-            columns: ':visible'
-          }
-        },
-        {
-          extend: 'excel',
-          name: 'excel',
-          text: '<i class="fa fa-file-excel-o"></i><small class="top center">export to EXCEL</small>',
-          // titleAttr: 'export to EXCEL',
-          className: 'btn-tooltip',
-          footer: true,
-          key: {
-            ctrlKey: true,
-            key: 'x'
-          },
-          exportOptions: {
-            columns: ':visible'
-          }
-        },
-        {
-          name: 'pdf',
-          className: 'buttons-pdf btn-tooltip',
-          text: '<i class="fa fa-file-pdf-o"></i><small class="top center">export to PDF</small>',
-          // titleAttr: 'export to PDF',
-          key: {
-            ctrlKey: true,
-            key: 'd'
-          },
-          action: function(e, dt, node, config) {
-            var pdfUrl = '<?= site_url('pdf'); ?>',
-              pdfTitle = '<?= PAGE_TITLE; ?>',
-              pdfData = datatable.buttons.exportData({
-                columns: ':visible'
-              });
+    $('.btn-export').on('click', function(e) {
+      var start_date    = $('#start_date').val();
+      var end_date      = $('#end_date').val();
+      var type          = $('#type').val();
+      var _export       = $(this).data('tipe');
 
-            submit_post_via_hidden_form(
-              pdfUrl, {
-                datatable: pdfData,
-                title: pdfTitle
-              }
-            );
-          }
-        }
-      ]
+      console.log(_export);
+
+      if(start_date!='' && end_date!=''){
+        var formData = {
+          start_date    : start_date,
+          end_date      : end_date,
+          type          : type,
+          export        : _export
+        };
+        
+        var url = "<?= $grid['data_export']; ?>";
+
+        print_report(url,formData);
+      }
     });
 
-    datatable.buttons(0, null).container()
-      .appendTo($('.btn-toolbar'));
-
-    if (datatableOptions.summaryColumns) {
-      datatable.on('xhr', function() {
-        var json = datatable.ajax.json();
-
-        $.each(datatableOptions.summaryColumns, function(key, value) {
-          $(datatable.column(value).footer()).html(
-            json.total[value]
-          );
-        });
+    function view_report(url, formData) {
+      $("#loadingScreen2").attr("style", "display:block");
+      $.ajax({
+        url: url,
+        type: 'GET',
+        data: formData,
+        success: function (data) {
+          var obj = $.parseJSON(data);
+          $('#report_view').html(obj.info);
+        },
+        error: function (request, status, error) {
+          swal({
+            title: 'Perhatian',
+            text: 'Data Gagal Disimpan! ',
+            type: 'error'
+          });
+        }
       });
     }
 
-    $(datatableElement).find('tbody').on('click', 'td', function() {
-      datatableOptions.clickCount++;
-
-      var modalOpenOnClick = datatable.row(this).data().DT_RowData.modal;
-      var singleClickRow = datatable.row(this).data().DT_RowData.single_click;
-      var doubleClickRow = datatable.row(this).data().DT_RowData.double_click;
-
-      if (modalOpenOnClick) {
-        var dataModal = $('#data-modal');
-        var dataPrimaryKey = datatable.row(this).data().DT_RowData.pkey;
-
-        $.get(modalOpenOnClick, function(data) {
+    function print_report(url, formData) {
+      // $("#loadingScreen2").attr("style", "display:block");
+      $.ajax({
+        url: url,
+        type: 'GET',
+        data: formData,
+        success: function (data) {
           var obj = $.parseJSON(data);
-
-          if (obj.type == 'denied') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error(obj.info, 'ACCESS DENIED!');
-          } else {
-            $(dataModal)
-              .find('.modal-body')
-              .empty()
-              .append(obj.info);
-
-            $(dataModal)
-              .find('#modal-print-data-button')
-              .attr('href', obj.link.print);
-
-            $(dataModal)
-              .find('#modal-edit-data-button')
-              .attr('href', obj.link.edit);
-
-            $(dataModal)
-              .find('#modal-delete-data-button')
-              .attr('href', obj.link.delete);
-
-            $(dataModal).modal('show');
-
-            $(dataModal).on('click', '.modal-header:not(a)', function() {
-              $(dataModal).modal('hide');
-            });
-
-            $(dataModal).on('click', '.modal-footer:not(a)', function() {
-              $(dataModal).modal('hide');
-            });
-          }
-        });
-      } else {
-        if (datatableOptions.clickCount === 1) {
-          datatableOptions.clickTimer = setTimeout(function() {
-            datatableOptions.clickCount = 0;
-
-            if (singleClickRow)
-              window.location = singleClickRow;
-          }, datatableOptions.clickDelay);
-        } else {
-          clearTimeout(datatableOptions.clickTimer);
-          datatableOptions.clickCount = 0;
-
-          if (doubleClickRow)
-            window.location = doubleClickRow;
+          // $('#report_view').html(obj.info);
+          window.open(obj.open);
+        },
+        error: function (request, status, error) {
+          swal({
+            title: 'Perhatian',
+            text: 'Data Gagal Disimpan! ',
+            type: 'error'
+          });
         }
-      }
-    });
+      });
+    }
 
-    $('.filter_numeric_text').on('keyup', function() {
-      var i = $(this).data('column');
-      var v = $(this).val();
-      datatable.columns(i).search(v).draw();
-    });
+    
 
-    $('.filter_dropdown').on('change', function() {
-      var i = $(this).data('column');
-      var v = $(this).val();
-      var tipe = $(this).data('tipe');
-      $('#' + tipe).html(' | ' + tipe + ' : ' + v);
-      datatable.columns(i).search(v).draw();
-    });
-
-    $('.filter_boolean').on('change', function() {
-      var checked = $(this).is(':checked');
-      var i = $(this).data('column');
-
-      if (checked) {
-        datatable.columns(i).search('true').draw();
-      } else {
-        datatable.columns(i).search('').draw();
-      }
-    });
-
-    $('.filter_daterange').daterangepicker({
-      autoUpdateInput: false,
-      parentEl: '#offcanvas-datatable-filter',
-      locale: {
-        cancelLabel: 'Clear'
-      }
-    }).on('apply.daterangepicker', function(ev, picker) {
-      $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
-      var i = $(this).data('column');
-      var v = $(this).val();
-      var tipe = $(this).data('tipe');
-      $('#' + tipe).html(' | ' + tipe + ' : ' + picker.startDate.format('DD MMM YYYY') + ' - ' + picker.endDate.format('DD MMM YYYY'));
-
-      datatable.columns(i).search(v).draw();
-    }).on('cancel.daterangepicker', function(ev, picker) {
-      $(this).val('');
-      var i = $(this).data('column');
-      datatable.columns(i).search('').draw();
-    });
-
-    $('a.column-toggle').on('click', function(e) {
-      e.preventDefault();
-      var column = datatable.column($(this).attr('data-column'));
-
-      column.visible(!column.visible());
-
-      var label = $(this).attr('data-label');
-      var text = (column.visible() === true ? '<div class="tile-text">' + label + '</div>' : '<div class="tile-text text-muted">' + label + '</div>');
-
-      $(this).html(text);
-    });
-
-    $('.dataTables_paginate').find('a').removeClass();
-    $('#datatable-form').removeClass('hidden');
-    $('#datatable-form input').on('keyup', function() {
-      datatable.search(this.value).draw();
-    });
-    $('[data-toggle="reload"]').on('click', function() {
-      datatable.ajax.reload(null, false);
-    });
-
-    datatable.on('processing.dt', function(e, settings, processing) {
-      if (processing) {
-        $('.progress-overlay').show();
-      } else {
-        $('.progress-overlay').hide();
-      }
-    });
-
-    $(document).on('click', '.btn-xhr-delete', function(e) {
-      e.preventDefault();
-
-      var button = $(this);
-      var form = $('.form-xhr');
-      var action = button.attr('href');
-
-      button.attr('disabled', true);
-
-      if (confirm('Are you sure want to delete this data? Beware of this data can not be restored after it is removed. Continue?')) {
-        $.post(action, form.serialize()).done(function(data) {
-          var obj = $.parseJSON(data);
-          if (obj.type == 'danger') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error(obj.info);
-
-            buttonToDelete.attr('disabled', false);
-          } else {
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success(obj.info);
-
-            form.reset();
-
-            $('[data-dismiss="modal"]').trigger('click');
-
-            if (datatable) {
-              datatable.ajax.reload(null, false);
-            }
-          }
-        }).fail(function() {
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error('Delete Failed! This data is still being used by another document.');
-        });
-      }
-
-      button.attr('disabled', false);
-    });
   });
 </script>
 

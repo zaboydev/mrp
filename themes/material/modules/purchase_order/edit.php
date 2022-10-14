@@ -245,6 +245,7 @@
                   </th>
                   <th class="middle-alignment">Ref. POE</th>
                   <th class="middle-alignment">Remarks</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -292,6 +293,9 @@
                     </td>
                     <td>
                       <?= $item['remarks']; ?> <?= $item['purchase_request_number']; ?>
+                    </td>
+                    <td>
+                      <?= $item['group']; ?>
                     </td>
                   </tr>
                 <?php endforeach; ?>
@@ -376,6 +380,11 @@
                 <div class="form-group">
                   <input type="text" name="description" id="description" class="form-control input-sm">
                   <label for="description">Description</label>
+                </div>
+
+                <div class="form-group">
+                  <input type="text" name="group" id="group" class="form-control input-sm" readonly>
+                  <label for="group">Group</label>
                 </div>
 
                 <div class="form-group">
@@ -807,6 +816,7 @@
           $('#part_number').val(response.part_number);
           $('#serial_number').val(response.serial_number);
           $('#description').val(response.description);
+          $('#group').val(response.group);
           $('#quantity').val(response.quantity);
           $('#unit_price').val(response.unit_price);
           $('#core_charge').val(response.core_charge);

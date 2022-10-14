@@ -1141,7 +1141,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->insert('tb_master_item_units');
         }
         $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
-        if (isItemExists($data['part_number'], $serial_number) === FALSE) {
+        if (isItemExists($data['part_number'],$data['product_name'], $serial_number) === FALSE) {
           $this->db->set('part_number', strtoupper($data['part_number']));
           $this->db->set('serial_number', $serial_number);
           // $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
@@ -1156,7 +1156,7 @@ class Purchase_Request_Model extends MY_Model
           $this->db->insert('tb_master_items');
           $item_id = $this->db->insert_id();
         } else {
-          $item_id = getItemId($data['part_number'], $serial_number);
+          $item_id = getItemId($data['part_number'],$data['product_name'], $serial_number);
         }
         if (isPartNumberExists($data['part_number']) === FALSE) {
           $this->db->set('part_number', strtoupper($data['part_number']));
@@ -2344,7 +2344,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</ul>";
     $message .= "<p>No Purchase Request : " . $row['pr_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2392,7 +2392,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</ul>";
     $message .= "<p>No Purchase Request : " . $row['pr_number'] . "</p>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2447,7 +2447,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</ul>";
     // $message .= "<p>No Purchase Request : ".$row['pr_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2505,12 +2505,6 @@ class Purchase_Request_Model extends MY_Model
 
   public function findPrlByPoeItemid($poe_item_id)
   {
-    // $this->db->select('tb_inventory_purchase_requisition_details.*');
-    // $this->db->from('tb_inventory_purchase_requisition_details');
-    // $this->db->where('tb_inventory_purchase_requisition_details.id', $id);
-
-    // $query_detail    = $this->db->get();
-    // $request_detail  = $query_detail->unbuffered_row();
     $this->db->select('tb_inventory_purchase_requisitions.id');
     $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id=tb_inventory_purchase_requisitions.id');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.inventory_purchase_request_detail_id=tb_inventory_purchase_requisition_details.id');
@@ -2677,7 +2671,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</table>";
     // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);
@@ -2789,7 +2783,7 @@ class Purchase_Request_Model extends MY_Model
     $message .= "</table>";
     // $message .= "<p>No Purchase Request : ".$row['document_number']."</p>";    
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/purchase_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($recipient);

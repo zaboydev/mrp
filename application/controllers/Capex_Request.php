@@ -682,7 +682,7 @@ class Capex_Request extends MY_Controller
         } else {
 
           $data = array('upload_data' => $this->upload->data());
-          $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+          $url = $config['upload_path'] . $data['upload_data']['file_name'];
           array_push($_SESSION["capex"]["attachment"], $url);
           $result["status"] = 1;
         }
@@ -751,7 +751,7 @@ class Capex_Request extends MY_Controller
         $error = array('error' => $this->upload->display_errors());
         } else {
         $data = array('upload_data' => $this->upload->data());
-        $url = $config['upload_path'] . $data['upload_data']['orig_name'];
+        $url = $config['upload_path'] . $data['upload_data']['file_name'];
         // array_push($_SESSION["poe"]["attachment"], $url);
         $this->model->add_attachment_to_db($id, $url);
         $result["status"] = 1;
@@ -765,5 +765,28 @@ class Capex_Request extends MY_Controller
         
         $result['status'] = $send;
         echo json_encode($result);
+    }
+
+    public function change_ajax()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'document_change') === FALSE) {
+            $alert['type']  = 'danger';
+            $alert['info']  = 'You are not allowed to cancel this request!';
+        } else {
+            $change = $this->model->change();
+            if ($change['status']) {
+                $alert['type'] = 'success';
+                $alert['info'] = $change['info'];
+                $alert['link'] = site_url($this->module['route']);
+            } else {
+                $alert['type'] = 'danger';
+                $alert['info'] = $change['info'];
+            }
+        }
+
+        echo json_encode($alert);
     }
 }

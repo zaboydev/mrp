@@ -124,7 +124,11 @@
                     <?php if ($detail['poe_item_id'] == null) : ?>
                       <a href="#"><?= print_string($detail['purchase_request_number']); ?></a>
                     <?php else : ?>
-                      <a href="<?= site_url('purchase_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                      <?php if ($entity['source'] == 'request') : ?>
+                      <a class="link" href="<?= site_url('purchase_request/print_pdf_prl/' . $detail['poe_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                      <?php elseif ($entity['source'] == 'return') : ?>
+                      <a class="link" href="<?= site_url($module['route'].'/print_return/' . $detail['return_item_id']) ?>" target="_blank"><?=print_string($detail['purchase_request_number'])?></a>
+                      <?php endif; ?>
                     <?php endif; ?>
                   </td>
                   <td>
@@ -435,7 +439,7 @@
 
   <div class="card-foot">
     <!-- <div class="pull-left"> -->
-      <?php if (is_granted($module, 'info') && $entity['review_status'] != 'APPROVED' && $tipe != 'report') : ?>
+      <?php if (is_granted($module, 'info') && $tipe != 'report') : ?>
       <a href="<?= site_url($module['route'] . '/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
         <i class="md md-attach-file"></i>
         <small class="top right">Manage Attachment</small>

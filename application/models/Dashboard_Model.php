@@ -237,7 +237,7 @@ class Dashboard_Model extends MY_Model
     $message .= "<ul>";
     $message .= "</ul>";
     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
-    $message .= "<p>[ <a href='http://119.2.51.138:7323/expense_request/' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+    $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
     $message .= "<p>Thanks and regards</p>";
     $this->email->from($from_email, 'Material Resource Planning');
     $this->email->to($to_email);
@@ -385,11 +385,11 @@ class Dashboard_Model extends MY_Model
 
     $this->connection->select('*');
     $this->connection->from('tb_expense_purchase_requisitions');
-    $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
-    $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
-    $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
-    $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
-    $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
+    // $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+    // $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+    // $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
+    // $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+    // $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
     $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
     $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
     $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);
@@ -401,9 +401,9 @@ class Dashboard_Model extends MY_Model
       $status = 'WAITING FOR HEAD DEPT';
       $this->connection->select('*');
       $this->connection->from('tb_expense_purchase_requisitions');
-      $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
-      $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
-      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
+      // $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+      // $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
       $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
       $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
       $this->connection->where('tb_expense_purchase_requisitions.status', $status);
@@ -618,6 +618,176 @@ class Dashboard_Model extends MY_Model
     $query = $this->connection->get();
 
     return $query->num_rows();
+  }
+
+  public function count_purposed_payment($role,$source){
+    $status =['no_status'];
+    if($role=='FINANCE SUPERVISOR'){
+      $status = ['WAITING CHECK BY FIN SPV'];
+    }    
+    if($role=='FINANCE MANAGER'){
+      $status = ['WAITING REVIEW BY FIN MNG'];
+    }
+    if($role=='HEAD OF SCHOOL'){
+      $status = ['WAITING REVIEW BY HOS'];
+    }
+    if($role=='CHIEF OPERATION OFFICER'){
+      $status = ['WAITING REVIEW BY CEO'];
+    }
+    if($role=='VP FINANCE'){
+      $status = ['WAITING REVIEW BY VP FINANCE'];
+    }
+    if($role=='CHIEF OF FINANCE'){
+      $status = ['WAITING REVIEW BY CFO'];
+    }
+
+    $this->connection->select('*');
+    $this->connection->from('tb_request_payments');
+    // $this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+    $this->connection->where('tb_request_payments.source', $source);
+    $this->connection->where_in('tb_request_payments.status', $status);
+    if($role=='FINANCE MANAGER'){
+      $base = config_item('auth_warehouse');
+      if($base!='JAKARTA'){
+        $this->connection->where('tb_request_payments.base !=','JAKARTA');
+      }elseif($base=='JAKARTA'){
+        $this->connection->where('tb_request_payments.base','JAKARTA');
+      }
+    }
+    $query = $this->connection->get();
+
+    return $query->num_rows();
+  }
+
+  public function count_payment_request_need_to_pay(){
+    $status =['APPROVED'];
+
+    $this->db->select('*');
+    $this->db->from('tb_po_payments');
+    // $this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+    $this->db->where_in('tb_po_payments.status', $status);
+    // if($role=='FINANCE MANAGER'){
+    //   $base = config_item('auth_warehouse');
+    //   if($base!='JAKARTA'){
+    //     $this->db->where('tb_po_payments.base !=','JAKARTA');
+    //   }elseif($base=='JAKARTA'){
+    //     $this->db->where('tb_po_payments.base','JAKARTA');
+    //   }
+    // }
+    $query = $this->db->get();
+
+    return $query->num_rows();
+  }
+
+  public function count_purposed_payment_need_to_pay($source){
+    $status =['APPROVED'];
+    $this->connection->select('*');
+    $this->connection->from('tb_request_payments');
+    // $this->db->join('tb_po_payments', 'tb_po_payments.id = tb_purchase_order_items_payments.po_payment_id');
+    $this->connection->where('tb_request_payments.source', $source);
+    $this->connection->where_in('tb_request_payments.status', $status);
+    // if($role=='FINANCE MANAGER'){
+    //   $base = config_item('auth_warehouse');
+    //   if($base!='JAKARTA'){
+    //     $this->connection->where('tb_request_payments.base !=','JAKARTA');
+    //   }elseif($base=='JAKARTA'){
+    //     $this->connection->where('tb_request_payments.base','JAKARTA');
+    //   }
+    // }
+    $query = $this->connection->get();
+
+    return $query->num_rows();
+  }
+
+  public function getListAttachment()
+  {
+    $query = $this->db->get('tb_attachment_poe');
+    $data = array();
+    $count = array();
+
+    foreach($query->result_array() as $key => $att){
+      $is_file_exists = file_exists($att['file']);
+      $insert = [
+        'id' => $att['id'],
+        'id_poe' => $att['id_poe'],
+        'file'=> $att['file'],
+        'is_file_exists' => $is_file_exists
+      ];
+      if(!$is_file_exists){
+        $data[] = $insert;
+        $count[] = 1;
+      }
+    }
+    return [
+      'count'=>array_sum($count),
+      'data'=>$data
+    ];
+  }
+
+  public function getListAttachmentBudgetcontrol()
+  {
+    $query = $this->connection->get('tb_attachment');
+    $data = array();
+    $count = array();
+
+    foreach($query->result_array() as $key => $att){
+      $is_file_exists = file_exists($att['file']);
+      $insert = [
+        'id' => $att['id'],
+        'id_poe' => $att['id_poe'],
+        'file'=> $att['file'],
+        'is_file_exists' => $is_file_exists
+      ];
+      if(!$is_file_exists){
+        $data[] = $insert;
+        $count[] = 1;
+      }
+    }
+    return [
+      'count'=>array_sum($count),
+      'data'=>$data
+    ];
+  }
+
+  public function isFileExist($id,$type){
+    if($type=='mrp'){
+      $this->db->select('*');
+      $this->db->from('tb_attachment_poe');
+      $this->db->where('id',$id);
+      $query    = $this->db->get();
+      $data  = $query->unbuffered_row('array');
+
+      $is_file_exists = file_exists($data['file']);
+
+    }elseif($type=='budgetcontrol'){
+      $this->connection->select('*');
+      $this->connection->from('tb_attachment');
+      $this->connection->where('id',$id);
+      $query    = $this->connection->get();
+      $data     = $query->unbuffered_row('array');
+      $is_file_exists = file_exists($data['file']);
+    }
+
+    return $is_file_exists;
+  }
+
+  public function findAttachmentbyId($id,$type){
+    if($type=='mrp'){
+      $this->db->select('*');
+      $this->db->from('tb_attachment_poe');
+      $this->db->where('id',$id);
+      $query    = $this->db->get();
+      $data  = $query->unbuffered_row('array');
+
+    }elseif($type=='budgetcontrol'){
+      $this->connection->select('*');
+      $this->connection->from('tb_attachment');
+      $this->connection->where('id',$id);
+      $query    = $this->connection->get();
+      $data  = $query->unbuffered_row('array');
+    }
+
+    return $data;
   }
 
 }
