@@ -2856,4 +2856,42 @@ class Purchase_Request_Model extends MY_Model
 
     return $prl_item;
   }
+
+  public function getAttachmentByDocumentId($id)
+  {
+    $this->db->where('id_poe', $id);
+    $this->db->where('tipe', 'PRL');
+    return $this->db->get('tb_attachment_poe')->result_array();
+  }
+
+  function delete_attachment_in_db($id)
+  {
+    $this->db->trans_begin();
+
+    $this->db->where('id', $id);
+    $this->db->delete('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
+  function add_attachment_to_db($id, $url)
+  {
+    $this->db->trans_begin();
+
+    $this->db->set('id_poe', $id);
+    $this->db->set('file', $url);
+    $this->db->set('tipe', 'PRL');
+    $this->db->set('tipe_att', 'other');
+    $this->db->insert('tb_attachment_poe');
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+  }
 }
