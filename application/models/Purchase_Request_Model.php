@@ -1380,6 +1380,16 @@ class Purchase_Request_Model extends MY_Model
       }
     }
 
+    if(!empty($_SESSION['request']['attachment'])){
+      foreach ($_SESSION["request"]["attachment"] as $key) {
+        $this->db->set('id_poe', $document_id);
+        $this->db->set('file', $key);
+        $this->db->set('tipe', 'PRL');
+        $this->db->set('tipe_att', 'other');
+        $this->db->insert('tb_attachment_poe');
+      }
+    }    
+
     if (($this->connection->trans_status() === FALSE) && ($this->db->trans_status() === FALSE))
       return FALSE;
 

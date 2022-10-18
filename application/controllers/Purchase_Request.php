@@ -13,6 +13,7 @@ class Purchase_Request extends MY_Controller
     $this->load->model($this->module['model'], 'model');
     $this->data['module'] = $this->module;
     $this->load->library('email');
+    $this->load->library('upload');
     if (empty($_SESSION['request']['request_to']))
       $_SESSION['request']['request_to'] = 1;
   }
@@ -548,10 +549,17 @@ class Purchase_Request extends MY_Controller
       $_SESSION['request']['pr_date']             = date('Y-m-d');
       $_SESSION['request']['required_date']       = $required_date;
       $_SESSION['request']['created_by']          = config_item('auth_person_name');
-      $_SESSION['request']['suggested_supplier']  = NULL;
-      $_SESSION['request']['deliver_to']          = NULL;
-      $_SESSION['request']['notes']               = NULL;
-      $_SESSION['request']['target_date']         = $target_date;
+      $_SESSION['request']['suggested_supplier']      = NULL;
+      $_SESSION['request']['deliver_to']              = NULL;
+      $_SESSION['request']['notes']                   = NULL;
+      $_SESSION['request']['target_date']             = $target_date;
+      $_SESSION['request']['annual_cost_center_id']   = null;
+      $_SESSION['request']['cost_center_id']          = null;
+      $_SESSION['request']['cost_center_name']        = null;
+      $_SESSION['request']['cost_center_code']        = null;
+      $_SESSION['request']['department_id']           = null;
+      $_SESSION['request']['head_dept']               = NULL;
+      $_SESSION['request']['attachment']              = array();
 
       redirect($this->module['route'] . '/create');
     }
@@ -1041,5 +1049,45 @@ class Purchase_Request extends MY_Controller
     $pdf = $this->m_pdf->load(null, 'A4-L');
     $pdf->WriteHTML($html);
     $pdf->Output($pdfFilePath, "I");
+  }
+
+  public function attachment()
+  {
+    $this->authorized($this->module, 'document');
+
+    $this->render_view($this->module['view'] . '/attachment');
+  }
+
+  public function add_attachment()
+  {
+    $result["status"] = 0;
+    $date = new DateTime();
+    // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+    $config['upload_path'] = 'attachment/purchase_request/';
+    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+    $config['max_size']  = 2000;
+
+    $this->upload->initialize($config);
+
+    if (!$this->upload->do_upload('attachment')) {
+      $error = array('error' => $this->upload->display_errors());
+    } else {
+
+      $data = array('upload_data' => $this->upload->data());
+      $url = $config['upload_path'] . $data['upload_data']['file_name'];
+      array_push($_SESSION["request"]["attachment"], $url);
+      $result["status"] = 1;
+    }
+    echo json_encode($result);
+  }
+
+  public function delete_attachment($index)
+  {
+    $file = FCPATH . $_SESSION["request"]["attachment"][$index];
+    if (unlink($file)) {
+      unset($_SESSION["request"]["attachment"][$index]);
+      $_SESSION["request"]["attachment"] = array_values($_SESSION["request"]["attachment"]);
+      redirect($this->module['route'] . "/attachment", 'refresh');
+    }
   }
 }
