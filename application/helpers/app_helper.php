@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']=='dashboard'||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'){
+          if($module['route']=='dashboard'||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'){
             return TRUE;
           }else{
             return FALSE;
@@ -3036,6 +3036,26 @@ if (!function_exists('currency_for_vendor_list')) {
       $result = $query->result_array();
   
       return $result;
+    }
+
+    if ( ! function_exists('findCostCenterByAnnualCostCenterId')) {
+      function findCostCenterByAnnualCostCenterId($annual_cost_center_id)
+      {
+        $CI =& get_instance();
+  
+        $connection = $CI->load->database('budgetcontrol', TRUE);
+  
+        $connection->select(array('cost_center_code','cost_center_name','department_id','tb_cost_centers.id'));
+        $connection->from( 'tb_cost_centers' );
+        $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+        $connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
+  
+        $query    = $connection->get();
+        $cost_center = $query->unbuffered_row('array');
+        
+  
+        return $cost_center;
+      }
     }
   }
 

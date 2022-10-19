@@ -43,25 +43,25 @@ class Purchase_Request_Model extends MY_Model
       }
     } else {
       $return =  array(
-        'tb_inventory_purchase_requisition_details.id'                       => NULL,
-        'tb_inventory_purchase_requisitions.pr_number'                => 'Document Number',
-        'tb_inventory_purchase_requisitions.pr_date'                  => 'Document Date',
-        'tb_inventory_purchase_requisitions.required_date'            => 'Required Date',
-        'tb_inventory_purchase_requisitions.item_category'            => 'Category',
-        'tb_inventory_purchase_requisition_details.product_name'      => 'Description',
-        'tb_inventory_purchase_requisition_details.part_number as product_code'    => 'Part Number',
-        'tb_inventory_purchase_requisition_details.serial_number'     => 'Serial Number',
+        'tb_inventory_purchase_requisition_details.id'                                                                          => NULL,
+        'tb_inventory_purchase_requisitions.pr_number'                                                                          => 'Document Number',
+        'tb_inventory_purchase_requisitions.pr_date'                                                                            => 'Document Date',
+        'tb_inventory_purchase_requisitions.required_date'                                                                      => 'Required Date',
+        'tb_inventory_purchase_requisitions.item_category'                                                                      => 'Category',
+        'tb_inventory_purchase_requisition_details.product_name'                                                                => 'Description',
+        'tb_inventory_purchase_requisition_details.part_number as product_code'                                                 => 'Part Number',
+        'tb_inventory_purchase_requisition_details.serial_number'                                                               => 'Serial Number',
         // 'tb_inventory_purchase_requisition_details.additional_info'   => 'Additional Info',
-        'tb_master_items.minimum_quantity as min_qty'                  => 'Min. Qty',
-        'tb_inventory_purchase_requisitions.notes as pr_notes'         => 'On Hand. Qty',
-        'tb_inventory_purchase_requisition_details.quantity'          => 'Quantity Request',
-        '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'          => 'Quantity POE',
-        'tb_inventory_purchase_requisition_details.status'                   => 'Status',
-        'tb_inventory_purchase_requisition_details.budget_status'                   => 'Budget Status',
+        'tb_master_items.minimum_quantity as min_qty'                                                                           => 'Min. Qty',
+        'tb_inventory_purchase_requisitions.notes as pr_notes'                                                                  => 'On Hand. Qty',
+        'tb_inventory_purchase_requisition_details.quantity'                                                                    => 'Quantity Request',
+        '(tb_inventory_purchase_requisition_details.quantity - tb_inventory_purchase_requisition_details.sisa) as process_qty'  => 'Quantity POE',
+        'tb_inventory_purchase_requisition_details.status'                                                                      => 'Status',
+        'tb_inventory_purchase_requisition_details.budget_status'                                                               => 'Budget Status',
         // 'tb_inventory_purchase_requisitions.suggested_supplier'       => 'Suggested Supplier',
         // 'tb_inventory_purchase_requisitions.deliver_to'               => 'Deliver To',
-        'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
-        'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
+        'tb_inventory_purchase_requisitions.created_by'                                                                         => 'Request By',
+        'tb_inventory_purchase_requisition_details.notes'                                                                       => 'Notes',
       );
       if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'FINANCE MANAGER') {
         $return['tb_inventory_purchase_requisitions.approved_notes']  = 'Note';
@@ -775,6 +775,9 @@ class Purchase_Request_Model extends MY_Model
     $product_category_id  = $category['id'];
     $notes                = (empty($_SESSION['request']['notes'])) ? NULL : $_SESSION['request']['notes'];
     $unbudgeted           = 0;
+    $annual_cost_center_id        = $_SESSION['request']['annual_cost_center_id'];
+    $department_id                = $_SESSION['request']['department_id'];
+    $head_dept                    = $_SESSION['request']['head_dept'];
 
     $this->connection->trans_begin();
     $this->db->trans_begin();
@@ -1109,6 +1112,8 @@ class Purchase_Request_Model extends MY_Model
         $this->db->set('deliver_to', $deliver_to);
         $this->db->set('status', 'waiting');
         $this->db->set('notes', $notes);
+        $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+        $this->db->set('head_dept', $head_dept);
         $this->db->set('created_by', $created_by);
         $this->db->set('updated_by', config_item('auth_person_name'));
         $this->db->set('created_at', date('Y-m-d H:i:s'));
@@ -1125,6 +1130,8 @@ class Purchase_Request_Model extends MY_Model
         $this->db->set('notes', $notes);
         $this->db->set('updated_at', date('Y-m-d'));
         $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+        $this->db->set('head_dept', $head_dept);
         $this->db->where('id', $document_id);
         $this->db->update('tb_inventory_purchase_requisitions');
 

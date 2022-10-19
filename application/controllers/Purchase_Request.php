@@ -88,6 +88,31 @@ class Purchase_Request extends MY_Controller
     echo json_encode($result);
   }
 
+  public function set_annual_cost_center_id()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['request']['annual_cost_center_id'] = $_GET['data'];
+    $cost_center = findCostCenterByAnnualCostCenterId($_GET['data']);
+    $cost_center_code = $cost_center['cost_center_code'];
+    $cost_center_name = $cost_center['cost_center_name'];          
+    $department_id    = $cost_center['department_id'];
+
+    $_SESSION['request']['cost_center_id']          = $cost_center['id'];
+    $_SESSION['request']['cost_center_name']        = $cost_center_name;
+    $_SESSION['request']['cost_center_code']        = $cost_center_code;
+    $_SESSION['request']['department_id']           = $department_id;
+  }
+
+  public function set_head_dept()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['request']['head_dept'] = $_GET['data'];
+  }
+
   public function del_item($key)
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -268,31 +293,21 @@ class Purchase_Request extends MY_Controller
       foreach ($entities as $row) {
         $no++;
         $col = array();
-
-        if ($row['status'] == 'waiting') {
-          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+        if (is_granted($this->module, 'approval')){
+          if ($row['status'] == 'waiting' && config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }
+          elseif ($row['status'] == 'pending' && config_item('auth_role') == 'FINANCE MANAGER') {
+            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          }
+          elseif ($row['status'] == 'review operation support' && config_item('auth_role') == 'OPERATION SUPPORT') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = print_number($no);
           }
-        } elseif ($row['status'] == 'pending') {
-          // if(config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'FINANCE MANAGER') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        } elseif ($row['status'] == 'review operation support') {
-          // if(config_item('auth_role') == 'OPERATION SUPPORT' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'OPERATION SUPPORT') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        } elseif ($row['status'] == 'open') {
-          // if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN') {
-          if (is_granted($this->module, 'closing') === TRUE) {
+        }
+        elseif (is_granted($this->module, 'closing')) {
+          if ($row['status'] == 'open') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = print_number($no);
@@ -1128,5 +1143,16 @@ class Purchase_Request extends MY_Controller
       $result["status"] = 1;
     }
     echo json_encode($result);
+  }
+
+  public function get_head_dept_user()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $department_id = $_SESSION['request']['department_id'];
+    $entities = list_user_in_head_department($department_id);
+
+    echo json_encode($entities);
   }
 }

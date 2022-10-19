@@ -30,11 +30,12 @@
             </div>
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
-                <select name="with_po" id="with_po" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
-                  <option>--Select Head Dept.--</option>
+                <select name="head_dept_select" id="head_dept_select" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
+                  <option>--Select Head Dept--</option>
                   
                 </select>
                 <label for="notes">Head Dept.</label>
+                <input type="hidden" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['request']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>">
               </div>
             </div>
           </div>
@@ -1156,16 +1157,55 @@
     });
 
     $('#annual_cost_center_id').on('change', function() {
-      var format = $(this).val();
-      if (format == 'POM') {
-        var number = $('#pom_number').val();
-      }
-      if(format == 'WOM') {
-        var number = $('#wom_number').val();
-      }
-      $('#document_number').val(number).trigger('change');
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      $.get(url, {
+        data: val
+      });
+
+      $('#head_dept').val('').trigger('change');
+      get_head_dept_user();
 
     });
+
+    $('#head_dept_select').on('change', function() {
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      $.get(url, {
+        data: val
+      });
+      $('#head_dept').val(val).trigger('change');
+
+    });
+
+    function get_head_dept_user() {
+      $('#head_dept').html('');
+
+      var head_dept = $('#head_dept').val();
+
+      $.ajax({
+        url: "<?= site_url($module['route'] . '/get_head_dept_user'); ?>",
+        dataType: "json",
+        success: function(resource) {
+          console.log(resource);
+          $('#head_dept_select').html('');
+          $("#head_dept_select").append('<option>--Select Head Dept--</option>');
+          $.each(resource, function(i, item) {
+            if(head_dept==item.username){
+              var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';
+            }else{
+              var text = '<option value="' +item.username+'">' +item.person_name+'</option>';
+            }            
+            $("#head_dept_select").append(text);
+          });
+          
+        }
+      });
+    }
+
+    get_head_dept_user()
   });
 
   function sum() {
