@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'){
+          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'){
             return TRUE;
           }else{
             return FALSE;
