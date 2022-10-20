@@ -225,7 +225,7 @@ class Purchase_Order_Evaluation extends MY_Controller
         //                <i class="fa fa-eye"></i>
         //             </a>';
         $col[] = print_string($row['notes']);
-        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'CHIEF OF MAINTANCE'))) {
+        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_username') == $row['head_dept']))) {
           $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
         } else {
           $col[] = null;
@@ -507,7 +507,7 @@ class Purchase_Order_Evaluation extends MY_Controller
         } else {
           if ($this->model->save()) {
             unset($_SESSION['poe']);
-            $this->sendEmail();
+            // $this->sendEmail();
             $data['success'] = TRUE;
             $data['message'] = 'Document ' . $document_number . ' has been saved. You will redirected now.';
           } else {
@@ -788,7 +788,8 @@ class Purchase_Order_Evaluation extends MY_Controller
               'quantity'                => $request['quantity_requested'],
               'left_received_quantity'  => $request['quantity_requested'],
               'left_paid_quantity'      => $request['quantity_requested'],
-              'unit_price'              => $request['unit_price_requested'],
+              // 'unit_price'              => $request['unit_price_requested'],
+              'unit_price'              => 0,
               'purchase_request_number' => $request['purchase_request_number'],
               'core_charge'             => floatval(0),
               'total'                   => $request['quantity_requested'] * $request['quantity_requested'],

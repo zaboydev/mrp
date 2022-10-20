@@ -107,7 +107,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       }
       
       if(!empty($status)){
-        $db->where_in('tb_purchase_orders.status', $status);
+        $this->db->where_in('tb_purchase_orders.status', $status);
       }
     }
 
@@ -1105,6 +1105,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
         $this->db->select(array(
           'tb_inventory_purchase_requisition_details.id',
           'tb_inventory_purchase_requisition_details.additional_info',
+          'tb_inventory_purchase_requisition_details.price',
           'tb_inventory_purchase_requisition_details.quantity',
           'tb_inventory_purchase_requisition_details.sisa',
           'tb_inventory_purchase_requisitions.item_category as "category_name"',

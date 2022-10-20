@@ -30,8 +30,8 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-<?php if (is_granted($module, 'document')) : ?>
   <div class="section-floating-action-row">
+  <?php if (is_granted($module, 'document')) : ?>
     <div class="btn-group dropup">
       <a href="<?= site_url($module['route'] . '/create/SPARE PART'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
         <i class="md md-add"></i>
@@ -46,21 +46,23 @@
           <?php endforeach; ?>
         </ul> -->
     </div>
-    <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')) : ?>
+  <?php endif ?>
+  <?php if (is_granted($module, 'approval')) : ?>
+    <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
         <i class="md md-spellcheck"></i>
         <small class="top right">approve</small>
       </button>
-    <?php endif; ?>
-    <?php if ((config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'FINANCE') || (config_item('auth_role') == 'SUPER ADMIN')) : ?>
-      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+    </div>
+    <div class="btn-group dropup">
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-close"></i>
         <small class="top right">reject</small>
       </button>
-    <?php endif; ?>
-
-  </div>
-<?php endif ?>
+    </div>
+    </div>
+  <?php endif; ?>
+  </div>  
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
