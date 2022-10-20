@@ -9,6 +9,7 @@
             <th>Account</th>
             <th>Amount</th>
             <th>Notes</th>
+            <th>Status</th>
             <th>Attachment</th>
         </tr>                                                    
     </thead>
@@ -42,6 +43,9 @@
                 <?=$item['notes'];?>
             </td>
             <td>
+                <?=print_string($item['status']);?>
+            </td>
+            <td>
                 <?php if($item['attachment']>0):?>
                     <a type="button" data-href="<?=$item['link_attachment']?>" class="btn btn-icon-toggle btn-info btn-sm btn-open-attachment">
                        <i class="fa fa-eye"></i>
@@ -55,6 +59,7 @@
     <tfoot>
         <tr>
             <th colspan="4">Total</th>
+            <th></th>
             <th></th>
             <th></th>
             <th></th>
