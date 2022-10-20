@@ -84,7 +84,7 @@
                 <label for="created_by">Created By</label>
               </div>
 
-              <div class="form-group">
+              <div class="form-group hide">
                 <input type="text" name="approved_by" id="approved_by" class="form-control" value="<?= $_SESSION['poe']['approved_by']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_approved_by'); ?>" required>
                 <label for="approved_by">Approved/Rejected By</label>
               </div>
