@@ -294,7 +294,7 @@ class Purchase_Request extends MY_Controller
         $no++;
         $col = array();
         if (is_granted($this->module, 'approval')){
-          if ($row['status'] == 'waiting' && config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+          if ($row['status'] == 'waiting' && config_item('auth_username') == $row['head_dept']) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }
           elseif ($row['status'] == 'pending' && config_item('auth_role') == 'FINANCE MANAGER') {
@@ -700,6 +700,7 @@ class Purchase_Request extends MY_Controller
         'budget_value_relocation'     => $this->input->post('budget_value'),
         'reference_ipc'               => trim($this->input->post('reference_ipc')),
         'serial_number'               => trim($this->input->post('serial_number')),
+        'minimum_quantity'     => $this->input->post('minimum_quantity'),
         // 'budget_value_relocation'      => $this->input->post('budget_value'),
       );
     }

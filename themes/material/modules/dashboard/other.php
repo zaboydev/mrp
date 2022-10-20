@@ -3,11 +3,8 @@
 <?php startblock('content') ?>
   <section class="<?=(isset($page['actions'])) ? 'has-actions' : '';?> bg-blue">
     <div class="section-body">
-
       <div class="row">
-      </div>
-
-      
+      </div>      
         <div class="row">
         <?php if (is_granted($module, 'approval')):?>
           <div class="col-md-4">
@@ -164,7 +161,8 @@
                 <?php endif;?>
             </div>
           </div> 
-        <?php elseif (is_granted($module, 'payment')):?>
+        <?php endif; ?>
+        <?php if (is_granted($module, 'payment')):?>
           <div class="col-md-4">
             <div class="card">
               <div class="card-head style-primary">
@@ -198,8 +196,8 @@
                   </div>
                 <?php endif;?>
             </div>
-          </div>          
-        <?php else: ?>  
+          </div>  
+          <?php endif; ?>    
           <div class="col-sm-4">
             <div class="card">
               <div class="card-head style-primary">
@@ -686,7 +684,6 @@
             </div>
           </div> 
           <?php endif;?> 
-        <?php endif; ?> 
         <?php if (is_granted($modules['permintaan_adjustment'], 'index')):?> 
           <div class="col-md-4">
             <div class="card">
@@ -799,7 +796,6 @@
           </div>   
         <?php endif;?>
         </div>     
-
     </div>
   </section>
 <?php endblock() ?>

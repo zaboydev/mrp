@@ -168,14 +168,17 @@ class Purchase_Request_Model extends MY_Model
       //   $db->where_in('tb_inventory_purchase_requisition_details.status', $search_status);
       // }
     } else {
+      $status = array();
       if (config_item('auth_role') == 'FINANCE MANAGER') {
-        $db->where('tb_inventory_purchase_requisition_details.status', 'pending');
+        $status[] = 'pending'; 
       } elseif (config_item('auth_role') == 'OPERATION SUPPORT') {
-        $db->where('tb_inventory_purchase_requisition_details.status', 'review operation support');
-      } elseif (config_item('auth_role') == 'CHIEF OF MAINTANCE') {
-        $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
-      } else {
-        //  $db->where('tb_inventory_purchase_requisition_details.status', 'waiting');
+        $status[] = 'review operation support';
+      }
+      if(config_item('as_head_department')=='yes'){
+        $status[] = 'waiting';
+      }
+      if(!empty($status)){
+        $db->where_in('tb_inventory_purchase_requisition_details.status', $status);
       }
     }
 
@@ -278,7 +281,9 @@ class Purchase_Request_Model extends MY_Model
         $this->connection->limit($_POST['length'], $_POST['start']);
       $query = $this->connection->get();
     } else {
-      $this->db->select(array_keys($this->getSelectedColumns()));
+      $selected = $this->getSelectedColumns();
+      $selected['tb_inventory_purchase_requisitions.head_dept'] = 'selected next person';
+      $this->db->select(array_keys($selected));
       $this->db->from('tb_inventory_purchase_requisitions');
       $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id', 'LEFT');
       $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
@@ -1927,23 +1932,35 @@ class Purchase_Request_Model extends MY_Model
         $this->db->set('status', 'waiting');
         $this->db->where('id', $id);
         $this->db->update('tb_inventory_purchase_requisition_details');
+        
+        $serial_number = $row['serial_number'];
+        if (isItemExists($row['part_number'], $row['product_name'], $serial_number) === FALSE) {
+          $this->db->set('part_number', strtoupper($row['part_number']));
+          $this->db->set('serial_number', strtoupper($serial_number));
+          $this->db->set('alternate_part_number', NULL);
+          $this->db->set('description', strtoupper($row['product_name']));
+          $this->db->set('group', strtoupper($row['group_name']));
+          $this->db->set('minimum_quantity', floatval($row['minimum_quantity']));
+          $this->db->set('unit', strtoupper($row['unit']));
+          $this->db->set('kode_stok', NULL);
+          $this->db->set('created_by', config_item('auth_person_name'));
+          $this->db->set('updated_by', config_item('auth_person_name'));
+          $this->db->set('unit_pakai', $row['unit']);
+          $this->db->set('qty_konversi', 1);
+          
+          $this->db->set('current_price', 1);
+          $this->db->insert('tb_master_items');
+  
+          $item_id = $this->db->insert_id();
+        } else {
+          $item_id = getItemId($row['part_number'], $row['product_name'], $serial_number);
+  
+        }
 
-        $this->db->order_by('id', "asc")
-          ->limit(1)
-          ->like('part_number', strtoupper($row['part_number']))
-          ->from('tb_master_items');
-        $query_item = $this->db->get();
-        $row_item   = $query_item->unbuffered_row('array');
-        $id_item = $row_item['id'];
+        $id_item = $item_id;
 
-        $this->db->order_by('id', "desc")
-          ->limit(1)
-          // ->like('year', $row['part_number'])
-          ->from('tb_budget_cot');
-        $query_cot = $this->db->get();
-        $row_cot   = $query_cot->unbuffered_row('array');
-        $hours     = 1000;
-        $year      = date('Y');
+        $hours     = getTotalFlightTarget($this->budget_year);
+        $year      = $this->budget_year;
 
         $this->db->from('tb_budget_cot');
         $this->db->where('id_item', $id_item);
@@ -1969,14 +1986,12 @@ class Purchase_Request_Model extends MY_Model
 
         $this->db->from('tb_budget');
         $this->db->where('id_cot', $id_cot);
-        $this->db->where('month_number', date('m'));
+        $this->db->where('month_number', $this->budget_month);
         $tb_budget = $this->db->get();
         if ($tb_budget->num_rows() == 0) {
           //buat budget baru
-          // for ($i=1; $i <13 ; $i++) {
           $this->db->set('id_cot', $id_cot);
-          // $this->db->set('month_number', $i);
-          $this->db->set('month_number', date('m'));
+          $this->db->set('month_number', $this->budget_month);
           // $this->db->set('year_number', $this->budget_year);
           $this->db->set('initial_quantity', floatval(0));
           $this->db->set('initial_budget', floatval(0));
@@ -2008,7 +2023,7 @@ class Purchase_Request_Model extends MY_Model
         } else {
           $this->db->from('tb_budget');
           $this->db->where('id_cot', $id_cot);
-          $this->db->where('month_number', date('m'));
+          $this->db->where('month_number', $this->budget_month);
           $tb_budget = $this->db->get();
           $row_budget = $tb_budget->unbuffered_row('array');
           $inventory_monthly_budget_id = $row_budget['id'];

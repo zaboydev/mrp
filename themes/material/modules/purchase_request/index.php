@@ -93,7 +93,7 @@
                                 } ?>>
               All
             </option>
-            <option value="waiting" <?php if ((config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'OPERATION SUPPORT')) {
+            <option value="waiting" <?php if ((config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'OPERATION SUPPORT') || (config_item('as_head_department')=='yes')) {
                                       echo 'selected';
                                     } ?>>
               Waiting For Approval
