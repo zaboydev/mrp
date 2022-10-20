@@ -3082,4 +3082,18 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getNotifRecipient_byUsername')) {
+    function getNotifRecipient_byUsername($username)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where('username', $username);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
     

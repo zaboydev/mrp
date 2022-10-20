@@ -53,13 +53,6 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     return $this->db->get('tb_attachment_poe')->result_array();
   }
 
-  /*public function getNotifRecipient(){
-    $this->db->select('email');
-    $this->db->from('tb_auth_users');
-    $this->db->where('auth_level',9);
-    return $this->db->get('')->result();
-  }*/
-
   public function getNotifRecipientHOS()
   {
     $this->db->select('email');
@@ -107,8 +100,14 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
       $this->db->where('tb_purchase_orders.status', $search_status);
     } else {
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE') {
-        $this->db->where('tb_purchase_orders.status', 'evaluation');
+      $status = array();
+      
+      if(config_item('as_head_department')=='yes'){
+        $status[] = 'evaluation';
+      }
+      
+      if(!empty($status)){
+        $db->where_in('tb_purchase_orders.status', $status);
       }
     }
 
@@ -189,8 +188,10 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   function getIndex($return = 'array')
   {
+    $selected = $this->getSelectedColumns();
+    $selected['tb_purchase_orders.head_dept'] = 'selected next person';      
     $this->db->distinct();
-    $this->db->select(array_keys($this->getSelectedColumns()));
+    $this->db->select(array_keys($selected));
     $this->db->from('tb_purchase_order_items_vendors');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
@@ -227,12 +228,6 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   function countIndexFiltered()
   {
-    // $this->db->from('tb_purchase_order_items_vendors');
-    // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
-    // $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
-    // $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    // $this->db->where('tb_purchase_order_vendors.is_selected', 't');
-    // $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
     $this->db->distinct();
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_purchase_order_items_vendors');
@@ -254,12 +249,6 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
   public function countIndex()
   {
-    // $this->db->from('tb_purchase_order_items_vendors');
-    // $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
-    // $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
-    // $this->db->join('tb_purchase_orders', 'tb_purchase_orders.id = tb_purchase_order_items.purchase_order_id');
-    // $this->db->where('tb_purchase_order_vendors.is_selected', 't');
-    // $this->db->where_in('tb_purchase_orders.category', config_item('auth_inventory'));
     $this->db->distinct();
     $this->db->select(array_keys($this->getSelectedColumns()));
     $this->db->from('tb_purchase_order_items_vendors');
@@ -482,6 +471,9 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     $exchange_rate        = $_SESSION['poe']['exchange_rate'];
     $source               = $_SESSION['poe']['source'];
     $notes                = (empty($_SESSION['poe']['notes'])) ? NULL : $_SESSION['poe']['notes'];
+    $annual_cost_center_id        = $_SESSION['poe']['annual_cost_center_id'];
+    $department_id                = $_SESSION['poe']['department_id'];
+    $head_dept                    = $_SESSION['poe']['head_dept'];
 
     $this->db->trans_begin();
 
@@ -504,6 +496,8 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('status', $status);
       $this->db->set('notes', $notes);
       $this->db->set('source', $source);
+      $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+      $this->db->set('head_dept', $head_dept);      
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
 
@@ -539,6 +533,8 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->set('source', $source);
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+      $this->db->set('head_dept', $head_dept); 
       $this->db->where('id', $document_id);
       $this->db->update('tb_purchase_orders');
 
@@ -824,7 +820,7 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     //   $this->send_mail($document_id);
     // }
     if ($approval != 'without_approval') {
-      $this->send_mail($document_id);
+      $this->send_mail($document_id,$head_dept);
     }
     return TRUE;
   }
@@ -1229,17 +1225,17 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     return TRUE;
   }
 
-  public function send_mail($doc_id)
+  public function send_mail($doc_id,$head_dept)
   {
     $this->db->from('tb_purchase_orders');
     $this->db->where('id', $doc_id);
     $query = $this->db->get();
     $row = $query->unbuffered_row('array');
 
-    $recipientList = $this->getNotifRecipient(9);
+    $recipientList = getNotifRecipient_byUsername($head_dept);
     $recipient = array();
     foreach ($recipientList as $key) {
-      array_push($recipient, $key->email);
+      array_push($recipient, $key['email']);
     }
 
     $from_email = "bifa.acd@gmail.com";
@@ -1247,17 +1243,8 @@ class Purchase_Order_Evaluation_Model extends MY_Model
 
     //Load email library 
     $this->load->library('email');
-    // $config = array();
-    // $config['protocol'] = 'mail';
-    // $config['smtp_host'] = 'smtp.live.com';
-    // $config['smtp_user'] = 'bifa.acd@gmail.com';
-    // $config['smtp_pass'] = 'b1f42019';
-    // $config['smtp_port'] = 587;
-    // $config['smtp_auth']        = true;
-    // $config['mailtype']         = 'html';
-    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
-    $message = "<p>Dear Chief of Maintenance</p>";
+    $message = "<p>Dear ".$head_dept."</p>";
     $message .= "<p>Berikut permintaan Persetujuan untuk Purchase Order Evaluation :</p>";
     $message .= "<ul>";
     $message .= "</ul>";
@@ -1339,27 +1326,10 @@ class Purchase_Order_Evaluation_Model extends MY_Model
     } else {
       $ket_level = 'Ditolak';
     }
-    // if($level==14){
-    //   $ket_level = 'Finance Manager';
-    // }elseif ($level==10) {
-    //   $ket_level = 'Head Of School';
-    // } elseif($level==11){
-    //   $ket_level = 'Chief Of Finance';
-    // }elseif($level==3){
-    //   $ket_level = 'VP Finance';
-    // }
 
     //Load email library 
     $this->load->library('email');
-    // $config = array();
-    // $config['protocol'] = 'mail';
-    // $config['smtp_host'] = 'smtp.live.com';
-    // $config['smtp_user'] = 'bifa.acd@gmail.com';
-    // $config['smtp_pass'] = 'b1f42019';
-    // $config['smtp_port'] = 587;
-    // $config['smtp_auth']        = true;
-    // $config['mailtype']         = 'html';
-    // $this->email->initialize($config);
+    
     $this->email->set_newline("\r\n");
     $message = "<p>Hello</p>";
     $message .= "<p>Item Berikut telah " . $ket_level . " oleh " . $by . "</p>";

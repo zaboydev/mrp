@@ -118,6 +118,31 @@ class Purchase_Order_Evaluation extends MY_Controller
     $_SESSION['poe']['notes'] = $_GET['data'];
   }
 
+  public function set_annual_cost_center_id()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $_SESSION['poe']['annual_cost_center_id'] = $_GET['data'];
+    $cost_center = findCostCenterByAnnualCostCenterId($_GET['data']);
+    $cost_center_code = $cost_center['cost_center_code'];
+    $cost_center_name = $cost_center['cost_center_name'];          
+    $department_id    = $cost_center['department_id'];
+
+    $_SESSION['poe']['cost_center_id']          = $cost_center['id'];
+    $_SESSION['poe']['cost_center_name']        = $cost_center_name;
+    $_SESSION['poe']['cost_center_code']        = $cost_center_code;
+    $_SESSION['poe']['department_id']           = $department_id;
+  }
+
+  public function set_head_dept()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['poe']['head_dept'] = $_GET['data'];
+  }
+
   public function search_request_item()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -155,171 +180,6 @@ class Purchase_Order_Evaluation extends MY_Controller
 
     echo json_encode($entities);
   }
-
-  public function sendEmail()
-  {
-    $recipientList = $this->model->getNotifRecipient(9);
-    $recipient = array();
-    foreach ($recipientList as $key) {
-      array_push($recipient, $key->email);
-    }
-    $this->load->library('email');
-    $config = array(
-      'protocol' => 'smtp',
-      'smtp_host' => 'smtp.mailtrap.io',
-      'smtp_port' => 2525,
-      'smtp_user' => '8fe5a91a10cc87',
-      'smtp_pass' => '1cd529218bc7b0',
-      'crlf' => "\r\n",
-      'newline' => "\r\n"
-    );
-    $this->email->initialize($config);
-    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-    $this->email->to($recipient);
-    $html = '<html><head>
-    <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
-    <style>
-    .content {
-      max-width: 500px;
-      margin: auto;
-    }
-    .title{
-      width: 60%;
-    }
-    </style></head>
-    <body> 
-    <div class="content">
-    <div bgcolor="#0aa89e">
-    <table align="center" bgcolor="#fff" border="0" cellpadding="0" cellspacing="0" style="background-color:#fff;margin:5% auto;width:100%;max-width:600px">
-    <tbody><tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0aa89e" style="padding:10px 15px;font-size:14px">
-      <tbody><tr>
-      <td width="60%" align="left" style="padding:5px 0 0">
-      <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                BIFA
-                            </span>
-                        </td>
-                        <td width="40%" align="right" style="padding:5px 0 0">
-                            <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                Notification
-                            </span>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>        
-        <tr>
-            <td style="padding:25px 15px 10px">
-                <table width="100%">
-                    <tbody><tr>
-                        <td>
-                            <h1 style="margin:0;font-size:16px;font-weight:bold;line-height:24px;color:rgba(0,0,0,0.70)">Halo Team</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru pada daftar Purchase Order Evaluation silakan di cek</p>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>
-    </tbody></table>
-    <p>&nbsp;<br></p>
-    </div></div>  
-    </body></html>';
-    $this->email->subject('Notification');
-    $this->email->message($html);
-
-    $this->email->send();
-  }
-
-  public function sendEmailHOS()
-  {
-    $recipientList = $this->model->getNotifRecipientHOS();
-    $recipient = array();
-    foreach ($recipientList as $key) {
-      array_push($recipient, $key->email);
-    }
-    $this->load->library('email');
-    $config = array(
-      'protocol' => 'smtp',
-      'smtp_host' => 'smtp.mailtrap.io',
-      'smtp_port' => 2525,
-      'smtp_user' => '8fe5a91a10cc87',
-      'smtp_pass' => '1cd529218bc7b0',
-      'crlf' => "\r\n",
-      'newline' => "\r\n"
-    );
-    $this->email->initialize($config);
-    $this->email->from('bifa.Team@gmail.com', 'Bifa Team');
-    $this->email->to($recipient);
-    $html = '<html><head> 
-                          <meta http-equiv="\&quot;Content-Type\&quot;" content="\&quot;text/html;" charset="utf-8\&quot;">
-                          <style>
-                              .content {
-                                  max-width: 500px;
-                                  margin: auto;
-                              }
-                              .title{
-                                  width: 60%;
-                              }
-
-                          </style></head>
-                          
-                          <body> 
-                              <div class="content">
-      <div bgcolor="#0aa89e">
-          <table align="center" bgcolor="#fff" border="0" cellpadding="0" cellspacing="0" style="background-color:#fff;margin:5% auto;width:100%;max-width:600px">
-              
-              <tbody><tr>
-                  <td>
-                      <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0aa89e" style="padding:10px 15px;font-size:14px">
-                          <tbody><tr>
-                              <td width="60%" align="left" style="padding:5px 0 0">
-                                  <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                      BIFA
-                                  </span>
-                              </td>
-                              <td width="40%" align="right" style="padding:5px 0 0">
-                                  <span style="font-size:18px;font-weight:300;color:#ffffff">
-                                      Notification
-                                  </span>
-                              </td>
-                          </tr>
-                      </tbody></table>
-                  </td>
-              </tr>        
-              <tr>
-                  <td style="padding:25px 15px 10px">
-                      <table width="100%">
-                          <tbody><tr>
-                              <td>
-                                  <h1 style="margin:0;font-size:16px;font-weight:bold;line-height:24px;color:rgba(0,0,0,0.70)">Halo Team</h1>
-                              </td>
-                          </tr>
-                          <tr>
-                              <td>
-                                  <p style="margin:0;font-size:16px;line-height:24px;color:rgba(0,0,0,0.70)">Ada item baru pada daftar Purchase Order  silakan di cek</p>
-                              </td>
-                          </tr>
-                      </tbody></table>
-                  </td>
-              </tr>
-          </tbody></table>
-      <p>&nbsp;<br></p>
-      </div>
-
-                                  </div>  
-                                          
-                              
-      </body></html>';
-    $this->email->subject('Notification Purchase Order');
-    $this->email->message($html);
-
-    $this->email->send();
-  }
   
   public function index_data_source()
   {
@@ -338,13 +198,13 @@ class Purchase_Order_Evaluation extends MY_Controller
       foreach ($entities as $row) {
         $no++;
         $col = array();
-        if (strtoupper($row['status']) == "EVALUATION") {
-          if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+        if(is_granted($this->module, 'approval')){
+          if (strtoupper($row['status']) == "EVALUATION" && config_item('auth_username') == $row['head_dept']) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = print_number($no);
           }
-        } else {
+        }else{
           $col[] = print_number($no);
         }
         $col[] = print_string($row['evaluation_number']);
@@ -580,7 +440,13 @@ class Purchase_Order_Evaluation extends MY_Controller
       $_SESSION['poe']['grand_total']         = NULL;
       $_SESSION['poe']['notes']               = NULL;
       $_SESSION['poe']['tipe']                = 'INVENTORY MRP';
-      $_SESSION['poe']['source']                = 'request';
+      $_SESSION['poe']['source']                  = 'request';
+      $_SESSION['poe']['annual_cost_center_id']   = null;
+      $_SESSION['poe']['cost_center_id']          = null;
+      $_SESSION['poe']['cost_center_name']        = null;
+      $_SESSION['poe']['cost_center_code']        = null;
+      $_SESSION['poe']['department_id']           = null;
+      $_SESSION['poe']['head_dept']               = NULL;
 
       redirect($this->module['route'] . '/create');
     }
@@ -1018,5 +884,16 @@ class Purchase_Order_Evaluation extends MY_Controller
     }
 
     echo json_encode($alert);
+  }
+
+  public function get_head_dept_user()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $department_id = $_SESSION['poe']['department_id'];
+    $entities = list_user_in_head_department($department_id);
+
+    echo json_encode($entities);
   }
 }
