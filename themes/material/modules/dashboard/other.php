@@ -736,7 +736,7 @@
         <?php endif;?>
       </div>  
       <div class="row">
-      <?php if (is_granted($modules['account_payable'], 'index')):?> 
+        <?php if (is_granted($modules['account_payable'], 'index')):?> 
           <div class="col-md-4">
             <div class="card">
               <div class="card-head style-primary">
