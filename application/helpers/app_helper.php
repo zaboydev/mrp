@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']=='dashboard'||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'){
+          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'){
             return TRUE;
           }else{
             return FALSE;
@@ -773,7 +773,7 @@ if ( ! function_exists('available_modules')) {
           $results[$module['parent']][] = $module;
       }else{
         if($head_dept=='yes'){
-          if($key=='capex_request'||$key=='expense_request'||$key=='inventory_request'){
+          if($key=='capex_request'||$key=='expense_request'||$key=='inventory_request'||$key=='purchase_request'){
             if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
               $results[$module['parent']][] = $module;
           }
@@ -3036,6 +3036,49 @@ if (!function_exists('currency_for_vendor_list')) {
       $result = $query->result_array();
   
       return $result;
+    }
+  }
+
+  if ( ! function_exists('findCostCenterByAnnualCostCenterId')) {
+    function findCostCenterByAnnualCostCenterId($annual_cost_center_id)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('cost_center_code','cost_center_name','department_id','tb_cost_centers.id'));
+      $connection->from( 'tb_cost_centers' );
+      $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+      $connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
+
+      $query    = $connection->get();
+      $cost_center = $query->unbuffered_row('array');
+      
+
+      return $cost_center;
+    }
+  }
+
+  if ( ! function_exists('getTotalFlightTarget')) {
+    function getTotalFlightTarget($year_number)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('flight_target'));
+      $connection->from( 'tb_monthly_flights' );
+      $connection->where('tb_monthly_flights.year_number', $year_number);
+
+      $query    = $connection->get();
+      $result   = $query->result_array();
+
+      $total_flight_target = 0;
+      foreach($result as $item){
+        $total_flight_target = $total_flight_target+$item['flight_target'];
+      }
+  
+      return $total_flight_target;
     }
   }
 

@@ -24,45 +24,49 @@
 <?php endblock() ?>
 
 <?php startblock('actions_right') ?>
-
 <div class="section-floating-action-row">
-  <?php if (is_granted($module, 'approval')) : ?>
+    <?php if (is_granted($module, 'approval')) : ?>
     <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
         <i class="md md-clear"></i>
-        <small class="top right">reject</small>
+        <small class="top right">Reject</small>
       </button>
+    </div>
+    <div class="btn-group dropup">
       <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
         <i class="md md-spellcheck"></i>
-        <small class="top right">approve</small>
+        <small class="top right">Approve</small>
       </button>
+    </div>
     <?php endif ?>
+
     <?php if (is_granted($module, 'document')) : ?>
-      <div class="btn-group dropup">
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-          <i class="md md-add"></i>
-          <small class="top right">Create <?= $module['label']; ?></small>
-        </button>
+    <div class="btn-group dropup">
+      <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
+        <i class="md md-add"></i>
+        <small class="top right">Create <?= $module['label']; ?></small>
+      </button>
 
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <?php foreach (config_item('auth_inventory') as $category) : ?>
-            <li>
-              <a href="<?= site_url($module['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
-            </li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
+      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <?php foreach (config_item('auth_inventory') as $category) : ?>
+          <li>
+            <a href="<?= site_url($module['route'] . '/create/' . $category); ?>"><?= $category; ?></a>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
     <?php endif ?>
+    
     <?php if (is_granted($module, 'closing')) : ?>
-      <div class="btn-group dropup">
-        <button type="button" data-source="<?= site_url($module['route'] . '/multi_closing/'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction" id="modal-close-data-button-multi">
-          <i class="md md-check"></i>
-          <small class="top right">Close</small>
-        </button>
-      <?php endif ?>
-
-      </div>
-      <?php endblock() ?>
+    <div class="btn-group dropup">
+      <button type="button" data-source="<?= site_url($module['route'] . '/multi_closing/'); ?>" class="btn btn-floating-action btn-md btn-info btn-tooltip ink-reaction" id="modal-close-data-button-multi">
+        <i class="md md-check"></i>
+        <small class="top right">Close</small>
+      </button>
+    </div>
+    <?php endif ?>
+</div>
+<?php endblock() ?>
 
       <?php startblock('datafilter') ?>
       <div class="form force-padding">
@@ -89,7 +93,7 @@
                                 } ?>>
               All
             </option>
-            <option value="waiting" <?php if ((config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'OPERATION SUPPORT')) {
+            <option value="waiting" <?php if ((config_item('auth_role') == 'FINANCE MANAGER') || (config_item('auth_role') == 'CHIEF OF MAINTANCE') || (config_item('auth_role') == 'OPERATION SUPPORT') || (config_item('as_head_department')=='yes')) {
                                       echo 'selected';
                                     } ?>>
               Waiting For Approval
