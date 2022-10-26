@@ -9,6 +9,7 @@
             <th>Account</th>
             <th>Amount</th>
             <th>Notes</th>
+            <th>Status</th>
             <th>Attachment</th>
         </tr>                                                    
     </thead>
@@ -40,6 +41,9 @@
             </td>
             <td>
                 <?=$item['notes'];?>
+            </td>
+            <td>
+                <?=print_string($item['status']);?>
             </td>
             <td>
                 <?php if($item['attachment']>0):?>

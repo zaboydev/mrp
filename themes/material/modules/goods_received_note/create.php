@@ -356,7 +356,7 @@
                           </div>
                           <div class="col-lg-6 col-sm-6">
                             <input type="text" id="received_unit_value" class="form-control input-sm" name="received_unit_value" value="0" step=".02">
-                            <input type="text" id="received_unit_value_dollar" class="form-control input-sm" name="received_unit_value_dollar" value="0" step=".02">
+                            <input type="hidden" id="received_unit_value_dollar" class="form-control input-sm" name="received_unit_value_dollar" value="0" step=".02">
                             <input type="hidden" id="value_order" class="form-control input-sm" name="value_order" value="0" step=".02">
                           </div>
                         </div>

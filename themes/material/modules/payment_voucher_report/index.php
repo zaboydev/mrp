@@ -171,7 +171,17 @@
                                     <label for="currency">Currency</label>
                                 </div>
                             </div>
-                            
+                            <div class="col-sm-12 col-lg-2">
+                                <div class="form-group">
+                                    <select name="status" id="status" class="form-control input-sm" required>
+                                        <option value="all">All Status</option>
+                                        <option value="PAID">PAID</option>
+                                        <option value="APPROVED">APPROVED</option>
+                                        <option value="WAITING CHECK BY FIN MNG">WAITING CHECK BY FIN MNG</option>                                        
+                                    </select>
+                                    <label for="status">Status</label>
+                                </div>
+                            </div>
                             <div class="col-sm-12 col-lg-1">
                                 <div class="form-group">
                                     <button id="btn-generate" type="button" class="btn btn-danger btn-block ink-reaction btn-sm">Generate</button>
@@ -199,6 +209,7 @@
                                                         <th>Account</th>
                                                         <th>Amount</th>
                                                         <th>Notes</th>
+                                                        <th>Status</th>
                                                         <th>Attachment</th>
                                                     </tr>                                                    
                                                 </thead>
@@ -414,6 +425,7 @@
         currency     = $("#currency").val();
         start_date  = $("#start_date").val();
         end_date    = $("#end_date").val();
+        status          = $("#status").val();
         if(currency==''){
             $('#currency').parents('.form-group').addClass('has-error');
             $('#currency').after('<span class="help-block">This field is required</span>');
@@ -456,7 +468,8 @@
             data: {
                 'currency': currency,
                 'start_date': start_date,
-                'end_date': end_date
+                'end_date': end_date,
+                'status': status
             },
             cache: false,
             success: function(response) {
