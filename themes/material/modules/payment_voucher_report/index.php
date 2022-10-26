@@ -182,10 +182,7 @@
                                     <label for="status">Status</label>
                                 </div>
                             </div>
-<<<<<<< HEAD
-=======
                             
->>>>>>> 8016bd1e735d20f5f1581f8e4a66b880942a5de0
                             <div class="col-sm-12 col-lg-1">
                                 <div class="form-group">
                                     <button id="btn-generate" type="button" class="btn btn-danger btn-block ink-reaction btn-sm">Generate</button>
