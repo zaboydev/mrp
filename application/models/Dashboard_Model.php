@@ -166,10 +166,10 @@ class Dashboard_Model extends MY_Model
   }
 
   public function count_prl($role){
-    $status =['waiting','pending'];
-    if($role=='CHIEF OF MAINTANCE'){
-      $status = ['waiting'];
-    }
+    $status =['all'];
+    // if($role=='CHIEF OF MAINTANCE'){
+    //   $status = ['waiting'];
+    // }
     if($role=='FINANCE MANAGER'){
       $status = ['pending'];
     }
@@ -180,8 +180,19 @@ class Dashboard_Model extends MY_Model
     $this->db->from('tb_inventory_purchase_requisition_details');
     $this->db->where_in('tb_inventory_purchase_requisition_details.status', $status);
     $query = $this->db->get();
+    $count_as_role = $query->num_rows();
 
-    return $query->num_rows();
+    if(config_item('as_head_department')=='yes'){
+      $this->db->select('*');
+      $this->db->from('tb_inventory_purchase_requisition_details');
+      $this->db->join('tb_inventory_purchase_requisitions','tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+      $this->db->where_in('tb_inventory_purchase_requisition_details.status', ['waiting']);
+      $this->db->where('tb_inventory_purchase_requisitions.head_dept', config_item('auth_username'));
+      $query = $this->db->get();
+      $count_as_role = $query->num_rows();
+    }
+
+    return $count_as_role;
   }
 
   public function count_poe($role){

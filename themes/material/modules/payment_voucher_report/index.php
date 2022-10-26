@@ -182,6 +182,10 @@
                                     <label for="status">Status</label>
                                 </div>
                             </div>
+<<<<<<< HEAD
+=======
+                            
+>>>>>>> 8016bd1e735d20f5f1581f8e4a66b880942a5de0
                             <div class="col-sm-12 col-lg-1">
                                 <div class="form-group">
                                     <button id="btn-generate" type="button" class="btn btn-danger btn-block ink-reaction btn-sm">Generate</button>
@@ -422,9 +426,15 @@
     });
 
     $("#btn-generate").on('click', function(e) {
+<<<<<<< HEAD
         currency     = $("#currency").val();
         start_date  = $("#start_date").val();
         end_date    = $("#end_date").val();
+=======
+        currency        = $("#currency").val();
+        start_date      = $("#start_date").val();
+        end_date        = $("#end_date").val();
+>>>>>>> 8016bd1e735d20f5f1581f8e4a66b880942a5de0
         status          = $("#status").val();
         if(currency==''){
             $('#currency').parents('.form-group').addClass('has-error');

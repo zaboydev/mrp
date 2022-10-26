@@ -19,6 +19,7 @@
                 <th class="middle-alignment text-right" rowspan="2">S/N</th>
                 <th class="middle-alignment text-right" rowspan="2">Qty</th>
                 <th class="middle-alignment text-right" rowspan="2">Unit</th>
+                <th class="middle-alignment text-right" rowspan="2">Price Requested</th>
                 <th class="middle-alignment text-right hide" rowspan="2">Konversi</th>
                 <th class="middle-alignment text-right" rowspan="2">Remarks</th>
 
@@ -59,6 +60,9 @@
                   </td>
                   <td>
                     <input type="text" rel="unit" name="request[<?= $id; ?>][unit]" value="<?= $_SESSION['poe']['request'][$id]['unit']; ?>" class="form-control" readonly>
+                  </td>
+                  <td>
+                    <input type="number" rel="unit_price" name="request[<?= $id; ?>][unit_price]" value="<?= $_SESSION['poe']['request'][$id]['unit_price']; ?>" class="form-control" readonly>
                   </td>
                   <td class="hide">
                     <input type="number" rel="konversi" name="request[<?= $id; ?>][konversi]" value="<?= $_SESSION['poe']['request'][$id]['konversi']; ?>" class="form-control">

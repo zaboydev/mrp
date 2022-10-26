@@ -17,6 +17,31 @@
           <div class="row">
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
+                <select name="annual_cost_center_id" id="annual_cost_center_id" class="form-control" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>" required>
+                  <option>--Select Department--</option>
+                  <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
+                    <option value="<?= $annual_cost_center['id']; ?>" <?= ($_SESSION['request']['annual_cost_center_id'] == $annual_cost_center['id']) ? 'selected' : ''; ?>>
+                      <?= $annual_cost_center['cost_center_name']; ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <label for="source">Department</label>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="form-group">
+                <select name="head_dept_select" id="head_dept_select" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
+                  <option>--Select Head Dept--</option>
+                  
+                </select>
+                <label for="notes">Head Dept.</label>
+                <input type="hidden" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['request']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6 col-lg-3">
+              <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-content">
                     <input type="text" name="pr_number" id="pr_number" class="form-control" value="<?= $_SESSION['request']['pr_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
@@ -121,9 +146,15 @@
       </div>
       <div class="card-actionbar">
         <div class="card-actionbar-row">
-          <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
-            Add Item
-          </a>
+          <div class="pull-left">
+            <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
+              Add Item
+            </a>
+
+            <a style="margin-left: 10px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+              Attachment
+            </a>
+          </div>
 
           <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
             Discard
@@ -375,6 +406,30 @@
   Pace.on('done', function() {
     $('.progress-overlay').hide();
   });
+
+  function popup(mylink, windowname) {
+    var height = window.innerHeight;
+    var widht;
+    var href;
+
+    if (screen.availWidth > 768) {
+      width = 769;
+    } else {
+      width = screen.availWidth;
+    }
+
+    var left = (screen.availWidth / 2) - (width / 2);
+    var top = 0;
+    // var top = (screen.availHeight / 2) - (height / 2);
+
+    if (typeof(mylink) == 'string') href = mylink;
+    else href = mylink.href;
+
+    window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+
+    if (!window.focus) return true;
+    else return false;
+  }
 
   (function($) {
     $.fn.reset = function() {
@@ -1100,6 +1155,57 @@
         $("#modal-add-item-submit").prop("disabled", false);
       }
     });
+
+    $('#annual_cost_center_id').on('change', function() {
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      $.get(url, {
+        data: val
+      });
+
+      $('#head_dept').val('').trigger('change');
+      get_head_dept_user();
+
+    });
+
+    $('#head_dept_select').on('change', function() {
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      $.get(url, {
+        data: val
+      });
+      $('#head_dept').val(val).trigger('change');
+
+    });
+
+    function get_head_dept_user() {
+      $('#head_dept').html('');
+
+      var head_dept = $('#head_dept').val();
+
+      $.ajax({
+        url: "<?= site_url($module['route'] . '/get_head_dept_user'); ?>",
+        dataType: "json",
+        success: function(resource) {
+          console.log(resource);
+          $('#head_dept_select').html('');
+          $("#head_dept_select").append('<option>--Select Head Dept--</option>');
+          $.each(resource, function(i, item) {
+            if(head_dept==item.username){
+              var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';
+            }else{
+              var text = '<option value="' +item.username+'">' +item.person_name+'</option>';
+            }            
+            $("#head_dept_select").append(text);
+          });
+          
+        }
+      });
+    }
+
+    get_head_dept_user()
   });
 
   function sum() {

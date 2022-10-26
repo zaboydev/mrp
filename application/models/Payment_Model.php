@@ -3549,8 +3549,8 @@ class Payment_Model extends MY_MODEL
 	{
 		$currency 			= $this->input->post('currency');
         $start_date 	    = $this->input->post('start_date');
-		$end_date 			= $this->input->post('end_date');
-		$status 			= $this->input->post('status');
+        $end_date 			= $this->input->post('end_date');
+        $status 			= $this->input->post('status');
 
 		$return = array(
 			'tb_po_payments.id',
@@ -3578,6 +3578,7 @@ class Payment_Model extends MY_MODEL
 		}else{
 			$this->db->where_in('tb_po_payments.status',['PAID','APPROVED','WAITING CHECK BY FIN MNG']);
 		}
+		
 		if(!empty($currency) && $currency!='all'){
             $this->db->where('tb_po_payments.currency',$currency);
         }
@@ -3586,6 +3587,9 @@ class Payment_Model extends MY_MODEL
             $this->db->where('tb_po_payments.tanggal >=',$start_date);
             $this->db->where('tb_po_payments.tanggal <=',$end_date);
 		}
+		$this->db->group_by($this->getGroupedColumns());
+		$this->db->order_by('tanggal', 'desc');
+
 		$this->db->group_by($this->getGroupedColumns());
 		$this->db->order_by('tanggal', 'desc');
 
@@ -3606,8 +3610,8 @@ class Payment_Model extends MY_MODEL
     {
 		$currency 			= $this->input->post('currency');
         $start_date 	    = $this->input->post('start_date');
-		$end_date 			= $this->input->post('end_date');
-		$status 			= $this->input->post('status');
+        $end_date 			= $this->input->post('end_date');
+        $status 			= $this->input->post('status');
 
 		$return = array(
             'tb_request_payments.id',
@@ -3644,7 +3648,7 @@ class Payment_Model extends MY_MODEL
         $this->connection->select($return);
         $this->connection->from('tb_request_payments');
         $this->connection->join('tb_request_payment_details', 'tb_request_payments.id = tb_request_payment_details.request_payment_id');
-        if($status!='all'){
+		if($status!='all'){
 			$this->connection->where('tb_request_payments.status',$status);
 		}else{
 			$this->connection->where_in('tb_request_payments.status',['PAID','APPROVED','WAITING CHECK BY FIN MNG']);
@@ -3657,7 +3661,7 @@ class Payment_Model extends MY_MODEL
         if(!empty($start_date)&&!empty($end_date)){
             $this->connection->where('tb_request_payments.tanggal >=',$start_date);
             $this->connection->where('tb_request_payments.tanggal <=',$end_date);
-		}
+        }
 		$this->connection->group_by($groupBy);
 		$this->connection->order_by('tanggal', 'desc');
 
