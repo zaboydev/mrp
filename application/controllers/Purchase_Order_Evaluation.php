@@ -526,7 +526,6 @@ class Purchase_Order_Evaluation extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['source_request'] = $_GET['data'];
-    $result['status'] = "success";
     echo json_encode($result);
   }
   public function add_request()
