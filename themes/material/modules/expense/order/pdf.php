@@ -290,6 +290,7 @@
 							</p>
 						</td>
 
+						<?php if ($format_order=='POL' || $format_order=='WOL') : ?>
 						<?php if (($entity['base'] != 'JAKARTA' && $entity['base'] != 'WISNU')) : ?>
 						<td valign="top" align="center">
 							<p>
@@ -318,7 +319,8 @@
 								<br />
 								<br /><?= $entity['proc_manager_review_by']; ?>
 							</p>
-						</td>
+						</td>						
+						<?php endif; ?>
 						<td valign="top" align="center">
 							<p>
 								Checked by,
@@ -332,7 +334,8 @@
 								<br /><?= $entity['checked_by']; ?>
 							</p>
 						</td>
-						<?php if (($entity['base'] != 'JAKARTA')) : ?>
+						<?php //if (($entity['base'] != 'JAKARTA')) : ?>
+						<?php if ($entity['known_by'] != '') : ?>
 						<td valign="top" align="center">
 							<p>
 								<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
@@ -350,7 +353,9 @@
 								<br /><?= $entity['known_by']; ?>
 							</p>
 						</td>
-						<?php else: ?>
+						<?php endif; ?>
+						<?php //else: ?>
+						<?php if ($entity['check_review_by'] != '') : ?>
 						<td valign="top" align="center">
 							<p>
 								<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
@@ -369,9 +374,11 @@
 							</p>
 						</td>
 						<?php endif; ?>
+						<?php //endif; ?>
 
-						<?php if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
-						<?php if (($entity['base'] != 'JAKARTA')) : ?>
+						<?php //if (($entity['default_currency'] == 'IDR' && $grandtotal >= 15000000)||($entity['default_currency'] == 'USD' && $grandtotal >= 1500)) : ?>
+						<?php //if (($entity['base'] != 'JAKARTA')) : ?>
+						<?php if ($entity['coo_review'] != '') : ?>
 						<td valign="top" align="center">
 							<p>
 								Approved by,
@@ -385,7 +392,9 @@
 								<br /><?= $entity['coo_review']; ?>
 							</p>
 						</td>
-						<?php else: ?>
+						<?php endif; ?>
+						<?php //else: ?>
+						<?php if ($entity['approved_by'] != '') : ?>
 						<td valign="top" align="center">
 							<p>
 								Approved by,
@@ -400,7 +409,8 @@
 							</p>
 						</td>	
 						<?php endif; ?>
-						<?php endif; ?>
+						<?php //endif; ?>
+						<?php //endif; ?>
 					</tr>
 				</table>
 
