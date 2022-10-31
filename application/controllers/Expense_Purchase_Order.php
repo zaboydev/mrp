@@ -661,6 +661,7 @@ class Expense_Purchase_Order extends MY_Controller
     if (strpos($entity['document_number'], 'W') !== FALSE){
       $this->data['page']['title']    = 'WORK ORDER';
     }
+    $this->data['format_order'] = substr($row['document_number'], 0, 3);
     $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->module['view'] . '/pdf', $this->data, true);
@@ -812,8 +813,10 @@ class Expense_Purchase_Order extends MY_Controller
       $_SESSION['order']['category']            = $category;
       $_SESSION['order']['format_number']       = order_format_number_local();
       $_SESSION['order']['document_number']     = order_last_number('POL');
-      $_SESSION['order']['wom_document_number']     = order_last_number('WOL');
-      $_SESSION['order']['pom_document_number']     = order_last_number('POL');
+      $_SESSION['order']['wol_document_number']     = order_last_number('WOL');
+      $_SESSION['order']['pol_document_number']     = order_last_number('POL');
+      $_SESSION['order']['wom_document_number']     = order_last_number('WOM');
+      $_SESSION['order']['pom_document_number']     = order_last_number('POM');
       $_SESSION['order']['document_date']       = date('Y-m-d');
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['vendor_address']      = $order['vendor_address'];
