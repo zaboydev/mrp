@@ -1297,11 +1297,16 @@ class Expense_Purchase_Order_Model extends MY_Model
     $id_po_lama           = $_SESSION['order']['id_po'];
     $base = config_item('auth_warehouse');
 
+    $this->db->where('id', $id_po_lama);
+    $query      = $this->db->get('tb_po');
+    $old_po     = $query->unbuffered_row('array');
+
     $this->db->trans_begin();
     $this->connection->trans_begin();
 
     $this->db->set('document_number', $document_number);
     $this->db->set('document_date', $document_date);
+    $this->db->set('document_body', "[PO ini merupakan revisi dari ".$old_po['document_number']."]");
     $this->db->set('reference_quotation', $reference_quotation);
     $this->db->set('issued_by', $issued_by);
     $this->db->set('checked_by', $checked_by);
@@ -1333,10 +1338,17 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
-    if($base=='JAKARTA' || $base=='WISNU'){
-      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    if($_SESSION['order']['format_number']=='POM'||$_SESSION['order']['format_number']=='WOM'){
+      $this->db->set('review_status', strtoupper('waiting for finance review'));
+      $level = 14;
     }else{
-      $this->db->set('review_status', strtoupper('waiting for ahos review'));
+      if($base=='JAKARTA' || $base=='WISNU'){
+        $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+        $level = 21;
+      }else{
+        $this->db->set('review_status', strtoupper('waiting for ahos review'));
+        $level = 22;
+      }
     }
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('tipe_po', 'EXPENSE');

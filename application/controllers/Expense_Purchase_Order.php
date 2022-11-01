@@ -887,6 +887,10 @@ class Expense_Purchase_Order extends MY_Controller
       $_SESSION['order']['format_number']       = substr($order['document_number'], 0, 3);
       $_SESSION['order']['document_number']     = substr($order['document_number'], 3, 6) . 'R';
       $_SESSION['order']['document_date']       = date('Y-m-d');
+      $_SESSION['order']['wol_document_number']     = ($_SESSION['order']['format_number']=='WOL')?substr($order['document_number'], 3, 6) . 'R':order_last_number('WOL');
+      $_SESSION['order']['pol_document_number']     = ($_SESSION['order']['format_number']=='POL')?substr($order['document_number'], 3, 6) . 'R':order_last_number('POL');
+      $_SESSION['order']['wom_document_number']     = ($_SESSION['order']['format_number']=='WOM')?substr($order['document_number'], 3, 6) . 'R':order_last_number('WOM');
+      $_SESSION['order']['pom_document_number']     = ($_SESSION['order']['format_number']=='POM')?substr($order['document_number'], 3, 6) . 'R':order_last_number('POM');
       $_SESSION['order']['vendor']              = $order['vendor'];
       $_SESSION['order']['vendor_address']      = $order['vendor_address'];
       $_SESSION['order']['vendor_country']      = $order['vendor_country'];
