@@ -34,7 +34,6 @@
                       <option value="POM" <?= ('POM' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>POM</option>
                       <option value="WOM" <?= ('WOWOML' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>WOM</option>
                     </select>
-
                   </div>
                   <div class="col-xs-6">
                     <input type=" text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['order']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>

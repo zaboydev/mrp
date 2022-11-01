@@ -69,7 +69,7 @@
           <dd><?= print_string($entity['evaluation_number'], 'N/A'); ?></dd>
 
           <dt>Notes</dt>
-          <dd><?= print_string($entity['notes'], '-'); ?></dd>
+          <dd><?= print_string($entity['notes'], '-'); ?> <?= print_string($entity['document_body'], ''); ?></dd>
         </dl>
       </div>
     </div>
