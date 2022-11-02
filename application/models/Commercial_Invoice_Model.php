@@ -269,6 +269,7 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('warehouse', $warehouse);
       $this->db->set('notes', $notes);
       $this->db->set('source', $source);
+      $this->db->set('status', "APPROVED");
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->insert('tb_returns');
@@ -374,6 +375,7 @@ class Commercial_Invoice_Model extends MY_Model
       $this->db->set('category', $category);
       $this->db->set('notes', $notes);
       $this->db->set('source', $source);
+      $this->db->set('status', "APPROVED");
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->where('id', $document_id);
