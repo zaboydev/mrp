@@ -35,7 +35,7 @@
                   
                 </select>
                 <label for="notes">Head Dept.</label>
-                <input type="hidden" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['request']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>">
+                <input type="text" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['request']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>">
               </div>
             </div>
           </div>
@@ -1191,7 +1191,7 @@
         success: function(resource) {
           console.log(resource);
           $('#head_dept_select').html('');
-          $("#head_dept_select").append('<option>--Select Head Dept--</option>');
+          $("#head_dept_select").append('<option value="">--Select Head Dept--</option>');
           $.each(resource, function(i, item) {
             if(head_dept==item.username){
               var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';

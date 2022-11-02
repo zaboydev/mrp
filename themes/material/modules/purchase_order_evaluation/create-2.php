@@ -619,7 +619,7 @@
         success: function(resource) {
           console.log(resource);
           $('#head_dept_select').html('');
-          $("#head_dept_select").append('<option>--Select Head Dept--</option>');
+          $("#head_dept_select").append('<option value="">--Select Head Dept--</option>');
           $.each(resource, function(i, item) {
             if(head_dept==item.username){
               var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';
