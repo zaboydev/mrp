@@ -615,6 +615,10 @@ class Purchase_Request extends MY_Controller
           }
         }
 
+        if($_SESSION['request']['head_dept']=='' || $_SESSION['request']['head_dept']==NULL){
+          $errors[] = 'Please Select Head Dept!!';
+        }
+
         if (!empty($errors)) {
           $data['success'] = FALSE;
           $data['message'] = implode('<br />', $errors);
