@@ -501,6 +501,10 @@ class Purchase_Order_Evaluation extends MY_Controller
           }
         }
 
+        if($_SESSION['poe']['annual_cost_center_id']=='' || $_SESSION['poe']['annual_cost_center_id']==NULL){
+          $errors[] = 'Please Select Department!!';
+        }
+
         if($_SESSION['poe']['head_dept']=='' || $_SESSION['poe']['head_dept']==NULL){
           $errors[] = 'Please Select Head Dept!!';
         }
