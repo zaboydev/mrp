@@ -102,6 +102,7 @@ class Purchase_Request extends MY_Controller
     $_SESSION['request']['cost_center_name']        = $cost_center_name;
     $_SESSION['request']['cost_center_code']        = $cost_center_code;
     $_SESSION['request']['department_id']           = $department_id;
+    $_SESSION['request']['head_dept']               = NULL;
 
     redirect($this->module['route'] . '/create');
   }
