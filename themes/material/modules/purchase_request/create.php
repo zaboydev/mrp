@@ -35,7 +35,7 @@
                   
                 </select>
                 <label for="notes">Head Dept.</label>
-                <input type="text" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['request']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>">
+                <input type="hidden" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['request']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>">
               </div>
             </div>
           </div>
