@@ -31,7 +31,7 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="head_dept_select" id="head_dept_select" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
-                  <option>--Select Head Dept--</option>
+                  <option value="">--Select Head Dept--</option>
                   
                 </select>
                 <label for="notes">Head Dept.</label>
