@@ -661,7 +661,7 @@ class Expense_Purchase_Order extends MY_Controller
     if (strpos($entity['document_number'], 'W') !== FALSE){
       $this->data['page']['title']    = 'WORK ORDER';
     }
-    $this->data['format_order'] = substr($row['document_number'], 0, 3);
+    $this->data['format_order'] = substr($entity['document_number'], 0, 3);
     $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->module['view'] . '/pdf', $this->data, true);
