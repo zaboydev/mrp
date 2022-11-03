@@ -34,7 +34,7 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="annual_cost_center_id" id="annual_cost_center_id" class="form-control" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>" required>
-                  <option>--Select Department--</option>
+                  <option value="">--Select Department--</option>
                   <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
                     <option value="<?= $annual_cost_center['id']; ?>" <?= ($_SESSION['poe']['annual_cost_center_id'] == $annual_cost_center['id']) ? 'selected' : ''; ?>>
                       <?= $annual_cost_center['cost_center_name']; ?>
@@ -619,7 +619,7 @@
         success: function(resource) {
           console.log(resource);
           $('#head_dept_select').html('');
-          $("#head_dept_select").append('<option>--Select Head Dept--</option>');
+          $("#head_dept_select").append('<option value="">--Select Head Dept--</option>');
           $.each(resource, function(i, item) {
             if(head_dept==item.username){
               var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';

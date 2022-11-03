@@ -18,7 +18,7 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="annual_cost_center_id" id="annual_cost_center_id" class="form-control" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>" required>
-                  <option>--Select Department--</option>
+                  <option value="">--Select Department--</option>
                   <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
                     <option value="<?= $annual_cost_center['id']; ?>" <?= ($_SESSION['request']['annual_cost_center_id'] == $annual_cost_center['id']) ? 'selected' : ''; ?>>
                       <?= $annual_cost_center['cost_center_name']; ?>
@@ -31,7 +31,7 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="head_dept_select" id="head_dept_select" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
-                  <option>--Select Head Dept--</option>
+                  <option value="">--Select Head Dept--</option>
                   
                 </select>
                 <label for="notes">Head Dept.</label>
@@ -1157,15 +1157,19 @@
     });
 
     $('#annual_cost_center_id').on('change', function() {
+      var prev = $(this).data('val');
       var val = $(this).val();
       var url = $(this).data('source');
 
-      $.get(url, {
-        data: val
-      });
+      if (prev != ''){
+        var conf = confirm("You have changing Department. Continue?");
 
-      $('#head_dept').val('').trigger('change');
-      get_head_dept_user();
+        if (conf == false){
+          return false;
+        }
+      }
+
+      window.location.href = url + '/' + val;
 
     });
 
@@ -1191,7 +1195,7 @@
         success: function(resource) {
           console.log(resource);
           $('#head_dept_select').html('');
-          $("#head_dept_select").append('<option>--Select Head Dept--</option>');
+          $("#head_dept_select").append('<option value="">--Select Head Dept--</option>');
           $.each(resource, function(i, item) {
             if(head_dept==item.username){
               var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';
