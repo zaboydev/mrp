@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'){
+          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'){
             return TRUE;
           }else{
             return FALSE;
@@ -3079,6 +3079,20 @@ if (!function_exists('currency_for_vendor_list')) {
       }
   
       return $total_flight_target;
+    }
+  }
+
+  if ( ! function_exists('getNotifRecipient_byUsername')) {
+    function getNotifRecipient_byUsername($username)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where('username', $username);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
     }
   }
 

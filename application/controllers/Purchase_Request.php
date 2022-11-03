@@ -616,6 +616,14 @@ class Purchase_Request extends MY_Controller
           }
         }
 
+        if($_SESSION['request']['annual_cost_center_id']=='' || $_SESSION['request']['annual_cost_center_id']==NULL){
+          $errors[] = 'Please Select Department!!';
+        }
+
+        if($_SESSION['request']['head_dept']=='' || $_SESSION['request']['head_dept']==NULL){
+          $errors[] = 'Please Select Head Dept!!';
+        }
+
         if (!empty($errors)) {
           $data['success'] = FALSE;
           $data['message'] = implode('<br />', $errors);

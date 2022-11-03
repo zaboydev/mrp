@@ -31,13 +31,16 @@
                     <select name="format_number" id="format_number" class="form-control" value="<?= $_SESSION['order']['format_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_format_number'); ?>" required>
                       <option value="POL" <?= ('POL' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>POL</option>
                       <option value="WOL" <?= ('WOL' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>WOL</option>
+                      <option value="POM" <?= ('POM' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>POM</option>
+                      <option value="WOM" <?= ('WOWOML' == $_SESSION['order']['format_number']) ? 'selected' : ''; ?>>WOM</option>
                     </select>
-
                   </div>
                   <div class="col-xs-6">
                     <input type=" text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['order']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
                     <input type="hidden" name="pom_number" id="pom_number" value="<?= $_SESSION['order']['pom_document_number']; ?>">
                     <input type="hidden" name="wom_number" id="wom_number" value="<?= $_SESSION['order']['wom_document_number']; ?>">
+                    <input type="hidden" name="pol_number" id="pol_number" value="<?= $_SESSION['order']['pol_document_number']; ?>">
+                    <input type="hidden" name="wol_number" id="wol_number" value="<?= $_SESSION['order']['wol_document_number']; ?>">
                     <!-- <label for="document_number">Document No.</label> -->
                   </div>
 
@@ -783,10 +786,16 @@
     $('#format_number').on('change', function() {
       var format = $(this).val();
       if (format == 'POL') {
-        var number = $('#pom_number').val();
+        var number = $('#pol_number').val();
       }
-      if(format == 'WOL') {
+      else if(format == 'WOL') {
+        var number = $('#wol_number').val();
+      }
+      else if(format == 'WOM') {
         var number = $('#wom_number').val();
+      }
+      else if(format == 'POM') {
+        var number = $('#pom_number').val();
       }
       $('#document_number').val(number).trigger('change');
 

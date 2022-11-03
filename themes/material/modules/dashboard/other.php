@@ -2,10 +2,8 @@
 
 <?php startblock('content') ?>
   <section class="<?=(isset($page['actions'])) ? 'has-actions' : '';?> bg-blue">
-    <div class="section-body">
+    <div class="section-body">    
       <div class="row">
-      </div>      
-        <div class="row">
         <?php if (is_granted($module, 'approval')):?>
           <div class="col-md-4">
             <div class="card">
@@ -162,43 +160,8 @@
             </div>
           </div> 
         <?php endif; ?>
-        <?php if (is_granted($module, 'payment')):?>
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-head style-primary">
-                <header>Payment</header>
-              </div>
-                <?php if (is_granted($modules['payment'], 'payment')):?>
-                  <div class="card-head collapsed">
-                    <header>
-                      <a href="<?=site_url($modules['payment']['route']);?>">
-                        Payment Request (<strong><font color="red"><?=$count_payment_request_need_to_pay;?></font></strong>)
-                      </a>
-                    </header>
-                  </div>
-                <?php endif;?>
-                <?php if (is_granted($modules['expense_closing_payment'], 'payment')):?>
-                  <div class="card-head collapsed">
-                    <header>
-                      <a href="<?=site_url($modules['expense_closing_payment']['route']);?>">
-                        Expense Purposed Payment (<strong><font color="red"><?=$count_expense_purposed_payment_need_to_pay;?></font></strong>)
-                      </a>
-                    </header>
-                  </div>
-                <?php endif;?>
-                <?php if (is_granted($modules['capex_closing_payment'], 'payment')):?>
-                  <div class="card-head collapsed">
-                    <header>
-                      <a href="<?=site_url($modules['capex_closing_payment']['route']);?>">
-                        Capex Purposed Payment (<strong><font color="red"><?=$count_capex_purposed_payment_need_to_pay;?></font></strong>)
-                      </a>
-                    </header>
-                  </div>
-                <?php endif;?>
-            </div>
-          </div>  
-          <?php endif; ?>    
-          <div class="col-sm-4">
+         
+          <div class="col-sm-3">
             <div class="card">
               <div class="card-head style-primary">
                 <header>Search Items in Stores</header>
@@ -226,7 +189,158 @@
               </div>
             </div>
           </div>
-          <div class="col-sm-4">
+          <?php if (is_granted($modules['stock_general'], 'index')||is_granted($modules['stock'], 'index')
+          ||is_granted($modules['low_stock'], 'index')||is_granted($modules['stock_opname'], 'index')||is_granted($modules['stock_adjustment'], 'index')
+          ||is_granted($modules['expired_stock'], 'index')):?>                
+          <div class="col-sm-5">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>MATERIAL STOCK</header>
+              </div>
+
+              <?php if (is_granted($modules['stock_general'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_general']['route']);?>">
+                    General Stock
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_general']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>
+              <?php endif;?>
+
+              <?php if (is_granted($modules['stock'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock']['route']);?>">
+                    Stock In Stores
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['low_stock'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['low_stock']['route']);?>">
+                    Low Stock
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_low']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['stock_opname'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>">
+                    Stock Opname Report
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['stock_opname'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>">
+                    Summary Stock Report
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['stock_adjustment'], 'index')):?>
+              <div class="card-head">
+                <header>
+                  <a href="<?=site_url($modules['stock_adjustment']['route']);?>">
+                    Stock Adjustment
+                  </a>
+                </header>
+                <div class="tools">
+                  <a href="<?=site_url($modules['stock_adjustment']['route']);?>" class="btn btn-icon-toggle">
+                    <i class="fa fa-list"></i>
+                  </a>
+                </div>
+              </div>              
+              <?php endif;?>
+
+              <?php if (is_granted($modules['expired_stock'], 'index')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expired_stock']['route']);?>">
+                        Stock Yang Akan Expired (<strong><font color="red"><?=$count_expired_stock;?></font></strong>)
+                      </a>
+                    </header>
+                    <div class="tools">
+                      <a href="<?=site_url($modules['purchase_request']['route']);?>" class="btn btn-icon-toggle">
+                        <i class="fa fa-list"></i>
+                      </a>
+                      <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#expired_stock"><i class="fa fa-external-link"></i></a>
+                    </div>
+                  </div>
+                  <?php if (is_granted($modules['expired_stock'], 'index')):?>
+                    <div id="expired_stock" class="collapse">
+                      <table class="tg">
+                        <thead>
+                          <tr>
+                            <th>Part Number</th>
+                            <th>Serial Number</th>
+                            <th>Description</th>
+                            <th>Expired Date</th>
+                          </tr>                        
+                        </thead>
+                        <tbody>
+                          <?php foreach ($expired_stock as $ex):?>
+                            <tr>
+                              <td><?=$ex['part_number'];?></td>
+                              <td><?=$ex['part_number'];?></td>
+                              <td><?=$ex['description'];?></td>
+                              <td><?=print_date($ex['expired_date'],'d F Y');?></td>
+                            </tr>
+                        <?php endforeach;?>
+                        </tbody>
+                      </table>
+                      <ul class="list">
+                        
+                      </ul>
+                    </div>
+                  <?php endif;?>
+                <?php endif;?>
+            </div>
+          </div> 
+          <?php endif;?>           
+      </div> 
+      <div class="row">
+        <?php if (is_granted($modules['capex_request'], 'document') || is_granted($modules['capex_order_evaluation'], 'document')
+        ||is_granted($modules['capex_purchase_order'], 'document')||is_granted($modules['inventory_request'], 'document')
+        ||is_granted($modules['inventory_order_evaluation'], 'document')||is_granted($modules['inventory_purchase_order'], 'document')
+        ||is_granted($modules['expense_request'], 'document')||is_granted($modules['expense_order_evaluation'], 'document')
+        ||is_granted($modules['expense_purchase_order'], 'document')):?>
+        <div class="col-sm-4">
             <div class="panel-group" id="document_accordion">
               <div class="card panel">
                 <div class="card-head style-primary">
@@ -322,6 +436,20 @@
                     </header>
                   </div>
                 <?php endif;?>              
+              </div>
+            </div>
+        </div>
+        <?php endif;?>
+        <?php if (is_granted($modules['purchase_request'], 'document')||is_granted($modules['purchase_order_evaluation'], 'index')
+        ||is_granted($modules['goods_received_note'], 'index')||is_granted($modules['material_slip'], 'index')
+        ||is_granted($modules['internal_delivery'], 'index')||is_granted($modules['shipping_document'], 'index')
+        ||is_granted($modules['commercial_invoice'], 'index')):?>
+        <div class="col-sm-4">
+            <div class="panel-group" id="document_accordion">
+              <div class="card panel">
+                <div class="card-head style-primary">
+                  <header>Documents</header>
+                </div>              
 
                 <?php if (is_granted($modules['purchase_request'], 'index')):?>
                   <div class="card-head collapsed">
@@ -583,107 +711,8 @@
                 <?php endif;?>
               </div>
             </div>
-          </div>
-          <?php if (is_granted($modules['stock_general'], 'index')||is_granted($modules['stock'], 'index')
-          ||is_granted($modules['low_stock'], 'index')||is_granted($modules['stock_opname'], 'index')||is_granted($modules['stock_adjustment'], 'index')):?>                
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-head style-primary">
-                <header>MATERIAL STOCK</header>
-              </div>
-
-              <?php if (is_granted($modules['stock_general'], 'index')):?>
-              <div class="card-head">
-                <header>
-                  <a href="<?=site_url($modules['stock_general']['route']);?>">
-                    General Stock
-                  </a>
-                </header>
-                <div class="tools">
-                  <a href="<?=site_url($modules['stock_general']['route']);?>" class="btn btn-icon-toggle">
-                    <i class="fa fa-list"></i>
-                  </a>
-                </div>
-              </div>
-              <?php endif;?>
-
-              <?php if (is_granted($modules['stock'], 'index')):?>
-              <div class="card-head">
-                <header>
-                  <a href="<?=site_url($modules['stock']['route']);?>">
-                    Stock In Stores
-                  </a>
-                </header>
-                <div class="tools">
-                  <a href="<?=site_url($modules['stock']['route']);?>" class="btn btn-icon-toggle">
-                    <i class="fa fa-list"></i>
-                  </a>
-                </div>
-              </div>              
-              <?php endif;?>
-
-              <?php if (is_granted($modules['low_stock'], 'index')):?>
-              <div class="card-head">
-                <header>
-                  <a href="<?=site_url($modules['low_stock']['route']);?>">
-                    Low Stock
-                  </a>
-                </header>
-                <div class="tools">
-                  <a href="<?=site_url($modules['stock_low']['route']);?>" class="btn btn-icon-toggle">
-                    <i class="fa fa-list"></i>
-                  </a>
-                </div>
-              </div>              
-              <?php endif;?>
-
-              <?php if (is_granted($modules['stock_opname'], 'index')):?>
-              <div class="card-head">
-                <header>
-                  <a href="<?=site_url($modules['stock_opname']['route']);?>">
-                    Stock Opname Report
-                  </a>
-                </header>
-                <div class="tools">
-                  <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
-                    <i class="fa fa-list"></i>
-                  </a>
-                </div>
-              </div>              
-              <?php endif;?>
-
-              <?php if (is_granted($modules['stock_opname'], 'index')):?>
-              <div class="card-head">
-                <header>
-                  <a href="<?=site_url($modules['stock_opname']['route']);?>">
-                    Summary Stock Report
-                  </a>
-                </header>
-                <div class="tools">
-                  <a href="<?=site_url($modules['stock_opname']['route']);?>" class="btn btn-icon-toggle">
-                    <i class="fa fa-list"></i>
-                  </a>
-                </div>
-              </div>              
-              <?php endif;?>
-
-              <?php if (is_granted($modules['stock_adjustment'], 'index')):?>
-              <div class="card-head">
-                <header>
-                  <a href="<?=site_url($modules['stock_adjustment']['route']);?>">
-                    Stock Adjustment
-                  </a>
-                </header>
-                <div class="tools">
-                  <a href="<?=site_url($modules['stock_adjustment']['route']);?>" class="btn btn-icon-toggle">
-                    <i class="fa fa-list"></i>
-                  </a>
-                </div>
-              </div>              
-              <?php endif;?>
-            </div>
-          </div> 
-          <?php endif;?> 
+        </div>
+        <?php endif;?>
         <?php if (is_granted($modules['permintaan_adjustment'], 'index')):?> 
           <div class="col-md-4">
             <div class="card">
@@ -704,65 +733,9 @@
               </div>
             </div>
           </div>   
-        <?php endif;?> 
-        <?php if(is_granted($modules['expired_stock'], 'index')): ?>
-        <div class="col-sm-5">
-            <div class="panel-group" id="document_accordion">
-              <div class="card panel">
-                <div class="card-head style-primary">
-                  <header>Stock Expired</header>
-                </div>
-
-                <?php if (is_granted($modules['expired_stock'], 'index')):?>
-                  <div class="card-head collapsed">
-                    <header>
-                      <a href="<?=site_url($modules['expired_stock']['route']);?>">
-                        Stock Yang Akan Expired (<strong><font color="red"><?=$count_expired_stock;?></font></strong>)
-                      </a>
-                    </header>
-                    <div class="tools">
-                      <a href="<?=site_url($modules['purchase_request']['route']);?>" class="btn btn-icon-toggle">
-                        <i class="fa fa-list"></i>
-                      </a>
-
-                      <?php if (is_granted($modules['purchase_request'], 'index')):?>
-                        <a class="btn btn-icon-toggle" data-toggle="collapse" data-parent="#document_accordion" data-target="#expired_stock"><i class="fa fa-external-link"></i></a>
-                      <?php endif;?>
-                    </div>
-                  </div>
-
-                  <?php if (is_granted($modules['expired_stock'], 'index')):?>
-                    <div id="expired_stock" class="collapse">
-                      <table class="tg">
-                        <thead>
-                          <tr>
-                            <th>Part Number</th>
-                            <th>Serial Number</th>
-                            <th>Description</th>
-                            <th>Expired Date</th>
-                          </tr>                        
-                        </thead>
-                        <tbody>
-                          <?php foreach ($expired_stock as $ex):?>
-                            <tr>
-                              <td><?=$ex['part_number'];?></td>
-                              <td><?=$ex['part_number'];?></td>
-                              <td><?=$ex['description'];?></td>
-                              <td><?=print_date($ex['expired_date'],'d F Y');?></td>
-                            </tr>
-                        <?php endforeach;?>
-                        </tbody>
-                      </table>
-                      <ul class="list">
-                        
-                      </ul>
-                    </div>
-                  <?php endif;?>
-                <?php endif;?>
-              </div>
-            </div>
-        </div>
         <?php endif;?>
+      </div>  
+      <div class="row">
         <?php if (is_granted($modules['account_payable'], 'index')):?> 
           <div class="col-md-4">
             <div class="card">
@@ -795,7 +768,44 @@
             </div>
           </div>   
         <?php endif;?>
-        </div>     
+        <?php if (is_granted($module, 'payment')):?>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>Payment</header>
+              </div>
+                <?php if (is_granted($modules['payment'], 'payment')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['payment']['route']);?>">
+                        Payment Request (<strong><font color="red"><?=$count_payment_request_need_to_pay;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+                <?php if (is_granted($modules['expense_closing_payment'], 'payment')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['expense_closing_payment']['route']);?>">
+                        Expense Purposed Payment (<strong><font color="red"><?=$count_expense_purposed_payment_need_to_pay;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+                <?php if (is_granted($modules['capex_closing_payment'], 'payment')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['capex_closing_payment']['route']);?>">
+                        Capex Purposed Payment (<strong><font color="red"><?=$count_capex_purposed_payment_need_to_pay;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+            </div>
+          </div>   
+        <?php endif; ?> 
+      </div>  
+
     </div>
   </section>
 <?php endblock() ?>
