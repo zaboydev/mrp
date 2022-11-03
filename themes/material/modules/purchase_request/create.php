@@ -1157,15 +1157,19 @@
     });
 
     $('#annual_cost_center_id').on('change', function() {
+      var prev = $(this).data('val');
       var val = $(this).val();
       var url = $(this).data('source');
 
-      $.get(url, {
-        data: val
-      });
+      if (prev != ''){
+        var conf = confirm("You have changing Department. Continue?");
 
-      $('#head_dept').val('').trigger('change');
-      get_head_dept_user();
+        if (conf == false){
+          return false;
+        }
+      }
+
+      window.location.href = url + '/' + val;
 
     });
 
