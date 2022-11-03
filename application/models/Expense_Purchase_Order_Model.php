@@ -1447,7 +1447,7 @@ class Expense_Purchase_Order_Model extends MY_Model
 
     $this->db->trans_commit();
     $this->connection->trans_commit();
-    $this->send_mail($id_po, 21);
+    $this->send_mail($id_po, $level);
     return TRUE;
   }
 
