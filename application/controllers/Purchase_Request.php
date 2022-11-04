@@ -88,13 +88,12 @@ class Purchase_Request extends MY_Controller
     echo json_encode($result);
   }
 
-  public function set_annual_cost_center_id()
+  public function set_annual_cost_center_id($annual_cost_center_id)
   {
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $this->authorized($this->module, 'document');
 
-    $_SESSION['request']['annual_cost_center_id'] = $_GET['data'];
-    $cost_center = findCostCenterByAnnualCostCenterId($_GET['data']);
+    $_SESSION['request']['annual_cost_center_id'] = urldecode($annual_cost_center_id);
+    $cost_center = findCostCenterByAnnualCostCenterId(urldecode($annual_cost_center_id));
     $cost_center_code = $cost_center['cost_center_code'];
     $cost_center_name = $cost_center['cost_center_name'];          
     $department_id    = $cost_center['department_id'];
@@ -103,6 +102,9 @@ class Purchase_Request extends MY_Controller
     $_SESSION['request']['cost_center_name']        = $cost_center_name;
     $_SESSION['request']['cost_center_code']        = $cost_center_code;
     $_SESSION['request']['department_id']           = $department_id;
+    $_SESSION['request']['head_dept']               = NULL;
+
+    redirect($this->module['route'] . '/create');
   }
 
   public function set_head_dept()
