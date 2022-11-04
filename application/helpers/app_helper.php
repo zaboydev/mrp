@@ -3096,4 +3096,24 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getAllAnnualCostCenters')) {
+    function getAllAnnualCostCenters()
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $year = find_budget_setting('Active Year');
+
+      $connection->select(array('tb_cost_centers.cost_center_name','tb_annual_cost_centers.id'));
+      $connection->from('tb_annual_cost_centers');
+      $connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $connection->order_by('cost_center_name', 'ASC');
+      $connection->where('tb_annual_cost_centers.year_number', $year);
+      $query  = $connection->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
     
