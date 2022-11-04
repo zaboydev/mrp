@@ -35,7 +35,7 @@
               <div class="form-group">
                 <select name="annual_cost_center_id" id="annual_cost_center_id" class="form-control" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>" required>
                   <option value="">--Select Department--</option>
-                  <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
+                  <?php foreach (getAllAnnualCostCenters() as $annual_cost_center) : ?>
                     <option value="<?= $annual_cost_center['id']; ?>" <?= ($_SESSION['poe']['annual_cost_center_id'] == $annual_cost_center['id']) ? 'selected' : ''; ?>>
                       <?= $annual_cost_center['cost_center_name']; ?>
                     </option>
