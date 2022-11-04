@@ -47,7 +47,7 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="head_dept_select" id="head_dept_select" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
-                  <option>--Select Head Dept--</option>
+                  <option value="">--Select Head Dept--</option>
                   
                 </select>
                 <label for="notes">Head Dept.</label>
@@ -585,15 +585,19 @@
     });
 
     $('#annual_cost_center_id').on('change', function() {
+      var prev = $(this).data('val');
       var val = $(this).val();
       var url = $(this).data('source');
 
-      $.get(url, {
-        data: val
-      });
+      if (prev != ''){
+        var conf = confirm("You have changing Department. Continue?");
 
-      $('#head_dept').val('').trigger('change');
-      get_head_dept_user();
+        if (conf == false){
+          return false;
+        }
+      }
+
+      window.location.href = url + '/' + val;
 
     });
 
