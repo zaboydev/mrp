@@ -118,7 +118,7 @@ class Purchase_Order_Evaluation extends MY_Controller
     $_SESSION['poe']['notes'] = $_GET['data'];
   }
 
-  public function set_annual_cost_center_id()
+  public function set_annual_cost_center_id($annual_cost_center_id)
   {
     $this->authorized($this->module, 'document');
 
