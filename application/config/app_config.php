@@ -73,8 +73,6 @@ $config['source_return_service'] = array(
 
 $config['source_poe'] = array(
   'request'             => 'Purchase Request',
-  'expense'             => 'Expense Request',
-  'capex'               => 'Capex Request',
   'return'              => 'Return & Service',
 );
 
