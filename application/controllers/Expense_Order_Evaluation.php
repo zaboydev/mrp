@@ -558,8 +558,8 @@ class Expense_Order_Evaluation extends MY_Controller
           $request = $this->model->infoRequest($request_id);
 
           $_SESSION['expense_poe']['request'][$request_id] = array(
-            'description'             => $request['account_name'],
-            'part_number'             => $request['account_code'],
+            'description'             => trim(strtoupper($request['account_name'])),
+            'part_number'             => trim(strtoupper($request['account_code'])),
             'alternate_part_number'   => NULL,
             'serial_number'           => NULL,
             'unit'                    => NULL,
@@ -695,12 +695,12 @@ class Expense_Order_Evaluation extends MY_Controller
         foreach ($_POST['request'] as $id => $request) {
           $quantity = floatval($_SESSION['expense_poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['expense_poe']['request'][$id]['part_number'] = $request['part_number'];
-          $_SESSION['expense_poe']['request'][$id]['amount']    = $request['amount'];
+          $_SESSION['expense_poe']['request'][$id]['part_number'] = trim(strtoupper($request['part_number']));
+          $_SESSION['expense_poe']['request'][$id]['amount']      = $request['amount'];
           $_SESSION['expense_poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
-          $_SESSION['expense_poe']['request'][$id]['remarks']     = $request['remarks'];
-          $_SESSION['expense_poe']['request'][$id]['unit']     = $request['unit'];
-          $_SESSION['expense_poe']['request'][$id]['konversi']     = $request['konversi'];
+          $_SESSION['expense_poe']['request'][$id]['remarks']       = $request['remarks'];
+          $_SESSION['expense_poe']['request'][$id]['unit']          = $request['unit'];
+          $_SESSION['expense_poe']['request'][$id]['konversi']      = $request['konversi'];
 
           foreach ($request['vendors'] as $key => $vendor) {
             // $_SESSION['expense_poe']['request'][$id]['alternate_part_number'] = $unit_price;

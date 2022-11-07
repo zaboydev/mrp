@@ -162,8 +162,8 @@ class Item_Model extends MY_Model
   {
     $this->db->trans_begin();
 
-    $this->db->set('description', strtoupper($this->input->post('description')));
-    $this->db->set('part_number', strtoupper($this->input->post('part_number')));
+    $this->db->set('description', trim(strtoupper($this->input->post('description'))));
+    $this->db->set('part_number', trim(strtoupper($this->input->post('part_number'))));
     $this->db->set('alternate_part_number', strtoupper($this->input->post('alternate_part_number')));
     $this->db->set('group', strtoupper($this->input->post('group')));
     $this->db->set('unit', strtoupper($this->input->post('unit')));
@@ -179,8 +179,8 @@ class Item_Model extends MY_Model
     $serial_number = NULL;
 
     if (isItemExists($this->input->post('part_number'),$this->input->post('description'), $serial_number) === FALSE) {
-      $this->db->set('description', strtoupper($this->input->post('description')));
-      $this->db->set('part_number', strtoupper($this->input->post('part_number')));
+      $this->db->set('description', trim(strtoupper($this->input->post('description'))));
+      $this->db->set('part_number', trim(strtoupper($this->input->post('part_number'))));
       $this->db->set('alternate_part_number', strtoupper($this->input->post('alternate_part_number')));
       $this->db->set('group', strtoupper($this->input->post('group')));
       $this->db->set('unit', strtoupper($this->input->post('unit')));
@@ -216,8 +216,8 @@ class Item_Model extends MY_Model
     //   $this->db->set('mixable', 'f');
     // }
 
-    $this->db->set('description', strtoupper($this->input->post('description')));
-    $this->db->set('part_number', strtoupper($this->input->post('part_number')));
+    $this->db->set('description', trim(strtoupper($this->input->post('description'))));
+    $this->db->set('part_number', trim(strtoupper($this->input->post('part_number'))));
     // $this->db->set('serial_number', strtoupper($this->input->post('serial_number')));
     $this->db->set('alternate_part_number', strtoupper($this->input->post('alternate_part_number')));
     $this->db->set('group', strtoupper($this->input->post('group')));
@@ -233,8 +233,8 @@ class Item_Model extends MY_Model
     // $this->db->update('tb_master_items');
     $this->db->update('tb_master_part_number');
 
-    $this->db->set('description', strtoupper($this->input->post('description')));
-    $this->db->set('part_number', strtoupper($this->input->post('part_number')));
+    $this->db->set('description', trim(strtoupper($this->input->post('description'))));
+    $this->db->set('part_number', trim(strtoupper($this->input->post('part_number'))));
     // $this->db->set('serial_number', strtoupper($this->input->post('serial_number')));
     $this->db->set('alternate_part_number', strtoupper($this->input->post('alternate_part_number')));
     $this->db->set('group', strtoupper($this->input->post('group')));
