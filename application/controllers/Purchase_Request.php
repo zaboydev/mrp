@@ -299,7 +299,7 @@ class Purchase_Request extends MY_Controller
           if ($row['status'] == 'waiting' && config_item('auth_username') == $row['head_dept']) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }
-          elseif ($row['status'] == 'pending' && config_item('auth_role') == 'FINANCE MANAGER') {
+          elseif ($row['status'] == 'pending' && config_item('auth_role') == 'BUDGETCONTROL') {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           }
           elseif ($row['status'] == 'review operation support' && config_item('auth_role') == 'OPERATION SUPPORT') {
@@ -336,29 +336,13 @@ class Purchase_Request extends MY_Controller
         $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
         $col[] = print_person_name($row['created_by']);
         $col[] = print_string($row['pr_notes']) . ' ' . print_string($row['notes']);
-        if ($row['status'] == 'waiting') {
-          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'CHIEF OF MAINTANCE') {
+        if(in_array($row['status'], ['waiting','pending','review operation support'])){
+          if (is_granted($this->module, 'approval')){
             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          } else {
+          }else{
             $col[] = '';
           }
-        } elseif ($row['status'] == 'pending') {
-          // if(config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'FINANCE MANAGER') {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          } else {
-            $col[] = '';
-          }
-        } elseif ($row['status'] == 'review operation support') {
-          // if(config_item('auth_role') == 'OPERATION SUPPORT' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'OPERATION SUPPORT') {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          } else {
-            $col[] = '';
-          }
-        } elseif ($row['status'] == 'open') {
-          // if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN') {
+        }elseif ($row['status'] == 'open') {
           if (is_granted($this->module, 'closing') === TRUE) {
             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
           } else {
@@ -367,24 +351,12 @@ class Purchase_Request extends MY_Controller
         } else {
           $col[] = '';
         }
-
-        // if($row['status']=="budgeted"){
-        //   if(config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
-        //     $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
-        //   }         
-        // } else {
-        //   if (config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'CHIEF OF MAINTANCE') {
-        //     $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-        //   }  
-        // }
-
-        if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
-          if (config_item('auth_role') == 'FINANCE MANAGER' && $row['status'] == 'pending') {
+        if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
+          if (config_item('auth_role') == 'BUDGETCONTROL' && $row['status'] == 'pending') {
             $col[] = $row['price'] == 0 ? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>' : '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value="' . $row['price'] . '"/>';
           } else {
             $col[] = print_number($row['price'], 2);
           }
-
           $col[] = print_number($row['total'], 2);
         }
 

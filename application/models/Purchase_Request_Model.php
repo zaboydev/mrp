@@ -1230,6 +1230,7 @@ class Purchase_Request_Model extends MY_Model
         } else {
           $inventory_monthly_budget_id = $data['inventory_monthly_budget_id'];
           if (!empty($data['relocation_item']) || $data['relocation_item'] != NULL) {
+            //budget relocation
             //input ke tb_relocation
             $this->db->set('origin_budget_id', $data['relocation_item']);
             $this->db->set('destination_budget_id', $inventory_monthly_budget_id);
@@ -1300,6 +1301,7 @@ class Purchase_Request_Model extends MY_Model
             //update budget yang direlokasi (dipindahkan)
 
           } else {
+            //budgeted
             $budget_id = $data['budget_id'];
 
 
