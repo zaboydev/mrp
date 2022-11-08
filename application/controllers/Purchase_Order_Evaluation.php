@@ -564,10 +564,10 @@ class Purchase_Order_Evaluation extends MY_Controller
           $request = $this->model->infoRequest($request_id);
 
           $_SESSION['poe']['request'][$request_id] = array(
-            'description'             => $request['product_name'],
-            'part_number'             => $request['product_code'],
+            'description'             => trim(strtoupper($request['product_name'])),
+            'part_number'             => trim(strtoupper($request['product_code'])),
             'alternate_part_number'   => ($_SESSION['poe']['source']=='return')?$request['alternate_part_number']:null,
-            'serial_number'           => $request['serial_number'],
+            'serial_number'           => trim(strtoupper($request['serial_number'])),
             'unit'                    => $request['unit'],
             'quantity'                => floatval($request['sisa']),
             'sisa'                    => floatval($request['sisa']),
@@ -700,8 +700,8 @@ class Purchase_Order_Evaluation extends MY_Controller
         foreach ($_POST['request'] as $id => $request) {
           $quantity = floatval($_SESSION['poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['poe']['request'][$id]['part_number']           = $request['part_number'];
-          $_SESSION['poe']['request'][$id]['serial_number']         = $request['serial_number'];
+          $_SESSION['poe']['request'][$id]['part_number']           = trim(strtoupper($request['part_number']));
+          $_SESSION['poe']['request'][$id]['serial_number']         = trim(strtoupper($request['serial_number']));
           $_SESSION['poe']['request'][$id]['quantity']              = $request['quantity'];
           $_SESSION['poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
           $_SESSION['poe']['request'][$id]['remarks']               = $request['remarks'];

@@ -688,8 +688,8 @@ class Purchase_Request extends MY_Controller
       $_SESSION['request']['items'][] = array(
         'inventory_monthly_budget_id' => $this->input->post('inventory_monthly_budget_id'),
         'group_name'                  => $this->input->post('group_name'),
-        'product_name'                => $this->input->post('product_name'),
-        'part_number'                 => $this->input->post('part_number'),
+        'product_name'                => trim(strtoupper($this->input->post('product_name'))),
+        'part_number'                 => trim(strtoupper($this->input->post('part_number'))),
         'unit'                        => $this->input->post('unit'),
         'quantity'                    => $this->input->post('quantity'),
         'price'                       => $this->input->post('price'),
@@ -875,8 +875,8 @@ class Purchase_Request extends MY_Controller
       $_SESSION['request']['items'][$key] = array(
         'inventory_monthly_budget_id' => $this->input->post('inventory_monthly_budget_id'),
         'group_name'                  => $this->input->post('group_name'),
-        'product_name'                => $this->input->post('product_name'),
-        'part_number'                 => $this->input->post('part_number'),
+        'product_name'                => trim(strtoupper($this->input->post('product_name'))),
+        'part_number'                 => trim(strtoupper($this->input->post('part_number'))),
         'unit'                        => $this->input->post('unit'),
         'quantity'                    => $this->input->post('quantity'),
         'price'                       => $this->input->post('price'),

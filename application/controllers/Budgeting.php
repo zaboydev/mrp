@@ -364,111 +364,150 @@ class Budgeting extends MY_Controller
             /******************
              * CHECK COLUMN 0
              ******************/
-            $name = trim(strtoupper($col[0]));
+            $year = trim(strtoupper($col[0]));
+            $data[$row]['year'] = $year;
+
+            if ($year == '')
+              $errors[] = 'Line ' . $row . ': year is null!';
+
+            /******************
+             * CHECK COLUMN 1
+             ******************/
+            $hours = trim(strtoupper($col[1]));
+            $data[$row]['hours'] = $hours;
+
+            if ($hours == '')
+              $errors[] = 'Line ' . $row . ': hours is null!';
+
+            /******************
+             * CHECK COLUMN 2
+             ******************/
+            $name = trim(strtoupper($col[2]));
             $data[$row]['name'] = $name;
 
             if ($name == '')
               $errors[] = 'Line ' . $row . ': name is null!';
 
-
             /**************************************************
-             * CHECK COLUMN 1
+             * CHECK COLUMN 3
              **********************************/
-            $part = trim(strtoupper($col[1]));
+            $part = trim(strtoupper($col[3]));
             $data[$row]['part'] = $part;
 
             if ($part == '')
               $errors[] = 'Line ' . $row . ': part is null!';
 
             /******************
-             * CHECK COLUMN 2
+             * CHECK COLUMN 4
              ******************/
-            $code = trim(strtoupper($col[2]));
-            $data[$row]['code'] = $code;
+            $serial_number = trim(strtoupper($col[4]));
+            $data[$row]['serial_number'] = $serial_number;
 
-            if ($code == '')
-              $errors[] = 'Line ' . $row . ': code is null!';
+            /**************************************************
+             * CHECK COLUMN 5
+             **********************************/
+            $category = trim(strtoupper($col[5]));
+            $data[$row]['category'] = $category;
+
+            if ($category == '')
+              $errors[] = 'Line ' . $row . ': category is null!';
+
+            /**************************************************
+             * CHECK COLUMN 6
+             **********************************/
+            $group = trim(strtoupper($col[6]));
+            $data[$row]['group'] = $group;
+
+            if ($group == '')
+              $errors[] = 'Line ' . $row . ': group is null!';
+            
+            if (!isItemGroupExists($group))
+              $errors[] = 'Line ' . $row . ': group '.$group.' not available ini table!';
+
+            /**************************************************
+             * CHECK COLUMN 7
+             **********************************/
+            $unit = trim(strtoupper($col[7]));
+            $data[$row]['unit'] = $unit;
+
+            if ($unit == '')
+              $errors[] = 'Line ' . $row . ': unit is null!';
 
             /******************
-             * CHECK COLUMN 3
+             * CHECK COLUMN 8-31
              ******************/
             $data[$row]['budget'] = array();
             $object = new \stdClass();
             $object->month = 1;
-            $object->val = trim(strtoupper($col[3]));
-            $object->qty = trim(strtoupper($col[4]));
-            array_push($data[$row]['budget'], $object);
-
-            $object = new \stdClass();
-            $object->month = 2;
-            $object->val = trim(strtoupper($col[5]));
-            $object->qty = trim(strtoupper($col[6]));
-            array_push($data[$row]['budget'], $object);
-
-            $object = new \stdClass();
-            $object->month = 3;
-            $object->val = trim(strtoupper($col[7]));
+            $object->val = trim(strtoupper($col[9]));
             $object->qty = trim(strtoupper($col[8]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 4;
-            $object->val = trim(strtoupper($col[9]));
+            $object->month = 2;
+            $object->val = trim(strtoupper($col[11]));
             $object->qty = trim(strtoupper($col[10]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 5;
-            $object->val = trim(strtoupper($col[11]));
+            $object->month = 3;
+            $object->val = trim(strtoupper($col[13]));
             $object->qty = trim(strtoupper($col[12]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 6;
-            $object->val = trim(strtoupper($col[13]));
+            $object->month = 4;
+            $object->val = trim(strtoupper($col[15]));
             $object->qty = trim(strtoupper($col[14]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 7;
-            $object->val = trim(strtoupper($col[15]));
+            $object->month = 5;
+            $object->val = trim(strtoupper($col[17]));
             $object->qty = trim(strtoupper($col[16]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 8;
-            $object->val = trim(strtoupper($col[17]));
+            $object->month = 6;
+            $object->val = trim(strtoupper($col[19]));
             $object->qty = trim(strtoupper($col[18]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 9;
-            $object->val = trim(strtoupper($col[19]));
+            $object->month = 7;
+            $object->val = trim(strtoupper($col[21]));
             $object->qty = trim(strtoupper($col[20]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 10;
-            $object->val = trim(strtoupper($col[21]));
+            $object->month = 8;
+            $object->val = trim(strtoupper($col[23]));
             $object->qty = trim(strtoupper($col[22]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 11;
-            $object->val = trim(strtoupper($col[23]));
+            $object->month = 9;
+            $object->val = trim(strtoupper($col[25]));
             $object->qty = trim(strtoupper($col[24]));
             array_push($data[$row]['budget'], $object);
 
             $object = new \stdClass();
-            $object->month = 12;
-            $object->val = trim(strtoupper($col[25]));
+            $object->month = 10;
+            $object->val = trim(strtoupper($col[27]));
             $object->qty = trim(strtoupper($col[26]));
             array_push($data[$row]['budget'], $object);
 
-            $unit = trim(strtoupper($col[27]));
-            $data[$row]['unit'] = $unit;
-            if ($unit == '')
-              $errors[] = 'Line ' . $row . ': unit is null!';
+            $object = new \stdClass();
+            $object->month = 11;
+            $object->val = trim(strtoupper($col[29]));
+            $object->qty = trim(strtoupper($col[28]));
+            array_push($data[$row]['budget'], $object);
+
+            $object = new \stdClass();
+            $object->month = 12;
+            $object->val = trim(strtoupper($col[31]));
+            $object->qty = trim(strtoupper($col[30]));
+            array_push($data[$row]['budget'], $object);
           }
           fclose($handle);
           if (empty($errors)) {

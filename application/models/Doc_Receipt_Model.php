@@ -298,10 +298,10 @@ class Doc_Receipt_Model extends MY_Model
       /**
        * CREATE ITEM IF NOT EXISTS
        */
-      if ($this->isItemExists($data['part_number'],$data['description']) === FALSE){
-        $this->db->set('part_number', strtoupper($data['part_number']));
+      if ($this->isItemExists(trim($data['part_number']),trim($data['description'])) === FALSE){
+        $this->db->set('part_number', trim(strtoupper($data['part_number'])));
         $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-        $this->db->set('description', strtoupper($data['description']));
+        $this->db->set('description', trim(strtoupper($data['description'])));
         $this->db->set('group', strtoupper($data['group']));
         $this->db->set('minimum_quantity', floatval($data['minimum_quantity']));
         $this->db->set('unit', strtoupper($data['unit']));
@@ -314,7 +314,7 @@ class Doc_Receipt_Model extends MY_Model
        * CREATE SERIAL NUMBER IF NOT EXISTS
        */
       if (!empty($data['serial_number']) && !$this->isSerialNumberExists($data['serial_number'])){
-        $this->db->set('part_number', strtoupper($data['part_number']));
+        $this->db->set('part_number', trim(strtoupper($data['part_number'])));
         $this->db->set('serial_number', strtoupper($data['serial_number']));
         $this->db->set('updated_by', config_item('auth_person_name'));
         $this->db->insert('tb_master_item_serials');

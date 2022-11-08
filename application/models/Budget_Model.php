@@ -436,9 +436,9 @@ class Purchase_Request_Model extends MY_Model
       }
 
       if ($this->isItemExists($data['part_number'],$data['description']) === FALSE){
-        $this->db->set('part_number', strtoupper($data['part_number']));
-        $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-        $this->db->set('description', strtoupper($data['description']));
+        $this->db->set('part_number', trim(strtoupper($data['part_number'])));
+        $this->db->set('alternate_part_number', trim(strtoupper($data['alternate_part_number'])));
+        $this->db->set('description', trim(strtoupper($data['description'])));
         $this->db->set('group', strtoupper($data['group']));
         $this->db->set('unit', strtoupper($data['unit']));
         $this->db->set('created_by', config_item('auth_username'));

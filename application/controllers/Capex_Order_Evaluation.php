@@ -539,8 +539,8 @@ class Capex_Order_Evaluation extends MY_Controller
           $request = $this->model->infoRequest($request_id);
 
           $_SESSION['capex_poe']['request'][$request_id] = array(
-            'description'             => $request['product_name'],
-            'part_number'             => $request['product_code'],
+            'description'             => trim(strtoupper($request['product_name'])),
+            'part_number'             => trim(strtoupper($request['product_code'])),
             'alternate_part_number'   => NULL,
             'serial_number'           => NULL,
             'unit'                    => $request['unit'],
@@ -674,8 +674,8 @@ class Capex_Order_Evaluation extends MY_Controller
         foreach ($_POST['request'] as $id => $request) {
           $quantity = floatval($_SESSION['capex_poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['capex_poe']['request'][$id]['part_number'] = $request['part_number'];
-          $_SESSION['capex_poe']['request'][$id]['description'] = $request['description'];
+          $_SESSION['capex_poe']['request'][$id]['part_number'] = trim(strtoupper($request['part_number']));
+          $_SESSION['capex_poe']['request'][$id]['description'] = trim(strtoupper($request['description']));
           $_SESSION['capex_poe']['request'][$id]['quantity']    = $request['quantity'];
           $_SESSION['capex_poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
           $_SESSION['capex_poe']['request'][$id]['remarks']     = $request['remarks'];
