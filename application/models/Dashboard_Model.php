@@ -170,7 +170,7 @@ class Dashboard_Model extends MY_Model
     // if($role=='CHIEF OF MAINTANCE'){
     //   $status = ['waiting'];
     // }
-    if($role=='FINANCE MANAGER'){
+    if($role=='BUDGETCONTROL'){
       $status = ['pending'];
     }
     if($role=='OPERATION SUPPORT'){
@@ -189,10 +189,10 @@ class Dashboard_Model extends MY_Model
       $this->db->where_in('tb_inventory_purchase_requisition_details.status', ['waiting']);
       $this->db->where('tb_inventory_purchase_requisitions.head_dept', config_item('auth_username'));
       $query = $this->db->get();
-      $count_as_role = $query->num_rows();
+      $count_as_role_head = $query->num_rows();
     }
 
-    return $count_as_role;
+    return $count_as_role+$count_as_role_head;
   }
 
   public function count_poe($role){

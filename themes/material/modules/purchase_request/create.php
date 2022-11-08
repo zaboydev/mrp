@@ -260,39 +260,6 @@
                       <input type="text" name="unit" id="unit" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" required>
                       <label for="unit">Unit of Measurement</label>
                     </div>
-                  </fieldset>
-                </div>
-                <div class="col-sm-6 col-lg-6">
-                  <fieldset>
-                    <legend>Required</legend>
-
-                    <div class="form-group">
-                      <input type="text" name="quantity" id="quantity" class="form-control input-sm" value="1" required>
-                      <label for="quantity">Quantity</label>
-                    </div>
-
-                    <div class="form-group">
-                      <input type="text" name="maximum_quantity" id="maximum_quantity" class="form-control input-sm" value="0" readonly>
-                      <label for="maximum_quantity">Max. Quantity</label>
-
-                      <input type="hidden" name="price" id="price" value="1">
-                      <input type="hidden" name="total" id="total" value="0">
-
-                      <input type="hidden" name="ytd_quantity" id="ytd_quantity" value="0">
-                      <input type="hidden" name="ytd_used_quantity" id="total" value="0">
-                      <input type="hidden" name="ytd_budget" id="price" value="0">
-                      <input type="hidden" name="ytd_used_budget" id="total" value="0">
-
-                      <input type="hidden" name="mtd_quantity" id="mtd_quantity" value="0">
-                      <input type="hidden" name="mtd_used_quantity" id="mtd_used_quantity" value="0">
-                      <input type="hidden" name="mtd_budget" id="mtd_budget" value="0">
-                      <input type="hidden" name="mtd_used_budget" id="mtd_used_budget" value="0">
-                    </div>
-
-                    <div class="form-group hide">
-                      <input type="number" name="maximum_price" id="maximum_price" value="0" class="form-control input-sm" readonly="readonly">
-                      <label for="max_value">Max. Value</label>
-                    </div>
 
                     <div class="form-group">
                       <input type="text" name="on_hand_quantity" id="on_hand_quantity" class="form-control input-sm" value="0" readonly>
@@ -305,21 +272,63 @@
                     </div>
                   </fieldset>
                 </div>
+                <div class="col-sm-6 col-lg-6">
+                  <fieldset>
+                    <legend>Request</legend>
+
+                    <div class="form-group">
+                      <input type="text" name="quantity" id="quantity" class="form-control input-sm" value="1" required>
+                      <label for="quantity">Quantity</label>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="price" id="price" value="1" class="form-control input-sm" readonly>
+                      <label for="price">Price</label>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="total" id="total" value="0" class="form-control input-sm" readonly>
+                      <label for="total">Total</label>
+                    </div>
+
+                    <div class="form-group">
+                      <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
+                      <label for="additional_info">Additional Info/Remarks</label>
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="reference_ipc" id="reference_ipc" class="form-control input-sm">
+                      <label for="reference_ipc">Reference IPC</label>
+                    </div>
+                    
+                  </fieldset>
+                </div>
               </div>
             </div>
 
             <div class="col-sm-12 col-lg-5">
               <fieldset>
-                <legend>Optional</legend>
+                <legend>Planning</legend>
 
                 <div class="form-group">
-                  <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
-                  <label for="additional_info">Additional Info/Remarks</label>
+                  <input type="text" name="maximum_quantity" id="maximum_quantity" class="form-control input-sm" value="0" readonly>
+                  <label for="maximum_quantity">Max. Quantity</label>
+
+                  <input type="hidden" name="ytd_quantity" id="ytd_quantity" value="0">
+                  <input type="hidden" name="ytd_used_quantity" id="total" value="0">
+                  <input type="hidden" name="ytd_budget" id="price" value="0">
+                  <input type="hidden" name="ytd_used_budget" id="total" value="0">
+
+                  <input type="hidden" name="mtd_quantity" id="mtd_quantity" value="0">
+                  <input type="hidden" name="mtd_used_quantity" id="mtd_used_quantity" value="0">
+                  <input type="hidden" name="mtd_budget" id="mtd_budget" value="0">
+                  <input type="hidden" name="mtd_used_budget" id="mtd_used_budget" value="0">
                 </div>
+
                 <div class="form-group">
-                  <input type="text" name="reference_ipc" id="reference_ipc" class="form-control input-sm">
-                  <label for="reference_ipc">Reference IPC</label>
+                  <input type="number" name="maximum_price" id="maximum_price" value="0" class="form-control input-sm" readonly="readonly">
+                  <label for="max_value">Max. Value</label>
                 </div>
+                
               </fieldset>
             </div>
             <div class="col-sm-12 col-lg-5 hide form-unbudgeted">

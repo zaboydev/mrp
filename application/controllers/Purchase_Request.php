@@ -130,6 +130,7 @@ class Purchase_Request extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
 
     $category = $_SESSION['request']['category'];
+    $source = ($_SESSION['request']['request_to'] == 0)? 'Budgetcontrol':'MRP';
     $entities = $this->model->searchBudget($category);
 
     foreach ($entities as $key => $value) {
@@ -137,10 +138,11 @@ class Purchase_Request extends MY_Controller
       $entities[$key]['label'] .= ' || PN: ';
       $entities[$key]['label'] .= $value['product_code'];
       $entities[$key]['label'] .= '<small>';
+      $entities[$key]['label'] .= 'Left Plan Qty: <code>' . number_format($value['maximum_quantity'], 2) . '</code> ||';
+      $entities[$key]['label'] .= 'Left Plan Value: <code>' . number_format($value['maximum_price'], 2) . '</code> ||';
       $entities[$key]['label'] .= 'Minimum Qty: <code>' . number_format($value['minimum_quantity'], 2) . '</code> || ';
       $entities[$key]['label'] .= 'On Hand Qty: <code>' . number_format($value['on_hand_quantity'], 2) . '</code> || ';
-      $entities[$key]['label'] .= 'Left Plan Qty: <code>' . number_format($value['maximum_quantity'], 2) . '</code> ||';
-      $entities[$key]['label'] .= 'source: <code>' . $value['source'] . '</code>';
+      $entities[$key]['label'] .= 'source: <code>' . $source . '</code>';
       $entities[$key]['label'] .= '</small>';
     }
 
@@ -293,93 +295,101 @@ class Purchase_Request extends MY_Controller
       $quantity = array();
 
       foreach ($entities as $row) {
-        $no++;
-        $col = array();
-        if (is_granted($this->module, 'approval')){
-          if ($row['status'] == 'waiting' && config_item('auth_username') == $row['head_dept']) {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          }
-          elseif ($row['status'] == 'pending' && config_item('auth_role') == 'BUDGETCONTROL') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          }
-          elseif ($row['status'] == 'review operation support' && config_item('auth_role') == 'OPERATION SUPPORT') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        }
-        elseif (is_granted($this->module, 'closing')) {
-          if ($row['status'] == 'open') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        } else {
-          $col[] = print_number($no);
-        }
-
-        $col[] = print_string($row['pr_number']);
-        $col[] = print_date($row['pr_date'], 'd/m/Y');
-        $col[] = print_date($row['required_date'], 'd/m/Y');
-        $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name'] : $row['item_category']);
-        $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name'] : $row['product_name']);
-        // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
-        $col[] = '<a data-id="item" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info/' . $row['id']) . '">' . print_string($row['product_code']) . '</a>';
-        $col[] = print_string($row['serial_number']);
-        $col[] = print_number(search_min_qty($row['product_code']), 2);
-        // $col[] = print_number($row['min_qty'], 2);
-        $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id']), 2) . '</a>';
-        $col[] = print_number($row['quantity'], 2);
-        $col[] = print_number($row['process_qty'], 2);
-        $col[] = print_string(strtoupper($row['status']));
-        // $col[] = print_string($row['suggested_supplier']);
-        $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
-        $col[] = print_person_name($row['created_by']);
-        $col[] = print_string($row['pr_notes']) . ' ' . print_string($row['notes']);
-        if(in_array($row['status'], ['waiting','pending','review operation support'])){
+        if (viewOrNot($row['status'],$row['head_dept'])) {
+          $no++;
+          $col = array();
           if (is_granted($this->module, 'approval')){
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          }else{
-            $col[] = '';
+            if ($row['status'] == 'waiting' && config_item('auth_username') == $row['head_dept']) {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            }
+            elseif ($row['status'] == 'pending' && config_item('auth_role') == 'BUDGETCONTROL') {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            }
+            elseif ($row['status'] == 'review operation support' && config_item('auth_role') == 'OPERATION SUPPORT') {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            } else {
+              $col[] = print_number($no);
+            }
           }
-        }elseif ($row['status'] == 'open') {
-          if (is_granted($this->module, 'closing') === TRUE) {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          elseif (is_granted($this->module, 'closing')) {
+            if ($row['status'] == 'open') {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            } else {
+              $col[] = print_number($no);
+            }
+          } else {
+            $col[] = print_number($no);
+          }
+
+          $col[] = print_string($row['pr_number']);
+          $col[] = print_date($row['pr_date'], 'd/m/Y');
+          $col[] = print_date($row['required_date'], 'd/m/Y');
+          $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name'] : $row['item_category']);
+          $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name'] : $row['product_name']);
+          // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
+          $col[] = '<a data-id="item" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info/' . $row['id']) . '">' . print_string($row['product_code']) . '</a>';
+          $col[] = print_string($row['serial_number']);
+          $col[] = print_number(search_min_qty($row['product_code']), 2);
+          // $col[] = print_number($row['min_qty'], 2);
+          $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id']), 2) . '</a>';
+          $col[] = print_number($row['quantity'], 2);
+          $col[] = print_number($row['process_qty'], 2);
+          $col[] = print_string(strtoupper($row['status']));
+          // $col[] = print_string($row['suggested_supplier']);
+          $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
+          $col[] = print_person_name($row['created_by']);
+          $col[] = print_string($row['pr_notes']) . ' ' . print_string($row['notes']);
+          if(in_array($row['status'], ['waiting','pending','review operation support'])){
+            if (is_granted($this->module, 'approval')){
+              $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+            }else{
+              $col[] = '';
+            }
+          }elseif ($row['status'] == 'open') {
+            if (is_granted($this->module, 'closing') === TRUE) {
+              $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+            } else {
+              $col[] = '';
+            }
           } else {
             $col[] = '';
           }
-        } else {
-          $col[] = '';
-        }
-        if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
-          if (config_item('auth_role') == 'BUDGETCONTROL' && $row['status'] == 'pending') {
-            $col[] = $row['price'] == 0 ? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>' : '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value="' . $row['price'] . '"/>';
-          } else {
-            $col[] = print_number($row['price'], 2);
+          if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
+            if (config_item('auth_role') == 'BUDGETCONTROL' && $row['status'] == 'pending') {
+              $col[] = $row['price'] == 0 ? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>' : '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value="' . $row['price'] . '"/>';
+            } else {
+              $col[] = print_number($row['price'], 2);
+            }
+            $col[] = print_number($row['total'], 2);
           }
-          $col[] = print_number($row['total'], 2);
+
+          $col['DT_RowId'] = 'row_' . $row['id'];
+          $col['DT_RowData']['pkey']  = $row['id'];
+
+          if ($this->has_role($this->module, 'info')) {
+            // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+            $col['DT_RowAttr']['onClick']     = '';
+            $col['DT_RowAttr']['data-id']     = $row['id'];
+            $col['DT_RowAttr']['data-target'] = '#data-modal';
+            $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
+          }
+
+          $data[] = $col;
         }
-
-        $col['DT_RowId'] = 'row_' . $row['id'];
-        $col['DT_RowData']['pkey']  = $row['id'];
-
-        if ($this->has_role($this->module, 'info')) {
-          // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-          $col['DT_RowAttr']['onClick']     = '';
-          $col['DT_RowAttr']['data-id']     = $row['id'];
-          $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
-        }
-
-        $data[] = $col;
       }
 
       $result = array(
         "draw" => $_POST['draw'],
         "recordsTotal" => $this->model->countIndex(),
-        "recordsFiltered" => $this->model->countIndexFiltered(),
+        // "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
       );
+
+      if (is_granted($this->module, 'approval') === TRUE){
+        $result['recordsFiltered'] = $this->model->countIndexFilteredForApprovalUser(config_item('auth_role'));
+      }else{
+        $result['recordsFiltered'] = $this->model->countIndexFiltered();
+      }
     }
 
     echo json_encode($result);

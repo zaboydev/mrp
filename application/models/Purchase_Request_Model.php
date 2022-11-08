@@ -37,7 +37,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
         $return['tb_inventory_purchase_requisition_details.price']  = 'Price';
         $return['tb_inventory_purchase_requisition_details.total']  = 'Total';
       }
@@ -63,10 +63,10 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by'                                                                         => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                                                                       => 'Notes',
       );
-      if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'FINANCE MANAGER') {
+      if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'BUDGETCONTROL') {
         $return['tb_inventory_purchase_requisitions.approved_notes']  = 'Note';
       }
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
         
         $return['tb_inventory_purchase_requisition_details.price']  = 'Price';
         $return['tb_inventory_purchase_requisition_details.total']  = 'Total';
@@ -169,7 +169,7 @@ class Purchase_Request_Model extends MY_Model
       // }
     } else {
       $status = array();
-      if (config_item('auth_role') == 'FINANCE MANAGER') {
+      if (config_item('auth_role') == 'BUDGETCONTROL') {
         $status[] = 'pending'; 
       } elseif (config_item('auth_role') == 'OPERATION SUPPORT') {
         $status[] = 'review operation support';
@@ -387,6 +387,43 @@ class Purchase_Request_Model extends MY_Model
 
       return $query->num_rows();
     }
+  }
+
+  public function countIndexFilteredForApprovalUser($role){
+    $status =['all'];
+    
+    if($role=='BUDGETCONTROL'){
+      $status = ['pending'];
+    }
+    if($role=='OPERATION SUPPORT'){
+      $status = ['review operation support'];
+    }
+    $this->db->select(array_keys($this->getSelectedColumns()));
+    $this->db->from('tb_inventory_purchase_requisitions');
+    $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id', 'LEFT');
+    $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
+    $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id', 'left');
+    $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
+    $this->db->where_in('tb_inventory_purchase_requisition_details.status', $status);
+    $this->searchIndex();
+    $query = $this->db->get();
+    $count_as_role = $query->num_rows();
+
+    if(config_item('as_head_department')=='yes'){
+      $this->db->select(array_keys($this->getSelectedColumns()));
+      $this->db->from('tb_inventory_purchase_requisitions');
+      $this->db->join('tb_inventory_purchase_requisition_details', 'tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id = tb_inventory_purchase_requisitions.id', 'LEFT');
+      $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
+      $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id', 'left');
+      $this->db->join('tb_master_items', 'tb_master_items.id = tb_budget_cot.id_item', 'left');
+      $this->db->where_in('tb_inventory_purchase_requisition_details.status', ['waiting']);
+      $this->db->where('tb_inventory_purchase_requisitions.head_dept', config_item('auth_username'));
+      $this->searchIndex();
+      $query = $this->db->get();
+      $count_as_role_head = $query->num_rows();
+    }
+
+    return $count_as_role+$count_as_role_head;
   }
 
   public function findById($id)
@@ -1505,7 +1542,13 @@ class Purchase_Request_Model extends MY_Model
       $this->connection->order_by('tb_products.product_name ASC, tb_products.product_code ASC');
       $query  = $this->connection->get();
     } else {
-      $this->db->select('tb_budget.*,tb_master_items.description as "product_name", tb_master_items.part_number as "product_code", tb_master_items.group as "group_name", tb_master_items.current_price,tb_master_items.unit as "measurement_symbol"');
+      $this->db->select(
+        'tb_budget.*,
+        tb_master_items.description as "product_name", 
+        tb_master_items.part_number as "product_code", 
+        tb_master_items.group as "group_name", 
+        tb_master_items.current_price,
+        tb_master_items.unit as "measurement_symbol"');
       $this->db->from('tb_budget');
       $this->db->join('tb_budget_cot', 'tb_budget.id_cot = tb_budget_cot.id ');
       $this->db->join('tb_master_items', 'tb_master_items on tb_master_items.id = tb_budget_cot.id_item');

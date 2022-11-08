@@ -85,7 +85,7 @@ class Expense_Request extends MY_Controller
             $total = array();
 
             foreach ($entities as $row) {
-                if (viewOrNot($row['status'],$row['department_name'],$row['head_dept'])) {                
+                if (viewOrNot($row['status'],$row['head_dept'],$row['department_name'])) {                
                     $no++;
                     $col = array();
                     if ($row['status'] == 'WAITING FOR HEAD DEPT' && config_item('as_head_department')=='yes' && in_array($row['department_name'],config_item('head_department')) && $row['head_dept']==config_item('auth_username')) {
