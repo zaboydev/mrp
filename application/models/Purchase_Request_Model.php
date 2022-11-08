@@ -1336,7 +1336,8 @@ class Purchase_Request_Model extends MY_Model
             $this->db->set('sisa', floatval($data['quantity']));
             $this->db->set('price', floatval($data['price']));
             $this->db->set('total', floatval($data['total']));
-            $this->db->set('status', 'waiting');
+            $this->db->set('status', 'pending');
+            $this->db->set('budget_status', 'budgeted');
             $this->db->set('reference_ipc', $data['reference_ipc']);
             $this->db->set('last_activity', 'purchase created');
             $this->db->insert('tb_inventory_purchase_requisition_details');
@@ -1513,11 +1514,9 @@ class Purchase_Request_Model extends MY_Model
       // $this->db->where('tb_budget.ytd_budget - tb_budget.ytd_used_budget > ', 0, FALSE);
       $this->db->where('tb_budget.mtd_budget - tb_budget.mtd_used_budget > ', 0, FALSE);
       $this->db->order_by('tb_master_items.description ASC, tb_master_items.part_number ASC');
-      // $this->db->where('tb_budget_cot.year', $this->budget_year);
-      $this->db->where('tb_budget_cot.year', date('Y'));
+      $this->db->where('tb_budget_cot.year', $this->budget_year);
+      $this->db->where('tb_budget.month_number', $this->budget_month);
       $this->db->where('tb_budget_cot.status', 'APPROVED');
-      // $this->db->where('tb_budget.month_number', $this->budget_month);
-      $this->db->where('tb_budget.month_number', date('m'));
 
       $query  = $this->db->get();
     }
@@ -1598,14 +1597,10 @@ class Purchase_Request_Model extends MY_Model
       $this->db->join('tb_master_item_groups', 'tb_master_item_groups on tb_master_items.group = tb_master_item_groups.group');
       // $this->db->where('UPPER(tb_master_item_groups.category)', strtoupper($category));
       $this->db->where('tb_budget.mtd_budget - tb_budget.mtd_used_budget > ', 0, FALSE);
-      $this->db->order_by('tb_master_items.description ASC, tb_master_items.part_number ASC');
-      // $this->db->where('tb_budget_cot.year', $this->budget_year);
-      $this->db->where('tb_budget_cot.year', date('Y'));
+      $this->db->where('tb_budget_cot.year', $this->budget_year);
+      $this->db->where('tb_budget.month_number !=', $this->budget_month);
       $this->db->where('tb_budget_cot.status', 'APPROVED');
-      // $this->db->where('tb_budget.month_number', $this->budget_month);
-      $this->db->where('tb_budget.month_number !=', date('m'));
-      // $this->db->or_where('tb_budget.month_number >', date('m'));
-      $this->db->order_by('tb_budget.id', 'asc');
+      $this->db->order_by('tb_master_items.part_number ASC, tb_master_items.description ASC');
 
       $query  = $this->db->get();
     }
@@ -2085,6 +2080,20 @@ class Purchase_Request_Model extends MY_Model
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('part_number', $row['part_number']);
         $this->db->insert('tb_used_budgets');
+      }
+      else if ($status_budget == 'budgeted') {
+        $this->db->set('finance_approve_by', config_item('auth_person_name'));
+        $this->db->set('finance_approve_at', date('Y-m-d'));
+        $this->db->where('id', $inventory_purchase_requisition_id);
+        $this->db->update('tb_inventory_purchase_requisitions');
+
+        $this->db->set('price', floatval($new_price));
+        $this->db->set('total', floatval($new_total));
+        $this->db->where('id', $id);
+        $this->db->update('tb_inventory_purchase_requisition_details');
+        $this->db->set('status', 'waiting');
+        $this->db->where('id', $id);
+        $this->db->update('tb_inventory_purchase_requisition_details');
       }
     }
 
