@@ -481,7 +481,7 @@ class Purchase_Request extends MY_Controller
     // $on_hand_stock = $this->model->findPrlById($id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = strtoupper($this->module['label'])." LIST";
     $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);
@@ -660,8 +660,8 @@ class Purchase_Request extends MY_Controller
       $_SESSION['request']['items'][] = array(
         'inventory_monthly_budget_id' => $this->input->post('inventory_monthly_budget_id'),
         'group_name'                  => $this->input->post('group_name'),
-        'product_name'                => $this->input->post('product_name'),
-        'part_number'                 => $this->input->post('part_number'),
+        'product_name'                => trim(strtoupper($this->input->post('product_name'))),
+        'part_number'                 => trim(strtoupper($this->input->post('part_number'))),
         'unit'                        => $this->input->post('unit'),
         'quantity'                    => $this->input->post('quantity'),
         'price'                       => $this->input->post('price'),
@@ -847,8 +847,8 @@ class Purchase_Request extends MY_Controller
       $_SESSION['request']['items'][$key] = array(
         'inventory_monthly_budget_id' => $this->input->post('inventory_monthly_budget_id'),
         'group_name'                  => $this->input->post('group_name'),
-        'product_name'                => $this->input->post('product_name'),
-        'part_number'                 => $this->input->post('part_number'),
+        'product_name'                => trim(strtoupper($this->input->post('product_name'))),
+        'part_number'                 => trim(strtoupper($this->input->post('part_number'))),
         'unit'                        => $this->input->post('unit'),
         'quantity'                    => $this->input->post('quantity'),
         'price'                       => $this->input->post('price'),
@@ -1035,7 +1035,7 @@ class Purchase_Request extends MY_Controller
     $entity = $this->model->findPrlByPoeItemid($poe_item_id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = strtoupper($this->module['label'])." LIST";
     $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);
