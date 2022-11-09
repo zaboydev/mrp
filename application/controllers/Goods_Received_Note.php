@@ -543,6 +543,7 @@ class Goods_Received_Note extends MY_Controller
         'no_expired_date'         => $this->input->post('no_expired_date'),
         'tgl_nota'                => $this->input->post('tgl_nota'),
         'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
+        'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
 
       );
 
@@ -640,6 +641,7 @@ class Goods_Received_Note extends MY_Controller
         'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
         'tgl_nota'                => $this->input->post('tgl_nota'),        
         'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
+        'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
 
       );
     }
