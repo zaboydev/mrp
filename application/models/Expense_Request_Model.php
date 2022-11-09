@@ -1594,27 +1594,6 @@ class Expense_Request_Model extends MY_Model
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
         $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
-        // $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
-        // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
-        if(is_granted($this->data['modules']['expense_request'], 'approval') === FALSE && config_item('auth_role')!='AP STAFF'){
-            $this->connection->where_in('tb_cost_centers.cost_center_name', config_item('auth_annual_cost_centers_name'));
-        }
-        $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
-        $this->connection->group_by($this->getGroupedColumns());
-
-        $this->searchIndex();
-
-        $query = $this->connection->get();
-
-        return $query->num_rows();
-
-        $this->connection->select(array_keys($this->getSelectedColumns()));
-        $this->connection->from('tb_expense_purchase_requisitions');
-        $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
-        $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
-        $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_monthly_budgets.annual_cost_center_id');
-        $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
-        $this->connection->join('tb_departments', 'tb_departments.id = tb_cost_centers.department_id');
         // $this->connection->like('tb_expense_purchase_requisitions.pr_number', $this->budget_year);
         $this->connection->where_in('tb_expense_purchase_requisitions.base', config_item('auth_warehouses'));
         $this->connection->where_in('tb_expense_purchase_requisitions.status', $status);

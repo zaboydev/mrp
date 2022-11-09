@@ -177,6 +177,7 @@
                     <td>
                       <?= $items['received_unit_value']; ?>
                       <?= $items['kurs_dollar']; ?>
+                      <?= $items['aircraft_register_number']; ?>
                     </td>
                   </tr>
                 <?php endforeach; ?>
@@ -406,6 +407,7 @@
                   <label for="purchase_order_number">Order Number</label>
                   <input type="hidden" name="purchase_order_item_id" id="purchase_order_item_id" />
                   <input type="hidden" name="internal_delivery_item_id" id="internal_delivery_item_id" />
+                  <input type="hidden" name="aircraft_register_number" id="aircraft_register_number" />
                   <input type="hidden" name="item_id" id="item_id" />
                 </div>
 
@@ -815,6 +817,7 @@
                   $('#purchase_order_item_id').val(ui.item.id);
                 }else{
                   $('#internal_delivery_item_id').val(ui.item.id);
+                  $('#aircraft_register_number').val(ui.item.received_from);
                 }               
                 
                 $('#purchase_order_number').val(ui.item.document_number);
@@ -1301,8 +1304,9 @@
           $('[name="stock_in_store_id"]').val(response.stock_in_stores_id);
           $('[name="receipt_items_id"]').val(response.receipt_items_id);
 
-          $('#edit_purchase_order_item_id').val(response.purchase_order_item_id);
-          $('#edit_internal_delivery_item_id').val(response.internal_delivery_item_id);
+          $('#purchase_order_item_id').val(response.purchase_order_item_id);
+          $('#internal_delivery_item_id').val(response.internal_delivery_item_id);
+          $('#aircraft_register_number').val(response.aircraft_register_number);
 
           if (response.purchase_order_item_id != '') {
             $('[name="received_unit_value"]').attr('readonly', true);
