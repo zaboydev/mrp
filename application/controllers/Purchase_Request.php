@@ -88,13 +88,12 @@ class Purchase_Request extends MY_Controller
     echo json_encode($result);
   }
 
-  public function set_annual_cost_center_id()
+  public function set_annual_cost_center_id($annual_cost_center_id)
   {
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $this->authorized($this->module, 'document');
 
-    $_SESSION['request']['annual_cost_center_id'] = $_GET['data'];
-    $cost_center = findCostCenterByAnnualCostCenterId($_GET['data']);
+    $_SESSION['request']['annual_cost_center_id'] = urldecode($annual_cost_center_id);
+    $cost_center = findCostCenterByAnnualCostCenterId(urldecode($annual_cost_center_id));
     $cost_center_code = $cost_center['cost_center_code'];
     $cost_center_name = $cost_center['cost_center_name'];          
     $department_id    = $cost_center['department_id'];
@@ -103,6 +102,9 @@ class Purchase_Request extends MY_Controller
     $_SESSION['request']['cost_center_name']        = $cost_center_name;
     $_SESSION['request']['cost_center_code']        = $cost_center_code;
     $_SESSION['request']['department_id']           = $department_id;
+    $_SESSION['request']['head_dept']               = NULL;
+
+    redirect($this->module['route'] . '/create');
   }
 
   public function set_head_dept()
@@ -128,6 +130,7 @@ class Purchase_Request extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
 
     $category = $_SESSION['request']['category'];
+    $source = ($_SESSION['request']['request_to'] == 0)? 'Budgetcontrol':'MRP';
     $entities = $this->model->searchBudget($category);
 
     foreach ($entities as $key => $value) {
@@ -135,10 +138,11 @@ class Purchase_Request extends MY_Controller
       $entities[$key]['label'] .= ' || PN: ';
       $entities[$key]['label'] .= $value['product_code'];
       $entities[$key]['label'] .= '<small>';
+      $entities[$key]['label'] .= 'Left Plan Qty: <code>' . number_format($value['maximum_quantity'], 2) . '</code> ||';
+      $entities[$key]['label'] .= 'Left Plan Value: <code>' . number_format($value['maximum_price'], 2) . '</code> ||';
       $entities[$key]['label'] .= 'Minimum Qty: <code>' . number_format($value['minimum_quantity'], 2) . '</code> || ';
       $entities[$key]['label'] .= 'On Hand Qty: <code>' . number_format($value['on_hand_quantity'], 2) . '</code> || ';
-      $entities[$key]['label'] .= 'Left Plan Qty: <code>' . number_format($value['maximum_quantity'], 2) . '</code> ||';
-      $entities[$key]['label'] .= 'source: <code>' . $value['source'] . '</code>';
+      $entities[$key]['label'] .= 'source: <code>' . $source . '</code>';
       $entities[$key]['label'] .= '</small>';
     }
 
@@ -291,121 +295,101 @@ class Purchase_Request extends MY_Controller
       $quantity = array();
 
       foreach ($entities as $row) {
-        $no++;
-        $col = array();
-        if (is_granted($this->module, 'approval')){
-          if ($row['status'] == 'waiting' && config_item('auth_username') == $row['head_dept']) {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+        if (viewOrNot($row['status'],$row['head_dept'])) {
+          $no++;
+          $col = array();
+          if (is_granted($this->module, 'approval')){
+            if ($row['status'] == 'waiting' && config_item('auth_username') == $row['head_dept']) {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            }
+            elseif ($row['status'] == 'pending' && config_item('auth_role') == 'BUDGETCONTROL') {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            }
+            elseif ($row['status'] == 'review operation support' && config_item('auth_role') == 'OPERATION SUPPORT') {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            } else {
+              $col[] = print_number($no);
+            }
           }
-          elseif ($row['status'] == 'pending' && config_item('auth_role') == 'FINANCE MANAGER') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          }
-          elseif ($row['status'] == 'review operation support' && config_item('auth_role') == 'OPERATION SUPPORT') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+          elseif (is_granted($this->module, 'closing')) {
+            if ($row['status'] == 'open') {
+              $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+            } else {
+              $col[] = print_number($no);
+            }
           } else {
             $col[] = print_number($no);
           }
-        }
-        elseif (is_granted($this->module, 'closing')) {
-          if ($row['status'] == 'open') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        } else {
-          $col[] = print_number($no);
-        }
 
-        $col[] = print_string($row['pr_number']);
-        $col[] = print_date($row['pr_date'], 'd/m/Y');
-        $col[] = print_date($row['required_date'], 'd/m/Y');
-        $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name'] : $row['item_category']);
-        $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name'] : $row['product_name']);
-        // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
-        $col[] = '<a data-id="item" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info/' . $row['id']) . '">' . print_string($row['product_code']) . '</a>';
-        $col[] = print_string($row['serial_number']);
-        $col[] = print_number(search_min_qty($row['product_code']), 2);
-        // $col[] = print_number($row['min_qty'], 2);
-        $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id']), 2) . '</a>';
-        $col[] = print_number($row['quantity'], 2);
-        $col[] = print_number($row['process_qty'], 2);
-        $col[] = print_string(strtoupper($row['status']));
-        // $col[] = print_string($row['suggested_supplier']);
-        $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
-        $col[] = print_person_name($row['created_by']);
-        $col[] = print_string($row['pr_notes']) . ' ' . print_string($row['notes']);
-        if ($row['status'] == 'waiting') {
-          // if(config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'CHIEF OF MAINTANCE') {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          $col[] = print_string($row['pr_number']);
+          $col[] = print_date($row['pr_date'], 'd/m/Y');
+          $col[] = print_date($row['required_date'], 'd/m/Y');
+          $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['category_name'] : $row['item_category']);
+          $col[] = print_string($_SESSION['request']['request_to'] == 0 ? $row['product_name'] : $row['product_name']);
+          // $col[] = '<a data-id="'.$row['id'].'" href="'.site_url($this->module['route'] .'/info/'. $row['id']).'">'.print_string($_SESSION['request']['request_to'] == 0 ? $row['product_code']:$row['part_number']).'</a>';
+          $col[] = '<a data-id="item" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info/' . $row['id']) . '">' . print_string($row['product_code']) . '</a>';
+          $col[] = print_string($row['serial_number']);
+          $col[] = print_number(search_min_qty($row['product_code']), 2);
+          // $col[] = print_number($row['min_qty'], 2);
+          $col[] = '<a data-id="on-hand" data-item-row="' . $row['id'] . '" href="' . site_url($this->module['route'] . '/info_on_hand/' . $row['id']) . '">' . print_number($this->countOnhand($row['id']), 2) . '</a>';
+          $col[] = print_number($row['quantity'], 2);
+          $col[] = print_number($row['process_qty'], 2);
+          $col[] = print_string(strtoupper($row['status']));
+          // $col[] = print_string($row['suggested_supplier']);
+          $col[] = print_string($row['status'] != 'pending' ? 'Budgeted' : $row['budget_status']);
+          $col[] = print_person_name($row['created_by']);
+          $col[] = print_string($row['pr_notes']) . ' ' . print_string($row['notes']);
+          if(in_array($row['status'], ['waiting','pending','review operation support'])){
+            if (is_granted($this->module, 'approval')){
+              $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+            }else{
+              $col[] = '';
+            }
+          }elseif ($row['status'] == 'open') {
+            if (is_granted($this->module, 'closing') === TRUE) {
+              $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+            } else {
+              $col[] = '';
+            }
           } else {
             $col[] = '';
           }
-        } elseif ($row['status'] == 'pending') {
-          // if(config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'FINANCE MANAGER') {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          } else {
-            $col[] = '';
+          if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
+            if (config_item('auth_role') == 'BUDGETCONTROL' && $row['status'] == 'pending') {
+              $col[] = $row['price'] == 0 ? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>' : '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value="' . $row['price'] . '"/>';
+            } else {
+              $col[] = print_number($row['price'], 2);
+            }
+            $col[] = print_number($row['total'], 2);
           }
-        } elseif ($row['status'] == 'review operation support') {
-          // if(config_item('auth_role') == 'OPERATION SUPPORT' || config_item('auth_role') == 'SUPER ADMIN'){
-          if (is_granted($this->module, 'approval') === TRUE && config_item('auth_role') == 'OPERATION SUPPORT') {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          } else {
-            $col[] = '';
+
+          $col['DT_RowId'] = 'row_' . $row['id'];
+          $col['DT_RowData']['pkey']  = $row['id'];
+
+          if ($this->has_role($this->module, 'info')) {
+            // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+            $col['DT_RowAttr']['onClick']     = '';
+            $col['DT_RowAttr']['data-id']     = $row['id'];
+            $col['DT_RowAttr']['data-target'] = '#data-modal';
+            $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
           }
-        } elseif ($row['status'] == 'open') {
-          // if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN') {
-          if (is_granted($this->module, 'closing') === TRUE) {
-            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-          } else {
-            $col[] = '';
-          }
-        } else {
-          $col[] = '';
+
+          $data[] = $col;
         }
-
-        // if($row['status']=="budgeted"){
-        //   if(config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'SUPER ADMIN'){
-        //     $col[] = '<input type="text" id="note_'.$row['id'].'" autocomplete="off"/>';
-        //   }         
-        // } else {
-        //   if (config_item('auth_role') == 'FINANCE MANAGER' || config_item('auth_role') == 'CHIEF OF MAINTANCE') {
-        //     $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-        //   }  
-        // }
-
-        if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
-          if (config_item('auth_role') == 'FINANCE MANAGER' && $row['status'] == 'pending') {
-            $col[] = $row['price'] == 0 ? '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value=""/>' : '<input type="number" id="price_' . $row['id'] . '" autocomplete="off" value="' . $row['price'] . '"/>';
-          } else {
-            $col[] = print_number($row['price'], 2);
-          }
-
-          $col[] = print_number($row['total'], 2);
-        }
-
-        $col['DT_RowId'] = 'row_' . $row['id'];
-        $col['DT_RowData']['pkey']  = $row['id'];
-
-        if ($this->has_role($this->module, 'info')) {
-          // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-          $col['DT_RowAttr']['onClick']     = '';
-          $col['DT_RowAttr']['data-id']     = $row['id'];
-          $col['DT_RowAttr']['data-target'] = '#data-modal';
-          $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] . '/info/' . $row['id']);
-        }
-
-        $data[] = $col;
       }
 
       $result = array(
         "draw" => $_POST['draw'],
         "recordsTotal" => $this->model->countIndex(),
-        "recordsFiltered" => $this->model->countIndexFiltered(),
+        // "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
       );
+
+      if (is_granted($this->module, 'approval') === TRUE){
+        $result['recordsFiltered'] = $this->model->countIndexFilteredForApprovalUser(config_item('auth_role'));
+      }else{
+        $result['recordsFiltered'] = $this->model->countIndexFiltered();
+      }
     }
 
     echo json_encode($result);
@@ -507,7 +491,7 @@ class Purchase_Request extends MY_Controller
     // $on_hand_stock = $this->model->findPrlById($id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = strtoupper($this->module['label'])." LIST";
     $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);
@@ -615,6 +599,14 @@ class Purchase_Request extends MY_Controller
           }
         }
 
+        if($_SESSION['request']['annual_cost_center_id']=='' || $_SESSION['request']['annual_cost_center_id']==NULL){
+          $errors[] = 'Please Select Department!!';
+        }
+
+        if($_SESSION['request']['head_dept']=='' || $_SESSION['request']['head_dept']==NULL){
+          $errors[] = 'Please Select Head Dept!!';
+        }
+
         if (!empty($errors)) {
           $data['success'] = FALSE;
           $data['message'] = implode('<br />', $errors);
@@ -678,8 +670,8 @@ class Purchase_Request extends MY_Controller
       $_SESSION['request']['items'][] = array(
         'inventory_monthly_budget_id' => $this->input->post('inventory_monthly_budget_id'),
         'group_name'                  => $this->input->post('group_name'),
-        'product_name'                => $this->input->post('product_name'),
-        'part_number'                 => $this->input->post('part_number'),
+        'product_name'                => trim(strtoupper($this->input->post('product_name'))),
+        'part_number'                 => trim(strtoupper($this->input->post('part_number'))),
         'unit'                        => $this->input->post('unit'),
         'quantity'                    => $this->input->post('quantity'),
         'price'                       => $this->input->post('price'),
@@ -865,8 +857,8 @@ class Purchase_Request extends MY_Controller
       $_SESSION['request']['items'][$key] = array(
         'inventory_monthly_budget_id' => $this->input->post('inventory_monthly_budget_id'),
         'group_name'                  => $this->input->post('group_name'),
-        'product_name'                => $this->input->post('product_name'),
-        'part_number'                 => $this->input->post('part_number'),
+        'product_name'                => trim(strtoupper($this->input->post('product_name'))),
+        'part_number'                 => trim(strtoupper($this->input->post('part_number'))),
         'unit'                        => $this->input->post('unit'),
         'quantity'                    => $this->input->post('quantity'),
         'price'                       => $this->input->post('price'),
@@ -1053,7 +1045,7 @@ class Purchase_Request extends MY_Controller
     $entity = $this->model->findPrlByPoeItemid($poe_item_id);
 
     $this->data['entity']           = $entity;
-    $this->data['page']['title']    = strtoupper($this->module['label']);
+    $this->data['page']['title']    = strtoupper($this->module['label'])." LIST";
     $this->data['page']['content']  = $this->module['view'] . '/print_pdf';
 
     $html = $this->load->view($this->pdf_theme, $this->data, true);

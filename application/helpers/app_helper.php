@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'){
+          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'||$module['route']=='expense_order_evaluation'||$module['route']=='capex_order_evaluation'){
             return TRUE;
           }else{
             return FALSE;
@@ -2138,9 +2138,10 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('viewOrNot')) {
-    function viewOrNot($status,$department_request,$head_dept)
+    function viewOrNot($status,$head_dept,$department_request=NULL)
     {
       if($status=='WAITING FOR HEAD DEPT'){
+        //untuk expense,capex,inv request
         if(config_item('as_head_department')=='yes'){
           if(in_array($department_request,config_item('head_department')) && $head_dept==config_item('auth_username')){
             return true;
@@ -2149,6 +2150,13 @@ if (!function_exists('currency_for_vendor_list')) {
           }
         }else{
           return true;
+        }
+      }else if($status=='waiting'){
+        //untuk purchase request maintenance
+        if($head_dept==config_item('auth_username')){
+          return true;
+        }else{
+          return false;
         }
       }else{
         return true;
@@ -3092,6 +3100,43 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI->db->where('username', $username);
       $query  = $CI->db->get();
       $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getAllAnnualCostCenters')) {
+    function getAllAnnualCostCenters()
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $year = find_budget_setting('Active Year');
+
+      $connection->select(array('tb_cost_centers.cost_center_name','tb_annual_cost_centers.id'));
+      $connection->from('tb_annual_cost_centers');
+      $connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $connection->order_by('cost_center_name', 'ASC');
+      $connection->where('tb_annual_cost_centers.year_number', $year);
+      $query  = $connection->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('list_user_as_roles_level')) {
+    function list_user_as_roles_level($level)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_auth_users.username,tb_auth_users.person_name');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where('tb_auth_users.auth_level', $level);
+      $CI->db->order_by('tb_auth_users.username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
       return $result;
     }
   }

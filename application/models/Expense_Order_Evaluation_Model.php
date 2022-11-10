@@ -107,11 +107,25 @@ class Expense_Order_Evaluation_Model extends MY_Model
 
     if (!empty($_POST['columns'][3]['search']['value'])) {
       $search_status = $_POST['columns'][3]['search']['value'];
-
-      $this->db->where('tb_purchase_orders.status', $search_status);
+      if($search_status!='all'){
+        $this->db->where('tb_purchase_orders.status', $search_status);
+        if($search_status=='evaluation'){
+          $this->db->where('tb_purchase_orders.head_dept', config_item('auth_username'));
+        }
+      }      
     } else {
-      if (config_item('auth_role') == 'PROCUREMENT MANAGER') {
-        $this->db->where('tb_purchase_orders.status', 'evaluation');
+
+      $status = array();
+      
+      if(config_item('as_head_department')=='yes' || config_item('auth_role') == 'PROCUREMENT MANAGER'){
+        $status[] = 'evaluation';
+      }
+      
+      if(!empty($status)){
+        $this->db->where_in('tb_purchase_orders.status', $status);
+        if(in_array('evaluation',$status)){
+          $this->db->where('tb_purchase_orders.head_dept', config_item('auth_username'));
+        }
       }
     }
 
@@ -189,8 +203,10 @@ class Expense_Order_Evaluation_Model extends MY_Model
 
   function getIndex($return = 'array')
   {
+    $selected = $this->getSelectedColumns();
+    $selected['tb_purchase_orders.head_dept'] = 'selected next person';      
     $this->db->distinct();
-    $this->db->select(array_keys($this->getSelectedColumns()));
+    $this->db->select(array_keys($selected));
     $this->db->from('tb_purchase_order_items_vendors');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
@@ -414,7 +430,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $grandtotal = $row['grand_total'];
     $currency = $row['default_currency'];
 
-    if(config_item('auth_role')=='PROCUREMENT MANAGER' && $row['status']=='evaluation'){
+    if($row['status']=='evaluation'){
       if ($currency == 'IDR') {
         if($grandtotal >= 15000000){
           $status = strtoupper("waiting for vp finance review");
@@ -500,6 +516,9 @@ class Expense_Order_Evaluation_Model extends MY_Model
     }
     $exchange_rate        = $_SESSION['expense_poe']['exchange_rate'];
     $notes                = (empty($_SESSION['expense_poe']['notes'])) ? NULL : $_SESSION['expense_poe']['notes'];
+    $annual_cost_center_id        = $_SESSION['expense_poe']['annual_cost_center_id'];
+    $department_id                = $_SESSION['expense_poe']['department_id'];
+    $head_dept                    = $_SESSION['expense_poe']['head_dept'];
 
     $this->db->trans_begin();
     
@@ -521,6 +540,8 @@ class Expense_Order_Evaluation_Model extends MY_Model
       $this->db->set('exchange_rate', $exchange_rate);
       $this->db->set('status', $status);
       $this->db->set('notes', $notes);
+      $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+      $this->db->set('head_dept', $head_dept); 
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
 
@@ -547,6 +568,8 @@ class Expense_Order_Evaluation_Model extends MY_Model
       $this->db->set('exchange_rate', $exchange_rate);
       $this->db->set('status', $status);
       $this->db->set('notes', $notes);
+      $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+      $this->db->set('head_dept', $head_dept); 
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->where('id', $document_id);
@@ -834,7 +857,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
     $this->db->trans_commit();
     $this->connection->trans_commit();
     if ($approval != 'without_approval') {
-      $this->send_mail($document_id,21);
+      $this->send_mail($document_id,$head_dept);
     }
     return TRUE;
   }
@@ -1079,37 +1102,26 @@ class Expense_Order_Evaluation_Model extends MY_Model
     return TRUE;
   }
 
-  public function send_mail($doc_id,$level)
+  public function send_mail($doc_id,$head_dept)
   {
     $this->db->from('tb_purchase_orders');
     $this->db->where('id', $doc_id);
     $query = $this->db->get();
     $row = $query->unbuffered_row('array');
 
-    $recipientList = $this->getNotifRecipient($level);
+    $recipientList = getNotifRecipient_byUsername($head_dept);
     $recipient = array();
     foreach ($recipientList as $key) {
-      array_push($recipient, $key->email);
+      array_push($recipient, $key['email']);
     }
 
     $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com";
-    $levels_and_roles = config_item('levels_and_roles');
-    $ket_level = $levels_and_roles[$level];
 
     //Load email library 
     $this->load->library('email');
-    // $config = array();
-    // $config['protocol'] = 'mail';
-    // $config['smtp_host'] = 'smtp.live.com';
-    // $config['smtp_user'] = 'bifa.acd@gmail.com';
-    // $config['smtp_pass'] = 'b1f42019';
-    // $config['smtp_port'] = 587;
-    // $config['smtp_auth']        = true;
-    // $config['mailtype']         = 'html';
-    // $this->email->initialize($config);
     $this->email->set_newline("\r\n");
-    $message = "<p>Dear ".$ket_level."</p>";
+    $message = "<p>Dear ".$head_dept."</p>";
     $message .= "<p>Berikut permintaan Persetujuan untuk Expense Order Evaluation :</p>";
     $message .= "<ul>";
     $message .= "</ul>";

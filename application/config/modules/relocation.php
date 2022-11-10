@@ -12,10 +12,7 @@ $config['module']['relocation']['helper']          = 'material_slip_helper';
 $config['module']['relocation']['table']           = 'tb_stocks';
 $config['module']['relocation']['model']           = 'Stock_Model';
 $config['module']['relocation']['permission']      = array(
-  'index'         => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  'info'          => 'PIC PROCUREMENT,PIC STOCK,SUPERVISOR,FINANCE,OTHER,VP FINANCE,SUPER ADMIN',
-  // 'mix'           => 'PIC STOCK,SUPERVISOR,VP FINANCE',
-  // 'adjustment'    => 'FINANCE,SUPERVISOR,VP FINANCE',
-  'relocation'    => 'SUPERVISOR,VP FINANCE,SUPER ADMIN',
-  // 'import'        => 'SUPERVISOR,VP FINANCE',
+  'index'         => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
+  'info'          => 'PIC STOCK,SUPERVISOR,SUPER ADMIN',
+  'relocation'    => 'SUPERVISOR,SUPER ADMIN,PIC STOCK',
 );

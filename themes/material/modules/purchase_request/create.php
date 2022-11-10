@@ -18,8 +18,8 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="annual_cost_center_id" id="annual_cost_center_id" class="form-control" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>" required>
-                  <option>--Select Department--</option>
-                  <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
+                  <option value="">--Select Department--</option>
+                  <?php foreach (getAllAnnualCostCenters() as $annual_cost_center) : ?>
                     <option value="<?= $annual_cost_center['id']; ?>" <?= ($_SESSION['request']['annual_cost_center_id'] == $annual_cost_center['id']) ? 'selected' : ''; ?>>
                       <?= $annual_cost_center['cost_center_name']; ?>
                     </option>
@@ -31,7 +31,7 @@
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
                 <select name="head_dept_select" id="head_dept_select" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
-                  <option>--Select Head Dept--</option>
+                  <option value="">--Select Head Dept--</option>
                   
                 </select>
                 <label for="notes">Head Dept.</label>
@@ -260,39 +260,6 @@
                       <input type="text" name="unit" id="unit" data-tag-name="unit" data-search-for="unit" data-source="<?= site_url($modules['ajax']['route'] . '/search_item_units/'); ?>" class="form-control input-sm" placeholder="Unit" required>
                       <label for="unit">Unit of Measurement</label>
                     </div>
-                  </fieldset>
-                </div>
-                <div class="col-sm-6 col-lg-6">
-                  <fieldset>
-                    <legend>Required</legend>
-
-                    <div class="form-group">
-                      <input type="text" name="quantity" id="quantity" class="form-control input-sm" value="1" required>
-                      <label for="quantity">Quantity</label>
-                    </div>
-
-                    <div class="form-group">
-                      <input type="text" name="maximum_quantity" id="maximum_quantity" class="form-control input-sm" value="0" readonly>
-                      <label for="maximum_quantity">Max. Quantity</label>
-
-                      <input type="hidden" name="price" id="price" value="1">
-                      <input type="hidden" name="total" id="total" value="0">
-
-                      <input type="hidden" name="ytd_quantity" id="ytd_quantity" value="0">
-                      <input type="hidden" name="ytd_used_quantity" id="total" value="0">
-                      <input type="hidden" name="ytd_budget" id="price" value="0">
-                      <input type="hidden" name="ytd_used_budget" id="total" value="0">
-
-                      <input type="hidden" name="mtd_quantity" id="mtd_quantity" value="0">
-                      <input type="hidden" name="mtd_used_quantity" id="mtd_used_quantity" value="0">
-                      <input type="hidden" name="mtd_budget" id="mtd_budget" value="0">
-                      <input type="hidden" name="mtd_used_budget" id="mtd_used_budget" value="0">
-                    </div>
-
-                    <div class="form-group hide">
-                      <input type="number" name="maximum_price" id="maximum_price" value="0" class="form-control input-sm" readonly="readonly">
-                      <label for="max_value">Max. Value</label>
-                    </div>
 
                     <div class="form-group">
                       <input type="text" name="on_hand_quantity" id="on_hand_quantity" class="form-control input-sm" value="0" readonly>
@@ -305,21 +272,63 @@
                     </div>
                   </fieldset>
                 </div>
+                <div class="col-sm-6 col-lg-6">
+                  <fieldset>
+                    <legend>Request</legend>
+
+                    <div class="form-group">
+                      <input type="text" name="quantity" id="quantity" class="form-control input-sm" value="1" required>
+                      <label for="quantity">Quantity</label>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="price" id="price" value="1" class="form-control input-sm" readonly>
+                      <label for="price">Price</label>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" name="total" id="total" value="0" class="form-control input-sm" readonly>
+                      <label for="total">Total</label>
+                    </div>
+
+                    <div class="form-group">
+                      <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
+                      <label for="additional_info">Additional Info/Remarks</label>
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="reference_ipc" id="reference_ipc" class="form-control input-sm">
+                      <label for="reference_ipc">Reference IPC</label>
+                    </div>
+                    
+                  </fieldset>
+                </div>
               </div>
             </div>
 
             <div class="col-sm-12 col-lg-5">
               <fieldset>
-                <legend>Optional</legend>
+                <legend>Planning</legend>
 
                 <div class="form-group">
-                  <textarea name="additional_info" id="additional_info" data-tag-name="additional_info" class="form-control input-sm"></textarea>
-                  <label for="additional_info">Additional Info/Remarks</label>
+                  <input type="text" name="maximum_quantity" id="maximum_quantity" class="form-control input-sm" value="0" readonly>
+                  <label for="maximum_quantity">Max. Quantity</label>
+
+                  <input type="hidden" name="ytd_quantity" id="ytd_quantity" value="0">
+                  <input type="hidden" name="ytd_used_quantity" id="total" value="0">
+                  <input type="hidden" name="ytd_budget" id="price" value="0">
+                  <input type="hidden" name="ytd_used_budget" id="total" value="0">
+
+                  <input type="hidden" name="mtd_quantity" id="mtd_quantity" value="0">
+                  <input type="hidden" name="mtd_used_quantity" id="mtd_used_quantity" value="0">
+                  <input type="hidden" name="mtd_budget" id="mtd_budget" value="0">
+                  <input type="hidden" name="mtd_used_budget" id="mtd_used_budget" value="0">
                 </div>
+
                 <div class="form-group">
-                  <input type="text" name="reference_ipc" id="reference_ipc" class="form-control input-sm">
-                  <label for="reference_ipc">Reference IPC</label>
+                  <input type="number" name="maximum_price" id="maximum_price" value="0" class="form-control input-sm" readonly="readonly">
+                  <label for="max_value">Max. Value</label>
                 </div>
+                
               </fieldset>
             </div>
             <div class="col-sm-12 col-lg-5 hide form-unbudgeted">
@@ -1157,15 +1166,19 @@
     });
 
     $('#annual_cost_center_id').on('change', function() {
+      var prev = $(this).data('val');
       var val = $(this).val();
       var url = $(this).data('source');
 
-      $.get(url, {
-        data: val
-      });
+      if (prev != ''){
+        var conf = confirm("You have changing Department. Continue?");
 
-      $('#head_dept').val('').trigger('change');
-      get_head_dept_user();
+        if (conf == false){
+          return false;
+        }
+      }
+
+      window.location.href = url + '/' + val;
 
     });
 
@@ -1191,7 +1204,7 @@
         success: function(resource) {
           console.log(resource);
           $('#head_dept_select').html('');
-          $("#head_dept_select").append('<option>--Select Head Dept--</option>');
+          $("#head_dept_select").append('<option value="">--Select Head Dept--</option>');
           $.each(resource, function(i, item) {
             if(head_dept==item.username){
               var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';

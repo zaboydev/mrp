@@ -118,13 +118,12 @@ class Purchase_Order_Evaluation extends MY_Controller
     $_SESSION['poe']['notes'] = $_GET['data'];
   }
 
-  public function set_annual_cost_center_id()
+  public function set_annual_cost_center_id($annual_cost_center_id)
   {
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    $this->authorized($this->module, 'document');
 
-    $_SESSION['poe']['annual_cost_center_id'] = $_GET['data'];
-    $cost_center = findCostCenterByAnnualCostCenterId($_GET['data']);
+    $_SESSION['poe']['annual_cost_center_id'] = urldecode($annual_cost_center_id);
+    $cost_center = findCostCenterByAnnualCostCenterId(urldecode($annual_cost_center_id));
     $cost_center_code = $cost_center['cost_center_code'];
     $cost_center_name = $cost_center['cost_center_name'];          
     $department_id    = $cost_center['department_id'];
@@ -133,6 +132,9 @@ class Purchase_Order_Evaluation extends MY_Controller
     $_SESSION['poe']['cost_center_name']        = $cost_center_name;
     $_SESSION['poe']['cost_center_code']        = $cost_center_code;
     $_SESSION['poe']['department_id']           = $department_id;
+    $_SESSION['poe']['head_dept']               = NULL;
+
+    redirect($this->module['route'] . '/create');
   }
 
   public function set_head_dept()
@@ -501,6 +503,14 @@ class Purchase_Order_Evaluation extends MY_Controller
           }
         }
 
+        if($_SESSION['poe']['annual_cost_center_id']=='' || $_SESSION['poe']['annual_cost_center_id']==NULL){
+          $errors[] = 'Please Select Department!!';
+        }
+
+        if($_SESSION['poe']['head_dept']=='' || $_SESSION['poe']['head_dept']==NULL){
+          $errors[] = 'Please Select Head Dept!!';
+        }
+
         if (!empty($errors)) {
           $data['success'] = FALSE;
           $data['message'] = implode('<br />', $errors);
@@ -526,7 +536,6 @@ class Purchase_Order_Evaluation extends MY_Controller
       redirect($this->modules['secure']['route'] . '/denied');
 
     $_SESSION['poe']['source_request'] = $_GET['data'];
-    $result['status'] = "success";
     echo json_encode($result);
   }
   public function add_request()
@@ -555,10 +564,10 @@ class Purchase_Order_Evaluation extends MY_Controller
           $request = $this->model->infoRequest($request_id);
 
           $_SESSION['poe']['request'][$request_id] = array(
-            'description'             => $request['product_name'],
-            'part_number'             => $request['product_code'],
+            'description'             => trim(strtoupper($request['product_name'])),
+            'part_number'             => trim(strtoupper($request['product_code'])),
             'alternate_part_number'   => ($_SESSION['poe']['source']=='return')?$request['alternate_part_number']:null,
-            'serial_number'           => $request['serial_number'],
+            'serial_number'           => trim(strtoupper($request['serial_number'])),
             'unit'                    => $request['unit'],
             'quantity'                => floatval($request['sisa']),
             'sisa'                    => floatval($request['sisa']),
@@ -691,8 +700,8 @@ class Purchase_Order_Evaluation extends MY_Controller
         foreach ($_POST['request'] as $id => $request) {
           $quantity = floatval($_SESSION['poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['poe']['request'][$id]['part_number']           = $request['part_number'];
-          $_SESSION['poe']['request'][$id]['serial_number']         = $request['serial_number'];
+          $_SESSION['poe']['request'][$id]['part_number']           = trim(strtoupper($request['part_number']));
+          $_SESSION['poe']['request'][$id]['serial_number']         = trim(strtoupper($request['serial_number']));
           $_SESSION['poe']['request'][$id]['quantity']              = $request['quantity'];
           $_SESSION['poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
           $_SESSION['poe']['request'][$id]['remarks']               = $request['remarks'];

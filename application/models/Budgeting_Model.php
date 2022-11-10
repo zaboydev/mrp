@@ -354,18 +354,14 @@ class Budgeting_Model extends MY_Model {
     $this->db->trans_begin();
 
     foreach ($user_data as $key => $data){
-      $description = (empty($data['name']))
-        ? NULL : strtoupper($data['name']);
-
-      $part_number = (empty($data['part']))
-        ? NULL : strtoupper($data['part']);
-
-      $product_code = (empty($data['code']))
-        ? NULL : strtoupper($data['code']);
-
-      $unit = (empty($data['unit']))
-        ? NULL : strtoupper($data['unit']);
-      $year      = date('Y');
+      $description    = trim(strtoupper($data['name']));
+      $part_number    = trim(strtoupper($data['part']));
+      $serial_number  = (empty($data['serial_number']))? NULL : trim(strtoupper($data['serial_number']));
+      $unit           = trim(strtoupper($data['unit']));
+      $category       = trim(strtoupper($data['category']));
+      $group          = trim(strtoupper($data['group']));
+      $year           = strtoupper($data['year']);
+      $hours          = strtoupper($data['hours']);
 
       $budget = $data['budget'];
 
@@ -381,12 +377,12 @@ class Budgeting_Model extends MY_Model {
         $data = array(
           'part_number'           => $part_number,
           'serial_number'         => $serial_number,
-          'alternate_part_number' => '',
+          'alternate_part_number' => NULL,
           'description'           => $description,
-          'group'                 => 'CONSUMABLE PART',
+          'group'                 => $group,
           'unit'                  => $unit,
           'minimum_quantity'      => 1,
-          'kode_stok'             => '',
+          'kode_stok'             => NULL,
           'created_by'            => config_item('auth_person_name'),
           'updated_by'            => config_item('auth_person_name'),
         );
@@ -408,9 +404,9 @@ class Budgeting_Model extends MY_Model {
       $budget_cot = $this->db->get();
       if ($budget_cot->num_rows() == 0){
         $this->db->set('id_item',$item_id);
-        $this->db->set('hours','1000');
+        $this->db->set('hours',$hours);
         $this->db->set('year', $year);
-        $this->db->set('id_kelipatan',1);
+        $this->db->set('id_kelipatan',8);
         $this->db->set('onhand',0);
         $this->db->set('status','APPROVED');
         $this->db->set('updated_by',config_item('auth_person_name'));        
@@ -431,68 +427,46 @@ class Budgeting_Model extends MY_Model {
       // $ytd_quantity = $qty_requirement;
       $ytd_budget = 0;
       $ytd_quantity = 0;
-      $hourMonthly = 0;
+      $avg_monthly_hour = floor($hours/12);
       $mtd_prev_month_budget = 0;
       $mtd_prev_month_quantity = 0;
+      $target_hour = $hours;
 
       foreach ($budget as $item_budget) {
         $ytd_budget = $ytd_budget+$item_budget->val;
         $ytd_quantity = $ytd_quantity+$item_budget->qty;
+        $target_hour = $target_hour-$avg_monthly_hour;
+        if($target_hour>$avg_monthly_hour){
+          $monthly_hour = $avg_monthly_hour;
+        }else{
+          $monthly_hour = $avg_monthly_hour+($target_hour);
+        }
+
         $row = array(
-          "id_cot"=>$id_cot,
-          "month_number"=>$item_budget->month,
-          "initial_budget"=>$initial_budget,
-          "initial_quantity"=>$initial_quantity,
-          "mtd_budget"=>$item_budget->val,
-          "mtd_quantity"=>$item_budget->qty,
-          "mtd_prev_month_budget"=>$mtd_prev_month_budget,
-          "mtd_prev_month_quantity"=>$mtd_prev_month_quantity,
-          "ytd_budget"=>$ytd_budget,
-          "ytd_quantity"=>$ytd_quantity,
-          "created_at"=>date('Y-m-d'),
-          "updated_at"=> date('Y-m-d'),
-          "created_by"=>config_item('auth_person_name'),
-          "hour"=>$hourMonthly
+          "id_cot"                  =>$id_cot,
+          "month_number"            =>$item_budget->month,
+          "initial_budget"          =>$initial_budget,
+          "initial_quantity"        =>$initial_quantity,
+          "mtd_budget"              =>$item_budget->val,
+          "mtd_quantity"            =>$item_budget->qty,
+          "mtd_prev_month_budget"   =>$mtd_prev_month_budget,
+          "mtd_prev_month_quantity" =>$mtd_prev_month_quantity,
+          "ytd_budget"              =>$ytd_budget,
+          "ytd_quantity"            =>$ytd_quantity,
+          "created_at"              =>date('Y-m-d'),
+          "updated_at"              => date('Y-m-d'),
+          "created_by"              =>config_item('auth_person_name'),
+          "updated_by"              =>config_item('auth_person_name'),
+          "hour"                    =>$monthly_hour
         );
         $this->insertBudgeting($row);
-        $initial_quantity = 0;
-        $initial_budget = 0;
-        // $mtd_budget = ;
-        // $mtd_quantity = 0;        
-        $mtd_prev_month_budget = $item_budget->val;
-        $mtd_prev_month_quantity = $item_budget->qty;
+        $initial_quantity   = 0;
+        $initial_budget     = 0;   
+        $mtd_prev_month_budget    = $item_budget->val;
+        $mtd_prev_month_quantity  = $item_budget->qty;
         
         $hourMonthly = 0;
-      }
-      // for ($i=0; $i<=11  ; $i++) { 
-      //   $row = array(
-      //     "id_cot"=>$id_cot,
-      //     "month_number"=>$budget[$i]['month'],
-      //     "initial_budget"=>$initial_budget,
-      //     "initial_quantity"=>$initial_quantity,
-      //     "mtd_budget"=>$budget[$i]['val'],
-      //     "mtd_quantity"=>$budget[$i]['qty'],
-      //     "mtd_prev_month_budget"=>$mtd_prev_month_budget,
-      //     "mtd_prev_month_quantity"=>$mtd_prev_month_quantity,
-      //     "ytd_budget"=>$ytd_budget,
-      //     "ytd_quantity"=>$ytd_quantity,
-      //     "created_at"=>$created_at,
-      //     "updated_at"=>$updated_at,
-      //     "created_by"=>$created_by,
-      //     "hour"=>$hourMonthly
-      //   );
-      //   $this->insertBudgeting($row);
-      //   $initial_quantity = 0;
-      //   $initial_budget = 0;
-      //   // $mtd_budget = ;
-      //   // $mtd_quantity = 0;        
-      //   $mtd_prev_month_budget = $budget[$i]['val'];
-      //   $mtd_prev_month_quantity = $budget[$i]['qty'];
-      //   $ytd_budget = $ytd_budget+$budget[$i]['val'];
-      //   $ytd_quantity = $ytd_quantity+$budget[$i]['qty'];
-      //   $hourMonthly = 0;
-      // }
-      
+      }      
     }
 
     if ($this->db->trans_status() === FALSE){

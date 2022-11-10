@@ -161,6 +161,33 @@ class Expense_Order_Evaluation extends MY_Controller
 
     echo json_encode($entities);
   }
+
+  public function set_annual_cost_center_id($annual_cost_center_id)
+  {
+    $this->authorized($this->module, 'document');
+
+    $_SESSION['expense_poe']['annual_cost_center_id'] = urldecode($annual_cost_center_id);
+    $cost_center = findCostCenterByAnnualCostCenterId(urldecode($annual_cost_center_id));
+    $cost_center_code = $cost_center['cost_center_code'];
+    $cost_center_name = $cost_center['cost_center_name'];          
+    $department_id    = $cost_center['department_id'];
+
+    $_SESSION['expense_poe']['cost_center_id']          = $cost_center['id'];
+    $_SESSION['expense_poe']['cost_center_name']        = $cost_center_name;
+    $_SESSION['expense_poe']['cost_center_code']        = $cost_center_code;
+    $_SESSION['expense_poe']['department_id']           = $department_id;
+    $_SESSION['expense_poe']['head_dept']               = NULL;
+
+    redirect($this->module['route'] . '/create');
+  }
+
+  public function set_head_dept()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['expense_poe']['head_dept'] = $_GET['data'];
+  }
   
   public function index_data_source()
   {
@@ -179,21 +206,30 @@ class Expense_Order_Evaluation extends MY_Controller
       foreach ($entities as $row) {
         $no++;
         $col = array();
-        if (strtoupper($row['status']) == "EVALUATION") {
-          if (config_item('auth_role') == 'PROCUREMENT MANAGER' || config_item('auth_role') == 'SUPER ADMIN') {
+        if(is_granted($this->module, 'approval')){
+          if (strtoupper($row['status']) == "EVALUATION" && config_item('auth_username') == $row['head_dept']) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = print_number($no);
           }
-        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase")) {
-          if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        } else {
+        }else{
           $col[] = print_number($no);
         }
+        // if (strtoupper($row['status']) == "EVALUATION") {
+        //   if (config_item('auth_role') == 'PROCUREMENT MANAGER' || config_item('auth_role') == 'SUPER ADMIN') {
+        //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+        //   } else {
+        //     $col[] = print_number($no);
+        //   }
+        // }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase")) {
+        //   if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+        //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+        //   } else {
+        //     $col[] = print_number($no);
+        //   }
+        // } else {
+        //   $col[] = print_number($no);
+        // }
         $col[] = print_string($row['evaluation_number']);
         $col[] = print_string($row['purchase_request_number']);
         $col[] = print_date($row['document_date']);
@@ -214,11 +250,14 @@ class Expense_Order_Evaluation extends MY_Controller
         }else{
           $col[] = '';
         }
-        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')||(config_item('auth_role') == 'SUPER ADMIN'))) {
-          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase") && (config_item('auth_role') == 'VP FINANCE'|| config_item('auth_role') == 'SUPER ADMIN')) {
-          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-        } else {
+        
+        if(is_granted($this->module, 'approval')){
+          if (strtoupper($row['status']) == "EVALUATION" && config_item('auth_username') == $row['head_dept']) {
+            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          }else{
+            $col[] = null;
+          }
+        }else{
           $col[] = null;
         }
 
@@ -452,6 +491,12 @@ class Expense_Order_Evaluation extends MY_Controller
       $_SESSION['expense_poe']['grand_total']         = NULL;
       $_SESSION['expense_poe']['notes']               = NULL;
       $_SESSION['expense_poe']['tipe']                = 'EXPENSE';
+      $_SESSION['expense_poe']['annual_cost_center_id']   = null;
+      $_SESSION['expense_poe']['cost_center_id']          = null;
+      $_SESSION['expense_poe']['cost_center_name']        = null;
+      $_SESSION['expense_poe']['cost_center_code']        = null;
+      $_SESSION['expense_poe']['department_id']           = null;
+      $_SESSION['expense_poe']['head_dept']               = NULL;
 
       redirect($this->module['route'] . '/create');
     }
@@ -558,8 +603,8 @@ class Expense_Order_Evaluation extends MY_Controller
           $request = $this->model->infoRequest($request_id);
 
           $_SESSION['expense_poe']['request'][$request_id] = array(
-            'description'             => $request['account_name'],
-            'part_number'             => $request['account_code'],
+            'description'             => trim(strtoupper($request['account_name'])),
+            'part_number'             => trim(strtoupper($request['account_code'])),
             'alternate_part_number'   => NULL,
             'serial_number'           => NULL,
             'unit'                    => NULL,
@@ -695,12 +740,12 @@ class Expense_Order_Evaluation extends MY_Controller
         foreach ($_POST['request'] as $id => $request) {
           $quantity = floatval($_SESSION['expense_poe']['request'][$id]['quantity_requested']);
 
-          $_SESSION['expense_poe']['request'][$id]['part_number'] = $request['part_number'];
-          $_SESSION['expense_poe']['request'][$id]['amount']    = $request['amount'];
+          $_SESSION['expense_poe']['request'][$id]['part_number'] = trim(strtoupper($request['part_number']));
+          $_SESSION['expense_poe']['request'][$id]['amount']      = $request['amount'];
           $_SESSION['expense_poe']['request'][$id]['alternate_part_number'] = $request['alternate_part_number'];
-          $_SESSION['expense_poe']['request'][$id]['remarks']     = $request['remarks'];
-          $_SESSION['expense_poe']['request'][$id]['unit']     = $request['unit'];
-          $_SESSION['expense_poe']['request'][$id]['konversi']     = $request['konversi'];
+          $_SESSION['expense_poe']['request'][$id]['remarks']       = $request['remarks'];
+          $_SESSION['expense_poe']['request'][$id]['unit']          = $request['unit'];
+          $_SESSION['expense_poe']['request'][$id]['konversi']      = $request['konversi'];
 
           foreach ($request['vendors'] as $key => $vendor) {
             // $_SESSION['expense_poe']['request'][$id]['alternate_part_number'] = $unit_price;
@@ -926,5 +971,18 @@ class Expense_Order_Evaluation extends MY_Controller
     }
 
     redirect($this->module['route'] . '/create');
+  }
+
+  public function get_head_dept_user()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $department_id = $_SESSION['expense_poe']['department_id'];
+    $entities = list_user_in_head_department($department_id);
+    $user_procurement_manager = list_user_as_roles_level(21);
+    $return = array_merge( $entities, $user_procurement_manager );
+
+    echo json_encode($return);
   }
 }

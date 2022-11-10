@@ -347,6 +347,7 @@ class Expense_Purchase_Order_Model extends MY_Model
     if($note!=null){
       $po_note  = $row['approval_notes']. config_item('auth_role').':'. $note . ',';
     }
+    $format_order = substr($row['document_number'], 0, 3);
 
     if ((config_item('auth_role') == 'ASSISTANT HOS')
      && $row['review_status']=='WAITING FOR AHOS REVIEW') {
@@ -368,94 +369,182 @@ class Expense_Purchase_Order_Model extends MY_Model
 
     if ((config_item('auth_role') == 'FINANCE MANAGER')
      && $row['review_status']==strtoupper('waiting for finance review')) {
-      if($row['base']=='JAKARTA'){
-        $level = 3;
-        $this->db->set('review_status', strtoupper("waiting for vp finance review"));
-        $this->db->set('checked_by', config_item('auth_person_name'));
-        $this->db->set('checked_at', date('Y-m-d'));
+      if($format_order=='POL'||$format_order=='WOL'){
+        if($row['base']=='JAKARTA'){
+          $level = 3;
+          $status = "waiting for for vp finance review";
+          $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+          $this->db->set('checked_by', config_item('auth_person_name'));
+          $this->db->set('checked_at', date('Y-m-d'));
+        }else{
+          $level = 10;
+          $status = "waiting for hos review";
+          $this->db->set('review_status', strtoupper("waiting for hos review"));
+          $this->db->set('checked_by', config_item('auth_person_name'));
+          $this->db->set('checked_at', date('Y-m-d'));         
+        
+        }
       }else{
         $level = 10;
+        $status = "waiting for hos review";
         $this->db->set('review_status', strtoupper("waiting for hos review"));
         $this->db->set('checked_by', config_item('auth_person_name'));
-        $this->db->set('checked_at', date('Y-m-d'));         
-      
+        $this->db->set('checked_at', date('Y-m-d'));
       }
-      $status_prl = 'PO Approved by Finance Manager, waiting for hos review';
+      
+      $status_prl = 'PO Approved by Finance Manager, '.$status;
     }
 
     if ((config_item('auth_role') == 'HEAD OF SCHOOL')
-     && $row['review_status']==strtoupper('waiting for hos review') && $row['base']!='JAKARTA') {
-      if ($currency == 'IDR') {
-        if ($grandtotal >= 15000000) {
-          $level = 16;
-          $this->db->set('review_status', strtoupper("waiting for coo review"));
-          $this->db->set('known_by', config_item('auth_person_name'));
-          $this->db->set('known_at', date('Y-m-d'));
-        } else {
-          $level = 0;
-          $this->db->set('review_status', strtoupper("approved"));
-          $this->db->set('known_by', config_item('auth_person_name'));
-          $this->db->set('known_at', date('Y-m-d'));
+     && $row['review_status']==strtoupper('waiting for hos review')) {
+      if($format_order=='POL'||$format_order=='WOL'){
+        if($row['base']!='JAKARTA'){
+          if ($currency == 'IDR') {
+            if ($grandtotal >= 15000000) {
+              $level = 16;
+              $this->db->set('review_status', strtoupper("waiting for coo review"));
+              $this->db->set('known_by', config_item('auth_person_name'));
+              $this->db->set('known_at', date('Y-m-d'));
+            } else {
+              $level = 0;
+              $this->db->set('review_status', strtoupper("approved"));
+              $this->db->set('known_by', config_item('auth_person_name'));
+              $this->db->set('known_at', date('Y-m-d'));
+            }
+          } else {
+            if ($grandtotal >= 1500) {
+              $level = 16;
+              $this->db->set('review_status', strtoupper("waiting for coo review"));
+              $this->db->set('known_by', config_item('auth_person_name'));
+              $this->db->set('known_at', date('Y-m-d'));
+            } else {
+              $level = 0;
+              $this->db->set('review_status', strtoupper("approved"));
+              $this->db->set('known_by', config_item('auth_person_name'));
+              $this->db->set('known_at', date('Y-m-d'));
+            }
+          }
         }
-      } else {
-        if ($grandtotal >= 1500) {
-          $level = 16;
-          $this->db->set('review_status', strtoupper("waiting for coo review"));
-          $this->db->set('known_by', config_item('auth_person_name'));
-          $this->db->set('known_at', date('Y-m-d'));
+      }else{
+        if ($currency == 'IDR') {
+          if ($grandtotal >= 15000000) {
+            $level = 16;
+            $this->db->set('review_status', strtoupper("waiting for coo review"));
+            $this->db->set('known_by', config_item('auth_person_name'));
+            $this->db->set('known_at', date('Y-m-d'));
+          } else {
+            $level = 3;
+            $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+            $this->db->set('known_by', config_item('auth_person_name'));
+            $this->db->set('known_at', date('Y-m-d'));
+          }
         } else {
-          $level = 0;
-          $this->db->set('review_status', strtoupper("approved"));
-          $this->db->set('known_by', config_item('auth_person_name'));
-          $this->db->set('known_at', date('Y-m-d'));
-        }
-      }
-    }
-
-    if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER') && $row['base']!='JAKARTA') {
-      $level = 0;
-      $this->db->set('review_status', strtoupper("approved"));
-      $this->db->set('coo_review', config_item('auth_person_name'));
-      $this->db->set('coo_review_at', date('Y-m-d'));
-    }
-
-    if ((config_item('auth_role') == 'VP FINANCE')
-     && $row['review_status']==strtoupper('waiting for vp finance review') && $row['base']=='JAKARTA') {
-      if ($currency == 'IDR') {
-        if ($grandtotal >= 15000000) {
-          $level = 11;
-          $this->db->set('review_status', strtoupper("waiting for cfo review"));
-          $this->db->set('check_review_by', config_item('auth_person_name'));
-          $this->db->set('check_review_at', date('Y-m-d'));   
-          $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
-        } else {
-          $level = 0;
-          $this->db->set('review_status', strtoupper("approved"));
-          // $this->db->set('status', strtoupper("order"));
-          $this->db->set('check_review_by', config_item('auth_person_name'));
-          $this->db->set('check_review_at', date('Y-m-d'));        
-          $status_prl = 'PO Approved, waiting for order';
-        }
-      } else {
-        if ($grandtotal >= 1500) {
-          $level = 11;
-          $this->db->set('review_status', strtoupper("waiting for cfo review"));
-          $this->db->set('check_review_by', config_item('auth_person_name'));
-          $this->db->set('check_review_at', date('Y-m-d'));
-          $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
-        } else {
-          $level = 0;
-          $this->db->set('review_status', strtoupper("approved"));
-          // $this->db->set('status', strtoupper("order"));
-          $this->db->set('check_review_by', config_item('auth_person_name'));
-          $this->db->set('check_review_at', date('Y-m-d'));        
-          $status_prl = 'PO Approved, waiting for order';
+          if ($grandtotal >= 1500) {
+            $level = 16;
+            $this->db->set('review_status', strtoupper("waiting for coo review"));
+            $this->db->set('known_by', config_item('auth_person_name'));
+            $this->db->set('known_at', date('Y-m-d'));
+          } else {
+            $level = 3;
+            $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+            $this->db->set('known_by', config_item('auth_person_name'));
+            $this->db->set('known_at', date('Y-m-d'));
+          }
         }
       }
       
     }
 
-    if ((config_item('auth_role') == 'CHIEF OF FINANCE') && $row['base']=='JAKARTA') {
+    if ((config_item('auth_role') == 'CHIEF OPERATION OFFICER')) {
+      if($format_order=='POL'||$format_order=='WOL'){
+        if($row['base']!='JAKARTA'){
+          $level = 0;
+          $this->db->set('review_status', strtoupper("approved"));
+          $this->db->set('coo_review', config_item('auth_person_name'));
+          $this->db->set('coo_review_at', date('Y-m-d'));
+        }
+      }else{
+        $level = 3;
+        $this->db->set('review_status', strtoupper("waiting for vp finance review"));
+        $this->db->set('coo_review', config_item('auth_person_name'));
+        $this->db->set('coo_review_at', date('Y-m-d'));         
+        $status_prl = 'PO Approved by CHIEF OPERATION OFFICER, waiting for vp finance review';
+      }
+      
+    }
+
+    if ((config_item('auth_role') == 'VP FINANCE')
+     && $row['review_status']==strtoupper('waiting for vp finance review')) {
+      if($format_order=='POL'||$format_order=='WOL'){
+        if($row['base']=='JAKARTA'){
+          if ($currency == 'IDR') {
+            if ($grandtotal >= 15000000) {
+              $level = 11;
+              $this->db->set('review_status', strtoupper("waiting for cfo review"));
+              $this->db->set('check_review_by', config_item('auth_person_name'));
+              $this->db->set('check_review_at', date('Y-m-d'));   
+              $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
+            } else {
+              $level = 0;
+              $this->db->set('review_status', strtoupper("approved"));
+              // $this->db->set('status', strtoupper("order"));
+              $this->db->set('check_review_by', config_item('auth_person_name'));
+              $this->db->set('check_review_at', date('Y-m-d'));        
+              $status_prl = 'PO Approved, waiting for order';
+            }
+          } else {
+            if ($grandtotal >= 1500) {
+              $level = 11;
+              $this->db->set('review_status', strtoupper("waiting for cfo review"));
+              $this->db->set('check_review_by', config_item('auth_person_name'));
+              $this->db->set('check_review_at', date('Y-m-d'));
+              $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
+            } else {
+              $level = 0;
+              $this->db->set('review_status', strtoupper("approved"));
+              // $this->db->set('status', strtoupper("order"));
+              $this->db->set('check_review_by', config_item('auth_person_name'));
+              $this->db->set('check_review_at', date('Y-m-d'));        
+              $status_prl = 'PO Approved, waiting for order';
+            }
+          }
+        }
+      }else{
+        if ($currency == 'IDR') {
+          if ($grandtotal >= 15000000) {
+            $level = 11;
+            $this->db->set('review_status', strtoupper("waiting for cfo review"));
+            $this->db->set('check_review_by', config_item('auth_person_name'));
+            $this->db->set('check_review_at', date('Y-m-d'));   
+            $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
+          } else {
+            $level = 0;
+            $this->db->set('review_status', strtoupper("approved"));
+            // $this->db->set('status', strtoupper("order"));
+            $this->db->set('check_review_by', config_item('auth_person_name'));
+            $this->db->set('check_review_at', date('Y-m-d'));        
+            $status_prl = 'PO Approved, waiting for order';
+          }
+        } else {
+          if ($grandtotal >= 1500) {
+            $level = 11;
+            $this->db->set('review_status', strtoupper("waiting for cfo review"));
+            $this->db->set('check_review_by', config_item('auth_person_name'));
+            $this->db->set('check_review_at', date('Y-m-d'));
+            $status_prl = 'PO Approved by VP FINANCE, waiting for cfo review';
+          } else {
+            $level = 0;
+            $this->db->set('review_status', strtoupper("approved"));
+            // $this->db->set('status', strtoupper("order"));
+            $this->db->set('check_review_by', config_item('auth_person_name'));
+            $this->db->set('check_review_at', date('Y-m-d'));        
+            $status_prl = 'PO Approved, waiting for order';
+          }
+        }
+      }
+    }
+
+    if ((config_item('auth_role') == 'CHIEF OF FINANCE')) {
       $this->db->set('review_status', strtoupper("approved"));
       // $this->db->set('status', strtoupper("order"));
       $this->db->set('approved_by', config_item('auth_person_name'));
@@ -1050,11 +1139,19 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->set('status', strtoupper('purposed'));
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
-    if($base=='JAKARTA' || $base=='WISNU'){
-      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    if($_SESSION['order']['format_number']=='POM'||$_SESSION['order']['format_number']=='WOM'){
+      $this->db->set('review_status', strtoupper('waiting for finance review'));
+      $level = 14;
     }else{
-      $this->db->set('review_status', strtoupper('waiting for ahos review'));
+      if($base=='JAKARTA' || $base=='WISNU'){
+        $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+        $level = 21;
+      }else{
+        $this->db->set('review_status', strtoupper('waiting for ahos review'));
+        $level = 22;
+      }
     }
+    
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('tipe_po', 'EXPENSE');
     $this->db->set('base', $base);
@@ -1153,11 +1250,12 @@ class Expense_Purchase_Order_Model extends MY_Model
 
     $this->db->trans_commit();
     $this->connection->trans_commit();
-    if($base=='JAKARTA' || $base=='WISNU'){
-      $this->send_mail($id_po, 21);
-    }else{
-      $this->send_mail($id_po, 22);
-    }
+    // if($base=='JAKARTA' || $base=='WISNU'){
+    //   $this->send_mail($id_po, 21);
+    // }else{
+    //   $this->send_mail($id_po, 22);
+    // }
+    $this->send_mail($id_po, $level);
     return TRUE;
   }
 
@@ -1199,11 +1297,16 @@ class Expense_Purchase_Order_Model extends MY_Model
     $id_po_lama           = $_SESSION['order']['id_po'];
     $base = config_item('auth_warehouse');
 
+    $this->db->where('id', $id_po_lama);
+    $query      = $this->db->get('tb_po');
+    $old_po     = $query->unbuffered_row('array');
+
     $this->db->trans_begin();
     $this->connection->trans_begin();
 
     $this->db->set('document_number', $document_number);
     $this->db->set('document_date', $document_date);
+    $this->db->set('document_body', "[PO ini merupakan revisi dari ".$old_po['document_number']."]");
     $this->db->set('reference_quotation', $reference_quotation);
     $this->db->set('issued_by', $issued_by);
     $this->db->set('checked_by', $checked_by);
@@ -1235,10 +1338,17 @@ class Expense_Purchase_Order_Model extends MY_Model
     $this->db->set('status', 'PURPOSED');
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
-    if($base=='JAKARTA' || $base=='WISNU'){
-      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+    if($_SESSION['order']['format_number']=='POM'||$_SESSION['order']['format_number']=='WOM'){
+      $this->db->set('review_status', strtoupper('waiting for finance review'));
+      $level = 14;
     }else{
-      $this->db->set('review_status', strtoupper('waiting for ahos review'));
+      if($base=='JAKARTA' || $base=='WISNU'){
+        $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+        $level = 21;
+      }else{
+        $this->db->set('review_status', strtoupper('waiting for ahos review'));
+        $level = 22;
+      }
     }
     $this->db->set('tipe', strtoupper($payment_type));
     $this->db->set('tipe_po', 'EXPENSE');
@@ -1337,7 +1447,7 @@ class Expense_Purchase_Order_Model extends MY_Model
 
     $this->db->trans_commit();
     $this->connection->trans_commit();
-    $this->send_mail($id_po, 21);
+    $this->send_mail($id_po, $level);
     return TRUE;
   }
 

@@ -1065,6 +1065,36 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->group_by($group);
       $this->db->order_by('tb_returns.issued_date', 'asc');
       $query = $this->db->get();
+    }elseif($_SESSION['poe']['source']=='expense'){
+      $this->connection->select(array(
+        'tb_expense_purchase_requisition_details.id',
+        'tb_expense_purchase_requisition_details.amount',
+        'tb_expense_purchase_requisition_details.total',
+        'tb_expense_purchase_requisition_details.process_amount',
+        'tb_accounts.account_name as product_name',
+        'tb_accounts.account_code as product_code',
+        'tb_expense_purchase_requisitions.pr_number',
+        'tb_expense_purchase_requisitions.pr_date',
+        'tb_expense_purchase_requisitions.required_date',
+        'tb_expense_purchase_requisitions.status',
+        'tb_expense_purchase_requisitions.created_by',
+        'tb_expense_purchase_requisitions.notes as additional_info',
+        'tb_cost_centers.cost_center_name'
+      ));
+
+      $this->connection->from('tb_expense_purchase_requisitions');
+      $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+      $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+      $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+      $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
+      $this->connection->where('tb_expense_purchase_requisitions.status','approved');
+      $this->connection->where('tb_expense_purchase_requisitions.with_po','t');
+      // $this->connection->where_not_in('tb_accounts.id',$item_unselect);
+      $this->connection->order_by('tb_expense_purchase_requisitions.id', 'desc');
+
+      $query = $this->connection->get();
     }
 
     return $query->result_array();
@@ -1161,6 +1191,31 @@ class Purchase_Order_Evaluation_Model extends MY_Model
       $this->db->where('tb_return_items.id', $id);
       // $this->db->group_by($group);
       $query = $this->db->get();
+    }elseif($_SESSION['poe']['source']=='expense'){
+      $this->connection->select(array(
+        'tb_expense_purchase_requisition_details.id',
+        'tb_expense_purchase_requisition_details.amount',
+        'tb_expense_purchase_requisition_details.total',
+        'tb_expense_purchase_requisition_details.process_amount',
+        'tb_accounts.account_name as product_code',
+        'tb_accounts.account_code as product_name',
+        'tb_expense_purchase_requisitions.pr_number',
+        'tb_expense_purchase_requisitions.pr_date',
+        'tb_expense_purchase_requisitions.required_date',
+        'tb_expense_purchase_requisitions.status',
+        'tb_expense_purchase_requisitions.created_by',
+        'tb_expense_purchase_requisitions.notes',
+        'tb_cost_centers.cost_center_name'
+      ));
+
+      $this->connection->from('tb_expense_purchase_requisitions');
+      $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
+      $this->connection->join('tb_expense_monthly_budgets', 'tb_expense_monthly_budgets.id = tb_expense_purchase_requisition_details.expense_monthly_budget_id');
+      $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
+      $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
+      $this->connection->where('tb_expense_purchase_requisition_details.id', $id);
+      $query = $this->connection->get(); 
     }
     return $query->unbuffered_row('array');
   }
