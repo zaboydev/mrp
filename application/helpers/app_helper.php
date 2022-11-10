@@ -2138,9 +2138,10 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('viewOrNot')) {
-    function viewOrNot($status,$department_request,$head_dept)
+    function viewOrNot($status,$head_dept,$department_request=NULL)
     {
       if($status=='WAITING FOR HEAD DEPT'){
+        //untuk expense,capex,inv request
         if(config_item('as_head_department')=='yes'){
           if(in_array($department_request,config_item('head_department')) && $head_dept==config_item('auth_username')){
             return true;
@@ -2149,6 +2150,13 @@ if (!function_exists('currency_for_vendor_list')) {
           }
         }else{
           return true;
+        }
+      }else if($status=='waiting'){
+        //untuk purchase request maintenance
+        if($head_dept==config_item('auth_username')){
+          return true;
+        }else{
+          return false;
         }
       }else{
         return true;
@@ -3091,6 +3099,26 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI->db->from('tb_auth_users');
       $CI->db->where('username', $username);
       $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getAllAnnualCostCenters')) {
+    function getAllAnnualCostCenters()
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $year = find_budget_setting('Active Year');
+
+      $connection->select(array('tb_cost_centers.cost_center_name','tb_annual_cost_centers.id'));
+      $connection->from('tb_annual_cost_centers');
+      $connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $connection->order_by('cost_center_name', 'ASC');
+      $connection->where('tb_annual_cost_centers.year_number', $year);
+      $query  = $connection->get();
       $result = $query->result_array();
       return $result;
     }

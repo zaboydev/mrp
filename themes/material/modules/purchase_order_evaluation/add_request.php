@@ -39,14 +39,16 @@
                 <?php endif;?>
                 <th>
                   Additional Info
-                </th>
+                </th>                
                 <th>
-                  Quantity
+                   <?=($_SESSION['poe']['source']=='expense')?'Amount':'Quantity';?>
                 </th>
-                <th>Remaining Request Quantity</th>
-                <th>POE Quantity</th>
-                <th>PO Quantity</th>
-                <th>GRN Quantity</th>
+                <th>Remaining Request <?= ($_SESSION['poe']['source']=='expense')?'Amount':'Quantity';?></th>
+                <?php if($_SESSION['poe']['source']=='request'):?>
+                <th>POE <?= ($_SESSION['poe']['source']=='expense')?'Amount':'Quantity';?></th>
+                <th>PO <?= ($_SESSION['poe']['source']=='expense')?'Amount':'Quantity';?></th>
+                <th>GRN <?= ($_SESSION['poe']['source']=='expense')?'Amount':'Quantity';?></th>
+                <?php endif;?>
                 <th>
                   Required Date
                 </th>
@@ -105,14 +107,25 @@
                   </td>
                   <td>
                     <label for="request_id_<?= $e; ?>">
+                    <?php if($_SESSION['poe']['source']=='expense'):?>
+                      <?= print_number($entity['amount'], 2); ?>
+                    <?php else:?>
                       <?= print_number($entity['quantity'], 2); ?>
+                    <?php endif;?>
                     </label>
                   </td>
                   <td>
                     <label for="request_id_<?= $e; ?>">
+                    <?php if($_SESSION['poe']['source']=='expense'):?>
+                      <?= print_number($entity['amount']-$entity['process_amount'], 2); ?>
+                    <?php elseif($_SESSION['poe']['source']=='capex'):?>
+                      <?= print_number($entity['quantity']-$entity['process_qty'], 2); ?>
+                    <?php else:?>
                       <?= print_number($entity['sisa'], 2); ?>
+                    <?php endif;?>                      
                     </label>
                   </td>
+                  <?php if($_SESSION['poe']['source']=='request'):?>
                   <td>
                     <label for="request_id_<?= $e; ?>">
                       <?= print_number($entity['poe_qty'], 2); ?>
@@ -128,6 +141,7 @@
                       <?= print_number($entity['grn_qty'], 2); ?>
                     </label>
                   </td>
+                  <?php endif;?>
                   <td>
                     <label for="request_id_<?= $e; ?>">
                       <?= print_date($entity['required_date']); ?>

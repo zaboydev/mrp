@@ -860,6 +860,7 @@ class Goods_Received_Note_Model extends MY_Model
       } else {
         $this->db->set('received_unit', strtoupper($data['received_unit']));
       }  
+      $this->db->set('aircraft_register_number', $data['aircraft_register_number']);
       $this->db->insert('tb_receipt_items');
       $receipt_items_id = $this->db->insert_id();
 

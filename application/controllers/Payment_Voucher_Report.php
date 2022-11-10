@@ -31,9 +31,7 @@ class Payment_Voucher_Report extends MY_Controller
             redirect($this->modules['secure']['route'] . '/denied');
 
         $items = $this->model->getTransaksi();
-        $items_2 = $this->model->getTransaksiRequestPayment();
         $this->data['items'] = $items;
-        $this->data['items_2'] = $items_2;
         $return['info'] = $this->load->view($this->module['view'] . '/data', $this->data, TRUE);
         echo json_encode($return);
     }
