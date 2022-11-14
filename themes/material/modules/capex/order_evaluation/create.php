@@ -18,6 +18,31 @@
         ?>
 
         <div class="document-header force-padding">
+        <div class="row">
+            <div class="col-sm-6 col-lg-3">
+              <div class="form-group">
+                <select name="annual_cost_center_id" id="annual_cost_center_id" class="form-control" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>" required>
+                  <option value="">--Select Department--</option>
+                  <?php foreach (getAllAnnualCostCenters() as $annual_cost_center) : ?>
+                    <option value="<?= $annual_cost_center['id']; ?>" <?= ($_SESSION['capex_poe']['annual_cost_center_id'] == $annual_cost_center['id']) ? 'selected' : ''; ?>>
+                      <?= $annual_cost_center['cost_center_name']; ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <label for="source">Department</label>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="form-group">
+                <select name="head_dept_select" id="head_dept_select" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
+                  <option value="">--Select Head Dept--</option>
+                  
+                </select>
+                <label for="notes">Head Dept.</label>
+                <input type="hidden" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['capex_poe']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>">
+              </div>
+            </div>
+          </div>
           <div class="row">
             <div class="col-sm-6 col-lg-3">
               <div class="form-group">
@@ -739,6 +764,62 @@
         $("#modal-add-item-submit").prop("disabled", true);
       }
     });
+
+    $('#annual_cost_center_id').on('change', function() {
+      var prev = $(this).data('val');
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      if (prev != ''){
+        var conf = confirm("You have changing Department. Continue?");
+
+        if (conf == false){
+          return false;
+        }
+      }
+
+      window.location.href = url + '/' + val;
+
+    });
+
+    $('#head_dept_select').on('change', function() {
+      var val = $(this).val();
+      var url = $(this).data('source');
+
+      $.get(url, {
+        data: val
+      });
+      $('#head_dept').val(val).trigger('change');
+
+    });
+
+    function get_head_dept_user() {
+      $('#head_dept').html('');
+
+      var head_dept = $('#head_dept').val();
+
+      $.ajax({
+        url: "<?= site_url($module['route'] . '/get_head_dept_user'); ?>",
+        dataType: "json",
+        success: function(resource) {
+          console.log(resource);
+          $('#head_dept_select').html('');
+          $("#head_dept_select").append('<option value="">--Select Head Dept--</option>');
+          $.each(resource, function(i, item) {
+            if(head_dept==item.username){
+              var text = '<option value="' +item.username+'" selected>' +item.person_name+'</option>';
+            }else{
+              var text = '<option value="' +item.username+'">' +item.person_name+'</option>';
+            }            
+            $("#head_dept_select").append(text);
+          });
+          
+        }
+      });
+    }
+
+    get_head_dept_user()
+    
   });
 </script>
 

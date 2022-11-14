@@ -108,11 +108,25 @@ class Capex_Order_Evaluation_Model extends MY_Model
 
     if (!empty($_POST['columns'][3]['search']['value'])) {
       $search_status = $_POST['columns'][3]['search']['value'];
-
-      $this->db->where('tb_purchase_orders.status', $search_status);
+      if($search_status!='all'){
+        $this->db->where('tb_purchase_orders.status', $search_status);
+        if($search_status=='evaluation'){
+          $this->db->where('tb_purchase_orders.head_dept', config_item('auth_username'));
+        }
+      }      
     } else {
-      if (config_item('auth_role') == 'PROCUREMENT MANAGER') {
-        $this->db->where('tb_purchase_orders.status', 'evaluation');
+
+      $status = array();
+      
+      if(config_item('as_head_department')=='yes' || config_item('auth_role') == 'PROCUREMENT MANAGER'){
+        $status[] = 'evaluation';
+      }
+      
+      if(!empty($status)){
+        $this->db->where_in('tb_purchase_orders.status', $status);
+        if(in_array('evaluation',$status)){
+          $this->db->where('tb_purchase_orders.head_dept', config_item('auth_username'));
+        }
       }
     }
 
@@ -137,61 +151,12 @@ class Capex_Order_Evaluation_Model extends MY_Model
     }
   }
 
-  function multi_reject($id_purchase_order, $notes)
-  {
-    // $this->connection->trans_begin();
-    $this->db->trans_begin();
-    $x = 0;
-    $return = 0;
-    foreach ($id_purchase_order as $id) {
-      $this->db->where('purchase_order_id', $id);
-      $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
-      $this->db->from('tb_purchase_orders');
-      $this->db->where('id', $id);
-      $query  = $this->db->get();
-      $row    = $query->unbuffered_row('array');
-      // foreach ($tb_purchase_order_items as $key) {
-      //   $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
-      //   $this->connection->where('id', $inventory_purchase_request_detail_id);
-      //   $this->connection->set('proses_qty', '"proses_qty" - ' . $key->quantity, false);
-      //   $this->connection->update('tb_capex_purchase_requisition_details');
-
-      //   //deletetb_purchase_request_closures
-      //   $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
-      //   $this->db->where('tipe','CAPEX');
-      //   $this->db->delete('tb_purchase_request_closures');
-      //   // }
-      // }
-      $notes_poe = $row['notes'];
-      $this->db->set('status', 'rejected');
-      $this->db->set('notes', $notes_poe.' Rejection Notes : '.$notes[$x]);
-      $this->db->set('approved_by', config_item('auth_person_name'));
-      $this->db->where('id', $id);
-      $check = $this->db->update('tb_purchase_orders');
-      if ($check) {
-        $return++;
-      }
-      $x++;
-    }
-    // if (($return == $x) && ($return > 0)) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-
-    // if ($this->connection->trans_status() === FALSE && $this->db->trans_status() === FALSE)
-    if ($this->db->trans_status() === FALSE)
-      return FALSE;
-
-    // $this->connection->trans_commit();
-    $this->db->trans_commit();
-    return TRUE;
-  }
-
   function getIndex($return = 'array')
   {
+    $selected = $this->getSelectedColumns();
+    $selected['tb_purchase_orders.head_dept'] = 'selected next person';      
     $this->db->distinct();
-    $this->db->select(array_keys($this->getSelectedColumns()));
+    $this->db->select(array_keys($selected));
     $this->db->from('tb_purchase_order_items_vendors');
     $this->db->join('tb_purchase_order_items', 'tb_purchase_order_items.id = tb_purchase_order_items_vendors.purchase_order_item_id');
     $this->db->join('tb_purchase_order_vendors', 'tb_purchase_order_vendors.id = tb_purchase_order_items_vendors.purchase_order_vendor_id');
@@ -416,7 +381,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
     $grandtotal = $row['grand_total'];
     $currency = $row['default_currency'];
 
-    if(config_item('auth_role')=='PROCUREMENT MANAGER' && $row['status']=='evaluation'){
+    if($row['status']=='evaluation'){
       if ($currency == 'IDR') {
         if($grandtotal >= 15000000){
           $status = strtoupper("waiting for vp finance review");
@@ -480,6 +445,57 @@ class Capex_Order_Evaluation_Model extends MY_Model
     return TRUE;
   }
 
+  function multi_reject($id_purchase_order, $notes)
+  {
+    // $this->connection->trans_begin();
+    $this->db->trans_begin();
+    $x = 0;
+    $return = 0;
+    foreach ($id_purchase_order as $id) {
+      $this->db->where('purchase_order_id', $id);
+      $tb_purchase_order_items = $this->db->get('tb_purchase_order_items')->result();
+      $this->db->from('tb_purchase_orders');
+      $this->db->where('id', $id);
+      $query  = $this->db->get();
+      $row    = $query->unbuffered_row('array');
+      // foreach ($tb_purchase_order_items as $key) {
+      //   $inventory_purchase_request_detail_id = $key->inventory_purchase_request_detail_id;
+      //   $this->connection->where('id', $inventory_purchase_request_detail_id);
+      //   $this->connection->set('proses_qty', '"proses_qty" - ' . $key->quantity, false);
+      //   $this->connection->update('tb_capex_purchase_requisition_details');
+
+      //   //deletetb_purchase_request_closures
+      //   $this->db->where('purchase_request_detail_id', $inventory_purchase_request_detail_id);
+      //   $this->db->where('tipe','CAPEX');
+      //   $this->db->delete('tb_purchase_request_closures');
+      //   // }
+      // }
+      $notes_poe = $row['notes'];
+      $this->db->set('status', 'rejected');
+      $this->db->set('notes', $notes_poe.' Rejection Notes : '.$notes[$x]);
+      $this->db->set('approved_by', config_item('auth_person_name'));
+      $this->db->where('id', $id);
+      $check = $this->db->update('tb_purchase_orders');
+      if ($check) {
+        $return++;
+      }
+      $x++;
+    }
+    // if (($return == $x) && ($return > 0)) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+
+    // if ($this->connection->trans_status() === FALSE && $this->db->trans_status() === FALSE)
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    // $this->connection->trans_commit();
+    $this->db->trans_commit();
+    return TRUE;
+  }
+
   public function save()
   {
 
@@ -502,6 +518,9 @@ class Capex_Order_Evaluation_Model extends MY_Model
     }
     $exchange_rate        = $_SESSION['capex_poe']['exchange_rate'];
     $notes                = (empty($_SESSION['capex_poe']['notes'])) ? NULL : $_SESSION['capex_poe']['notes'];
+    $annual_cost_center_id        = $_SESSION['expense_poe']['annual_cost_center_id'];
+    $department_id                = $_SESSION['expense_poe']['department_id'];
+    $head_dept                    = $_SESSION['expense_poe']['head_dept'];
 
     $this->db->trans_begin();
     
@@ -523,6 +542,8 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $this->db->set('exchange_rate', $exchange_rate);
       $this->db->set('status', $status);
       $this->db->set('notes', $notes);
+      $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+      $this->db->set('head_dept', $head_dept); 
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('updated_by', config_item('auth_person_name'));
 
@@ -547,6 +568,8 @@ class Capex_Order_Evaluation_Model extends MY_Model
       $this->db->set('exchange_rate', $exchange_rate);
       $this->db->set('status', $status);
       $this->db->set('notes', $notes);
+      $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+      $this->db->set('head_dept', $head_dept); 
       $this->db->set('updated_at', date('Y-m-d'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->where('id', $document_id);
@@ -860,7 +883,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
     $this->db->trans_commit();
     $this->connection->trans_commit();
     if ($approval != 'without_approval') {
-      $this->send_mail($document_id,21);
+      $this->send_mail($document_id,$head_dept);
     }
     return TRUE;
   }
@@ -1125,28 +1148,26 @@ class Capex_Order_Evaluation_Model extends MY_Model
     return TRUE;
   }
 
-  public function send_mail($doc_id,$level)
+  public function send_mail($doc_id,$head_dept)
   {
     $this->db->from('tb_purchase_orders');
     $this->db->where('id', $doc_id);
     $query = $this->db->get();
     $row = $query->unbuffered_row('array');
 
-    $recipientList = $this->getNotifRecipient($level);
+    $recipientList = getNotifRecipient_byUsername($head_dept);
     $recipient = array();
     foreach ($recipientList as $key) {
-      array_push($recipient, $key->email);
+      array_push($recipient, $key['email']);
     }
 
     $from_email = "bifa.acd@gmail.com";
     $to_email = "aidanurul99@rocketmail.com";
-    $levels_and_roles = config_item('levels_and_roles');
-    $ket_level = $levels_and_roles[$level];
 
     //Load email library 
     $this->load->library('email');
     $this->email->set_newline("\r\n");
-    $message = "<p>Dear ".$ket_level."</p>";
+    $message = "<p>Dear ".$head_dept."</p>";
     $message .= "<p>Berikut permintaan Persetujuan untuk Capex Order Evaluation :</p>";
     $message .= "<ul>";
     $message .= "</ul>";

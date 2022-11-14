@@ -105,6 +105,33 @@ class Capex_Order_Evaluation extends MY_Controller
     $_SESSION['capex_poe']['notes'] = $_GET['data'];
   }
 
+  public function set_annual_cost_center_id($annual_cost_center_id)
+  {
+    $this->authorized($this->module, 'document');
+
+    $_SESSION['capex_poe']['annual_cost_center_id'] = urldecode($annual_cost_center_id);
+    $cost_center = findCostCenterByAnnualCostCenterId(urldecode($annual_cost_center_id));
+    $cost_center_code = $cost_center['cost_center_code'];
+    $cost_center_name = $cost_center['cost_center_name'];          
+    $department_id    = $cost_center['department_id'];
+
+    $_SESSION['capex_poe']['cost_center_id']          = $cost_center['id'];
+    $_SESSION['capex_poe']['cost_center_name']        = $cost_center_name;
+    $_SESSION['capex_poe']['cost_center_code']        = $cost_center_code;
+    $_SESSION['capex_poe']['department_id']           = $department_id;
+    $_SESSION['capex_poe']['head_dept']               = NULL;
+
+    redirect($this->module['route'] . '/create');
+  }
+
+  public function set_head_dept()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['capex_poe']['head_dept'] = $_GET['data'];
+  }
+
   public function search_request_item()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -164,21 +191,31 @@ class Capex_Order_Evaluation extends MY_Controller
       foreach ($entities as $row) {
         $no++;
         $col = array();
-        if (strtoupper($row['status']) == "EVALUATION") {
-          if (config_item('auth_role') == 'PROCUREMENT MANAGER' || config_item('auth_role') == 'SUPER ADMIN') {
+
+        if(is_granted($this->module, 'approval')){
+          if (strtoupper($row['status']) == "EVALUATION" && config_item('auth_username') == $row['head_dept']) {
             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
           } else {
             $col[] = print_number($no);
           }
-        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase")) {
-          if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
-            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-          } else {
-            $col[] = print_number($no);
-          }
-        } else {
+        }else{
           $col[] = print_number($no);
         }
+        // if (strtoupper($row['status']) == "EVALUATION") {
+        //   if (config_item('auth_role') == 'PROCUREMENT MANAGER' || config_item('auth_role') == 'SUPER ADMIN') {
+        //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+        //   } else {
+        //     $col[] = print_number($no);
+        //   }
+        // }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase")) {
+        //   if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN') {
+        //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+        //   } else {
+        //     $col[] = print_number($no);
+        //   }
+        // } else {
+        //   $col[] = print_number($no);
+        // }
         $col[] = print_string($row['evaluation_number']);
         $col[] = print_string($row['purchase_request_number']);
         $col[] = print_date($row['document_date']);
@@ -195,11 +232,13 @@ class Capex_Order_Evaluation extends MY_Controller
           $col[] = '';
         }
         $col[] = print_string($row['notes']);
-        if (strtoupper($row['status']) == "EVALUATION" && ((config_item('auth_role') == 'PROCUREMENT MANAGER')) || config_item('auth_role') == 'SUPER ADMIN') {
-          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-        }elseif (strtoupper($row['status']) == strtoupper("waiting for purchase") && (config_item('auth_role') == 'VP FINANCE'|| config_item('auth_role') == 'SUPER ADMIN')) {
-          $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-        } else {
+        if(is_granted($this->module, 'approval')){
+          if (strtoupper($row['status']) == "EVALUATION" && config_item('auth_username') == $row['head_dept']) {
+            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+          }else{
+            $col[] = null;
+          }
+        }else{
           $col[] = null;
         }
 
@@ -434,6 +473,12 @@ class Capex_Order_Evaluation extends MY_Controller
       $_SESSION['capex_poe']['grand_total']         = NULL;
       $_SESSION['capex_poe']['notes']               = NULL;
       $_SESSION['capex_poe']['tipe']                = 'CAPEX';
+      $_SESSION['capex_poe']['annual_cost_center_id']   = null;
+      $_SESSION['capex_poe']['cost_center_id']          = null;
+      $_SESSION['capex_poe']['cost_center_name']        = null;
+      $_SESSION['capex_poe']['cost_center_code']        = null;
+      $_SESSION['capex_poe']['department_id']           = null;
+      $_SESSION['capex_poe']['head_dept']               = NULL;
 
       redirect($this->module['route'] . '/create');
     }
@@ -906,5 +951,18 @@ class Capex_Order_Evaluation extends MY_Controller
     }
 
     redirect($this->module['route'] . '/create');
+  }
+
+  public function get_head_dept_user()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] . '/denied');
+
+    $department_id = $_SESSION['capex_poe']['department_id'];
+    $entities = list_user_in_head_department($department_id);
+    $user_procurement_manager = list_user_as_roles_level(21);
+    $return = array_merge( $entities, $user_procurement_manager );
+
+    echo json_encode($return);
   }
 }

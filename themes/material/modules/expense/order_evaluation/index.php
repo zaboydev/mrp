@@ -72,10 +72,10 @@
   <div class="form-group">
     <label for="filter_status">Status</label>
     <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_status">
-      <option value="">
+      <option value="all">
         All
       </option>
-      <option value="evaluation">
+      <option value="evaluation" <?php if(is_granted($this->module, 'approval')):?> selected <?php endif;?>>
         Evaluation
       </option>
       <option value="approved">
@@ -83,6 +83,9 @@
       </option>
       <option value="rejected">
         Rejected
+      </option>
+      <option value="closed">
+        Closed
       </option>
     </select>
   </div>

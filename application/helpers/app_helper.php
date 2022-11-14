@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'){
+          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'||$module['route']=='expense_order_evaluation'||$module['route']=='capex_order_evaluation'){
             return TRUE;
           }else{
             return FALSE;
@@ -3119,6 +3119,23 @@ if (!function_exists('currency_for_vendor_list')) {
       $connection->where('tb_annual_cost_centers.year_number', $year);
       $query  = $connection->get();
       $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('list_user_as_roles_level')) {
+    function list_user_as_roles_level($level)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_auth_users.username,tb_auth_users.person_name');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where('tb_auth_users.auth_level', $level);
+      $CI->db->order_by('tb_auth_users.username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
       return $result;
     }
   }
