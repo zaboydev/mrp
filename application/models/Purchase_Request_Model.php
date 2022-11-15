@@ -37,7 +37,7 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by'               => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                    => 'Notes',
       );
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
         $return['tb_inventory_purchase_requisition_details.price']  = 'Price';
         $return['tb_inventory_purchase_requisition_details.total']  = 'Total';
       }
@@ -63,10 +63,10 @@ class Purchase_Request_Model extends MY_Model
         'tb_inventory_purchase_requisitions.created_by'                                                                         => 'Request By',
         'tb_inventory_purchase_requisition_details.notes'                                                                       => 'Notes',
       );
-      if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'BUDGETCONTROL') {
+      if (config_item('auth_role') == 'PROCUREMENT' || config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'FINANCE MANAGER') {
         $return['tb_inventory_purchase_requisitions.approved_notes']  = 'Note';
       }
-      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'BUDGETCONTROL') {
+      if (config_item('auth_role') == 'CHIEF OF MAINTANCE' || config_item('auth_role') == 'FINANCE MANAGER') {
         
         $return['tb_inventory_purchase_requisition_details.price']  = 'Price';
         $return['tb_inventory_purchase_requisition_details.total']  = 'Total';
@@ -169,7 +169,7 @@ class Purchase_Request_Model extends MY_Model
       // }
     } else {
       $status = array();
-      if (config_item('auth_role') == 'BUDGETCONTROL') {
+      if (config_item('auth_role') == 'FINANCE MANAGER') {
         $status[] = 'pending'; 
       } elseif (config_item('auth_role') == 'OPERATION SUPPORT') {
         $status[] = 'review operation support';
@@ -392,7 +392,7 @@ class Purchase_Request_Model extends MY_Model
   public function countIndexFilteredForApprovalUser($role){
     $status =['all'];
     
-    if($role=='BUDGETCONTROL'){
+    if($role=='FINANCE MANAGER'){
       $status = ['pending'];
     }
     if($role=='OPERATION SUPPORT'){
