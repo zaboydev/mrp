@@ -65,7 +65,7 @@
           </div>
 
           <div class="form-group">
-            <select name="base" id="base" class="form-control" required>
+            <select name="base" id="select_base" class="form-control" required>
               <option value=""></option>
               <?php foreach (available_warehouses_alternate_name() as $base_alternate_name) : ?>
                 <option value="<?= $base_alternate_name; ?>">
@@ -73,7 +73,7 @@
                 </option>
               <?php endforeach; ?>
             </select>
-            <label for="base">Base</label>
+            <label for="select_base">Base</label>
           </div>
           <div class="form-group">
             <textarea name="keterangan" id="keterangan" class="form-control" rows="4"></textarea>

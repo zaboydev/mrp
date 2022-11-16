@@ -164,26 +164,31 @@ class Pesawat_Model extends MY_Model
     $instrument_nf = '';
     $instrument_nf_count = count($this->input->post('instrument_nf'));
     $nf = 1; 
-    foreach ($this->input->post('instrument_nf') as $key => $instrument_nf_value){
-      if($nf==$instrument_nf_count){
-        $instrument_nf .= $instrument_nf_value;
-      }else{
-        $instrument_nf .= $instrument_nf_value.',';
+    if($instrument_nf_count){
+      foreach ($this->input->post('instrument_nf') as $key => $instrument_nf_value){
+        if($nf==$instrument_nf_count){
+          $instrument_nf .= $instrument_nf_value;
+        }else{
+          $instrument_nf .= $instrument_nf_value.',';
+        }
+        $nf++;
       }
-      $nf++;
     }
+    
 
     $instrument_avionic = '';
     $instrument_avionic_count = count($this->input->post('instrument_avionic'));
     $avionic = 1; 
-    foreach ($this->input->post('instrument_avionic') as $key => $instrument_avionic_value){
-      if($avionic==$instrument_avionic_count){
-        $instrument_avionic .= $instrument_avionic_value;
-      }else{
-        $instrument_avionic .= $instrument_avionic_value.',';
+    if($instrument_avionic_count){
+      foreach ($this->input->post('instrument_avionic') as $key => $instrument_avionic_value){
+        if($avionic==$instrument_avionic_count){
+          $instrument_avionic .= $instrument_avionic_value;
+        }else{
+          $instrument_avionic .= $instrument_avionic_value.',';
+        }
+        $avionic++;
       }
-      $avionic++;
-    }
+    }   
 
     $this->db->set('nama_pesawat', strtoupper($this->input->post('nama_pesawat')));
     $this->db->set('base', strtoupper($this->input->post('base')));

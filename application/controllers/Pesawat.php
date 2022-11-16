@@ -18,7 +18,7 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
 
     $this->data['page']['title']            = 'Pesawat';
-    $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
+    // $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
@@ -53,10 +53,11 @@ class Pesawat extends MY_Controller
         $col[] = print_string($row['nama_pesawat']);
         $col[] = print_string($row['keterangan']);
         $col[] = print_string($row['base']);
-        $col[] = '<a href="'.site_url($this->module['route'] . '/index_aircraft_component/' . $row['id']).'" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction btn-sm"><i class="md md-list"></i><small class="top right">Show Component</small></a>';
+        $col[] = '<button class="btn btn-floating-action btn-primary btn-tooltip ink-reaction btn-sm"><i class="md md-list" data-href="'.site_url($this->module['route'] . '/index_aircraft_component/' . $row['id']).'"></i><small class="top right">Show Component</small></a>';
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
-        $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+        $col['DT_RowAttr']['onClick']     = '';
+        $col['DT_RowAttr']['data-id']     = $row['id'];
         $col['DT_RowAttr']['data-target'] = '#data-modal';
         $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/edit/'. $row['id']);
 
@@ -68,6 +69,7 @@ class Pesawat extends MY_Controller
           "recordsTotal"    => $this->model->countIndex(),
           "recordsFiltered" => $this->model->countIndexFiltered(),
           "data"            => $data,
+          "total"           => array()
        );
     }
 
