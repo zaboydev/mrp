@@ -518,9 +518,9 @@ class Capex_Order_Evaluation_Model extends MY_Model
     }
     $exchange_rate        = $_SESSION['capex_poe']['exchange_rate'];
     $notes                = (empty($_SESSION['capex_poe']['notes'])) ? NULL : $_SESSION['capex_poe']['notes'];
-    $annual_cost_center_id        = $_SESSION['expense_poe']['annual_cost_center_id'];
-    $department_id                = $_SESSION['expense_poe']['department_id'];
-    $head_dept                    = $_SESSION['expense_poe']['head_dept'];
+    $annual_cost_center_id        = $_SESSION['capex_poe']['annual_cost_center_id'];
+    $department_id                = $_SESSION['capex_poe']['department_id'];
+    $head_dept                    = $_SESSION['capex_poe']['head_dept'];
 
     $this->db->trans_begin();
     
@@ -590,7 +590,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
         // $this->db->update('tb_inventory_purchase_requisition_details');
 
         $this->connection->set('process_qty', '"process_qty" - ' . $key->quantity_prl, false);
-        $this->connection->set('process_amount', '"process_amount" - ' . $key->total, false);
+        $this->connection->set('process_amount', '"process_amount" - ' . $key->total_amount, false);
         $this->connection->where('id', $inventory_purchase_request_detail_id);
         $this->connection->update('tb_capex_purchase_requisition_details');
 
@@ -812,7 +812,7 @@ class Capex_Order_Evaluation_Model extends MY_Model
             $quantity_prl = floatval($detail['quantity'] * $item['konversi']);
 
             $this->connection->set('process_qty', '"process_qty" + ' . $quantity_prl, false);
-            $this->connection->set('process_amount', '"process_qty" + ' . $detail['quantity'], false);
+            $this->connection->set('process_amount', '"process_amount" + ' . $detail['total'], false);
             $this->connection->where('id', $inventory_purchase_request_detail_id);
             $this->connection->update('tb_capex_purchase_requisition_details');
 
