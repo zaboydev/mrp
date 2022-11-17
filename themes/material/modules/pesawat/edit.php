@@ -37,6 +37,11 @@
           </div>
 
           <div class="form-group">
+            <input type="text" name="aircraft_type" id="aircraft_type" class="form-control" value="<?=$entity['type'];?>">
+            <label for="aircraft_type">Type</label>
+          </div>
+
+          <div class="form-group">
             <select name="engine_type" id="engine_type" class="form-control" required>
               <option value="single">Single Engine</option>
               <option value="multi">Multi Engine</option>

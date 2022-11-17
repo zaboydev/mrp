@@ -122,7 +122,33 @@ class Pesawat_Model extends MY_Model
     $aircraft['instrument_avionic_array']  = explode(',', $aircraft['instrument_avionic']);
     $aircraft['warehouse']  = findWarehouseByAlternateName($aircraft['base']);
 
+    $this->db->from('tb_aircraft_components');
+    $this->db->where('tb_aircraft_components.aircraft_id', $id);
+    $query = $this->db->get();
+
     return $aircraft;
+  }
+
+  public function findByComponentPesawatByAircraftId($id,$type=NULL)
+  {
+    $selected = array(
+      'tb_aircraft_components.*'
+    );
+    $this->db->select($selected);
+    // $this->db->select(array_keys($this->getSelectedColumnsAircraftComponent()));
+    $this->db->from('tb_aircraft_components');
+    $this->db->where('tb_aircraft_components.aircraft_id',$id);
+    $this->db->where('tb_aircraft_components.active','t');
+    if($type!=NULL){      
+      $this->db->where('tb_aircraft_components.type',$type);
+    }
+    $query = $this->db->get();
+    $component = array();
+    foreach ($query->result_array() as $key => $value) {
+      $component[$key] = $value;
+    }
+
+    return $component;
   }
 
   public function insert()
@@ -139,6 +165,7 @@ class Pesawat_Model extends MY_Model
     $this->db->set('instrument_nf', strtoupper($this->input->post('instrument_nf')));
     $this->db->set('instrument_avionic', strtoupper($this->input->post('instrument_avionic')));
     $this->db->set('date_of_manufacture', strtoupper($this->input->post('date_of_manufacture')));
+    $this->db->set('type', strtoupper($this->input->post('aircraft_type')));
     $this->db->set('keterangan', strtoupper($this->input->post('keterangan')));
     $this->db->set('engine_type', $this->input->post('engine_type'));
     if($this->input->post('engine_type')=='multi'){
@@ -205,6 +232,7 @@ class Pesawat_Model extends MY_Model
     $this->db->set('instrument_nf', $instrument_nf);
     $this->db->set('instrument_avionic', $instrument_avionic);
     $this->db->set('date_of_manufacture', $this->input->post('date_of_manufacture'));
+    $this->db->set('type', strtoupper($this->input->post('aircraft_type')));
     $this->db->set('keterangan', strtoupper($this->input->post('keterangan')));
     $this->db->set('updated_at', date('Y-m-d H:i:s'));
     $this->db->set('updated_by', config_item('auth_username'));
