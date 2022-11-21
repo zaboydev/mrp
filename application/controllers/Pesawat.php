@@ -295,7 +295,8 @@ class Pesawat extends MY_Controller
       $_SESSION['component']['type']                  = $type;
       $_SESSION['component']['installation_date']     = date('Y-m-d');
       $_SESSION['component']['installation_by']       = config_item('auth_person_name');
-      $_SESSION['component']['source']                = isComponentExist($aircraft['nama_pesawat'])? 'change':'new';
+      $_SESSION['component']['source']                = 'new';
+      // $_SESSION['component']['source']                = isComponentExist($aircraft['nama_pesawat'],$type)? 'change':'new';
 
       redirect($this->module['route'] .'/create_component');
     }
@@ -362,16 +363,14 @@ class Pesawat extends MY_Controller
             'issuance_item_id'        => $_SESSION['component']['source']=='change'?$issuance_item_id:null,
             'unit'                    => $issuance_item['unit'],
             'historical'              => NULL,
-            // 'interval'                => null,
-            // 'af_tsn'                  => null,
-            // 'equip_tsn'               => null,
-            // 'tso'                     => null,
-            // 'due_at_af_tsn'           => null,
-            // 'remaining'               => null,
-            // 'remarks'                 => null,
-            // 'quantity'                => $_SESSION['component']['source']=='change'?$issuance_item['issued_quantity']:null,
-            // 'condition'               => $_SESSION['component']['source']=='change'?$issuance_item['condition']:null,
-            
+            'interval'                => null,
+            'interval_satuan'         => null,
+            'af_tsn'                  => null,
+            'equip_tsn'               => null,
+            'tso'                     => null,
+            'next_due_date'           => null,
+            'next_due_hour'           => null,
+            'remarks'                 => null,            
           );
         }
 
@@ -406,7 +405,7 @@ class Pesawat extends MY_Controller
         $item_id                  = $this->input->post('item_id');
         $part_number              = $this->input->post('part_number');
         $issuance_document_number = $this->input->post('issuance_document_number');
-        $issued_item_id           = $this->input->post('issued_item_id');
+        $issuance_item_id           = $this->input->post('issuance_item_id');
         $serial_number            = $this->input->post('serial_number');
         $alternate_part_number    = $this->input->post('alternate_part_number');
         $description              = $this->input->post('description');
@@ -414,7 +413,14 @@ class Pesawat extends MY_Controller
         $group                    = $this->input->post('group');
         $previous_component_id    = $this->input->post('previous_component_id');
         $installation_date        = $this->input->post('installation_date');
-        $historical        = $this->input->post('historical');
+        $remarks                  = $this->input->post('remarks');
+        $interval                 = $this->input->post('interval');
+        $interval_satuan          = $this->input->post('interval_satuan');
+        $af_tsn                   = $this->input->post('af_tsn');
+        $equip_tsn                = $this->input->post('equip_tsn');
+        $tso                      = $this->input->post('tso');
+        $next_due_date            = $this->input->post('next_due_date');
+        $next_due_hour            = $this->input->post('next_due_hour');
 
         $_SESSION['component']['items'] = array();
         foreach ($part_number as $key=>$part_number) {
@@ -430,14 +436,14 @@ class Pesawat extends MY_Controller
             'unit'                    => $unit[$key],
             'previous_component_id'   => $previous_component_id[$key],
             'installation_date'       => $installation_date[$key],            
-            'historical'              => $historical[$key],
-            'interval'                => null,
-            'af_tsn'                  => null,
-            'equip_tsn'               => null,
-            'tso'                     => null,
-            'due_at_af_tsn'           => null,
-            'remaining'               => null,
-            'remarks'                 => null,
+            'interval_satuan'         => trim($interval_satuan[$key]),
+            'interval'                => $interval[$key],
+            'af_tsn'                  => $af_tsn[$key],
+            'equip_tsn'               => $equip_tsn[$key],
+            'tso'                     => $tso[$key],
+            'next_due_date'           => $next_due_date[$key],
+            'next_due_hour'           => $next_due_hour[$key],
+            'remarks'                 => $remarks[$key],
             'quantity'                => null,
             'condition'               => null,
           );

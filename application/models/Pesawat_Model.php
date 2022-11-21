@@ -539,15 +539,20 @@ class Pesawat_Model extends MY_Model
       $this->db->set('alternate_part_number', $data['alternate_part_number']);
       $this->db->set('serial_number', $serial_number);
       $this->db->set('interval', $data['interval']);
+      $this->db->set('interval_satuan', $data['interval_satuan']);
       $this->db->set('installation_date', $data['installation_date']);
       $this->db->set('historical', $data['historical']);
       $this->db->set('installation_by', $installation_by);
       $this->db->set('af_tsn', $data['af_tsn']);
       $this->db->set('equip_tsn', $data['equip_tsn']);
       $this->db->set('tso', $data['tso']);
-      $this->db->set('due_at_af_tsn', $data['due_at_af_tsn']);
-      $this->db->set('remaining', $data['remaining']);
+      // $this->db->set('due_at_af_tsn', NULL);
+      // $this->db->set('remaining', NULL);
       $this->db->set('remarks', $data['remarks']);
+      if(!empty($data['next_due_date'])){
+        $this->db->set('next_due_date', $data['next_due_date']);
+      }      
+      $this->db->set('next_due_hour', $data['next_due_hour']);
       if(!empty($data['issuance_item_id'])){
         $this->db->set('issuance_item_id', $data['issued_item_id']);
       }      

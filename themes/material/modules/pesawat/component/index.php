@@ -100,13 +100,13 @@
                                             <td><?= $items['description']; ?></td>
                                             <td><?= $items['part_number']; ?></td>
                                             <td><?= ($items['serial_number']==NULL)? 'N/A':$items['serial_number']; ?></td>
-                                            <td><?= $items['interval']; ?></td>
-                                            <td><?= $items['installation_date']; ?></td>
+                                            <td><?= $items['interval']; ?> <?= $items['interval_satuan']; ?></td>
+                                            <td><?= print_date($items['installation_date'], 'd M Y'); ?></td>
                                             <td><?= $items['af_tsn']; ?></td>
-                                            <td><?= $type; ?></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
+                                            <td><?= $items['equip_tsn']; ?></td>
+                                            <td><?= $items['tso']; ?></td>
+                                            <td><?= (!empty($data['next_due_date'])) ? print_date($items['next_due_date'], 'd M Y'): ''; ?></td>
+                                            <td><?= $items['next_due_hour']; ?></td>
                                             <td><?= $items['remarks']; ?></td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -132,6 +132,20 @@
     </div>
     <div class="section-action style-default-bright">
         <div class="section-floating-action-row">
+            <div class="btn-group dropup">
+                <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
+                    <i class="md md-add"></i>
+                    <small class="top right">Add Component</small>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                    <?php foreach (config_item('component_type') as $category) : ?>
+                    <li>
+                        <a href="<?= site_url($module['route'] . '/create_component/' . $category.'/'.$page['aircraft_id']); ?>"><?= strtoupper($category); ?></a>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
         </div>
     </div>    
 </section>

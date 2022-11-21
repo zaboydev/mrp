@@ -3017,7 +3017,7 @@ if (!function_exists('currency_for_vendor_list')) {
   
       $CI->db->from('tb_aircraft_components');
       $CI->db->where('aircraft_code', strtoupper($aircraft_code));
-      $CI->db->where('type', strtoupper($type));
+      $CI->db->where('type', $type);
 
       $num_rows = $CI->db->count_all_results();
 
