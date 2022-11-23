@@ -471,7 +471,8 @@
       console.log(e.target.nodeName);
       if (e.target.nodeName === "I") {
         var url = $(e.target).attr('data-href');
-        window.open(url, '_blank').focus();
+        // window.open(url, '_blank').focus();
+        window.document.location = url;
       } else {
         $(this).popup();
       }

@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['aircraft_component_status']['visible']         = TRUE;
+$config['module']['aircraft_component_status']['visible']         = FALSE;
 $config['module']['aircraft_component_status']['main_warehouse']  = TRUE;
 $config['module']['aircraft_component_status']['parent']          = 'aircraft';
 $config['module']['aircraft_component_status']['label']           = 'Component Status';

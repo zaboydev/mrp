@@ -174,25 +174,15 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
     $aircraft = $this->model->findById($aircraft_id);
 
-    $this->data['page']['title']              = 'Component Status '.$aircraft['nama_pesawat'];
-    // $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
+    $this->data['page']['title']              = 'Component Status : '.$aircraft['nama_pesawat'];
     $this->data['page']['aircraft_id']        = $aircraft_id;
     $this->data['page']['aircraft_code']      = $aircraft['nama_pesawat'];
     $this->data['aircraft']                   = $aircraft;
-    $this->data['aircraft']['component_system']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'system');
+    $this->data['aircraft']['component_system']                 = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'system');
     $this->data['aircraft']['component_engine_instrument']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'engine instrument');
     $this->data['aircraft']['component_flight_instrument']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'flight instrument');
-    $this->data['aircraft']['component_avionics']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'avionics');
-    $this->data['aircraft']['component_modification']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'modification');
-    // $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsAircraftComponent());
-    // $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_aircraft_component/'.$aircraft_id);
-    // $this->data['grid']['fixed_columns']    = 2;
-    // $this->data['grid']['summary_columns']  = NULL;
-    // $this->data['grid']['order_columns']    = array (
-    //   // 0 => array ( 0 => 1, 1 => 'asc' ),
-    //   // 1 => array ( 0 => 2, 1 => 'asc' ),
-    //   // 2 => array ( 0 => 3, 1 => 'desc' ),
-    // );
+    $this->data['aircraft']['component_avionics']               = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'avionics');
+    $this->data['aircraft']['component_modification']           = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'modification');
 
     $this->render_view($this->module['view'] .'/component/index');
   }

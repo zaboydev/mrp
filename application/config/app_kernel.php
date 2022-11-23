@@ -76,6 +76,7 @@ require('modules/daftar_pajak.php');
 //aircraft
 require('modules/pesawat.php');
 require('modules/aircraft_component_status.php');
+require('modules/aircraft_movement_part.php');
 
 //PLANNING
 require('modules/budget_cot.php');
