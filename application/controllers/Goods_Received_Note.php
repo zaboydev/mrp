@@ -619,6 +619,7 @@ class Goods_Received_Note extends MY_Controller
         'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
         'received_quantity'       => $this->input->post('received_quantity'),
         'received_unit_value'     => $this->input->post('received_unit_value'),
+        'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
         'minimum_quantity'        => $this->input->post('minimum_quantity'),
         'condition'               => $this->input->post('condition'),
         'expired_date'            => $this->input->post('expired_date'),
