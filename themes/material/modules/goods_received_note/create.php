@@ -1285,19 +1285,13 @@
           $('[name="value_order"]').val(response.value_order);
           // $('[name="edit_isi"]').val(response.isi);
           $('[name="qty_konversi"]').val(response.hasil_konversi);
-          // if (response.kurs_dollar > 1) {
-          //   $('[name="edit_kurs"]').val('dollar');
-          //   $('[name="received_unit_value"]').val(response.unit_value_dollar);
-
-          // } else {
-          //   $('[name="edit_kurs"]').val('rupiah');
-          //   $('[name="received_unit_value"]').val(response.received_unit_value);
-
-          // }
-          // if (response.cu) {
-          //   $('[name="edit_kurs"]').val(response.kurs);
-          // }
-          $('[name="received_unit_value"]').val(response.received_unit_value);
+          
+          if(response.currency!='IDR'){
+            $('[name="received_unit_value"]').val(response.received_unit_value_dollar);
+          }else{
+            $('[name="received_unit_value"]').val(response.received_unit_value);
+          }
+          
           $('[name="received_unit_value_dollar"]').val(response.received_unit_value_dollar);
           $('[name="kurs"]').val(response.currency);
           $('[name="kode_stok"]').val(response.kode_stok);
