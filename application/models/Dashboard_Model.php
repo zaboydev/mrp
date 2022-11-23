@@ -170,7 +170,7 @@ class Dashboard_Model extends MY_Model
     // if($role=='CHIEF OF MAINTANCE'){
     //   $status = ['waiting'];
     // }
-    if($role=='BUDGETCONTROL'){
+    if($role=='FINANCE MANAGER'){
       $status = ['pending'];
     }
     if($role=='OPERATION SUPPORT'){
