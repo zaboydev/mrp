@@ -595,4 +595,65 @@ class Pesawat extends MY_Controller
 
     echo json_encode($data);
   }
+
+  public function search_items_by_serial()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $entities = $this->model->searchItemsBySerial(config_item('auth_inventory'));
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['serial_number'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function search_items_by_part_number()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $entities = $this->model->searchItemsByPartNumber(config_item('auth_inventory'));
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['description'].' || P/N : '.$value['part_number'].' || S/N : '.$value['serial_number'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function add_item()
+  {
+    $this->authorized($this->module, 'create_component');
+
+    if (isset($_POST) && !empty($_POST)){
+      $_SESSION['component']['items'][] = array(
+        'group'                   => $this->input->post('group'),
+        'description'             => trim(strtoupper($this->input->post('description'))),
+        'part_number'             => trim(strtoupper($this->input->post('part_number'))),
+        'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
+        'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
+        'unit'                    => trim($this->input->post('unit')),
+        'installation_date'       => $this->input->post('installation_date'),            
+        'interval_satuan'         => $this->input->post('interval_satuan'),
+        'interval'                => $this->input->post('interval'),
+        'af_tsn'                  => $this->input->post('af_tsn'),
+        'equip_tsn'               => $this->input->post('equip_tsn'),
+        'tso'                     => $this->input->post('tso'),
+        'next_due_date'           => $this->input->post('next_due_date'),
+        'next_due_hour'           => $this->input->post('next_due_hour'),
+        'remarks'                 => $this->input->post('remarks'),
+        'quantity'                => null,
+        'condition'               => null,
+        'item_id'                 => null,
+        'previous_component_id'   => null,
+        'issuance_item_id'        => null,
+        
+      );
+    }
+
+    redirect($this->module['route'] .'/create_component');
+  }
 }

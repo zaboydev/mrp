@@ -546,21 +546,21 @@ class Pesawat_Model extends MY_Model
       $this->db->set('af_tsn', $data['af_tsn']);
       $this->db->set('equip_tsn', $data['equip_tsn']);
       $this->db->set('tso', $data['tso']);
-      // $this->db->set('due_at_af_tsn', NULL);
-      // $this->db->set('remaining', NULL);
       $this->db->set('remarks', $data['remarks']);
       if(!empty($data['next_due_date'])){
         $this->db->set('next_due_date', $data['next_due_date']);
       }      
       $this->db->set('next_due_hour', $data['next_due_hour']);
       if(!empty($data['issuance_item_id'])){
-        $this->db->set('issuance_item_id', $data['issued_item_id']);
-      }      
-      $this->db->set('issuance_document_number', $data['issuance_document_number']);
+        $this->db->set('issuance_item_id', $data['issued_item_id']);     
+        $this->db->set('issuance_document_number', $data['issuance_document_number']);
+      } 
       $this->db->set('active', true);
       if(!empty($data['previous_component_id'])){
         $this->db->set('previous_component_id', $data['previous_component_id']);
       }
+      $this->db->set('created_at', date('Y-m-d H:i:s'));
+      $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->insert('tb_aircraft_components');
 
 
@@ -1000,6 +1000,66 @@ class Pesawat_Model extends MY_Model
     $this->db->from('tb_auth_users');
     $this->db->where('person_name', $name);
     return $this->db->get('')->result();
+  }
+
+  public function searchItemsBySerial($category)
+  {
+    $this->column_select = array(
+      'tb_master_items.serial_number',
+      'tb_master_items.id',
+      'tb_master_items.group',
+      'tb_master_items.description',
+      'tb_master_items.part_number',
+      'tb_master_items.alternate_part_number',
+      'tb_master_items.minimum_quantity',
+      'tb_master_items.unit',
+      'tb_master_items.kode_stok',
+    );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_master_items');
+    $this->db->join('tb_stocks', 'tb_stocks.item_id = tb_master_items.id');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where('tb_master_items.serial_number IS NOT NULL', NULL, FALSE);
+    $this->db->where('tb_stocks.total_quantity', 0);
+    $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
+    $this->db->where_in('tb_master_item_groups.category', $category);
+
+    $this->db->order_by('tb_master_items.serial_number ASC');
+
+    $query  = $this->db->get();
+    $result = $query->result_array();
+
+    return $result;
+  }
+
+  public function searchItemsByPartNumber($category)
+  {
+    $this->column_select = array(
+      'tb_master_items.id',
+      'tb_master_items.group',
+      'tb_master_items.description',
+      'tb_master_items.part_number',
+      'tb_master_items.alternate_part_number',
+      'tb_master_items.minimum_quantity',
+      'tb_master_items.unit',
+      'tb_master_items.kode_stok',
+      'tb_master_items.serial_number',
+    );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_master_items');
+    $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+    $this->db->where('tb_master_item_groups.status', 'AVAILABLE');
+    $this->db->where_in('tb_master_item_groups.category', $category);
+    $this->db->group_by($this->column_select);
+
+    $this->db->order_by('tb_master_items.group ASC, tb_master_items.description ASC');
+
+    $query  = $this->db->get();
+    $result = $query->result_array();
+
+    return $result;
   }
 
 }
