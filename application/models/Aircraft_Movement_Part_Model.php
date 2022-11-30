@@ -11,7 +11,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
         $this->module = config_item('module')['aircraft_movement_part'];
     }
 
-    public function getSelectedColumnsRemovePart(){
+    public function getHeaderRemovePart(){
         return array(
             'Date of AJLB',
             'A/C Hour TTIS',
@@ -33,7 +33,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
         );
     }
 
-    public function getSelectedColumnsInstallRemovePart(){
+    public function getHeaderInstallRemovePart(){
         return array(
             'Date of AJLB',
             'A/C Hour TTIS',
@@ -57,33 +57,76 @@ class Aircraft_Movement_Part_Model extends MY_Model
         );
     }
 
-    public function getSelectedColumns()
+    public function getSelectedColumnForRemovePart()
     {
         return array(
-            'id'                => NULL,
-            'nama_pesawat'      => 'Aircraft Code',
-            'keterangan'        => 'Description',
-            'base'              => 'Base',
-            'created_by'        => 'Action'
+            'id',
+            'date_of_ajlb',
+            'aircraft_register',
+            'aircraft_type',
+            'aircraft_base',
+            'remove_date',
+            'remove_tsn',
+            'remove_tso',
+            'pic',
+            'remove_description',
+            'remove_part_number',
+            'remove_alternate_part_number',
+            'remove_serial_number',
+            'category',
+            'status',
+            'remarks',
+            // 'aircraft_base',
+            // 'aircraft_base'
         );
     }
 
     public function getSearchableColumns()
     {
         return array(
-        'nama_pesawat',
-        'keterangan',
-        'base',
+            // 'id',
+            // 'date_of_ajlb',
+            'aircraft_register',
+            'aircraft_type',
+            'aircraft_base',
+            // 'remove_date',
+            'remove_tsn',
+            'remove_tso',
+            'pic',
+            'remove_description',
+            'remove_part_number',
+            'remove_alternate_part_number',
+            'remove_serial_number',
+            'category',
+            'status',
+            'remarks',
+            // 'aircraft_base',
+            // 'aircraft_base'
         );
     }
 
     public function getOrderableColumns()
     {
         return array(
-        null,
-        'nama_pesawat',
-        'keterangan',
-        'base',
+            NULL,
+            'date_of_ajlb',
+            NULL,
+            'aircraft_register',
+            'aircraft_type',
+            'aircraft_base',
+            'remove_date',
+            'remove_tsn',
+            'remove_tso',
+            'pic',
+            'remove_description',
+            'remove_part_number',
+            'remove_alternate_part_number',
+            'remove_serial_number',
+            NULL,
+            NULL,
+            'category',
+            'status',
+            'remarks',
         );
     }
 
@@ -92,57 +135,59 @@ class Aircraft_Movement_Part_Model extends MY_Model
         $i = 0;
 
         foreach ($this->getSearchableColumns() as $item){
-        if ($_POST['search']['value']){
-            if ($i === 0){
-            $this->db->group_start();
-            $this->db->like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
-            } else {
-            $this->db->or_like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+            if ($_POST['search']['value']){
+                if ($i === 0){
+                $this->db->group_start();
+                $this->db->like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+                } else {
+                $this->db->or_like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+                }
+
+                if (count($this->getSearchableColumns()) - 1 == $i){
+                $this->db->group_end();
+                }
             }
 
-            if (count($this->getSearchableColumns()) - 1 == $i){
-            $this->db->group_end();
-            }
-        }
-
-        $i++;
+            $i++;
         }
     }
 
-    function getIndex($return = 'array')
+    function getIndexComponentStatusForRemovePart($return = 'array')
     {
-        $this->db->select(array_keys($this->getSelectedColumns()));
-        $this->db->from('tb_master_pesawat');
+        $this->db->select($this->getSelectedColumnForRemovePart());
+        $this->db->from('tb_aircraft_movement_parts');
+        $this->db->where('type','remove');
 
         $this->searchIndex();
 
         $column_order = $this->getOrderableColumns();
 
         if (isset($_POST['order'])){
-        foreach ($_POST['order'] as $key => $order){
-            $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
-        }
+            foreach ($_POST['order'] as $key => $order){
+                $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+            }
         } else {
-        $this->db->order_by('nama_pesawat','asc');
+            $this->db->order_by('date_of_ajlb','desc');
         }
 
         if ($_POST['length'] != -1)
-        $this->db->limit($_POST['length'], $_POST['start']);
+            $this->db->limit($_POST['length'], $_POST['start']);
 
-        $query = $this->db->get();
+            $query = $this->db->get();
 
-        if ($return === 'object'){
-        return $query->result();
+            if ($return === 'object'){
+            return $query->result();
         } elseif ($return === 'json'){
-        return json_encode($query->result());
+            return json_encode($query->result());
         } else {
-        return $query->result_array();
+            return $query->result_array();
         }
     }
 
-    function countIndexFiltered()
+    function countIndexFilteredComponentStatusForRemovePart()
     {
-        $this->db->from('tb_master_pesawat');
+        $this->db->from('tb_aircraft_movement_parts');
+        $this->db->where('type','remove');
         $this->searchIndex();
 
         $query = $this->db->get();
@@ -150,9 +195,10 @@ class Aircraft_Movement_Part_Model extends MY_Model
         return $query->num_rows();
     }
 
-    public function countIndex()
+    public function countIndexComponentStatusForRemovePart()
     {
-        $this->db->from('tb_master_pesawat');
+        $this->db->from('tb_aircraft_movement_parts');
+        $this->db->where('type','remove');
 
         $query = $this->db->get();
 
@@ -175,26 +221,23 @@ class Aircraft_Movement_Part_Model extends MY_Model
         return $aircraft;
     }
 
-    public function findByComponentPesawatByAircraftId($id,$type=NULL)
+    public function searchComponentAircraft()
     {
         $selected = array(
-        'tb_aircraft_components.*'
+            'tb_aircraft_components.*'
         );
         $this->db->select($selected);
-        // $this->db->select(array_keys($this->getSelectedColumnsAircraftComponent()));
         $this->db->from('tb_aircraft_components');
-        $this->db->where('tb_aircraft_components.aircraft_id',$id);
+        $this->db->where('tb_aircraft_components.aircraft_code',$this->input->post('aircraft_code'));
+        $this->db->where('tb_aircraft_components.type',$this->input->post('type'));
         $this->db->where('tb_aircraft_components.active','t');
-        if($type!=NULL){      
-        $this->db->where('tb_aircraft_components.type',$type);
-        }
         $query = $this->db->get();
-        $component = array();
-        foreach ($query->result_array() as $key => $value) {
-        $component[$key] = $value;
-        }
+        // $component = array();
+        // foreach ($query->result_array() as $key => $value) {
+        //     $component[$key] = $value;
+        // }
 
-        return $component;
+        return $query->result_array();
     }
 
     public function insert()
@@ -535,81 +578,150 @@ class Aircraft_Movement_Part_Model extends MY_Model
         return $query->unbuffered_row('array');
     }
 
-    public function save_component()
+    public function save()
     {
         $this->db->trans_begin();
 
-        $installation_date            = $_SESSION['component']['installation_date'];
-        $aircraft_id                  = $_SESSION['component']['aircraft_id'];
-        $aircraft_code                = $_SESSION['component']['aircraft_code'];
-        $type                         = $_SESSION['component']['type'];
-        $installation_by              = $_SESSION['component']['installation_by'];
-        $base                         = $_SESSION['component']['base'];
+        $type                   = $_SESSION['movement_part']['type'];
 
-        foreach ($_SESSION['component']['items'] as $key => $data) {
-        $item_id = $data['item_id'];
-        $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
-        if(empty($item_id)){
-            if (isItemExists($data['part_number'], $data['description'], $serial_number) === FALSE) {
-            $this->db->set('part_number', strtoupper($data['part_number']));
-            $this->db->set('serial_number', strtoupper($data['serial_number']));
-            $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
-            $this->db->set('description', strtoupper($data['description']));
-            $this->db->set('group', strtoupper($data['group']));
-            $this->db->set('minimum_quantity', floatval(1));
-            $this->db->set('kode_stok', null);
-            $this->db->set('unit', strtoupper($data['unit']));
-            $this->db->set('unit_pakai', strtoupper($data['unit']));
-            $this->db->set('qty_konversi', 1);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('updated_by', config_item('auth_person_name'));
-            $this->db->set('current_price', 1);
-            $this->db->insert('tb_master_items');
-            $item_id = $this->db->insert_id();
-            }else{
-            $item_id = getItemId($data['part_number'], $data['description'], $serial_number);
-            }
-        }
+        foreach ($_SESSION['movement_part']['items'] as $key => $data) {
+            $selected_aircraft = getAircraftByRegisterNumber($data['aircraft_register']);
+            $selected_aircraft_component_remove = getAircraftComponentById($data['component_remove_id']);
 
-        if($data['previous_component_id']!=null){
+            //update component yang di remove
             $this->db->set('active', false);
-            $this->db->where('id',$data['previous_component_id']);
+            $this->db->where('id',$data['component_remove_id']);
             $this->db->update('tb_aircraft_components');
-        }
-        $this->db->set('type', $type);
-        $this->db->set('aircraft_id', $aircraft_id);
-        $this->db->set('aircraft_code', $aircraft_code);
-        $this->db->set('item_id', $item_id);
-        $this->db->set('part_number', $data['part_number']);
-        $this->db->set('description', $data['description']);
-        $this->db->set('alternate_part_number', $data['alternate_part_number']);
-        $this->db->set('serial_number', $serial_number);
-        $this->db->set('interval', $data['interval']);
-        $this->db->set('interval_satuan', $data['interval_satuan']);
-        $this->db->set('installation_date', $data['installation_date']);
-        $this->db->set('historical', $data['historical']);
-        $this->db->set('installation_by', $installation_by);
-        $this->db->set('af_tsn', $data['af_tsn']);
-        $this->db->set('equip_tsn', $data['equip_tsn']);
-        $this->db->set('tso', $data['tso']);
-        // $this->db->set('due_at_af_tsn', NULL);
-        // $this->db->set('remaining', NULL);
-        $this->db->set('remarks', $data['remarks']);
-        if(!empty($data['next_due_date'])){
-            $this->db->set('next_due_date', $data['next_due_date']);
-        }      
-        $this->db->set('next_due_hour', $data['next_due_hour']);
-        if(!empty($data['issuance_item_id'])){
-            $this->db->set('issuance_item_id', $data['issued_item_id']);
-        }      
-        $this->db->set('issuance_document_number', $data['issuance_document_number']);
-        $this->db->set('active', true);
-        if(!empty($data['previous_component_id'])){
-            $this->db->set('previous_component_id', $data['previous_component_id']);
-        }
-        $this->db->insert('tb_aircraft_components');
 
+            if($type=='install_remove'){
+                $install_serial_number = (empty($data['install_serial_number'])) ? NULL : $data['install_serial_number'];
+                $install_item_id = getItemId($data['install_part_number'], $data['install_description'], $install_serial_number);
+                
+                $this->db->set('type', $data['group_part']);
+                $this->db->set('aircraft_id', $selected_aircraft['id']);
+                $this->db->set('aircraft_code', $selected_aircraft['nama_pesawat']);
+                $this->db->set('item_id', $install_item_id);
+                $this->db->set('part_number', $data['install_part_number']);
+                $this->db->set('description', $data['install_description']);
+                $this->db->set('alternate_part_number', $data['install_alternate_part_number']);
+                $this->db->set('serial_number', $install_serial_number);
+                $this->db->set('interval', $data['install_interval']);
+                $this->db->set('interval_satuan', $data['install_interval_satuan']);
+                $this->db->set('installation_date', $data['install_date']);
+                $this->db->set('installation_by', $data['pic']);
+                $this->db->set('af_tsn', $data['install_tsn']);
+                $this->db->set('equip_tsn', $data['install_tsn']);
+                $this->db->set('tso', $data['install_tso']);
+                $this->db->set('remarks', $data['remarks']);
+                if(!empty($data['next_due_date'])){
+                    $this->db->set('next_due_date', $data['next_due_date']);
+                }      
+                $this->db->set('next_due_hour', $data['next_due_hour']);
+                if(!empty($data['source_item_id'])){
+                    $this->db->set('issuance_item_id', $data['source_item_id']);     
+                    $this->db->set('issuance_document_number', $data['issuance_document_number']);
+                } 
+                $this->db->set('active', true);
+                if(!empty($data['component_remove_id'])){
+                    $this->db->set('previous_component_id', $data['component_remove_id']);
+                }
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->insert('tb_aircraft_components');
+                $component_install_id = $this->db->insert_id();
+            }
 
+            //insert ke table aircraft movement part
+            $this->db->set('type', $type);
+            $this->db->set('group_part', $data['group_part']);
+            $this->db->set('aircraft_id', $selected_aircraft['id']);
+            $this->db->set('aircraft_register', $data['aircraft_register']);
+            $this->db->set('aircraft_type', $selected_aircraft['type']);
+            $this->db->set('aircraft_base', $selected_aircraft['base']);
+            $this->db->set('component_remove_id', $data['component_remove_id']);
+            $this->db->set('remove_date', $data['remove_date']);
+            $this->db->set('remove_tsn', $data['remove_tsn']);
+            $this->db->set('remove_tso', $data['remove_tso']);            
+            $this->db->set('remove_part_number', $selected_aircraft_component_remove['part_number']);
+            $this->db->set('remove_serial_number', $selected_aircraft_component_remove['serial_number']);
+            $this->db->set('remove_alternate_part_number', $selected_aircraft_component_remove['alternate_part_number']);
+            $this->db->set('remove_description', $selected_aircraft_component_remove['description']);
+            if($type=='install_remove'){
+                $this->db->set('source_component_install', $data['source']);
+                $this->db->set('source_component_install_id', $data['source_item_id']);
+                $this->db->set('component_install_id', $component_install_id);
+                $this->db->set('install_date', $data['install_date']);
+                $this->db->set('install_tsn', $data['install_tsn']);
+                $this->db->set('install_tso', $data['install_tso']);          
+                $this->db->set('install_part_number', $data['install_part_number']);
+                $this->db->set('install_serial_number', $data['install_serial_number']);
+                $this->db->set('install_alternate_part_number', $data['install_alternate_part_number']);
+                $this->db->set('install_description', $data['install_description']);
+            }            
+            $this->db->set('pic', $data['pic']);    
+            $this->db->set('date_of_ajlb', $data['date_of_ajlb']);   
+            $this->db->set('category', $data['category']);      
+            $this->db->set('status', $data['status']);      
+            $this->db->set('remarks', $data['remark']);  
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('updated_by', config_item('auth_person_name')); 
+            $this->db->set('created_at', date('Y-m-d H:i:s'));    
+            $this->db->set('updated_at', date('Y-m-d H:i:s'));      
+            $this->db->insert('tb_aircraft_movement_parts');
+
+            //
+            if($data['remove_category']=='ROBBING'){
+                //insert ke table robbing part     
+                $this->db->set('remove_aircraft_id', $selected_aircraft['id']);      
+                $this->db->set('remove_aircraft_register', $selected_aircraft['nama_pesawat']);      
+                $this->db->set('remove_aircraft_type', $selected_aircraft['type']);      
+                $this->db->set('remove_aircraft_base', $selected_aircraft['base']);      
+                $this->db->set('remove_pic', $data['pic']);      
+                $this->db->set('remove_date', $data['remove_date']);      
+                $this->db->set('component_remove_id', $data['component_remove_id']);      
+                $this->db->set('part_number', $selected_aircraft_component_remove['part_number']);      
+                $this->db->set('description', $selected_aircraft_component_remove['description']);      
+                $this->db->set('alternate_part_number', $selected_aircraft_component_remove['alternate_part_number']);      
+                $this->db->set('serial_number', $selected_aircraft_component_remove['serial_number']);      
+                $this->db->set('remove_tsn', $data['remove_tsn']);      
+                $this->db->set('remove_tso', $data['remove_tso']);      
+                // $this->db->set('component_install_id', NULL);      
+                // $this->db->set('date_of_ajlb', $data['remark']);      
+                // $this->db->set('install_aircraft_id', $data['remark']);      
+                // $this->db->set('install_aircraft_register', $data['remark']);      
+                // $this->db->set('install_aircraft_type', $data['remark']);      
+                // $this->db->set('install_aircraft_base', $data['remark']);      
+                // $this->db->set('install_pic', $data['remark']); 
+                $this->db->set('remarks', $data['remark']); 
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->set('updated_by', config_item('auth_person_name')); 
+                $this->db->set('created_at', date('Y-m-d H:i:s'));    
+                $this->db->set('updated_at', date('Y-m-d H:i:s'));      
+                $this->db->insert('tb_aircraft_robbing_parts');
+            }else{
+                //insert ke table part mapping
+            }
+
+            if($type=='install_remove'){
+                if($data['source']=='robbing'){
+
+                    $this->db->set('component_install_id', $component_install_id);      
+                    $this->db->set('date_of_ajlb', $data['date_of_ajlb']);      
+                    $this->db->set('install_aircraft_id', $selected_aircraft['id']);      
+                    $this->db->set('install_aircraft_register', $selected_aircraft['nama_pesawat']);      
+                    $this->db->set('install_aircraft_type', $selected_aircraft['type']);      
+                    $this->db->set('install_aircraft_base', $selected_aircraft['base']);      
+                    $this->db->set('install_pic', $data['pic']); 
+                    $this->db->set('updated_by', config_item('auth_person_name')); 
+                    $this->db->set('updated_at', date('Y-m-d H:i:s'));       
+                    $this->db->where('id',$data['source_item_id']);     
+                    $this->db->update('tb_aircraft_robbing_parts');
+
+                }else if($data['source']=='inventory'){
+                    //update tb issuance item atau material slip
+                }
+                
+            }
         }
 
         if ($this->db->trans_status() === FALSE)
@@ -1046,6 +1158,58 @@ class Aircraft_Movement_Part_Model extends MY_Model
         $this->db->from('tb_auth_users');
         $this->db->where('person_name', $name);
         return $this->db->get('')->result();
+    }
+
+    public function searchItemBySource($source,$aircraft)
+    {
+        if($source=='inventory'){
+            $selected = array(
+                'tb_issuance_items.id'                  => 'Remarks',
+                'tb_issuances.document_number'          => 'Document Number',
+                'tb_issuances.issued_date'              => 'Issued Date',
+                'tb_issuances.category'                 => 'Category',
+                'tb_issuances.warehouse'                => 'Base',
+                'tb_master_items.description'           => 'Description',
+                'tb_master_items.id as item_id'         => 'Item Id',
+                'tb_master_items.part_number'           => 'Part Number',
+                'tb_master_items.serial_number'         => 'Serial Number',
+                'tb_issuance_items.issued_quantity'     => 'Quantity',
+                'tb_master_items.unit'                  => 'Unit',
+                'tb_issuance_items.remarks'             => 'Remarks',
+                'tb_issuances.issued_to'                => 'Issued To',
+                'tb_issuances.issued_by'                => 'Issued By',
+                'tb_issuances.required_by'              => 'Required By',
+                'tb_issuances.notes'                    => 'Note/IPC Ref.',
+                'tb_master_items.alternate_part_number'           => 'Part Number',
+            );
+            $this->db->select(array_keys($selected));
+            $this->db->from('tb_issuances');
+            $this->db->join('tb_issuance_items', 'tb_issuance_items.document_number = tb_issuances.document_number');
+            $this->db->join('tb_stock_in_stores', 'tb_stock_in_stores.id = tb_issuance_items.stock_in_stores_id');
+            $this->db->join('tb_stocks', 'tb_stocks.id = tb_stock_in_stores.stock_id');
+            $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
+            $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
+            $this->db->where_in('tb_issuances.category', config_item('auth_inventory'));
+            $this->db->where_in('tb_issuances.warehouse', config_item('auth_warehouses')); 
+            $this->db->where('tb_issuances.issued_to', $aircraft);
+            $this->db->where('tb_issuances.category !=','BAHAN BAKAR');
+            $this->db->like('tb_issuances.document_number', 'MS');
+            $this->db->order_by('tb_issuances.category', 'asc');
+            $query = $this->db->get();
+        }
+
+        if($source=='robbing'){
+            $selected = array(
+                'tb_aircraft_robbing_parts.*',
+            );
+            $this->db->select($selected);
+            $this->db->from('tb_aircraft_robbing_parts');
+            $this->db->where('tb_aircraft_robbing_parts.component_install_id is NULL', NULL, FALSE);
+            $this->db->order_by('tb_aircraft_robbing_parts.id', 'asc');
+            $query = $this->db->get();
+        }
+
+        return $query->result_array();
     }
 
 }

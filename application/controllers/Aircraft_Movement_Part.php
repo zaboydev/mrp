@@ -13,7 +13,71 @@ class Aircraft_Movement_Part extends MY_Controller
         $this->data['module'] = $this->module;
     }
 
-    public function index_data_source()
+    public function index_data_source_remove_part()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'index') === FALSE) {
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to access this page!";
+        } else {
+            $entities = $this->model->getIndexComponentStatusForRemovePart();
+            $data     = array();
+            $no       = $_POST['start'];
+            $total = array();
+
+            foreach ($entities as $row) {
+                $no++;
+                $col = array();
+                $col[] = print_number($no);            
+                $col[] = print_date(strtoupper($row['date_of_ajlb']));
+                $col[] = '';
+                $col[] = print_string($row['aircraft_register']);
+                $col[] = print_string($row['aircraft_type']);
+                $col[] = print_string($row['aircraft_base']);
+                $col[] = print_date($row['remove_date']);
+                $col[] = print_string($row['remove_tsn']);
+                $col[] = print_string($row['remove_tso']);
+                $col[] = print_string($row['pic']);
+                $col[] = print_string($row['remove_description']);
+                $col[] = print_string($row['remove_part_number']);
+                $col[] = print_string($row['remove_alternate_part_number']);
+                $col[] = print_string($row['remove_serial_number']);
+                $col[] = '';
+                $col[] = '';
+                $col[] = print_string($row['category']);
+                $col[] = print_string($row['status']);
+                $col[] = print_string($row['remarks']);
+
+                $col['DT_RowId'] = 'row_'. $row['id'];
+                $col['DT_RowData']['pkey']  = $row['id'];
+
+                if ($this->has_role($this->module, 'info')){
+                    $col['DT_RowAttr']['onClick']     = '';
+                    $col['DT_RowAttr']['data-id']     = $row['id'];
+                    $col['DT_RowAttr']['data-target'] = '#data-modal';
+                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                }
+
+                $data[] = $col;
+            }
+
+            $result = array(
+                "draw" => $_POST['draw'],
+                "recordsTotal" => $this->model->countIndexComponentStatusForRemovePart(),
+                "recordsFiltered" => $this->model->countIndexFilteredComponentStatusForRemovePart(),
+                "data" => $data,
+                "total" => array(
+                    
+                )
+            );
+        }
+
+        echo json_encode($result);
+    }
+
+    public function index_data_source_install_remove_part()
     {
         if ($this->input->is_ajax_request() === FALSE)
         redirect($this->modules['secure']['route'] . '/denied');
@@ -84,9 +148,10 @@ class Aircraft_Movement_Part extends MY_Controller
         $this->data['page']['title']            = 'Aircraft Movement Part';
         $this->data['page']['title_1']          = 'Remove Part';
         $this->data['page']['title_2']          = 'Install & Remove Part';
-        $this->data['grid']['column']           = $this->model->getSelectedColumnsRemovePart();
-        $this->data['grid']['column_2']           = $this->model->getSelectedColumnsInstallRemovePart();
-        $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
+        $this->data['grid']['column']           = $this->model->getHeaderRemovePart();
+        $this->data['grid']['column_2']         = $this->model->getHeaderInstallRemovePart();
+        $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source_remove_part');
+        $this->data['grid']['data_source_2']    = site_url($this->module['route'] . '/index_data_source_install_remove_part');
         $this->data['grid']['fixed_columns']    = 2;
         $this->data['grid']['summary_columns']  = array();
         $this->data['grid']['order_columns']    = array(
@@ -127,34 +192,32 @@ class Aircraft_Movement_Part extends MY_Controller
 
     public function create($type=NULL)
     {
-        $this->authorized($this->module, 'create_component_status');
+        $this->authorized($this->module, 'create');
 
 
         if ($type !== NULL){
             $type = urldecode($type);
 
-            $_SESSION['component_status']['items']                  = array();
-            $_SESSION['component_status']['aircraft_id']            = null;
-            $_SESSION['component_status']['aircraft_code']          = null;
-            $_SESSION['component_status']['base']                   = null;
-            $_SESSION['component_status']['tsn']                    = null;
-            $_SESSION['component_status']['notes']                  = null;
-            $_SESSION['component_status']['type']                   = $type;
-            $_SESSION['component_status']['status_date']            = date('Y-m-d');
-            $_SESSION['component_status']['prepared_by']            = config_item('auth_person_name');
+            $_SESSION['movement_part']['items']                     = array();
+            $_SESSION['movement_part']['type']                      = $type;
+            
 
             redirect($this->module['route'] .'/create');
         }
 
-        if (!isset($_SESSION['component_status']))
+        if (!isset($_SESSION['movement_part']))
             redirect($this->module['route']);
 
         $this->data['page']['content']    = $this->module['view'] .'/component_status/create';
         $this->data['page']['offcanvas']  = $this->module['view'] .'/component_status/create_offcanvas_add_item';
-        $this->data['page']['title']      = "Create Aircraft Component Status";
+        $this->data['page']['title']      = 'Create '.str_replace("_", " & ", $_SESSION['movement_part']['type']).' Part';
         $this->data['page']['route']      = site_url($this->module['route'] . '/index_aircraft_component/' . $_SESSION['component']['aircraft_id']);
 
+        // if($_SESSION['movement_part']['type']=='remove'){
+        //     $this->render_view($this->module['view'] .'/create');
+        // }else{
         $this->render_view($this->module['view'] .'/create');
+        // }        
     }
 
     public function save()
@@ -162,26 +225,26 @@ class Aircraft_Movement_Part extends MY_Controller
         if ($this->input->is_ajax_request() == FALSE)
         redirect($this->modules['secure']['route'] . '/denied');
 
-        if (is_granted($this->module, 'create_component_status') == FALSE){
-        $data['success'] = FALSE;
-        $data['message'] = 'You are not allowed to save this Document!';
-        } else {
-        $errors = array();
-
-        if (!empty($errors)){
+        if (is_granted($this->module, 'create') == FALSE){
             $data['success'] = FALSE;
-            $data['message'] = implode('<br />', $errors);
+            $data['message'] = 'You are not allowed to save this Document!';
         } else {
-            if ($this->model->saveComponentStatus()){
-            unset($_POST);
+            $errors = array();
 
-            $data['success'] = TRUE;
-            $data['message'] = 'Document '. $this->input->post('document_number') .' has been saved. You will redirected now.';
+            if (!empty($errors)){
+                $data['success'] = FALSE;
+                $data['message'] = implode('<br />', $errors);
             } else {
-            $data['success'] = FALSE;
-            $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                if ($this->model->save()){
+                unset($_POST);
+
+                $data['success'] = TRUE;
+                $data['message'] = 'Document '. $this->input->post('document_number') .' has been saved. You will redirected now.';
+                } else {
+                $data['success'] = FALSE;
+                $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                }
             }
-        }
         }
 
         echo json_encode($data);
@@ -204,6 +267,16 @@ class Aircraft_Movement_Part extends MY_Controller
         echo json_encode($entity);
     }    
 
+    public function search_component_aircraft()
+    {
+        // if ($this->input->is_ajax_request() === FALSE)
+        //   redirect($this->modules['secure']['route'] .'/denied');
+
+        $entities = $this->model->searchComponentAircraft();  
+
+        echo json_encode($entities);
+    }
+
     public function set_aircraft_id($aircraft_id)
     {
 
@@ -222,129 +295,57 @@ class Aircraft_Movement_Part extends MY_Controller
         redirect($this->module['route'] . '/create');
     }
 
-    public function set_tsn()
+    public function add_item()
     {
-        if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] .'/denied');
+        $this->authorized($this->module, 'create');
 
-        $_SESSION['component_status']['tsn'] = $_GET['data'];
+        if (isset($_POST) && !empty($_POST)){
+            $_SESSION['movement_part']['items'][] = array(
+                'aircraft_register'             => $this->input->post('aircraft_register'),
+                'group_part'                    => $this->input->post('group_part'),
+                'date_of_ajlb'                  => $this->input->post('date_of_ajlb'),
+                'component_remove_id'           => $this->input->post('component_remove_id'),
+                'remove_part_number'            => trim(strtoupper($this->input->post('remove_part_number'))),
+                'remove_serial_number'          => trim(strtoupper($this->input->post('remove_serial_number'))),
+                'remove_description'            => trim(strtoupper($this->input->post('remove_description'))),            
+                'remove_alternate_part_number'  => trim(strtoupper($this->input->post('remove_alternate_part_number'))),
+                'remove_date'                   => $this->input->post('remove_date'),
+                'remove_tsn'                    => $this->input->post('remove_tsn'),
+                'remove_tso'                    => $this->input->post('remove_tso'),
+                'remove_category'               => $this->input->post('remove_category'),
+                'pic'                           => strtoupper($this->input->post('pic')),
+                'status'                        => $this->input->post('status'),
+                'remarks'                       => $this->input->post('remarks'),
+                'quantity'                      => null,
+                'source'                        => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('source'), 
+                'source_item_id'                => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('source_item_id'),     
+                'component_install_id'          => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('component_install_id'),
+                'install_part_number'           => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('install_part_number'),
+                'install_serial_number'         => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('install_serial_number'),
+                'install_description'           => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('install_description'),
+                'install_alternate_part_number' => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('install_alternate_part_number'),
+                'install_date'                  => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('install_date'),
+                'install_tsn'                   => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('install_tsn'),
+                'install_tso'                   => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('install_tso'),   
+                'issuance_document_number'      => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('issuance_document_number'),
+                'interval_component_install'            => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('interval_component_install'),
+                'interval_satuan_component_install'     => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('interval_satuan_component_install'),               
+            );
+            
+        }
+
+        redirect($this->module['route'] .'/create');
     }
 
-    public function set_notes()
+    public function search_item_by_source()
     {
-        if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] .'/denied');
+        // if ($this->input->is_ajax_request() === FALSE)
+        //   redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['component_status']['notes'] = $_GET['data'];
-    }
+        $source     = $this->input->post('source');
+        $aircraft   = $this->input->post('aircraft');
+        $entities   = $this->model->searchItemBySource($source,$aircraft);  
 
-    public function set_status_date()
-    {
-        if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] .'/denied');
-
-        $_SESSION['component_status']['status_date'] = $_GET['data'];
-    }
-
-    public function set_prepared_by()
-    {
-        if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] .'/denied');
-
-        $_SESSION['component_status']['prepared_by'] = $_GET['data'];
-    }
-
-    public function multi_approve()
-    {
-        $document_id = $this->input->post('document_id');
-        $document_id = str_replace("|", "", $document_id);
-        $document_id = substr($document_id, 0, -1);
-        $document_id = explode(",", $document_id);
-
-        $str_notes = $this->input->post('notes');
-        $notes = str_replace("|", "", $str_notes);
-        $notes = substr($notes, 0, -3);
-        $notes = explode("##,", $notes);
-
-        $total = 0;
-        $success = 0;
-        $failed = sizeof($document_id);
-        $x = 0;
-        foreach ($document_id as $key) {
-            if ($this->model->approve($key, $notes[$x])) {
-                $total++;
-                $success++;
-                $failed--;
-                // $this->model->send_mail_approved($key,'approved');
-            }
-            $x++;
-        }
-        if ($success > 0) {
-            $this->model->send_mail_approval($document_id, 'approve', config_item('auth_person_name'),$notes);
-            $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $success . " data has been update!"
-            ));
-        }
-        if ($failed > 0) {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are " . $failed . " errors"
-            ));
-        }
-        if ($total == 0) {
-            $result['status'] = 'failed';
-        } else {
-        //$this->sendEmailHOS();
-            $result['status'] = 'success';
-        }
-        echo json_encode($result);
-    }
-
-    public function multi_reject()
-    {
-        $document_id = $this->input->post('document_id');
-        $document_id = str_replace("|", "", $document_id);
-        $document_id = substr($document_id, 0, -1);
-        $document_id = explode(",", $document_id);
-
-        $str_notes = $this->input->post('notes');
-        $notes = str_replace("|", "", $str_notes);
-        $notes = substr($notes, 0, -3);
-        $notes = explode("##,", $notes);
-
-        $total = 0;
-        $success = 0;
-        $failed = sizeof($document_id);
-        $x = 0;
-        foreach ($document_id as $key) {
-            if ($this->model->reject($key, $notes[$x])) {
-                $total++;
-                $success++;
-                $failed--;
-                // $this->model->send_mail_approved($key,'approved');
-            }
-            $x++;
-        }
-        if ($success > 0) {
-            $this->model->send_mail_approval($document_id, 'reject', config_item('auth_person_name'),$notes);
-            $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $success . " data has been update!"
-            ));
-        }
-        if ($failed > 0) {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are " . $failed . " errors"
-            ));
-        }
-        if ($total == 0) {
-            $result['status'] = 'failed';
-        } else {
-        //$this->sendEmailHOS();
-            $result['status'] = 'success';
-        }
-        echo json_encode($result);
+        echo json_encode($entities);
     }
 }

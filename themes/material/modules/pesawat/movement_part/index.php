@@ -358,7 +358,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "<?= $grid['data_source']; ?>",
+                    url: "<?= $grid['data_source_2']; ?>",
                     type: "POST",
                     error: function(xhr, ajaxOptions, thrownError) {
                         console.log(xhr.responseText);
