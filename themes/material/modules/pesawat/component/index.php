@@ -62,7 +62,7 @@
                     <div style="clear: both;border-bottom: 3px double #999;padding-top:2px;padding-bottom:3px;"class="row"></div>
                     <div class="row" style="padding-top:4px;">
                         <div class="col-sm-12">
-                            <div class="table-responsive">
+                            <div class="document-data table-responsive">
                                 <table class="table table-bordered table-nowrap">
                                     <thead>
                                         <tr>

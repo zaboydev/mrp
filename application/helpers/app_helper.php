@@ -869,6 +869,7 @@ if ( ! function_exists('pesawat')) {
 
     $CI->db->select('nama_pesawat');
     $CI->db->from('tb_master_pesawat');
+    $CI->db->order_by('nama_pesawat');
 
     $query  = $CI->db->get();
     $result = $query->result_array();
@@ -3137,6 +3138,38 @@ if (!function_exists('currency_for_vendor_list')) {
       $query  = $CI->db->get();
       $result = $query->result_array();
 
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getAircraftByRegisterNumber')) {
+    function getAircraftByRegisterNumber($aircraft_register_number)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_pesawat');
+      $CI->db->where('tb_master_pesawat.nama_pesawat',$aircraft_register_number);
+  
+      $query  = $CI->db->get();
+      $result = $query->unbuffered_row('array');
+  
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getAircraftComponentById')) {
+    function getAircraftComponentById($id)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_aircraft_components');
+      $CI->db->where('tb_aircraft_components.id',$id);
+  
+      $query  = $CI->db->get();
+      $result = $query->unbuffered_row('array');
+  
       return $result;
     }
   }
