@@ -33,25 +33,26 @@ class Aircraft_Movement_Part_Model extends MY_Model
         );
     }
 
-    public function getHeaderInstallRemovePart(){
+    public function getHeader(){
         return array(
+            'No',
             'Date of AJLB',
             'A/C Hour TTIS',
             'A/C Reg',
             'A/C Type',
-            'Base Station',
-            'Install Date',
-            'Install TSN',
-            'Install TSO',            
+            'Base Station',            
             'Description Part',
-            'Part Number On',
-            'Serial Number On',
+            'Part Number',
+            'Serial Number (Off)',
+            'Serial Number (On)',
             'Remove Date',
             'Remove TSN',
             'Remove TSO',
+            'Status',
+            'Install Date',
+            'Install TSN',
+            'Install TSO',
             'PIC',
-            'Part Number Off',
-            'Serial Number Off',
             'Category',
             'Remarks'
         );
@@ -152,11 +153,10 @@ class Aircraft_Movement_Part_Model extends MY_Model
         }
     }
 
-    function getIndexComponentStatusForRemovePart($return = 'array')
+    function getIndex($return = 'array')
     {
-        $this->db->select($this->getSelectedColumnForRemovePart());
+        $this->db->select('tb_aircraft_movement_parts.*');
         $this->db->from('tb_aircraft_movement_parts');
-        $this->db->where('type','remove');
 
         $this->searchIndex();
 
@@ -184,10 +184,10 @@ class Aircraft_Movement_Part_Model extends MY_Model
         }
     }
 
-    function countIndexFilteredComponentStatusForRemovePart()
+    function countIndexFiltered()
     {
         $this->db->from('tb_aircraft_movement_parts');
-        $this->db->where('type','remove');
+        // $this->db->where('type','remove');
         $this->searchIndex();
 
         $query = $this->db->get();
@@ -195,10 +195,10 @@ class Aircraft_Movement_Part_Model extends MY_Model
         return $query->num_rows();
     }
 
-    public function countIndexComponentStatusForRemovePart()
+    public function countIndex()
     {
         $this->db->from('tb_aircraft_movement_parts');
-        $this->db->where('type','remove');
+        // $this->db->where('type','remove');
 
         $query = $this->db->get();
 
@@ -612,7 +612,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
                 $this->db->set('af_tsn', $data['install_tsn']);
                 $this->db->set('equip_tsn', $data['install_tsn']);
                 $this->db->set('tso', $data['install_tso']);
-                $this->db->set('remarks', $data['remarks']);
+                $this->db->set('remarks', $data['remarks_install']);
                 if(!empty($data['next_due_date'])){
                     $this->db->set('next_due_date', $data['next_due_date']);
                 }      
@@ -699,7 +699,27 @@ class Aircraft_Movement_Part_Model extends MY_Model
                 $this->db->set('updated_at', date('Y-m-d H:i:s'));      
                 $this->db->insert('tb_aircraft_robbing_parts');
             }else{
-                //insert ke table part mapping
+                //insert ke table part mapping   
+                $this->db->set('remove_aircraft_id', $selected_aircraft['id']);      
+                $this->db->set('remove_aircraft_register', $selected_aircraft['nama_pesawat']);      
+                $this->db->set('remove_aircraft_type', $selected_aircraft['type']);      
+                $this->db->set('remove_aircraft_base', $selected_aircraft['base']);      
+                $this->db->set('remove_pic', $data['pic']);      
+                $this->db->set('remove_date', $data['remove_date']);      
+                $this->db->set('component_remove_id', $data['component_remove_id']);      
+                $this->db->set('part_number', $selected_aircraft_component_remove['part_number']);      
+                $this->db->set('description', $selected_aircraft_component_remove['description']);      
+                $this->db->set('alternate_part_number', $selected_aircraft_component_remove['alternate_part_number']);      
+                $this->db->set('serial_number', $selected_aircraft_component_remove['serial_number']);      
+                $this->db->set('remove_tsn', $data['remove_tsn']);      
+                $this->db->set('remove_tso', $data['remove_tso']);
+                $this->db->set('remarks', $data['remark']); 
+                $this->db->set('status', $data['status']); 
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->set('updated_by', config_item('auth_person_name')); 
+                $this->db->set('created_at', date('Y-m-d H:i:s'));    
+                $this->db->set('updated_at', date('Y-m-d H:i:s'));      
+                $this->db->insert('tb_aircraft_mapping_parts');
             }
 
             if($type=='install_remove'){
@@ -1160,7 +1180,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
         return $this->db->get('')->result();
     }
 
-    public function searchItemBySource($source,$aircraft)
+    public function searchItemBySource($source,$aircraft,$remove_part_number=NULL)
     {
         if($source=='inventory'){
             $selected = array(
@@ -1192,6 +1212,9 @@ class Aircraft_Movement_Part_Model extends MY_Model
             $this->db->where_in('tb_issuances.category', config_item('auth_inventory'));
             $this->db->where_in('tb_issuances.warehouse', config_item('auth_warehouses')); 
             $this->db->where('tb_issuances.issued_to', $aircraft);
+            if($remove_part_number!=NULL){
+                $this->db->where('tb_master_items.part_number', $remove_part_number);
+            }            
             $this->db->where('tb_issuances.category !=','BAHAN BAKAR');
             $this->db->like('tb_issuances.document_number', 'MS');
             $this->db->order_by('tb_issuances.category', 'asc');
@@ -1205,6 +1228,9 @@ class Aircraft_Movement_Part_Model extends MY_Model
             $this->db->select($selected);
             $this->db->from('tb_aircraft_robbing_parts');
             $this->db->where('tb_aircraft_robbing_parts.component_install_id is NULL', NULL, FALSE);
+            if($remove_part_number!=NULL){
+                $this->db->where('tb_aircraft_robbing_parts.part_number', $remove_part_number);
+            } 
             $this->db->order_by('tb_aircraft_robbing_parts.id', 'asc');
             $query = $this->db->get();
         }

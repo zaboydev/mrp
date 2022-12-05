@@ -268,7 +268,7 @@
                         <div class="col-xs-12 col-lg-6">
                             <div class="form-group" style="padding-top: 20px;">
                                 <select name="group_part" id="group_part" data-tag-name="group_part" class="form-control input-sm select2" style="width: 100%" required>
-                                    <option value="">-- SELECT Group --</option>
+                                    <option value="">-- SELECT Classification --</option>
                                     <?php foreach (config_item('component_type') as $category) : ?>
                                     <option value="<?= $category; ?>"><?= ucwords($category); ?></option>
                                     <?php endforeach; ?>
@@ -279,7 +279,97 @@
                     </div>
                     <hr>
                     
-                    <div class="row">
+                    <div class="row">                        
+                        <!-- tab remove part -->
+                        <?php if($_SESSION['movement_part']['type']=='remove'):?>
+                        <div class="col-sm-12">
+                        <?php else:?>
+                        <div class="col-sm-12 col-lg-6">
+                        <?php endif;?>                        
+                            <fieldset>
+                                <legend>Remove Part</legend>
+
+                                <div class="form-group" style="padding-top: 20px;">
+                                    <input type="date" name="date_of_ajlb" id="date_of_ajlb" class="form-control input-sm">
+                                    <label for="date_of_ajlb">Date of AJLB</label>
+                                </div>
+
+                                <div class="form-group" style="padding-top: 20px;">
+                                    <select name="component_remove_id" id="component_remove_id" data-tag-name="component_remove_id" class="form-control input-sm select2" style="width: 100%" required>
+                                        <option value="">-- SELECT Part --</option>                                        
+                                    </select>
+                                    <label for="component_remove_id">Part Off</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="remove_part_number" id="remove_part_number" class="form-control input-sm input-autocomplete" readonly>
+                                    <label for="remove_part_number">Part Number</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="remove_serial_number" id="remove_serial_number" class="form-control input-sm input-autocomplete" readonly>
+                                    <label for="remove_serial_number">Serial Number</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="remove_description" id="remove_description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" readonly>
+                                    <label for="remove_description">Description</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="remove_alternate_part_number" id="remove_alternate_part_number" data-tag-name="alternate_part_number" class="form-control input-sm" readonly>
+                                    <label for="remove_alternate_part_number">Alt. Part Number</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="date" name="remove_date" id="remove_date" data-tag-name="remove_date" class="form-control input-sm">
+                                    <label for="remove_date">Remove Date</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="remove_tsn" id="remove_tsn" data-tag-name="remove_tsn" class="form-control input-sm">
+                                    <label for="remove_tsn">Remove TSN</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="remove_tso" id="remove_tso" data-tag-name="remove_tso" class="form-control input-sm">
+                                    <label for="remove_tso">Remove TSO</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <select name="remove_category" id="remove_category" class="form-control input-sm" style="width: 100%">
+                                        <option value="">-- SELECT category --</option>
+                                        <option value="ROTABLE">ROTABLE</option>
+                                        <option value="CONSUMABLE">CONSUMABLE</option>
+                                        <option value="REPAIRABLE">REPAIRABLE</option>
+                                        <option value="ROBBING">ROBBING</option>
+                                    </select>
+                                    <label for="category">Category</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="pic" id="pic" data-tag-name="pic" class="form-control input-sm">
+                                    <label for="pic">PIC</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <select name="status" id="status" class="form-control input-sm">
+                                        <?php foreach (available_conditions() as $key => $condition) : ?>
+                                        <option value="<?= $condition; ?>"><?= $condition; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <!-- <input type="text" name="status" id="status" data-tag-name="status" class="form-control input-sm"> -->
+                                    <label for="status">Status</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="remarks" id="remarks" data-tag-name="remarks" class="form-control input-sm">
+                                    <label for="remarks">Remarks</label>
+                                </div>
+
+                            </fieldset>
+                        </div>
+
                         <!-- tab install part -->
                         <?php if($_SESSION['movement_part']['type']!='remove'):?>
                         <div class="col-sm-12 col-lg-6">
@@ -358,99 +448,14 @@
                                     <label for="install_tso">Install TSO</label>
                                 </div>
 
-                            </fieldset>
-                        </div>
-                        <?php endif;?>
-                        
-                        <!-- tab remove part -->
-                        <?php if($_SESSION['movement_part']['type']=='remove'):?>
-                        <div class="col-sm-12">
-                        <?php else:?>
-                        <div class="col-sm-12 col-lg-6">
-                        <?php endif;?>                        
-                            <fieldset>
-                                <legend>Remove Part</legend>
-
-                                <div class="form-group" style="padding-top: 20px;">
-                                    <input type="date" name="date_of_ajlb" id="date_of_ajlb" class="form-control input-sm">
-                                    <label for="date_of_ajlb">Date of AJLB</label>
-                                </div>
-
-                                <div class="form-group" style="padding-top: 20px;">
-                                    <select name="component_remove_id" id="component_remove_id" data-tag-name="component_remove_id" class="form-control input-sm select2" style="width: 100%" required>
-                                        <option value="">-- SELECT Part --</option>                                        
-                                    </select>
-                                    <label for="component_remove_id">Part Off</label>
-                                </div>
-
                                 <div class="form-group">
-                                    <input type="text" name="remove_part_number" id="remove_part_number" class="form-control input-sm input-autocomplete" required>
-                                    <label for="remove_part_number">Part Number</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" name="remove_serial_number" id="remove_serial_number" class="form-control input-sm input-autocomplete">
-                                    <label for="remove_serial_number">Serial Number</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" name="remove_description" id="remove_description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" required>
-                                    <label for="remove_description">Description</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" name="remove_alternate_part_number" id="remove_alternate_part_number" data-tag-name="alternate_part_number" class="form-control input-sm">
-                                    <label for="remove_alternate_part_number">Alt. Part Number</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="date" name="remove_date" id="remove_date" data-tag-name="remove_date" class="form-control input-sm">
-                                    <label for="remove_date">Remove Date</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" name="remove_tsn" id="remove_tsn" data-tag-name="remove_tsn" class="form-control input-sm">
-                                    <label for="remove_tsn">Remove TSN</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" name="remove_tso" id="remove_tso" data-tag-name="remove_tso" class="form-control input-sm">
-                                    <label for="remove_tso">Remove TSO</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <select name="remove_category" id="remove_category" class="form-control input-sm" style="width: 100%">
-                                        <option value="">-- SELECT category --</option>
-                                        <option value="ROTABLE">ROTABLE</option>
-                                        <option value="CONSUMABLE">CONSUMABLE</option>
-                                        <option value="REPAIRABLE">REPAIRABLE</option>
-                                        <option value="ROBBING">ROBBING</option>
-                                    </select>
-                                    <label for="category">Category</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" name="pic" id="pic" data-tag-name="pic" class="form-control input-sm">
-                                    <label for="pic">PIC</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <select name="status" id="status" class="form-control input-sm">
-                                        <?php foreach (available_conditions() as $key => $condition) : ?>
-                                        <option value="<?= $condition; ?>"><?= $condition; ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <!-- <input type="text" name="status" id="status" data-tag-name="status" class="form-control input-sm"> -->
-                                    <label for="status">Status</label>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" name="remarks" id="remarks" data-tag-name="remarks" class="form-control input-sm">
-                                    <label for="remarks">Remarks</label>
+                                    <input type="text" name="remarks_install" id="remarks_install" data-tag-name="remarks_install" class="form-control input-sm">
+                                    <label for="remarks_install">Remarks</label>
                                 </div>
 
                             </fieldset>
                         </div>
+                        <?php endif;?>
                     </div>
                 </div>
 
@@ -623,10 +628,12 @@
             var source_item_id = $('[name="source_item_id"]');
             var source = $('[name="source"]').val();
             var aircraft = $('[name="aircraft_register"]').val();
+            var remove_part_number = $('[name="remove_part_number"]').val();
 
             var data_send = {
                 source: source,
-                aircraft: aircraft
+                aircraft: aircraft,
+                remove_part_number:remove_part_number
             };            
             console.log(data_send);
             if(source!='' && aircraft!=''){

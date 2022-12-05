@@ -13,7 +13,7 @@ class Aircraft_Movement_Part extends MY_Controller
         $this->data['module'] = $this->module;
     }
 
-    public function index_data_source_remove_part()
+    public function index_data_source()
     {
         if ($this->input->is_ajax_request() === FALSE)
         redirect($this->modules['secure']['route'] . '/denied');
@@ -22,7 +22,7 @@ class Aircraft_Movement_Part extends MY_Controller
             $return['type'] = 'danger';
             $return['info'] = "You don't have permission to access this page!";
         } else {
-            $entities = $this->model->getIndexComponentStatusForRemovePart();
+            $entities = $this->model->getIndex();
             $data     = array();
             $no       = $_POST['start'];
             $total = array();
@@ -31,23 +31,24 @@ class Aircraft_Movement_Part extends MY_Controller
                 $no++;
                 $col = array();
                 $col[] = print_number($no);            
-                $col[] = print_date(strtoupper($row['date_of_ajlb']));
+                $col[] = print_date(strtoupper($row['date_of_ajlb']), 'd M Y');
                 $col[] = '';
                 $col[] = print_string($row['aircraft_register']);
                 $col[] = print_string($row['aircraft_type']);
                 $col[] = print_string($row['aircraft_base']);
-                $col[] = print_date($row['remove_date']);
-                $col[] = print_string($row['remove_tsn']);
-                $col[] = print_string($row['remove_tso']);
-                $col[] = print_string($row['pic']);
                 $col[] = print_string($row['remove_description']);
                 $col[] = print_string($row['remove_part_number']);
-                $col[] = print_string($row['remove_alternate_part_number']);
                 $col[] = print_string($row['remove_serial_number']);
-                $col[] = '';
-                $col[] = '';
-                $col[] = print_string($row['category']);
+                $col[] = print_string($row['install_serial_number']);
+                $col[] = print_date($row['remove_date'], 'd M Y');
+                $col[] = print_string($row['remove_tsn']);
+                $col[] = print_string($row['remove_tso']);
                 $col[] = print_string($row['status']);
+                $col[] = ($row['install_date']!=null)?print_date($row['install_date'], 'd M Y'):'';
+                $col[] = print_string($row['install_tsn']);
+                $col[] = print_string($row['install_tso']);
+                $col[] = print_string($row['pic']);
+                $col[] = print_string($row['category']);
                 $col[] = print_string($row['remarks']);
 
                 $col['DT_RowId'] = 'row_'. $row['id'];
@@ -65,72 +66,8 @@ class Aircraft_Movement_Part extends MY_Controller
 
             $result = array(
                 "draw" => $_POST['draw'],
-                "recordsTotal" => $this->model->countIndexComponentStatusForRemovePart(),
-                "recordsFiltered" => $this->model->countIndexFilteredComponentStatusForRemovePart(),
-                "data" => $data,
-                "total" => array(
-                    
-                )
-            );
-        }
-
-        echo json_encode($result);
-    }
-
-    public function index_data_source_install_remove_part()
-    {
-        if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] . '/denied');
-
-        if (is_granted($this->module, 'index') === FALSE) {
-            $return['type'] = 'danger';
-            $return['info'] = "You don't have permission to access this page!";
-        } else {
-            $entities = $this->model->getIndexComponentStatus();
-            $data     = array();
-            $no       = $_POST['start'];
-            $total = array();
-
-            // foreach ($entities as $row) {
-            //     $no++;
-            //     $col = array();
-            //     if ($row['status'] == 'WAITING FOR CHECKED BY COM' && (config_item('auth_role')=='CHIEF OF MAINTANCE' || config_item('auth_role')=='SUPER ADMIN')) {
-            //         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-            //     }else{
-            //         $col[] = print_number($no);
-            //     }                
-            //     $col[] = print_string(strtoupper($row['status']));
-            //     $col[] = print_string($row['nama_pesawat']);
-            //     $col[] = print_string($row['base']);
-            //     $col[] = print_date($row['status_date']);
-            //     $col[] = print_string($row['tsn']);
-            //     $col[] = print_string($row['notes']);
-            //     $col[] = print_string($row['prepared_by']);
-            //     if($row['status']=='APPROVED' || $row['status']=='REJECTED'){
-            //         $col[] = $row['approval_notes'];
-            //     }else{
-            //         if (is_granted($this->module, 'approval') === TRUE) {
-            //             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-            //         }
-            //     }
-
-            //     $col['DT_RowId'] = 'row_'. $row['id'];
-            //     $col['DT_RowData']['pkey']  = $row['id'];
-
-            //     if ($this->has_role($this->module, 'info')){
-            //         $col['DT_RowAttr']['onClick']     = '';
-            //         $col['DT_RowAttr']['data-id']     = $row['id'];
-            //         $col['DT_RowAttr']['data-target'] = '#data-modal';
-            //         $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
-            //     }
-
-            //     $data[] = $col;
-            // }
-
-            $result = array(
-                "draw" => $_POST['draw'],
-                "recordsTotal" => $this->model->countIndexComponentStatus(),
-                "recordsFiltered" => $this->model->countIndexFilteredComponentStatus(),
+                "recordsTotal" => $this->model->countIndex(),
+                "recordsFiltered" => $this->model->countIndexFiltered(),
                 "data" => $data,
                 "total" => array(
                     
@@ -146,12 +83,8 @@ class Aircraft_Movement_Part extends MY_Controller
         $this->authorized($this->module, 'index');
         $source =  $_SESSION['request']['request_to'] == 0 ? "Budget Control" : "MRP";
         $this->data['page']['title']            = 'Aircraft Movement Part';
-        $this->data['page']['title_1']          = 'Remove Part';
-        $this->data['page']['title_2']          = 'Install & Remove Part';
-        $this->data['grid']['column']           = $this->model->getHeaderRemovePart();
-        $this->data['grid']['column_2']         = $this->model->getHeaderInstallRemovePart();
-        $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source_remove_part');
-        $this->data['grid']['data_source_2']    = site_url($this->module['route'] . '/index_data_source_install_remove_part');
+        $this->data['grid']['column']           = $this->model->getHeader();
+        $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 2;
         $this->data['grid']['summary_columns']  = array();
         $this->data['grid']['order_columns']    = array(
@@ -344,7 +277,8 @@ class Aircraft_Movement_Part extends MY_Controller
 
         $source     = $this->input->post('source');
         $aircraft   = $this->input->post('aircraft');
-        $entities   = $this->model->searchItemBySource($source,$aircraft);  
+        $remove_part_number   = $this->input->post('remove_part_number');
+        $entities   = $this->model->searchItemBySource($source,$aircraft,$remove_part_number);  
 
         echo json_encode($entities);
     }

@@ -1,10 +1,6 @@
-<?php include 'themes/material/page_2.php' ?>
+<?php include 'themes/material/page.php' ?>
 
 <?php startblock('page_head_tools') ?>
-<?php $this->load->view('material/templates/datatable_tools') ?>
-<?php endblock() ?>
-
-<?php startblock('page_head_tools_2') ?>
 <?php $this->load->view('material/templates/datatable_tools') ?>
 <?php endblock() ?>
 
@@ -22,10 +18,6 @@
 </div>
 
 <?php $this->load->view('material/templates/datatable') ?>
-<?php endblock() ?>
-
-<?php startblock('page_body_2') ?>
-<?php $this->load->view('material/templates/datatable_2') ?>
 <?php endblock() ?>
 
 <?php startblock('page_modals') ?>
@@ -230,9 +222,7 @@
             });
 
             var datatableElement = $('[data-provide="datatable"]');
-            var datatableElement2 = $('[data-provide="datatable_2"]');
             var datatableOptions = new Object();
-            var datatableOptions2 = new Object();
 
             datatableOptions.selectedRows = [];
             datatableOptions.selectedIds = [];
@@ -241,28 +231,12 @@
             datatableOptions.clickTimer = null;
             datatableOptions.summaryColumns = <?= json_encode($grid['summary_columns']); ?>;
 
-            datatableOptions2.selectedRows = [];
-            datatableOptions2.selectedIds = [];
-            datatableOptions2.clickDelay = 700;
-            datatableOptions2.clickCount = 0;
-            datatableOptions2.clickTimer = null;
-            datatableOptions2.summaryColumns = <?= json_encode($grid['summary_columns']); ?>;
-
             $(datatableElement)
                 .addClass('stripe row-border cell-border order-column nowrap')
                 .attr('width', '100%');
 
             $(datatableElement).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
             $(datatableElement).find('table td:first-child').attr('align', 'right');
-
-            $.fn.dataTable.ext.errMode = 'throw';
-
-            $(datatableElement2)
-                .addClass('stripe row-border cell-border order-column nowrap')
-                .attr('width', '100%');
-
-            $(datatableElement2).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
-            $(datatableElement2).find('table td:first-child').attr('align', 'right');
 
             $.fn.dataTable.ext.errMode = 'throw';
 
@@ -291,74 +265,6 @@
                 serverSide: true,
                 ajax: {
                     url: "<?= $grid['data_source']; ?>",
-                    type: "POST",
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        console.log(xhr.responseText);
-                        if (xhr.status == 404) {
-                            toastr.clear();
-                            toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
-                            alert("page not found");
-                        } else {
-                            toastr.clear();
-                            toastr.error(textStatus + ': ' + errorThrown + '. Report this error!', 'Loading data failed!');
-                        }
-                    }
-                },
-
-                rowCallback: function(row, data) {
-                    if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
-                        $(row).addClass('selected');
-                    }
-                },
-                drawCallback: function(settings) {
-                    var api = this.api();
-                    var data = api.rows({
-                        page: 'current'
-                    }).data()
-                    $.each(data, function(i, item) {
-                        var id = $(item[0]).attr("data-id");
-                        if (id_purchase_order.indexOf("|" + id + ",") !== -1) {
-                            $("#cb_" + id).attr('checked', true);
-                        }
-                    });
-
-                },
-
-                columnDefs: [{
-                    searchable: false,
-                    orderable: false,
-                    targets: [0]
-                }],
-
-                dom: "<'row'<'col-sm-12'tr>>" +
-                "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
-            });
-
-            var datatable2 = $(datatableElement2).DataTable({
-                searchDelay: 350,
-                scrollY: 410,
-                scrollX: true,
-                scrollCollapse: true,
-                lengthMenu: [
-                [10, 50, 100, -1],
-                [10, 50, 100, "All"]
-                ],
-                pageLength: 10,
-                pagingType: 'full',
-
-                order: <?= json_encode($grid['order_columns']); ?>,
-                fixedColumns: {
-                leftColumns: <?= $grid['fixed_columns']; ?>
-                },
-
-                language: {
-                info: "Total _TOTAL_ entries"
-                },
-
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "<?= $grid['data_source_2']; ?>",
                     type: "POST",
                     error: function(xhr, ajaxOptions, thrownError) {
                         console.log(xhr.responseText);
