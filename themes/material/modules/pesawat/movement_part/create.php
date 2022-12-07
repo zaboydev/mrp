@@ -353,13 +353,13 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <select name="status" id="status" class="form-control input-sm">
+                                    <select name="condition" id="condition" class="form-control input-sm">
                                         <?php foreach (available_conditions() as $key => $condition) : ?>
                                         <option value="<?= $condition; ?>"><?= $condition; ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                     <!-- <input type="text" name="status" id="status" data-tag-name="status" class="form-control input-sm"> -->
-                                    <label for="status">Status</label>
+                                    <label for="condition">Status</label>
                                 </div>
 
                                 <div class="form-group">

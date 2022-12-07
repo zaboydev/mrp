@@ -75,7 +75,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
             'remove_alternate_part_number',
             'remove_serial_number',
             'category',
-            'status',
+            'condition',
             'remarks',
             // 'aircraft_base',
             // 'aircraft_base'
@@ -99,7 +99,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
             'remove_alternate_part_number',
             'remove_serial_number',
             'category',
-            'status',
+            'condition',
             'remarks',
             // 'aircraft_base',
             // 'aircraft_base'
@@ -126,7 +126,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
             NULL,
             NULL,
             'category',
-            'status',
+            'condition',
             'remarks',
         );
     }
@@ -714,7 +714,7 @@ class Aircraft_Movement_Part_Model extends MY_Model
                 $this->db->set('remove_tsn', $data['remove_tsn']);      
                 $this->db->set('remove_tso', $data['remove_tso']);
                 $this->db->set('remarks', $data['remark']); 
-                $this->db->set('status', $data['status']); 
+                $this->db->set('condition', $data['condition']); 
                 $this->db->set('created_by', config_item('auth_person_name'));
                 $this->db->set('updated_by', config_item('auth_person_name')); 
                 $this->db->set('created_at', date('Y-m-d H:i:s'));    

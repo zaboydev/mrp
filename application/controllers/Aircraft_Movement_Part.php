@@ -43,7 +43,7 @@ class Aircraft_Movement_Part extends MY_Controller
                 $col[] = print_date($row['remove_date'], 'd M Y');
                 $col[] = print_string($row['remove_tsn']);
                 $col[] = print_string($row['remove_tso']);
-                $col[] = print_string($row['status']);
+                $col[] = print_string($row['condition']);
                 $col[] = ($row['install_date']!=null)?print_date($row['install_date'], 'd M Y'):'';
                 $col[] = print_string($row['install_tsn']);
                 $col[] = print_string($row['install_tso']);
@@ -247,7 +247,7 @@ class Aircraft_Movement_Part extends MY_Controller
                 'remove_tso'                    => $this->input->post('remove_tso'),
                 'remove_category'               => $this->input->post('remove_category'),
                 'pic'                           => strtoupper($this->input->post('pic')),
-                'status'                        => $this->input->post('status'),
+                'condition'                     => $this->input->post('condition'),
                 'remarks'                       => $this->input->post('remarks'),
                 'quantity'                      => null,
                 'source'                        => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('source'), 
