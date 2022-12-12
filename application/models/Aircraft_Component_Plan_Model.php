@@ -209,7 +209,7 @@ class Aircraft_Component_Plan_Model extends MY_Model
         $this->db->set('left_planing_quantity', $this->input->post('planing_quantity')); 
         $this->db->set('updated_by', config_item('auth_person_name'));
         $this->db->set('updated_at', date('Y-m-d H:i:s'));
-        $this->db->update('id', $id);
+        $this->db->where('id', $id);
         $this->db->update('tb_aircraft_component_plan');
 
         $serial_number = NULL;
@@ -252,7 +252,7 @@ class Aircraft_Component_Plan_Model extends MY_Model
         $id = $this->input->post('id');
 
         $this->db->where('id', $id);
-        $this->db->delete('tb_master_items');
+        $this->db->delete('tb_aircraft_component_plan');
 
         if ($this->db->trans_status() === FALSE)
         return FALSE;

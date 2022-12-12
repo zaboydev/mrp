@@ -11,10 +11,10 @@ $config['module']['aircraft_component_plan']['language']        = 'kurs_lang';
 $config['module']['aircraft_component_plan']['table']           = 'tb_master_pesawat';
 $config['module']['aircraft_component_plan']['model']           = 'Aircraft_Component_Plan_Model';
 $config['module']['aircraft_component_plan']['permission']      = array(
-    'create'  => 'PPC,MECHANIC,ADMIN,SUPER ADMIN,ENGINEER',
-    'edit'    => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
-    'info'    => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
-    'save'    => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
-    'delete'  => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'create'    => 'PPC,MECHANIC,ADMIN,SUPER ADMIN,ENGINEER',
+    'edit'      => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'info'      => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'save'      => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'delete'    => 'PPC,ADMIN,SUPER ADMIN',
     'index'  	=> 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
 );

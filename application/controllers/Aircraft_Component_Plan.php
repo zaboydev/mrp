@@ -95,16 +95,16 @@ class Aircraft_Component_Plan extends MY_Controller
         redirect($this->modules['secure']['route'] .'/denied');
 
         if (is_granted($this->module, 'delete') === FALSE){
-        $return['type'] = 'danger';
-        $return['info'] = "You don't have permission to delete this data!";
-        } else {
-        if ($this->model->delete()){
-            $return['type'] = 'success';
-            $return['info'] = 'Pesawat ' . $this->input->post('nama_pesawat') .' deleted.';
-        } else {
             $return['type'] = 'danger';
-            $return['info'] = 'There are error while trying to delete data. Please try again later.';
-        }
+            $return['info'] = "You don't have permission to delete this data!";
+        } else {
+            if ($this->model->delete()){
+                $return['type'] = 'success';
+                $return['info'] = 'Component ' . $this->input->post('description') .' P/N : '.$this->input->post('part_number').' deleted from Aircraft Component Plan.';
+            } else {
+                $return['type'] = 'danger';
+                $return['info'] = 'There are error while trying to delete data. Please try again later.';
+            }
         }
 
         echo json_encode($return);

@@ -94,6 +94,13 @@
     </div>
 
     <div class="card-foot">
+        <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+
+        <?php if (is_granted($module, 'delete')):?>
+            <a href="<?=site_url($module['route']. '/delete');?>" class="btn btn-floating-action btn-danger btn-xhr-delete ink-reaction" id="modal-delete-data-button" data-title="delete">
+            <i class="md md-delete"></i>
+            </a>
+        <?php endif;?>
         <button type="submit" id="modal-create-data-submit" class="btn btn-floating-action btn-primary btn-xhr-submit ink-reaction pull-right" data-title="save and create">
         <i class="md md-save"></i>
         </button>
