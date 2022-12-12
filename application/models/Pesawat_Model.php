@@ -541,7 +541,7 @@ class Pesawat_Model extends MY_Model
       $this->db->set('interval', $data['interval']);
       $this->db->set('interval_satuan', $data['interval_satuan']);
       $this->db->set('installation_date', $data['installation_date']);
-      $this->db->set('historical', $data['historical']);
+      // $this->db->set('historical', $data['historical']);
       $this->db->set('installation_by', $installation_by);
       $this->db->set('af_tsn', $data['af_tsn']);
       $this->db->set('equip_tsn', $data['equip_tsn']);

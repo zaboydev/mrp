@@ -183,6 +183,8 @@ class Pesawat extends MY_Controller
     $this->data['aircraft']['component_flight_instrument']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'flight instrument');
     $this->data['aircraft']['component_avionics']               = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'avionics');
     $this->data['aircraft']['component_modification']           = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'modification');
+    $this->data['aircraft']['component_engine']           = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'engine');
+    $this->data['aircraft']['component_other']           = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'other');
 
     $this->render_view($this->module['view'] .'/component/index');
   }
