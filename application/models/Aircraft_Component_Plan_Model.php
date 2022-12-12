@@ -17,7 +17,7 @@ class Aircraft_Component_Plan_Model extends MY_Model
             'No',
             'Status',
             'Date',
-            'A/C Hour',
+            'Year Plan',
             'A/C Reg',
             'A/C Type',
             'Description',
@@ -146,6 +146,7 @@ class Aircraft_Component_Plan_Model extends MY_Model
 
         $this->db->set('date', $this->input->post('date'));
         $this->db->set('aircraft_id', $selected_aircraft['id']);
+        $this->db->set('year_plan', $this->input->post('year_plan'));
         $this->db->set('aircraft_register', $this->input->post('aircraft_register'));
         $this->db->set('aircraft_type', $selected_aircraft['type']);
         $this->db->set('aircraft_base', $selected_aircraft['base']);
@@ -194,6 +195,7 @@ class Aircraft_Component_Plan_Model extends MY_Model
 
         $this->db->set('date', $this->input->post('date'));
         $this->db->set('aircraft_id', $selected_aircraft['id']);
+        $this->db->set('year_plan', $this->input->post('year_plan'));
         $this->db->set('aircraft_register', $this->input->post('aircraft_register'));
         $this->db->set('aircraft_type', $selected_aircraft['type']);
         $this->db->set('aircraft_base', $selected_aircraft['base']);

@@ -33,7 +33,7 @@ class Aircraft_Component_Plan extends MY_Controller
                 $col[] = print_number($no); 
                 $col[] = print_string($row['status']);   
                 $col[] = print_date($row['date'],'d M Y'); 
-                $col[] = ($row['aircraft_hour']==NULL)?'':print_number($row['aircraft_hour']);
+                $col[] = print_string($row['year_plan']);
                 $col[] = print_string($row['aircraft_register']);
                 $col[] = print_string($row['aircraft_type']);   
                 $col[] = print_string($row['description']);  
@@ -71,7 +71,7 @@ class Aircraft_Component_Plan extends MY_Controller
     public function index()
     {
         $this->authorized($this->module, 'index');
-        $this->data['page']['title']            = 'Aircraft Robbing Part';
+        $this->data['page']['title']            = 'Aircraft Component Plan';
         $this->data['grid']['column']           = $this->model->getSelectedColumns();
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 6;

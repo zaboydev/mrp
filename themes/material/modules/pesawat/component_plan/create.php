@@ -37,6 +37,11 @@
                 </div>
 
                 <div class="form-group">
+                    <input type="text" name="year_plan" id="year_plan" class="form-control" maxlength="4" pattern="[0-9]{4}">
+                    <label for="date">Year Plan</label>
+                </div>
+
+                <div class="form-group">
                     <input type="text" name="description" id="description" class="form-control" required>
                     <label for="description">Description</label>
                 </div>
