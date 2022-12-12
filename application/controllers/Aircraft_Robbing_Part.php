@@ -52,7 +52,7 @@ class Aircraft_Robbing_Part extends MY_Controller
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
 
-                if ($this->has_role($this->module, 'infos')){
+                if ($this->has_role($this->module, 'info')){
                     $col['DT_RowAttr']['onClick']     = '';
                     $col['DT_RowAttr']['data-id']     = $row['id'];
                     $col['DT_RowAttr']['data-target'] = '#data-modal';
@@ -199,9 +199,22 @@ class Aircraft_Robbing_Part extends MY_Controller
 
     public function info($id)
     {
-        $entity = $this->model->findById($id);
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
 
-        echo json_encode($entity);
+        if (is_granted($this->module, 'info') === FALSE){
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
+        } else {
+            $entity = $this->model->findById($id);
+
+            $this->data['entity'] = $entity;
+
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
+        }
+
+        echo json_encode($return);
     }    
 
     public function search_component_aircraft()
@@ -285,4 +298,51 @@ class Aircraft_Robbing_Part extends MY_Controller
 
         echo json_encode($entities);
     }
+
+    public function install($id)
+    {
+        $this->authorized($this->module, 'install');
+
+        $entity = $this->model->findById($id);
+
+        $this->data['page']['title']    = 'Install Robbing Part';
+        $this->data['entity']           = $entity;
+
+        $this->render_view($this->module['view'] .'/install');
+    }
+
+    public function install_save($id)
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'install') == FALSE){
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to adjust this stock!';
+        } else {
+            if ($this->model->install($id)){
+                $data['success'] = TRUE;
+                $data['message'] = 'Adjustment stock success. You will redirected now.';
+            } else {
+                $data['success'] = FALSE;
+                $data['message'] = 'Error while adjust stock. Please ask Technical Support.';
+            }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function test()
+    {
+        // if ($this->input->is_ajax_request() === FALSE)
+        //   redirect($this->modules['secure']['route'] .'/denied');
+
+        $date  = date('Y-m-d', strtotime('2021-10-23'));
+        $return        = strtotime('+48 month',strtotime($date));
+        $end_date    = date('Y-m-d', $return);
+        $periode = print_date($end_date,'d F Y');
+
+        echo json_encode($periode);
+    }
+
 }

@@ -11,10 +11,11 @@ $config['module']['aircraft_robbing_part']['language']        = 'kurs_lang';
 $config['module']['aircraft_robbing_part']['table']           = 'tb_aircraft_robbing_parts';
 $config['module']['aircraft_robbing_part']['model']           = 'Aircraft_Robbing_Part_Model';
 $config['module']['aircraft_robbing_part']['permission']      = array(
-    'create'  => 'PPC,MECHANIC,ADMIN,SUPER ADMIN,ENGINEER',
-    'edit'    => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
-    'info'    => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
-    'save'    => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
-    'delete'  => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'create'    => 'PPC,MECHANIC,ADMIN,SUPER ADMIN,ENGINEER',
+    'edit'      => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'info'      => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'save'      => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'delete'    => 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
     'index'  	=> 'PPC,MECHANIC,ADMIN,ENGINEER,SUPER ADMIN',
+    'install'   => 'PPC,MECHANIC,ADMIN,SUPER ADMIN,ENGINEER',
 );
