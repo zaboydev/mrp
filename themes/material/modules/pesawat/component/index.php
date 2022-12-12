@@ -69,6 +69,7 @@
                                             <th rowspan="2" style="text-align:center;">No</th>
                                             <th rowspan="2" style="text-align:center;">Description</th>
                                             <th rowspan="2" style="text-align:center;">Part Number</th>
+                                            <th rowspan="2" style="text-align:center;">Alt Part Number</th>
                                             <th rowspan="2" style="text-align:center;">Serial Number</th>
                                             <th rowspan="2" style="text-align:center;">Interval</th>
                                             <th colspan="4" style="text-align:center;">Installation Data</th>
@@ -99,6 +100,7 @@
                                             <td style="text-align:center;"><?= $n++; ?></td>
                                             <td><?= $items['description']; ?></td>
                                             <td><?= $items['part_number']; ?></td>
+                                            <td><?= $items['alternate_part_number']; ?></td>
                                             <td><?= ($items['serial_number']==NULL)? 'N/A':$items['serial_number']; ?></td>
                                             <td><?= $items['interval']; ?> <?= $items['interval_satuan']; ?></td>
                                             <td><?= print_date($items['installation_date'], 'd M Y'); ?></td>

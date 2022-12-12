@@ -72,7 +72,7 @@ class Aircraft_Mapping_Part extends MY_Controller
     public function index()
     {
         $this->authorized($this->module, 'index');
-        $this->data['page']['title']            = 'Aircraft Robbing Part';
+        $this->data['page']['title']            = 'Aircraft Mapping Part';
         $this->data['grid']['column']           = $this->model->getHeader();
         $this->data['grid']['data_source']      = site_url($this->module['route'] . '/index_data_source');
         $this->data['grid']['fixed_columns']    = 6;

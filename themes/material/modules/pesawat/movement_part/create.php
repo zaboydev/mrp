@@ -628,12 +628,12 @@
             var source_item_id = $('[name="source_item_id"]');
             var source = $('[name="source"]').val();
             var aircraft = $('[name="aircraft_register"]').val();
-            var remove_part_number = $('[name="remove_part_number"]').val();
+            // var remove_part_number = $('[name="remove_part_number"]').val();
 
             var data_send = {
                 source: source,
                 aircraft: aircraft,
-                remove_part_number:remove_part_number
+                // remove_part_number:remove_part_number
             };            
             console.log(data_send);
             if(source!='' && aircraft!=''){
