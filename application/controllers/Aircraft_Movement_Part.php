@@ -263,8 +263,7 @@ class Aircraft_Movement_Part extends MY_Controller
                 'issuance_document_number'      => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('issuance_document_number'),
                 'interval_component_install'            => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('interval_component_install'),
                 'interval_satuan_component_install'     => ($_SESSION['movement_part']['type']=='remove')? NULL:$this->input->post('interval_satuan_component_install'),               
-            );
-            
+            );            
         }
 
         redirect($this->module['route'] .'/create');
