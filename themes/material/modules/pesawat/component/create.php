@@ -29,9 +29,10 @@
                 </div>
 
                 <div class="document-data table-responsive">
-                    <table class="table table-hover table-striped" id="table-document">
+                    <table class="table table-hover table-bordered" id="table-document">
                     <thead>
                         <tr>
+                            <th rowspan="2" style="text-align:center;"></th>
                             <th rowspan="2" style="text-align:center;">P/N</th>
                             <th rowspan="2" style="text-align:center;">S/N</th>
                             <th rowspan="2" style="text-align:center;">Alt. P/N</th>
@@ -40,7 +41,6 @@
                             <th colspan="4" style="text-align:center;">Installation</th>
                             <th colspan="2" style="text-align:center;">Next Due</th>
                             <th rowspan="2" style="text-align:center;">Remarks</th>
-                            <th rowspan="2" style="text-align:center;"></th>
                         </tr>
                         <tr>  
                             <th style="text-align:center;">Date</th>
@@ -112,7 +112,7 @@
                         </a>           
                     </div>
 
-                    <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
+                    <a href="<?= site_url($module['route'] . '/discard/'.$_SESSION['component']['aircraft_id']); ?>" class="btn btn-flat btn-danger ink-reaction">
                         Discard
                     </a>
                 </div>
@@ -153,7 +153,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <input type="text" name="description" id="description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" required>
+                                            <input type="text" name="description" id="description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" data-source="<?= site_url($modules['ajax']['route'] . '/json_item_description/' . $_SESSION['receipt']['category']); ?>" required>
                                             <label for="description">Description</label>
                                         </div>
 
@@ -713,6 +713,19 @@
                         .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
                         .appendTo(ul);
                     };
+                }
+            });
+
+            $.ajax({
+                url: $('input[id="description"]').data('source'),
+                dataType: "json",
+                success: function(data) {
+                    $('input[id="description"]').autocomplete({
+                        source: function(request, response) {
+                            var results = $.ui.autocomplete.filter(data, request.term);
+                            response(results.slice(0, 10));
+                        }
+                    });
                 }
             });
         });
