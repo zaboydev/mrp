@@ -72,6 +72,7 @@ require('modules/expense_item.php');
 require('modules/deliver.php');
 require('modules/bill.php');
 require('modules/daftar_pajak.php');
+require('modules/user_position.php');
 
 //aircraft
 require('modules/pesawat.php');
