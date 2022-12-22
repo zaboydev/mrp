@@ -607,4 +607,32 @@ class Ajax_Model extends MY_Model
 
     return ($query->num_rows() > 0) ? FALSE : TRUE;
   }
+
+  public function user_position_validation($value, $old_value = NULL)
+  {
+    $this->db->from(config_item('module')['user_position']['table']);
+
+    if ($old_value !== NULL)
+      $this->db->where('UPPER(position) != ', strtoupper($old_value));
+
+    $this->db->where('UPPER(position)', strtoupper($value));
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
+
+  public function user_position_code_validation($value, $old_value = NULL)
+  {
+    $this->db->from(config_item('module')['user_position']['table']);
+
+    if ($old_value !== NULL)
+      $this->db->where('UPPER(code) != ', strtoupper($old_value));
+
+    $this->db->where('UPPER(code)', strtoupper($value));
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
 }

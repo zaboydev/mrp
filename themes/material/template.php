@@ -80,6 +80,7 @@
   <?=html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
   <?=html_script('vendors/twbs-pagination-master/jquery.twbsPagination.js') ?>
   <?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+  <?=html_script('themes/script/jquery.number.js') ?>
   
   <?php $this->load->view('material/_script') ?>
 

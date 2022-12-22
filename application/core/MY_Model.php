@@ -513,6 +513,19 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isPositionExists($position, $user_position_exception = NULL)
+  {
+    $this->db->from(config_item('module')['user_position']['table']);
+    $this->db->where('position', $position);
+
+    if ($user_position_exception !== NULL)
+      $this->db->where('position != ', $user_position_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
   
 
 }

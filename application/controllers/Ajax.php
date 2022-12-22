@@ -500,4 +500,38 @@ class Ajax extends MY_Controller
       }
     }
   }
+
+  public function user_position_validation()
+  {
+    if (array_key_exists('value', $_POST)){
+      if (array_key_exists('exception', $_POST)){
+        $exception = $this->input->post('exception');
+      } else {
+        $exception = NULL;
+      }
+
+      if ($this->model->user_position_validation($this->input->post('value'), $exception) == TRUE){
+        echo json_encode(TRUE);
+      } else {
+        echo json_encode(FALSE);
+      }
+    }
+  }
+
+  public function user_position_code_validation()
+  {
+    if (array_key_exists('value', $_POST)){
+      if (array_key_exists('exception', $_POST)){
+        $exception = $this->input->post('exception');
+      } else {
+        $exception = NULL;
+      }
+
+      if ($this->model->user_position_code_validation($this->input->post('value'), $exception) == TRUE){
+        echo json_encode(TRUE);
+      } else {
+        echo json_encode(FALSE);
+      }
+    }
+  }
 }
