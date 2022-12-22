@@ -443,6 +443,7 @@ class Internal_Delivery_Model extends MY_Model
        */
 
       $this->db->set('status', strtoupper('CLOSED'));
+      $this->db->set('vendor', strtoupper('STORES'));
       $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->where('id', $data['aircraft_mapping_id']);
       $this->db->update('tb_aircraft_mapping_parts');

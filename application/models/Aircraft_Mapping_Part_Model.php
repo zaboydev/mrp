@@ -23,6 +23,8 @@ class Aircraft_Mapping_Part_Model extends MY_Model
             'TSO',
             'Status',
             'Position',
+            'Date Send MRO',
+            'Date Line',
             'Remarks'
         );
     }
@@ -177,17 +179,11 @@ class Aircraft_Mapping_Part_Model extends MY_Model
     public function findById($id)
     {
         $this->db->where('id', $id);
-        $query = $this->db->get('tb_master_pesawat');
-        $aircraft = $query->row_array();
-        $aircraft['instrument_nf_array']  = explode(',', $aircraft['instrument_nf']);
-        $aircraft['instrument_avionic_array']  = explode(',', $aircraft['instrument_avionic']);
-        $aircraft['warehouse']  = findWarehouseByAlternateName($aircraft['base']);
 
-        $this->db->from('tb_aircraft_components');
-        $this->db->where('tb_aircraft_components.aircraft_id', $id);
-        $query = $this->db->get();
+        $query    = $this->db->get('tb_aircraft_mapping_parts');
+        $aircraft_mapping_part = $query->unbuffered_row('array');
 
-        return $aircraft;
+        return $aircraft_mapping_part;
     }
 
     public function searchComponentAircraft()

@@ -472,6 +472,16 @@ class Commercial_Invoice_Model extends MY_Model
             $this->db->set('status', 'CLOSED');
             $this->db->update('tb_internal_delivery');
           }
+
+          if($row['aircraft_mapping_id']!=NULL){
+            $this->db->set('date_send_mro', $issued_date);
+            $this->db->set('vendor', $issued_to);
+            $this->db->set('remove_aircraft_base', 'MRO');
+            $this->db->set('date_line', ($data['date_line'])? $data['date_line']:30);
+            $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->where('id', $row['aircraft_mapping_id']);
+            $this->db->update('tb_aircraft_mapping_parts');
+          }
         }
       }
 
@@ -741,8 +751,8 @@ class Commercial_Invoice_Model extends MY_Model
     $this->db->from('tb_internal_delivery_items');
     $this->db->join('tb_internal_delivery', 'tb_internal_delivery.id = tb_internal_delivery_items.internal_delivery_id');
     $this->db->where('tb_internal_delivery.category', $category);
-    // $this->db->where_in('tb_internal_delivery.status', ['APPROVED']);
-    $this->db->where_in('tb_internal_delivery_items.condition', ['UNSERVICEABLE','REJECT']);
+    $this->db->where_in('tb_internal_delivery.status', ['APPROVED']);
+    // $this->db->where_in('tb_internal_delivery_items.condition', ['UNSERVICEABLE','REJECT']);
     $this->db->where('tb_internal_delivery_items.left_received_quantity > ', 0);
     $this->db->group_by(array(
       'tb_internal_delivery_items.id',

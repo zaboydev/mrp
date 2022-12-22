@@ -39,13 +39,15 @@ class Aircraft_Mapping_Part extends MY_Controller
                 $col[] = print_string($row['remove_tsn']);
                 $col[] = print_string($row['remove_tso']); 
                 $col[] = print_string($row['status']);
-                $col[] = print_string($row['remove_aircraft_base']);
-                $col[] = print_string($row['remarks']);
+                $col[] = print_string($row['remove_aircraft_base']);    
+                $col[] = ($row['date_send_mro'])?print_date($row['date_send_mro'],'d M Y'): ' '; 
+                $col[] = ($row['date_line'])?print_string($row['date_line']).' days': '';
+                $col[] = print_string($row['vendor']);
 
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
 
-                if ($this->has_role($this->module, 'infos')){
+                if ($this->has_role($this->module, 'info')){
                     $col['DT_RowAttr']['onClick']     = '';
                     $col['DT_RowAttr']['data-id']     = $row['id'];
                     $col['DT_RowAttr']['data-target'] = '#data-modal';
@@ -183,9 +185,22 @@ class Aircraft_Mapping_Part extends MY_Controller
 
     public function info($id)
     {
-        $entity = $this->model->findById($id);
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
 
-        echo json_encode($entity);
+        if (is_granted($this->module, 'info') === FALSE){
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
+        } else {
+            $entity = $this->model->findById($id);
+
+            $this->data['entity'] = $entity;
+
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
+        }
+
+        echo json_encode($return);
     }    
 
     public function search_component_aircraft()
