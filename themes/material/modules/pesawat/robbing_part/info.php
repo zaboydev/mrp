@@ -21,45 +21,6 @@
     </div>
 
     <div class="card-body">
-        <div class="row" id="document_master">
-            <!-- <div class="col-sm-12 col-md-4 col-md-push-8">
-                <div class="well">
-                <div class="clearfix">
-                    <div class="pull-left">DOCUMENT NO.: </div>
-                    <div class="pull-right"><?=print_string($entity['document_number']);?></div>
-                </div>
-                <div class="clearfix">
-                    <div class="pull-left">DATE: </div>
-                    <div class="pull-right"><?=print_date($entity['received_date']);?></div>
-                </div>
-                <div class="clearfix">
-                    <div class="pull-left">BASE: </div>
-                    <div class="pull-right"><?=print_string($entity['warehouse']);?></div>
-                </div>
-                <div class="clearfix">
-                    <div class="pull-left">INVENTORY: </div>
-                    <div class="pull-right"><?=print_string($entity['category']);?></div>
-                </div>
-                </div>
-            </div>
-
-            <div class="col-sm-12 col-md-8 col-md-pull-4">
-                <dl class="dl-inline">
-                <dt>Received From/Consignor</dt>
-                <dd><?=$entity['received_from'];?></dd>
-
-                <dt>Received By/Consignee</dt>
-                <dd><?=$entity['received_by'];?></dd>
-
-                <dt>Known By</dt>
-                <dd><?=$entity['known_by'];?></dd>
-
-                <dt>Notes</dt>
-                <dd><?=$entity['notes'];?></dd>
-                </dl>
-            </div> -->
-        </div>
-
         <div class="row" id="document_details">
             <div class="col-sm-12">
                 <div class="table-responsive">
