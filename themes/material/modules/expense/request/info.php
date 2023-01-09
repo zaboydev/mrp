@@ -30,6 +30,10 @@
             <div class="pull-left">COST CENTER: </div>
             <div class="pull-right"><?=print_string($entity['cost_center_name']);?></div>
           </div>
+          <div class="clearfix">
+            <div class="pull-left">HEAD DEP : </div>
+            <div class="pull-right"><?=print_string($entity['head_dept']);?></div>
+          </div>
         </div>
       </div>
 
