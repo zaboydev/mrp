@@ -3141,4 +3141,44 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('findCostCenter')) {
+    function findCostCenter($annual_cost_center_id)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('cost_center_code','cost_center_name','department_id'));
+      $connection->from( 'tb_cost_centers' );
+      $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+      $connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
+
+      $query    = $connection->get();
+      $cost_center = $query->unbuffered_row('array');
+
+      // $return = '/INV/'. $category['code'] .'/'. find_budget_setting('Active Year');
+
+      //edit
+      
+
+      return $cost_center;
+    }
+  }
+
+  if ( ! function_exists('occupation_list')) {
+    function occupation_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_positions.id,tb_master_positions.code,tb_master_positions.position');
+      $CI->db->from('tb_master_positions');
+      $CI->db->order_by('tb_master_positions.position', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
     
