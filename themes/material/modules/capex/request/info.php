@@ -15,17 +15,21 @@
       <div class="col-sm-12 col-md-4 col-md-push-8">
         <div class="well">
           <div class="clearfix">
-            <div class="pull-left">DOCUMENT NO.: </div>
+            <div class="pull-left">DOCUMENT NO. : </div>
             <div class="pull-right"><?=print_string($entity['pr_number']);?></div>
           </div>
           <div class="clearfix">
-            <div class="pull-left">PR DATE: </div>
+            <div class="pull-left">PR DATE : </div>
             <div class="pull-right"><?=print_date($entity['pr_date']);?></div>
           </div>
           <!--  -->
           <div class="clearfix">
-            <div class="pull-left">COST CENTER: </div>
+            <div class="pull-left">COST CENTER : </div>
             <div class="pull-right"><?=print_string($entity['cost_center_name']);?></div>
+          </div>
+          <div class="clearfix">
+            <div class="pull-left">HEAD DEP : </div>
+            <div class="pull-right"><?=print_string($entity['head_dept']);?></div>
           </div>
         </div>
       </div>
