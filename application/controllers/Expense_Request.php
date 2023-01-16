@@ -349,6 +349,10 @@ class Expense_Request extends MY_Controller
                     $errors[] = 'Attention!! Please select one of Head Dept for Approval';
                 }
 
+                if ($_SESSION['expense']['notes']==NULL||$_SESSION['expense']['notes']=='') {
+                    $errors[] = 'Attention!! Notes is required!!';
+                }
+
                 if (!empty($errors)) {
                     $data['success'] = FALSE;
                     $data['message'] = implode('<br />', $errors);
