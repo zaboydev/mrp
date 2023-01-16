@@ -42,7 +42,7 @@
             <div class="col-sm-12 col-lg-5">
               
               <div class="form-group">
-                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['expense']['notes']; ?></textarea>
+                <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>" required><?= $_SESSION['expense']['notes']; ?></textarea>
                 <label for="notes">Notes</label>
               </div>
               <div class="form-group">
