@@ -520,6 +520,7 @@ if ( ! function_exists('available_warehouses')) {
     $CI->db->select('warehouse');
     $CI->db->from('tb_master_warehouses');
     $CI->db->where('UPPER(status)', 'AVAILABLE');
+    $CI->db->order_by('warehouse', 'asc');
 
     if ($warehouse !== NULL){
       if (is_array($warehouse)){
@@ -3148,9 +3149,10 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $connection = $CI->load->database('budgetcontrol', TRUE);
 
-      $connection->select(array('cost_center_code','cost_center_name','department_id'));
+      $connection->select(array('cost_center_code','cost_center_name','department_id', 'tb_departments.department_name'));
       $connection->from( 'tb_cost_centers' );
       $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+      $connection->join('tb_departments','tb_cost_centers.department_id=tb_departments.id');
       $connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
 
       $query    = $connection->get();
@@ -3180,5 +3182,52 @@ if (!function_exists('currency_for_vendor_list')) {
       return $result;
     }
   }
+
+  if ( ! function_exists('destination_list')) {
+    function destination_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_business_trip_destinations.*');
+      $CI->db->from('tb_master_business_trip_destinations');
+      $CI->db->order_by('tb_master_business_trip_destinations.business_trip_destination', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getUserById')) {
+    function getUserById($user_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_auth_users.*');
+      $CI->db->where('tb_auth_users.user_id',  $user_id);
+
+      $query  = $CI->db->get('tb_auth_users');
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('findUserByUsername')) {
+    function findUserByUsername($username)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_auth_users.*');
+      $CI->db->where('tb_auth_users.username',  $username);
+
+      $query  = $CI->db->get('tb_auth_users');
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
 
     

@@ -15,9 +15,9 @@ $config['module']['business_trip_request']['permission']  = array(
     'index'   => 'ADMIN,SUPER ADMIN,HR MANAGER,HEAD OF SCHOOL',
     'create'  => 'ADMIN,SUPER ADMIN',
     'import'  => 'ADMIN,SUPER ADMIN',
-    'edit'    => 'ADMIN,SUPER ADMIN',
+    'print'   => 'ADMIN,SUPER ADMIN',
     'info'    => 'ADMIN,SUPER ADMIN,HR MANAGER,HEAD OF SCHOOL',
     'save'    => 'ADMIN,SUPER ADMIN',
     'delete'  => 'ADMIN,SUPER ADMIN',
-    'approval'  => 'SUPER ADMIN,HR MANAGER,HEAD OF SCHOOL',
+    'approval'  => 'SUPER ADMIN',
 );

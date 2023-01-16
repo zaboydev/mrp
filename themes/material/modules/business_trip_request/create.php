@@ -45,8 +45,8 @@
                         <div class="form-group" style="padding-top: 25px;">
                             <select name="person_in_charge" id="person_in_charge" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_person_in_charge'); ?>" required>
                                 <option></option>
-                                <?php foreach(available_user(array('person_name', 'username')) as $user):?>
-                                <option value="<?=$user['username'];?>" <?= ($user['username'] == $_SESSION['business_trip']['person_in_charge']) ? 'selected' : ''; ?>><?=$user['person_name'];?></option>
+                                <?php foreach(available_user(array('person_name', 'username', 'user_id')) as $user):?>
+                                <option value="<?=$user['user_id'];?>" <?= ($user['user_id'] == $_SESSION['business_trip']['person_in_charge']) ? 'selected' : ''; ?>><?=$user['person_name'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="person_in_charge">Name Person in Charge</label>
@@ -74,9 +74,13 @@
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
-
-                        <div class="form-group">
-                            <input type="text" name="from" id="from" class="form-control" value="<?= $_SESSION['business_trip']['from']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_from'); ?>" required>
+                        <div class="form-group" style="padding-top: 25px;">
+                            <select name="from_base" id="from_base" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_from_base'); ?>" data-placeholder="Select Base" required>
+                                <option></option>
+                                <?php foreach(available_warehouses() as $warehouse):?>
+                                <option value="<?=$warehouse;?>" <?= ($warehouse == $_SESSION['business_trip']['from_base']) ? 'selected' : ''; ?>><?=$warehouse;?></option>
+                                <?php endforeach;?>
+                            </select>
                             <label for="from">From / Kota Asal</label>
                         </div>
 
@@ -85,8 +89,13 @@
                             <label for="transportation">Transportation / Jenis Transportasi</label>
                         </div>  
 
-                        <div class="form-group">
-                            <input type="text" name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control" value="<?= $_SESSION['business_trip']['business_trip_destination_id']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_received_by'); ?>" required>
+                        <div class="form-group" style="padding-top: 25px;">
+                            <select name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_destination'); ?>" data-placeholder="Select Destination" required>
+                                <option></option>
+                                <?php foreach(destination_list() as $destination):?>
+                                <option value="<?=$destination['id'];?>" <?= ($destination['id'] == $_SESSION['business_trip']['business_trip_destination_id']) ? 'selected' : ''; ?>><?=$destination['business_trip_destination'];?></option>
+                                <?php endforeach;?>
+                            </select>
                             <label for="tujuan_perjalanan_dinas">To / Kota Tujuan</label>
                         </div> 
                         
@@ -113,7 +122,7 @@
             </div>
 
             <div class="document-data table-responsive">
-                <table class="table table-hover table-striped" id="table-document">
+                <table class="table table-hover table-striped hide" id="table-document">
                     <thead>
                         <tr>
                             <th></th>
@@ -129,7 +138,7 @@
         </div>
         <div class="card-actionbar">
             <div class="card-actionbar-row">
-                <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left">
+                <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left hide">
                 Add
                 </button>
 
