@@ -96,3 +96,15 @@ $config['instrument_avionic'] = array(
   'ASPEN'   => 'ASPEN',
   'GNS'     => 'GNS'
 );
+
+$config['modules_for_head_dept'] = array(
+  'dashboard',
+  'Capex Request',
+  'Expense Request',
+  'Inventory Request',
+  'purchase_request',
+  'purchase_order_evaluation',
+  'Expense Order Evaluation',
+  'Capex Order Evaluation',
+  'business_trip_request'
+);

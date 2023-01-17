@@ -57,15 +57,14 @@
     <td valign="top" style="text-align:center;">
       <p>
         Requested by
-        <br />Employee
-        <br />&nbsp;<br>
-        <?php if ($entity['signers']['request by']['sign']) : ?>
-          <?=print_date($entity['signers']['request by']['date'],'d M Y');?>
+        <br />Employee<br />
+        <?php if ($entity['signers']['requested by']['sign']) : ?>
+          <?=print_date($entity['signers']['requested by']['date'],'d M Y');?>
           <br>
-          <img src="<?= base_url('ttd_user/' . $entity['signers']['request by']['sign']); ?>" width="auto" height="50">
+          <img src="<?= base_url('ttd_user/' . $entity['signers']['requested by']['sign']); ?>" width="auto" height="50">
         <?php endif; ?>
         <br />
-        <br /><?=$entity['signers']['request by']['person_name'];?>
+        <br /><?=$entity['signers']['requested by']['person_name'];?>
       </p>
     </td>
 
@@ -73,7 +72,6 @@
       <p>
         Approved by
         <br />Supervisor
-        <br />&nbsp;<br>
         <?php if ($entity['signers']['known by']['sign']) : ?>
           <?=print_date($entity['signers']['known by']['date'],'d M Y');?>
           <br>

@@ -12,7 +12,8 @@ class Business_Trip_Request extends MY_Controller
         $this->module = $this->modules['business_trip_request'];
         $this->load->model($this->module['model'], 'model');
         $this->load->helper($this->module['helper']);
-        $this->load->library('upload');
+        $this->load->library('upload');        
+        $this->load->library('email');
         $this->data['module'] = $this->module;
     }
 
@@ -42,7 +43,7 @@ class Business_Trip_Request extends MY_Controller
                 if (is_granted($this->module, 'approval')){
                     if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
+                    }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else{
                         $col[] = print_number($no);
@@ -51,6 +52,7 @@ class Business_Trip_Request extends MY_Controller
                     $col[] = print_number($no);
                 }                
                 $col[] = print_string($row['document_number']);
+                $col[] = print_string($row['status']);
                 $col[] = print_date($row['date']);
                 $col[] = print_string($cost_center['cost_center_name']);
                 $col[] = print_string($row['person_name']);
@@ -58,11 +60,22 @@ class Business_Trip_Request extends MY_Controller
                 $col[] = print_string($row['duration']);
                 $col[] = print_date($row['start_date'], 'd M Y').' s/d '.print_date($row['end_date'], 'd M Y');
                 $col[] = print_string($row['notes']);
+                if($row['status']=='approved' || $row['status']=='closed'){
+                    $col[] = '';
+                }else{
+                    if (is_granted($this->module, 'approval') === TRUE) {
+                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                    }else{
+                        $col[] = '';
+                    }
+                }
+                
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
                 
                 if ($this->has_role($this->module, 'info')){
-                    $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+                    $col['DT_RowAttr']['onClick']     = '';
+                    $col['DT_RowAttr']['data-id']     = $row['id'];
                     $col['DT_RowAttr']['data-target'] = '#data-modal';
                     $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
                 }
@@ -91,7 +104,7 @@ class Business_Trip_Request extends MY_Controller
         $this->data['page']['title']            = $this->module['label'];
         $this->data['grid']['column']           = $this->model->getSelectedColumns();
         $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
-        $this->data['grid']['fixed_columns']    = 1;
+        $this->data['grid']['fixed_columns']    = 3;
         $this->data['grid']['summary_columns']  = array();
 
         $this->data['grid']['order_columns']    = array(
@@ -528,146 +541,72 @@ class Business_Trip_Request extends MY_Controller
 
     }
 
+    public function multi_approve()
+    {
+        $document_id = $this->input->post('document_id');
+        $document_id = str_replace("|", "", $document_id);
+        $document_id = substr($document_id, 0, -1);
+        $document_id = explode(",", $document_id);
+
+        $str_notes = $this->input->post('notes');
+        $notes = str_replace("|", "", $str_notes);
+        $notes = substr($price, 0, -3);
+        $notes = explode("##,", $notes);
+
+        $total = 0;
+        $success = 0;
+        $failed = sizeof($document_id);
+        $x = 0;
+
+        $save_approval = $this->model->approve($document_id, $notes);
+        if ($save_approval['status']) {
+            $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => $save_approval['success'] . " data has been update!"
+            ));
+        }else{
+            $this->session->set_flashdata('alert', array(
+                'type' => 'danger',
+                'info' => "There are " . $save_approval['failed'] . " errors"
+            ));
+        }
+
+        if ($success > 0) {
+            $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
+            $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => $success . " data has been update!"
+            ));
+        }
+        if ($failed > 0) {
+            $this->session->set_flashdata('alert', array(
+                'type' => 'danger',
+                'info' => "There are " . $failed . " errors"
+            ));
+        }
+        
+        if ($save_approval['total'] == 0) {
+            $result['status'] = 'failed';
+        } else {
+            $result['status'] = 'success';
+        }
+        echo json_encode($result);
+    }
+
     public function import()
     {
         $this->authorized($this->module, 'import');
 
-        $this->load->library('form_validation');
-
-        if (isset($_POST) && !empty($_POST)){
-        $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
-
-        if ($this->form_validation->run() === TRUE){
-            $file       = $_FILES['userfile']['tmp_name'];
-            $delimiter  = $this->input->post('delimiter');
-
-            if (($handle = fopen($file, "r")) !== FALSE){
-            $row     = 1;
-            $data    = array();
-            $errors  = array();
-            $user_id = array();
-            $index   = 0;
-            fgetcsv($handle); // skip first line (as header)
-
-            //... parsing line
-            while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE)
-            {
-                $row++;
-
-                $category        = trim(strtoupper($col[0]));
-                $part_number            = trim(strtoupper($col[1]));
-                $serial_number               = trim(strtoupper($col[2]));
-                $condition              = trim(strtoupper($col[3]));
-                $unit            = trim(strtoupper($col[4]));
-                $description            = trim(strtoupper($col[5]));
-                $alternate_part_number          = trim(strtoupper($col[6]));
-                $group              = trim(strtoupper($col[7]));
-                $minimum_quantity               = trim(strtoupper($col[8]));
-                $stores                   = trim(strtoupper($col[9]));
-                $warehouse                = trim(strtoupper($col[10]));
-                $document_number              = trim(strtoupper($col[11]));
-                $expired_date              = trim(strtoupper($col[12]));
-                $vendor            = trim(strtoupper($col[13]));
-                $remarks  = trim(strtoupper($col[14]));
-                $received_date                  = trim(strtoupper($col[15]));
-                $received_by                 = trim(strtoupper($col[16]));
-                $received_quantity     = trim(strtoupper($col[17]));
-                $received_unit_value                  = trim(strtoupper($col[18]));
-                $purchase_order_number            = trim(strtoupper($col[19]));
-                $reference_number            = trim(strtoupper($col[20]));
-                $awb_number            = trim(strtoupper($col[21]));
-
-
-                if ($document_number == NULL)
-                $errors[] = 'Line '. $row .': Document Number is empty!';
-                
-                
-
-                if ($received_date == NULL)
-                $errors[] = 'Line '. $row .': Received Date is empty!';
-
-                if ($warehouse == NULL)
-                $errors[] = 'Line '. $row .': Base is empty!';
-
-                if (isWarehouseExists($warehouse) == FALSE)
-                $errors[] = 'Line '. $row .': Base '.$warehouse.'not found!';
-
-                if ($category == NULL)
-                $errors[] = 'Line '. $row .': Category is empty!';
-
-                if (isItemCategoryExists($category) == FALSE)
-                $errors[] = 'Line '. $row .': Category not found!';
-
-                if ($part_number == NULL){
-                $errors[] = 'Line '. $row .': Part Number is empty!';
-                } 
-
-                if ($stores == NULL){
-                $errors[] = 'Line '. $row .': Issued Stores is empty!';
-                } else {
-                if (isStoresExists($stores, $category) === FALSE){
-                    $errors[] = 'Line '. $row .$stores.': Stores not found!';
-                }
-                }
-
-                $data[$row]['category']                    = $category;
-                $data[$row]['part_number']                 = $part_number;
-                $data[$row]['serial_number']               = $serial_number;
-                $data[$row]['condition']                   = $condition;
-                $data[$row]['unit']                        = $unit;
-                $data[$row]['description']                 = $description;
-                $data[$row]['alternate_part_number']       = $alternate_part_number;
-                $data[$row]['group']                       = $group;
-                $data[$row]['minimum_quantity']            = $minimum_quantity;
-                $data[$row]['stores']                      = $stores;
-                $data[$row]['warehouse']                   = $warehouse;
-                $data[$row]['document_number']             = $document_number;
-                $data[$row]['expired_date']                = $expired_date;
-                $data[$row]['vendor']                      = $vendor;
-                $data[$row]['remarks']                     = $remarks;
-                $data[$row]['received_date']               = $received_date;
-                $data[$row]['received_by']                 = $received_by;
-                $data[$row]['received_quantity']           = $received_quantity;
-                $data[$row]['received_unit_value']         = $received_unit_value;
-                $data[$row]['purchase_order_number']       = $purchase_order_number;
-                $data[$row]['reference_number']            = $reference_number;
-                $data[$row]['awb_number']                  = $awb_number;
-
-            }
-            fclose($handle);
-
-            if (empty($errors)){
-                /**
-                 * Insert into user table
-                 */
-                if ($this->model->import($data)){
-                //... send message to view
-                $this->session->set_flashdata('alert', array(
-                    'type' => 'success',
-                    'info' => count($data)." data has been imported!"
-                ));
-
-                redirect($this->module['route']);
-                }
-            } else {
-                foreach ($errors as $key => $value){
-                $err[] = "\n#". $value;
-                }
-
-                $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are errors on data\n#". implode("\n#", $errors)
-                ));
-            }
-            } else {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => 'Cannot open file!'
-            ));
-            }
-        }
-        }
 
         redirect($this->module['route']);
     }  
+
+    public function test()
+    {
+        // $data = $this->model->send_mail(6,'head_dept','request');
+        $data = get_travel_on_duty_last_number();
+        
+        // $result['status'] = $send;
+        echo json_encode($data);
+    }
 }

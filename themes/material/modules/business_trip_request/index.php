@@ -14,31 +14,69 @@
 
 <?php startblock('actions_right') ?>
 <div class="section-floating-action-row">
-    <?php if (is_granted($module, 'create')) : ?>
-    <div class="btn-group dropup">
-        <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-            <i class="md md-add"></i>
-            <small class="top right">Create <?= $module['label']; ?></small>
-        </button>
+  <?php if (is_granted($module, 'approval')) : ?>
+  <div class="btn-group dropup">
+    <button type="button" data-source="<?= site_url($module['route'] . '/multi_reject/'); ?>" class="btn btn-floating-action btn-md btn-danger btn-tooltip ink-reaction" id="modal-reject-data-button-multi">
+      <i class="md md-clear"></i>
+      <small class="top right">reject</small>
+    </button>
+  </div>
+  <div class="btn-group dropup">
+    <button type="button" data-source="<?= site_url($module['route'] . '/multi_approve/'); ?>" class="btn btn-floating-action btn-lg btn-primary btn-tooltip ink-reaction" id="modal-approve-data-button-multi">
+      <i class="md md-spellcheck"></i>
+      <small class="top right">approve</small>
+    </button>
+  </div>
+  <?php endif ?>
+  <?php if (is_granted($module, 'create')) : ?>
+  <div class="btn-group dropup">
+    <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
+      <i class="md md-add"></i>
+      <small class="top right">Create <?= $module['label']; ?></small>
+    </button>
 
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-            <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
-            <li>
-                <a href="<?= site_url($module['route'] . '/create/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
-            </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>    
-    <?php endif ?>
+    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+      <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
+      <li>
+        <a href="<?= site_url($module['route'] . '/create/' . $annual_cost_center['id']); ?>"><?= $annual_cost_center['cost_center_name']; ?></a>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+  </div>    
+  <?php endif ?>
 </div>
 <?php endblock() ?>
 
 <?php startblock('datafilter') ?>
 <div class="form force-padding">
-    <div class="form-group">
-        <label for="filter_received_date">Received Date</label>
-        <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
-    </div>
+  <div class="form-group">
+    <label for="filter_received_date">Date</label>
+    <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+  </div>
+
+  <div class="form-group">
+    <label for="filter_status">Status</label>
+    <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
+      <option value="all">
+        All Status
+      </option>
+      <option value="WAITING APPROVAL BY HEAD DEPT" <?php if (config_item('as_head_department')=='yes'):echo 'selected'; endif;?>>
+        Waiting Approval By Head Dept
+      </option>
+      <option value="WAITING APPROVAL BY HR MANAGER" <?php if (in_array(config_item('auth_username'),list_username_in_head_department(11))):echo 'selected'; endif;?>>
+        Waiting Approval By HR Manager
+      </option>
+      <option value="<?php strtoupper('Approved');?>">
+        Approved
+      </option>
+      <option value="<?php strtoupper('Rejected');?>">
+        Rejected
+      </option>
+      <option value="<?php strtoupper('Closed');?>">
+        Closed
+      </option>
+    </select>
+  </div>
 </div>
 <?php endblock() ?>
 
@@ -103,6 +141,8 @@
   });
 
   $('.select2').select2();
+
+  var document_id = "";
 
   (function($) {
     $.fn.reset = function() {
@@ -278,6 +318,19 @@
         if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
           $(row).addClass('selected');
         }
+      },
+      drawCallback: function(settings) {
+        var api = this.api();
+        var data = api.rows({
+          page: 'current'
+        }).data()
+        $.each(data, function(i, item) {
+          var id = $(item[0]).attr("data-id");
+          if (document_id.indexOf("|" + id + ",") !== -1) {
+            $("#cb_" + id).attr('checked', true);
+          }
+        });
+
       },
 
       columnDefs: [{
@@ -555,6 +608,90 @@
 
       button.attr('disabled', false);
     });
+
+    $("#modal-approve-data-button-multi").click(function() {
+      var action = $(this).data('source');
+      encodeNotes()
+      $(this).attr('disabled', true);
+      $("#modal-reject-data-button-multi").attr('disabled', true);
+      if (document_id !== "") {
+        $.post(action, {
+          'document_id': document_id,
+          'notes': notes
+        }).done(function(data) {
+          console.log(data);
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+          $("#modal-reject-data-button-multi").attr('disabled', false);
+          var result = jQuery.parseJSON(data);
+          if (result.status == 'success') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success('Success aprove data the page will reload');
+            window.location.reload();
+          } else {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error('Failed aprove data');
+          }
+        }).fail(function() {
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+          $("#modal-reject-data-button-multi").attr('disabled', false);
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Delete Failed! This data is still being used by another document.');
+        });
+      } else {
+        $(this).attr('disabled', false);
+        $("#modal-reject-data-button-multi").attr('disabled', false);
+        toastr.options.timeOut = 10000;
+        toastr.options.positionClass = 'toast-top-right';
+        toastr.error('Empty selected data');
+      }
+    });
+
+    $(datatableElement).find('tbody').on('click', 'tr', function(e) {
+      console.log(e.target.nodeName);
+      if (e.target.nodeName === "INPUT") {
+        if ($(e.target).attr("type") === "checkbox") {
+          if ($(e.target).prop('checked')) {
+            document_id += "|" + $(e.target).attr('data-id') + ",";
+          } else {
+            document_id = document_id.replace("|" + $(this).attr('data-id') + ",", "");
+          }
+        }
+
+      } else if (e.target.nodeName === "SPAN") {
+        var a = $(e.target).data('id');
+        console.log(e.target.nodeName);
+      }else if (e.target.nodeName === "I") {
+        var id = $(this).attr('data-id');
+        getAttachment(id);
+      } else {
+        $(this).popup();
+      }
+      console.log(document_id);
+    });
+
+    function encodeNotes() {
+      new_document_id = document_id.replace(/\|/g, "");
+      new_document_id = new_document_id.substring(0, new_document_id.length - 1);
+      arr = new_document_id.split(",");
+      notes = "";
+      y = 0;
+      $.each(arr, function(i, x) {
+        if ($("#note_" + x).val() != "") {
+          notes = notes + "|" + $("#note_" + x).val() + "##,";
+          y += 1;
+        } else {
+          return false;
+        }
+      });
+      if (y == arr.length) {
+        return true
+      } else {
+        return false
+      }
+    }
   });
 </script>
 

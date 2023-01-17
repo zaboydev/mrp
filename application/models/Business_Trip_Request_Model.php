@@ -13,17 +13,20 @@ class Business_Trip_Request_Model extends MY_Model
 
     public function getSelectedColumns()
     {
-        return array(
+        $return = array(
             'No',
             'Document Number',
+            'Status',
             'Document Date',
             'Department',
             'Person in Charge',
             'Destination',
             'Duration',
             'Date',
-            'Notes'
+            'Purpose',
+            'Approval Notes'
         );
+        return $return;
     }
 
     public function getSearchableColumns()
@@ -48,6 +51,30 @@ class Business_Trip_Request_Model extends MY_Model
 
     private function searchIndex()
     {
+        if (!empty($_POST['columns'][1]['search']['value'])){
+            $search_required_date = $_POST['columns'][1]['search']['value'];
+            $range_date  = explode(' ', $search_required_date);
+
+            $this->db->where('tb_business_trip_purposes.date >= ', $range_date[0]);
+            $this->db->where('tb_business_trip_purposes.date <= ', $range_date[1]);
+        }
+
+        if (!empty($_POST['columns'][2]['search']['value'])){
+            $search_status = $_POST['columns'][2]['search']['value'];
+
+            if($search_status!='all'){
+                $this->db->where('tb_business_trip_purposes.status', $search_status);         
+            }            
+        }else{    
+            if (config_item('as_head_department')=='yes'){
+                $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
+                $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
+            }
+            elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
+                $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HR MANAGER');
+            }
+        }
+
         $i = 0;
 
         foreach ($this->getSearchableColumns() as $item){
@@ -254,6 +281,8 @@ class Business_Trip_Request_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return FALSE;
 
+        $this->send_mail($document_id,'head_dept','request');
+
         $this->db->trans_commit();
         return TRUE;
     }
@@ -317,5 +346,157 @@ class Business_Trip_Request_Model extends MY_Model
         $row    = $query->unbuffered_row('array');
         
         return $row['expense_amount'];
+    }
+
+    public function approve($document_id,$approval_notes)
+    {
+        $this->db->trans_begin();
+
+        $total      = 0;
+        $success    = 0;
+        $failed     = sizeof($document_id);
+        $x          = 0;
+
+        foreach ($document_id as $id) {
+            $selected = array(
+                'tb_business_trip_purposes.*',
+                'tb_master_business_trip_destinations.business_trip_destination'
+            );
+            $this->db->select($selected);
+            $this->db->where('tb_business_trip_purposes.id', $id);
+            $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+            $query      = $this->db->get('tb_business_trip_purposes');
+            $spd        = $query->unbuffered_row('array');
+
+            $cost_center = findCostCenter($spd['annual_cost_center_id']);
+            $cost_center_code = $cost_center['cost_center_code'];
+            $cost_center_name = $cost_center['cost_center_name'];
+            $department_name = $cost_center['department_name'];
+
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+                $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
+                $this->db->set('known_by',config_item('auth_person_name'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_business_trip_purposes');
+
+                $this->db->set('document_type','SPD');
+                $this->db->set('document_number',$spd['document_number']);
+                $this->db->set('document_id', $id);
+                $this->db->set('action','known by');
+                $this->db->set('date', date('Y-m-d'));
+                $this->db->set('username', config_item('auth_username'));
+                $this->db->set('person_name', config_item('auth_person_name'));
+                $this->db->set('roles', config_item('auth_role'));
+                $this->db->set('notes', $approval_notes[$x]);
+                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_signers');
+
+            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
+                
+            }
+            $total++;
+            $success++;
+            $failed--;
+        }
+
+        
+
+        if ($this->db->trans_status() === FALSE)
+            return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
+
+        $this->send_mail($document_id, 'hr_manager');
+
+        $this->db->trans_commit();
+        return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
+    }
+
+    public function send_mail($doc_id,$next_approval,$tipe='request')
+    {
+        if($next_approval=='hr_manager'){
+            $recipientList = getNotifRecipientHrManager();
+            $keterangan = 'HR Manager';
+        }elseif($next_approval=='head_dept'){
+            $selected = array(
+                'tb_business_trip_purposes.*',
+            );
+            $this->db->select($selected);
+            $this->db->where('tb_business_trip_purposes.id',$doc_id);
+            $query      = $this->db->get('tb_business_trip_purposes');
+            $row        = $query->unbuffered_row('array');
+            $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
+            $keterangan = "Head Dept : " . $department['department_name'];
+
+            $recipientList = getNotifRecipient_byUsername($row['head_dept']);
+        }
+
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key['email']);
+        }
+
+        if(!empty($recipient)){
+            $selected = array(
+                'tb_business_trip_purposes.*',
+                'tb_master_business_trip_destinations.business_trip_destination'
+            );
+            $this->db->select($selected);
+            $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+            if(is_array($doc_id)){
+                $this->db->where_in('tb_business_trip_purposes.id',$doc_id);
+            }else{
+                $this->db->where('tb_business_trip_purposes.id',$doc_id);
+            }
+            $query      = $this->db->get('tb_business_trip_purposes');
+    
+            $item_message = '<tbody>';
+            foreach ($query->result_array() as $key => $item) {
+                $item_message .= "<tr>";
+                $item_message .= "<td>" . print_date($item['date']) . "</td>";
+                $item_message .= "<td>" . $item['document_number'] . "</td>";
+                $item_message .= "<td>" . $item['person_name'] . "</td>";
+                $item_message .= "<td>" . $item['business_trip_destination'] . "</td>";
+                $item_message .= "<td>" . print_date($item['start_date'],'d M Y').' s/d '.print_date($item['end_date'],'d M Y') . "</td>";
+                $item_message .= "</tr>";
+            }
+            $item_message .= '</tbody>';
+
+            $this->load->library('email');
+            $this->email->set_newline("\r\n");
+            $from_email = "bifa.acd@gmail.com";
+            $to_email = "aidanurul99@rocketmail.com";
+            $message = "<p>Dear ".$keterangan."</p>";
+            $message .= "<p>SPD Berikut perlu Persetujuan Anda </p>";
+            $message .= "<table class='table'>";
+            $message .= "<thead>";
+            $message .= "<tr>";
+            $message .= "<th>Date</th>";
+            $message .= "<th>No. SPD</th>";
+            $message .= "<th>Name</th>";
+            $message .= "<th>Destination</th>";
+            $message .= "<th>Duration</th>";
+            $message .= "</tr>";
+            $message .= "</thead>";
+            $message .= $item_message;
+            $message .= "</table>";
+            $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+            $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+            $message .= "<p>Thanks and regards</p>";
+            $this->email->from($from_email, 'Material Resource Planning');
+            $this->email->to($recipient);
+            $this->email->subject('Permintaan Approval SPD');
+            $this->email->message($message);
+            
+    
+            // Send mail 
+            if ($this->email->send())
+              return true;
+            else
+              return $this->email->print_debugger();
+        }else{
+            return true;
+        }
+
+        
     }
 }

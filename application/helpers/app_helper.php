@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'||$module['route']=='expense_order_evaluation'||$module['route']=='capex_order_evaluation'){
+          if(in_array($module['name'],config_item('modules_for_head_dept'))){
             return TRUE;
           }else{
             return FALSE;
@@ -774,7 +774,7 @@ if ( ! function_exists('available_modules')) {
           $results[$module['parent']][] = $module;
       }else{
         if($head_dept=='yes'){
-          if($key=='capex_request'||$key=='expense_request'||$key=='inventory_request'||$key=='purchase_request'){
+          if(in_array($module['name'],config_item('modules_for_head_dept')) && $visible == TRUE){
             if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
               $results[$module['parent']][] = $module;
           }
@@ -3226,6 +3226,30 @@ if (!function_exists('currency_for_vendor_list')) {
       $result = $query->unbuffered_row('array');
 
       return $result;
+    }
+  }
+
+  if ( ! function_exists('list_username_in_head_department')) {
+    function list_username_in_head_department($department_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_head_department.username,tb_auth_users.person_name');
+      $CI->db->from('tb_head_department');
+      $CI->db->join('tb_auth_users','tb_auth_users.username=tb_head_department.username');
+      $CI->db->where('tb_head_department.department_id', $department_id);
+      $CI->db->where('tb_head_department.status', 'active');
+      $CI->db->order_by('tb_head_department.username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      
+      $return = array();
+      foreach ($result as $key) {
+        $return[] = $key['username'];
+      }
+
+      return $return;
     }
   }
 
