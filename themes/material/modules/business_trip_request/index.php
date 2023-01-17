@@ -66,14 +66,17 @@
       <option value="WAITING APPROVAL BY HR MANAGER" <?php if (in_array(config_item('auth_username'),list_username_in_head_department(11))):echo 'selected'; endif;?>>
         Waiting Approval By HR Manager
       </option>
-      <option value="<?php strtoupper('Approved');?>">
+      <option value="APPROVED">
         Approved
       </option>
-      <option value="<?php strtoupper('Rejected');?>">
+      <option value="REJECTED">
         Rejected
       </option>
-      <option value="<?php strtoupper('Closed');?>">
+      <option value="CLOSED">
         Closed
+      </option>
+      <option value="REVISED">
+        Revised
       </option>
     </select>
   </div>
@@ -692,6 +695,61 @@
         return false
       }
     }
+
+    $("#modal-reject-data-button-multi").click(function() {
+      var action = $(this).data('source');
+      $(this).attr('disabled', true);
+      $("#modal-approve-data-button-multi").attr('disabled', true);
+      if (!encodeNotes()) {
+        $(this).attr('disabled', false);
+        $("#modal-approve-data-button-multi").attr('disabled', false);
+        toastr.options.timeOut = 10000;
+        toastr.options.positionClass = 'toast-top-right';
+        toastr.error('You must filled notes for each item that you want to reject');
+      } 
+      else {
+        if (document_id == "") {
+          $(this).attr('disabled', false);
+          $("#modal-approve-data-button-multi").attr('disabled', false);
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('You must select item that you want to reject');
+        } else {
+          $.ajax({
+            type: "POST",
+            url: action,
+            data: {
+              "document_id": document_id,
+              "notes": notes,
+            },
+            cache: false,
+            success: function(response) {
+              console.log(response);
+              var data = jQuery.parseJSON(response);
+              if (data.status == "success") {
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.success('Successfully reject item, the page will reload now');
+                window.location.reload();
+              } else {
+                toastr.options.timeOut = 10000;
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.error('Failed rejected item');
+              }
+              $(this).attr('disabled', false);
+              $("#modal-approve-data-button-multi").attr('disabled', false);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+              $(this).attr('disabled', false);
+              $("#modal-approve-data-button-multi").attr('disabled', false);
+              console.log(xhr.status);
+              console.log(xhr.responseText);
+              console.log(thrownError);
+            }
+          });
+        }
+      }
+    });
   });
 </script>
 

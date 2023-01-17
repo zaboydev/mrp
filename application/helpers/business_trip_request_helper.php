@@ -77,5 +77,23 @@ if ( ! function_exists('get_travel_on_duty_last_number')) {
 
     return $row;
   }
+
+  if ( ! function_exists('get_count_revisi')) {
+    function get_count_revisi($document_number)
+    {
+      $CI =& get_instance();
+
+  
+      $CI->db->select('document_number');
+      $CI->db->from('tb_business_trip_purposes');
+      $CI->db->like('document_number', $document_number, 'both');
+  
+      $query  = $CI->db->get();
+      $row    = $query->num_rows();
+      $return = $row;
+  
+      return $return;
+    }
+  }
 }
 

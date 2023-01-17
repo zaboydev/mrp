@@ -39,6 +39,17 @@
             <dt>Status</dt>
             <dd><?=$entity['status'];?></dd>
 
+            <?php if($entity['status']=='REJECTED'):?>
+              <dt>Rejected By</dt>
+              <dd><?=($entity['rejected_by']==null)? 'N/A':print_string($entity['rejected_by']);?></dd>
+            <?php else:?>
+              <dt>Known By</dt>
+              <dd><?=($entity['known_by']==null)? 'N/A':print_string($entity['known_by']);?></dd>
+
+              <dt>Approved By</dt>
+              <dd><?=($entity['approved_by']==null)? 'N/A':print_string($entity['approved_by']);?></dd>
+            <?php endif;?>
+
             <dt>Supervisor/Atasan</dt>
             <dd><?=$entity['head_dept_name'];?></dd>
 

@@ -213,13 +213,37 @@ class Business_Trip_Request_Model extends MY_Model
 
         // DELETE OLD DOCUMENT
         if (isset($_SESSION['business_trip']['id'])) {
+            $id = $_SESSION['business_trip']['id'];
 
+            $this->db->select('*');
+            $this->db->where('id', $id);
+            $this->db->from('tb_business_trip_purposes');
+
+            $query = $this->db->get();
+            $row   = $query->unbuffered_row('array');
+            
+            $this->db->set('status','REVISED');
+            $this->db->where('id', $_SESSION['business_trip']['id']);
+            $this->db->update('tb_business_trip_purposes');
+
+            $this->db->set('document_type','SPD');
+            $this->db->set('document_number',$row['document_number']);
+            $this->db->set('document_id', $id);
+            $this->db->set('action','revised by');
+            $this->db->set('date', $date);
+            $this->db->set('username', config_item('auth_username'));
+            $this->db->set('person_name', config_item('auth_person_name'));
+            $this->db->set('roles', config_item('auth_role'));
+            $this->db->set('notes', null);
+            $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+            $this->db->set('created_at', date('Y-m-d H:i:s'));
+            $this->db->insert('tb_signers');
         }
 
         // CREATE NEW DOCUMENT
-        $document_id      = (isset($_SESSION['business_trip']['id'])) ? $_SESSION['business_trip']['id'] : NULL;
+        // $document_id      = (isset($_SESSION['business_trip']['id'])) ? $_SESSION['business_trip']['id'] : NULL;
         $document_edit    = (isset($_SESSION['business_trip']['edit'])) ? $_SESSION['business_trip']['edit'] : NULL;
-        $document_number  = sprintf('%06s', $_SESSION['business_trip']['document_number']) . travel_on_duty_format_number();
+        $document_number  = sprintf('%06s', $_SESSION['business_trip']['document_number']) . $_SESSION['business_trip']['format_number'];
         $date             = $_SESSION['business_trip']['date'];
         $cost_center_code           = $_SESSION['business_trip']['cost_center_code'];
         $cost_center_name           = $_SESSION['business_trip']['cost_center_name'];
@@ -406,6 +430,69 @@ class Business_Trip_Request_Model extends MY_Model
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
         $this->send_mail($document_id, 'hr_manager');
+
+        $this->db->trans_commit();
+        return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
+    }
+
+    public function reject($document_id,$approval_notes)
+    {
+        $this->db->trans_begin();
+
+        $total      = 0;
+        $success    = 0;
+        $failed     = sizeof($document_id);
+        $x          = 0;
+
+        foreach ($document_id as $id) {
+            $selected = array(
+                'tb_business_trip_purposes.*',
+                'tb_master_business_trip_destinations.business_trip_destination'
+            );
+            $this->db->select($selected);
+            $this->db->where('tb_business_trip_purposes.id', $id);
+            $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+            $query      = $this->db->get('tb_business_trip_purposes');
+            $spd        = $query->unbuffered_row('array');
+
+            $cost_center = findCostCenter($spd['annual_cost_center_id']);
+            $cost_center_code = $cost_center['cost_center_code'];
+            $cost_center_name = $cost_center['cost_center_name'];
+            $department_name = $cost_center['department_name'];
+
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+                $this->db->set('status','REJECTED');
+                $this->db->set('rejected_by',config_item('auth_person_name'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_business_trip_purposes');
+
+                $this->db->set('document_type','SPD');
+                $this->db->set('document_number',$spd['document_number']);
+                $this->db->set('document_id', $id);
+                $this->db->set('action','rejected by');
+                $this->db->set('date', date('Y-m-d'));
+                $this->db->set('username', config_item('auth_username'));
+                $this->db->set('person_name', config_item('auth_person_name'));
+                $this->db->set('roles', config_item('auth_role'));
+                $this->db->set('notes', $approval_notes[$x]);
+                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_signers');
+
+            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
+                
+            }
+            $total++;
+            $success++;
+            $failed--;
+        }
+
+        
+
+        if ($this->db->trans_status() === FALSE)
+            return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
+
+        // $this->send_mail($document_id, 'hr_manager');
 
         $this->db->trans_commit();
         return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];

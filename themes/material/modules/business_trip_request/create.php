@@ -23,7 +23,7 @@
                                     <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['business_trip']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
                                     <label for="document_number">Document No.</label>
                                 </div>
-                                <span class="input-group-addon"><?= travel_on_duty_format_number(); ?></span>
+                                <span class="input-group-addon"><?= $_SESSION['business_trip']['format_number']; ?></span>
                             </div>
                         </div>
 

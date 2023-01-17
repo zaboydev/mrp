@@ -52,6 +52,13 @@
 
 <div class="clear"></div>
 
+<?php if ($entity['signers']['rejected by']['person_name']) : ?>
+Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=print_date($entity['signers']['rejected by']['date'],'d M Y');?>
+<?php endif; ?>
+<div class="clear"></div>
+
+<?php if($entity['status']!='REJECTED' && $entity['status']!='REVISED'):?>
+
 <table class="condensed" style="margin-top: 20px;" width="100%">
   <tr>
     <td valign="top" style="text-align:center;">
@@ -98,3 +105,4 @@
     </td>
   </tr>
 </table>
+<?php endif; ?>
