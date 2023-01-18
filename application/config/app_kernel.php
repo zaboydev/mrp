@@ -77,6 +77,7 @@ require('modules/bill.php');
 require('modules/daftar_pajak.php');
 require('modules/user_position.php');
 require('modules/tujuan_perjalanan_dinas.php');
+require('modules/employee.php');
 
 //business trip
 require('modules/business_trip_request.php');

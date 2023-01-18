@@ -3172,7 +3172,7 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
 
-      $CI->db->select('tb_master_positions.id,tb_master_positions.code,tb_master_positions.position');
+      $CI->db->select('tb_master_positions.*');
       $CI->db->from('tb_master_positions');
       $CI->db->order_by('tb_master_positions.position', 'ASC');
 
@@ -3250,6 +3250,41 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       return $return;
+    }
+  }
+
+  if ( ! function_exists('available_department')) {
+    function available_department()
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_departments.*'));
+      $connection->from( 'tb_departments' );
+
+      $query  = $connection->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getDepartmentById')) {
+    function getDepartmentById($id)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_departments.*'));
+      $connection->from( 'tb_departments' );
+      $connection->where('id', $id);
+
+      $query  = $connection->get();
+      $result = $query->unbuffered_row('array');
+
+      return $result;
     }
   }
 
