@@ -7,7 +7,7 @@
 
 <div class="card style-default-bright">
     <div class="card-head style-primary-dark">
-        <header>Edit <?= $module['label']; ?></header>
+        <header><span id="header_text">Info</span> <?= $module['label']; ?></header>
 
         <div class="tools">
             <div class="btn-group">
@@ -243,6 +243,7 @@
             $('#view-form-edit').removeClass('hide');
             $('#document_master').addClass('hide');
             $('#modal-edit-data-button').addClass('hide');
+            $('#header_text').html('Edit');
         }
     });
 </script>
