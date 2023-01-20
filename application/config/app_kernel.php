@@ -81,6 +81,7 @@ require('modules/employee.php');
 
 //business trip
 require('modules/business_trip_request.php');
+require('modules/reimbursement.php');
 
 //aircraft
 require('modules/pesawat.php');

@@ -108,3 +108,10 @@ $config['modules_for_head_dept'] = array(
   'Capex Order Evaluation',
   'business_trip_request'
 );
+
+$config['type_reimbursement'] = array(
+  'Duty Allowance'  => 'Duty Allowance',
+  'Ticket'          => 'Ticket',
+  'Medical'         => 'Medical',
+  'Others'          => 'Others'
+);
