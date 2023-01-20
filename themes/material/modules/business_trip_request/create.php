@@ -45,8 +45,8 @@
                         <div class="form-group" style="padding-top: 25px;">
                             <select name="person_in_charge" id="person_in_charge" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_person_in_charge'); ?>" required>
                                 <option></option>
-                                <?php foreach(available_user(array('person_name', 'username', 'user_id')) as $user):?>
-                                <option value="<?=$user['user_id'];?>" <?= ($user['user_id'] == $_SESSION['business_trip']['person_in_charge']) ? 'selected' : ''; ?>><?=$user['person_name'];?></option>
+                                <?php foreach(available_employee($_SESSION['business_trip']['department_id']) as $user):?>
+                                <option data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['business_trip']['person_in_charge']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="person_in_charge">Name Person in Charge</label>
@@ -528,6 +528,12 @@
             $.get(url, {
                 data: val
             });
+        });
+
+        $('#person_in_charge').change(function () {
+            var employee_number = $('#person_in_charge').val();                        
+            var position = $('#person_in_charge option:selected').data('position');  
+            $('#occupation').val(position).trigger('change');
         });
     });
 </script>
