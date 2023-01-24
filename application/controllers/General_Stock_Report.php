@@ -39,7 +39,7 @@ class General_Stock_Report extends MY_Controller
     if (isset($_POST['condition']) && $_POST['condition'] !== NULL){
       $condition  = $_POST['condition'];
     } else {
-      $condition  = "SERVICEABLE";
+      $condition  = "all condition";
     }
 
     if (isset($_POST['category']) && $_POST['category'] !== NULL){
@@ -76,7 +76,7 @@ class General_Stock_Report extends MY_Controller
     $this->render_view($this->module['view'] .'/index');
   }
 
-  public function index_data_source($condition = 'SERVICEABLE', $warehouse='ALL BASES', $category = 'all', $start_date = NULL, $end_date = NULL)
+  public function index_data_source($condition = 'all condition', $warehouse='ALL BASES', $category = 'all', $start_date = NULL, $end_date = NULL)
   {
     $this->authorized($this->module, 'index');
 
@@ -85,6 +85,13 @@ class General_Stock_Report extends MY_Controller
     } 
     else {
       $warehouse = urldecode($warehouse);
+    }
+
+    if ($condition !== NULL){
+      $condition = (urldecode($condition) === 'all condition') ? NULL : urldecode($condition);
+    } 
+    else {
+      $condition = urldecode($condition);
     }
 
     // if ($category !== NULL){
@@ -134,6 +141,7 @@ class General_Stock_Report extends MY_Controller
       $col[] = print_string($row['part_number']);
       $col[] = print_string($row['serial_number']);
       $col[] = print_string($row['description']);
+      $col[] = print_string($row['condition']);
       $col[] = print_string($row['kode_stok']);	  
       $col[] = print_string($row['coa']);
       $col[] = print_number($row['qty'], 2);
