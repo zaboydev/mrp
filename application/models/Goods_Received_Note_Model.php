@@ -135,9 +135,9 @@ class Goods_Received_Note_Model extends MY_Model
     }
 
     if (!empty($_POST['columns'][4]['search']['value'])) {
-      $search_description = $_POST['columns'][4]['search']['value'];
+      $search_condition = $_POST['columns'][4]['search']['value'];
 
-      $this->db->like('UPPER(tb_master_items.description)', strtoupper($search_description));
+      $this->db->where('UPPER(tb_stocks.condition)', strtoupper($search_condition));
     }
 
     if (!empty($_POST['columns'][5]['search']['value'])) {
@@ -154,15 +154,15 @@ class Goods_Received_Note_Model extends MY_Model
     }
 
     if (!empty($_POST['columns'][6]['search']['value'])) {
-      $search_part_number = $_POST['columns'][6]['search']['value'];
+      $search_description = $_POST['columns'][6]['search']['value'];
 
-      $this->db->like('UPPER(tb_master_items.part_number)', strtoupper($search_part_number));
+      $this->db->like('UPPER(tb_master_items.description)', strtoupper($search_description));
     }
 
     if (!empty($_POST['columns'][7]['search']['value'])) {
-      $search_condition = $_POST['columns'][7]['search']['value'];
+      $search_part_number = $_POST['columns'][7]['search']['value'];
 
-      $this->db->like('UPPER(tb_stocks.condition)', strtoupper($search_condition));
+      $this->db->like('UPPER(tb_stocks.part_number)', strtoupper($search_part_number));
     }
 
     if (!empty($_POST['columns'][8]['search']['value'])) {
