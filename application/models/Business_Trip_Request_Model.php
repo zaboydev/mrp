@@ -212,6 +212,7 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->trans_begin();
 
         // DELETE OLD DOCUMENT
+        
         if (isset($_SESSION['business_trip']['id'])) {
             $id = $_SESSION['business_trip']['id'];
 
@@ -230,14 +231,21 @@ class Business_Trip_Request_Model extends MY_Model
             $this->db->set('document_number',$row['document_number']);
             $this->db->set('document_id', $id);
             $this->db->set('action','revised by');
-            $this->db->set('date', $date);
+            $this->db->set('date', date('Y-m-d'));
             $this->db->set('username', config_item('auth_username'));
             $this->db->set('person_name', config_item('auth_person_name'));
             $this->db->set('roles', config_item('auth_role'));
-            $this->db->set('notes', null);
+            $this->db->set('notes', $_SESSION['business_trip']['approval_notes']);
             $this->db->set('sign', get_ttd(config_item('auth_person_name')));
             $this->db->set('created_at', date('Y-m-d H:i:s'));
             $this->db->insert('tb_signers');
+
+            $this->db->select('*');
+            $this->db->from('tb_signers');
+            $this->db->where('tb_signers.document_number', $row['document_number']);
+            $this->db->where('tb_signers.action','requested by');
+            $querygetSignRequestBy = $this->db->get();
+            $getSignRequestBy   = $querygetSignRequestBy->unbuffered_row('array');
         }
 
         // CREATE NEW DOCUMENT
@@ -283,7 +291,11 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->set('end_date', $end_date);
         $this->db->set('head_dept', $head_dept);
         $this->db->set('notes', $notes);
-        $this->db->set('request_by', config_item('auth_person_name'));
+        if (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve') {
+            $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
+            $this->db->set('known_by',config_item('auth_person_name'));
+        }
+        $this->db->set('request_by', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$row['request_by']:config_item('auth_person_name'));
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('updated_by', config_item('auth_person_name'));
         $this->db->insert('tb_business_trip_purposes');
@@ -294,18 +306,60 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->set('document_id', $document_id);
         $this->db->set('action','requested by');
         $this->db->set('date', $date);
-        $this->db->set('username', config_item('auth_username'));
-        $this->db->set('person_name', config_item('auth_person_name'));
-        $this->db->set('roles', config_item('auth_role'));
+        $this->db->set('username', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?config_item('auth_username'):$getSignRequestBy['username']);
+        $this->db->set('person_name', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?config_item('auth_person_name'):$getSignRequestBy['person_name']);
+        $this->db->set('roles', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?config_item('auth_role'):$getSignRequestBy['roles']);
         $this->db->set('notes', null);
-        $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+        $this->db->set('sign', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?get_ttd(config_item('auth_person_name')):$getSignRequestBy['sign']);
         $this->db->set('created_at', date('Y-m-d H:i:s'));
         $this->db->insert('tb_signers');
+
+        if (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve') {
+            $this->db->set('document_type','SPD');
+            $this->db->set('document_number',$document_number);
+            $this->db->set('document_id', $document_id);
+            $this->db->set('action','known by');
+            $this->db->set('date', date('Y-m-d'));
+            $this->db->set('username', config_item('auth_username'));
+            $this->db->set('person_name', config_item('auth_person_name'));
+            $this->db->set('roles', config_item('auth_role'));
+            $this->db->set('notes', $_SESSION['business_trip']['approval_notes']);
+            $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+            $this->db->set('created_at', date('Y-m-d H:i:s'));
+            $this->db->insert('tb_signers');
+        }
+
+        $expenses = [
+            'Local Transport /Transport Lokal',
+            'Allowance / Uang Saku Perjalanan Dinas',
+            'Meals / Uang makan',
+            'Laundry / Cuci',
+            'Others / Lain - lain'
+        ];
+
+        foreach ($expenses as $expense) {
+            $this->db->set('business_trip_purpose_id', $document_id);
+            $this->db->set('business_trip_destination_item_id', NULL);
+            $this->db->set('expense_name', $expense);
+            $this->db->set('expense_description', NULL);
+            $this->db->set('qty', $duration);
+            $this->db->set('amount', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?200000:0);
+            $this->db->set('total', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?(200000*$duration):0);
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->insert('tb_business_trip_purpose_items');
+        }
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;
 
-        $this->send_mail($document_id,'head_dept','request');
+        if(isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve'){
+            $this->send_mail($document_id, 'hr_manager');
+            $this->send_mail_approval($document_id,config_item('auth_person_name'),'edit_approve');
+        }else{
+            $this->send_mail($document_id,'head_dept','request');
+        }
+            
 
         $this->db->trans_commit();
         return TRUE;
@@ -430,6 +484,7 @@ class Business_Trip_Request_Model extends MY_Model
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
         $this->send_mail($document_id, 'hr_manager');
+        $this->send_mail_approval($document_id,config_item('auth_person_name'),'approve');
 
         $this->db->trans_commit();
         return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
@@ -493,6 +548,8 @@ class Business_Trip_Request_Model extends MY_Model
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
         // $this->send_mail($document_id, 'hr_manager');
+        
+        $this->send_mail_approval($document_id,config_item('auth_person_name'),'reject');
 
         $this->db->trans_commit();
         return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
@@ -539,11 +596,12 @@ class Business_Trip_Request_Model extends MY_Model
             $item_message = '<tbody>';
             foreach ($query->result_array() as $key => $item) {
                 $item_message .= "<tr>";
-                $item_message .= "<td>" . print_date($item['date']) . "</td>";
-                $item_message .= "<td>" . $item['document_number'] . "</td>";
-                $item_message .= "<td>" . $item['person_name'] . "</td>";
-                $item_message .= "<td>" . $item['business_trip_destination'] . "</td>";
-                $item_message .= "<td>" . print_date($item['start_date'],'d M Y').' s/d '.print_date($item['end_date'],'d M Y') . "</td>";
+                $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . print_date($item['date']) . "</td>";
+                $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['document_number'] . "</td>";
+                $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['person_name'] . "</td>";
+                $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['from_base'] . "</td>";
+                $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['business_trip_destination'] . "</td>";
+                $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . print_date($item['start_date'],'d M Y').' s/d '.print_date($item['end_date'],'d M Y') . "</td>";
                 $item_message .= "</tr>";
             }
             $item_message .= '</tbody>';
@@ -554,14 +612,117 @@ class Business_Trip_Request_Model extends MY_Model
             $to_email = "aidanurul99@rocketmail.com";
             $message = "<p>Dear ".$keterangan."</p>";
             $message .= "<p>SPD Berikut perlu Persetujuan Anda </p>";
-            $message .= "<table class='table'>";
+            $message .= "<table style='border-collapse: collapse;padding: 1.2em 0;margin-bottom: 20pxwidth: 100%!important;background: #fff;'>";
             $message .= "<thead>";
             $message .= "<tr>";
-            $message .= "<th>Date</th>";
-            $message .= "<th>No. SPD</th>";
-            $message .= "<th>Name</th>";
-            $message .= "<th>Destination</th>";
-            $message .= "<th>Duration</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Date</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>No. SPD</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Name</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>From</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Destination</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Duration</th>";
+            $message .= "</tr>";
+            $message .= "</thead>";
+            $message .= $item_message;
+            $message .= "</table>";
+            $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+            $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+            $message .= "<p>Thanks and regards</p>";
+            $this->email->from($from_email, 'Material Resource Planning');
+            $this->email->to($recipient);
+            $this->email->subject('Permintaan Approval SPD');
+            $this->email->message($message);
+            
+    
+            // Send mail 
+            if ($this->email->send())
+              return true;
+            else
+              return $this->email->print_debugger();
+        }else{
+            return true;
+        }
+
+        
+    }
+
+    public function send_mail_approval($doc_id,$approver,$status)
+    {
+        $selected = array(
+            'tb_business_trip_purposes.*',
+            'tb_master_business_trip_destinations.business_trip_destination'
+        );
+        $this->db->select($selected);
+        $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+        if(is_array($doc_id)){
+            $this->db->where_in('tb_business_trip_purposes.id',$doc_id);
+        }else{
+            $this->db->where('tb_business_trip_purposes.id',$doc_id);
+        }
+        $query      = $this->db->get('tb_business_trip_purposes');
+
+        $item_message = '<tbody>';
+        foreach ($query->result_array() as $key => $item) {
+            $item_message .= "<tr>";
+            $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . print_date($item['date']) . "</td>";
+            $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['document_number'] . "</td>";
+            $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['person_name'] . "</td>";
+            $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['from_base'] . "</td>";
+            $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . $item['business_trip_destination'] . "</td>";
+            $item_message .= "<td style='padding: 2px 10px;text-align: left;font-size: 11px;border: 1px solid #999;'>" . print_date($item['start_date'],'d M Y').' s/d '.print_date($item['end_date'],'d M Y') . "</td>";
+            $item_message .= "</tr>";
+        }
+        $item_message .= '</tbody>';
+
+        $this->db->select('*');
+        $this->db->from('tb_signers');
+        $this->db->where('tb_signers.document_type', 'SPD');
+        if(is_array($doc_id)){
+            $this->db->where_in('tb_signers.document_id',$doc_id);
+        }else{
+            $this->db->where('tb_signers.document_id',$doc_id);
+        }
+        $this->db->where('tb_signers.action','requested by');
+        $querygetSignRequestBy = $this->db->get();
+        $resultquerygetSignRequestBy = $querygetSignRequestBy->result_array();
+        $getSignRequestBy = array();
+
+        foreach ($resultquerygetSignRequestBy as $row) {
+            $getSignRequestBy[] = $row['username'];
+        }
+
+        $recipientList = getNotifRecipient_byUsername($getSignRequestBy);
+
+        $recipient = array();
+        foreach ($recipientList as $key) {
+          array_push($recipient, $key['email']);
+        }
+
+        if($status=='approve'){
+            $status_desc = 'Di Setujui';
+        }elseif($status=='reject'){
+            $status_desc = 'Di Tolak';
+        }elseif($status=='edit_approve'){
+            $status_desc = 'Di Revisi & Di Setujui';
+        }
+
+        if(!empty($recipient)){            
+
+            $this->load->library('email');
+            $this->email->set_newline("\r\n");
+            $from_email = "bifa.acd@gmail.com";
+            $to_email = "aidanurul99@rocketmail.com";
+            // $message = "<p>Dear ".$keterangan."</p>";
+            $message .= "<p>SPD Berikut Telah ".$status_desc." oleh ".$approver."</p>";
+            $message .= "<table style='border-collapse: collapse;padding: 1.2em 0;margin-bottom: 20pxwidth: 100%!important;background: #fff;'>";
+            $message .= "<thead>";
+            $message .= "<tr>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Date</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>No. SPD</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Name</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>From</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Destination</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Duration</th>";
             $message .= "</tr>";
             $message .= "</thead>";
             $message .= $item_message;

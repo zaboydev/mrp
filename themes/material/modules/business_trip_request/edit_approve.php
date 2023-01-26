@@ -16,7 +16,82 @@
 
             <div class="document-header force-padding">
                 <div class="row">
-                    <div class="col-sm-6 col-lg-4">
+                    <div class="col-sm-12 col-lg-6">
+                        <div class="row">  
+                            <div class="col-sm-12">
+                                <h4>SPD Info</h4>
+
+                                <div class="">
+                                    <dl class="dl-inline">
+                                        <dt>
+                                            SPD Number
+                                        </dt>
+                                        <dd>
+                                            <?= $_SESSION['business_trip']['document_number']; ?><?= $_SESSION['business_trip']['format_number']; ?>
+                                        </dd>
+
+                                        <dt>
+                                            Date
+                                        </dt>
+                                        <dd>
+                                            <?=print_date($_SESSION['business_trip']['date']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Supervisor / Atasan
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($_SESSION['business_trip']['head_dept']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Name
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($_SESSION['business_trip']['person_name']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Occupation / Jabatan
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($_SESSION['business_trip']['occupation']);?>
+                                        </dd>
+
+                                        <dt>
+                                            From / Kota Asal
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($_SESSION['business_trip']['from_base']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Destination / Kota Tujuan
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($_SESSION['business_trip']['business_trip_destination']);?>
+                                        </dd>                                    
+                                    </dl>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <h4>SPD Expenses Info</h4>
+                                <div class="">
+                                    <dl class="dl-inline">
+                                        <?php foreach($_SESSION['business_trip']['items'] as $item):?>
+                                        <dt style="width:50%;">
+                                        <?=print_string($item['expense_name']);?>
+                                        </dt>
+                                        <dd>
+                                        <?=print_number($item['total'],2);?>
+                                        </dd>
+                                        <?php endforeach;?>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4 hide">
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-content">
@@ -46,7 +121,7 @@
                             <select name="person_in_charge" id="person_in_charge" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_person_in_charge'); ?>" required>
                                 <option></option>
                                 <?php foreach(available_employee($_SESSION['business_trip']['department_id']) as $user):?>
-                                <option data-identity-number="<?=$user['identity_number'];?>" data-phone-number="<?=$user['phone_number'];?>" data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['business_trip']['person_in_charge']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
+                                <option data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['business_trip']['person_in_charge']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="person_in_charge">Name Person in Charge</label>
@@ -74,7 +149,7 @@
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
-                        <div class="form-group" style="padding-top: 25px;">
+                        <div class="form-group hide" style="padding-top: 25px;">
                             <select name="from_base" id="from_base" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_from_base'); ?>" data-placeholder="Select Base" required>
                                 <option></option>
                                 <?php foreach(available_warehouses() as $warehouse):?>
@@ -84,12 +159,12 @@
                             <label for="from">From / Kota Asal</label>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <input type="text" name="transportation" id="transportation" class="form-control" value="<?= $_SESSION['business_trip']['transportation']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" required>
                             <label for="transportation">Transportation / Jenis Transportasi</label>
                         </div>  
 
-                        <div class="form-group" style="padding-top: 25px;">
+                        <div class="form-group hide" style="padding-top: 25px;">
                             <select name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_destination'); ?>" data-placeholder="Select Destination" required>
                                 <option></option>
                                 <?php foreach(destination_list() as $destination):?>
@@ -110,13 +185,20 @@
                             <input type="number" name="duration" id="duration" class="form-control" value="<?= $_SESSION['business_trip']['duration']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_duration'); ?>" required>
                             <label for="duration">Duration</label>
                         </div>
+
+                        <div class="form-group">
+                            <textarea name="notes" id="notes" class="form-control" rows="2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['business_trip']['notes']; ?></textarea>
+                            <label for="notes">Purpose of Travel on Duty / Maksud perjalanan dinas</label>
+                        </div>
+
+                        <div class="form-group">
+                            <textarea name="approval_notes" id="approval_notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_approval_notes'); ?>"><?= $_SESSION['business_trip']['approval_notes']; ?></textarea>
+                            <label for="approval_notes">Approval Notes</label>
+                        </div>
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
-                        <div class="form-group">
-                            <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['business_trip']['notes']; ?></textarea>
-                            <label for="notes">Purpose of Travel on Duty / Maksud perjalanan dinas</label>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -189,9 +271,9 @@
 
     <div class="section-action style-default-bright">
         <div class="section-floating-action-row">
-            <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
+            <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save_approve'); ?>">
                 <i class="md md-save"></i>
-                <small class="top right">Save Document</small>
+                <small class="top right">Save & Approve SPD</small>
             </a>
         </div>
     </div>
@@ -482,27 +564,33 @@
 
             var url = $(this).attr('href');
 
-            $.post(url, formDocument.serialize(), function(data) {
-                var obj = $.parseJSON(data);
+            if (confirm('Are you sure want to save and approve this Document ? Continue?')) {
+                $.post(url, formDocument.serialize(), function(data) {
+                    var obj = $.parseJSON(data);
 
-                if (obj.success == false) {
-                    toastr.options.timeOut = 10000;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.error(obj.message);
-                } else {
-                    toastr.options.timeOut = 4500;
-                    toastr.options.closeButton = false;
-                    toastr.options.progressBar = true;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.success(obj.message);
+                    if (obj.success == false) {
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.error(obj.message);
+                    } else {
+                        toastr.options.timeOut = 4500;
+                        toastr.options.closeButton = false;
+                        toastr.options.progressBar = true;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.success(obj.message);
 
-                    window.setTimeout(function() {
-                        window.location.href = '<?= site_url($module['route']); ?>';
-                    }, 5000);
-                }
+                        window.setTimeout(function() {
+                            window.location.href = '<?= site_url($module['route']); ?>';
+                        }, 5000);
+                    }
 
+                    $(buttonSubmitDocument).attr('disabled', false);
+                });
+            }else{
                 $(buttonSubmitDocument).attr('disabled', false);
-            });
+            }
+
+            
         });
 
         $(buttonDeleteDocumentItem).on('click', function(e) {
@@ -532,12 +620,8 @@
 
         $('#person_in_charge').change(function () {
             var employee_number = $('#person_in_charge').val();                        
-            var position = $('#person_in_charge option:selected').data('position');    
-            var phone_number = $('#person_in_charge option:selected').data('phone-number');    
-            var identity_number = $('#person_in_charge option:selected').data('identity-number');  
-            $('#occupation').val(position).trigger('change'); 
-            $('#phone_number').val(phone_number).trigger('change'); 
-            $('#id_number').val(identity_number).trigger('change');
+            var position = $('#person_in_charge option:selected').data('position');  
+            $('#occupation').val(position).trigger('change');
         });
     });
 </script>

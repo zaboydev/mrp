@@ -3098,7 +3098,12 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $CI->db->select('email');
       $CI->db->from('tb_auth_users');
-      $CI->db->where('username', $username);
+      if(is_array($username)){
+        $CI->db->where_in('tb_auth_users.username',$username);
+      }else{
+        $CI->db->where('tb_auth_users.username',$username);
+      }
+      // $CI->db->where('username', $username);
       $query  = $CI->db->get();
       $result = $query->result_array();
       return $result;

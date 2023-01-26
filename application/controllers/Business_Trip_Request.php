@@ -245,6 +245,14 @@ class Business_Trip_Request extends MY_Controller
         $_SESSION['business_trip']['notes'] = $_GET['data'];
     }
 
+    public function set_approval_notes()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['business_trip']['approval_notes'] = $_GET['data'];
+    }
+
     public function create($annual_cost_center_id = NULL)
     {
         $this->authorized($this->module, 'create');
@@ -334,7 +342,7 @@ class Business_Trip_Request extends MY_Controller
         $pdf->Output($pdfFilePath, "I");
     }
 
-    public function edit($id)
+    public function edit($id,$type="edit")
     {
         $this->authorized($this->module, 'create');
 
@@ -344,7 +352,7 @@ class Business_Trip_Request extends MY_Controller
         $format_number      = substr($entity['document_number'], 6, 21);
         $revisi             = get_count_revisi($document_number.$format_number);
 
-        if (isset($_SESSION['receipt']) === FALSE){
+        if (isset($_SESSION['business_trip']) === FALSE){
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];          
@@ -356,6 +364,7 @@ class Business_Trip_Request extends MY_Controller
             $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
             $_SESSION['business_trip']                              = $entity;
             $_SESSION['business_trip']['id']                        = $id;
+            $_SESSION['business_trip']['edit_type']                 = 'edit';
             $_SESSION['business_trip']['edit']                      = $entity['document_number'];
             $_SESSION['business_trip']['document_number']           = $document_number;
             $_SESSION['business_trip']['format_number']             = $format_number.'-R'.$revisi;
@@ -369,12 +378,136 @@ class Business_Trip_Request extends MY_Controller
         //$this->render_view($this->module['view'] .'/edit');
     }
 
+    public function edit_approve($id)
+    {
+        $this->authorized($this->module, 'approval');
+
+        $entity = $this->model->findById($id);
+
+        $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
+        $format_number      = substr($entity['document_number'], 6, 21);
+        $revisi             = get_count_revisi($document_number.$format_number);
+
+        if (isset($_SESSION['business_trip']) === FALSE){
+            $cost_center = findCostCenter($entity['annual_cost_center_id']);
+            $cost_center_code = $cost_center['cost_center_code'];
+            $cost_center_name = $cost_center['cost_center_name'];          
+            $department_id    = $cost_center['department_id'];
+
+            $_SESSION['business_trip']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['business_trip']['cost_center_id']            = $cost_center_id;
+            $_SESSION['business_trip']['cost_center_name']          = $cost_center_name;
+            $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
+            $_SESSION['business_trip']                              = $entity;
+            $_SESSION['business_trip']['id']                        = $id;
+            $_SESSION['business_trip']['edit_type']                 = 'edit_approve';
+            $_SESSION['business_trip']['edit']                      = $entity['document_number'];
+            $_SESSION['business_trip']['document_number']           = $document_number;
+            $_SESSION['business_trip']['format_number']             = $format_number.'-R'.$revisi;
+            $_SESSION['business_trip']['department_id']             = $department_id;
+            $_SESSION['business_trip']['person_in_charge']          = $entity['user_id'];
+            $_SESSION['business_trip']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
+            
+        }
+
+        redirect($this->module['route'] .'/create_for_edit_approve');
+        //$this->render_view($this->module['view'] .'/edit');
+    }
+
+    public function create_for_edit_approve($annual_cost_center_id = NULL)
+    {
+        $this->authorized($this->module, 'approval');
+
+        if ($annual_cost_center_id !== NULL){
+            $annual_cost_center_id = urldecode($annual_cost_center_id);
+            $cost_center = findCostCenter($annual_cost_center_id);
+            $cost_center_code = $cost_center['cost_center_code'];
+            $cost_center_name = $cost_center['cost_center_name'];          
+            $department_id    = $cost_center['department_id'];
+
+            $_SESSION['business_trip']['items']                     = array();
+            $_SESSION['business_trip']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['business_trip']['cost_center_id']            = $cost_center_id;
+            $_SESSION['business_trip']['cost_center_name']          = $cost_center_name;
+            $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
+            $_SESSION['business_trip']['document_number']           = travel_on_duty_last_number();
+            $_SESSION['business_trip']['format_number']             = travel_on_duty_format_number();
+            $_SESSION['business_trip']['date']                      = date('Y-m-d');
+            $_SESSION['business_trip']['created_by']                = config_item('auth_person_name');
+            $_SESSION['business_trip']['warehouse']                 = config_item('auth_warehouse');
+            $_SESSION['business_trip']['notes']                     = NULL;
+            $_SESSION['business_trip']['person_in_charge']          = NULL;
+            $_SESSION['business_trip']['department_id']             = $department_id;
+            $_SESSION['business_trip']['head_dept']                 = NULL;
+            $_SESSION['business_trip']['business_trip_destination_id']  = NULL;
+            $_SESSION['business_trip']['duration']                      = NULL;
+            $_SESSION['business_trip']['dateline']                      = NULL;
+            $_SESSION['business_trip']['occupation']                    = NULL;
+            $_SESSION['business_trip']['phone_number']                  = NULL;
+            $_SESSION['business_trip']['id_number']                     = NULL;
+            $_SESSION['business_trip']['start_date']                    = NULL;
+            $_SESSION['business_trip']['end_date']                      = NULL;
+            $_SESSION['business_trip']['from_base']                      = NULL;
+            $_SESSION['business_trip']['transportation']                      = NULL;
+
+            redirect($this->module['route'] .'/create_for_edit_approve');
+        }
+
+        if (!isset($_SESSION['business_trip']))
+          redirect($this->module['route']);
+
+        $this->data['page']['content']    = $this->module['view'] .'/create';
+        $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+
+        $this->render_view($this->module['view'] .'/edit_approve');
+    }
+
     public function save()
     {
         if ($this->input->is_ajax_request() == FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
 
         if (is_granted($this->module, 'create') == FALSE){
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+
+            $document_number = $_SESSION['business_trip']['document_number'] . $_SESSION['business_trip']['format_number'];
+            $errors = array();
+
+            if ($_SESSION['business_trip']['head_dept']==NULL || $_SESSION['business_trip']['head_dept']=='') {
+                $errors[] = 'Attention!! Please select one of Head Dept for Approval';
+            }
+
+            if ($_SESSION['business_trip']['notes']==NULL || $_SESSION['business_trip']['notes']=='') {
+                $errors[] = 'Attention!! Please Fill Notes!!';
+            }
+
+            if (!empty($errors)){
+                $data['success'] = FALSE;
+                $data['message'] = implode('<br />', $errors);
+            } else {
+                if ($this->model->save()){
+                    unset($_SESSION['business_trip']);
+        
+                    $data['success'] = TRUE;
+                    $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
+                } else {
+                    $data['success'] = FALSE;
+                    $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                }
+            }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function save_approve()
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'approval') == FALSE){
             $data['success'] = FALSE;
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
@@ -579,14 +712,14 @@ class Business_Trip_Request extends MY_Controller
             ));
         }
 
-        if ($success > 0) {
+        if ($save_approval['success'] > 0) {
             // $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
                 'info' => $success . " data has been update!"
             ));
         }
-        if ($failed > 0) {
+        if ($save_approval['failed'] > 0) {
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
                 'info' => "There are " . $failed . " errors"
@@ -663,11 +796,11 @@ class Business_Trip_Request extends MY_Controller
 
     public function test()
     {
-        // $data = $this->model->send_mail(6,'head_dept','request');
+        $data = $this->model->send_mail_approval(10,'Ratining','edit_approve');
         // $data = get_count_revisi('000005/SPD/BWD-BIFA/01/2023');
         // $data = get_travel_on_duty_last_number();
         // $data = $range_date  = explode('.', '000005/SPD/BWD-BIFA/01/2023');
-        $data  = substr('000005/SPD/BWD-BIFA/01/2023', 7, 21);
+        // $data  = substr('000005/SPD/BWD-BIFA/01/2023', 7, 21);
         
         // $result['status'] = $send;
         echo json_encode($data);
