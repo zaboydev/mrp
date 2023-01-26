@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="row">
-                    <div class="col-sm-12 col-lg-6">
+                    <div class="col-sm-12 col-lg-4">
                         <div class="form-group">
                             <input type="text" name="employee_number" id="employee_number" class="form-control" data-validation-rule="unique" data-validation-url="<?= site_url('ajax/employee_number_validation'); ?>" data-validation-exception="" required>
                             <label for="employee_number">Employee Number</label>
@@ -33,7 +33,7 @@
                             <label for="name">Name</label>
                         </div>
 
-                        <div class="form-group" style="padding-top: 25px;">
+                        <div class="form-group">
                             <select name="user_id" id="user_id" class="form-control" style="width: 100%" data-placeholder="Select User in MRP">
                                 <option value="">Select User in MRP</option>
                                 <?php foreach(available_user(array('person_name', 'user_id','username')) as $user):?>
@@ -41,6 +41,20 @@
                                 <?php endforeach;?>
                             </select>
                             <label for="user_id">User in MRP</label>
+                        </div>
+
+                        <div class="form-group">
+                            <select name="base" id="base" class="form-control" required>
+                                <option value="">
+                                    
+                                </option>
+                                <?php foreach (available_warehouses() as $base) : ?>
+                                <option value="<?= $base; ?>">
+                                    <?= $base; ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <label for="base">Base</label>
                         </div>
 
                         <div class="form-group">
@@ -94,7 +108,22 @@
                         </div>                        
                     </div>
 
-                    <div class="col-sm-12 col-lg-6">
+                    <div class="col-sm-12 col-lg-4">
+                        <div class="form-group">
+                            <select name="identity_type" id="identity_type" class="form-control" required>
+                                <option value=""></option>
+                                <option value="KTP">KTP</option>
+                                <option value="PASSPORT">PASSPORT</option>
+                                <option value="SIM">SIM</option>
+                            </select>
+                            <label for="identity_type">Identity Type</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="identity_number" id="identity_number" class="form-control" required>
+                            <label for="identity_number">Identity number</label>
+                        </div>
+
                         <div class="form-group">
                             <input type="text" name="phone_number" id="phone_number" class="form-control" required>
                             <label for="phone_number">Phone number</label>
@@ -110,7 +139,11 @@
                             <label for="address">Address</label>
                         </div>
 
-                        <div class="form-group" style="padding-top: 25px;">
+                        
+                    </div>
+
+                    <div class="col-sm-12 col-lg-4">
+                        <div class="form-group">
                             <select name="department_id" id="department_id" class="form-control" style="width: 100%" data-placeholder="Select Department">
                                 <option value="">Select Department</option>
                                 <?php foreach(available_department() as $department):?>
@@ -120,7 +153,7 @@
                             <label for="user_id">Department</label>
                         </div>
 
-                        <div class="form-group" style="padding-top: 25px;">
+                        <div class="form-group">
                             <select name="position" id="position" class="form-control" style="width: 100%" data-placeholder="Select Occupation">
                                 <option value="">Select Occupation</option>
                                 <?php foreach(occupation_list() as $occupation):?>
