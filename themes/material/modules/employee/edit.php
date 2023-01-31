@@ -107,17 +107,17 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="base" id="base" class="form-control" required>
+                            <select name="warehouse" id="warehouse" class="form-control" required>
                                 <option value="">
                                     
                                 </option>
                                 <?php foreach (available_warehouses() as $base) : ?>
-                                <option value="<?= $base; ?>" <?php if ($entity['base']==$base):echo 'selected'; endif;?>>
+                                <option value="<?= $base; ?>" <?php if ($entity['warehouse']==$base):echo 'selected'; endif;?>>
                                     <?= $base; ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
-                            <label for="base">Base</label>
+                            <label for="warehouse">Base</label>
                         </div>
 
                         <div class="form-group">
@@ -163,7 +163,7 @@
                                 </label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="gender" id="Single" value="Single" <?php if ($entity['marital_status']=='Single'):echo 'checked'; endif;?>>
+                                <input type="radio" name="marital_status" id="Single" value="Single" <?php if ($entity['marital_status']=='Single'):echo 'checked'; endif;?>>
                                 <label for="Single">
                                     Single
                                 </label>
@@ -200,10 +200,31 @@
                         <div class="form-group">
                             <textarea name="address" id="address" class="form-control"><?=$entity['address'];?></textarea>
                             <label for="address">Address</label>
-                        </div>                        
+                        </div>      
+                        
+                        <div class="form-group">
+                            <input type="text" name="bank_account_name" id="bank_account_name" class="form-control" value="<?=$entity['bank_account_name'];?>" required>
+                            <label for="bank_account_name">Bank Name</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="bank_account" id="bank_account" class="form-control" value="<?=$entity['bank_account'];?>" required>
+                            <label for="bank_account">Bank Account</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="npwp" id="npwp" class="form-control" value="<?=$entity['npwp'];?>">
+                            <label for="npwp">NPWP</label>
+                        </div>
+
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
+                        <div class="form-group">
+                            <input type="date" name="tanggal_bergabung" id="tanggal_bergabung" class="form-control" value="<?=$entity['tanggal_bergabung'];?>" required>
+                            <label for="tanggal_bergabung">Join Date</label>
+                        </div>
+
                         <div class="form-group">
                             <select name="department_id" id="department_id" class="form-control" style="width: 100%" data-placeholder="Select Department">
                                 <option value="">Select Department</option>
@@ -225,15 +246,20 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="text" name="plafon_biaya_dinas" id="plafon_biaya_dinas" class="form-control number" value="<?=$occupation['plafon_biaya_dinas'];?>" step=".01">
+                            <input type="text" name="basic_salary" id="basic_salary" class="form-control number" value="<?=$entity['basic_salary'];?>" step=".01">
+                            <label for="basic_salary">Basic Salary</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="plafon_biaya_dinas" id="plafon_biaya_dinas" class="form-control number" value="<?=$entity['plafon_biaya_dinas'];?>" step=".01">
                             <label for="plafon_biaya_dinas">Plafon Biaya Dinas</label>
                         </div>
                         <div class="form-group">
-                            <input type="text" name="plafon_biaya_kesehatan" id="plafon_biaya_kesehatan" class="form-control number" value="<?=$occupation['plafon_biaya_kesehatan'];?>" step=".01">
+                            <input type="text" name="plafon_biaya_kesehatan" id="plafon_biaya_kesehatan" class="form-control number" value="<?=$entity['plafon_biaya_kesehatan'];?>" step=".01">
                             <label for="plafon_biaya_kesehatan">Plafon Biaya Kesehatan</label>
                         </div>
                         <div class="form-group">
-                            <input type="number" name="cuti" id="cuti" class="form-control" value="<?=$occupation['cuti'];?>">
+                            <input type="number" name="cuti" id="cuti" class="form-control" value="<?=$entity['cuti'];?>">
                             <label for="cuti">Jumlah Cuti</label>
                         </div>
                     </div>

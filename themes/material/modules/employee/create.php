@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="base" id="base" class="form-control" required>
+                            <select name="warehouse" id="warehouse" class="form-control" required>
                                 <option value="">
                                     
                                 </option>
@@ -54,7 +54,7 @@
                                 </option>
                                 <?php endforeach; ?>
                             </select>
-                            <label for="base">Base</label>
+                            <label for="warehouse">Base</label>
                         </div>
 
                         <div class="form-group">
@@ -100,7 +100,7 @@
                                 </label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="gender" id="Single" value="Single">
+                                <input type="radio" name="marital_status" id="Single" value="Single">
                                 <label for="Single">
                                     Single
                                 </label>
@@ -139,12 +139,30 @@
                             <label for="address">Address</label>
                         </div>
 
-                        
+                        <div class="form-group">
+                            <input type="text" name="bank_account_name" id="bank_account_name" class="form-control" required>
+                            <label for="bank_account_name">Bank Name</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="bank_account" id="bank_account" class="form-control" required>
+                            <label for="bank_account">Bank Account</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="npwp" id="npwp" class="form-control">
+                            <label for="npwp">NPWP</label>
+                        </div>
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
                         <div class="form-group">
-                            <select name="department_id" id="department_id" class="form-control" style="width: 100%" data-placeholder="Select Department">
+                            <input type="date" name="tanggal_bergabung" id="tanggal_bergabung" class="form-control" required>
+                            <label for="tanggal_bergabung">Join Date</label>
+                        </div>
+
+                        <div class="form-group">
+                            <select name="department_id" id="department_id" class="form-control" style="width: 100%" data-placeholder="Select Department" required>
                                 <option value="">Select Department</option>
                                 <?php foreach(available_department() as $department):?>
                                 <option value="<?=$department['id'];?>"><?=$department['department_code'];?> - <?=$department['department_name'];?></option>
@@ -154,13 +172,18 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="position" id="position" class="form-control" style="width: 100%" data-placeholder="Select Occupation">
+                            <select name="position" id="position" class="form-control" style="width: 100%" data-placeholder="Select Occupation" required>
                                 <option value="">Select Occupation</option>
                                 <?php foreach(occupation_list() as $occupation):?>
                                 <option data-plafond-cuti="<?=$occupation['cuti'];?>" data-plafond-kesehatan="<?=$occupation['plafon_biaya_kesehatan'];?>" data-plafond-spd="<?=$occupation['plafon_biaya_dinas'];?>" value="<?=$occupation['position'];?>"><?=$occupation['position'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="position">Occupation</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="basic_salary" id="basic_salary" class="form-control number" value="0" step=".01">
+                            <label for="basic_salary">Basic Salary</label>
                         </div>
 
                         <div class="form-group">
@@ -175,6 +198,8 @@
                             <input type="number" name="cuti" id="cuti" class="form-control" value="0">
                             <label for="cuti">Jumlah Cuti</label>
                         </div>
+
+
                     </div>
                 </div>
             </div>
