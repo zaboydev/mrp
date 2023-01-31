@@ -243,7 +243,7 @@ class Capex_Closing_Payment_Model extends MY_Model
                 $this->connection->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
             }
         } else {
-            $this->connection->order_by('id', 'desc');
+            $this->connection->order_by('tb_request_payments.tanggal', 'desc');
         }
 
         if ($_POST['length'] != -1)

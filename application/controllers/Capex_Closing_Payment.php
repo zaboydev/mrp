@@ -143,7 +143,7 @@ class Capex_Closing_Payment extends MY_Controller
 
         $this->data['grid']['order_columns']    = array();
         $this->data['grid']['order_columns']    = array(
-          0   => array( 0 => 1,  1 => 'desc' ),
+          0   => array( 0 => 2,  1 => 'desc' ),
           1   => array( 0 => 2,  1 => 'desc' ),
           2   => array( 0 => 3,  1 => 'desc' ),
           3   => array( 0 => 4,  1 => 'desc' ),
