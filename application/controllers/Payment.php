@@ -144,16 +144,22 @@ class Payment extends MY_Controller
     $this->data['grid']['summary_columns']  = array(7,8);
 
     $this->data['grid']['order_columns']    = array();
-    // $this->data['grid']['order_columns']    = array(
-    //   0   => array( 0 => 1,  1 => 'desc' ),
-    //   1   => array( 0 => 2,  1 => 'desc' ),
-    //   2   => array( 0 => 3,  1 => 'asc' ),
-    //   3   => array( 0 => 4,  1 => 'asc' ),
-    //   4   => array( 0 => 5,  1 => 'asc' ),
-    //   5   => array( 0 => 6,  1 => 'asc' ),
-    //   6   => array( 0 => 7,  1 => 'asc' ),
-    //   7   => array( 0 => 8,  1 => 'asc' ),
-    // );
+    $this->data['grid']['order_columns']    = array(
+      0   => array( 0 => 1,  1 => 'desc' ),
+      1   => array( 0 => 2,  1 => 'desc' ),
+      2   => array( 0 => 3,  1 => 'asc' ),
+      3   => array( 0 => 4,  1 => 'asc' ),
+      4   => array( 0 => 5,  1 => 'asc' ),
+      5   => array( 0 => 6,  1 => 'asc' ),
+      6   => array( 0 => 7,  1 => 'asc' ),
+      7   => array( 0 => 9,  1 => 'asc' ),
+      8   => array( 0 => 10,  1 => 'asc' ),
+      9   => array( 0 => 11,  1 => 'asc' ),
+      10   => array( 0 => 12,  1 => 'asc' ),
+      11   => array( 0 => 13,  1 => 'asc' ),
+      12   => array( 0 => 14,  1 => 'asc' ),
+      13   => array( 0 => 14,  1 => 'asc' ),
+    );
 
     $this->render_view($this->module['view'] . '/index');
   }
