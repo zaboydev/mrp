@@ -2141,7 +2141,7 @@ if (!function_exists('currency_for_vendor_list')) {
   if ( ! function_exists('viewOrNot')) {
     function viewOrNot($status,$head_dept,$department_request=NULL)
     {
-      if($status=='WAITING FOR HEAD DEPT'){
+      if($status=='WAITING FOR HEAD DEPT' || $status=='WAITING APPROVAL BY HEAD DEPT'){
         //untuk expense,capex,inv request
         if(config_item('as_head_department')=='yes'){
           if(in_array($department_request,config_item('head_department')) && $head_dept==config_item('auth_username')){

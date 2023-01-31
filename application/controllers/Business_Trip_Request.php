@@ -34,53 +34,57 @@ class Business_Trip_Request extends MY_Controller
             $total_value  = array();
 
             foreach ($entities as $row){
+                
                 $cost_center = findCostCenter($row['annual_cost_center_id']);
                 $cost_center_code = $cost_center['cost_center_code'];
                 $cost_center_name = $cost_center['cost_center_name'];
-                $department_name = $cost_center['department_name'];         
-                $no++;
-                $col = array();
-                if (is_granted($this->module, 'approval')){
-                    if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                $department_name = $cost_center['department_name'];
+                if (viewOrNot($row['status'],$row['head_dept'],$department_name)){
+                    $no++;
+                    $col = array();
+                    if (is_granted($this->module, 'approval')){
+                        if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
+                            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                        }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                        }else{
+                            $col[] = print_number($no);
+                        }                    
                     }else{
                         $col[] = print_number($no);
-                    }                    
-                }else{
-                    $col[] = print_number($no);
-                }                
-                $col[] = print_string($row['document_number']);
-                $col[] = print_string($row['status']);
-                $col[] = print_date($row['date']);
-                $col[] = print_string($cost_center['cost_center_name']);
-                $col[] = print_string($row['person_name']);
-                $col[] = print_string($row['business_trip_destination']);
-                $col[] = print_string($row['duration']);
-                $col[] = print_date($row['start_date'], 'd M Y').' s/d '.print_date($row['end_date'], 'd M Y');
-                $col[] = print_string($row['notes']);
-                if($row['status']=='approved' || $row['status']=='closed'){
-                    $col[] = '';
-                }else{
-                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
-                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                    }else{
+                    }                
+                    $col[] = print_string($row['document_number']);
+                    $col[] = print_string($row['status']);
+                    $col[] = print_date($row['date']);
+                    $col[] = print_string($cost_center['cost_center_name']);
+                    $col[] = print_string($row['person_name']);
+                    $col[] = print_string($row['business_trip_destination']);
+                    $col[] = print_string($row['duration']);
+                    $col[] = print_date($row['start_date'], 'd M Y').' s/d '.print_date($row['end_date'], 'd M Y');
+                    $col[] = print_string($row['notes']);
+                    if($row['status']=='approved' || $row['status']=='closed'){
                         $col[] = '';
+                    }else{
+                        if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                        }else{
+                            $col[] = '';
+                        }
                     }
-                }
-                
-                $col['DT_RowId'] = 'row_'. $row['id'];
-                $col['DT_RowData']['pkey']  = $row['id'];
-                
-                if ($this->has_role($this->module, 'info')){
-                    $col['DT_RowAttr']['onClick']     = '';
-                    $col['DT_RowAttr']['data-id']     = $row['id'];
-                    $col['DT_RowAttr']['data-target'] = '#data-modal';
-                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
-                }
+                    
+                    $col['DT_RowId'] = 'row_'. $row['id'];
+                    $col['DT_RowData']['pkey']  = $row['id'];
+                    
+                    if ($this->has_role($this->module, 'info')){
+                        $col['DT_RowAttr']['onClick']     = '';
+                        $col['DT_RowAttr']['data-id']     = $row['id'];
+                        $col['DT_RowAttr']['data-target'] = '#data-modal';
+                        $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                    }
 
-                $data[] = $col;
+                    $data[] = $col;
+                }         
+                
             }
 
             $result = array(
