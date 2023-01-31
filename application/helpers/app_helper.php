@@ -207,7 +207,7 @@ if ( ! function_exists('is_granted')) {
     }else{
       if (config_item('as_head_department')=='yes') {
         if($roles=='index'||$roles=='info'||$roles=='print'||$roles=='approval'){
-          if($module['route']==''||$module['route']=='capex_request'||$module['route']=='expense_request'||$module['route']=='inventory_request'||$module['route']=='purchase_request'||$module['route']=='purchase_order_evaluation'||$module['route']=='expense_order_evaluation'||$module['route']=='capex_order_evaluation'){
+          if(in_array($module['name'],config_item('modules_for_head_dept'))){
             return TRUE;
           }else{
             return FALSE;
@@ -520,6 +520,7 @@ if ( ! function_exists('available_warehouses')) {
     $CI->db->select('warehouse');
     $CI->db->from('tb_master_warehouses');
     $CI->db->where('UPPER(status)', 'AVAILABLE');
+    $CI->db->order_by('warehouse', 'asc');
 
     if ($warehouse !== NULL){
       if (is_array($warehouse)){
@@ -773,7 +774,7 @@ if ( ! function_exists('available_modules')) {
           $results[$module['parent']][] = $module;
       }else{
         if($head_dept=='yes'){
-          if($key=='capex_request'||$key=='expense_request'||$key=='inventory_request'||$key=='purchase_request'){
+          if(in_array($module['name'],config_item('modules_for_head_dept')) && $visible == TRUE){
             if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
               $results[$module['parent']][] = $module;
           }
@@ -3097,7 +3098,12 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $CI->db->select('email');
       $CI->db->from('tb_auth_users');
-      $CI->db->where('username', $username);
+      if(is_array($username)){
+        $CI->db->where_in('tb_auth_users.username',$username);
+      }else{
+        $CI->db->where('tb_auth_users.username',$username);
+      }
+      // $CI->db->where('username', $username);
       $query  = $CI->db->get();
       $result = $query->result_array();
       return $result;
@@ -3164,9 +3170,193 @@ if (!function_exists('currency_for_vendor_list')) {
       foreach ($result as $row) {
         $return[] = $row['level'];
       }
-  
+
       return $return;
     }
   }
+  
+  if ( ! function_exists('findCostCenter')) {
+    function findCostCenter($annual_cost_center_id)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('cost_center_code','cost_center_name','department_id', 'tb_departments.department_name'));
+      $connection->from( 'tb_cost_centers' );
+      $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+      $connection->join('tb_departments','tb_cost_centers.department_id=tb_departments.id');
+      $connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
+
+      $query    = $connection->get();
+      $cost_center = $query->unbuffered_row('array');
+
+      // $return = '/INV/'. $category['code'] .'/'. find_budget_setting('Active Year');
+
+      //edit
+      
+
+      return $cost_center;
+    }
+  }
+
+  if ( ! function_exists('occupation_list')) {
+    function occupation_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_positions.*');
+      $CI->db->from('tb_master_positions');
+      $CI->db->order_by('tb_master_positions.position', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('destination_list')) {
+    function destination_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_business_trip_destinations.*');
+      $CI->db->from('tb_master_business_trip_destinations');
+      $CI->db->order_by('tb_master_business_trip_destinations.business_trip_destination', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getUserById')) {
+    function getUserById($user_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_auth_users.*');
+      $CI->db->where('tb_auth_users.user_id',  $user_id);
+
+      $query  = $CI->db->get('tb_auth_users');
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('findUserByUsername')) {
+    function findUserByUsername($username)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_auth_users.*');
+      $CI->db->where('tb_auth_users.username',  $username);
+
+      $query  = $CI->db->get('tb_auth_users');
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('list_username_in_head_department')) {
+    function list_username_in_head_department($department_id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_head_department.username,tb_auth_users.person_name');
+      $CI->db->from('tb_head_department');
+      $CI->db->join('tb_auth_users','tb_auth_users.username=tb_head_department.username');
+      $CI->db->where('tb_head_department.department_id', $department_id);
+      $CI->db->where('tb_head_department.status', 'active');
+      $CI->db->order_by('tb_head_department.username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      
+      $return = array();
+      foreach ($result as $key) {
+        $return[] = $key['username'];
+      }
+    }
+
+  }
+
+  if ( ! function_exists('available_department')) {
+    function available_department()
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_departments.*'));
+      $connection->from( 'tb_departments' );
+
+      $query  = $connection->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getDepartmentById')) {
+    function getDepartmentById($id)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_departments.*'));
+      $connection->from( 'tb_departments' );
+      $connection->where('id', $id);
+
+      $query  = $connection->get();
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('available_employee')) {
+    function available_employee($department_id=NULL)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_employees');  
+      
+      if ($department_id !== NULL){
+        if (is_array($department_id)){
+          $CI->db->where_in('department_id', $department_id);
+        } else {
+          $CI->db->where('department_id', $department_id);
+        }
+      }
+      
+      $CI->db->order_by('name', 'ASC');
+  
+      $query = $CI->db->get();
+  
+      return $query->result_array();
+    }
+  }
+
+  if ( ! function_exists('getEmployeeByEmployeeNumber')) {
+    function getEmployeeByEmployeeNumber($employee_number)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_employees');  
+      $CI->db->where('employee_number', $employee_number);  
+      $query = $CI->db->get();
+  
+      return $query->unbuffered_row('array');
+    }
+  }
+
 
     

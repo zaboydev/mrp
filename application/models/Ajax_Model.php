@@ -644,6 +644,19 @@ class Ajax_Model extends MY_Model
       $this->db->where('UPPER(level) != ', strtoupper($old_value));
 
     $this->db->where('UPPER(level)', strtoupper($value));
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
+  
+  public function employee_number_validation($value, $old_value = NULL)
+  {
+    $this->db->from(config_item('module')['employee']['table']);
+
+    if ($old_value !== NULL)
+      $this->db->where('employee_number != ', $old_value);
+
+    $this->db->where('employee_number', $value);
 
     $query = $this->db->get();
 
@@ -658,6 +671,19 @@ class Ajax_Model extends MY_Model
       $this->db->where('UPPER(code) != ', strtoupper($old_value));
 
     $this->db->where('UPPER(code)', strtoupper($value));
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
+  
+  public function employee_name_validation($value, $old_value = NULL)
+  {
+    $this->db->from(config_item('module')['employee']['table']);
+
+    if ($old_value !== NULL)
+      $this->db->where('name != ', $old_value);
+
+    $this->db->where('name', $value);
 
     $query = $this->db->get();
 

@@ -30,7 +30,6 @@
                 .tg .tg-ti5e{font-size:10px;font-family:"Arial", Helvetica, sans-serif !important;;text-align:center}
                 .tg .tg-rv4w{font-size:10px;font-family:"Arial", Helvetica, sans-serif !important;}
     </style>
-
 <?php endblock() ?>
 
 <?php startblock('body') ?>

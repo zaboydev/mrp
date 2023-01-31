@@ -538,6 +538,19 @@ class MY_Model extends CI_Model
 
     return ( $query->num_rows() > 0 ) ? true : false;
   }
+  
+  public function isEmployeeNumberExists($employee_number, $employee_number_exception = NULL)
+  {
+    $this->db->from(config_item('module')['employee']['table']);
+    $this->db->where('employee_number', $employee_number);
+
+    if ($employee_number_exception !== NULL)
+      $this->db->where('employee_number != ', $employee_number_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
 
   
 

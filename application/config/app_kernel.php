@@ -48,6 +48,9 @@ $config['parent']['expense']['icon']   = 'fa fa-money';
 $config['parent']['finance_report']['label']  = 'Finance Report';
 $config['parent']['finance_report']['icon']   = 'fa fa-money';
 
+$config['parent']['perjalanan_dinas']['label']  = 'Perjalanan Dinas';
+$config['parent']['perjalanan_dinas']['icon']   = 'fa fa-road';
+
 $config['module'] = array();
 
 
@@ -74,6 +77,12 @@ require('modules/bill.php');
 require('modules/daftar_pajak.php');
 require('modules/user_position.php');
 require('modules/level.php');
+require('modules/tujuan_perjalanan_dinas.php');
+require('modules/employee.php');
+
+//business trip
+require('modules/business_trip_request.php');
+require('modules/reimbursement.php');
 
 //aircraft
 require('modules/pesawat.php');
