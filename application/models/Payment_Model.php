@@ -19,12 +19,9 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.document_number as no_transaksi'             		=> 'Transaction Number',
 			'tb_po_payments.tanggal'               								=> 'Date',
 			'tb_po_payments.no_cheque'                    						=> 'No Cheque',
-			// 'tb_po.document_number'                   							=> 'PO#',
 			'tb_po_payments.vendor'                   							=> 'Vendor',
-			// 'tb_po_item.part_number'             								=> 'Part Number',
-			// 'tb_purchase_order_items_payments.deskripsi as description'			=> 'Description',
 			'tb_po_payments.currency'             								=> 'Currency',
-			'tb_po_payments.coa_kredit'             								=> 'Account',
+			'tb_po_payments.coa_kredit'             							=> 'Account',
             'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid'  => 'Amount IDR',
 			'tb_po_payments.akun_kredit'   										=> 'Amount USD',
 			'tb_po_payments.status'	                     						=> 'Status',
@@ -69,16 +66,17 @@ class Payment_Model extends MY_MODEL
 			'tb_po_payments.document_number',
 			'tb_po_payments.tanggal',
 			'tb_po_payments.no_cheque',
-			// 'tb_po.document_number',
 			'tb_po_payments.vendor',
-			// 'tb_po_item.part_number',
-			// 'tb_purchase_order_items_payments.deskripsi',
-			'tb_po_payments.currency',			
+			'tb_po_payments.currency',
 			'tb_po_payments.coa_kredit',
-			// 'tb_purchase_order_items_payments.amount_paid',
+            // 'SUM(tb_purchase_order_items_payments.amount_paid) as amount_paid',
+			'tb_po_payments.akun_kredit',
+			'tb_po_payments.status',
+			'tb_po_payments.notes',
 			'tb_po_payments.base',
 			'tb_po_payments.created_by',
-			'tb_po_payments.created_at'
+			'tb_po_payments.created_at',
+			'tb_po_payments.checked_by',
 		);
 
 		return $return;
@@ -247,7 +245,7 @@ class Payment_Model extends MY_MODEL
 				$this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
 			}
 		} else {
-			$this->db->order_by('id', 'desc');
+			$this->db->order_by('tb_po_payments.tanggal', 'desc');
 		}
 
 		if ($_POST['length'] != -1)
