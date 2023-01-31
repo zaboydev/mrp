@@ -3281,6 +3281,8 @@ if (!function_exists('currency_for_vendor_list')) {
       foreach ($result as $key) {
         $return[] = $key['username'];
       }
+
+      return $return;
     }
 
   }

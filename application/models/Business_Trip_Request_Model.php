@@ -259,8 +259,8 @@ class Business_Trip_Request_Model extends MY_Model
         $warehouse                  = $_SESSION['business_trip']['warehouse'];
         $notes                      = $_SESSION['business_trip']['notes'];
         $person_in_charge           = $_SESSION['business_trip']['person_in_charge'];
-        $selected_person            = getUserById($person_in_charge);
-        $person_name                = $selected_person['person_name'];
+        $selected_person            = getEmployeeByEmployeeNumber($person_in_charge);
+        $person_name                = $selected_person['name'];
         $department_id              = $_SESSION['business_trip']['department_id'];
         $head_dept                      = $_SESSION['business_trip']['head_dept'];
         $business_trip_destination_id   = $_SESSION['business_trip']['business_trip_destination_id'];
@@ -306,11 +306,11 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->set('document_id', $document_id);
         $this->db->set('action','requested by');
         $this->db->set('date', $date);
-        $this->db->set('username', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?config_item('auth_username'):$getSignRequestBy['username']);
-        $this->db->set('person_name', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?config_item('auth_person_name'):$getSignRequestBy['person_name']);
-        $this->db->set('roles', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?config_item('auth_role'):$getSignRequestBy['roles']);
+        $this->db->set('username', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['username']:config_item('auth_username'));
+        $this->db->set('person_name', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['person_name']:config_item('auth_person_name'));
+        $this->db->set('roles', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['roles']:config_item('auth_role'));
         $this->db->set('notes', null);
-        $this->db->set('sign', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?get_ttd(config_item('auth_person_name')):$getSignRequestBy['sign']);
+        $this->db->set('sign', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['sign']:get_ttd(config_item('auth_person_name')));
         $this->db->set('created_at', date('Y-m-d H:i:s'));
         $this->db->insert('tb_signers');
 
@@ -343,8 +343,8 @@ class Business_Trip_Request_Model extends MY_Model
             $this->db->set('expense_name', $expense);
             $this->db->set('expense_description', NULL);
             $this->db->set('qty', $duration);
-            $this->db->set('amount', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?200000:0);
-            $this->db->set('total', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?(200000*$duration):0);
+            $this->db->set('amount', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?$selected_person['left_plafon_biaya_dinas']:0);
+            $this->db->set('total', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?($selected_person['left_plafon_biaya_dinas']*$duration):0);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->insert('tb_business_trip_purpose_items');
@@ -746,5 +746,47 @@ class Business_Trip_Request_Model extends MY_Model
         }
 
         
+    }
+
+    public function listAttachment($id)
+    {
+        $this->db->where('id_poe', $id);
+        $this->db->where('tipe', 'SPD');
+        $this->db->where(array('deleted_at' => NULL));
+        return $this->db->get('tb_attachment_poe')->result_array();
+    }
+
+    function add_attachment_to_db($id_poe, $url,$tipe_att='other')
+    {
+        $this->db->trans_begin();
+
+        $this->db->set('id_poe', $id_poe);
+        $this->db->set('id_po', $id_poe);
+        $this->db->set('file', $url);
+        $this->db->set('tipe', 'SPD');
+        $this->db->set('tipe_att', $tipe_att);
+        $this->db->insert('tb_attachment_poe');
+
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        return TRUE;
+    }
+
+    function delete_attachment_in_db($id_att)
+    {
+        $this->db->trans_begin();
+
+        $this->db->set('deleted_at',date('Y-m-d'));
+        $this->db->set('deleted_by', config_item('auth_person_name'));
+        $this->db->where('id', $id_att);
+        $this->db->update('tb_attachment_poe');
+
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        return TRUE;
     }
 }

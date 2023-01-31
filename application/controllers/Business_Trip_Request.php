@@ -542,58 +542,11 @@ class Business_Trip_Request extends MY_Controller
         echo json_encode($data);
     }
 
-    public function add_item()
-    {
-        $this->authorized($this->module, 'document');
-
-        if (isset($_POST) && !empty($_POST)){
-        $_SESSION['receipt']['items'][] = array(
-            //'id'                      => $id_item++,
-            'group'                   => $this->input->post('group'),
-            'description'             => trim(strtoupper($this->input->post('description'))),
-            'part_number'             => trim(strtoupper($this->input->post('part_number'))),
-            'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
-            'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-            'received_quantity'       => $this->input->post('received_quantity'),
-            'received_unit_value'     => $this->input->post('received_unit_value'),
-            'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
-            'minimum_quantity'        => $this->input->post('minimum_quantity'),
-            'condition'               => $this->input->post('condition'),
-            'expired_date'            => $this->input->post('expired_date'),
-            'stores'                  => trim(strtoupper($this->input->post('stores'))),
-            'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
-            'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
-            'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
-            'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
-            'unit'                    => trim($this->input->post('unit')),
-            'received_unit'           => trim($this->input->post('received_unit')),
-            'remarks'                 => trim($this->input->post('remarks')),
-            'kode_stok'               => trim($this->input->post('kode_stok')),
-            'currency'                => trim($this->input->post('kurs')),
-            'unit_pakai'              => trim($this->input->post('unit_pakai')),
-            'isi'                     => trim($this->input->post('isi')),
-            'quantity_order'          => $this->input->post('quantity_order'),
-            'value_order'             => $this->input->post('value_order'),
-            'no_expired_date'         => $this->input->post('no_expired_date'),
-            'tgl_nota'                => $this->input->post('tgl_nota'),
-            'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
-            'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
-
-        );
-
-        if (empty($_SESSION['receipt']['received_from'])){
-            $_SESSION['receipt']['received_from'] = strtoupper($this->input->post('consignor'));
-        }
-        }
-
-        redirect($this->module['route'] .'/create');
-    }
-
     public function discard()
     {
-        $this->authorized($this->module['permission']['document']);
+        $this->authorized($this->module['permission']['create']);
 
-        unset($_SESSION['receipt']);
+        unset($_SESSION['business_trip']);
 
         redirect($this->module['route']);
     }
@@ -625,61 +578,6 @@ class Business_Trip_Request extends MY_Controller
         }
 
         echo json_encode($alert);
-    }
-
-    public function ajax_editItem($key)
-    {
-        $this->authorized($this->module, 'document');    
-
-        $entity = $_SESSION['receipt']['items'][$key];
-
-        echo json_encode($entity);
-    }
-
-    public function edit_item()
-    {
-        $this->authorized($this->module, 'document');
-
-        $key=$this->input->post('item_id');
-        if (isset($_POST) && !empty($_POST)){
-        //$receipts_items_id = $this->input->post('item_id')
-        $_SESSION['receipt']['items'][$key] = array(        
-            'group'                   => $this->input->post('group'),
-            'description'             => trim(strtoupper($this->input->post('description'))),
-            'part_number'             => trim(strtoupper($this->input->post('part_number'))),
-            'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
-            'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-            'received_quantity'       => $this->input->post('received_quantity'),
-            'received_unit_value'     => $this->input->post('received_unit_value'),
-            'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
-            'minimum_quantity'        => $this->input->post('minimum_quantity'),
-            'condition'               => $this->input->post('condition'),
-            'expired_date'            => $this->input->post('expired_date'),
-            'stores'                  => trim(strtoupper($this->input->post('stores'))),
-            'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
-            'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
-            'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
-            'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
-            'unit'                    => trim($this->input->post('unit')),
-            'received_unit'           => trim($this->input->post('received_unit')),
-            'remarks'                 => trim($this->input->post('remarks')),
-            'kode_stok'               => trim($this->input->post('kode_stok')),
-            'currency'                => trim($this->input->post('kurs')),        
-            'unit_pakai'              => trim($this->input->post('unit_pakai')), 
-            'isi'                     => trim($this->input->post('isi')),
-            'quantity_order'          => $this->input->post('quantity_order'),
-            'value_order'             => $this->input->post('value_order'),
-            'no_expired_date'         => $this->input->post('no_expired_date'),
-            'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
-            'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
-            'tgl_nota'                => $this->input->post('tgl_nota'),        
-            'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
-            'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
-
-        );
-        }
-        redirect($this->module['route'] .'/create');
-
     }
 
     public function multi_approve()
@@ -793,6 +691,46 @@ class Business_Trip_Request extends MY_Controller
 
         redirect($this->module['route']);
     }  
+
+    public function manage_attachment($id)
+    {
+        $this->authorized($this->module, 'info');
+
+        $this->data['manage_attachment'] = $this->model->listAttachment($id);
+        $this->data['id'] = $id;
+        $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function add_attachment_to_db($id)
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        $config['upload_path'] = 'attachment/spd/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+            $error = array('error' => $this->upload->display_errors());
+            $result["status"] = $error;
+        } else {
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            // array_push($_SESSION["poe"]["attachment"], $url);
+            $this->model->add_attachment_to_db($id, $url);
+            $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function delete_attachment_in_db($id_att, $id_poe)
+    {
+        $this->model->delete_attachment_in_db($id_att);
+
+        redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+        // echo json_encode($result);
+    }
 
     public function test()
     {
