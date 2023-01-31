@@ -348,7 +348,7 @@ class MY_Controller extends CI_Controller
     $this->db->select('tb_head_department.username,tb_auth_users.person_name');
     $this->db->from('tb_head_department');
     $this->db->join('tb_auth_users','tb_auth_users.username=tb_head_department.username');
-    $this->db->where('tb_head_department.department_id', $department_id);
+    $this->db->where('tb_head_department.department_id', 11);
     $this->db->where('tb_head_department.status', 'active');
     $this->db->order_by('tb_head_department.username', 'ASC');
 

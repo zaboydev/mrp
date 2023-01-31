@@ -66,12 +66,13 @@ class Business_Trip_Request_Model extends MY_Model
                 $this->db->where('tb_business_trip_purposes.status', $search_status);         
             }            
         }else{    
-            if (config_item('as_head_department')=='yes'){
+            
+            if (in_array(config_item('auth_username'),config_item('hr_manager'))){                
+                $this->db->where_in('tb_business_trip_purposes.status ', ['WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY HEAD DEPT']);
+            }
+            elseif (config_item('as_head_department')=='yes'){
                 $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
                 $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
-            }
-            elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
-                $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HR MANAGER');
             }
         }
 
