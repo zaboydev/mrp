@@ -526,6 +526,19 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isLevelExists($level, $level_exception = NULL)
+  {
+    $this->db->from(config_item('module')['level']['table']);
+    $this->db->where('level', $level);
+
+    if ($level_exception !== NULL)
+      $this->db->where('level != ', $level_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
   
 
 }

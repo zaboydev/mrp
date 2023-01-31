@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class User_Position_Model extends MY_Model
+class Level_Model extends MY_Model
 {
     protected $module;
 
@@ -8,14 +8,13 @@ class User_Position_Model extends MY_Model
     {
         parent::__construct();
 
-        $this->module = config_item('module')['user_position'];
+        $this->module = config_item('module')['level'];
     }
 
     public function getSelectedColumns()
     {
         return array(
             'No',
-            'Position',
             'Level',
             'Code',
             'Notes',
@@ -26,7 +25,6 @@ class User_Position_Model extends MY_Model
     public function getSearchableColumns()
     {
         return array(
-            'position',
             'level',
             'code',
             'notes',
@@ -37,7 +35,6 @@ class User_Position_Model extends MY_Model
     {
         return array(
             null,
-            'position',
             'level',
             'code',
             'notes',
@@ -69,7 +66,7 @@ class User_Position_Model extends MY_Model
     function getIndex($return = 'array')
     {
         $this->db->select('*');
-        $this->db->from('tb_master_positions');
+        $this->db->from('tb_master_levels');
 
         $this->searchIndex();
 
@@ -99,7 +96,7 @@ class User_Position_Model extends MY_Model
 
     function countIndexFiltered()
     {
-        $this->db->from('tb_master_positions');
+        $this->db->from('tb_master_levels');
 
         $this->searchIndex();
 
@@ -110,7 +107,7 @@ class User_Position_Model extends MY_Model
 
     public function countIndex()
     {
-        $this->db->from('tb_master_positions');
+        $this->db->from('tb_master_levels');
 
         $query = $this->db->get();
 
@@ -119,7 +116,7 @@ class User_Position_Model extends MY_Model
 
     public function findById($id)
     {
-        $this->db->from('tb_master_positions');
+        $this->db->from('tb_master_levels');
         $this->db->where('id',$id);
 
         $query = $this->db->get();
@@ -129,7 +126,7 @@ class User_Position_Model extends MY_Model
 
     public function findOneBy($criteria)
     {
-        $this->db->from('tb_master_positions');
+        $this->db->from('tb_master_levels');
         $this->db->where($criteria);
 
         $query = $this->db->get();
@@ -142,7 +139,7 @@ class User_Position_Model extends MY_Model
         $this->db->trans_begin();
 
         $this->db->set($user_data);
-        $this->db->insert('tb_master_positions');
+        $this->db->insert('tb_master_levels');
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;
@@ -157,7 +154,7 @@ class User_Position_Model extends MY_Model
 
         $this->db->set($user_data);
         $this->db->where('id',$id);
-        $this->db->update('tb_master_positions');
+        $this->db->update('tb_master_levels');
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;
@@ -173,7 +170,7 @@ class User_Position_Model extends MY_Model
         $id = $this->input->post('id');
 
         $this->db->where('id', $id);
-        $this->db->delete('tb_master_positions');
+        $this->db->delete('tb_master_levels');
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;

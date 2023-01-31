@@ -3141,4 +3141,32 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('available_levels')) {
+    function available_levels($level = NULL)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('level');
+      $CI->db->from('tb_master_levels');
+  
+      if ($level !== NULL){
+        if (is_array($level)){
+          $CI->db->where_not_in('level', $level);
+        } else {
+          $CI->db->where('level != ', $level);
+        }
+      }
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      $return = array();
+  
+      foreach ($result as $row) {
+        $return[] = $row['level'];
+      }
+  
+      return $return;
+    }
+  }
+
     

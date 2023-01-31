@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class User_Position extends MY_Controller
+class Level extends MY_Controller
 {
     protected $module;
 
@@ -8,7 +8,7 @@ class User_Position extends MY_Controller
     {
         parent::__construct();
 
-        $this->module = $this->modules['user_position'];
+        $this->module = $this->modules['level'];
         $this->load->model($this->module['model'], 'model');
         $this->load->helper(array('form', 'url'));
         $this->load->library('upload');
@@ -20,7 +20,7 @@ class User_Position extends MY_Controller
     {
         $this->authorized($this->module, 'index');
 
-        $this->data['page']['title']        = 'Position';
+        $this->data['page']['title']        = 'Level';
         $this->data['page']['requirement']  = array('datatable', 'form_create', 'form_edit');
         $this->data['grid']['column']           = $this->model->getSelectedColumns();
         $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
@@ -54,7 +54,6 @@ class User_Position extends MY_Controller
                 $no++;
                 $col = array();
                 $col[] = print_number($no);
-                $col[] = print_string($row['position']);
                 $col[] = print_string($row['level']);
                 $col[] = print_string($row['code']);
                 $col[] = print_string($row['notes']);
@@ -125,55 +124,53 @@ class User_Position extends MY_Controller
             $return['info'] = "You don't have permission to access this page!";
         } else {
             if ($this->input->post('id')){
-                if ($this->model->isPositionExists($this->input->post('position'), $this->input->post('user_position_exception'))){
+                if ($this->model->isLevelExists($this->input->post('level'), $this->input->post('level_exception'))){
                     $return['type'] = 'danger';
-                    $return['info'] = 'Duplicate Position! Position '. $this->input->post('position') .' already exists.';
+                    $return['info'] = 'Duplicate Level! Level '. $this->input->post('level') .' already exists.';
                 } else {
-                    $position_data = array(
-                        'position'                  => strtoupper($this->input->post('position')),
-                        'level'                     => $this->input->post('level'),
+                    $form_data = array(
+                        'level'                     => strtoupper($this->input->post('level')),
                         'code'                      => strtoupper($this->input->post('code')),
                         'notes'                     => $this->input->post('notes'),
-                        'plafon_biaya_dinas'        => $this->input->post('plafon_biaya_dinas'),
-                        'plafon_biaya_kesehatan'    => $this->input->post('plafon_biaya_kesehatan'),
-                        'cuti'                      => $this->input->post('cuti'),
+                        // 'plafon_biaya_dinas'        => $this->input->post('plafon_biaya_dinas'),
+                        // 'plafon_biaya_kesehatan'    => $this->input->post('plafon_biaya_kesehatan'),
+                        // 'cuti'                      => $this->input->post('cuti'),
                         'updated_by'                => config_item('auth_person_name'),
                         'updated_at'                => date('Y-m-d H:i:s'),
                     );
 
                     $criteria = $this->input->post('id');
 
-                    if ($this->model->update($position_data, $criteria)){
+                    if ($this->model->update($form_data, $criteria)){
                         $return['type'] = 'success';
-                        $return['info'] = 'Position ' . $this->input->post('position') .' updated.';
+                        $return['info'] = 'Level ' . $this->input->post('level') .' updated.';
                     } else {
                         $return['type'] = 'danger';
                         $return['info'] = 'There are error while updating data. Please try again later.';
                     }
                 }
             } else {
-                if ($this->model->isPositionExists($this->input->post('position'))){
+                if ($this->model->isLevelExists($this->input->post('level'))){
                     $return['type'] = 'danger';
-                    $return['info'] = 'Duplicate Position! Position '. $this->input->post('position') .' already exists.';
+                    $return['info'] = 'Duplicate Level! Level '. $this->input->post('level') .' already exists.';
                 } else {
 
-                    $position_data = array(
-                        'position'                  => strtoupper($this->input->post('position')),
-                        'level'                     => $this->input->post('level'),
+                    $form_data = array(
+                        'level'                     => strtoupper($this->input->post('level')),
                         'code'                      => strtoupper($this->input->post('code')),
                         'notes'                     => $this->input->post('notes'),
-                        'plafon_biaya_dinas'        => $this->input->post('plafon_biaya_dinas'),
-                        'plafon_biaya_kesehatan'    => $this->input->post('plafon_biaya_kesehatan'),
-                        'cuti'                      => $this->input->post('cuti'),
+                        // 'plafon_biaya_dinas'        => $this->input->post('plafon_biaya_dinas'),
+                        // 'plafon_biaya_kesehatan'    => $this->input->post('plafon_biaya_kesehatan'),
+                        // 'cuti'                      => $this->input->post('cuti'),
                         'created_by'                => config_item('auth_person_name'),
                         'created_at'                => date('Y-m-d H:i:s'),
                         'updated_by'                => config_item('auth_person_name'),
                         'updated_at'                => date('Y-m-d H:i:s'),
                     );
 
-                    if ($this->model->insert($position_data)){
+                    if ($this->model->insert($form_data)){
                         $return['type'] = 'success';
-                        $return['info'] = 'Position for ' . $this->input->post('position') .' created.';
+                        $return['info'] = 'Level for ' . $this->input->post('level') .' created.';
                     } else {
                         $return['type'] = 'danger';
                         $return['info'] = 'There are error while updating data. Please try again later.';

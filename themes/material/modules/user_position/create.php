@@ -29,6 +29,17 @@
                         </div>
 
                         <div class="form-group">
+                            <select name="level" id="level" class="form-control" required>
+                                <?php foreach (available_levels() as $level) : ?>
+                                <option value="<?= $level; ?>">
+                                    <?= $level; ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <label for="level">Level</label>
+                        </div>
+
+                        <div class="form-group">
                             <input type="text" name="code" id="code" class="form-control" data-validation-rule="unique" data-validation-url="<?= site_url('ajax/user_position_code_validation'); ?>" data-validation-exception="" required>
                             <label for="code">Code</label>
                         </div>
