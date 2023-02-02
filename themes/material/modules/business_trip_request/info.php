@@ -43,10 +43,10 @@
               <dt>Rejected By</dt>
               <dd><?=($entity['rejected_by']==null)? 'N/A':print_string($entity['rejected_by']);?></dd>
             <?php else:?>
-              <dt>Known By</dt>
+              <dt>Known By Head Dept</dt>
               <dd><?=($entity['known_by']==null)? 'N/A':print_string($entity['known_by']);?></dd>
 
-              <dt>Approved By</dt>
+              <dt>Approved By HR</dt>
               <dd><?=($entity['approved_by']==null)? 'N/A':print_string($entity['approved_by']);?></dd>
             <?php endif;?>
 
@@ -158,6 +158,12 @@
                 <!-- <i class="material-symbols-outlined">edit_square</i> -->
                 <i class="md md-border-color"></i>
                 <small class="top right">Edit & Approve</small>
+            </a>
+            <?php endif;?>
+            <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HR MANAGER'):?>
+            <a href="<?=site_url($module['route'] .'/hr_approve/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+                <i class="md md-spellcheck"></i>
+                <small class="top right">HR Approve</small>
             </a>
             <?php endif;?>
         

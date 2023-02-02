@@ -79,6 +79,7 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
       <p>
         Approved by
         <br />Supervisor
+        <br />&nbsp;
         <?php if ($entity['signers']['known by']['sign']) : ?>
           <?=print_date($entity['signers']['known by']['date'],'d M Y');?>
           <br>
@@ -93,7 +94,7 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
       <p>
         Approved by
         <br />HR Manager
-        <br />&nbsp;<br>
+        <br />&nbsp;
         <?php if ($entity['signers']['approved by']['sign']) : ?>
           <?=print_date($entity['signers']['approved by']['date'],'d M Y');?>
           <br>

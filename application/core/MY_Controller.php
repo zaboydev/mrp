@@ -317,28 +317,19 @@ class MY_Controller extends CI_Controller
   protected function auth_annual_cost_centers_id()
   {
     $year = $this->find_budget_setting('Active Year');
-    if ($_SESSION['auth_level'] > 5){
-      $this->connection->select(array('tb_annual_cost_centers.id'));
-      $this->connection->from('tb_users_mrp_in_annual_cost_centers');
-      $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
-      $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
-      $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
-      $this->connection->where('tb_annual_cost_centers.year_number', $year);
-    } else {
-      $this->connection->select(array('tb_annual_cost_centers.id'));
-      $this->connection->from('tb_users_mrp_in_annual_cost_centers');
-      $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
-      $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
-      $this->connection->order_by('cost_center_name', 'ASC');
-    }
+    $this->connection->select(array('tb_users_mrp_in_annual_cost_centers.annual_cost_center_id'));
+    $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+    $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+    $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
+    $this->connection->where('tb_annual_cost_centers.year_number', $year);
 
     $query  = $this->connection->get();
     $result = $query->result_array();
-    // $return = array();
+    $return = array();
 
-    // foreach ($result as $row) {
-    //   $return[] = $row['cost_center_name'];
-    // }
+    foreach ($result as $row) {
+      $return[] = $row['annual_cost_center_id'];
+    }
 
     return $result;
   }

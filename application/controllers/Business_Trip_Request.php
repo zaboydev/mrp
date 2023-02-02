@@ -308,18 +308,18 @@ class Business_Trip_Request extends MY_Controller
     public function info($id)
     {
         if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] .'/denied');
+            redirect($this->modules['secure']['route'] .'/denied');
 
         if (is_granted($this->module, 'info') === FALSE){
-        $return['type'] = 'denied';
-        $return['info'] = "You don't have permission to access this data. You may need to login again.";
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
         } else {
-        $entity = $this->model->findById($id);
+            $entity = $this->model->findById($id);
 
-        $this->data['entity'] = $entity;
+            $this->data['entity'] = $entity;
 
-        $return['type'] = 'success';
-        $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
         }
 
         echo json_encode($return);
@@ -536,6 +536,60 @@ class Business_Trip_Request extends MY_Controller
         
                     $data['success'] = TRUE;
                     $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
+                } else {
+                    $data['success'] = FALSE;
+                    $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                }
+            }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function hr_approve($id)
+    {
+        $this->authorized($this->module, 'approval');
+
+        $entity = $this->model->findById($id);
+
+        if($entity['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+            $_SESSION['business_trip']['id']                        = $id;
+            $_SESSION['business_trip']['edit']                      = $entity['document_number'];
+            $_SESSION['business_trip']['document_number']           = $entity['document_number'];
+            $_SESSION['business_trip']['format_number']             = $format_number.'-R'.$revisi;
+            $this->data['entity'] = $entity;        
+
+            $this->data['page']['content']    = $this->module['view'] .'/create';
+            $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+
+            $this->render_view($this->module['view'] .'/hr_approve', $this->data);
+        }else{
+            redirect(site_url('secure/denied'));
+        }        
+    }
+
+    public function save_hr_approve()
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'approval') == FALSE){
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+
+            $document_number = $_SESSION['business_trip']['document_number'];
+            $errors = array();
+
+            if (!empty($errors)){
+                $data['success'] = FALSE;
+                $data['message'] = implode('<br />', $errors);
+            } else {
+                if ($this->model->save_hr_approve()){
+                    unset($_SESSION['business_trip']);
+        
+                    $data['success'] = TRUE;
+                    $data['message'] = 'Document '. $document_number .' has been approved by HR. You will redirected now.';
                 } else {
                     $data['success'] = FALSE;
                     $data['message'] = 'Error while saving this document. Please ask Technical Support.';

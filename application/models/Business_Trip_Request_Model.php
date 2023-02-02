@@ -9,6 +9,7 @@ class Business_Trip_Request_Model extends MY_Model
         parent::__construct();
 
         $this->module = config_item('module')['business_trip_request'];
+        // $this->data['modules']        = $this->modules;
     }
 
     public function getSelectedColumns()
@@ -104,6 +105,9 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->select($selected);
         $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
         $this->db->from('tb_business_trip_purposes');
+        if(is_granted($this->module, 'approval') === FALSE){
+            $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
+        }
 
         $this->searchIndex();
 
@@ -135,6 +139,9 @@ class Business_Trip_Request_Model extends MY_Model
     {
         $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
         $this->db->from('tb_business_trip_purposes');
+        if(is_granted($this->module, 'approval') === FALSE){
+            $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
+        }
 
         $this->searchIndex();
 
@@ -147,6 +154,9 @@ class Business_Trip_Request_Model extends MY_Model
     {
         $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
         $this->db->from('tb_business_trip_purposes');
+        if(is_granted($this->module, 'approval') === FALSE){
+            $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
+        }
 
         $query = $this->db->get();
 
@@ -361,6 +371,71 @@ class Business_Trip_Request_Model extends MY_Model
             $this->send_mail($document_id,'head_dept','request');
         }
             
+
+        $this->db->trans_commit();
+        return TRUE;
+    }
+
+    public function save_hr_approve()
+    {
+        $this->db->trans_begin();
+
+        $id = $_SESSION['business_trip']['id'];
+
+        $this->db->select('*');
+        $this->db->where('id', $id);
+        $this->db->from('tb_business_trip_purposes');
+
+        $query = $this->db->get();
+        $row   = $query->unbuffered_row('array');
+
+        $this->db->set('status','APPROVED');
+        $this->db->set('approved_by',config_item('auth_person_name'));
+        $this->db->where('id', $id);
+        $this->db->update('tb_business_trip_purposes');
+
+        
+        $this->db->set('document_type','SPD');
+        $this->db->set('document_number',$row['document_number']);
+        $this->db->set('document_id', $id);
+        $this->db->set('action','approved by');
+        $this->db->set('date', date('Y-m-d'));
+        $this->db->set('username', config_item('auth_username'));
+        $this->db->set('person_name', config_item('auth_person_name'));
+        $this->db->set('roles', 'HR');
+        $this->db->set('notes', $this->input->post('approval_notes'));
+        $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+        $this->db->set('created_at', date('Y-m-d H:i:s'));
+        $this->db->insert('tb_signers');
+
+        $expense_name   = $this->input->post('expense_name');
+        $qty            = $this->input->post('qty');
+        $amount         = $this->input->post('amount');
+        $total          = $this->input->post('total');
+
+        $this->db->where('business_trip_purpose_id', $id);
+        $this->db->delete('tb_business_trip_purpose_items');
+
+        foreach ($expense_name as $key=>$expense_name_item){
+            if($expense_name_item!=''){
+                $this->db->set('business_trip_purpose_id', $id);
+                $this->db->set('business_trip_destination_item_id', NULL);
+                $this->db->set('expense_name', $expense_name_item);
+                $this->db->set('expense_description', NULL);
+                $this->db->set('qty', $qty[$key]);
+                $this->db->set('amount', $amount[$key]);
+                $this->db->set('total', ($qty[$key]*$amount[$key]));
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->set('updated_by', config_item('auth_person_name'));
+                $this->db->insert('tb_business_trip_purpose_items');
+            }
+            
+        }
+
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+
+        $this->send_mail_approval($id,config_item('auth_person_name'),'approve');            
 
         $this->db->trans_commit();
         return TRUE;
