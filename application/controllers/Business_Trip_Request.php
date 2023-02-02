@@ -90,7 +90,7 @@ class Business_Trip_Request extends MY_Controller
             $result = array(
                 "draw"            => $_POST['draw'],
                 "recordsTotal"    => $this->model->countIndex(),
-                "recordsFiltered" => $this->model->countIndexFiltered(),
+                "recordsFiltered" => $no,
                 "data"            => $data,
                 "total"           => array(
                     
