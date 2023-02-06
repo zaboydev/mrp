@@ -45,8 +45,6 @@ class Business_Trip_Request extends MY_Controller
                     if (is_granted($this->module, 'approval')){
                         if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                        }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
-                            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                         }else{
                             $col[] = print_number($no);
                         }                    
@@ -462,6 +460,7 @@ class Business_Trip_Request extends MY_Controller
 
         $this->data['page']['content']    = $this->module['view'] .'/create';
         $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+        $this->data['page']['title']      = "EDIT & APPROVE SURAT PERJALANAN DINAS";
 
         $this->render_view($this->module['view'] .'/edit_approve');
     }
@@ -561,6 +560,8 @@ class Business_Trip_Request extends MY_Controller
 
             $this->data['page']['content']    = $this->module['view'] .'/create';
             $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+            
+            $this->data['page']['title']      = "HR APPROVE SURAT PERJALANAN DINAS";
 
             $this->render_view($this->module['view'] .'/hr_approve', $this->data);
         }else{

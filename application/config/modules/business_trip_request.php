@@ -19,5 +19,5 @@ $config['module']['business_trip_request']['permission']  = array(
     'info'    => 'ADMIN,SUPER ADMIN,PIC STAFF',
     'save'    => 'ADMIN,SUPER ADMIN,PIC STAFF',
     'delete'  => 'ADMIN,SUPER ADMIN,PIC STAFF',
-    'approval'  => '',
+    'approval'  => 'SUPER ADMIN',
 );

@@ -153,7 +153,7 @@
             </a>
             <?php endif;?>
 
-            <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HEAD DEPT' && $row['head_dept']==config_item('auth_username')):?>
+            <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HEAD DEPT' && $entity['head_dept']==config_item('auth_username')):?>
             <a href="<?=site_url($module['route'] .'/edit_approve/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <!-- <i class="material-symbols-outlined">edit_square</i> -->
                 <i class="md md-border-color"></i>

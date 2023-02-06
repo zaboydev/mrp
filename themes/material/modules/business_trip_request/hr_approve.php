@@ -277,6 +277,7 @@
         var el = $(row_payment);
         $('#table-document tbody').append(el);
         $('#table-document tbody tr:last').find('input[name="amount[]"]').number(true, 2, '.', ',');
+        $('#table-document tbody tr:last').find('input[name="total[]"]').number(true, 2, '.', ',');
 
         btn_row_delete_item();
         set_qty();
