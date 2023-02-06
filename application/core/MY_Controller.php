@@ -331,7 +331,7 @@ class MY_Controller extends CI_Controller
       $return[] = $row['annual_cost_center_id'];
     }
 
-    return $result;
+    return $return;
   }
 
   protected function hr_manager()
