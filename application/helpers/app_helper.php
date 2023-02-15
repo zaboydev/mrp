@@ -3360,5 +3360,25 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getDefaultExpenseName')) {
+    function getDefaultExpenseName()
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('tb_master_business_trip_destination_items.expense_name');
+      $CI->db->from('tb_master_business_trip_destination_items');
+      $CI->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
+      $CI->db->group_by('tb_master_business_trip_destination_items.expense_name');
+
+      $query = $CI->db->get();
+
+      foreach ($query->result_array() as $key => $value) {            
+        $row[$key]['expense_name'] = $value['expense_name'];
+      }
+
+      return $row;
+    }
+  }
+
 
     

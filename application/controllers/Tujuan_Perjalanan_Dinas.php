@@ -159,6 +159,9 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
     public function add_expense_item()
     {
         $this->authorized($this->module, 'create');
+        if (empty($_SESSION['tujuan_dinas']['items'])) {
+            $_SESSION['tujuan_dinas']['items'] = getDefaultExpenseName();
+        }
         $this->data['page']['title']            = 'Add Expense Item';
 
         $this->render_view($this->module['view'] . '/add_expense_item');
