@@ -247,6 +247,14 @@ class Business_Trip_Request extends MY_Controller
         $_SESSION['business_trip']['notes'] = $_GET['data'];
     }
 
+    public function set_command_by()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['business_trip']['command_by'] = $_GET['data'];
+    }
+
     public function set_approval_notes()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -288,8 +296,10 @@ class Business_Trip_Request extends MY_Controller
             $_SESSION['business_trip']['id_number']                     = NULL;
             $_SESSION['business_trip']['start_date']                    = NULL;
             $_SESSION['business_trip']['end_date']                      = NULL;
-            $_SESSION['business_trip']['from_base']                      = NULL;
-            $_SESSION['business_trip']['transportation']                      = NULL;
+            $_SESSION['business_trip']['from_base']                     = NULL;
+            $_SESSION['business_trip']['transportation']                = NULL;
+            $_SESSION['business_trip']['command_by']                    = NULL;
+            $_SESSION['business_trip']['attachment']                    = array();
 
             redirect($this->module['route'] .'/create');
         }
@@ -750,6 +760,35 @@ class Business_Trip_Request extends MY_Controller
 
         redirect($this->module['route']);
     }  
+
+    public function attachment()
+    {
+        $this->authorized($this->module, 'create');
+
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function add_attachment()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        $config['upload_path'] = 'attachment/spd/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+            $error = array('error' => $this->upload->display_errors());
+        } else {
+
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            array_push($_SESSION["business_trip"]["attachment"], $url);
+            $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
 
     public function manage_attachment($id)
     {

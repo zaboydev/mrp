@@ -127,16 +127,16 @@
                                             <td>
                                                 <?= $n++; ?>
                                             </td>
-                                            <td class="" style="font-weight:500;">
+                                            <td class="expense_name" style="font-weight:500;">
                                                 <input name="expense_name[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['expense_name'];?>" readonly>
                                             </td>
-                                            <td class="" style="font-weight:500;">
+                                            <td class="qty" style="font-weight:500;">
                                                 <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>">
                                             </td>
-                                            <td class="" style="font-weight:500;word-wrap:break-word;">
+                                            <td class="amount" style="font-weight:500;word-wrap:break-word;">
                                                 <input name="amount[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>">
                                             </td>
-                                            <td style="font-weight:500;">
+                                            <td class="total" style="font-weight:500;">
                                                 <input name="total[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['total'];?>">
                                             </td>
                                         </tr>
@@ -223,18 +223,18 @@
                     <a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i>
                     </a>                     
                 </td>
-                <td class="remarks item-list">
+                <td class="expense_name item-list">
                     <input type="text" name="expense_name[]" class="form-control input-sm">
                 </td>
-                <td class="value item-list">
+                <td class="qty item-list">
                     <input type="text" name="qty[]" value="<?= $entity['duration']?>" class="form-control input-sm">
                 </td>
                 
-                <td class="value item-list">
+                <td class="amount item-list">
                     <input type="text" name="amount[]" class="form-control number input-sm">
                 </td>
 
-                <td class="value item-list">
+                <td class="total item-list">
                     <input type="text" name="total[]" class="form-control number input-sm">
                 </td>
             </tr>
@@ -269,6 +269,8 @@
         $('.progress-overlay').hide();
     });
     $('.number').number(true, 2, '.', ',');
+    set_qty();
+    set_amount();
 
     function addRow() {
         var row_payment = $('.table-row-item tbody').html();
@@ -277,12 +279,44 @@
         $('#table-document tbody tr:last').find('input[name="amount[]"]').number(true, 2, '.', ',');
         $('#table-document tbody tr:last').find('input[name="total[]"]').number(true, 2, '.', ',');
 
-        // btn_row_delete_item();
+        btn_row_delete_item();
+        set_qty();
+        set_amount();
     }
 
     function btn_row_delete_item() {
         $('.btn-row-delete-item').click(function () {
             $(this).parents('tr').remove();
+        });
+    }
+
+    function set_qty() {
+        $('[name="qty[]"]').keyup(function () {
+            var amount = $(this).parents('td').siblings('td.amount').children('input').val();
+
+            var qty = $(this).val();
+            var subtotal = $(this).parents('td').siblings('td.total').children('input');
+            if (qty != '' || qty > 0) {
+                var sub_total = parseFloat(amount) * parseFloat(qty);
+                total = Number.parseFloat(sub_total).toFixed(2);
+                subtotal.val(total);
+                // set_subtotal();
+            }
+        });
+    }
+
+    function set_amount() {
+        $('[name="amount[]"]').keyup(function () {
+            var qty = $(this).parents('td').siblings('td.qty').children('input').val();
+
+            var amount = $(this).val();
+            var subtotal = $(this).parents('td').siblings('td.total').children('input');
+            if (amount != '' || amount > 0) {
+                var sub_total = parseFloat(amount) * parseFloat(qty);
+                total = Number.parseFloat(sub_total).toFixed(2);
+                subtotal.val(total);
+                // set_subtotal();
+            }
         });
     }
 

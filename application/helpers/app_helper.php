@@ -3222,6 +3222,7 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI =& get_instance();
 
       $CI->db->select('tb_master_business_trip_destinations.*');
+      $CI->db->where('tb_master_business_trip_destinations.deleted_at is NULL',null,false);
       $CI->db->from('tb_master_business_trip_destinations');
       $CI->db->order_by('tb_master_business_trip_destinations.business_trip_destination', 'ASC');
 
@@ -3377,6 +3378,42 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       return $row;
+    }
+  }
+  
+  if ( ! function_exists('destination_list_expense_by_id_and_level')) {
+    function destination_list_expense($id,$level)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_business_trip_destination_items.*');
+      $CI->db->where('tb_master_business_trip_destination_items.deleted_at is NULL',null,false);
+      $CI->db->where('tb_master_business_trip_destination_items.business_trip_purposes_id',$id);
+      $CI->db->where('tb_master_business_trip_destination_items.level',$level);
+      $CI->db->from('tb_master_business_trip_destination_items');
+      $CI->db->order_by('tb_master_business_trip_destination_items.expense_name', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getLevelByPosition')) {
+    function getLevelByPosition($position)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_positions.level');
+      $CI->db->from('tb_master_positions');
+      $CI->db->order_by('tb_master_positions.position', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->unbuffered_row('array');
+      $return = $result['level'];
+
+      return $return;
     }
   }
 
