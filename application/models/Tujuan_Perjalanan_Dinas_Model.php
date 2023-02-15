@@ -65,7 +65,8 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
 
     function getIndex($return = 'array')
     {
-        $this->db->select('*');
+        $this->db->select('*');        
+        $this->db->where('tb_master_business_trip_destinations.deleted_at IS NULL', null, false);
         $this->db->from('tb_master_business_trip_destinations');
 
         $this->searchIndex();
@@ -95,7 +96,8 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
     }
 
     function countIndexFiltered()
-    {
+    {       
+        $this->db->where('tb_master_business_trip_destinations.deleted_at IS NULL', null, false);
         $this->db->from('tb_master_business_trip_destinations');
 
         $this->searchIndex();
@@ -107,6 +109,7 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
 
     public function countIndex()
     {
+        $this->db->where('tb_master_business_trip_destinations.deleted_at IS NULL', null, false);
         $this->db->from('tb_master_business_trip_destinations');
 
         $query = $this->db->get();
@@ -120,15 +123,40 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
         $query      = $this->db->get('tb_master_business_trip_destinations');
         $row        = $query->unbuffered_row('array');
 
-        $this->db->select('*');
+        $this->db->select('tb_master_business_trip_destination_items.level');
         $this->db->from('tb_master_business_trip_destination_items');
         $this->db->where('tb_master_business_trip_destination_items.business_trip_purposes_id', $id);
+        $this->db->group_by('tb_master_business_trip_destination_items.level');
+
+        $query_level = $this->db->get();
+
+        foreach ($query_level->result_array() as $key => $level) {
+            $row['levels'][$key]['level'] = $level['level'];            
+        }
+
+        $this->db->select('tb_master_business_trip_destination_items.expense_name');
+        $this->db->from('tb_master_business_trip_destination_items');
+        $this->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
+        $this->db->where('tb_master_business_trip_destination_items.business_trip_purposes_id', $id);
+        $this->db->group_by('tb_master_business_trip_destination_items.expense_name');
 
         $query = $this->db->get();
 
-        foreach ($query->result_array() as $key => $value) {
-            $row['expense'][$key] = $value;
+        foreach ($query->result_array() as $key => $value) {            
+            $row['items'][$key] = $value;
+            foreach ($row['levels'] as $id => $level) {
+                $this->db->select('tb_master_business_trip_destination_items.amount');
+                $this->db->from('tb_master_business_trip_destination_items');
+                $this->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
+                $this->db->where('tb_master_business_trip_destination_items.expense_name', $value['expense_name']);
+                $this->db->where('tb_master_business_trip_destination_items.level', $level['level']);
+                $query_level_amount = $this->db->get();
+                $row_level_amount        = $query_level_amount->unbuffered_row('array');
+                $row['items'][$key]['levels'][$id]['amount'] = $row_level_amount['amount'];
+            }            
         }
+
+        
 
         return $row;
     }
@@ -147,23 +175,39 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
     {
         $this->db->trans_begin();
 
-        $this->db->set('business_trip_destination', $this->input->post('business_trip_destination'));
-        $this->db->set('notes', $this->input->post('notes'));
-        $this->db->set('created_by', config_item('auth_person_name'));
-        $this->db->set('updated_by', config_item('auth_person_name'));
-        $this->db->insert('tb_master_business_trip_destinations');
-        $business_trip_destination_id = $this->db->insert_id();
-
-        $expense_names   = $this->input->post('expense_name');
-        $amounts         = $this->input->post('amount');
-
-        foreach ($expense_names as $key=>$expense_name){
-            $this->db->set('business_trip_purposes_id', $business_trip_destination_id);
-            $this->db->set('expense_name', $expense_name);
-            $this->db->set('amount', $amounts[$key]);
+        $id          = (isset($_SESSION['tujuan_dinas']['id'])) ? $_SESSION['tujuan_dinas']['id'] : NULL;
+        if($id!=NULL){
+            $this->db->set('business_trip_destination', $_SESSION['tujuan_dinas']['business_trip_destination']);
+            $this->db->set('notes', $_SESSION['tujuan_dinas']['notes']);
+            $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->where('id', $id);
+            $this->db->update('tb_master_business_trip_destinations');
+            $business_trip_destination_id = $id;
+            
+            $this->db->set('deleted_at', date('Y-m-d H:i:s'));
+            $this->db->set('deleted_by', config_item('auth_person_name'));
+            $this->db->where('business_trip_purposes_id', $id);
+            $this->db->update('tb_master_business_trip_destination_items');
+        }else{
+            $this->db->set('business_trip_destination', $_SESSION['tujuan_dinas']['business_trip_destination']);
+            $this->db->set('notes', $_SESSION['tujuan_dinas']['notes']);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
-            $this->db->insert('tb_master_business_trip_destination_items');
+            $this->db->insert('tb_master_business_trip_destinations');
+            $business_trip_destination_id = $this->db->insert_id();
+        }        
+
+        foreach ($_SESSION['tujuan_dinas']['items'] as $i => $item) {
+            foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level){
+                $amount = $_SESSION['tujuan_dinas']['items'][$i]['levels'][$key]['amount'];
+                $this->db->set('business_trip_purposes_id', $business_trip_destination_id);
+                $this->db->set('level', $level['level']);
+                $this->db->set('expense_name', $item['expense_name']);
+                $this->db->set('amount', $amount);
+                $this->db->set('created_by', config_item('auth_person_name'));
+                $this->db->set('updated_by', config_item('auth_person_name'));
+                $this->db->insert('tb_master_business_trip_destination_items');
+            }            
         }
 
         if ($this->db->trans_status() === FALSE)
@@ -212,9 +256,16 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
         $this->db->trans_begin();
 
         $id = $this->input->post('id');
+        
+        $this->db->set('deleted_at', date('Y-m-d H:i:s'));
+        $this->db->set('deleted_by', config_item('auth_person_name'));
+        $this->db->where('business_trip_purposes_id', $id);
+        $this->db->update('tb_master_business_trip_destination_items');
 
+        $this->db->set('deleted_at', date('Y-m-d H:i:s'));
+        $this->db->set('deleted_by', config_item('auth_person_name'));
         $this->db->where('id', $id);
-        $this->db->delete('tb_master_business_trip_destinations');
+        $this->db->update('tb_master_business_trip_destinations');
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;
@@ -226,6 +277,7 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
     public function countExpenseAmount($business_trip_purposes_id)
     {
         $this->db->select_sum('tb_master_business_trip_destination_items.amount', 'expense_amount');
+        $this->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
         $this->db->where('tb_master_business_trip_destination_items.business_trip_purposes_id',$business_trip_purposes_id);
         $this->db->from('tb_master_business_trip_destination_items');
         $query  = $this->db->get();

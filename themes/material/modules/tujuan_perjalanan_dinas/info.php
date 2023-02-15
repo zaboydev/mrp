@@ -13,28 +13,9 @@
 
     <div class="card-body">
         <div class="row" id="document_master">
-            <div class="col-sm-12 col-md-4 col-md-push-8">
-                <div class="well">
-                    <div class="clearfix">
-                        <div class="pull-left">DOCUMENT NO.: </div>
-                        <div class="pull-right"><?=print_string($entity['document_number']);?></div>
-                    </div>
-                    <div class="clearfix">
-                        <div class="pull-left">DATE: </div>
-                        <div class="pull-right"><?=print_date($entity['received_date']);?></div>
-                    </div>
-                    <div class="clearfix">
-                        <div class="pull-left">BASE: </div>
-                        <div class="pull-right"><?=print_string($entity['warehouse']);?></div>
-                    </div>
-                    <div class="clearfix">
-                        <div class="pull-left">INVENTORY: </div>
-                        <div class="pull-right"><?=print_string($entity['category']);?></div>
-                    </div>
-                </div>
-            </div>
+            
 
-            <div class="col-sm-12 col-md-8 col-md-pull-4">
+            <div class="col-sm-12 col-md-12">
                 <dl class="dl-inline">
                     <dt>Business Trip Destination</dt>
                     <dd><?=$entity['business_trip_destination'];?></dd>
@@ -56,13 +37,17 @@
                             <tr>
                                 <th>No</th>
                                 <th>Expense Name</th>
-                                <th>Amount</th>
+                                <?php foreach ($entity['levels'] as $key => $level) : ?>
+                                <th class="" style="text-align:right;">
+                                    <?= $level['level'] ?>
+                                </th>
+                                <?php endforeach; ?>
                             </tr>
                         </thead>
                         <tbody id="table_contents">
                         <?php $n = 0;?>
                         <?php $total_expense = array();?>
-                        <?php foreach ($entity['expense'] as $i => $detail):?>
+                        <?php foreach ($entity['items'] as $i => $detail):?>
                             <?php $n++;?>
                             <tr>
                                 <td class="no-space">
@@ -71,20 +56,17 @@
                                 <td>
                                     <?=print_string($detail['expense_name']);?>
                                 </td>
-                                
-                                <td>
-                                    <?=print_number($detail['amount'], 2);?>
-                                    <?php $total_expense[] = $detail['amount'];?>
+                                <?php foreach ($entity['levels'] as $key => $level) : ?>
+                                <td style="text-align:right;">
+                                    <?=print_number($entity['items'][$i]['levels'][$key]['amount'], 2);?>
+                                    <?php $total_expense[] = $entity['items'][$i]['levels'][$key]['amount'];?>
                                 </td>
+                                <?php endforeach; ?>
                             </tr>
                         <?php endforeach;?>
                         </tbody>
                         <tfoot>
-                        <tr>
-                            <th>Total</th>
-                            <th></th>
-                            <th><?=print_number(array_sum($total_expense), 2);?></th>
-                        </tr>
+                        
                         </tfoot>
                     </table>
                 </div>
@@ -93,12 +75,7 @@
     </div>
 
     <div class="card-foot">
-        <?php
-            $today    = date('Y-m-d');
-            $date     = strtotime('-2 day',strtotime($today));
-            $data     = date('Y-m-d',$date);
-        ?>
-        <?php if (is_granted($module, 'delete') && $entity['received_date'] >= $data):?>
+        <?php if (is_granted($module, 'delete')):?>
         <?=form_open(current_url(), array(
             'class' => 'form-xhr pull-left',
         ));?>
@@ -112,7 +89,7 @@
         <?php endif;?>
 
         <div class="pull-right">
-        <?php if (is_granted($module, 'document') && $entity['received_date'] >= $data):?>
+        <?php if (is_granted($module, 'create')):?>
             <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
             <i class="md md-edit"></i>
             <small class="top right">edit</small>

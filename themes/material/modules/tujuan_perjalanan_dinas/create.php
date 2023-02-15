@@ -19,11 +19,11 @@
                     <div class="col-sm-6 col-lg-5">
 
                         <div class="form-group">
-                            <input type="text" name="business_trip_destination" id="business_trip_destination" class="form-control" required>
+                            <input type="text" name="business_trip_destination" id="business_trip_destination" value="<?= $_SESSION['tujuan_dinas']['business_trip_destination']; ?>" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_business_trip_destination'); ?>" required>
                             <label for="business_trip_destination">Business Trip Destination</label>
                         </div>
                         <div class="form-group">
-                            <textarea name="notes" id="notes" class="form-control" rows="4"></textarea>
+                            <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['tujuan_dinas']['notes']; ?></textarea>
                             <label for="notes">Notes</label>
                         </div>
                     </div>
@@ -33,27 +33,53 @@
                     </div>
                 </div>
             </div>
-
+            <?php if (isset($_SESSION['tujuan_dinas']['levels'])) : ?>
             <div class="document-data table-responsive">
                 <table class="table table-hover table-striped" id="table-document">
                     <thead>
                         <tr>
                             <th></th>
                             <th>Expense Name</th>
-                            <th>Amount</th>
+                            <?php foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level) : ?>
+                            <th class="" style="text-align:right;">
+                                <?= $level['level'] ?>
+                            </th>
+                            <?php endforeach; ?>
                         </tr>
                     </thead>
-                <tbody>
-                    
-                </tbody>
+                    <tbody>
+                    <?php foreach ($_SESSION['tujuan_dinas']['items'] as $id => $item):?>
+                        <tr>
+                            <td></td>
+                            <td><?=$item['expense_name'];?></td>
+                            <?php foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level) : ?>
+                            <td style="text-align:right;">
+                                <?= number_format($_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount'], 2); ?>
+                            </td>
+                            <?php endforeach; ?>
+                        
+                        </tr>
+                    <?php endforeach;?>
+                    </tbody>
                 </table>
             </div>
+            <?php endif;?>
         </div>
         <div class="card-actionbar">
             <div class="card-actionbar-row">
-                <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left">
+                <!-- <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left">
                 Add
-                </button>
+                </button> -->
+                <div class="pull-left">
+                    <a href="<?=site_url($module['route'] .'/add_expense_item');?>" onClick="return popup(this, 'add_expense_item')" class="btn btn-primary ink-reaction">
+                        Add Expense
+                    </a>
+                    <?php if (isset($_SESSION['tujuan_dinas']['items'])) : ?>            
+                    <a href="<?=site_url($module['route'] .'/edit_expense');?>" onClick="return popup(this, 'edit_expense')" class="btn btn-primary ink-reaction">
+                        Edit Expense
+                    </a>
+                    <?php endif;?>
+                </div>                
 
                 <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
                     Discard

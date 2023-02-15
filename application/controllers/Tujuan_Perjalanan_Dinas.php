@@ -106,40 +106,176 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
 
     public function edit($id)
     {
-        $this->authorized($this->module, 'document');
+        $this->authorized($this->module, 'create');
 
         $entity = $this->model->findById($id);
 
-        if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
-        $this->session->set_flashdata('alert', array(
-            'type' => 'danger',
-            'info' => 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to edit this document. You can adjust stock to sync the quantity.'
-        ));
-
-        redirect(site_url($this->module['route']));
+        if (!isset($_SESSION['tujuan_dinas']['items'])) {
+            $_SESSION['tujuan_dinas']                     = $entity;
+            $_SESSION['tujuan_dinas']['id']               = $id;
+            $_SESSION['tujuan_dinas']['edit']             = $entity['id'];
         }
 
-        $document_number  = sprintf('%06s', substr($entity['document_number'], 0, 6));
+        redirect($this->module['route'] . '/create');
+    }
 
-        if (isset($_SESSION['receipt']) === FALSE){
-        $_SESSION['receipt']                     = $entity;
-        $_SESSION['receipt']['id']               = $id;
-        $_SESSION['receipt']['edit']             = $entity['document_number'];
-        $_SESSION['receipt']['document_number']  = $document_number;
-        }
+    public function set_notes()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
 
-        redirect($this->module['route'] .'/create');
-        //$this->render_view($this->module['view'] .'/edit');
+        $_SESSION['tujuan_dinas']['notes'] = $_GET['data'];
+    }
+
+    public function set_business_trip_destination()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['tujuan_dinas']['business_trip_destination'] = $_GET['data'];
     }
 
     public function create($category = NULL)
     {
         $this->authorized($this->module, 'create');
 
+        if ($category !== NULL) {
+            $category = urldecode($category);
+      
+            $_SESSION['tujuan_dinas']['items']                      = array();
+            $_SESSION['tujuan_dinas']['levels']                     = array();
+            $_SESSION['tujuan_dinas']['business_trip_destination']  = NULL;
+            $_SESSION['tujuan_dinas']['notes']                      = NULL;
+      
+            redirect($this->module['route'] . '/create');
+        }
+
         $this->data['page']['content']    = $this->module['view'] .'/create';
         $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
 
         $this->render_view($this->module['view'] .'/create');
+    }
+
+    public function add_expense_item()
+    {
+        $this->authorized($this->module, 'create');
+        $this->data['page']['title']            = 'Add Expense Item';
+
+        $this->render_view($this->module['view'] . '/add_expense_item');
+    }
+
+    public function add_input_expense()
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'create') == FALSE) {
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+            if (isset($_POST['expense_name']) && !empty($_POST['expense_name'])) {
+                $expense_names   = $this->input->post('expense_name');
+                $_SESSION['tujuan_dinas']['items'] = array();
+                foreach ($expense_names as $key=>$expense_name){
+                    $_SESSION['tujuan_dinas']['items'][$key] = array(
+                        'expense_name'             => trim(strtoupper($expense_name)),
+                    );
+                    $_SESSION['tujuan_dinas']['items'][$key]['levels'] = array();
+                }
+
+                $data['success'] = TRUE;
+            } else {
+                $data['success'] = FALSE;
+                $data['message'] = 'Please select any request!';
+            }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function add_level()
+    {
+        $this->authorized($this->module, 'create');
+        $this->data['page']['title']            = 'Add Level';
+
+        $this->render_view($this->module['view'] . '/add_level');
+    }
+
+    public function add_selected_level()
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'create') == FALSE) {
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+        if (isset($_POST['level']) && !empty($_POST['level'])) {
+            $_SESSION['tujuan_dinas']['levels'] = array();
+
+            foreach ($_POST['level'] as $key => $level) {
+                $_SESSION['tujuan_dinas']['levels'][$key]['level'] = $level;
+            }
+
+            foreach ($_SESSION['tujuan_dinas']['items'] as $id => $item) {
+                $min = 0;
+                $cheaper = 'f';
+                foreach ($_POST['level'] as $key => $level) {
+                    $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key] = array(
+                        'level'     => $level,
+                        'amount'    => floatval(0),
+                    );
+                }
+            }
+
+            $data['success'] = TRUE;
+        } else {
+            $data['success'] = FALSE;
+            $data['message'] = 'Please select any vendors!';
+        }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function edit_expense()
+    {
+        $this->authorized($this->module, 'create');
+
+        $this->render_view($this->module['view'] . '/edit_expense');
+    }
+
+    public function update_expense()
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'create') == FALSE) {
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+            if (isset($_POST['request']) && !empty($_POST['request'])) {
+                foreach ($_POST['request'] as $id => $request) {
+                    $quantity = floatval($_SESSION['poe']['request'][$id]['quantity_requested']);
+
+                    $_SESSION['tujuan_dinas']['items'][$id]['expense_name']           = trim(strtoupper($request['expense_name']));
+
+                    foreach ($request['levels'] as $key => $level) {
+                        
+                        $amount   = $level['amount'];
+
+                        $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount']   = $amount;
+                    }
+                }
+
+                $data['success'] = TRUE;
+            } else {
+                $data['success'] = FALSE;
+                $data['message'] = 'No data to update!';
+            }
+        }
+
+        echo json_encode($data);
     }
 
     public function save()
@@ -151,15 +287,27 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
             $data['success'] = FALSE;
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
-            if ($this->input->post('id')){
-
+            if (!isset($_SESSION['tujuan_dinas']['items']) || empty($_SESSION['tujuan_dinas']['items']) || !isset($_SESSION['tujuan_dinas']['levels']) || empty($_SESSION['tujuan_dinas']['levels'])) {
+                $data['success'] = FALSE;
+                $data['message'] = 'Please add at least 1 Item Expense !!';
             }else{
-                if ($this->model->insert()){
-                    $data['success']    = TRUE;
-                    $data['message']       = 'Business Trip Destination ' . $this->input->post('position') .' created.';
+                $errors = array();
+                if (!isset($_SESSION['tujuan_dinas']['business_trip_destination']) || empty($_SESSION['tujuan_dinas']['business_trip_destination'])){
+                    $errors[] = 'Tujuan Dinas Harus isi.';
+                }
+
+                if (!empty($errors)) {
+                    $data['success'] = FALSE;
+                    $data['message'] = implode('<br />', $errors);
                 } else {
-                    $data['success']    = FALSE;
-                    $data['message']       = 'There are error while updating data. Please try again later.';
+                    if ($this->model->insert()) {
+                        unset($_SESSION['tujuan_dinas']);
+                        $data['success'] = TRUE;
+                        $data['message'] = 'Data has been saved. You will redirected now.';
+                    } else {
+                        $data['success'] = FALSE;
+                        $data['message'] = 'Error while saving this Data. Please ask Technical Support.';
+                    }
                 }
             }
         }
@@ -167,58 +315,11 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
         echo json_encode($data);
     }
 
-    public function add_item()
-    {
-        $this->authorized($this->module, 'document');
-
-        if (isset($_POST) && !empty($_POST)){
-        $_SESSION['receipt']['items'][] = array(
-            //'id'                      => $id_item++,
-            'group'                   => $this->input->post('group'),
-            'description'             => trim(strtoupper($this->input->post('description'))),
-            'part_number'             => trim(strtoupper($this->input->post('part_number'))),
-            'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
-            'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-            'received_quantity'       => $this->input->post('received_quantity'),
-            'received_unit_value'     => $this->input->post('received_unit_value'),
-            'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
-            'minimum_quantity'        => $this->input->post('minimum_quantity'),
-            'condition'               => $this->input->post('condition'),
-            'expired_date'            => $this->input->post('expired_date'),
-            'stores'                  => trim(strtoupper($this->input->post('stores'))),
-            'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
-            'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
-            'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
-            'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
-            'unit'                    => trim($this->input->post('unit')),
-            'received_unit'           => trim($this->input->post('received_unit')),
-            'remarks'                 => trim($this->input->post('remarks')),
-            'kode_stok'               => trim($this->input->post('kode_stok')),
-            'currency'                => trim($this->input->post('kurs')),
-            'unit_pakai'              => trim($this->input->post('unit_pakai')),
-            'isi'                     => trim($this->input->post('isi')),
-            'quantity_order'          => $this->input->post('quantity_order'),
-            'value_order'             => $this->input->post('value_order'),
-            'no_expired_date'         => $this->input->post('no_expired_date'),
-            'tgl_nota'                => $this->input->post('tgl_nota'),
-            'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
-            'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
-
-        );
-
-        if (empty($_SESSION['receipt']['received_from'])){
-            $_SESSION['receipt']['received_from'] = strtoupper($this->input->post('consignor'));
-        }
-        }
-
-        redirect($this->module['route'] .'/create');
-    }
-
     public function discard()
     {
-        $this->authorized($this->module['permission']['document']);
+        $this->authorized($this->module['permission']['create']);
 
-        unset($_SESSION['receipt']);
+        unset($_SESSION['tujuan_dinas']);
 
         redirect($this->module['route']);
     }
@@ -226,85 +327,25 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
     public function delete_ajax()
     {
         if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] .'/denied');
+            redirect($this->modules['secure']['route'] .'/denied');
 
         if (is_granted($this->module, 'delete') === FALSE){
-        $alert['type']  = 'danger';
-        $alert['info']  = 'You are not allowed to delete this data!';
-        } else {
-        $entity = $this->model->findById($this->input->post('id'));
-
-        if ($this->model->isValidDocumentQuantity($entity['document_number']) === FALSE){
             $alert['type']  = 'danger';
-            $alert['info']  = 'Stock quantity for document ' . $entity['document_number'] . ' has been change. You are not allowed to delete this document. You can adjust stock to sync the quantity.';
+            $alert['info']  = 'You are not allowed to delete this data!';
         } else {
+            $entity = $this->model->findById($this->input->post('id'));
+
             if ($this->model->delete()){
-            $alert['type'] = 'success';
-            $alert['info'] = 'Data deleted.';
-            $alert['link'] = site_url($this->module['route']);
+                $alert['type'] = 'success';
+                $alert['info'] = 'Data deleted.';
+                $alert['link'] = site_url($this->module['route']);
             } else {
-            $alert['type'] = 'danger';
-            $alert['info'] = 'There are error while deleting data. Please try again later.';
+                $alert['type'] = 'danger';
+                $alert['info'] = 'There are error while deleting data. Please try again later.';
             }
-        }
         }
 
         echo json_encode($alert);
-    }
-
-    public function ajax_editItem($key)
-    {
-        $this->authorized($this->module, 'document');    
-
-        $entity = $_SESSION['receipt']['items'][$key];
-
-        echo json_encode($entity);
-    }
-
-    public function edit_item()
-    {
-        $this->authorized($this->module, 'document');
-
-        $key=$this->input->post('item_id');
-        if (isset($_POST) && !empty($_POST)){
-        //$receipts_items_id = $this->input->post('item_id')
-        $_SESSION['receipt']['items'][$key] = array(        
-            'group'                   => $this->input->post('group'),
-            'description'             => trim(strtoupper($this->input->post('description'))),
-            'part_number'             => trim(strtoupper($this->input->post('part_number'))),
-            'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
-            'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-            'received_quantity'       => $this->input->post('received_quantity'),
-            'received_unit_value'     => $this->input->post('received_unit_value'),
-            'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
-            'minimum_quantity'        => $this->input->post('minimum_quantity'),
-            'condition'               => $this->input->post('condition'),
-            'expired_date'            => $this->input->post('expired_date'),
-            'stores'                  => trim(strtoupper($this->input->post('stores'))),
-            'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
-            'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
-            'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
-            'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
-            'unit'                    => trim($this->input->post('unit')),
-            'received_unit'           => trim($this->input->post('received_unit')),
-            'remarks'                 => trim($this->input->post('remarks')),
-            'kode_stok'               => trim($this->input->post('kode_stok')),
-            'currency'                => trim($this->input->post('kurs')),        
-            'unit_pakai'              => trim($this->input->post('unit_pakai')), 
-            'isi'                     => trim($this->input->post('isi')),
-            'quantity_order'          => $this->input->post('quantity_order'),
-            'value_order'             => $this->input->post('value_order'),
-            'no_expired_date'         => $this->input->post('no_expired_date'),
-            'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
-            'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
-            'tgl_nota'                => $this->input->post('tgl_nota'),        
-            'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
-            'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
-
-        );
-        }
-        redirect($this->module['route'] .'/create');
-
     }
 
     public function import()
