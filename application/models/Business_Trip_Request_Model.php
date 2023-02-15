@@ -284,6 +284,8 @@ class Business_Trip_Request_Model extends MY_Model
         $end_date                       = $_SESSION['business_trip']['end_date'];
         $from_base                      = $_SESSION['business_trip']['from_base'];
         $transportation                 = $_SESSION['business_trip']['transportation'];
+        $command_by                     = $_SESSION['business_trip']['command_by'];
+        $level                          = getLevelByPosition($occupation);
 
         $this->db->set('annual_cost_center_id', $annual_cost_center_id);
         $this->db->set('warehouse', $warehouse);
@@ -302,6 +304,7 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->set('end_date', $end_date);
         $this->db->set('head_dept', $head_dept);
         $this->db->set('notes', $notes);
+        $this->db->set('command_by', $command_by);
         if (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve') {
             $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
             $this->db->set('known_by',config_item('auth_person_name'));
@@ -340,25 +343,30 @@ class Business_Trip_Request_Model extends MY_Model
             $this->db->insert('tb_signers');
         }
 
-        $expenses = [
-            'Local Transport /Transport Lokal',
-            'Allowance / Uang Saku Perjalanan Dinas',
-            'Meals / Uang makan',
-            'Laundry / Cuci',
-            'Others / Lain - lain'
-        ];
+        $expenses = destination_list_expense($business_trip_destination_id,$level);
 
         foreach ($expenses as $expense) {
             $this->db->set('business_trip_purpose_id', $document_id);
-            $this->db->set('business_trip_destination_item_id', NULL);
-            $this->db->set('expense_name', $expense);
+            $this->db->set('business_trip_destination_item_id', $expense['id']);
+            $this->db->set('expense_name', $expense['expense_name']);
             $this->db->set('expense_description', NULL);
             $this->db->set('qty', $duration);
-            $this->db->set('amount', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?$selected_person['left_plafon_biaya_dinas']:0);
-            $this->db->set('total', ($expense=='Allowance / Uang Saku Perjalanan Dinas')?($selected_person['left_plafon_biaya_dinas']*$duration):0);
+            $this->db->set('amount', $expense['amount']);
+            $this->db->set('total', $expense['amount']*$duration);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->insert('tb_business_trip_purpose_items');
+        }
+
+        if(!empty($_SESSION['business_trip']['attachment'])){
+            foreach ($_SESSION["business_trip"]["attachment"] as $key) {
+                $this->db->set('id_poe', $document_id);
+                $this->db->set('id_po', $document_id);
+                $this->db->set('file', $key);
+                $this->db->set('tipe', 'SPD');
+                $this->db->set('tipe_att', 'other');
+                $this->db->insert('tb_attachment_poe');
+            }
         }
 
         if ($this->db->trans_status() === FALSE)

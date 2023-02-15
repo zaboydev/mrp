@@ -117,6 +117,11 @@
                             <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['business_trip']['notes']; ?></textarea>
                             <label for="notes">Purpose of Travel on Duty / Maksud perjalanan dinas</label>
                         </div>
+
+                        <div class="form-group">
+                            <textarea name="command_by" id="command_by" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_command_by'); ?>"><?= $_SESSION['business_trip']['command_by']; ?></textarea>
+                            <label for="notes">Perintah Dinas Diberikan oleh</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -138,9 +143,15 @@
         </div>
         <div class="card-actionbar">
             <div class="card-actionbar-row">
-                <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left hide">
-                Add
-                </button>
+                <div class="pull-left">
+                    <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left hide">
+                    Add
+                    </button>
+
+                    <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+                        Attachment
+                    </a>
+                </div>
 
                 <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
                     Discard
