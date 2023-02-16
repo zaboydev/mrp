@@ -178,10 +178,12 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
         } else {
             if (isset($_POST['expense_name']) && !empty($_POST['expense_name'])) {
                 $expense_names   = $this->input->post('expense_name');
+                $fix             = $this->input->post('fix');
                 $_SESSION['tujuan_dinas']['items'] = array();
                 foreach ($expense_names as $key=>$expense_name){
                     $_SESSION['tujuan_dinas']['items'][$key] = array(
                         'expense_name'             => trim(strtoupper($expense_name)),
+                        'fix'                      => $fix[$key],
                     );
                     $_SESSION['tujuan_dinas']['items'][$key]['levels'] = array();
                 }
@@ -298,6 +300,12 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
                 if (!isset($_SESSION['tujuan_dinas']['business_trip_destination']) || empty($_SESSION['tujuan_dinas']['business_trip_destination'])){
                     $errors[] = 'Tujuan Dinas Harus isi.';
                 }
+
+                if(isset($_SESSION['tujuan_dinas']['id'])){
+                    if($this->model->isDestinationExist($_SESSION['tujuan_dinas']['business_trip_destination'])){
+                        $errors[] = 'Tujuan Dinas '.$_SESSION['tujuan_dinas']['business_trip_destination'].' Sudah Terdaftar.';
+                    }
+                }                
 
                 if (!empty($errors)) {
                     $data['success'] = FALSE;

@@ -13,6 +13,7 @@
                         <thead>
                             <tr>
                                 <th class="middle-alignment">Expense Name</th>
+                                <th class="middle-alignment">Type</th>
                                 <th class="middle-alignment"></th>
                             </tr>
                         </thead>
@@ -23,6 +24,13 @@
                                 <td>                                    
                                     <input type="text" name="expense_name[]" value="<?=$item['expense_name'];?>" class="form-control">
                                 </td>
+                                <td class="remarks item-list">
+                                    <select name="fix[]" class="form-control" required>
+                                        <option value="false" <?= ($item['expense_name']===False)? 'selected':''?>>Amount Dapat Berubah</option>
+                                        <option value="true" <?= ($item['expense_name']===False)? 'selected':''?>>Amount Tetap</option>
+                                    </select>
+                                </td>  
+
                                 <td class="item-list" style="text-align:center;">
                                     <a  href="javascript:;" title="Delete" class="btn btn-danger btn-xs btn-row-delete-item" data-tipe="delete">
                                         Delete
@@ -67,6 +75,12 @@
             <tr>            
                 <td class="remarks item-list">
                     <input type="text" name="expense_name[]" class="form-control">
+                </td>  
+                <td class="fix item-list">
+                    <select name="fix[]" class="form-control" required>
+                        <option value="false">Amount Dapat Berubah</option>
+                        <option value="true">Amount Tetap</option>
+                    </select>
                 </td>  
                 <td class="item-list" style="text-align:center;">
                     <a  href="javascript:;" title="Delete" class="btn btn-danger btn-xs btn-row-delete-item" data-tipe="delete">
