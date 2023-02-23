@@ -33,7 +33,6 @@ class Employee_Benefit extends MY_Controller
             $total_value  = array();
 
             foreach ($entities as $row){
-                $expense_amount = $this->model->countExpenseAmount($row['id']);
                 $no++;
                 $col = array();
                 $col[] = print_number($no);
