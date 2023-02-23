@@ -60,6 +60,7 @@ $config['module'] = array();
 
 //master DATA HRD
 require('modules/level.php');
+require('modules/employee_benefit.php');
 require('modules/tujuan_perjalanan_dinas.php');
 require('modules/user_position.php');
 require('modules/employee.php');
