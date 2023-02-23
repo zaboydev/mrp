@@ -23,25 +23,21 @@
             <div class="col-sm-12 col-md-4 col-md-push-8">
                 <div class="well">
                     <div class="clearfix">
-                        <div class="pull-left">Biaya SPD</div>
+                        <div class="pull-left">EMPLOYEE'S BENEFIT</div>
                         <div class="pull-right">
-                            <?=number_format(($entity['plafon_biaya_dinas']-$entity['left_plafon_biaya_dinas']));?>/<?=number_format($entity['plafon_biaya_dinas']);?>                                
+                                                
                         </div>
                     </div>
-
+                    <?php foreach($entity['benefit'] as $benefit):?>
                     <div class="clearfix">
-                        <div class="pull-left">Biaya Kesehatan</div>
+                        <div class="pull-left"><?= $benefit['employee_benefit']?></div>
                         <div class="pull-right">
-                            <?=number_format(($entity['plafon_biaya_kesehatan']-$entity['left_plafon_biaya_kesehatan']));?>/<?=number_format($entity['plafon_biaya_kesehatan']);?>                            
+                            <?=number_format($benefit['used_amount_plafond']);?>/<?=number_format($benefit['amount_plafond']);?>                                
                         </div>
                     </div>
+                    <?php endforeach;?>
 
-                    <div class="clearfix">
-                        <div class="pull-left">Cuti</div>
-                        <div class="pull-right">
-                            <?=number_format(($entity['cuti']-$entity['left_cuti']),0).'/'.number_format($entity['cuti'],0);?>
-                        </div>
-                    </div>
+                    <!--  -->
                 
                 </div>
             </div>

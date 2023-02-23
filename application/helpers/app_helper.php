@@ -3407,13 +3407,40 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $CI->db->select('tb_master_positions.level');
       $CI->db->from('tb_master_positions');
-      $CI->db->order_by('tb_master_positions.position', 'ASC');
+      $CI->db->order_by('tb_master_positions.position', 'ASC'); 
 
       $query  = $CI->db->get();
       $result = $query->unbuffered_row('array');
       $return = $result['level'];
 
       return $return;
+    }
+  }
+
+  if ( ! function_exists('getEmployeeBenefitByOccupation')) {
+    function getEmployeeBenefitByOccupation($position)
+    {
+      $CI =& get_instance();
+
+      $data_selected = array(
+        'tb_master_employee_benefit_items.id', 
+        'tb_master_employee_benefit_items.year', 
+        'tb_master_employee_benefit_items.amount', 
+        'tb_master_employee_benefits.employee_benefit'
+      );
+
+      $CI->db->select($data_selected);
+      $CI->db->from('tb_master_employee_benefit_items');
+      $CI->db->join('tb_master_employee_benefits','tb_master_employee_benefit_items.employee_benefit_id = tb_master_employee_benefits.id');
+      $CI->db->join('tb_master_levels','tb_master_employee_benefit_items."level" = tb_master_levels.level');
+      $CI->db->join('tb_master_positions','tb_master_levels."level" = tb_master_positions.level');
+      $CI->db->where('tb_master_positions.position',$position);    
+      $CI->db->where('tb_master_employee_benefit_items.deleted_at IS NULL', null, false);
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
     }
   }
 
