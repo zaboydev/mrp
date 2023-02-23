@@ -204,6 +204,7 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
                 $this->db->set('level', $level['level']);
                 $this->db->set('expense_name', $item['expense_name']);
                 $this->db->set('amount', $amount);
+                $this->db->set('fix', $item['fix']);
                 $this->db->set('created_by', config_item('auth_person_name'));
                 $this->db->set('updated_by', config_item('auth_person_name'));
                 $this->db->insert('tb_master_business_trip_destination_items');
@@ -284,5 +285,17 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
         $row    = $query->unbuffered_row('array');
         
         return $row['expense_amount'];
+    }
+
+    public function isDestinationExist($business_trip_destination)
+    {
+        $this->db->where('tb_master_business_trip_destinations.business_trip_destination', $business_trip_destination);
+        $this->db->where('tb_master_business_trip_destinations.deleted_at IS NULL', null, false);
+        $query = $this->db->get('tb_master_business_trip_destinations');
+
+        if ($query->num_rows() > 0)
+            return true;
+
+        return false;
     }
 }
