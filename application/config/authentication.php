@@ -55,7 +55,8 @@ $config['levels_and_roles'] = array(
 	'26'	=> 'FINANCE SUPERVISOR',
 	'27' 	=> 'MECHANIC',
 	'28'	=> 'QUALITY CONTROL',
-	'29'	=> 'PPC'
+	'29'	=> 'PPC',
+	'30'	=> 'HRD',
 );
 
 /*
