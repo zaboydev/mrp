@@ -2,7 +2,7 @@
 
 $config['module']['tujuan_perjalanan_dinas']['visible']         = TRUE;
 $config['module']['tujuan_perjalanan_dinas']['main_warehouse']   = TRUE;
-$config['module']['tujuan_perjalanan_dinas']['parent']      = 'master';
+$config['module']['tujuan_perjalanan_dinas']['parent']      = 'master_data_hrd';
 $config['module']['tujuan_perjalanan_dinas']['label']       = 'Tujuan Dinas';
 $config['module']['tujuan_perjalanan_dinas']['name']        = 'tujuan_perjalanan_dinas';
 $config['module']['tujuan_perjalanan_dinas']['route']       = 'tujuan_perjalanan_dinas';

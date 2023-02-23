@@ -2,7 +2,7 @@
 
 $config['module']['user_position']['visible']     = TRUE;
 $config['module']['user_position']['main_warehouse']   = TRUE;
-$config['module']['user_position']['parent']      = 'master';
+$config['module']['user_position']['parent']      = 'master_data_hrd';
 $config['module']['user_position']['label']       = 'User Position';
 $config['module']['user_position']['name']        = 'user_position';
 $config['module']['user_position']['route']       = 'user_position';

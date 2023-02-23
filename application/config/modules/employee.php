@@ -2,7 +2,7 @@
 
 $config['module']['employee']['visible']     = TRUE;
 $config['module']['employee']['main_warehouse']   = TRUE;
-$config['module']['employee']['parent']      = 'master';
+$config['module']['employee']['parent']      = 'master_data_hrd';
 $config['module']['employee']['label']       = 'Employee';
 $config['module']['employee']['name']        = 'employee';
 $config['module']['employee']['route']       = 'employee';

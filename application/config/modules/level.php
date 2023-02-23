@@ -2,7 +2,7 @@
 
 $config['module']['level']['visible']     = TRUE;
 $config['module']['level']['main_warehouse']   = TRUE;
-$config['module']['level']['parent']      = 'master';
+$config['module']['level']['parent']      = 'master_data_hrd';
 $config['module']['level']['label']       = 'Level';
 $config['module']['level']['name']        = 'level';
 $config['module']['level']['route']       = 'level';
