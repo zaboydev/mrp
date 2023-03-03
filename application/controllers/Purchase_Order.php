@@ -914,7 +914,7 @@ class Purchase_Order extends MY_Controller
     $this->render_view($this->module['view'] . '/edit');
   }
 
-  public function edit_load_vendor($id)
+  public function edit_load_vendor()
   {
     $this->authorized($this->module, 'document');
 
