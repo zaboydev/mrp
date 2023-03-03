@@ -383,9 +383,13 @@ class Purchase_Order extends MY_Controller
     $_SESSION['order']['vendor_country']    = $row['country'];
     $_SESSION['order']['vendor_attention']  = 'Phone: ' . $row['phone'];
     // $_SESSION['order']['default_currency']  = $row['currency'];
-    $_SESSION['order']['items']   = array();
+    // $_SESSION['order']['items']   = array();
 
-    redirect($this->module['route'] . '/create');
+    if(isset($_SESSION['order']['id_po'])){
+      redirect($this->module['route'] . '/edit_load_vendor');
+    }else{
+      redirect($this->module['route'] . '/create');
+    }    
   }
 
   public function set_vendor_address()
@@ -906,6 +910,13 @@ class Purchase_Order extends MY_Controller
       $_SESSION['order']['grand_total']         = NULL;
       $_SESSION['order']['notes']               = NULL;
     }
+
+    $this->render_view($this->module['view'] . '/edit');
+  }
+
+  public function edit_load_vendor($id)
+  {
+    $this->authorized($this->module, 'document');
 
     $this->render_view($this->module['view'] . '/edit');
   }
