@@ -20,7 +20,7 @@
 
     <div class="card-body">
         <div class="row" id="document_master">
-            <div class="col-sm-12 col-md-4 col-md-push-8">
+            <div class="col-sm-12 col-md-4 col-md-push-8 hide">
                 <div class="well">
                     <div class="clearfix">
                         <div class="pull-left">EMPLOYEE'S BENEFIT</div>
@@ -42,7 +42,7 @@
                 </div>
             </div>
 
-            <div class="col-sm-12 col-md-8 col-md-pull-4">
+            <div class="col-sm-12 col-md-6">
                 <dl class="dl-inline">
 
                     <dt>Employee Number</dt>
@@ -54,6 +54,9 @@
                     <dt>Date of Birth</dt>
                     <dd><?=print_date($entity['date_of_birth']);?></dd>      
 
+                    <dt>Base</dt>
+                    <dd><?=print_string($entity['warehouse']);?></dd>
+
                     <dt>Gender</dt>
                     <dd><?=print_string($entity['gender']);?></dd>  
 
@@ -63,19 +66,84 @@
                     <dt>Marital Status</dt>
                     <dd><?=print_string($entity['marital_status']);?></dd>
 
+                    <dt>Identity Number</dt>
+                    <dd><?=print_string($entity['identity_type']);?> | <?=print_string($entity['identity_number']);?></dd>
+
                     <dt>Phone Number</dt>
                     <dd><?=print_string($entity['phone_number']);?></dd>
 
                     <dt>Address</dt>
                     <dd><?=$entity['address'];?></dd>
 
+                    <dt>Bank</dt>
+                    <dd><?=$entity['bank_account_name'];?> | No Rek : <?=$entity['bank_account'];?></dd>
+
+                    <dt>NPWP</dt>
+                    <dd><?=$entity['npwp'];?></dd>
+
+                    <dt>Join Date</dt>
+                    <dd><?=$entity['tanggal_bergabung'];?></dd>
+
                     <dt>Department</dt>
                     <dd><?=($entity['department_name']==null)? 'N/A':print_string($entity['department_name']);?></dd>
 
                     <dt>Occupation</dt>
                     <dd><?=print_string($entity['position']);?></dd>
-                
+                    
+                    <dt>Salary</dt>
+                    <dd><?=number_format($entity['basic_salary'],2);?></dd>
+
                 </dl>
+            </div>
+            <div class="col-sm-12 col-md-6">
+                <div class="table-responsive">
+                    <table class="table table-striped table-nowrap" id="table_contents">
+                        <thead id="table_header">
+                            <tr>
+                                <th>No</th>
+                                <th>Benefit</th>
+                                <th>Plafon</th>
+                                <th>Used</th>
+                                <th>Balance</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_contents">
+                        <?php $n = 1; ?>
+                        <?php $amount_paid = array(); ?>
+                        <?php foreach ($entity['benefit'] as $benefit) : ?>
+                            <tr>
+                                <td><?= $n++;?></td>
+                                <td><?= $benefit['employee_benefit']?></td>
+                                <td><?=number_format($benefit['amount_plafond']);?></td>
+                                <td><?=number_format($benefit['used_amount_plafond'],2);?></td>
+                                <td><?=number_format($benefit['left_amount_plafond'],2);?></td>
+                                <td>
+                                    <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                                    </a>
+                                    
+                                </td>   
+                            </tr>
+                            <?php if(count($benefit['used'])>0) : ?>
+                            <?php foreach ($benefit['used'] as $used) : ?>
+                            <tr class="detail_<?=$n?> hide">                  
+                                <td></td>
+                                <td><?= $used['date']?></td>
+                                <td><a class="link" href="<?= $used['link']?>" target="_blank"><?= $used['document_number']?></a></td>
+                                <td><?= number_format($used['used_amount'],2)?></td>
+                                <td></td>
+                                <td></td>
+                            </tr>                            
+                            <?php endforeach;?>              
+                            <?php else:?>  
+                            <tr class="detail_<?=$n?> hide">                  
+                                <td colspan="6" style="text-align:center;">No Data Available</td>
+                            </tr>            
+                            <?php endif;?>
+                        <?php endforeach;?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div id="view-form-edit" class="row hide">
@@ -297,6 +365,19 @@
             $('#document_master').addClass('hide');
             $('#modal-edit-data-button').addClass('hide');
             $('#header_text').html('Edit');
+        }
+    });
+
+    $("#table_contents").on("click", ".btn_view_detail", function() {
+        console.log('klik detail');
+        var selRow = $(this).data("row");
+        var tipe = $(this).data("tipe");
+        if (tipe == "view") {
+        $(this).data("tipe", "hide");
+        $('.detail_' + selRow).removeClass('hide');
+        } else {
+        $(this).data("tipe", "view");
+        $('.detail_' + selRow).addClass('hide');
         }
     });
 </script>

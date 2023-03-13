@@ -141,6 +141,26 @@ class Employee_Model extends MY_Model
 
         foreach ($query->result_array() as $key => $value) {            
             $row['benefit'][$key] = $value;       
+
+            $data_selected = array(
+                'tb_used_benefits.*',
+            );
+    
+            $this->db->select($data_selected);
+            $this->db->from('tb_used_benefits');
+            $this->db->where('tb_used_benefits.employee_has_benefit_id', $value['id']);
+            $this->db->where('tb_used_benefits.status', 'AVAILABLE');
+    
+            $query = $this->db->get();
+    
+            foreach ($query->result_array() as $key2 => $valueUsed) {            
+                $row['benefit'][$key]['used'][$key2] = $valueUsed;
+                $link = null;
+                if($valueUsed['document_type']=='REIMBURSEMENT'){
+                    $link = site_url('reimbursement/print/' . $valueUsed['document_id']);
+                }                 
+                $row['benefit'][$key]['used'][$key2]['link'] = $link;       
+            }
         }
 
         return $row;
