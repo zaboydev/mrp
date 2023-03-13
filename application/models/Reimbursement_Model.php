@@ -310,7 +310,20 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('left_amount_plafond', 'left_amount_plafond - ' . $data['amount'], FALSE);
             $this->db->where('tb_employee_has_benefit.id', $employee_has_benefit_id);
             $this->db->update('tb_employee_has_benefit');
+
+            $total[] = $data['amount'];
         }
+
+        $this->db->set('employee_has_benefit_id', $employee_has_benefit_id);
+        $this->db->set('document_type', "REIMBURSEMENT");
+        $this->db->set('document_id', $document_id);
+        $this->db->set('document_number', $document_number);
+        $this->db->set('date', $date);
+        $this->db->set('year', date('Y'));
+        $this->db->set('used_amount', array_sum($total));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->insert('tb_used_benefits');
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;
