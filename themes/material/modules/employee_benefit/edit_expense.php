@@ -19,7 +19,7 @@
                     </thead>
                     <tbody>
                       
-                        <?php foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level) : ?>
+                        <?php foreach ($_SESSION['benefit']['levels'] as $key => $level) : ?>
                         <tr id="row_<?= $key; ?>">
                         <td>
                             <input type="text" rel="employee_benefit" name="request[<?= $key; ?>][level]" value="<?= $_SESSION['benefit']['levels'][$key]['level']; ?>" class="form-control" readonly>
