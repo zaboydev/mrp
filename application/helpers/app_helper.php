@@ -3406,6 +3406,7 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI =& get_instance();
 
       $CI->db->select('tb_master_positions.level');
+      $CI->db->where('tb_master_positions.position',$position);
       $CI->db->from('tb_master_positions');
       $CI->db->order_by('tb_master_positions.position', 'ASC');
 
@@ -3414,6 +3415,23 @@ if (!function_exists('currency_for_vendor_list')) {
       $return = $result['level'];
 
       return $return;
+    }
+  }
+
+  if ( ! function_exists('getBenefits')) {
+    function getBenefits()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_employee_benefits.employee_benefit');
+      $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
+      $CI->db->from('tb_master_employee_benefits');
+      $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
     }
   }
 

@@ -113,6 +113,21 @@ class Reimbursement extends MY_Controller
         $this->render_view($this->module['view'] .'/index');
     }
 
+    public function get_employee_saldo()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+        
+
+        $employee_number = $_GET['employee_number'];
+        $benefit_id = $_GET['type'];
+        $position = $_GET['position'];
+
+        $employee_has_benefit = $this->model->getEmployeeHasBenefit($employee_number,$benefit_id,$position);
+        
+        echo json_encode($employee_has_benefit);
+    }
+
     public function set_doc_number()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -124,6 +139,24 @@ class Reimbursement extends MY_Controller
             $number = $_GET['data'];
 
         $_SESSION['reimbursement']['document_number'] = $number;
+    }
+
+    public function set_employee_has_benefit_id()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+
+        $_SESSION['reimbursement']['employee_has_benefit_id'] = $_GET['data'];
+    }
+
+    public function set_saldo_balance()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+
+        $_SESSION['reimbursement']['saldo_balance'] = $_GET['data'];
     }
 
     public function set_employee_number()
@@ -204,6 +237,8 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['department_name']           = $department_name;
             $_SESSION['reimbursement']['head_dept']                 = NULL;
             $_SESSION['reimbursement']['type']                      = 'Duty Allowance';
+            $_SESSION['reimbursement']['saldo_balance']             = 0;
+            $_SESSION['reimbursement']['employee_has_benefit_id']   = NULL;
 
             redirect($this->module['route'] .'/create');
         }
@@ -389,7 +424,7 @@ class Reimbursement extends MY_Controller
 
     public function ajax_editItem($key)
     {
-        $this->authorized($this->module, 'document');    
+        $this->authorized($this->module, 'create');    
 
         $entity = $_SESSION['reimbursement']['items'][$key];
 
@@ -398,45 +433,18 @@ class Reimbursement extends MY_Controller
 
     public function edit_item()
     {
-        $this->authorized($this->module, 'document');
+        $this->authorized($this->module, 'create');
 
         $key=$this->input->post('item_id');
         if (isset($_POST) && !empty($_POST)){
-        //$receipts_items_id = $this->input->post('item_id')
-        $_SESSION['reimbursement']['items'][$key] = array(        
-            'group'                   => $this->input->post('group'),
-            'description'             => trim(strtoupper($this->input->post('description'))),
-            'part_number'             => trim(strtoupper($this->input->post('part_number'))),
-            'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
-            'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-            'received_quantity'       => $this->input->post('received_quantity'),
-            'received_unit_value'     => $this->input->post('received_unit_value'),
-            'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
-            'minimum_quantity'        => $this->input->post('minimum_quantity'),
-            'condition'               => $this->input->post('condition'),
-            'expired_date'            => $this->input->post('expired_date'),
-            'stores'                  => trim(strtoupper($this->input->post('stores'))),
-            'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
-            'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
-            'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
-            'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
-            'unit'                    => trim($this->input->post('unit')),
-            'received_unit'           => trim($this->input->post('received_unit')),
-            'remarks'                 => trim($this->input->post('remarks')),
-            'kode_stok'               => trim($this->input->post('kode_stok')),
-            'currency'                => trim($this->input->post('kurs')),        
-            'unit_pakai'              => trim($this->input->post('unit_pakai')), 
-            'isi'                     => trim($this->input->post('isi')),
-            'quantity_order'          => $this->input->post('quantity_order'),
-            'value_order'             => $this->input->post('value_order'),
-            'no_expired_date'         => $this->input->post('no_expired_date'),
-            'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
-            'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
-            'tgl_nota'                => $this->input->post('tgl_nota'),        
-            'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
-            'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
+            //$receipts_items_id = $this->input->post('item_id')
+            $_SESSION['reimbursement']['items'][$key] = array(        
+                'description'       => $this->input->post('description'),
+                'transaction_date'  => $this->input->post('date'),
+                'notes'             => $this->input->post('notes'),
+                'amount'            => $this->input->post('amount'),
 
-        );
+            );
         }
         redirect($this->module['route'] .'/create');
 

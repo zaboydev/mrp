@@ -3,11 +3,13 @@
 class Reimbursement_Model extends MY_Model
 {
     protected $module;
+    protected $budget_year;
 
     public function __construct()
     {
         parent::__construct();
-
+        
+        $this->budget_year  = find_budget_setting('Active Year');
         $this->module = config_item('module')['reimbursement'];
     }
 
@@ -247,9 +249,11 @@ class Reimbursement_Model extends MY_Model
         $head_dept                  = $_SESSION['reimbursement']['head_dept'];
         $occupation                 = $_SESSION['reimbursement']['occupation'];
         $type                       = $_SESSION['reimbursement']['type'];
+        $employee_has_benefit_id                       = $_SESSION['reimbursement']['employee_has_benefit_id'];
 
         $this->db->set('annual_cost_center_id', $annual_cost_center_id);
         $this->db->set('warehouse', $warehouse);
+        $this->db->set('employee_has_benefit_id', $employee_has_benefit_id);
         $this->db->set('document_number', $document_number);
         $this->db->set('type', $type);
         $this->db->set('employee_number', $employee_number);
@@ -301,6 +305,11 @@ class Reimbursement_Model extends MY_Model
             $this->db->where('id', $document_id);
             $this->db->set('total', 'total +' . $data['amount'], FALSE);
             $this->db->update('tb_reimbursements');
+
+            $this->db->set('used_amount_plafond', 'used_amount_plafond + ' . $data['amount'], FALSE);
+            $this->db->set('left_amount_plafond', 'left_amount_plafond - ' . $data['amount'], FALSE);
+            $this->db->where('tb_employee_has_benefit.id', $employee_has_benefit_id);
+            $this->db->update('tb_employee_has_benefit');
         }
 
         if ($this->db->trans_status() === FALSE)
@@ -360,6 +369,32 @@ class Reimbursement_Model extends MY_Model
 
         $this->db->trans_commit();
         return TRUE;
+    }
+
+    public function getEmployeeHasBenefit($employee_number,$employee_benefit,$position)
+    {
+        $level = getLevelByPosition($position);
+
+        $this->db->select('tb_master_employee_benefit_items.id');
+        $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_master_employee_benefit_items.employee_benefit_id');
+        $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+        $this->db->where('tb_master_employee_benefit_items.level',$level);
+        $this->db->where('tb_master_employee_benefit_items.deleted_at IS NULL', null, false);
+        $this->db->from('tb_master_employee_benefit_items');
+        $query  = $this->db->get();
+        $row    = $query->unbuffered_row('array');
+        $employee_benefit_item_id = $row['id'];
+
+        $this->db->select('tb_employee_has_benefit.*');
+        $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
+        $this->db->where('tb_employee_has_benefit.employee_benefit_item_id',$employee_benefit_item_id);
+        $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
+        $this->db->where('tb_employee_has_benefit.year',date('Y'));
+        $this->db->from('tb_employee_has_benefit');
+        $queryemployee_has_benefit  = $this->db->get();
+        $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
+        
+        return $rowemployee_has_benefit;
     }
 
     public function countExpenseAmount($business_trip_purposes_id)
