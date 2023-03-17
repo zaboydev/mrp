@@ -35,8 +35,8 @@
                         <div class="form-group">
                             <select name="type" id="type_reimbursement" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>" required>
                                 <option></option>
-                                <?php foreach(config_item('type_reimbursement') as $key => $type):?>
-                                <option value="<?=$key;?>" <?= ($key == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$key;?></option>
+                                <?php foreach(getBenefits() as $benefit):?>
+                                <option value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="type_reimbursement">Type</label>
@@ -57,7 +57,7 @@
 
                     <div class="col-sm-12 col-lg-4">
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" required>
+                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" required>
                                 <option></option>
                                 <?php foreach(available_employee($_SESSION['reimbursement']['department_id']) as $user):?>
                                 <option data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['reimbursement']['employee_number']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
@@ -79,7 +79,17 @@
                         <div class="form-group">
                             <input type="text" name="department_name" id="department_name" class="form-control" value="<?= $_SESSION['reimbursement']['department_name']; ?>" readonly>
                             <label for="department_name">Department</label>
-                        </div>      
+                        </div>  
+                        
+                        <div class="form-group">
+                            <input type="text" name="saldo_balance" id="saldo_balance" class="form-control number" value="<?= $_SESSION['reimbursement']['saldo_balance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_saldo_balance'); ?>" readonly>
+                            <label for="saldo_balance">Saldo Balance</label>
+                        </div>  
+
+                        <div class="form-group hide">
+                            <input type="text" name="employee_has_benefit_id" id="employee_has_benefit_id" class="form-control" value="<?= $_SESSION['reimbursement']['employee_has_benefit_id']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_has_benefit_id'); ?>" readonly>
+                            <label for="employee_has_benefit_id">employee_has_benefit_id</label>
+                        </div>  
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
@@ -121,7 +131,7 @@
                         </td>
 
                         <td>
-                            <?= $items['date']; ?>
+                            <?= $items['transaction_date']; ?>
                         </td>
                         <td>
                             <?= $items['notes']; ?>
@@ -280,6 +290,8 @@
             $(this).parents('tr').remove();
         });
     }
+
+    $('.number').number(true, 2, '.', ',');
 
     $('.select2').select2({
         // theme: "bootstrap",
@@ -557,7 +569,26 @@
         $('#employee_number').change(function () {
             var employee_number = $('#employee_number').val();                        
             var position = $('#employee_number option:selected').data('position');  
+            var url = $(this).data('source-get-balance');
+            var type = $('#type_reimbursement').val();   
             $('#occupation').val(position).trigger('change');
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: {
+                    employee_number   : employee_number,
+                    type      : type,
+                    position : position
+                },
+                success: function(data) {
+                    console.log(data);
+                    var obj = $.parseJSON(data);
+                    
+                    $('#saldo_balance').val(obj.left_amount_plafond).trigger('change');
+                    $('#employee_has_benefit_id').val(obj.id).trigger('change');
+                }
+            });
         });
 
         $('#type_reimbursement').change(function () {
@@ -566,7 +597,7 @@
 
         function type_reimbursement(){
             var type_reimbursement = $('#type_reimbursement').val(); 
-            if(type_reimbursement=='Medical'){
+            if(type_reimbursement=='MEDICAL'){
                 $('.title_1').html('Patient Name');
                 $('.title_2').html('Diagnoses');
             }else{
@@ -576,6 +607,41 @@
         }
 
         type_reimbursement();
+
+        $(buttonEditDocumentItem).on('click', function(e) {
+            e.preventDefault();
+
+            var id = $(this).data('todo').todo;
+            var data_send = {
+                id: id
+            };
+
+            var save_method = 'update';
+
+            $.ajax({
+                url: "<?= site_url($module['route'] . '/ajax_editItem/') ?>/" + id,
+                type: "GET",
+                data: data_send,
+                dataType: "JSON",
+                success: function(response) {
+                    var action = "<?=site_url($module['route'] .'/edit_item')?>";
+                    console.log(JSON.stringify(response));
+                    $('[name="description"]').val(response.description);
+                    $('[name="date"]').val(response.transaction_date);
+                    $('[name="notes"]').val(response.notes);
+                    $('[name="amount"]').val(response.amount);
+
+
+                    $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
+                    $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title
+                    $('#modal-add-item form').attr('action', action);// Set form action
+
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('Error get data from ajax');
+                }
+            });
+        });
     });
 </script>
 
