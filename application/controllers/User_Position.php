@@ -208,100 +208,126 @@ class User_Position extends MY_Controller
 
     public function import()
     {
+        // ========================= ACCESS DENIED ========================== //
         $this->authorized($this->module, 'import');
 
+        // ========================= ACCESS GRANTED ========================= //
+
+        //... load library to build form and validate it
         $this->load->library('form_validation');
 
-        if (isset($_POST) && !empty($_POST)){
-        // $this->form_validation->set_rules('userfile', 'CSV File', 'trim|required');
-        $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
-
         /**
-         * Processing validation
-         * Run OK
+         * Processing data
+         * if form submitted
          */
-        if ($this->form_validation->run() === TRUE){
-            $file       = $_FILES['userfile']['tmp_name'];
-            $delimiter  = $this->input->post('delimiter');
+        if (isset($_POST) && !empty($_POST)){
+            //... set rules of validation
+            $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
 
-            //... open file
-            if (($handle = fopen($file, "r")) !== FALSE){
-            $row     = 1;
-            $data    = array();
-            $errors  = array();
-            $user_id = array();
-            $index   = 0;
-            fgetcsv($handle); // skip first line (as header)
+            /**
+             * Processing validation
+             * Run OK
+             */
+            if ($this->form_validation->run() === TRUE){
+                $file       = $_FILES['userfile']['tmp_name'];
+                $delimiter  = $this->input->post('delimiter');
 
-            //... parsing line
-            while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE){
-                //... 1st column is person name
-                $realname   = $this->model->check_person_name($col[0]);
-                //... 2nd column is username
-                $username   = $this->model->check_username($col[1]);
-                //... 3rd column is email
-                $email      = $this->model->check_email($col[2]);
-                //... 4th column is role
-                $user_role  = $this->model->check_role($col[3]);
-                //... 5th column is password
-                $password   = $this->model->check_password($col[4]);
+                //... open file
+                if (($handle = fopen($file, "r")) !== FALSE){
+                    $row     = 1;
+                    $data    = array();
+                    $errors  = array();
+                    $user_id = array();
+                    $index   = 0;
+                    fgetcsv($handle); // skip first line (as header)
 
-                if ($realname && $username && $user_role && $email && $password){
-                //... encrypt the password
-                $password        = $this->hash_passwd($password);
-                $user_id[$index] = $this->model->get_unused_id($user_id);
+                    //... parsing line
+                    while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE)
+                    {
+                        $row++;
 
-                //... set user data for insert into table
-                $data[] = array(
-                    'user_id'    => $user_id[$index],
-                    'username'   => $username,
-                    'person_name'   => $realname,
-                    'passwd'     => $password,
-                    'email'      => $email,
-                    'auth_level' => $user_role,
-                    'created_at' => date('Y-m-d H:i:s'),
-                );
+                        /******************
+                         * CHECK COLUMN 0
+                         ******************/
+                        $position = trim(strtoupper($col[0]));
+                        $data[$row]['position'] = $position;
+
+                        if ($position == '')
+                        $errors[] = 'Line '. $row .': position is null!';
+
+                        if ($this->model->isDuplicatePosition($position))
+                            $errors[] = 'Line '. $row .': Duplicate position '. $position;
+
+                        /***************************************************
+                         * CHECK COLUMN 1
+                         ***********************************/
+                        $code = (trim($col[1]) == '') ? null : trim($col[1]);
+                        $data[$row]['code'] = $code;
+
+                        // if ($code == '')
+                        // $errors[] = 'Line '. $row .': code is null!';
+
+                        if ($code != '' && $this->model->isDuplicateCode($code))
+                        $errors[] = 'Line '. $row .': Duplicate code '. $code;
+
+                        /***************************************************
+                         * CHECK COLUMN 2
+                         ***********************************/
+                        $level = (trim($col[2]) == '') ? null : trim(strtoupper($col[2]));
+                        $data[$row]['level'] = $level;
+
+                        if ($level == '')
+                        $errors[] = 'Line '. $row .': level is null!';
+
+                        if (!$this->model->isLevelExists($level))
+                        $errors[] = 'Line '. $row .': Level '. $level.' not Exists. Please Register it First!!';
+
+                        /***************************************************
+                         * CHECK COLUMN 3
+                         ***********************************/
+                        $notes = (trim($col[2]) == '') ? null : trim($col[2]);
+                        $data[$row]['notes'] = $notes;
+
+
+                    }
+                    fclose($handle);
+
+                    if (empty($errors)){
+                        /**
+                         * Insert into user table
+                         */
+                        if ($this->model->import($data)){
+                            //... send message to view
+                            $this->session->set_flashdata('alert', array(
+                                'type' => 'success',
+                                'info' => count($data)." data has been imported!"
+                            ));
+
+                            redirect($this->module['route']);
+                        }
+                    } else {
+                        foreach ($errors as $key => $value){
+                            $err[] = "\n#". $value;
+                        }
+
+                        $this->session->set_flashdata('alert', array(
+                            'type' => 'danger',
+                            'info' => "There are errors on data\n#". implode("\n#", $errors)
+                        ));
+                    }
                 } else {
-                $errors[] = $row;
-                }
-
-                $row++;
-            }
-            fclose($handle);
-
-            if (empty($errors)){
-                /**
-                 * Insert into user table
-                 */
-                if ($this->model->insert_batch($data)){
-                //... send message to view
-                $this->session->set_flashdata('alert', array(
-                    'type' => 'success',
-                    'info' => count($data)." data has been imported!"
-                ));
-
-                redirect('user');
+                    $this->session->set_flashdata('alert', array(
+                        'type' => 'danger',
+                        'info' => 'Cannot open file!'
+                    ));
                 }
             }
-
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => 'There are errors on line '. json_encode($errors)
-            ));
-            } else {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => 'Cannot open file!'
-            ));
-            }
-        }
         }
 
         //... set view data
+        $this->data['page_title'] = lang('page_title_import');
         $this->data['page_content'] = $this->module['view'] .'/import';
-        $this->data['page_title']   = 'Import From CSV';
 
-        //... render view
         $this->render_view();
     }
 }

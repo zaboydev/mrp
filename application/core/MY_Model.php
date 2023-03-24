@@ -529,10 +529,10 @@ class MY_Model extends CI_Model
   public function isLevelExists($level, $level_exception = NULL)
   {
     $this->db->from(config_item('module')['level']['table']);
-    $this->db->where('level', $level);
+    $this->db->where('UPPER(level)', strtoupper($level));
 
     if ($level_exception !== NULL)
-      $this->db->where('level != ', $level_exception);
+      $this->db->where('UPPER(level) != ', strtoupper($level_exception));
 
     $query = $this->db->get();
 
