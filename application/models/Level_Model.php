@@ -178,4 +178,53 @@ class Level_Model extends MY_Model
         $this->db->trans_commit();
         return TRUE;
     }
+
+    public function isDuplicateLevel($level, $exception = NULL)
+    {
+        $this->db->select('level');
+        $this->db->from('tb_master_levels');
+        $this->db->where('UPPER(level)', strtoupper($level));
+
+        if ($exception !== NULL)
+        $this->db->where('UPPER(level) != ', strtoupper($level));
+
+        $query  = $this->db->get();
+
+        return ($query->num_rows() === 0) ? FALSE : TRUE;
+    }
+
+    public function isDuplicateCode($code, $exception = NULL)
+    {
+        $this->db->select('code');
+        $this->db->from('tb_master_levels');
+        $this->db->where('UPPER(code)', strtoupper($code));
+
+        if ($exception !== NULL)
+        $this->db->where('UPPER(code) != ', strtoupper($exception));
+
+        $query  = $this->db->get();
+
+        return ($query->num_rows() === 0) ? FALSE : TRUE;
+    }
+
+    public function import(array $user_data)
+    {
+        $this->db->trans_begin();
+
+        foreach ($user_data as $key => $data){
+            $this->db->set('level', strtoupper($data['level']));
+            $this->db->set('code', strtoupper($data['code']));
+            $this->db->set('notes', $data['notes']);
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->insert('tb_master_levels');
+        }
+
+        if ($this->db->trans_status() === FALSE)
+        return FALSE;
+
+        $this->db->trans_commit();
+
+        return TRUE;
+    }
 }
