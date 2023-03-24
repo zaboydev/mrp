@@ -275,7 +275,7 @@ class Employee extends MY_Controller
                     $employee_number = (trim($col[0]) == '') ? null : trim($col[0]);
                     $data[$row]['employee_number'] = $employee_number;
 
-                    if ($employee_number === null)
+                    if ($employee_number == '')
                         $errors[] = 'Line ' . $row . ': employee number is null!';
 
                     if($this->model->isEmployeeNumberExists($employee_number))
@@ -285,14 +285,14 @@ class Employee extends MY_Controller
                     $name = (trim($col[1]) == '') ? null : trim(strtoupper($col[1]));
                     $data[$row]['name'] = $name;
 
-                    if ($name === null)
+                    if ($name == '')
                         $errors[] = 'Line ' . $row . ': Column name is null!';
 
                     //... 3rd column is department
                     $department = (trim($col[2]) == '') ? null : trim($col[2]);
                     $data[$row]['department'] = $department;
 
-                    if ($department === null)
+                    if ($department == '')
                         $errors[] = 'Line ' . $row . ': employee number is null!';
 
                     if(!isDepartmentExists($department))
@@ -306,7 +306,7 @@ class Employee extends MY_Controller
                     $gender = (trim($col[4]) == '') ? null : trim($col[4]);
                     $data[$row]['gender'] = $gender;
 
-                    if ($gender === null)
+                    if ($gender == '')
                         $errors[] = 'Line ' . $row . ': gender is null!';
                     
                     if(!in_array($gender,['male','female'])){
@@ -319,16 +319,16 @@ class Employee extends MY_Controller
 
                     //... 7th column is phone_number
                     $phone_number = (trim($col[6]) == '') ? null : trim($col[6]);
-                    $data[$row]['gender'] = $phone_number;
+                    $data[$row]['phone_number'] = $phone_number;
 
-                    if ($phone_number === null)
+                    if ($phone_number == '')
                         $errors[] = 'Line ' . $row . ': phone_number is null!';
                     
                     //... 8th column is marital_status
                     $marital_status = (trim($col[7]) == '') ? null : trim($col[7]);
                     $data[$row]['marital_status'] = $marital_status;
 
-                    if ($marital_status === null)
+                    if ($marital_status == '')
                         $errors[] = 'Line ' . $row . ': marital_status is null!';
 
                     if(!in_array($marital_status,['married','single'])){
@@ -339,18 +339,18 @@ class Employee extends MY_Controller
                     $email = (trim($col[8]) == '') ? null : trim($col[8]);
                     $data[$row]['email'] = $email;
 
-                    if ($email === null)
-                        $errors[] = 'Line ' . $row . ': marital_status is null!';
+                    // if ($email == '')
+                    //     $errors[] = 'Line ' . $row . ': email is null!';
 
                     //... 10th column is address
                     $address = (trim($col[9]) == '') ? null : trim($col[9]);
                     $data[$row]['address'] = $address;
 
                     //... 11th column is jabatan
-                    $jabatan = (trim($col[10]) == '') ? null : trim($col[10]);
+                    $jabatan = (trim($col[10]) == '') ? null : trim(strtoupper($col[10]));
                     $data[$row]['jabatan'] = $jabatan;
 
-                    if ($jabatan === null)
+                    if ($jabatan == '')
                         $errors[] = 'Line ' . $row . ': jabatan is null!';
                     
                     if(!$this->model->isPositionExists($jabatan))
@@ -360,21 +360,21 @@ class Employee extends MY_Controller
                     $tipe_identitas = (trim($col[11]) == '') ? null : trim($col[11]);
                     $data[$row]['tipe_identitas'] = $tipe_identitas;
 
-                    if ($tipe_identitas === null)
-                        $errors[] = 'Line ' . $row . ': tipe_identitas is null!';
+                    // if ($tipe_identitas == '')
+                    //     $errors[] = 'Line ' . $row . ': tipe_identitas is null!';
                     
                     //... 13th column is identitas_number
                     $identitas_number = (trim($col[12]) == '') ? null : trim($col[12]);
                     $data[$row]['identitas_number'] = $identitas_number;
 
-                    if ($identitas_number === null)
-                        $errors[] = 'Line ' . $row . ': identitas_number is null!';
+                    // if ($identitas_number == '')
+                    //     $errors[] = 'Line ' . $row . ': identitas_number is null!';
 
                     //... 14th column is base
                     $base = (trim($col[13]) == '') ? null : trim($col[13]);
                     $data[$row]['base'] = $base;
 
-                    if ($base === null)
+                    if ($base == '')
                         $errors[] = 'Line ' . $row . ': base is null!';
 
                     if(!$this->model->isWarehouseExists($base)){
@@ -385,35 +385,35 @@ class Employee extends MY_Controller
                     $bank_account_number = (trim($col[14]) == '') ? null : trim($col[14]);
                     $data[$row]['bank_account_number'] = $bank_account_number;
 
-                    if ($bank_account_number === null)
-                        $errors[] = 'Line ' . $row . ': bank_account_number is null!';
+                    // if ($bank_account_number == '')
+                    //     $errors[] = 'Line ' . $row . ': bank_account_number is null!';
 
                     //... 16th column is bank_name
                     $bank_name = (trim($col[15]) == '') ? null : trim($col[15]);
                     $data[$row]['bank_name'] = $bank_name;
 
-                    if ($bank_name === null)
-                        $errors[] = 'Line ' . $row . ': bank_name is null!';
+                    // if ($bank_name == '')
+                    //     $errors[] = 'Line ' . $row . ': bank_name is null!';
 
                     //... 17th column is npwp
                     $npwp = (trim($col[16]) == '') ? null : trim($col[16]);
                     $data[$row]['npwp'] = $npwp;
 
-                    if ($npwp === null)
-                        $errors[] = 'Line ' . $row . ': npwp is null!';
+                    // if ($npwp == '')
+                    //     $errors[] = 'Line ' . $row . ': npwp is null!';
 
                     //... 18th column is basic_salary
                     $basic_salary = (trim($col[17]) == '') ? null : trim($col[17]);
                     $data[$row]['basic_salary'] = $basic_salary;
 
-                    if ($basic_salary === null)
+                    if ($basic_salary == '')
                         $errors[] = 'Line ' . $row . ': basic_salary is null!';
 
                     //... 19th column is tanggal_bergabung
                     $tanggal_bergabung = (trim($col[18]) == '') ? null : trim($col[18]);
                     $data[$row]['tanggal_bergabung'] = $tanggal_bergabung;
 
-                    if ($tanggal_bergabung === null)
+                    if ($tanggal_bergabung == '')
                         $errors[] = 'Line ' . $row . ': tanggal_bergabung is null!';
 
                     $row++;
@@ -431,7 +431,7 @@ class Employee extends MY_Controller
                         'info' => count($data)." data has been imported!"
                     ));
 
-                    redirect('user');
+                    redirect('employee');
                     }
                 }
 

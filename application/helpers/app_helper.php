@@ -3479,8 +3479,8 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
-  if ( ! function_exists('getDepartmentIdByName')) {
-    function getDepartmentIdByName($department_name)
+  if ( ! function_exists('getDepartmentByName')) {
+    function getDepartmentByName($department_name)
     {
       $CI =& get_instance();
 

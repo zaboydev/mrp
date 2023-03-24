@@ -252,10 +252,10 @@ class Employee_Model extends MY_Model
             $this->db->set('marital_status', $data['marital_status']);
             $this->db->set('email', $data['email']);
             $this->db->set('address', $data['address']);
-            $this->db->set('position', strtoupper($data['position']));
+            $this->db->set('position', strtoupper($data['jabatan']));
             $this->db->set('identity_number', $data['identity_number']);
             $this->db->set('identity_type', strtoupper($data['identity_type']));
-            $this->db->set('warehouse', strtoupper($data['warehouse']));
+            $this->db->set('warehouse', strtoupper($data['base']));
             $this->db->set('bank_account', $data['bank_account']);
             $this->db->set('bank_account_name', $data['bank_account_name']);
             $this->db->set('npwp', $data['npwp']);
