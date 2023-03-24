@@ -16,143 +16,153 @@
 
             <div class="document-header force-padding">
                 <div class="row">
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-content">
-                                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['business_trip']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
-                                    <label for="document_number">Document No.</label>
+                    <div class="col-sm-12 col-lg-5">
+                        <div class="row">  
+                            <div class="col-sm-12">
+                                <h4>SPD Info</h4>
+
+                                <div class="">
+                                    <dl class="dl-inline">
+                                        <dt>
+                                            SPD Number
+                                        </dt>
+                                        <dd>
+                                            <?= $entity['document_number']; ?>
+                                        </dd>
+
+                                        <dt>
+                                            Date
+                                        </dt>
+                                        <dd>
+                                            <?=print_date($entity['date']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Supervisor / Atasan
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['head_dept']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Name
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['person_name']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Occupation / Jabatan
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['occupation']);?>
+                                        </dd>
+
+                                        <dt>
+                                            From / Kota Asal
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['from_base']);?>
+                                        </dd>
+
+                                        <dt>
+                                            Destination / Kota Tujuan
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['business_trip_destination']);?>
+                                        </dd>  
+                                        
+                                        <dt>
+                                            Date / Tanggal
+                                        </dt>
+                                        <dd>
+                                            <?=print_date($entity['start_date'], 'd F Y');?> s/d <?=print_date($entity['end_date'], 'd F Y');?>
+                                        </dd>
+
+                                        <dt>
+                                            Duration / Kota Tujuan
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['duration']);?>
+                                        </dd> 
+                                        
+                                        <dt>
+                                            Purpose of Travel on Duty
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['notes']);?>
+                                        </dd> 
+                                    </dl>
                                 </div>
-                                <span class="input-group-addon"><?= $_SESSION['business_trip']['format_number']; ?></span>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-lg-7">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <textarea name="approval_notes" id="approval_notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_approval_notes'); ?>"><?= $entity['approval_notes']; ?></textarea>
+                                    <label for="approval_notes">Approval Notes</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <h4>SPD Expenses</h4>
+                                <table class="table table-hover" id="table-document" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%"></th>
+                                            <th width="45%">Description</th>
+                                            <th width="10%">Days</th>
+                                            <th width="20%">Amount</th>
+                                            <th width="20%" class="text-center">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $grand_total = array(); $n=1;?>
+                                        <?php foreach ($entity['items'] as $i => $items) : ?>
+                                        <?php $grand_total[] = $items['total']; ?>
+                                        <tr id="row_<?= $i; ?>">
+                                            <td>
+                                                <?= $n++; ?>
+                                            </td>
+                                            <td class="expense_name" style="font-weight:500;">
+                                                <input name="expense_name[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['expense_name'];?>" readonly>
+                                            </td>
+                                            <td class="qty" style="font-weight:500;">
+                                                <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>">
+                                            </td>
+                                            <td class="amount" style="font-weight:500;word-wrap:break-word;">
+                                                <input name="amount[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>">
+                                            </td>
+                                            <td class="total" style="font-weight:500;">
+                                                <input name="total[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['total'];?>">
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                                <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction number">
+                                    Add
+                                </button>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="dd-mm-yyyy" class="form-control" value="<?= $_SESSION['business_trip']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_received_date'); ?>" required>
-                            <label for="date">Date</label>
-                        </div>
-
-                        <div class="form-group">
-                            <select name="with_po" id="with_po" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
-                                <option></option>
-                                <?php foreach(list_user_in_head_department($_SESSION['business_trip']['department_id']) as $head):?>
-                                <option value="<?=$head['username'];?>" <?= ($head['username'] == $_SESSION['business_trip']['head_dept']) ? 'selected' : ''; ?>><?=$head['person_name'];?></option>
-                                <?php endforeach;?>
-                            </select>
-                            <label for="notes">Supervisor / Atasan</label>
-                        </div>
-
-                        <div class="form-group" style="padding-top: 25px;">
-                            <select name="person_in_charge" id="person_in_charge" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_person_in_charge'); ?>" required>
-                                <option></option>
-                                <?php foreach(available_employee($_SESSION['business_trip']['department_id']) as $user):?>
-                                <option data-identity-number="<?=$user['identity_number'];?>" data-phone-number="<?=$user['phone_number'];?>" data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['business_trip']['person_in_charge']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
-                                <?php endforeach;?>
-                            </select>
-                            <label for="person_in_charge">Name Person in Charge</label>
-                        </div>
-
-                        <div class="form-group" style="padding-top: 25px;">
-                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" required>
-                                <option></option>
-                                <?php foreach(occupation_list() as $occupation):?>
-                                <option value="<?=$occupation['position'];?>" <?= ($occupation['position'] == $_SESSION['business_trip']['occupation']) ? 'selected' : ''; ?>><?=$occupation['position'];?></option>
-                                <?php endforeach;?>
-                            </select>
-                            <label for="occupation">Occupation / Jabatan</label>
-                        </div>
                         
-                        <div class="form-group">
-                            <input type="text" name="id_number" id="id_number" class="form-control" value="<?= $_SESSION['business_trip']['id_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_id_number'); ?>" required>
-                            <label for="id_number">ID. Number / No. Identitas</label>
-                        </div> 
-                        
-                        <div class="form-group">
-                            <input type="text" name="phone_number" id="phone_number" class="form-control" value="<?= $_SESSION['business_trip']['phone_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_phone_number'); ?>" required>
-                            <label for="phone_number">Phone Number / No. HP</label>
-                        </div>                    
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
-                        <div class="form-group" style="padding-top: 25px;">
-                            <select name="from_base" id="from_base" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_from_base'); ?>" data-placeholder="Select Base" required>
-                                <option></option>
-                                <?php foreach(available_warehouses() as $warehouse):?>
-                                <option value="<?=$warehouse;?>" <?= ($warehouse == $_SESSION['business_trip']['from_base']) ? 'selected' : ''; ?>><?=$warehouse;?></option>
-                                <?php endforeach;?>
-                            </select>
-                            <label for="from">From / Kota Asal</label>
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" name="transportation" id="transportation" class="form-control" value="<?= $_SESSION['business_trip']['transportation']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" required>
-                            <label for="transportation">Transportation / Jenis Transportasi</label>
-                        </div>  
-
-                        <div class="form-group" style="padding-top: 25px;">
-                            <select name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_destination'); ?>" data-placeholder="Select Destination" required>
-                                <option></option>
-                                <?php foreach(destination_list() as $destination):?>
-                                <option value="<?=$destination['id'];?>" <?= ($destination['id'] == $_SESSION['business_trip']['business_trip_destination_id']) ? 'selected' : ''; ?>><?=$destination['business_trip_destination'];?></option>
-                                <?php endforeach;?>
-                            </select>
-                            <label for="tujuan_perjalanan_dinas">To / Kota Tujuan</label>
-                        </div> 
                         
-                        <div class="form-group">
-                            <input type="hidden" name="start_date" id="start_date" class="form-control" value="<?= $_SESSION['business_trip']['start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_start_date'); ?>" required>
-                            <input type="hidden" name="end_date" id="end_date" class="form-control" value="<?= $_SESSION['business_trip']['end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_end_date'); ?>" required>
-                            <input type="text" name="dateline" id="dateline" data-provide="daterange" class="form-control" value="<?= $_SESSION['business_trip']['dateline']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_dateline'); ?>" required readonly>
-                            <label for="dateline">Date</label>
-                        </div>
-
-                        <div class="form-group">
-                            <input type="number" name="duration" id="duration" class="form-control" value="<?= $_SESSION['business_trip']['duration']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_duration'); ?>" required>
-                            <label for="duration">Duration</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12 col-lg-4">
-                        <div class="form-group">
-                            <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['business_trip']['notes']; ?></textarea>
-                            <label for="notes">Purpose of Travel on Duty / Maksud perjalanan dinas</label>
-                        </div>
-
-                        <div class="form-group">
-                            <textarea name="command_by" id="command_by" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_command_by'); ?>"><?= $_SESSION['business_trip']['command_by']; ?></textarea>
-                            <label for="notes">Perintah Dinas Diberikan oleh</label>
-                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="document-data table-responsive">
-                <table class="table table-hover table-striped hide" id="table-document">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Expense Name</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                <tbody>
-                    
-                </tbody>
-                </table>
+                
             </div>
         </div>
         <div class="card-actionbar">
             <div class="card-actionbar-row">
-                <div class="pull-left">
-                    <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left hide">
-                    Add
-                    </button>
-
-                    <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
-                        Attachment
-                    </a>
-                </div>
-
                 <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
                     Discard
                 </a>
@@ -200,25 +210,33 @@
 
     <div class="section-action style-default-bright">
         <div class="section-floating-action-row">
-            <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
+            <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save_hr_approve'); ?>">
                 <i class="md md-save"></i>
-                <small class="top right">Save Document</small>
+                <small class="top right">Save & Approve SPD</small>
             </a>
         </div>
     </div>
     <table class="table-row-item hide">
         <tbody>
             <tr>
-            <td class="item-list" style="text-align:center;">
-                <a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i>
-                </a>                     
-            </td>
-            <td class="remarks item-list">
-                <input type="text" name="expense_name[]" class="form-control">
-            </td>
-            <td class="value item-list">
-                <input type="text" name="amount[]" class="form-control">
-            </td>     
+                <td class="item-list" style="text-align:center;">
+                    <a  href="javascript:;" title="Delete" class="btn btn-icon-toggle btn-danger btn-xs btn-row-delete-item" data-tipe="delete"><i class="fa fa-trash"></i>
+                    </a>                     
+                </td>
+                <td class="expense_name item-list">
+                    <input type="text" name="expense_name[]" class="form-control input-sm">
+                </td>
+                <td class="qty item-list">
+                    <input type="text" name="qty[]" value="<?= $entity['duration']?>" class="form-control input-sm">
+                </td>
+                
+                <td class="amount item-list">
+                    <input type="text" name="amount[]" class="form-control number input-sm">
+                </td>
+
+                <td class="total item-list">
+                    <input type="text" name="total[]" class="form-control number input-sm">
+                </td>
             </tr>
         </tbody>
     </table>
@@ -250,19 +268,55 @@
     Pace.on('done', function() {
         $('.progress-overlay').hide();
     });
+    $('.number').number(true, 2, '.', ',');
+    set_qty();
+    set_amount();
 
     function addRow() {
         var row_payment = $('.table-row-item tbody').html();
         var el = $(row_payment);
         $('#table-document tbody').append(el);
         $('#table-document tbody tr:last').find('input[name="amount[]"]').number(true, 2, '.', ',');
+        $('#table-document tbody tr:last').find('input[name="total[]"]').number(true, 2, '.', ',');
 
         btn_row_delete_item();
+        set_qty();
+        set_amount();
     }
 
     function btn_row_delete_item() {
         $('.btn-row-delete-item').click(function () {
             $(this).parents('tr').remove();
+        });
+    }
+
+    function set_qty() {
+        $('[name="qty[]"]').keyup(function () {
+            var amount = $(this).parents('td').siblings('td.amount').children('input').val();
+
+            var qty = $(this).val();
+            var subtotal = $(this).parents('td').siblings('td.total').children('input');
+            if (qty != '' || qty > 0) {
+                var sub_total = parseFloat(amount) * parseFloat(qty);
+                total = Number.parseFloat(sub_total).toFixed(2);
+                subtotal.val(total);
+                // set_subtotal();
+            }
+        });
+    }
+
+    function set_amount() {
+        $('[name="amount[]"]').keyup(function () {
+            var qty = $(this).parents('td').siblings('td.qty').children('input').val();
+
+            var amount = $(this).val();
+            var subtotal = $(this).parents('td').siblings('td.total').children('input');
+            if (amount != '' || amount > 0) {
+                var sub_total = parseFloat(amount) * parseFloat(qty);
+                total = Number.parseFloat(sub_total).toFixed(2);
+                subtotal.val(total);
+                // set_subtotal();
+            }
         });
     }
 
@@ -493,27 +547,33 @@
 
             var url = $(this).attr('href');
 
-            $.post(url, formDocument.serialize(), function(data) {
-                var obj = $.parseJSON(data);
+            if (confirm('Are you sure want to save and approve this Document ? Continue?')) {
+                $.post(url, formDocument.serialize(), function(data) {
+                    var obj = $.parseJSON(data);
 
-                if (obj.success == false) {
-                    toastr.options.timeOut = 10000;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.error(obj.message);
-                } else {
-                    toastr.options.timeOut = 4500;
-                    toastr.options.closeButton = false;
-                    toastr.options.progressBar = true;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.success(obj.message);
+                    if (obj.success == false) {
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.error(obj.message);
+                    } else {
+                        toastr.options.timeOut = 4500;
+                        toastr.options.closeButton = false;
+                        toastr.options.progressBar = true;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.success(obj.message);
 
-                    window.setTimeout(function() {
-                        window.location.href = '<?= site_url($module['route']); ?>';
-                    }, 5000);
-                }
+                        window.setTimeout(function() {
+                            window.location.href = '<?= site_url($module['route']); ?>';
+                        }, 5000);
+                    }
 
+                    $(buttonSubmitDocument).attr('disabled', false);
+                });
+            }else{
                 $(buttonSubmitDocument).attr('disabled', false);
-            });
+            }
+
+            
         });
 
         $(buttonDeleteDocumentItem).on('click', function(e) {
@@ -543,12 +603,8 @@
 
         $('#person_in_charge').change(function () {
             var employee_number = $('#person_in_charge').val();                        
-            var position = $('#person_in_charge option:selected').data('position');    
-            var phone_number = $('#person_in_charge option:selected').data('phone-number');    
-            var identity_number = $('#person_in_charge option:selected').data('identity-number');  
-            $('#occupation').val(position).trigger('change'); 
-            $('#phone_number').val(phone_number).trigger('change'); 
-            $('#id_number').val(identity_number).trigger('change');
+            var position = $('#person_in_charge option:selected').data('position');  
+            $('#occupation').val(position).trigger('change');
         });
     });
 </script>

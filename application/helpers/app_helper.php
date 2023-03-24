@@ -2141,7 +2141,7 @@ if (!function_exists('currency_for_vendor_list')) {
   if ( ! function_exists('viewOrNot')) {
     function viewOrNot($status,$head_dept,$department_request=NULL)
     {
-      if($status=='WAITING FOR HEAD DEPT'){
+      if($status=='WAITING FOR HEAD DEPT' || $status=='WAITING APPROVAL BY HEAD DEPT'){
         //untuk expense,capex,inv request
         if(config_item('as_head_department')=='yes'){
           if(in_array($department_request,config_item('head_department')) && $head_dept==config_item('auth_username')){
@@ -3222,6 +3222,7 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI =& get_instance();
 
       $CI->db->select('tb_master_business_trip_destinations.*');
+      $CI->db->where('tb_master_business_trip_destinations.deleted_at is NULL',null,false);
       $CI->db->from('tb_master_business_trip_destinations');
       $CI->db->order_by('tb_master_business_trip_destinations.business_trip_destination', 'ASC');
 
@@ -3281,6 +3282,8 @@ if (!function_exists('currency_for_vendor_list')) {
       foreach ($result as $key) {
         $return[] = $key['username'];
       }
+
+      return $return;
     }
 
   }
@@ -3355,6 +3358,133 @@ if (!function_exists('currency_for_vendor_list')) {
       $query = $CI->db->get();
   
       return $query->unbuffered_row('array');
+    }
+  }
+
+  if ( ! function_exists('getDefaultExpenseName')) {
+    function getDefaultExpenseName()
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('tb_master_business_trip_destination_items.expense_name');
+      $CI->db->from('tb_master_business_trip_destination_items');
+      $CI->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
+      $CI->db->group_by('tb_master_business_trip_destination_items.expense_name');
+
+      $query = $CI->db->get();
+
+      foreach ($query->result_array() as $key => $value) {            
+        $row[$key]['expense_name'] = $value['expense_name'];
+      }
+
+      return $row;
+    }
+  }
+  
+  if ( ! function_exists('destination_list_expense_by_id_and_level')) {
+    function destination_list_expense($id,$level)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_business_trip_destination_items.*');
+      $CI->db->where('tb_master_business_trip_destination_items.deleted_at is NULL',null,false);
+      $CI->db->where('tb_master_business_trip_destination_items.business_trip_purposes_id',$id);
+      $CI->db->where('tb_master_business_trip_destination_items.level',$level);
+      $CI->db->from('tb_master_business_trip_destination_items');
+      $CI->db->order_by('tb_master_business_trip_destination_items.expense_name', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getLevelByPosition')) {
+    function getLevelByPosition($position)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_positions.level');
+      $CI->db->from('tb_master_positions');
+      $CI->db->order_by('tb_master_positions.position', 'ASC'); 
+
+      $query  = $CI->db->get();
+      $result = $query->unbuffered_row('array');
+      $return = $result['level'];
+
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getEmployeeBenefitByOccupation')) {
+    function getEmployeeBenefitByOccupation($position)
+    {
+      $CI =& get_instance();
+
+      $data_selected = array(
+        'tb_master_employee_benefit_items.id', 
+        'tb_master_employee_benefit_items.year', 
+        'tb_master_employee_benefit_items.amount', 
+        'tb_master_employee_benefits.employee_benefit'
+      );
+
+      $CI->db->select($data_selected);
+      $CI->db->from('tb_master_employee_benefit_items');
+      $CI->db->join('tb_master_employee_benefits','tb_master_employee_benefit_items.employee_benefit_id = tb_master_employee_benefits.id');
+      $CI->db->join('tb_master_levels','tb_master_employee_benefit_items."level" = tb_master_levels.level');
+      $CI->db->join('tb_master_positions','tb_master_levels."level" = tb_master_positions.level');
+      $CI->db->where('tb_master_positions.position',$position);    
+      $CI->db->where('tb_master_employee_benefit_items.deleted_at IS NULL', null, false);
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('isDepartmentExists')) {
+    function isDepartmentExists($department_name)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_departments.*'));
+      $connection->from('tb_departments');
+      $connection->where('UPPER(department_name)', strtoupper($department_name));
+
+      $query  = $connection->get();
+
+      return ( $query->num_rows() > 0 ) ? true : false;
+    }
+  }
+
+  if ( ! function_exists('getEmployeeBenefitByOccupation')) {
+    function getEmployeeBenefitByOccupation($position)
+    {
+      $CI =& get_instance();
+
+      $data_selected = array(
+        'tb_master_employee_benefit_items.id', 
+        'tb_master_employee_benefit_items.year', 
+        'tb_master_employee_benefit_items.amount', 
+        'tb_master_employee_benefits.employee_benefit'
+      );
+
+      $CI->db->select($data_selected);
+      $CI->db->from('tb_master_employee_benefit_items');
+      $CI->db->join('tb_master_employee_benefits','tb_master_employee_benefit_items.employee_benefit_id = tb_master_employee_benefits.id');
+      $CI->db->join('tb_master_levels','tb_master_employee_benefit_items."level" = tb_master_levels.level');
+      $CI->db->join('tb_master_positions','tb_master_levels."level" = tb_master_positions.level');
+      $CI->db->where('tb_master_positions.position',$position);    
+      $CI->db->where('tb_master_employee_benefit_items.deleted_at IS NULL', null, false);
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
     }
   }
 

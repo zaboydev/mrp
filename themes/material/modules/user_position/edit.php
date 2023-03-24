@@ -45,7 +45,7 @@
                         </div>
 
                         <div class="form-group">
-                            <textarea name="notes" id="notes" class="form-control"><?= $entity['plafon_biaya_dinas']; ?></textarea>
+                            <textarea name="notes" id="notes" class="form-control"><?= $entity['notes']; ?></textarea>
                             <label for="notes">Notes</label>
                         </div>
                     </div>

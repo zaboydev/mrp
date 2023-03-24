@@ -250,7 +250,7 @@ class Employee extends MY_Controller
 
         if (isset($_POST) && !empty($_POST)){
         // $this->form_validation->set_rules('userfile', 'CSV File', 'trim|required');
-        $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
+            $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
 
         /**
          * Processing validation
@@ -262,73 +262,188 @@ class Employee extends MY_Controller
 
             //... open file
             if (($handle = fopen($file, "r")) !== FALSE){
-            $row     = 1;
-            $data    = array();
-            $errors  = array();
-            $user_id = array();
-            $index   = 0;
-            fgetcsv($handle); // skip first line (as header)
+                $row     = 1;
+                $data    = array();
+                $errors  = array();
+                $user_id = array();
+                $index   = 0;
+                fgetcsv($handle); // skip first line (as header)
 
-            //... parsing line
-            while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE){
-                //... 1st column is person name
-                $realname   = $this->model->check_person_name($col[0]);
-                //... 2nd column is username
-                $username   = $this->model->check_username($col[1]);
-                //... 3rd column is email
-                $email      = $this->model->check_email($col[2]);
-                //... 4th column is role
-                $user_role  = $this->model->check_role($col[3]);
-                //... 5th column is password
-                $password   = $this->model->check_password($col[4]);
+                //... parsing line
+                while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE){
+                    //... 1st column is employee number
+                    $employee_number = (trim($col[0]) == '') ? null : trim($col[0]);
+                    $data[$row]['employee_number'] = $employee_number;
 
-                if ($realname && $username && $user_role && $email && $password){
-                //... encrypt the password
-                $password        = $this->hash_passwd($password);
-                $user_id[$index] = $this->model->get_unused_id($user_id);
+                    if ($employee_number === null)
+                        $errors[] = 'Line ' . $row . ': employee number is null!';
 
-                //... set user data for insert into table
-                $data[] = array(
-                    'user_id'    => $user_id[$index],
-                    'username'   => $username,
-                    'person_name'   => $realname,
-                    'passwd'     => $password,
-                    'email'      => $email,
-                    'auth_level' => $user_role,
-                    'created_at' => date('Y-m-d H:i:s'),
-                );
-                } else {
-                $errors[] = $row;
+                    if($this->model->isEmployeeNumberExists($employee_number))
+                        $errors[] = 'Line ' . $row . ': Duplicated EMployee Number!';
+
+                    //... 2nd column is name
+                    $name = (trim($col[1]) == '') ? null : trim(strtoupper($col[1]));
+                    $data[$row]['name'] = $name;
+
+                    if ($name === null)
+                        $errors[] = 'Line ' . $row . ': Column name is null!';
+
+                    //... 3rd column is department
+                    $department = (trim($col[2]) == '') ? null : trim($col[2]);
+                    $data[$row]['department'] = $department;
+
+                    if ($department === null)
+                        $errors[] = 'Line ' . $row . ': employee number is null!';
+
+                    if(!isDepartmentExists($department))
+                        $errors[] = 'Line ' . $row . ': Department '.$department.' not exists!';
+
+                    //... 4th column is date_of_birth
+                    $date_of_birth = (trim($col[3]) == '') ? null : trim($col[3]);
+                    $data[$row]['date_of_birth'] = $date_of_birth;
+                    
+                    //... 5th column is gender
+                    $gender = (trim($col[4]) == '') ? null : trim($col[4]);
+                    $data[$row]['gender'] = $gender;
+
+                    if ($gender === null)
+                        $errors[] = 'Line ' . $row . ': gender is null!';
+                    
+                    if(!in_array($gender,['male','female'])){
+                        $errors[] = 'Line ' . $row . ': gender is between male or female !';
+                    }
+
+                    //... 6th column is religion
+                    $religion = (trim($col[5]) == '') ? null : trim($col[5]);
+                    $data[$row]['religion'] = $religion;
+
+                    //... 7th column is phone_number
+                    $phone_number = (trim($col[6]) == '') ? null : trim($col[6]);
+                    $data[$row]['gender'] = $phone_number;
+
+                    if ($phone_number === null)
+                        $errors[] = 'Line ' . $row . ': phone_number is null!';
+                    
+                    //... 8th column is marital_status
+                    $marital_status = (trim($col[7]) == '') ? null : trim($col[7]);
+                    $data[$row]['marital_status'] = $marital_status;
+
+                    if ($marital_status === null)
+                        $errors[] = 'Line ' . $row . ': marital_status is null!';
+
+                    if(!in_array($marital_status,['married','single'])){
+                        $errors[] = 'Line ' . $row . ': marital_status is between married or single !';
+                    }
+
+                    //... 9th column is email
+                    $email = (trim($col[8]) == '') ? null : trim($col[8]);
+                    $data[$row]['email'] = $email;
+
+                    if ($email === null)
+                        $errors[] = 'Line ' . $row . ': marital_status is null!';
+
+                    //... 10th column is address
+                    $address = (trim($col[9]) == '') ? null : trim($col[9]);
+                    $data[$row]['address'] = $address;
+
+                    //... 11th column is jabatan
+                    $jabatan = (trim($col[10]) == '') ? null : trim($col[10]);
+                    $data[$row]['jabatan'] = $jabatan;
+
+                    if ($jabatan === null)
+                        $errors[] = 'Line ' . $row . ': jabatan is null!';
+                    
+                    if(!$this->model->isPositionExists($jabatan))
+                        $errors[] = 'Line ' . $row . ': Jabatan '.$jabatan.' not exists!';
+
+                    //... 12th column is tipe_identitas
+                    $tipe_identitas = (trim($col[11]) == '') ? null : trim($col[11]);
+                    $data[$row]['tipe_identitas'] = $tipe_identitas;
+
+                    if ($tipe_identitas === null)
+                        $errors[] = 'Line ' . $row . ': tipe_identitas is null!';
+                    
+                    //... 13th column is identitas_number
+                    $identitas_number = (trim($col[12]) == '') ? null : trim($col[12]);
+                    $data[$row]['identitas_number'] = $identitas_number;
+
+                    if ($identitas_number === null)
+                        $errors[] = 'Line ' . $row . ': identitas_number is null!';
+
+                    //... 14th column is base
+                    $base = (trim($col[13]) == '') ? null : trim($col[13]);
+                    $data[$row]['base'] = $base;
+
+                    if ($base === null)
+                        $errors[] = 'Line ' . $row . ': base is null!';
+
+                    if(!$this->model->isWarehouseExists($base)){
+                        $errors[] = 'Line ' . $row . ': base is no exists!';
+                    }
+
+                    //... 15th column is base
+                    $bank_account_number = (trim($col[14]) == '') ? null : trim($col[14]);
+                    $data[$row]['bank_account_number'] = $bank_account_number;
+
+                    if ($bank_account_number === null)
+                        $errors[] = 'Line ' . $row . ': bank_account_number is null!';
+
+                    //... 16th column is bank_name
+                    $bank_name = (trim($col[15]) == '') ? null : trim($col[15]);
+                    $data[$row]['bank_name'] = $bank_name;
+
+                    if ($bank_name === null)
+                        $errors[] = 'Line ' . $row . ': bank_name is null!';
+
+                    //... 17th column is npwp
+                    $npwp = (trim($col[16]) == '') ? null : trim($col[16]);
+                    $data[$row]['npwp'] = $npwp;
+
+                    if ($npwp === null)
+                        $errors[] = 'Line ' . $row . ': npwp is null!';
+
+                    //... 18th column is basic_salary
+                    $basic_salary = (trim($col[17]) == '') ? null : trim($col[17]);
+                    $data[$row]['basic_salary'] = $basic_salary;
+
+                    if ($basic_salary === null)
+                        $errors[] = 'Line ' . $row . ': basic_salary is null!';
+
+                    //... 19th column is tanggal_bergabung
+                    $tanggal_bergabung = (trim($col[18]) == '') ? null : trim($col[18]);
+                    $data[$row]['tanggal_bergabung'] = $tanggal_bergabung;
+
+                    if ($tanggal_bergabung === null)
+                        $errors[] = 'Line ' . $row . ': tanggal_bergabung is null!';
+
+                    $row++;
+                }
+                fclose($handle);
+
+                if (empty($errors)){
+                    /**
+                     * Insert into user table
+                     */
+                    if ($this->model->insert_batch($data)){
+                    //... send message to view
+                    $this->session->set_flashdata('alert', array(
+                        'type' => 'success',
+                        'info' => count($data)." data has been imported!"
+                    ));
+
+                    redirect('user');
+                    }
                 }
 
-                $row++;
-            }
-            fclose($handle);
-
-            if (empty($errors)){
-                /**
-                 * Insert into user table
-                 */
-                if ($this->model->insert_batch($data)){
-                //... send message to view
                 $this->session->set_flashdata('alert', array(
-                    'type' => 'success',
-                    'info' => count($data)." data has been imported!"
+                    'type' => 'danger',
+                    'info' => 'There are errors on line '. json_encode($errors)
                 ));
-
-                redirect('user');
-                }
-            }
-
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => 'There are errors on line '. json_encode($errors)
-            ));
             } else {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => 'Cannot open file!'
-            ));
+                $this->session->set_flashdata('alert', array(
+                    'type' => 'danger',
+                    'info' => 'Cannot open file!'
+                ));
             }
         }
         }

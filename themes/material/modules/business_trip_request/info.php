@@ -43,10 +43,10 @@
               <dt>Rejected By</dt>
               <dd><?=($entity['rejected_by']==null)? 'N/A':print_string($entity['rejected_by']);?></dd>
             <?php else:?>
-              <dt>Known By</dt>
+              <dt>Known By Head Dept</dt>
               <dd><?=($entity['known_by']==null)? 'N/A':print_string($entity['known_by']);?></dd>
 
-              <dt>Approved By</dt>
+              <dt>Approved By HR</dt>
               <dd><?=($entity['approved_by']==null)? 'N/A':print_string($entity['approved_by']);?></dd>
             <?php endif;?>
 
@@ -77,53 +77,48 @@
       </div>
     </div>
 
-    <div class="row hide" id="document_details">
+    <?php if (is_granted($module, 'approval')):?>
+    <div class="row" id="document_details">
       <div class="col-sm-12">
         <div class="table-responsive">
           <table class="table table-striped table-nowrap">
             <thead id="table_header">
               <tr>
                 <th>No</th>
-                <th>Group</th>
                 <th>Description</th>
-                <th>P/N</th>
-                <th>Alt. P/N</th>
-                <th>S/N</th>
-                <th>Qty</th>
-                <th>Condition</th>
-                <th>Stores</th>
-                <th>Order Number</th>
-                <th>Ref./Invoice</th>
-                <th>AWB Number</th>
-                <th>Remark</th>
+                <th style="text-align:center;">Days</th>
+                <th style="text-align:right;">Amount</th>
+                <th style="text-align:right;">Total</th>
               </tr>
             </thead>
             <tbody id="table_contents">
-              <?php $n = 0;?>
-              <?php $received_quantity = array();?>
-              
+              <?php $n = 1;?>
+              <?php $total = array();?>
+              <?php foreach ($entity['items'] as $item) :?>
+                <tr>
+                  <td><?=$n++;?></td>
+                  <td><?=print_string($item['expense_name']);?></td>
+                  <td style="text-align:center;"><?=number_format($item['qty']);?></td>
+                  <td style="text-align:right;"><?=print_number($item['amount'],2);?></td>
+                  <td style="text-align:right;"><?=print_number($item['total'],2)?></td>
+                </tr>
+                <?php $total[] = $item['total'];?>
+              <?php endforeach;?>
             </tbody>
             <tfoot>
               <tr>
-                <th></th>
                 <th>Total</th>
                 <th></th>
                 <th></th>
                 <th></th>
-                <th></th>
-                <th><?=print_number(array_sum($received_quantity), 2);?></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
+                <th><?=print_number(array_sum($total), 2);?></th>
               </tr>
             </tfoot>
           </table>
         </div>
       </div>
     </div>
+    <?php endif;?>
   </div>
 
     <div class="card-foot">
@@ -158,11 +153,17 @@
             </a>
             <?php endif;?>
 
-            <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HEAD DEPT'):?>
+            <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HEAD DEPT' && $entity['head_dept']==config_item('auth_username')):?>
             <a href="<?=site_url($module['route'] .'/edit_approve/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <!-- <i class="material-symbols-outlined">edit_square</i> -->
                 <i class="md md-border-color"></i>
                 <small class="top right">Edit & Approve</small>
+            </a>
+            <?php endif;?>
+            <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HR MANAGER'):?>
+            <a href="<?=site_url($module['route'] .'/hr_approve/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+                <i class="md md-spellcheck"></i>
+                <small class="top right">HR Approve</small>
             </a>
             <?php endif;?>
         

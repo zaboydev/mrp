@@ -3,6 +3,9 @@
 $config['parent']['dashboard']['label']  = 'Dashboard';
 $config['parent']['dashboard']['icon']   = 'md md-home';
 
+$config['parent']['master_data_hrd']['label']  = 'Master Data HRD';
+$config['parent']['master_data_hrd']['icon']   = 'md md-storage';
+
 $config['parent']['master']['label']  = 'Master Data';
 $config['parent']['master']['icon']   = 'md md-storage';
 
@@ -55,6 +58,13 @@ $config['module'] = array();
 
 
 
+//master DATA HRD
+require('modules/level.php');
+require('modules/employee_benefit.php');
+require('modules/tujuan_perjalanan_dinas.php');
+require('modules/user_position.php');
+require('modules/employee.php');
+
 //MASTER DATA
 require('modules/master_akun.php');
 require('modules/daftar_akun.php');
@@ -75,10 +85,6 @@ require('modules/expense_item.php');
 require('modules/deliver.php');
 require('modules/bill.php');
 require('modules/daftar_pajak.php');
-require('modules/user_position.php');
-require('modules/level.php');
-require('modules/tujuan_perjalanan_dinas.php');
-require('modules/employee.php');
 
 //business trip
 require('modules/business_trip_request.php');

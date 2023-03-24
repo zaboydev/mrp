@@ -12,13 +12,12 @@
     </div>
 
     <div class="card-body">
-        <div class="row" id="document_master">
-            
+        <div class="row" id="document_master">           
 
             <div class="col-sm-12 col-md-12">
                 <dl class="dl-inline">
-                    <dt>Business Trip Destination</dt>
-                    <dd><?=$entity['business_trip_destination'];?></dd>
+                    <dt>Employee's Benefit</dt>
+                    <dd><?=$entity['employee_benefit'];?></dd>
 
                     <dt>Notes</dt>
                     <dd><?=($entity['notes'])? $entity['notes']:'n/b';?></dd>
@@ -36,32 +35,27 @@
                         <thead id="table_header">
                             <tr>
                                 <th>No</th>
-                                <th>Expense Name</th>
-                                <?php foreach ($entity['levels'] as $key => $level) : ?>
-                                <th class="" style="text-align:right;">
-                                    <?= $level['level'] ?>
-                                </th>
-                                <?php endforeach; ?>
+                                <th>Level</th>
+                                <th>Amount</th>
+                                
                             </tr>
                         </thead>
                         <tbody id="table_contents">
                         <?php $n = 0;?>
                         <?php $total_expense = array();?>
-                        <?php foreach ($entity['items'] as $i => $detail):?>
+                        <?php foreach ($entity['levels'] as $i => $detail):?>
                             <?php $n++;?>
                             <tr>
                                 <td class="no-space">
                                     <?=print_number($n);?>
                                 </td>
                                 <td>
-                                    <?=print_string($detail['expense_name']);?>
+                                    <?=print_string($detail['level']);?>
                                 </td>
-                                <?php foreach ($entity['levels'] as $key => $level) : ?>
                                 <td style="text-align:right;">
-                                    <?=print_number($entity['items'][$i]['levels'][$key]['amount'], 2);?>
-                                    <?php $total_expense[] = $entity['items'][$i]['levels'][$key]['amount'];?>
+                                    <?=print_number($detail['amount'], 2);?>
+                                    <?php $total_expense[] = $detail['amount'];?>
                                 </td>
-                                <?php endforeach; ?>
                             </tr>
                         <?php endforeach;?>
                         </tbody>

@@ -34,59 +34,61 @@ class Business_Trip_Request extends MY_Controller
             $total_value  = array();
 
             foreach ($entities as $row){
+                
                 $cost_center = findCostCenter($row['annual_cost_center_id']);
                 $cost_center_code = $cost_center['cost_center_code'];
                 $cost_center_name = $cost_center['cost_center_name'];
-                $department_name = $cost_center['department_name'];         
-                $no++;
-                $col = array();
-                if (is_granted($this->module, 'approval')){
-                    if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                $department_name = $cost_center['department_name'];
+                if (viewOrNot($row['status'],$row['head_dept'],$department_name)){
+                    $no++;
+                    $col = array();
+                    if (is_granted($this->module, 'approval')){
+                        if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
+                            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                        }else{
+                            $col[] = print_number($no);
+                        }                    
                     }else{
                         $col[] = print_number($no);
-                    }                    
-                }else{
-                    $col[] = print_number($no);
-                }                
-                $col[] = print_string($row['document_number']);
-                $col[] = print_string($row['status']);
-                $col[] = print_date($row['date']);
-                $col[] = print_string($cost_center['cost_center_name']);
-                $col[] = print_string($row['person_name']);
-                $col[] = print_string($row['business_trip_destination']);
-                $col[] = print_string($row['duration']);
-                $col[] = print_date($row['start_date'], 'd M Y').' s/d '.print_date($row['end_date'], 'd M Y');
-                $col[] = print_string($row['notes']);
-                if($row['status']=='approved' || $row['status']=='closed'){
-                    $col[] = '';
-                }else{
-                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
-                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
-                    }else{
+                    }                
+                    $col[] = print_string($row['document_number']);
+                    $col[] = print_string($row['status']);
+                    $col[] = print_date($row['date']);
+                    $col[] = print_string($cost_center['cost_center_name']);
+                    $col[] = print_string($row['person_name']);
+                    $col[] = print_string($row['business_trip_destination']);
+                    $col[] = print_string($row['duration']);
+                    $col[] = print_date($row['start_date'], 'd M Y').' s/d '.print_date($row['end_date'], 'd M Y');
+                    $col[] = print_string($row['notes']);
+                    if($row['status']=='approved' || $row['status']=='closed'){
                         $col[] = '';
+                    }else{
+                        if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                        }else{
+                            $col[] = '';
+                        }
                     }
-                }
-                
-                $col['DT_RowId'] = 'row_'. $row['id'];
-                $col['DT_RowData']['pkey']  = $row['id'];
-                
-                if ($this->has_role($this->module, 'info')){
-                    $col['DT_RowAttr']['onClick']     = '';
-                    $col['DT_RowAttr']['data-id']     = $row['id'];
-                    $col['DT_RowAttr']['data-target'] = '#data-modal';
-                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
-                }
+                    
+                    $col['DT_RowId'] = 'row_'. $row['id'];
+                    $col['DT_RowData']['pkey']  = $row['id'];
+                    
+                    if ($this->has_role($this->module, 'info')){
+                        $col['DT_RowAttr']['onClick']     = '';
+                        $col['DT_RowAttr']['data-id']     = $row['id'];
+                        $col['DT_RowAttr']['data-target'] = '#data-modal';
+                        $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                    }
 
-                $data[] = $col;
+                    $data[] = $col;
+                }         
+                
             }
 
             $result = array(
                 "draw"            => $_POST['draw'],
                 "recordsTotal"    => $this->model->countIndex(),
-                "recordsFiltered" => $this->model->countIndexFiltered(),
+                "recordsFiltered" => $no,
                 "data"            => $data,
                 "total"           => array(
                     
@@ -245,6 +247,14 @@ class Business_Trip_Request extends MY_Controller
         $_SESSION['business_trip']['notes'] = $_GET['data'];
     }
 
+    public function set_command_by()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['business_trip']['command_by'] = $_GET['data'];
+    }
+
     public function set_approval_notes()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -286,8 +296,10 @@ class Business_Trip_Request extends MY_Controller
             $_SESSION['business_trip']['id_number']                     = NULL;
             $_SESSION['business_trip']['start_date']                    = NULL;
             $_SESSION['business_trip']['end_date']                      = NULL;
-            $_SESSION['business_trip']['from_base']                      = NULL;
-            $_SESSION['business_trip']['transportation']                      = NULL;
+            $_SESSION['business_trip']['from_base']                     = NULL;
+            $_SESSION['business_trip']['transportation']                = NULL;
+            $_SESSION['business_trip']['command_by']                    = NULL;
+            $_SESSION['business_trip']['attachment']                    = array();
 
             redirect($this->module['route'] .'/create');
         }
@@ -304,18 +316,18 @@ class Business_Trip_Request extends MY_Controller
     public function info($id)
     {
         if ($this->input->is_ajax_request() === FALSE)
-        redirect($this->modules['secure']['route'] .'/denied');
+            redirect($this->modules['secure']['route'] .'/denied');
 
         if (is_granted($this->module, 'info') === FALSE){
-        $return['type'] = 'denied';
-        $return['info'] = "You don't have permission to access this data. You may need to login again.";
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
         } else {
-        $entity = $this->model->findById($id);
+            $entity = $this->model->findById($id);
 
-        $this->data['entity'] = $entity;
+            $this->data['entity'] = $entity;
 
-        $return['type'] = 'success';
-        $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
         }
 
         echo json_encode($return);
@@ -458,6 +470,7 @@ class Business_Trip_Request extends MY_Controller
 
         $this->data['page']['content']    = $this->module['view'] .'/create';
         $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+        $this->data['page']['title']      = "EDIT & APPROVE SURAT PERJALANAN DINAS";
 
         $this->render_view($this->module['view'] .'/edit_approve');
     }
@@ -542,58 +555,67 @@ class Business_Trip_Request extends MY_Controller
         echo json_encode($data);
     }
 
-    public function add_item()
+    public function hr_approve($id)
     {
-        $this->authorized($this->module, 'document');
+        $this->authorized($this->module, 'approval');
 
-        if (isset($_POST) && !empty($_POST)){
-        $_SESSION['receipt']['items'][] = array(
-            //'id'                      => $id_item++,
-            'group'                   => $this->input->post('group'),
-            'description'             => trim(strtoupper($this->input->post('description'))),
-            'part_number'             => trim(strtoupper($this->input->post('part_number'))),
-            'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
-            'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-            'received_quantity'       => $this->input->post('received_quantity'),
-            'received_unit_value'     => $this->input->post('received_unit_value'),
-            'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
-            'minimum_quantity'        => $this->input->post('minimum_quantity'),
-            'condition'               => $this->input->post('condition'),
-            'expired_date'            => $this->input->post('expired_date'),
-            'stores'                  => trim(strtoupper($this->input->post('stores'))),
-            'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
-            'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
-            'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
-            'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
-            'unit'                    => trim($this->input->post('unit')),
-            'received_unit'           => trim($this->input->post('received_unit')),
-            'remarks'                 => trim($this->input->post('remarks')),
-            'kode_stok'               => trim($this->input->post('kode_stok')),
-            'currency'                => trim($this->input->post('kurs')),
-            'unit_pakai'              => trim($this->input->post('unit_pakai')),
-            'isi'                     => trim($this->input->post('isi')),
-            'quantity_order'          => $this->input->post('quantity_order'),
-            'value_order'             => $this->input->post('value_order'),
-            'no_expired_date'         => $this->input->post('no_expired_date'),
-            'tgl_nota'                => $this->input->post('tgl_nota'),
-            'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
-            'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
+        $entity = $this->model->findById($id);
 
-        );
+        if($entity['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+            $_SESSION['business_trip']['id']                        = $id;
+            $_SESSION['business_trip']['edit']                      = $entity['document_number'];
+            $_SESSION['business_trip']['document_number']           = $entity['document_number'];
+            $_SESSION['business_trip']['format_number']             = $format_number.'-R'.$revisi;
+            $this->data['entity'] = $entity;        
 
-        if (empty($_SESSION['receipt']['received_from'])){
-            $_SESSION['receipt']['received_from'] = strtoupper($this->input->post('consignor'));
+            $this->data['page']['content']    = $this->module['view'] .'/create';
+            $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+            
+            $this->data['page']['title']      = "HR APPROVE SURAT PERJALANAN DINAS";
+
+            $this->render_view($this->module['view'] .'/hr_approve', $this->data);
+        }else{
+            redirect(site_url('secure/denied'));
+        }        
+    }
+
+    public function save_hr_approve()
+    {
+        if ($this->input->is_ajax_request() == FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'approval') == FALSE){
+            $data['success'] = FALSE;
+            $data['message'] = 'You are not allowed to save this Document!';
+        } else {
+
+            $document_number = $_SESSION['business_trip']['document_number'];
+            $errors = array();
+
+            if (!empty($errors)){
+                $data['success'] = FALSE;
+                $data['message'] = implode('<br />', $errors);
+            } else {
+                if ($this->model->save_hr_approve()){
+                    unset($_SESSION['business_trip']);
+        
+                    $data['success'] = TRUE;
+                    $data['message'] = 'Document '. $document_number .' has been approved by HR. You will redirected now.';
+                } else {
+                    $data['success'] = FALSE;
+                    $data['message'] = 'Error while saving this document. Please ask Technical Support.';
+                }
+            }
         }
-        }
 
-        redirect($this->module['route'] .'/create');
+        echo json_encode($data);
     }
 
     public function discard()
     {
-        $this->authorized($this->module['permission']['document']);
+        $this->authorized($this->module['permission']['create']);
 
-        unset($_SESSION['receipt']);
+        unset($_SESSION['business_trip']);
 
         redirect($this->module['route']);
     }
@@ -625,61 +647,6 @@ class Business_Trip_Request extends MY_Controller
         }
 
         echo json_encode($alert);
-    }
-
-    public function ajax_editItem($key)
-    {
-        $this->authorized($this->module, 'document');    
-
-        $entity = $_SESSION['receipt']['items'][$key];
-
-        echo json_encode($entity);
-    }
-
-    public function edit_item()
-    {
-        $this->authorized($this->module, 'document');
-
-        $key=$this->input->post('item_id');
-        if (isset($_POST) && !empty($_POST)){
-        //$receipts_items_id = $this->input->post('item_id')
-        $_SESSION['receipt']['items'][$key] = array(        
-            'group'                   => $this->input->post('group'),
-            'description'             => trim(strtoupper($this->input->post('description'))),
-            'part_number'             => trim(strtoupper($this->input->post('part_number'))),
-            'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
-            'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
-            'received_quantity'       => $this->input->post('received_quantity'),
-            'received_unit_value'     => $this->input->post('received_unit_value'),
-            'received_unit_value_dollar'     => $this->input->post('received_unit_value_dollar'),
-            'minimum_quantity'        => $this->input->post('minimum_quantity'),
-            'condition'               => $this->input->post('condition'),
-            'expired_date'            => $this->input->post('expired_date'),
-            'stores'                  => trim(strtoupper($this->input->post('stores'))),
-            'purchase_order_number'   => trim(strtoupper($this->input->post('purchase_order_number'))),
-            'purchase_order_item_id'  => trim($this->input->post('purchase_order_item_id')),
-            'reference_number'        => trim(strtoupper($this->input->post('reference_number'))),
-            'awb_number'              => trim(strtoupper($this->input->post('awb_number'))),
-            'unit'                    => trim($this->input->post('unit')),
-            'received_unit'           => trim($this->input->post('received_unit')),
-            'remarks'                 => trim($this->input->post('remarks')),
-            'kode_stok'               => trim($this->input->post('kode_stok')),
-            'currency'                => trim($this->input->post('kurs')),        
-            'unit_pakai'              => trim($this->input->post('unit_pakai')), 
-            'isi'                     => trim($this->input->post('isi')),
-            'quantity_order'          => $this->input->post('quantity_order'),
-            'value_order'             => $this->input->post('value_order'),
-            'no_expired_date'         => $this->input->post('no_expired_date'),
-            'stock_in_stores_id'      => trim($this->input->post('stock_in_store_id')),
-            'receipt_items_id'        => trim($this->input->post('receipt_items_id')),
-            'tgl_nota'                => $this->input->post('tgl_nota'),        
-            'internal_delivery_item_id'  => trim($this->input->post('internal_delivery_item_id')),
-            'aircraft_register_number'  => trim($this->input->post('aircraft_register_number')),
-
-        );
-        }
-        redirect($this->module['route'] .'/create');
-
     }
 
     public function multi_approve()
@@ -793,6 +760,75 @@ class Business_Trip_Request extends MY_Controller
 
         redirect($this->module['route']);
     }  
+
+    public function attachment()
+    {
+        $this->authorized($this->module, 'create');
+
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function add_attachment()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        $config['upload_path'] = 'attachment/spd/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+            $error = array('error' => $this->upload->display_errors());
+        } else {
+
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            array_push($_SESSION["business_trip"]["attachment"], $url);
+            $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function manage_attachment($id)
+    {
+        $this->authorized($this->module, 'info');
+
+        $this->data['manage_attachment'] = $this->model->listAttachment($id);
+        $this->data['id'] = $id;
+        $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function add_attachment_to_db($id)
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        $config['upload_path'] = 'attachment/spd/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+            $error = array('error' => $this->upload->display_errors());
+            $result["status"] = $error;
+        } else {
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            // array_push($_SESSION["poe"]["attachment"], $url);
+            $this->model->add_attachment_to_db($id, $url);
+            $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function delete_attachment_in_db($id_att, $id_poe)
+    {
+        $this->model->delete_attachment_in_db($id_att);
+
+        redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+        // echo json_encode($result);
+    }
 
     public function test()
     {

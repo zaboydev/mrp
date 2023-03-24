@@ -125,6 +125,44 @@ class Employee_Model extends MY_Model
         $department = getDepartmentById($row['department_id']);
         $row['department_name'] = $department['department_name'];
 
+        $data_selected = array(
+            'tb_employee_has_benefit.*',
+            'tb_master_employee_benefits.employee_benefit'
+        );
+
+        $this->db->select($data_selected);
+        $this->db->from('tb_employee_has_benefit');
+        $this->db->join('tb_master_employee_benefit_items','tb_master_employee_benefit_items.id = tb_employee_has_benefit.employee_benefit_item_id');
+        $this->db->join('tb_master_employee_benefits','tb_master_employee_benefit_items.employee_benefit_id = tb_master_employee_benefits.id');
+        $this->db->where('tb_employee_has_benefit.employee_number', $id);
+        $this->db->where('tb_employee_has_benefit.year', date('Y'));
+
+        $query = $this->db->get();
+
+        foreach ($query->result_array() as $key => $value) {            
+            $row['benefit'][$key] = $value;       
+
+            $data_selected = array(
+                'tb_used_benefits.*',
+            );
+    
+            $this->db->select($data_selected);
+            $this->db->from('tb_used_benefits');
+            $this->db->where('tb_used_benefits.employee_has_benefit_id', $value['id']);
+            $this->db->where('tb_used_benefits.status', 'AVAILABLE');
+    
+            $query = $this->db->get();
+    
+            foreach ($query->result_array() as $key2 => $valueUsed) {            
+                $row['benefit'][$key]['used'][$key2] = $valueUsed;
+                $link = null;
+                if($valueUsed['document_type']=='REIMBURSEMENT'){
+                    $link = site_url('reimbursement/print/' . $valueUsed['document_id']);
+                }                 
+                $row['benefit'][$key]['used'][$key2]['link'] = $link;       
+            }
+        }
+
         return $row;
     }
 
@@ -144,6 +182,21 @@ class Employee_Model extends MY_Model
 
         $this->db->set($user_data);
         $this->db->insert('tb_master_employees');
+
+        //insert employee benefit
+        $employee_benefit = getEmployeeBenefitByOccupation($user_data['position']);
+
+        foreach ($employee_benefit as $key => $value) {
+            $this->db->set('employee_number',$user_data['employee_number']);
+            $this->db->set('year',$value['year']);
+            $this->db->set('employee_benefit_item_id',$value['id']);
+            $this->db->set('amount_plafond',$value['amount']);
+            $this->db->set('left_amount_plafond',$value['amount']);
+            $this->db->set('used_amount_plafond',0);
+            $this->db->set('created_by', config_item('auth_person_name'));
+            $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->insert('tb_employee_has_benefit');
+        }
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;

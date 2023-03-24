@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tujuan_Perjalanan_Dinas extends MY_Controller
+class Employee_Benefit extends MY_Controller
 {
     protected $module;
     protected $id_item=0;
@@ -9,7 +9,7 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
     {
         parent::__construct();
 
-        $this->module = $this->modules['tujuan_perjalanan_dinas'];
+        $this->module = $this->modules['employee_benefit'];
         $this->load->model($this->module['model'], 'model');
         // $this->load->helper($this->module['helper']);
         $this->load->library('upload');
@@ -33,12 +33,10 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
             $total_value  = array();
 
             foreach ($entities as $row){
-                $expense_amount = $this->model->countExpenseAmount($row['id']);
                 $no++;
                 $col = array();
                 $col[] = print_number($no);
-                $col[] = print_string($row['business_trip_destination']);
-                $col[] = print_number($expense_amount,2);
+                $col[] = print_string($row['employee_benefit']);
                 $col[] = print_string($row['notes']);
                 $col[] = print_date($row['updated_at']);
                 $col['DT_RowId'] = 'row_'. $row['id'];
@@ -110,10 +108,10 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
 
         $entity = $this->model->findById($id);
 
-        if (!isset($_SESSION['tujuan_dinas']['items'])) {
-            $_SESSION['tujuan_dinas']                     = $entity;
-            $_SESSION['tujuan_dinas']['id']               = $id;
-            $_SESSION['tujuan_dinas']['edit']             = $entity['id'];
+        if (!isset($_SESSION['benefit']['items'])) {
+            $_SESSION['benefit']                     = $entity;
+            $_SESSION['benefit']['id']               = $id;
+            $_SESSION['benefit']['edit']             = $entity['id'];
         }
 
         redirect($this->module['route'] . '/create');
@@ -124,15 +122,15 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
 
-        $_SESSION['tujuan_dinas']['notes'] = $_GET['data'];
+        $_SESSION['benefit']['notes'] = $_GET['data'];
     }
 
-    public function set_business_trip_destination()
+    public function set_employee_benefit()
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
 
-        $_SESSION['tujuan_dinas']['business_trip_destination'] = $_GET['data'];
+        $_SESSION['benefit']['employee_benefit'] = $_GET['data'];
     }
 
     public function create($category = NULL)
@@ -142,10 +140,10 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
         if ($category !== NULL) {
             $category = urldecode($category);
       
-            $_SESSION['tujuan_dinas']['items']                      = array();
-            $_SESSION['tujuan_dinas']['levels']                     = array();
-            $_SESSION['tujuan_dinas']['business_trip_destination']  = NULL;
-            $_SESSION['tujuan_dinas']['notes']                      = NULL;
+            $_SESSION['benefit']['items']                      = array();
+            $_SESSION['benefit']['levels']                     = array();
+            $_SESSION['benefit']['employee_benefit']           = NULL;
+            $_SESSION['benefit']['notes']                      = NULL;
       
             redirect($this->module['route'] . '/create');
         }
@@ -159,8 +157,8 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
     public function add_expense_item()
     {
         $this->authorized($this->module, 'create');
-        if (empty($_SESSION['tujuan_dinas']['items'])) {
-            $_SESSION['tujuan_dinas']['items'] = getDefaultExpenseName();
+        if (empty($_SESSION['benefit']['items'])) {
+            $_SESSION['benefit']['items'] = getDefaultExpenseName();
         }
         $this->data['page']['title']            = 'Add Expense Item';
 
@@ -179,13 +177,13 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
             if (isset($_POST['expense_name']) && !empty($_POST['expense_name'])) {
                 $expense_names   = $this->input->post('expense_name');
                 $fix             = $this->input->post('fix');
-                $_SESSION['tujuan_dinas']['items'] = array();
+                $_SESSION['benefit']['items'] = array();
                 foreach ($expense_names as $key=>$expense_name){
-                    $_SESSION['tujuan_dinas']['items'][$key] = array(
+                    $_SESSION['benefit']['items'][$key] = array(
                         'expense_name'             => trim(strtoupper($expense_name)),
                         'fix'                      => $fix[$key],
                     );
-                    $_SESSION['tujuan_dinas']['items'][$key]['levels'] = array();
+                    $_SESSION['benefit']['items'][$key]['levels'] = array();
                 }
 
                 $data['success'] = TRUE;
@@ -216,21 +214,11 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
         if (isset($_POST['level']) && !empty($_POST['level'])) {
-            $_SESSION['tujuan_dinas']['levels'] = array();
+            $_SESSION['benefit']['levels'] = array();
 
             foreach ($_POST['level'] as $key => $level) {
-                $_SESSION['tujuan_dinas']['levels'][$key]['level'] = $level;
-            }
-
-            foreach ($_SESSION['tujuan_dinas']['items'] as $id => $item) {
-                $min = 0;
-                $cheaper = 'f';
-                foreach ($_POST['level'] as $key => $level) {
-                    $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key] = array(
-                        'level'     => $level,
-                        'amount'    => floatval(0),
-                    );
-                }
+                $_SESSION['benefit']['levels'][$key]['level'] = $level;
+                $_SESSION['benefit']['levels'][$key]['amount'] = 0;
             }
 
             $data['success'] = TRUE;
@@ -261,16 +249,7 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
         } else {
             if (isset($_POST['request']) && !empty($_POST['request'])) {
                 foreach ($_POST['request'] as $id => $request) {
-                    $quantity = floatval($_SESSION['poe']['request'][$id]['quantity_requested']);
-
-                    $_SESSION['tujuan_dinas']['items'][$id]['expense_name']           = trim(strtoupper($request['expense_name']));
-
-                    foreach ($request['levels'] as $key => $level) {
-                        
-                        $amount   = $level['amount'];
-
-                        $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount']   = $amount;
-                    }
+                    $_SESSION['benefit']['levels'][$id]['amount']           = $request['amount'];                
                 }
 
                 $data['success'] = TRUE;
@@ -292,27 +271,27 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
             $data['success'] = FALSE;
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
-            if (!isset($_SESSION['tujuan_dinas']['items']) || empty($_SESSION['tujuan_dinas']['items']) || !isset($_SESSION['tujuan_dinas']['levels']) || empty($_SESSION['tujuan_dinas']['levels'])) {
+            if (!isset($_SESSION['benefit']['levels']) || empty($_SESSION['benefit']['levels'])) {
                 $data['success'] = FALSE;
-                $data['message'] = 'Please add at least 1 Item Expense !!';
+                $data['message'] = 'Please add at least 1 Level !!';
             }else{
                 $errors = array();
-                if (!isset($_SESSION['tujuan_dinas']['business_trip_destination']) || empty($_SESSION['tujuan_dinas']['business_trip_destination'])){
-                    $errors[] = 'Tujuan Dinas Harus isi.';
+                if (!isset($_SESSION['benefit']['employee_benefit']) || empty($_SESSION['benefit']['employee_benefit'])){
+                    $errors[] = 'Employee Benefit Harus isi.';
                 }
 
-                if(isset($_SESSION['tujuan_dinas']['id'])){
-                    if($this->model->isDestinationExist($_SESSION['tujuan_dinas']['business_trip_destination'])){
-                        $errors[] = 'Tujuan Dinas '.$_SESSION['tujuan_dinas']['business_trip_destination'].' Sudah Terdaftar.';
-                    }
-                }                
+                // if(isset($_SESSION['benefit']['id'])){
+                //     if($this->model->isDestinationExist($_SESSION['benefit']['business_trip_destination'])){
+                //         $errors[] = 'Tujuan Dinas '.$_SESSION['benefit']['business_trip_destination'].' Sudah Terdaftar.';
+                //     }
+                // }                
 
                 if (!empty($errors)) {
                     $data['success'] = FALSE;
                     $data['message'] = implode('<br />', $errors);
                 } else {
                     if ($this->model->insert()) {
-                        unset($_SESSION['tujuan_dinas']);
+                        unset($_SESSION['benefit']);
                         $data['success'] = TRUE;
                         $data['message'] = 'Data has been saved. You will redirected now.';
                     } else {
@@ -330,7 +309,7 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
     {
         $this->authorized($this->module['permission']['create']);
 
-        unset($_SESSION['tujuan_dinas']);
+        unset($_SESSION['benefit']);
 
         redirect($this->module['route']);
     }
