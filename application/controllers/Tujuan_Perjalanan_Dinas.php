@@ -229,6 +229,8 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
                     $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key] = array(
                         'level'     => $level,
                         'amount'    => floatval(0),
+                        'day'       => 1,
+                        'notes'       => NULL,
                     );
                 }
             }
@@ -267,9 +269,13 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
 
                     foreach ($request['levels'] as $key => $level) {
                         
-                        $amount   = $level['amount'];
+                        $amount     = $level['amount'];
+                        $day        = $level['day'];
+                        $notes        = $level['notes'];
 
                         $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount']   = $amount;
+                        $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['day']      = $day;
+                        $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['notes']      = $notes;
                     }
                 }
 

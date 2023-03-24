@@ -54,7 +54,13 @@
                             <td><?=$item['expense_name'];?></td>
                             <?php foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level) : ?>
                             <td style="text-align:right;">
-                                <?= number_format($_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount'], 2); ?>
+                                <?php if($_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount']>0):?>
+                                <?= number_format($_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount'], 2); ?>/<?= number_format($_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['day'], 0); ?> day
+                                <?php else:?>
+                                    <?php if($_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['notes']!=''):?>
+                                        <?= $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['notes']?>
+                                    <?php endif;?>
+                                <?php endif;?>
                             </td>
                             <?php endforeach; ?>
                         

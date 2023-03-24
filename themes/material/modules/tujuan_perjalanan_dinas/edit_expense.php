@@ -9,13 +9,13 @@
         <div class="row">
         <div class="col-sm-12">
             <div class="table-responsive">
-                <table class="table table-hover table-bordered table-nowrap">
+                <table class="table-hover table-bordered">
                     <thead>
                     <tr>
-                        <th class="middle-alignment" rowspan="2" width="20%">Expense Name</th>
+                        <th class="middle-alignment" rowspan="2" width="15%">Expense Name</th>
 
                         <?php foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level) : ?>
-                        <th class="middle-alignment text-center">
+                        <th class="middle-alignment text-center" colspan="3">
                             <?= $level['level']; ?>
                         </th>
                         <?php endforeach; ?>
@@ -24,19 +24,27 @@
                     <tr>
                         <?php for ($v = 0; $v < count($_SESSION['tujuan_dinas']['levels']); $v++) : ?>
                         <th class="middle-alignment text-center">Amount</th>
+                        <th class="middle-alignment text-center">Day</th>
+                        <th class="middle-alignment text-center">Notes</th>
                         <?php endfor; ?>
                     </tr>
                     </thead>
                     <tbody>
                     <?php foreach ($_SESSION['tujuan_dinas']['items'] as $id => $request) : ?>
                         <tr id="row_<?= $id; ?>">
-                        <td>
-                            <input type="text" rel="expense_name" name="request[<?= $id; ?>][expense_name]" value="<?= $_SESSION['tujuan_dinas']['items'][$id]['expense_name']; ?>" class="form-control">
-                        </td>
+                          <td>
+                              <input type="text" rel="expense_name" name="request[<?= $id; ?>][expense_name]" value="<?= $_SESSION['tujuan_dinas']['items'][$id]['expense_name']; ?>" class="form-control">
+                          </td>
 
                         <?php foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level) : ?>
                             <td>
                             <input type="text" rel="amount" name="request[<?= $id; ?>][levels][<?= $key; ?>][amount]" value="<?= $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['amount']; ?>" class="form-control number" style="text-align:right;">
+                            </td>
+                            <td>
+                            <input type="number" rel="day" name="request[<?= $id; ?>][levels][<?= $key; ?>][day]" value="<?= $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['day']; ?>" class="form-control">
+                            </td>
+                            <td>
+                            <input type="text" rel="notes" name="request[<?= $id; ?>][levels][<?= $key; ?>][notes]" value="<?= $_SESSION['tujuan_dinas']['items'][$id]['levels'][$key]['notes']; ?>" class="form-control">
                             </td>
                         <?php endforeach; ?>
                         </tr>
@@ -67,6 +75,12 @@
 
 <?php startblock('simple_styles') ?>
 <?= link_tag('themes/material/assets/css/theme-default/libs/toastr/toastr.css') ?>
+<style>
+  .form-control{
+    font-size:12px;
+    padding:4.5px 4px;
+  }
+</style>
 <?php endblock() ?>
 
 <?php startblock('simple_scripts') ?>

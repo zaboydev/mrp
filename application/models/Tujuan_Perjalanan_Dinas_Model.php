@@ -145,7 +145,7 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
         foreach ($query->result_array() as $key => $value) {            
             $row['items'][$key] = $value;
             foreach ($row['levels'] as $id => $level) {
-                $this->db->select('tb_master_business_trip_destination_items.amount');
+                $this->db->select('tb_master_business_trip_destination_items.*');
                 $this->db->from('tb_master_business_trip_destination_items');
                 $this->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
                 $this->db->where('tb_master_business_trip_destination_items.expense_name', $value['expense_name']);
@@ -153,6 +153,8 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
                 $query_level_amount = $this->db->get();
                 $row_level_amount        = $query_level_amount->unbuffered_row('array');
                 $row['items'][$key]['levels'][$id]['amount'] = $row_level_amount['amount'];
+                $row['items'][$key]['levels'][$id]['day'] = $row_level_amount['day'];
+                $row['items'][$key]['levels'][$id]['notes'] = $row_level_amount['notes'];
             }            
         }
 
@@ -177,7 +179,7 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
 
         $id          = (isset($_SESSION['tujuan_dinas']['id'])) ? $_SESSION['tujuan_dinas']['id'] : NULL;
         if($id!=NULL){
-            $this->db->set('business_trip_destination', $_SESSION['tujuan_dinas']['business_trip_destination']);
+            $this->db->set('business_trip_destination', strtoupper($_SESSION['tujuan_dinas']['business_trip_destination']));
             $this->db->set('notes', $_SESSION['tujuan_dinas']['notes']);
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->where('id', $id);
@@ -189,7 +191,7 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
             $this->db->where('business_trip_purposes_id', $id);
             $this->db->update('tb_master_business_trip_destination_items');
         }else{
-            $this->db->set('business_trip_destination', $_SESSION['tujuan_dinas']['business_trip_destination']);
+            $this->db->set('business_trip_destination', strtoupper($_SESSION['tujuan_dinas']['business_trip_destination']));
             $this->db->set('notes', $_SESSION['tujuan_dinas']['notes']);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
@@ -200,10 +202,14 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
         foreach ($_SESSION['tujuan_dinas']['items'] as $i => $item) {
             foreach ($_SESSION['tujuan_dinas']['levels'] as $key => $level){
                 $amount = $_SESSION['tujuan_dinas']['items'][$i]['levels'][$key]['amount'];
+                $day    = $_SESSION['tujuan_dinas']['items'][$i]['levels'][$key]['day'];
+                $notes  = $_SESSION['tujuan_dinas']['items'][$i]['levels'][$key]['notes'];
                 $this->db->set('business_trip_purposes_id', $business_trip_destination_id);
                 $this->db->set('level', $level['level']);
                 $this->db->set('expense_name', $item['expense_name']);
                 $this->db->set('amount', $amount);
+                $this->db->set('day', $day);
+                $this->db->set('notes', $notes);
                 $this->db->set('fix', $item['fix']);
                 $this->db->set('created_by', config_item('auth_person_name'));
                 $this->db->set('updated_by', config_item('auth_person_name'));
