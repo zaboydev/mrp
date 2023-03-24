@@ -3479,5 +3479,23 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getDepartmentIdByName')) {
+    function getDepartmentIdByName($department_name)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_departments.*'));
+      $connection->from('tb_departments');
+      $connection->where('UPPER(department_name)', strtoupper($department_name));
+
+      $query  = $connection->get();
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
 
     
