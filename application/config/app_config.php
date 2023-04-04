@@ -115,3 +115,11 @@ $config['type_reimbursement'] = array(
   'Medical'         => 'Medical',
   'Others'          => 'Others'
 );
+
+$config['additional_modules_for_hr_depatment'] = array(
+  'level',
+  'tujuan_perjalanan_dinas',
+  'employee_benefit',
+  'user_position',
+  'employee',
+);
