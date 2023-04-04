@@ -215,6 +215,12 @@ if ( ! function_exists('is_granted')) {
         }else{
           return FALSE;
         }
+      }if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
+        if(in_array($module['name'],config_item('additional_modules_for_hr_depatment'))){
+          return TRUE;
+        }else{
+          return FALSE;
+        }   
       }else{
         return FALSE;
       }
@@ -779,6 +785,12 @@ if ( ! function_exists('available_modules')) {
               $results[$module['parent']][] = $module;
           }
         }
+        // else if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
+        //   if(in_array($module['name'],config_item('additional_modules_for_hr_depatment')) && $visible == TRUE){
+        //     if ( $main_warehouse == FALSE || ( $main_warehouse == TRUE && $in_main_warehouse == TRUE ) )
+        //       $results[$module['parent']][] = $module;
+        //   }
+        // }
       }
     }
 

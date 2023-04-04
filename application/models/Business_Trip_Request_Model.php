@@ -346,13 +346,14 @@ class Business_Trip_Request_Model extends MY_Model
         $expenses = destination_list_expense($business_trip_destination_id,$level);
 
         foreach ($expenses as $expense) {
+            $qty = ceil($duration/$expense['day']);
             $this->db->set('business_trip_purpose_id', $document_id);
             $this->db->set('business_trip_destination_item_id', $expense['id']);
             $this->db->set('expense_name', $expense['expense_name']);
             $this->db->set('expense_description', NULL);
-            $this->db->set('qty', $duration);
+            $this->db->set('qty', $qty);
             $this->db->set('amount', $expense['amount']);
-            $this->db->set('total', $expense['amount']*$duration);
+            $this->db->set('total', $expense['amount']*$qty);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->insert('tb_business_trip_purpose_items');
