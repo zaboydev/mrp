@@ -20,28 +20,6 @@
 
     <div class="card-body">
         <div class="row" id="document_master">
-            <div class="col-sm-12 col-md-4 col-md-push-8 hide">
-                <div class="well">
-                    <div class="clearfix">
-                        <div class="pull-left">EMPLOYEE'S BENEFIT</div>
-                        <div class="pull-right">
-                                                
-                        </div>
-                    </div>
-                    <?php foreach($entity['benefit'] as $benefit):?>
-                    <div class="clearfix">
-                        <div class="pull-left"><?= $benefit['employee_benefit']?></div>
-                        <div class="pull-right">
-                            <?=number_format($benefit['used_amount_plafond']);?>/<?=number_format($benefit['amount_plafond']);?>                                
-                        </div>
-                    </div>
-                    <?php endforeach;?>
-
-                    <!--  -->
-                
-                </div>
-            </div>
-
             <div class="col-sm-12 col-md-6">
                 <dl class="dl-inline">
 
@@ -79,7 +57,7 @@
                     <dd><?=$entity['bank_account_name'];?> | No Rek : <?=$entity['bank_account'];?></dd>
 
                     <dt>NPWP</dt>
-                    <dd><?=$entity['npwp'];?></dd>
+                    <dd><?=($entity['npwp']==null)? 'N/A':print_string($entity['npwp']);?></dd>
 
                     <dt>Join Date</dt>
                     <dd><?=$entity['tanggal_bergabung'];?></dd>
@@ -90,59 +68,127 @@
                     <dt>Occupation</dt>
                     <dd><?=print_string($entity['position']);?></dd>
                     
-                    <dt>Salary</dt>
+                    <dt>Basic Salary</dt>
                     <dd><?=number_format($entity['basic_salary'],2);?></dd>
 
                 </dl>
             </div>
             <div class="col-sm-12 col-md-6">
-                <div class="table-responsive">
-                    <table class="table table-striped table-nowrap" id="table_contents">
-                        <thead id="table_header">
-                            <tr>
-                                <th>No</th>
-                                <th>Benefit</th>
-                                <th>Plafon</th>
-                                <th>Used</th>
-                                <th>Balance</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_contents">
-                        <?php $n = 1; ?>
-                        <?php $amount_paid = array(); ?>
-                        <?php foreach ($entity['benefit'] as $benefit) : ?>
-                            <tr>
-                                <td><?= $n++;?></td>
-                                <td><?= $benefit['employee_benefit']?></td>
-                                <td><?=number_format($benefit['amount_plafond']);?></td>
-                                <td><?=number_format($benefit['used_amount_plafond'],2);?></td>
-                                <td><?=number_format($benefit['left_amount_plafond'],2);?></td>
-                                <td>
-                                    <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
-                                    </a>
-                                    
-                                </td>   
-                            </tr>
-                            <?php if(count($benefit['used'])>0) : ?>
-                            <?php foreach ($benefit['used'] as $used) : ?>
-                            <tr class="detail_<?=$n?> hide">                  
-                                <td></td>
-                                <td><?= $used['date']?></td>
-                                <td><a class="link" href="<?= $used['link']?>" target="_blank"><?= $used['document_number']?></a></td>
-                                <td><?= number_format($used['used_amount'],2)?></td>
-                                <td></td>
-                                <td></td>
-                            </tr>                            
-                            <?php endforeach;?>              
-                            <?php else:?>  
-                            <tr class="detail_<?=$n?> hide">                  
-                                <td colspan="6" style="text-align:center;">No Data Available</td>
-                            </tr>            
-                            <?php endif;?>
-                        <?php endforeach;?>
-                        </tbody>
-                    </table>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h5>Riwayat Kontrak</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-nowrap" id="table_contents">
+                                <thead id="table_header">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Benefit</th>
+                                        <th>Plafon</th>
+                                        <th>Used</th>
+                                        <th>Balance</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_contents">
+                                <?php $n = 1; ?>
+                                <?php $amount_paid = array(); ?>
+                                <?php if(count($entity['benefit'])>0):?>
+                                <?php foreach ($entity['benefit'] as $benefit) : ?>
+                                    <tr>
+                                        <td><?= $n++;?></td>
+                                        <td><?= $benefit['employee_benefit']?></td>
+                                        <td><?=number_format($benefit['amount_plafond']);?></td>
+                                        <td><?=number_format($benefit['used_amount_plafond'],2);?></td>
+                                        <td><?=number_format($benefit['left_amount_plafond'],2);?></td>
+                                        <td>
+                                            <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                                            </a>
+                                            
+                                        </td>   
+                                    </tr>
+                                    <?php if(count($benefit['used'])>0) : ?>
+                                    <?php foreach ($benefit['used'] as $used) : ?>
+                                    <tr class="detail_<?=$n?> hide">                  
+                                        <td></td>
+                                        <td><?= $used['date']?></td>
+                                        <td><a class="link" href="<?= $used['link']?>" target="_blank"><?= $used['document_number']?></a></td>
+                                        <td><?= number_format($used['used_amount'],2)?></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>                            
+                                    <?php endforeach;?>              
+                                    <?php else:?>  
+                                    <tr class="detail_<?=$n?> hide">                  
+                                        <td colspan="6" style="text-align:center;">No Data Available</td>
+                                    </tr>            
+                                    <?php endif;?>
+                                <?php endforeach;?>
+                                <?php else:?>
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;">No Benefit</td>
+                                    </tr>
+                                <?php endif;?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">                        
+                        <h5>Plafond</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-nowrap" id="table_contents">
+                                <thead id="table_header">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Benefit</th>
+                                        <th>Plafon</th>
+                                        <th>Used</th>
+                                        <th>Balance</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_contents">
+                                <?php $n = 1; ?>
+                                <?php $amount_paid = array(); ?>
+                                <?php if(count($entity['benefit'])>0):?>
+                                <?php foreach ($entity['benefit'] as $benefit) : ?>
+                                    <tr>
+                                        <td><?= $n++;?></td>
+                                        <td><?= $benefit['employee_benefit']?></td>
+                                        <td><?=number_format($benefit['amount_plafond']);?></td>
+                                        <td><?=number_format($benefit['used_amount_plafond'],2);?></td>
+                                        <td><?=number_format($benefit['left_amount_plafond'],2);?></td>
+                                        <td>
+                                            <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                                            </a>
+                                            
+                                        </td>   
+                                    </tr>
+                                    <?php if(count($benefit['used'])>0) : ?>
+                                    <?php foreach ($benefit['used'] as $used) : ?>
+                                    <tr class="detail_<?=$n?> hide">                  
+                                        <td></td>
+                                        <td><?= $used['date']?></td>
+                                        <td><a class="link" href="<?= $used['link']?>" target="_blank"><?= $used['document_number']?></a></td>
+                                        <td><?= number_format($used['used_amount'],2)?></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>                            
+                                    <?php endforeach;?>              
+                                    <?php else:?>  
+                                    <tr class="detail_<?=$n?> hide">                  
+                                        <td colspan="6" style="text-align:center;">No Data Available</td>
+                                    </tr>            
+                                    <?php endif;?>
+                                <?php endforeach;?>
+                                <?php else:?>
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;">No Benefit</td>
+                                    </tr>
+                                <?php endif;?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -314,15 +360,15 @@
                             <label for="basic_salary">Basic Salary</label>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <input type="text" name="plafon_biaya_dinas" id="plafon_biaya_dinas" class="form-control number" value="<?=$entity['plafon_biaya_dinas'];?>" step=".01">
                             <label for="plafon_biaya_dinas">Plafon Biaya Dinas</label>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <input type="text" name="plafon_biaya_kesehatan" id="plafon_biaya_kesehatan" class="form-control number" value="<?=$entity['plafon_biaya_kesehatan'];?>" step=".01">
                             <label for="plafon_biaya_kesehatan">Plafon Biaya Kesehatan</label>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <input type="number" name="cuti" id="cuti" class="form-control" value="<?=$entity['cuti'];?>">
                             <label for="cuti">Jumlah Cuti</label>
                         </div>
@@ -337,7 +383,7 @@
         <input type="hidden" name="employee_number_exception" id="employee_number_exception" value="<?= $entity['employee_number']; ?>">
 
         <?php if (is_granted($module, 'delete')) : ?>
-        <a href="<?= site_url($module['route'] . '/delete'); ?>" class="btn btn-floating-action btn-danger btn-xhr-delete ink-reaction" id="modal-delete-data-button" data-title="delete">
+        <a href="<?= site_url($module['route'] . '/delete'); ?>" class="btn btn-floating-action btn-danger btn-xhr-delete ink-reaction hide" id="modal-delete-data-button" data-title="delete">
             <i class="md md-delete"></i>
         </a>
         <?php endif; ?>
@@ -347,7 +393,7 @@
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>
             </button>
-            <button type="submit" id="modal-edit-data-submit" class="btn btn-floating-action btn-primary btn-xhr-submit ink-reaction" data-title="save and update">
+            <button type="submit" id="modal-edit-data-submit" class="btn btn-floating-action btn-primary btn-xhr-submit ink-reaction hide" data-title="save and update">
                 <i class="md md-save"></i>
             </button>
         </div>
@@ -362,6 +408,8 @@
     $('#modal-edit-data-button').click(function() {
         if($('#view-form-edit').hasClass('hide')){
             $('#view-form-edit').removeClass('hide');
+            $('#modal-edit-data-submit').removeClass('hide');
+            $('#modal-delete-data-button').removeClass('hide');
             $('#document_master').addClass('hide');
             $('#modal-edit-data-button').addClass('hide');
             $('#header_text').html('Edit');
