@@ -3491,5 +3491,33 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getNotesFromSigner')) {
+    function getNotesFromSigner($document_id,$document_type,$document_status)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_signers.*');
+      $CI->db->where('tb_signers.document_id',$document_id);
+      $CI->db->where('tb_signers.document_type',$document_type);
+      if($document_status=='REJECTED'){
+        $CI->db->where('tb_signers.action','rejected by');
+      }else{
+        $CI->db->where_not_in('tb_signers.action',['rejected by']);
+      }
+      $CI->db->where('tb_signers.notes IS NOT NULL', null, false);
+      $CI->db->from('tb_signers');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      $return = '';
+      foreach($result as $key => $item){
+        $return .= $item['person_name'].' ('.$item['roles'].') : '.$item['notes'].' ';
+      }
+
+      return $return;
+    }
+  }
+
 
     

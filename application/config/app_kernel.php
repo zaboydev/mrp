@@ -88,6 +88,7 @@ require('modules/daftar_pajak.php');
 
 //business trip
 require('modules/business_trip_request.php');
+require('modules/sppd.php');
 require('modules/reimbursement.php');
 
 //aircraft

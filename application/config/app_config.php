@@ -106,7 +106,8 @@ $config['modules_for_head_dept'] = array(
   'purchase_order_evaluation',
   'Expense Order Evaluation',
   'Capex Order Evaluation',
-  'business_trip_request'
+  'business_trip_request',
+  'sppd'
 );
 
 $config['type_reimbursement'] = array(
