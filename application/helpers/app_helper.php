@@ -2153,11 +2153,15 @@ if (!function_exists('currency_for_vendor_list')) {
         }
       }else if($status=='waiting'){
         //untuk purchase request maintenance
-        if($head_dept==config_item('auth_username')){
-          return true;
+        if(config_item('as_head_department')=='yes'){
+          if($head_dept==config_item('auth_username')){
+            return true;
+          }else{
+            return false;
+          }
         }else{
-          return false;
-        }
+          return true;
+        } 
       }else{
         return true;
       }
