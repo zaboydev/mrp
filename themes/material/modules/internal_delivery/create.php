@@ -186,6 +186,21 @@
         ));?>
 
           <div class="modal-body">
+            <div class="row <?php if (in_array($_SESSION['receipt']['category'],['EXPENSE','CAPEX'])):?> hide <?php endif;?>">
+              <div class="col-xs-12">
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-content">
+                      <input type="text" id="search_mapping_part" data-search-for="mapping_part" class="form-control" data-source="<?= site_url($module['route'] . '/search_mapping_part'); ?>">
+                      <label for="search_mapping_part">Search item from Aircraft Mapping Part</label>
+                    </div>
+                    <span class="input-group-addon">
+                      <i class="md md-search"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="row">
               <div class="col-sm-12 col-lg-8">
                 <div class="row">
@@ -278,8 +293,9 @@
           </div>
 
           <div class="modal-footer">
-            <input type="hidden" id="received_unit_value" name="received_unit_value" value="1">
-            <input type="hidden" id="item_id" name="item_id">
+            <input type="hidden" id="aircraft_mapping_id" name="aircraft_mapping_id" value="">
+            <input type="hidden" id="aircraft_register" name="aircraft_register" value="">
+            <input type="hidden" name="key" id="key" />
 
             <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
 
@@ -294,128 +310,6 @@
         </div>
       </div>
     </div>
-
-    <!-- <div id="modal-edit-item" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-edit-item-label" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header style-primary-dark">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title" id="modal-add-item-label">Edit Item</h4>
-          </div>
-
-        <?=form_open(site_url($module['route'] .'/edit_item'), array(
-          'autocomplete' => 'off',
-          'id'    => 'ajax-form-create-document',
-          'class' => 'form form-validate ui-front',
-          'role'  => 'form'
-        ));?>
-
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-sm-12 col-lg-8">
-                <div class="row">
-                  <div class="col-sm-6 col-lg-8">
-                    <fieldset>
-                      <legend>General</legend>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_serial_number" id="edit_serial_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_serial/');?>">
-                        <label for="edit_serial_number">Serial Number</label>
-                      </div>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_part_number" id="edit_part_number" class="form-control input-sm input-autocomplete" data-source="<?=site_url($module['route'] .'/search_items_by_part_number/');?>" required>
-                        <label for="edit_part_number">Part Number</label>
-                      </div>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_description" id="edit_description" data-tag-name="item_description" data-search-for="item_description" class="form-control input-sm" data-source="<?=site_url($modules['ajax']['route'] .'/json_item_description/'. $_SESSION['delivery']['category']);?>" required>
-                        <label for="edit_description">Description</label>
-                      </div>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_alternate_part_number" id="edit_alternate_part_number" data-tag-name="alternate_part_number" data-source="<?=site_url($modules['ajax']['route'] .'/json_alternate_part_number/'. $_SESSION['delivery']['category']);?>" class="form-control input-sm">
-                        <label for="edit_alternate_part_number">Alt. Part Number</label>
-                      </div>
-
-                      <div class="form-group">
-                        <select name="edit_group" id="edit_group" data-tag-name="group" class="form-control input-sm" required>
-                          <option>-- Select One --</option>
-                          <?php foreach (available_item_groups($_SESSION['delivery']['category']) as $group):?>
-                            <option value="<?=$group;?>">
-                              <?=$group;?>
-                            </option>
-                          <?php endforeach;?>
-                        </select>
-                        <label for="group">Item Group</label>
-                      </div>
-                    </fieldset>
-                  </div>
-                  <div class="col-sm-6 col-lg-4">
-                    <fieldset>
-                      <legend>Storage</legend>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_received_quantity" id="edit_received_quantity" data-tag-name="received_quantity" class="form-control input-sm" value="1" required>
-                        <label for="edit_received_quantity">Quantity</label>
-                      </div>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_minimum_quantity" id="edit_minimum_quantity" data-tag-name="minimum_quantity" class="form-control input-sm" value="0" required>
-                        <label for="minimum_quantity">Minimum Quantity</label>
-                      </div>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_unit" id="edit_unit" data-tag-name="unit" data-search-for="unit" data-source="<?=site_url($modules['ajax']['route'] .'/search_item_units/');?>" class="form-control input-sm" required>
-                        <label for="edit_unit">Unit of Measurement</label>
-                      </div>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_condition" id="edit_condition" class="form-control input-sm" value="UNSERVICEABLE" readonly>
-                        <label for="edit_condition">Item Condition</label>
-                      </div>
-
-                      <div class="form-group">
-                        <input type="text" name="edit_stores" id="edit_stores" data-tag-name="stores" data-search-for="stores" data-source="<?=site_url($modules['ajax']['route'] .'/json_stores/'. $_SESSION['delivery']['category']);?>" class="form-control input-sm" required>
-                        <label for="edit_stores">Stores</label>
-                      </div>
-                    </fieldset>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-sm-12 col-lg-4">
-                <fieldset>
-                  <legend>Optional</legend>
-
-                  <div class="form-group">
-                    <textarea name="edit_remarks" id="edit_remarks" data-tag-name="remarks" class="form-control input-sm"></textarea>
-                    <label for="edit_remarks">Remarks</label>
-                  </div>
-                </fieldset>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <input type="hidden" id="edit_received_unit_value" name="edit_received_unit_value" value="1">
-            <input type="text" id="edit_item_id" name="edit_item_id">
-
-            <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
-
-            <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction">
-              Add Item
-            </button>
-
-            <input type="reset" name="reset" class="sr-only">
-          </div>
-
-        <?=form_close();?>
-        </div>
-      </div>
-    </div> -->
 
     <div class="section-action style-default-bright">
       <div class="section-floating-action-row">
@@ -751,6 +645,61 @@ $(function(){
     }
   });
 
+  $('#search_mapping_part').on('click focus', function() {
+    $.ajax({
+      url: $('#search_mapping_part').data('source'),
+      dataType: "json",
+      success: function(resource) {
+        $('#search_mapping_part').autocomplete({
+          autoFocus: true,
+          minLength: 1,
+
+          source: function(request, response) {
+            var results = $.ui.autocomplete.filter(resource, request.term);
+            response(results.slice(0, 50));
+          },
+
+          focus: function(event, ui) {
+            return false;
+          },
+
+          select: function(event, ui) {
+            if (ui.item.default_currency == 'USD') {
+              var unit_value = parseFloat(ui.item.unit_price) * parseFloat(ui.item.exchange_rate);
+            } else {
+              var unit_value = parseFloat(ui.item.unit_price);
+            }
+
+            var source = $('#source').val();
+            // console.log(source);
+
+            $('#serial_number').val(ui.item.serial_number);
+            $('#part_number').val(ui.item.part_number);
+            $('#description').val(ui.item.description);
+            $('#condition').val(ui.item.condition);
+            $('#alternate_part_number').val(ui.item.alternate_part_number);
+            // $('#group').val(ui.item.group);
+            $('select[id="group"]').val(ui.item.group);
+            $('#unit').val(ui.item.unit);
+            $('#aircraft_mapping_id').val(ui.item.id);
+            $('#aircraft_register').val(ui.item.remove_aircraft_register);
+
+            $('#search_purchase_order').val('');
+
+            return false;
+          }
+        })
+        .data("ui-autocomplete")._renderItem = function(ul, item) {
+          $(ul).addClass('list divider-full-bleed');
+
+          return $("<li class='tile'>")
+          .append('<a class="tile-content ink-reaction"><div class="tile-text">' + item.label + '</div></a>')
+          .appendTo(ul);
+        };
+      }
+    });
+  });
+
   // input item description autocomplete
   $.ajax({
     url: $( 'input[id="item_description"]' ).data('source'),
@@ -862,18 +811,12 @@ $(function(){
         $('[name="received_unit_value"]').val(response.unit_price);
         $('[name="condition"]').val(response.condition);
         $('[name="stores"]').val(response.stores);
-        // $('[name="expired_date"]').val(response.expired_date);
-        // $('[name="purchase_order_number"]').val(response.purchase_order_number);
-        // $('[name="reference_number"]').val(response.reference_number);
-        // $('[name="awb_number"]').val(response.awb_number);
-        $('[name="remarks"]').val(response.remarks);
-        $('[name="item_id"]').val(id);
-        // $('[name="document_number_receipts_items"]').val(response.document_number);
-        // $('[name="category_receipts_items"]').val(response.category);
-        // $('[name="warehouse_receipts_items"]').val(response.warehouse);
-        // $('[name="master_items_id"]').val(i);
         
- 
+        $('[name="remarks"]').val(response.remarks);
+        $('[name="key"]').val(id);
+        
+        $('#aircraft_mapping_id').val(response.aircraft_mapping_id);
+        $('#aircraft_register').val(response.aircraft_register);
  
         $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
         $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title

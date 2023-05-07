@@ -1,630 +1,536 @@
-<?php include 'themes/material/page.php' ?>
+<?php include 'themes/material/template.php' ?>
 
-<!--tambahan 9/Mei/2018-->
+<?php startblock('content') ?>
+<style>
+    /* .table-aircraft-component td{
+        height : 10px;
+    } */
 
-<!--tambahan 9/Mei/2018-->
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 3px 1px 3px 3px;
+    }
+</style>
+<section class="has-actions style-default">
+    <div class="section-body">
+    <?= form_open(current_url(), array('autocomplete' => 'off', 'class' => 'form form-validate', 'id' => 'form-create-document')); ?>
+        <div class="card">
+            <div class="card-head style-primary-dark">
+                <header><?= PAGE_TITLE; ?> </header>
+            </div>
+            <div class="card-body no-padding">
+                <?php
+                    if ($this->session->flashdata('alert'))
+                        render_alert($this->session->flashdata('alert')['info'], $this->session->flashdata('alert')['type']);
+                ?>
 
-<?php startblock('page_head_tools') ?>
-<?php $this->load->view('material/templates/datatable_tools') ?>
-<?php endblock() ?>
-
-<?php startblock('page_body') ?>
-<?php $this->load->view('material/templates/datatable') ?>
-<?php endblock() ?>
-
-<?php startblock('page_modals') ?>
-<?php $this->load->view('material/templates/modal_fs') ?>
-<?php endblock() ?>
-
-<?php startblock('actions_right') ?>
-<?php if (is_granted($module, 'create_component')) : ?>
-    <div class="section-floating-action-row">
-        <div class="btn-group dropup">
-            <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
-                <i class="md md-add"></i>
-                <small class="top right">Add Component</small>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                <?php foreach (config_item('component_type') as $category) : ?>
-                <li>
-                    <a href="<?= site_url($module['route'] . '/create_component/' . $category.'/'.$page['aircraft_id']); ?>"><?= strtoupper($category); ?></a>
-                </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    </div>
-<?php endif ?>
-<?php endblock() ?>
-
-<?php startblock('datafilter') ?>
-<div class="form force-padding">
-    <div class="form-group">
-        <label for="filter_received_date">Received Date</label>
-        <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
-    </div>  
-</div>
-<?php endblock() ?>
-
-<?php startblock('offcanvas_left_actions') ?>
-    <?php if (is_granted($module, 'import')) : ?>    
-    <li class="tile">
-        <a class="tile-content ink-reaction" href="#offcanvas-import" data-toggle="offcanvas">
-        <div class="tile-icon">
-            <i class="fa fa-download"></i>
-        </div>
-        <div class="tile-text">
-            Import Data
-            <small>import from csv file</small>
-        </div>
-        </a>
-    </li>
-    
-    <?php endif; ?>
-<?php endblock() ?>
-
-<?php startblock('offcanvas_left_list') ?>
-<?php if (is_granted($module, 'import')) : ?>
-    <div id="offcanvas-import" class="offcanvas-pane width-8">
-        <div class="offcanvas-head style-primary-dark">
-            <header>Import</header>
-            <div class="offcanvas-tools">
-                <a class="btn btn-icon-toggle pull-right" data-dismiss="offcanvas">
-                    <i class="md md-close"></i>
-                </a>
-                <a class="btn btn-icon-toggle pull-right" href="#offcanvas-datatable-filter" data-toggle="offcanvas">
-                    <i class="md md-arrow-back"></i>
-                </a>
+                <div class="document-header force-padding">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table-aircraft-component">
+                                    <tbody>
+                                        <tr>
+                                            <td width="15%" rowspan="4">
+                                                <img src="<?=base_url('themes/admin_lte/assets/images/logo.png');?>" style="max-width:95%;">
+                                                <p style="font-size:12px;font-weight:bold;text-align:center;margin-bottom:0;line-height: normal;">BALI WIDYA DIRGANTARA</p>
+                                                <p style="font-size:12px;font-weight:bold;text-align:center;margin-bottom:0;line-height: normal;">Bali Intl'l Flight Academy</p>
+                                            </td>
+                                            <td width="5%" style="text-align:right;">REG</td>
+                                            <td width="10%">: <?= $aircraft['nama_pesawat']; ?></td>
+                                            <td width="55%" rowspan="3" style="font-weight:bolder;font-size:35px;text-decoration: underline;">
+                                                AIRCRAFT PARTS AND TIME LIMIT DATA
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="5%" style="text-align:right;">MSN</td>
+                                            <td width="10%">: <?= $aircraft['aircraft_serial_number']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td width="5%" style="text-align:right;">TYPE</td>
+                                            <td width="10%">: <?= $aircraft['type']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td width="5%" style="text-align:right;">DOM</td>
+                                            <td width="10%">: <?= $aircraft['date_of_manufacture']; ?></td>
+                                            <td width="55%"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear: both;border-bottom: 3px double #999;padding-top:2px;padding-bottom:3px;"class="row"></div>
+                    <div class="row" style="padding-top:4px;">
+                        <div class="col-sm-12">
+                            <div class="document-data table-responsive">
+                                <table class="table table-bordered table-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2" style="text-align:center;">No</th>
+                                            <th rowspan="2" style="text-align:center;">Description</th>
+                                            <th rowspan="2" style="text-align:center;">Part Number</th>
+                                            <th rowspan="2" style="text-align:center;">Alt Part Number</th>
+                                            <th rowspan="2" style="text-align:center;">Serial Number</th>
+                                            <th rowspan="2" style="text-align:center;">Interval</th>
+                                            <th colspan="4" style="text-align:center;">Installation Data</th>
+                                            <th colspan="2" style="text-align:center;">Next Due</th>
+                                            <th rowspan="2" style="text-align:center;">Remarks</th>
+                                        </tr>
+                                        <tr>
+                                            <th style="text-align:center;">Date</th>
+                                            <th style="text-align:center;">AF TSN</th>
+                                            <th style="text-align:center;">Part TSN</th>
+                                            <th style="text-align:center;">Part TSO</th>
+                                            <th style="text-align:center;">Date</th>
+                                            <th style="text-align:center;">Hour</th>
+                                        </tr>                                                       
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach (config_item('component_type') as $category) : ?>
+                                        <?php 
+                                            $n=1; 
+                                            $type = str_replace(" ", "_", $category);
+                                        ?>
+                                        <tr>
+                                            <td style="text-decoration: underline;font-weight:bold;"><?= ucwords($category); ?></td>
+                                        </tr>
+                                        <?php if(count($aircraft['component_'.$type])>0):?>
+                                        <?php foreach ($aircraft['component_'.$type] as $i => $items) : ?>
+                                        <tr>
+                                            <td style="text-align:center;"><?= $n++; ?></td>
+                                            <td><?= $items['description']; ?></td>
+                                            <td><?= $items['part_number']; ?></td>
+                                            <td><?= $items['alternate_part_number']; ?></td>
+                                            <td><?= ($items['serial_number']==NULL)? 'N/A':$items['serial_number']; ?></td>
+                                            <td><?= $items['interval']; ?> <?= $items['interval_satuan']; ?></td>
+                                            <td><?= print_date($items['installation_date'], 'd M Y'); ?></td>
+                                            <td><?= $items['af_tsn']; ?></td>
+                                            <td><?= $items['equip_tsn']; ?></td>
+                                            <td><?= $items['tso']; ?></td>
+                                            <td><?= (!empty($data['next_due_date'])) ? print_date($items['next_due_date'], 'd M Y'): ''; ?></td>
+                                            <td><?= $items['next_due_hour']; ?></td>
+                                            <td><?= $items['remarks']; ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                        <?php else:?>
+                                        <tr>
+                                            <td style="text-align:center;" colspan="12">No Component</td>
+                                        </tr>
+                                        <?php endif;?>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-actionbar">
+                <div class="card-actionbar-row">
+                </div>
             </div>
         </div>
-
-        <div class="offcanvas-body no-padding">
-        <?php $this->load->view('material/modules/stores/import') ?>
-        </div>
+    <?= form_close(); ?>
     </div>
-<?php endif; ?>
+    <div class="section-action style-default-bright">
+        <div class="section-floating-action-row">
+            <div class="btn-group dropup">
+                <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
+                    <i class="md md-add"></i>
+                    <small class="top right">Add Component</small>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                    <?php foreach (config_item('component_type') as $category) : ?>
+                    <li>
+                        <a href="<?= site_url($module['route'] . '/create_component/' . $category.'/'.$page['aircraft_id']); ?>"><?= strtoupper($category); ?></a>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    </div>    
+</section>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
-<?= html_script('vendors/pace/pace.min.js') ?>
-<?= html_script('vendors/jQuery/jQuery-2.2.1.min.js') ?>
-<?= html_script('themes/material/assets/js/libs/bootstrap/bootstrap.min.js') ?>
-<?= html_script('themes/material/assets/js/libs/nanoscroller/jquery.nanoscroller.min.js') ?>
-<?= html_script('themes/material/assets/js/libs/spin.js/spin.min.js') ?>
-<?= html_script('themes/material/assets/js/libs/autosize/jquery.autosize.min.js') ?>
-<?= html_script('themes/material/assets/js/libs/toastr/toastr.js') ?>
-<?= html_script('vendors/DataTables-1.10.12/datatables.min.js') ?>
-<?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
-<?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
-<?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
-<?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+    <?= html_script('vendors/pace/pace.min.js') ?>
+    <?= html_script('vendors/jQuery/jQuery-2.2.1.min.js') ?>
+    <?= html_script('themes/material/assets/js/libs/jquery-ui/jquery-ui.min.js') ?>
+    <?= html_script('themes/material/assets/js/libs/bootstrap/bootstrap.min.js') ?>
+    <?= html_script('themes/material/assets/js/libs/nanoscroller/jquery.nanoscroller.min.js') ?>
+    <?= html_script('themes/material/assets/js/libs/spin.js/spin.min.js') ?>
+    <?= html_script('themes/material/assets/js/libs/autosize/jquery.autosize.min.js') ?>
+    <?= html_script('themes/material/assets/js/libs/toastr/toastr.js') ?>
+    <?= html_script('themes/material/assets/js/libs/jquery-validation/dist/jquery.validate.min.js') ?>
+    <?= html_script('themes/material/assets/js/libs/jquery-validation/dist/additional-methods.min.js') ?>
+    <?= html_script('vendors/bootstrap-daterangepicker/moment.min.js') ?>
+    <?= html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
+    <?= html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
 
-<script>
-  Pace.on('start', function() {
-    $('.progress-overlay').show();
-  });
-
-  Pace.on('done', function() {
-    $('.progress-overlay').hide();
-  });
-
-  $('.select2').select2();
-
-  (function($) {
-    $.fn.reset = function() {
-      this.find('input:text, input[type="email"], input:password, select, textarea').val('');
-      this.find('input:radio, input:checkbox').prop('checked', false);
-      return this;
-    }
-
-    $.fn.redirect = function(target) {
-      var url = $(this).data('href');
-
-      if (target == '_blank') {
-        window.open(url, target);
-      } else {
-        window.document.location = url;
-      }
-    }
-
-    $.fn.popup = function() {
-      var popup = $(this).data('target');
-      var source = $(this).data('source');
-
-      $.get(source, function(data) {
-        var obj = $.parseJSON(data);
-
-        if (obj.type == 'denied') {
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error(obj.info, 'ACCESS DENIED!');
-        } else {
-          $(popup)
-            .find('.modal-body')
-            .empty()
-            .append(obj.info);
-
-          $(popup).modal('show');
-
-          $(popup).on('click', '.modal-header:not(a)', function() {
-            $(popup).modal('hide');
-          });
-
-          $(popup).on('click', '.modal-footer:not(a)', function() {
-            $(popup).modal('hide');
-          });
-        }
-      })
-    }
-  }(jQuery));
-
-  function submit_post_via_hidden_form(url, params) {
-    var f = $("<form target='_blank' method='POST' style='display:none;'></form>").attr('action', url).appendTo(document.body);
-
-    $.each(params, function(key, value) {
-      var hidden = $('<input type="hidden" />').attr({
-        name: key,
-        value: JSON.stringify(value)
-      });
-
-      hidden.appendTo(f);
-    });
-
-    f.submit();
-    f.remove();
-  }
-
-  function numberFormat(nStr) {
-    nStr += '';
-    x = nStr.split('.');
-    x1 = x[0];
-    x2 = x.length > 1 ? '.' + x[1] : '';
-    var rgx = /(\d+)(\d{3})/;
-    while (rgx.test(x1)) {
-      x1 = x1.replace(rgx, '$1' + ',' + '$2');
-    }
-    return x1 + x2;
-  }
-
-  $(document).on('keydown', function(event) {
-    if ((event.metaKey || event.ctrlKey) && (
-        String.fromCharCode(event.which).toLowerCase() === '0' ||
-        String.fromCharCode(event.which).toLowerCase() === 'a' ||
-        String.fromCharCode(event.which).toLowerCase() === 'd' ||
-        String.fromCharCode(event.which).toLowerCase() === 'e' ||
-        String.fromCharCode(event.which).toLowerCase() === 'i' ||
-        String.fromCharCode(event.which).toLowerCase() === 'o' ||
-        String.fromCharCode(event.which).toLowerCase() === 's' ||
-        String.fromCharCode(event.which).toLowerCase() === 'x')) {
-      event.preventDefault();
-    }
-  });
-
-  $(function() {
-    toastr.options.closeButton = true;
-
-    $('[data-toggle="redirect"]').on('click', function(e) {
-      e.preventDefault;
-
-      var url = $(this).data('url');
-
-      window.document.location = url;
-    });
-
-    $('[data-toggle="back"]').on('click', function(e) {
-      e.preventDefault;
-
-      history.back();
-    });
-
-    $('[data-provide="datepicker"]').datepicker({
-      autoclose: true,
-      todayHighlight: true,
-      format: 'yyyy-mm-dd'
-    });
-
-    var datatableElement = $('[data-provide="datatable"]');
-    var datatableOptions = new Object();
-
-    datatableOptions.selectedRows = [];
-    datatableOptions.selectedIds = [];
-    datatableOptions.clickDelay = 700;
-    datatableOptions.clickCount = 0;
-    datatableOptions.clickTimer = null;
-    datatableOptions.summaryColumns = <?= json_encode($grid['summary_columns']); ?>;
-
-    $(datatableElement)
-      .addClass('stripe row-border cell-border order-column nowrap')
-      .attr('width', '100%');
-
-    $(datatableElement).find('thead tr:first-child th:first-child').attr('width', 1).text('No.');
-    $(datatableElement).find('table td:first-child').attr('align', 'right');
-
-    $.fn.dataTable.ext.errMode = 'throw';
-
-    var datatable = $(datatableElement).DataTable({
-      searchDelay: 350,
-      scrollY: 410,
-      scrollX: true,
-      scrollCollapse: true,
-      lengthMenu: [
-        [10, 50, 100, -1],
-        [10, 50, 100, "All"]
-      ],
-      pageLength: 10,
-      pagingType: 'full',
-
-      order: <?= json_encode($grid['order_columns']); ?>,
-      fixedColumns: {
-        leftColumns: <?= $grid['fixed_columns']; ?>
-      },
-
-      language: {
-        info: "Total _TOTAL_ entries"
-      },
-
-      processing: true,
-      serverSide: true,
-      ajax: {
-        url: "<?= $grid['data_source']; ?>",
-        type: "POST",
-        error: function(xhr, ajaxOptions, thrownError) {
-          if (xhr.status == 404) {
-            toastr.clear();
-            toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
-            alert("page not found");
-          } else {
-            toastr.clear();
-            toastr.error(textStatus + ': ' + errorThrown + '. Report this error!', 'Loading data failed!');
-          }
-        }
-      },
-
-      rowCallback: function(row, data) {
-        if ($.inArray(data.DT_RowId, datatableOptions.selectedRows) !== -1) {
-          $(row).addClass('selected');
-        }
-      },
-
-      columnDefs: [
-        {
-          searchable: false,
-          orderable: false,
-          targets: [0]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [6]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [7]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [8]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [9]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [10]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [11]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [12]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [13]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [14]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [15]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [16]
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: [17]
-        },
-      ],
-
-      dom: "<'row'<'col-sm-12'tr>>" +
-        "<'datatable-footer force-padding no-y-padding'<'row'<'col-sm-4'i<'clearfix'>l><'col-sm-8'p>>>",
-    });
-
-    new $.fn.dataTable.Buttons(datatable, {
-      dom: {
-        container: {
-          className: 'btn-group pull-left'
-        },
-        button: {
-          className: 'btn btn-lg btn-icon-toggle ink-reaction'
-        }
-      },
-      buttons: [{
-          extend: 'print',
-          className: 'btn-tooltip',
-          text: '<i class="fa fa-print"></i><small class="top center">Quick Print</small>',
-          // titleAttr: 'Quick print',
-          autoPrint: false,
-          footer: true,
-          exportOptions: {
-            columns: ':visible'
-          }
-        },
-        {
-          extend: 'csv',
-          name: 'csv',
-          text: '<i class="fa fa-file-text-o"></i><small class="top center">export to CSV</small>',
-          // titleAttr: 'export to CSV',
-          className: 'btn-tooltip',
-          footer: true,
-          key: {
-            ctrlKey: true,
-            key: 's'
-          },
-          exportOptions: {
-            columns: ':visible'
-          }
-        },
-        {
-          extend: 'excel',
-          name: 'excel',
-          text: '<i class="fa fa-file-excel-o"></i><small class="top center">export to EXCEL</small>',
-          // titleAttr: 'export to EXCEL',
-          className: 'btn-tooltip',
-          footer: true,
-          key: {
-            ctrlKey: true,
-            key: 'x'
-          },
-          exportOptions: {
-            columns: ':visible'
-          }
-        },
-        {
-          name: 'pdf',
-          className: 'buttons-pdf btn-tooltip',
-          text: '<i class="fa fa-file-pdf-o"></i><small class="top center">export to PDF</small>',
-          // titleAttr: 'export to PDF',
-          key: {
-            ctrlKey: true,
-            key: 'd'
-          },
-          action: function(e, dt, node, config) {
-            var pdfUrl = '<?= site_url('pdf'); ?>',
-              pdfTitle = '<?= PAGE_TITLE; ?>',
-              pdfData = datatable.buttons.exportData({
-                columns: ':visible'
-              });
-
-            submit_post_via_hidden_form(
-              pdfUrl, {
-                datatable: pdfData,
-                title: pdfTitle
-              }
-            );
-          }
-        }
-      ]
-    });
-
-    datatable.buttons(0, null).container()
-      .appendTo($('.btn-toolbar'));
-
-    if (datatableOptions.summaryColumns) {
-      datatable.on('xhr', function() {
-        var json = datatable.ajax.json();
-
-        $.each(datatableOptions.summaryColumns, function(key, value) {
-          $(datatable.column(value).footer()).html(
-            json.total[value]
-          );
+    <script>
+        Pace.on('start', function() {
+            $('.progress-overlay').show();
         });
-      });
-    }
 
-    $(datatableElement).find('tbody').on('click', 'td', function() {
-      datatableOptions.clickCount++;
-
-      var modalOpenOnClick = datatable.row(this).data().DT_RowData.modal;
-      var singleClickRow = datatable.row(this).data().DT_RowData.single_click;
-      var doubleClickRow = datatable.row(this).data().DT_RowData.double_click;
-
-      if (modalOpenOnClick) {
-        var dataModal = $('#data-modal');
-        var dataPrimaryKey = datatable.row(this).data().DT_RowData.pkey;
-
-        $.get(modalOpenOnClick, function(data) {
-          var obj = $.parseJSON(data);
-
-          if (obj.type == 'denied') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error(obj.info, 'ACCESS DENIED!');
-          } else {
-            $(dataModal)
-              .find('.modal-body')
-              .empty()
-              .append(obj.info);
-
-            $(dataModal)
-              .find('#modal-print-data-button')
-              .attr('href', obj.link.print);
-
-            $(dataModal)
-              .find('#modal-edit-data-button')
-              .attr('href', obj.link.edit);
-
-            $(dataModal)
-              .find('#modal-delete-data-button')
-              .attr('href', obj.link.delete);
-
-            $(dataModal).modal('show');
-
-            $(dataModal).on('click', '.modal-header:not(a)', function() {
-              $(dataModal).modal('hide');
-            });
-
-            $(dataModal).on('click', '.modal-footer:not(a)', function() {
-              $(dataModal).modal('hide');
-            });
-          }
+        Pace.on('done', function() {
+            $('.progress-overlay').hide();
         });
-      } else {
-        if (datatableOptions.clickCount === 1) {
-          datatableOptions.clickTimer = setTimeout(function() {
-            datatableOptions.clickCount = 0;
 
-            if (singleClickRow)
-              window.location = singleClickRow;
-          }, datatableOptions.clickDelay);
-        } else {
-          clearTimeout(datatableOptions.clickTimer);
-          datatableOptions.clickCount = 0;
+        function popup(mylink, windowname){
+            var height = window.innerHeight;
+            var widht;
+            var href;
 
-          if (doubleClickRow)
-            window.location = doubleClickRow;
-        }
-      }
-    });
-
-    $('.filter_numeric_text').on('keyup', function() {
-      var i = $(this).data('column');
-      var v = $(this).val();
-      datatable.columns(i).search(v).draw();
-    });
-
-    $('.filter_dropdown').on('change', function() {
-      var i = $(this).data('column');
-      var v = $(this).val();
-      datatable.columns(i).search(v).draw();
-    });
-
-    $('.filter_boolean').on('change', function() {
-      var checked = $(this).is(':checked');
-      var i = $(this).data('column');
-
-      if (checked) {
-        datatable.columns(i).search('true').draw();
-      } else {
-        datatable.columns(i).search('').draw();
-      }
-    });
-
-    $('.filter_daterange').daterangepicker({
-      autoUpdateInput: false,
-      parentEl: '#offcanvas-datatable-filter',
-      locale: {
-        cancelLabel: 'Clear'
-      }
-    }).on('apply.daterangepicker', function(ev, picker) {
-      $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
-      var i = $(this).data('column');
-      var v = $(this).val();
-      datatable.columns(i).search(v).draw();
-    }).on('cancel.daterangepicker', function(ev, picker) {
-      $(this).val('');
-      var i = $(this).data('column');
-      datatable.columns(i).search('').draw();
-    });
-
-    $('a.column-toggle').on('click', function(e) {
-      e.preventDefault();
-      var column = datatable.column($(this).attr('data-column'));
-
-      column.visible(!column.visible());
-
-      var label = $(this).attr('data-label');
-      var text = (column.visible() === true ? '<div class="tile-text">' + label + '</div>' : '<div class="tile-text text-muted">' + label + '</div>');
-
-      $(this).html(text);
-    });
-
-    $('.dataTables_paginate').find('a').removeClass();
-    $('#datatable-form').removeClass('hidden');
-    $('#datatable-form input').on('keyup', function() {
-      datatable.search(this.value).draw();
-    });
-    $('[data-toggle="reload"]').on('click', function() {
-      datatable.ajax.reload(null, false);
-    });
-
-    datatable.on('processing.dt', function(e, settings, processing) {
-      if (processing) {
-        $('.progress-overlay').show();
-      } else {
-        $('.progress-overlay').hide();
-      }
-    });
-
-    $(document).on('click', '.btn-xhr-delete', function(e) {
-      e.preventDefault();
-
-      var button = $(this);
-      var form = $('.form-xhr');
-      var action = button.attr('href');
-
-      button.attr('disabled', true);
-
-      if (confirm('Are you sure want to delete this data? Beware of this data can not be restored after it is removed. Continue?')) {
-        $.post(action, form.serialize()).done(function(data) {
-          var obj = $.parseJSON(data);
-          if (obj.type == 'danger') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error(obj.info);
-
-            buttonToDelete.attr('disabled', false);
-          } else {
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success(obj.info);
-
-            form.reset();
-
-            $('[data-dismiss="modal"]').trigger('click');
-
-            if (datatable) {
-              datatable.ajax.reload(null, false);
+            if (screen.availWidth > 768){
+                width = 769;
+            } else {
+                width = screen.availWidth;
             }
-          }
-        }).fail(function() {
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error('Delete Failed! This data is still being used by another document.');
+
+            var left = (screen.availWidth / 2) - (width / 2);
+            var top = 0;
+            // var top = (screen.availHeight / 2) - (height / 2);
+
+            if (typeof(mylink) == 'string') href = mylink;
+                else href = mylink.href;
+
+            window.open(href, windowname, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+width+', height='+height+', top='+top+', left='+left);
+
+            if (! window.focus) return true;
+                else return false;
+        }
+
+        (function($) {
+            $.fn.reset = function() {
+                this.find('input:text, input[type="email"], input:password, select, textarea').val('');
+                this.find('input:radio, input:checkbox').prop('checked', false);
+                return this;
+            }
+
+            $.fn.redirect = function(target) {
+                var url = $(this).data('href');
+
+                if (target == '_blank') {
+                    window.open(url, target);
+                } else {
+                    window.document.location = url;
+                }
+            }
+
+            $.fn.popup = function() {
+                var popup = $(this).data('target');
+                var source = $(this).data('source');
+
+                $.get(source, function(data) {
+                    var obj = $.parseJSON(data);
+
+                    if (obj.type == 'denied') {
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.error(obj.info, 'ACCESS DENIED!');
+                    } else {
+                        $(popup)
+                            .find('.modal-body')
+                            .empty()
+                            .append(obj.info);
+
+                        $(popup).modal('show');
+
+                        $(popup).on('click', '.modal-header:not(a)', function() {
+                            $(popup).modal('hide');
+                        });
+
+                        $(popup).on('click', '.modal-footer:not(a)', function() {
+                            $(popup).modal('hide');
+                        });
+                    }
+                })
+            }
+        }(jQuery));
+
+        function submit_post_via_hidden_form(url, params) {
+            var f = $("<form target='_blank' method='POST' style='display:none;'></form>").attr('action', url).appendTo(document.body);
+
+            $.each(params, function(key, value) {
+                var hidden = $('<input type="hidden" />').attr({
+                    name: key,
+                    value: JSON.stringify(value)
+                });
+
+                hidden.appendTo(f);
+            });
+
+            f.submit();
+            f.remove();
+        }
+
+        function numberFormat(nStr) {
+            nStr += '';
+            x = nStr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+            return x1 + x2;
+        }
+
+        $(document).on('keydown', function(event) {
+            if ((event.metaKey || event.ctrlKey) && (
+                String.fromCharCode(event.which).toLowerCase() === '0' ||
+                String.fromCharCode(event.which).toLowerCase() === 'a' ||
+                String.fromCharCode(event.which).toLowerCase() === 'd' ||
+                String.fromCharCode(event.which).toLowerCase() === 'e' ||
+                String.fromCharCode(event.which).toLowerCase() === 'i' ||
+                String.fromCharCode(event.which).toLowerCase() === 'o' ||
+                String.fromCharCode(event.which).toLowerCase() === 's' ||
+                String.fromCharCode(event.which).toLowerCase() === 'x')) {
+            event.preventDefault();
+            }
         });
-      }
 
-      button.attr('disabled', false);
-    });
-  });
-</script>
+        $(function() {
+            // GENERAL ELEMENTS
+            var formDocument = $('#form-document');
+            var buttonSubmitDocument = $('#btn-submit-document');
+            var buttonDeleteDocumentItem = $('.btn_delete_document_item');
+            var buttonEditDocumentItem = $('.btn_edit_document_item');
+            var autosetInputData = $('[data-input-type="autoset"]');
 
-<?= html_script('themes/material/assets/js/core/source/App.min.js') ?>
+            toastr.options.closeButton = true;
+
+            $('[data-toggle="redirect"]').on('click', function(e) {
+                e.preventDefault;
+
+                var url = $(this).data('url');
+
+                window.document.location = url;
+            });
+
+            $('[data-toggle="back"]').on('click', function(e) {
+                e.preventDefault;
+
+                history.back();
+            });
+
+            $(document).on('click', '.btn-xhr-submit', function(e) {
+                e.preventDefault();
+
+                var button = $(this);
+                var form = $('.form-xhr');
+                var action = form.attr('action');
+
+                button.attr('disabled', true);
+
+                if (form.valid()) {
+                    $.post(action, form.serialize()).done(function(data) {
+                        var obj = $.parseJSON(data);
+
+                        if (obj.type == 'danger') {
+                            toastr.options.timeOut = 10000;
+                            toastr.options.positionClass = 'toast-top-right';
+                            toastr.error(obj.info);
+                        } else {
+                            toastr.options.positionClass = 'toast-top-right';
+                            toastr.success(obj.info);
+
+                            form.reset();
+
+                            $('[data-dismiss="modal"]').trigger('click');
+
+                            if (datatable) {
+                                datatable.ajax.reload(null, false);
+                            }
+                        }
+                    });
+                }
+
+                button.attr('disabled', false);
+            });
+
+            $(buttonSubmitDocument).on('click', function(e) {
+                e.preventDefault();
+                $(buttonSubmitDocument).attr('disabled', true);
+
+                var url = $(this).attr('href');
+
+                $.post(url, formDocument.serialize(), function(data) {
+                    var obj = $.parseJSON(data);
+
+                    if (obj.success == false) {
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.error(obj.message);
+                    } else {
+                        toastr.options.timeOut = 4500;
+                        toastr.options.closeButton = false;
+                        toastr.options.progressBar = true;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.success(obj.message);
+
+                        window.setTimeout(function() {
+                            window.location.href = '<?= $page['route']; ?>';
+                        }, 5000);
+                    }
+
+                    $(buttonSubmitDocument).attr('disabled', false);
+                });
+            });
+
+            $(buttonDeleteDocumentItem).on('click', function(e) {
+                e.preventDefault();
+
+                var url = $(this).attr('href');
+                var tr = $(this).closest('tr');
+
+                $.get(url);
+
+                $(tr).remove();
+
+                if ($("#table-document > tbody > tr").length == 0) {
+                    $(buttonSubmit).attr('disabled', true);
+                }
+            });
+
+            $(autosetInputData).on('change', function() {
+                var val = $(this).val();
+                var url = $(this).data('source');
+                var id = $(this).attr('id');
+
+                console.log(id);
+                console.log(val);
+                if(id=='received_from'){
+                    if(val!=null){
+                        $('.btn-item').removeClass('hide');
+                    }else{
+                        if($('.btn-item').hasClass('hide')){
+                            $('.btn-item').addClass('hide');
+                        }
+                    }        
+                }
+
+                $.get(url, {
+                    data: val
+                });
+            });
+
+            $(buttonEditDocumentItem).on('click', function(e) {
+                e.preventDefault();
+
+                //var id = $(this).data('todo').id;
+                var id = $(this).data('todo').todo;
+                var data_send = {
+                    id: id
+                    //i: i
+                };
+                var save_method;
+
+                save_method = 'update';
+                /*$('#ajax-form-create-document')[0].reset(); // reset form on modals*/
+
+
+                $.ajax({
+                    url: "<?= site_url($module['route'] . '/ajax_editItem/') ?>/" + id,
+                    type: "GET",
+                    data: data_send,
+                    dataType: "JSON",
+                    success: function(response) {
+                        var action = "<?=site_url($module['route'] .'/edit_item')?>";
+                        console.log(JSON.stringify(response));
+                        $('[name="serial_number"]').val(response.serial_number);
+                        $('[name="part_number"]').val(response.part_number);
+                        $('[name="description"]').val(response.description);
+                        $('[name="alternate_part_number"]').val(response.alternate_part_number);
+                        $('[name="group"]').val(response.group);
+                        $('[name="received_quantity"]').val(response.received_quantity);
+                        $('[name="quantity_order"]').val(response.quantity_order);
+                        $('[name="minimum_quantity"]').val(response.minimum_quantity);
+                        $('[name="unit"]').val(response.received_unit);
+                        // $('[name="received_unit_value"]').val(response.received_unit_value);
+                        $('[name="condition"]').val(response.condition);
+                        $('[name="stores"]').val(response.stores);
+                        $('[name="expired_date"]').val(response.expired_date);
+                        if (response.no_expired_date == "no") {
+                            $('[id="no_expired_date"]').attr('checked', true);
+                        }
+                        if ($('[id="no_expired_date"]').is(':checked')) {
+                            $('input[id="expired_date"]').prop('readonly', true);
+                            $('input[id="expired_date"]').prop('required', false);
+                        } else {
+                            $('input[id="expired_date"]').prop('readonly', false);
+                            $('input[id="expired_date"]').prop('required', true);
+                        }
+                        $('[name="purchase_order_number"]').val(response.purchase_order_number);
+                        $('[name="tgl_nota"]').val(response.tgl_nota);
+                        $('[name="reference_number"]').val(response.reference_number);
+                        $('[name="awb_number"]').val(response.awb_number);
+                        $('[name="remarks"]').val(response.remarks);
+                        $('[name="item_id"]').val(id);
+                        $('[name="edit_kode_akunting"]').val(response.kode_akunting);
+                        // $('[name="edit_kurs"]').val('rupiah');
+                        $('[name="unit_pakai"]').val(response.unit_pakai);
+                        $('[name="qty_konversi"]').val(response.hasil_konversi);
+                        // $('[id="edit_unit_terima"]').val(response.unit_pakai);
+                        $('[name="received_unit"]').val(response.received_unit);
+                        // $('[name="isi"]').val(response.hasil_konversi);
+                        $('[name="unit_used"]').val(response.unit_pakai);
+                        $('[name="kode_stok"]').val(response.kode_stok);
+                        // if (response.isi) {
+                        //   $('[name="edit_isi"]').val(response.isi);
+                        // } else {
+                        //   $('[name="edit_isi"]').val(response.qty_konversi);
+                        // }
+                        $('[name="isi"]').val(response.isi);
+                        $('[name="value_order"]').val(response.value_order);
+                        // $('[name="edit_isi"]').val(response.isi);
+                        $('[name="qty_konversi"]').val(response.hasil_konversi);
+                        // if (response.kurs_dollar > 1) {
+                        //   $('[name="edit_kurs"]').val('dollar');
+                        //   $('[name="received_unit_value"]').val(response.unit_value_dollar);
+
+                        // } else {
+                        //   $('[name="edit_kurs"]').val('rupiah');
+                        //   $('[name="received_unit_value"]').val(response.received_unit_value);
+
+                        // }
+                        // if (response.cu) {
+                        //   $('[name="edit_kurs"]').val(response.kurs);
+                        // }
+                        $('[name="received_unit_value"]').val(response.received_unit_value);
+                        $('[name="received_unit_value_dollar"]').val(response.received_unit_value_dollar);
+                        $('[name="kurs"]').val(response.currency);
+                        $('[name="kode_stok"]').val(response.kode_stok);
+                        $('[name="stock_in_store_id"]').val(response.stock_in_stores_id);
+                        $('[name="receipt_items_id"]').val(response.receipt_items_id);
+
+                        $('#edit_purchase_order_item_id').val(response.purchase_order_item_id);
+                        $('#edit_internal_delivery_item_id').val(response.internal_delivery_item_id);
+
+                        if (response.purchase_order_item_id != '') {
+                            $('[name="received_unit_value"]').attr('readonly', true);
+                            $('[name="purchase_order_number"]').attr('readonly', true);
+                        }
+                        
+                        $('[name="item_id"]').val(id);
+
+
+
+
+                        $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
+                        $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title
+                        $('#modal-add-item form').attr('action', action);// Set form action
+
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('Error get data from ajax');
+                    }
+                });
+            });
+        });
+        
+    </script>
+    <?= html_script('themes/material/assets/js/core/source/App.min.js') ?>
+
 <?php endblock() ?>
