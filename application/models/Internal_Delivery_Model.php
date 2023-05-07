@@ -435,11 +435,18 @@ class Internal_Delivery_Model extends MY_Model
       $this->db->set('unit_price', floatval($data['unit_price']));
       $this->db->set('total_amount', floatval($data['unit_price']) * floatval($data['quantity']));
       $this->db->set('remarks', $data['remarks']);
+      $this->db->set('aircraft_mapping_id', $data['aircraft_mapping_id']);
       $this->db->insert('tb_internal_delivery_items');
 
       /**
-       * CREATE STOCK CARD
+       * UPDATE AIRCRAFT MAPPING PART
        */
+
+      $this->db->set('status', strtoupper('CLOSED'));
+      $this->db->set('vendor', strtoupper('STORES'));
+      $this->db->set('updated_by', config_item('auth_person_name'));
+      $this->db->where('id', $data['aircraft_mapping_id']);
+      $this->db->update('tb_aircraft_mapping_parts');
     }
 
     if ($this->db->trans_status() === FALSE)
@@ -725,5 +732,30 @@ class Internal_Delivery_Model extends MY_Model
 
     $this->db->trans_commit();
     return TRUE;
+  }
+
+  public function searchMappingPart($category=NULL)
+  {
+    $this->column_select = array(
+      'tb_aircraft_mapping_parts.*',
+      'tb_master_items.unit',
+      'tb_master_items.group'
+    );
+
+    $this->db->select($this->column_select);
+    $this->db->from('tb_aircraft_mapping_parts');
+    $this->db->join('tb_aircraft_components','tb_aircraft_components.id = tb_aircraft_mapping_parts.component_remove_id');
+    $this->db->join('tb_master_items','tb_master_items.id = tb_aircraft_components.item_id');
+    $this->db->where_in('tb_aircraft_mapping_parts.status', ['OPEN']);
+
+    if ($_SESSION['delivery']['received_from'] !== NULL || !empty($_SESSION['delivery']['received_from'])) {
+      $this->db->where('tb_aircraft_mapping_parts.remove_aircraft_register', $_SESSION['delivery']['received_from']);
+    }
+
+    $this->db->order_by('tb_aircraft_mapping_parts.part_number ASC, tb_aircraft_mapping_parts.description ASC');
+    $query  = $this->db->get();
+    $result = $query->result_array();
+
+    return $result;    
   }
 }

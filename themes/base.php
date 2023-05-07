@@ -14,6 +14,22 @@ else
   else
     define('PAGE_TITLE', strtoupper(ucfirst( PAGE_ROLE ) .' '. $module['label']));
 
+if (isset($page['title_1']))
+  define('PAGE_TITLE_1', strtoupper($page['title_1']));
+else
+  if ($module['name'] === 'dashboard')
+    define('PAGE_TITLE_1', 'DASHBOARD');
+  else
+    define('PAGE_TITLE_1', strtoupper(ucfirst( PAGE_ROLE ) .' '. $module['label']));
+
+if (isset($page['title_2']))
+    define('PAGE_TITLE_2', strtoupper($page['title_2']));
+else
+  if ($module['name'] === 'dashboard')
+    define('PAGE_TITLE_2', 'DASHBOARD');
+  else
+    define('PAGE_TITLE_2', strtoupper(ucfirst( PAGE_ROLE ) .' '. $module['label']));
+
 $this->load->helper('html');
 
 echo html_open();

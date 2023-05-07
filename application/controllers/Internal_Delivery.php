@@ -122,6 +122,29 @@ class Internal_Delivery extends MY_Controller
     echo json_encode($entities);
   }
 
+  public function search_mapping_part()
+  {
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] .'/denied');
+
+    $category = $_SESSION['delivery']['category'];
+
+    $entities = $this->model->searchMappingPart($category);   
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['description'];
+      $entities[$key]['label'] .= ' || PN: ';
+      $entities[$key]['label'] .= $value['part_number'];
+      $entities[$key]['label'] .= '<small>';
+      $entities[$key]['label'] .= ($value['serial_number'] !== "") ? "SN: ". $value['serial_number'] ." || " : "";
+      $entities[$key]['label'] .= 'A/C Reg : '. $value['remove_aircraft_register'] .' || ';
+      $entities[$key]['label'] .= 'Condition: '. $value['condition'] .' || ';
+      $entities[$key]['label'] .= '</small>';   
+    }
+
+    echo json_encode($entities);
+  }
+
   public function index_data_source()
   {
     if ($this->input->is_ajax_request() === FALSE)
@@ -415,7 +438,13 @@ class Internal_Delivery extends MY_Controller
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'unit'                    => trim($this->input->post('unit')),
         'remarks'                 => trim($this->input->post('remarks')),
+        'aircraft_mapping_id'     => trim($this->input->post('aircraft_mapping_id')),
+        'aircraft_register'       => trim($this->input->post('aircraft_register')),
       );
+
+      if (empty($_SESSION['delivery']['received_from'])){
+        $_SESSION['delivery']['received_from'] = strtoupper($this->input->post('aircraft_register'));
+      }
     }
 
     redirect($this->module['route'] .'/create');
@@ -473,7 +502,7 @@ class Internal_Delivery extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    $key=$this->input->post('item_id');
+    $key=$this->input->post('key');
     if (isset($_POST) && !empty($_POST)){
       $_SESSION['delivery']['items'][$key] = array(
         'group'                   => $this->input->post('group'),
@@ -488,6 +517,8 @@ class Internal_Delivery extends MY_Controller
         'stores'                  => trim(strtoupper($this->input->post('stores'))),
         'unit'                    => trim($this->input->post('unit')),
         'remarks'                 => trim($this->input->post('remarks')),
+        'aircraft_mapping_id'     => trim($this->input->post('aircraft_mapping_id')),
+        'aircraft_register'       => trim($this->input->post('aircraft_register')),
       );
     }
 

@@ -37,6 +37,11 @@
           </div>
 
           <div class="form-group">
+            <input type="text" name="aircraft_type" id="aircraft_type" class="form-control">
+            <label for="aircraft_type">Type</label>
+          </div>
+
+          <div class="form-group">
             <select name="engine_type" id="engine_type" class="form-control" required>
               <option value="single">Single Engine</option>
               <option value="multi">Multi Engine</option>
@@ -65,7 +70,7 @@
           </div>
 
           <div class="form-group">
-            <select name="base" id="base" class="form-control" required>
+            <select name="base" id="select_base" class="form-control" required>
               <option value=""></option>
               <?php foreach (available_warehouses_alternate_name() as $base_alternate_name) : ?>
                 <option value="<?= $base_alternate_name; ?>">
@@ -73,7 +78,7 @@
                 </option>
               <?php endforeach; ?>
             </select>
-            <label for="base">Base</label>
+            <label for="select_base">Base</label>
           </div>
           <div class="form-group">
             <textarea name="keterangan" id="keterangan" class="form-control" rows="4"></textarea>

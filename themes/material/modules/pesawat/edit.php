@@ -27,13 +27,18 @@
           </div>
 
           <div class="form-group">
-            <input type="date" name="date_of_manufacture" id="date_of_manufacture" class="form-control" value="<?=$entity['date_of_manufacture'];?>">
+            <input type="date" name="date_of_manufacture" id="date_of_manufacture" class="form-control" value="<?=$entity['date_of_manufacture'];?>" required>
             <label for="date_of_manufacture">Date of Manufacture</label>
           </div>
 
           <div class="form-group">
-            <input type="text" name="aircraft_serial_number" id="aircraft_serial_number" class="form-control" value="<?=$entity['aircraft_serial_number'];?>">
+            <input type="text" name="aircraft_serial_number" id="aircraft_serial_number" class="form-control" value="<?=$entity['aircraft_serial_number'];?>" required>
             <label for="aircraft_serial_number">Aircraft Serial Number</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" name="aircraft_type" id="aircraft_type" class="form-control" value="<?=$entity['type'];?>">
+            <label for="aircraft_type">Type</label>
           </div>
 
           <div class="form-group">
@@ -41,7 +46,7 @@
               <option value="single">Single Engine</option>
               <option value="multi">Multi Engine</option>
             </select>
-            <label for="base">Engine Type</label>
+            <label for="engine_type">Engine Type</label>
           </div>
 
           <div class="form-group">
@@ -65,7 +70,7 @@
           </div>
 
           <div class="form-group">
-            <select name="base" id="base" class="form-control" required>
+            <select name="base" id="select_base" class="form-control" required>
               <option value=""></option>
               <?php foreach (available_warehouses_alternate_name() as $base_alternate_name) : ?>
                 <option value="<?= $base_alternate_name; ?>" <?= ($entity['base'] == $base_alternate_name) ? 'selected' : ''; ?>>
@@ -73,7 +78,7 @@
                 </option>
               <?php endforeach; ?>
             </select>
-            <label for="base">Base</label>
+            <label for="select_base">Base</label>
           </div>
 
           <div class="form-group">

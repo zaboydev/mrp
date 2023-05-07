@@ -1,10 +1,8 @@
 <?php include 'themes/material/page.php' ?>
 
-<?php startblock('actions_right') ?>
-  <?php if (is_granted($module, 'create')):?>
-    <?php $this->load->view('material/templates/button_create_data_modal') ?>
-  <?php endif ?>
-<?php endblock() ?>
+<!--tambahan 9/Mei/2018-->
+
+<!--tambahan 9/Mei/2018-->
 
 <?php startblock('page_head_tools') ?>
 <?php $this->load->view('material/templates/datatable_tools') ?>
@@ -18,38 +16,73 @@
 <?php $this->load->view('material/templates/modal_fs') ?>
 <?php endblock() ?>
 
+<?php startblock('actions_right') ?>
+<?php if (is_granted($module, 'create_component')) : ?>
+    <div class="section-floating-action-row">
+        <div class="btn-group dropup">
+            <button type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document" data-toggle="dropdown">
+                <i class="md md-add"></i>
+                <small class="top right">Add Component</small>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                <?php foreach (config_item('component_type') as $category) : ?>
+                <li>
+                    <a href="<?= site_url($module['route'] . '/create_component/' . $category.'/'.$page['aircraft_id']); ?>"><?= strtoupper($category); ?></a>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
+<?php endif ?>
+<?php endblock() ?>
+
 <?php startblock('datafilter') ?>
-  <div class="form force-padding">
+<div class="form force-padding">
     <div class="form-group">
-      <label for="filter_warehouse">Base</label>
-      <select class="form-control filter_dropdown" data-column="2" id="filter_warehouse">
-        <option value="">
-          Not filtered
-        </option>
+        <label for="filter_received_date">Received Date</label>
+        <input class="form-control input-sm filter_daterange" data-column="1" id="filter_received_date" readonly>
+    </div>  
+</div>
+<?php endblock() ?>
 
-        <?php foreach (config_item('auth_warehouses') as $base):?>
-          <option value="<?=$base;?>">
-            <?=$base;?>
-          </option>
-        <?php endforeach;?>
-      </select>
+<?php startblock('offcanvas_left_actions') ?>
+    <?php if (is_granted($module, 'import')) : ?>    
+    <li class="tile">
+        <a class="tile-content ink-reaction" href="#offcanvas-import" data-toggle="offcanvas">
+        <div class="tile-icon">
+            <i class="fa fa-download"></i>
+        </div>
+        <div class="tile-text">
+            Import Data
+            <small>import from csv file</small>
+        </div>
+        </a>
+    </li>
+    
+    <?php endif; ?>
+<?php endblock() ?>
+
+<?php startblock('offcanvas_left_list') ?>
+<?php if (is_granted($module, 'import')) : ?>
+    <div id="offcanvas-import" class="offcanvas-pane width-8">
+        <div class="offcanvas-head style-primary-dark">
+            <header>Import</header>
+            <div class="offcanvas-tools">
+                <a class="btn btn-icon-toggle pull-right" data-dismiss="offcanvas">
+                    <i class="md md-close"></i>
+                </a>
+                <a class="btn btn-icon-toggle pull-right" href="#offcanvas-datatable-filter" data-toggle="offcanvas">
+                    <i class="md md-arrow-back"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="offcanvas-body no-padding">
+        <?php $this->load->view('material/modules/stores/import') ?>
+        </div>
     </div>
-
-    <div class="form-group">
-      <label for="filter_item_group">Category</label>
-      <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_item_category">
-        <option value="">
-          Not filtered
-        </option>
-
-        <?php foreach (config_item('auth_inventory') as $category):?>
-          <option value="<?=$category;?>">
-            <?=$category;?>
-          </option>
-        <?php endforeach;?>
-      </select>
-    </div>
-  </div>
+<?php endif; ?>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>
@@ -75,7 +108,7 @@
     $('.progress-overlay').hide();
   });
 
-  var id_purchase_order = "";
+  $('.select2').select2();
 
   (function($) {
     $.fn.reset = function() {
@@ -236,7 +269,6 @@
         url: "<?= $grid['data_source']; ?>",
         type: "POST",
         error: function(xhr, ajaxOptions, thrownError) {
-          console.log(xhr.responseText);
           if (xhr.status == 404) {
             toastr.clear();
             toastr.error('Request page not found. Please contact Technical Support.', 'Loading data failed!');
@@ -253,25 +285,72 @@
           $(row).addClass('selected');
         }
       },
-      drawCallback: function(settings) {
-        var api = this.api();
-        var data = api.rows({
-          page: 'current'
-        }).data()
-        $.each(data, function(i, item) {
-          var id = $(item[0]).attr("data-id");
-          if (id_purchase_order.indexOf("|" + id + ",") !== -1) {
-            $("#cb_" + id).attr('checked', true);
-          }
-        });
-
-      },
 
       columnDefs: [
         {
           searchable: false,
           orderable: false,
           targets: [0]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [6]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [7]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [8]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [9]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [10]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [11]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [12]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [13]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [14]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [15]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [16]
+        },
+        {
+          searchable: false,
+          orderable: false,
+          targets: [17]
         },
       ],
 
@@ -436,50 +515,7 @@
       }
     });
 
-    var buttonSubmitDocument = $('#btn-submit-document');
-    var formDocument = $('#form-change-item');
-    $(buttonSubmitDocument).on('click', function(e) {
-      e.preventDefault();
-      $(buttonSubmitDocument).attr('disabled', true);
-
-      var url = $(this).attr('href');
-
-      $.post(url, formDocument.serialize(), function(data) {
-        var obj = $.parseJSON(data);
-
-        if (obj.success == false) {
-          toastr.options.timeOut = 10000;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.error(obj.message);
-        } else {
-          toastr.options.timeOut = 4500;
-          toastr.options.closeButton = false;
-          toastr.options.progressBar = true;
-          toastr.options.positionClass = 'toast-top-right';
-          toastr.success(obj.message);
-
-          window.setTimeout(function() {
-            window.location.href = '<?= site_url($module['route']); ?>';
-          }, 5000);
-        }
-
-        $(buttonSubmitDocument).attr('disabled', false);
-      });
-    });
-
-    $(datatableElement).find('tbody').on('click', 'tr', function(e) {
-      console.log(e.target.nodeName);
-      if (e.target.nodeName === "I") {
-        var url = $(e.target).attr('data-href');
-        // window.open(url, '_blank').focus();
-        window.document.location = url;
-      } else {
-        $(this).popup();
-      }
-
-    });
-
-    $('.filter_numeric_text').on('keyup click', function() {
+    $('.filter_numeric_text').on('keyup', function() {
       var i = $(this).data('column');
       var v = $(this).val();
       datatable.columns(i).search(v).draw();
@@ -584,41 +620,6 @@
           toastr.error('Delete Failed! This data is still being used by another document.');
         });
       }
-
-      button.attr('disabled', false);
-    });
-
-    $(document).on('click', '.btn-xhr-submit', function(e) {
-      e.preventDefault();
-
-      var button = $(this);
-      var form = $(this).closest('.form-xhr');
-      var action = form.attr('action');
-
-      button.attr('disabled', true);
-
-      // if (form.valid()) {
-        $.post(action, form.serialize()).done(function(data) {
-          var obj = $.parseJSON(data);
-
-          if (obj.type == 'danger') {
-            toastr.options.timeOut = 10000;
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.error(obj.info);
-          } else {
-            toastr.options.positionClass = 'toast-top-right';
-            toastr.success(obj.info);
-
-            form.reset();
-
-            $('[data-dismiss="modal"]').trigger('click');
-
-            if (datatable) {
-              datatable.ajax.reload(null, false);
-            }
-          }
-        });
-      // }
 
       button.attr('disabled', false);
     });
