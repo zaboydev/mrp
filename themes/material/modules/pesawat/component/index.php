@@ -6,8 +6,33 @@
         height : 10px;
     } */
 
+    .table-wrap-component thead th {
+        position: sticky;
+        top: 0;
+    }
+
+    .table-wrap-component {
+        height: 600px;
+        overflow-y: auto;
+    }
+
     .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
         padding: 3px 1px 3px 3px;
+    }
+
+    .table-component>thead>tr>th {
+        background: #B3D7E5;
+    }
+
+    .table-component>tbody>tr>td,
+    .table-component>tbody>tr>th,
+    .table-component>tfoot>tr>td,
+    .table-component>tfoot>tr>th {
+        padding: 4px;
+        line-height: 1.42857;
+        vertical-align: top;
+        /* border-top: 1px solid #e7ecf1; */
+        border: 1px solid #e7ecf1;
     }
 </style>
 <section class="has-actions style-default">
@@ -62,8 +87,8 @@
                     <div style="clear: both;border-bottom: 3px double #999;padding-top:2px;padding-bottom:3px;"class="row"></div>
                     <div class="row" style="padding-top:4px;">
                         <div class="col-sm-12">
-                            <div class="document-data table-responsive">
-                                <table class="table table-bordered table-nowrap">
+                            <div class="table-wrap-component">
+                                <table class="table-component" width="100%">
                                     <thead>
                                         <tr>
                                             <th rowspan="2" style="text-align:center;">No</th>
