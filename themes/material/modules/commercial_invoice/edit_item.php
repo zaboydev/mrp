@@ -1,6 +1,16 @@
 <?php include 'themes/material/simple.php' ?>
 
 <?php startblock('body') ?>
+<style type="text/css">
+    .table td{
+        font-size: 11px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        min-height: 0.01%;
+    }
+</style>
 <div class="container-fluid">
 
   <h4 class="page-header">Update Item</h4>
@@ -27,6 +37,7 @@
                     <th class="middle-alignment">Value</th>
                     <th class="middle-alignment">Insurance Unit Value</th>
                     <th class="middle-alignment">Remarks</th>
+                    <th class="middle-alignment">Dateline(days)</th>  
                     <th class="middle-alignment">AWB Number</th>                             
                 </tr>              
             </thead>
@@ -83,6 +94,9 @@
                     </td>
                     <td>
                         <input type="text" rel="remarks" name="item[<?= $id; ?>][remarks]" value="<?= $_SESSION['return']['items'][$id]['remarks']; ?>" class="form-control">
+                    </td>
+                    <td>
+                        <input type="number" rel="dateline" name="item[<?= $id; ?>][dateline]" value="<?= $_SESSION['return']['items'][$id]['dateline']; ?>" class="form-control">
                     </td>
                     <td>
                         <input type="text" rel="awb_number" name="item[<?= $id; ?>][awb_number]" value="<?= $_SESSION['return']['items'][$id]['awb_number']; ?>" class="form-control">
