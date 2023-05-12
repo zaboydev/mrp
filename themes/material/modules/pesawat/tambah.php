@@ -107,7 +107,7 @@
             </div>
           </div>
           <div class="form-group" style="padding-top: 25px;">
-            <label for="instrument_nf">Instrument NF</label>
+            <label for="instrument_nf">Instrument</label>
             <select style="width: 100%" multiple="multiple" name="instrument_nf[]" id="instrument_nf" class="form-control select2" required>
             <?php foreach ($this->config->item('instrument_nf') as $instrument_nf) : ?>
               <option value="<?= $instrument_nf; ?>">
@@ -118,7 +118,7 @@
           </div>
 
           <div class="form-group" style="padding-top: 25px;">
-            <label for="instrument_avionic">Instrument Avionic</label>
+            <label for="instrument_avionic">Avionic</label>
             <select style="width: 100%" multiple="multiple" name="instrument_avionic[]" id="instrument_avionic" class="form-control select2" required>
             <?php foreach ($this->config->item('instrument_avionic') as $instrument_avionic) : ?>
               <option value="<?= $instrument_avionic; ?>">

@@ -320,6 +320,7 @@ class Internal_Delivery_Model extends MY_Model
      */
     foreach ($_SESSION['delivery']['items'] as $key => $data){
       $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
+      $aircraft_mapping_id = (empty($data['aircraft_mapping_id'])) ? NULL : $data['aircraft_mapping_id'];
       /**
        * CREATE UNIT OF MEASUREMENT IF NOT EXISTS
        */
@@ -435,18 +436,19 @@ class Internal_Delivery_Model extends MY_Model
       $this->db->set('unit_price', floatval($data['unit_price']));
       $this->db->set('total_amount', floatval($data['unit_price']) * floatval($data['quantity']));
       $this->db->set('remarks', $data['remarks']);
-      $this->db->set('aircraft_mapping_id', $data['aircraft_mapping_id']);
+      $this->db->set('aircraft_mapping_id', $aircraft_mapping_id);
       $this->db->insert('tb_internal_delivery_items');
 
       /**
        * UPDATE AIRCRAFT MAPPING PART
        */
-
-      $this->db->set('status', strtoupper('CLOSED'));
-      $this->db->set('vendor', strtoupper('STORES'));
-      $this->db->set('updated_by', config_item('auth_person_name'));
-      $this->db->where('id', $data['aircraft_mapping_id']);
-      $this->db->update('tb_aircraft_mapping_parts');
+      if($aircraft_mapping_id!=NULL){
+        $this->db->set('status', strtoupper('CLOSED'));
+        $this->db->set('vendor', strtoupper('STORES'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->where('id', $data['aircraft_mapping_id']);
+        $this->db->update('tb_aircraft_mapping_parts');
+      }      
     }
 
     if ($this->db->trans_status() === FALSE)

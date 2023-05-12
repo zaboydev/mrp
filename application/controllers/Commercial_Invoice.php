@@ -518,6 +518,7 @@ class Commercial_Invoice extends MY_Controller
         'remarks'                 => trim($this->input->post('remarks')),
         'internal_delivery_item_id'      => $this->input->post('internal_delivery_item_id'),
         'received_from'      => $this->input->post('received_from'),
+        'dateline'      => $this->input->post('dateline'),
       );
     }
     
@@ -614,6 +615,7 @@ class Commercial_Invoice extends MY_Controller
             'remarks'                 => $item['remarks'],
             'internal_delivery_item_id'      => ($_SESSION['return']['source']=='internal_delivery')?$item['id']:null,
             'received_from'           => $item['received_from'],
+            'dateline'    => 30,
           );
         }
 
