@@ -148,6 +148,7 @@
                           <input type="hidden" name="items[<?=$items['id'];?>][condition]" value="<?=$items['condition'];?>">
                           <input type="hidden" name="items[<?=$items['id'];?>][id_stores_sementara]" value="<?=$items['id_stores_sementara'];?>">
                           <input type="hidden" name="items[<?=$items['id'];?>][issued_items_id]" value="<?=$items['id'];?>">
+                          <input type="hidden" name="items[<?=$items['id'];?>][stock_id]" value="<?=$items['stock_id'];?>">
                         </td>
                         <td>
                           <?php if ($items['left_received_quantity'] > 0):?>
