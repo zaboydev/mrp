@@ -1062,4 +1062,9 @@ class Pesawat_Model extends MY_Model
     return $result;
   }
 
+  public function component_import(array $data)
+  {
+    // $this->db->trans_begin();
+  }
+
 }

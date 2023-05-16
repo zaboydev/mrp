@@ -185,6 +185,23 @@
         </ul>
     </div>
 </div>
+<div id="offcanvas-import" class="offcanvas-pane width-8">
+    <div class="offcanvas-head style-primary-dark">
+      <header>Import</header>
+      <div class="offcanvas-tools">
+        <a class="btn btn-icon-toggle pull-right" data-dismiss="offcanvas">
+          <i class="md md-close"></i>
+        </a>
+        <a class="btn btn-icon-toggle pull-right" href="#offcanvas-datatable-filter" data-toggle="offcanvas">
+          <i class="md md-arrow-back"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="offcanvas-body no-padding">
+      <?php $this->load->view('material/modules/pesawat/component/import') ?>
+    </div>
+  </div>
 <?php endblock() ?>
 
 <?php startblock('scripts') ?>

@@ -658,4 +658,149 @@ class Pesawat extends MY_Controller
 
     redirect($this->module['route'] .'/create_component');
   }
+
+  public function component_import()
+  {
+    // $this->authorized($this->module, 'import');
+
+    $this->load->library('form_validation');
+
+    if (isset($_POST) && !empty($_POST)){
+      $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
+
+      if ($this->form_validation->run() === TRUE){
+        $file       = $_FILES['userfile']['tmp_name'];
+        $delimiter  = $this->input->post('delimiter');
+        $aircraft_id  = $this->input->post('aircraft_id');
+
+        if (($handle = fopen($file, "r")) !== FALSE){
+          $row     = 1;
+          $data    = array();
+          $errors  = array();
+          $user_id = array();
+          $index   = 0;
+          fgetcsv($handle); // skip first line (as header)
+
+          //... parsing line
+          while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE)
+          {
+            $row++;
+
+            $type                   = trim(($col[0]));
+            $group                  = trim(strtoupper($col[1]));
+            $part_number            = trim(strtoupper($col[2]));
+            $alternate_part_number  = trim(strtoupper($col[3]));
+            $serial_number          = trim(strtoupper($col[4]));
+            $description            = trim(strtoupper($col[5]));
+            $unit                   = trim(strtoupper($col[6]));
+            $installation_date      = trim(strtoupper($col[7]));
+            $status_date            = trim(strtoupper($col[8]));
+            $interval               = trim(strtoupper($col[9]));
+            $interval_satuan         = trim(strtoupper($col[10]));
+            $af_tsn                 = trim(strtoupper($col[11]));
+            $equip_tsn              = trim(strtoupper($col[12]));
+            $tso                    = trim(strtoupper($col[13]));
+            $due_at_af_tsn_hour     = trim(strtoupper($col[14]));
+            $due_at_af_tsn_date     = trim(strtoupper($col[15]));
+            $remaining_hour         = trim(strtoupper($col[16]));
+            $remaining_date         = trim(strtoupper($col[17]));
+            $remarks                = trim(strtoupper($col[18]));
+
+            if ($type === null){
+              $errors[] = 'Line '. $row .': Type can`t be empty!';
+            }else{
+              if(!in_array($type,array_values(config_item('component_type')))){
+                $errors[] = 'Line '. $row .': Type '.$type.' is one of '.implode(",", array_values(config_item('component_type')));
+              }            
+            }
+
+            if($group==''){
+              $errors[] = 'Line '. $row .': Group can`t be empty!';
+            }else{
+              if(!in_array($group,available_item_groups(['SPARE PART','TOOLS']))){
+                $errors[] = 'Line '. $row .': Group '.$group.' is one of '.implode(",", available_item_groups(['SPARE PART','TOOLS']));
+              }            
+            }
+
+            if($part_number==''){
+              $errors[] = 'Line '. $row .': Part Number can`t be empty!';
+            }
+
+            if($description==''){
+              $errors[] = 'Line '. $row .': Description can`t be empty!';
+            }
+
+            if($unit==''){
+              $errors[] = 'Line '. $row .': Unit can`t be empty!';
+            }
+
+            if($installation_date==''){
+              $errors[] = 'Line '. $row .': Installation Date can`t be empty!';
+            }            
+
+            if($interval_satuan!=''){
+              $errors[] = 'Line '. $row .': Interval Satuan must be one of FH or MTHS';
+            }
+
+            if($af_tsn==''){
+              $errors[] = 'Line '. $row .': AF TSN can`t be empty! Minimal 0';
+            }
+
+            $data[$row]['type']                   = $type;
+            $data[$row]['group']                  = $group;
+            $data[$row]['part_number']            = $part_number;
+            $data[$row]['alternate_part_number']  = $alternate_part_number;
+            $data[$row]['serial_number']          = $serial_number;
+            $data[$row]['description']            = $description;
+            $data[$row]['unit']                   = $unit;
+            $data[$row]['installation_date']      = $installation_date;
+            $data[$row]['interval']          = $interval;
+            $data[$row]['interval_satuan']          = $interval_satuan;
+            $data[$row]['af_tsn']                 = $af_tsn;
+            $data[$row]['equip_tsn']              = $equip_tsn;
+            $data[$row]['tso']                    = $tso;
+            $data[$row]['due_at_af_tsn_hour']     = $due_at_af_tsn_hour;
+            $data[$row]['due_at_af_tsn_date']     = $due_at_af_tsn_date;
+            $data[$row]['remaining_hour']         = $remaining_hour;
+            $data[$row]['remaining_date']         = $remaining_date;
+            $data[$row]['remarks']                = $remarks;
+            $data[$row]['status_date']            = $status_date;
+            $row++;
+          }
+          fclose($handle);
+
+          if (empty($errors)){
+            /**
+              * Insert into user table
+            */
+            if ($this->model->component_import($data)){
+              //... send message to view
+              $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => count($data)." data has been imported!"
+              ));
+
+              redirect($this->module['route']);
+            }
+          } else {
+            foreach ($errors as $key => $value){
+              $err[] = "\n#". $value;
+            }
+
+            $this->session->set_flashdata('alert', array(
+              'type' => 'danger',
+              'info' => "There are errors on data\n#". implode("\n#", $errors)
+            ));
+          }
+        } else {
+          $this->session->set_flashdata('alert', array(
+            'type' => 'danger',
+            'info' => 'Cannot open file!'
+          ));
+        }
+      }
+    }
+
+    redirect($this->module['route']. '/index_aircraft_component/' . $aircraft_id);
+  }
 }
