@@ -2971,10 +2971,10 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
   
-      $CI->db->select('alternate_warehouse_name');
+      $CI->db->select('tb_master_warehouses.*');
       $CI->db->from('tb_master_warehouses');
       $CI->db->where('UPPER(status)', 'AVAILABLE');
-      $CI->db->where('alternate_warehouse_name is NOT NULL', NULL, FALSE);
+      // $CI->db->where('alternate_warehouse_name is NOT NULL', NULL, FALSE);
   
       if ($warehouse !== NULL){
         if (is_array($warehouse)){
@@ -2986,13 +2986,13 @@ if (!function_exists('currency_for_vendor_list')) {
   
       $query  = $CI->db->get();
       $result = $query->result_array();
-      $return = array();
+      // $return = array();
   
-      foreach ($result as $row) {
-        $return[] = $row['alternate_warehouse_name'];
-      }
+      // foreach ($result as $row) {
+      //   $return[] = $row['alternate_warehouse_name'];
+      // }
   
-      return $return;
+      return $result;
     }
   }
 

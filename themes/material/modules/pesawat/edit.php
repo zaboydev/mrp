@@ -72,9 +72,12 @@
           <div class="form-group">
             <select name="base" id="select_base" class="form-control" required>
               <option value=""></option>
-              <?php foreach (available_warehouses_alternate_name() as $base_alternate_name) : ?>
-                <option value="<?= $base_alternate_name; ?>" <?= ($entity['base'] == $base_alternate_name) ? 'selected' : ''; ?>>
-                  <?= $base_alternate_name; ?>
+              <?php foreach (available_warehouses_alternate_name() as $base) : ?>
+                <option value="<?= $base['warehouse']; ?>">
+                  <?= $base['warehouse']; ?> 
+                  <?php if($base['alternate_warehouse_name']!=NULL): ?>
+                  (<?= $base['alternate_warehouse_name']; ?>)
+                  <?php endif;?>
                 </option>
               <?php endforeach; ?>
             </select>
