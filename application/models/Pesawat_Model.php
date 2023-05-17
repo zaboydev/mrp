@@ -1064,7 +1064,85 @@ class Pesawat_Model extends MY_Model
 
   public function component_import(array $data)
   {
-    // $this->db->trans_begin();
+    $this->db->trans_begin();
+
+    foreach ($data as $key => $data) {
+      
+      $serial_number = (empty($data['serial_number'])) ? NULL : $data['serial_number'];
+
+      /**
+       * CREATE UNIT OF MEASUREMENT IF NOT EXISTS
+       */
+      if (isItemUnitExists($data['unit']) === FALSE) {
+        $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->insert('tb_master_item_units');
+      }
+
+      /**
+       * CREATE ITEM IF NOT EXISTS
+       */
+      if (isItemExists($data['part_number'], $data['description'], $serial_number) === FALSE) {
+        $this->db->set('part_number', strtoupper($data['part_number']));
+        $this->db->set('serial_number', strtoupper($data['serial_number']));
+        $this->db->set('alternate_part_number', strtoupper($data['alternate_part_number']));
+        $this->db->set('description', strtoupper($data['description']));
+        $this->db->set('group', strtoupper($data['group']));
+        $this->db->set('minimum_quantity', floatval(0));
+        $this->db->set('unit', strtoupper($data['unit']));
+        $this->db->set('unit_pakai', strtoupper($data['unit']));
+        $this->db->set('qty_konversi', 1);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));        
+        $this->db->set('current_price', 0);
+        $this->db->insert('tb_master_items');
+
+        $item_id = $this->db->insert_id();
+      } else {
+        $item_id = getItemId($data['part_number'], $data['description'], $serial_number);
+      }
+
+      // if($data['previous_component_id']!=null){
+      //   $this->db->set('active', false);
+      //   $this->db->where('id',$data['previous_component_id']);
+      //   $this->db->update('tb_aircraft_components');
+      // }
+      $aircraft = $this->findById($data['aircraft_id']);
+      $aircraft_code = $aircraft['nama_pesawat'];
+
+      $this->db->set('type', $data['type']);
+      $this->db->set('aircraft_id', $data['aircraft_id']);
+      $this->db->set('aircraft_code', $aircraft_code);
+      $this->db->set('item_id', $item_id);
+      $this->db->set('part_number', $data['part_number']);
+      $this->db->set('description', $data['description']);
+      $this->db->set('alternate_part_number', $data['alternate_part_number']);
+      $this->db->set('serial_number', $serial_number);
+      $this->db->set('interval', $data['interval']);
+      $this->db->set('interval_satuan', $data['interval_satuan']);
+      $this->db->set('installation_date', $data['installation_date']);
+      $this->db->set('installation_by', $data['install_by']);
+      $this->db->set('af_tsn', $data['af_tsn']);
+      $this->db->set('equip_tsn', $data['equip_tsn']);
+      $this->db->set('tso', $data['tso']);
+      $this->db->set('remarks', $data['remarks']);
+      if(!empty($data['next_due_date'])){
+        $this->db->set('next_due_date', $data['next_due_date']);
+      }      
+      $this->db->set('next_due_hour', $data['next_due_hour']);
+      $this->db->set('active', true);
+      $this->db->set('created_at', date('Y-m-d H:i:s'));
+      $this->db->set('created_by', config_item('auth_person_name'));
+      $this->db->insert('tb_aircraft_components');
+    }
+
+    if ($this->db->trans_status() === FALSE)
+      return FALSE;
+
+    $this->db->trans_commit();
+    return TRUE;
+
   }
 
 }

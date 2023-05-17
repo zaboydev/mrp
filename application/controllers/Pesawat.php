@@ -696,15 +696,15 @@ class Pesawat extends MY_Controller
             $installation_date      = trim(strtoupper($col[7]));
             $status_date            = trim(strtoupper($col[8]));
             $interval               = trim(strtoupper($col[9]));
-            $interval_satuan         = trim(strtoupper($col[10]));
+            $interval_satuan        = trim(strtoupper($col[10]));
             $af_tsn                 = trim(strtoupper($col[11]));
             $equip_tsn              = trim(strtoupper($col[12]));
             $tso                    = trim(strtoupper($col[13]));
             $due_at_af_tsn_hour     = trim(strtoupper($col[14]));
             $due_at_af_tsn_date     = trim(strtoupper($col[15]));
-            $remaining_hour         = trim(strtoupper($col[16]));
-            $remaining_date         = trim(strtoupper($col[17]));
-            $remarks                = trim(strtoupper($col[18]));
+            $remarks                = trim(strtoupper($col[16]));
+            $install_by             = trim(strtoupper($col[17]));
+            // $remarks                = trim(strtoupper($col[18]));
 
             if ($type === null){
               $errors[] = 'Line '. $row .': Type can`t be empty!';
@@ -739,7 +739,9 @@ class Pesawat extends MY_Controller
             }            
 
             if($interval_satuan!=''){
-              $errors[] = 'Line '. $row .': Interval Satuan must be one of FH or MTHS';
+              if(!in_array($interval_satuan,['FH','MTHS'])){
+                $errors[] = 'Line '. $row .': Interval Satuan must be one of FH or MTHS. Your interal Satuan is '.$interval_satuan;
+              }              
             }
 
             if($af_tsn==''){
@@ -754,18 +756,19 @@ class Pesawat extends MY_Controller
             $data[$row]['description']            = $description;
             $data[$row]['unit']                   = $unit;
             $data[$row]['installation_date']      = $installation_date;
-            $data[$row]['interval']          = $interval;
-            $data[$row]['interval_satuan']          = $interval_satuan;
+            $data[$row]['interval']               = $interval;
+            $data[$row]['interval_satuan']        = $interval_satuan;
             $data[$row]['af_tsn']                 = $af_tsn;
             $data[$row]['equip_tsn']              = $equip_tsn;
             $data[$row]['tso']                    = $tso;
             $data[$row]['due_at_af_tsn_hour']     = $due_at_af_tsn_hour;
             $data[$row]['due_at_af_tsn_date']     = $due_at_af_tsn_date;
-            $data[$row]['remaining_hour']         = $remaining_hour;
-            $data[$row]['remaining_date']         = $remaining_date;
+            $data[$row]['install_by']             = $install_by;
+            // $data[$row]['remaining_date']         = $remaining_date;
             $data[$row]['remarks']                = $remarks;
             $data[$row]['status_date']            = $status_date;
-            $row++;
+            $data[$row]['aircraft_id']            = $aircraft_id;
+            // $row++;
           }
           fclose($handle);
 
@@ -780,7 +783,7 @@ class Pesawat extends MY_Controller
                 'info' => count($data)." data has been imported!"
               ));
 
-              redirect($this->module['route']);
+              redirect($this->module['route'] . '/index_aircraft_component/' . $aircraft_id);
             }
           } else {
             foreach ($errors as $key => $value){
