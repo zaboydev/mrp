@@ -24,10 +24,10 @@ class Pesawat_Model extends MY_Model
 
   public function getSearchableColumns()
   {
-    return array(
-      'nama_pesawat',
-      'keterangan',
-      'base',
+    return array(      
+      'tb_master_pesawat.nama_pesawat',
+      'tb_master_pesawat.keterangan',
+      'tb_master_warehouses.warehouse',
     );
   }
 
@@ -35,9 +35,9 @@ class Pesawat_Model extends MY_Model
   {
     return array(
       null,
-      'nama_pesawat',
-      'keterangan',
-      'base',
+      'tb_master_pesawat.nama_pesawat',
+      'tb_master_pesawat.keterangan',
+      'tb_master_warehouses.warehouse',
     );
   }
 
@@ -65,8 +65,18 @@ class Pesawat_Model extends MY_Model
 
   function getIndex($return = 'array')
   {
-    $this->db->select(array_keys($this->getSelectedColumns()));
+    $selected = [
+      'tb_master_pesawat.id',
+      'tb_master_pesawat.nama_pesawat',
+      'tb_master_pesawat.keterangan',
+      'tb_master_warehouses.warehouse as base',
+      'tb_master_warehouses.alternate_warehouse_name',
+      'tb_master_pesawat.created_by'
+    ];
+    
+    $this->db->select($selected);
     $this->db->from('tb_master_pesawat');
+    $this->db->join('tb_master_warehouses', 'tb_master_warehouses.warehouse = tb_master_pesawat.base','left');
 
     $this->searchIndex();
 
@@ -97,6 +107,7 @@ class Pesawat_Model extends MY_Model
   function countIndexFiltered()
   {
     $this->db->from('tb_master_pesawat');
+    $this->db->join('tb_master_warehouses', 'tb_master_warehouses.warehouse = tb_master_pesawat.base','left');
     $this->searchIndex();
 
     $query = $this->db->get();
@@ -107,6 +118,7 @@ class Pesawat_Model extends MY_Model
   public function countIndex()
   {
     $this->db->from('tb_master_pesawat');
+    $this->db->join('tb_master_warehouses', 'tb_master_warehouses.warehouse = tb_master_pesawat.base','left');
 
     $query = $this->db->get();
 

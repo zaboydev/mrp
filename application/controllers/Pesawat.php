@@ -47,12 +47,16 @@ class Pesawat extends MY_Controller
       $no   = $_POST['start'];
 
       foreach ($entities as $row){
+        $base = print_string($row['base']);
+        if($row['alternate_warehouse_name']!=NULL){
+          $base .= ' ('.print_string($row['alternate_warehouse_name']).')';
+        }
         $no++;
         $col = array();
         $col[] = print_number($no);
         $col[] = print_string($row['nama_pesawat']);
         $col[] = print_string($row['keterangan']);
-        $col[] = print_string($row['base']);
+        $col[] = print_string($base);
         $col[] = '<button class="btn btn-floating-action btn-primary btn-tooltip ink-reaction btn-sm"><i class="md md-list" data-href="'.site_url($this->module['route'] . '/index_aircraft_component/' . $row['id']).'"></i><small class="top right">Show Component</small></a>';
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
