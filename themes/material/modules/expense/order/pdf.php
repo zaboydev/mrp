@@ -306,7 +306,7 @@
 							</p>
 						</td>
 						<?php endif; ?>
-
+						<?php if ($entity['proc_manager_review_by'] != '') : ?>			
 						<td valign="top" align="center">
 							<p>
 								Review by,
@@ -320,6 +320,7 @@
 								<br /><?= $entity['proc_manager_review_by']; ?>
 							</p>
 						</td>						
+						<?php endif; ?>
 						<?php endif; ?>
 
 						<td valign="top" align="center">
