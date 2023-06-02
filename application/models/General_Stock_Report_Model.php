@@ -17,8 +17,9 @@ class General_Stock_Report_Model extends MY_Model
       'tb_master_items.part_number'                 => 'Part Number',
       'tb_master_items.serial_number'               => 'Serial Number',
       'tb_master_items.description'                 => 'Description',
+      'tb_stocks.condition'                         => 'Condition',
       'tb_master_items.kode_stok'                   => 'Stock Code',
-	    'tb_master_item_groups.coa'               	=> 'COA',
+	    'tb_master_item_groups.coa'               	  => 'COA',
       'SUM(CASE WHEN tb_stock_cards.tgl < '.$tgl_awal.' THEN tb_stock_cards.quantity ELSE 0 END) AS qty'                                          => 'Initial Qty',
       'SUM(CASE WHEN tb_stock_cards.tgl < '.$tgl_awal.' THEN tb_stock_cards.total_value ELSE 0 END) AS total_value'                                          => 'Initial Value',
       'SUM(CASE WHEN tb_stock_cards.doc_type = 5 AND tb_stock_cards.tgl >= '.$tgl_awal.' AND tb_stock_cards.tgl <= '.$tgl.' THEN tb_stock_cards.quantity ELSE 0 END) AS grn_qty' => 'QTY GRN',
@@ -150,7 +151,7 @@ class General_Stock_Report_Model extends MY_Model
     }
   }
 
-  public function getIndex($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL,  $return = 'array')
+  public function getIndex($condition = NULL, $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL,  $return = 'array')
   {
     $tgl      = date('Ymd',strtotime($end_date));
     $tgl_awal = date('Ymd',strtotime($start_date));
@@ -163,7 +164,9 @@ class General_Stock_Report_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
     // $this->db->where('quantity != ', 0);
-	  $this->db->where('tb_stocks.condition', $condition);
+    if ($condition !== NULL){
+	    $this->db->where('tb_stocks.condition', $condition);
+    }
     
 
     if ($category !== NULL){
@@ -239,7 +242,7 @@ class General_Stock_Report_Model extends MY_Model
     }
   }
 
-  public function countIndexFiltered($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  public function countIndexFiltered($condition = NULL, $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
   {
     $tgl= date('Ymd',strtotime($end_date));
     $tgl_awal = date('Ymd',strtotime($start_date));
@@ -251,7 +254,9 @@ class General_Stock_Report_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
     $this->db->where('quantity != ', 0);
-	  $this->db->where('tb_stocks.condition', $condition);
+	  if ($condition !== NULL){
+	    $this->db->where('tb_stocks.condition', $condition);
+    }
     $this->db->group_by($this->getIndexGroupedColumns());
     if ($category !== NULL){
       $this->db->where('tb_master_item_categories.category', $category);
@@ -307,7 +312,7 @@ class General_Stock_Report_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function countIndex($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  public function countIndex($condition = NULL, $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
   {
     $tgl= date('Ymd',strtotime($end_date));
     $tgl_awal = date('Ymd',strtotime($start_date));
@@ -319,7 +324,9 @@ class General_Stock_Report_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
     $this->db->where('quantity != ', 0);
-	  $this->db->where('tb_stocks.condition', $condition);
+	  if ($condition !== NULL){
+	    $this->db->where('tb_stocks.condition', $condition);
+    }
     $this->db->group_by($this->getIndexGroupedColumns());
     if ($category !== NULL){
       $this->db->where('tb_master_item_categories.category', $category);

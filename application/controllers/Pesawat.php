@@ -18,7 +18,7 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
 
     $this->data['page']['title']            = 'Pesawat';
-    $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
+    // $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
@@ -47,16 +47,21 @@ class Pesawat extends MY_Controller
       $no   = $_POST['start'];
 
       foreach ($entities as $row){
+        $base = print_string($row['base']);
+        if($row['alternate_warehouse_name']!=NULL){
+          $base .= ' ('.print_string($row['alternate_warehouse_name']).')';
+        }
         $no++;
         $col = array();
         $col[] = print_number($no);
         $col[] = print_string($row['nama_pesawat']);
         $col[] = print_string($row['keterangan']);
-        $col[] = print_string($row['base']);
-        $col[] = '<a href="'.site_url($this->module['route'] . '/index_aircraft_component/' . $row['id']).'" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction btn-sm"><i class="md md-list"></i><small class="top right">Show Component</small></a>';
+        $col[] = print_string($base);
+        $col[] = '<button class="btn btn-floating-action btn-primary btn-tooltip ink-reaction btn-sm"><i class="md md-list" data-href="'.site_url($this->module['route'] . '/index_aircraft_component/' . $row['id']).'"></i><small class="top right">Show Component</small></a>';
         $col['DT_RowId'] = 'row_'. $row['id'];
         $col['DT_RowData']['pkey']  = $row['id'];
-        $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+        $col['DT_RowAttr']['onClick']     = '';
+        $col['DT_RowAttr']['data-id']     = $row['id'];
         $col['DT_RowAttr']['data-target'] = '#data-modal';
         $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/edit/'. $row['id']);
 
@@ -68,6 +73,7 @@ class Pesawat extends MY_Controller
           "recordsTotal"    => $this->model->countIndex(),
           "recordsFiltered" => $this->model->countIndexFiltered(),
           "data"            => $data,
+          "total"           => array()
        );
     }
 
@@ -172,19 +178,17 @@ class Pesawat extends MY_Controller
     $this->authorized($this->module, 'index');
     $aircraft = $this->model->findById($aircraft_id);
 
-    $this->data['page']['title']            = 'Component Status '.$aircraft['nama_pesawat'];
-    $this->data['page']['requirement']      = array('datatable', 'form_create', 'form_edit');
-    $this->data['page']['aircraft_id']      = $aircraft_id;
-    $this->data['page']['aircraft_code']    = $aircraft['nama_pesawat'];
-    $this->data['grid']['column']           = array_values($this->model->getSelectedColumnsAircraftComponent());
-    $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_aircraft_component/'.$aircraft_id);
-    $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = NULL;
-    $this->data['grid']['order_columns']    = array (
-      // 0 => array ( 0 => 1, 1 => 'asc' ),
-      // 1 => array ( 0 => 2, 1 => 'asc' ),
-      // 2 => array ( 0 => 3, 1 => 'desc' ),
-    );
+    $this->data['page']['title']              = 'Component Status : '.$aircraft['nama_pesawat'];
+    $this->data['page']['aircraft_id']        = $aircraft_id;
+    $this->data['page']['aircraft_code']      = $aircraft['nama_pesawat'];
+    $this->data['aircraft']                   = $aircraft;
+    $this->data['aircraft']['component_system']                 = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'system');
+    $this->data['aircraft']['component_engine_instrument']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'engine instrument');
+    $this->data['aircraft']['component_flight_instrument']      = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'flight instrument');
+    $this->data['aircraft']['component_avionics']               = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'avionics');
+    $this->data['aircraft']['component_modification']           = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'modification');
+    $this->data['aircraft']['component_engine']           = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'engine');
+    $this->data['aircraft']['component_other']           = $this->model->findByComponentPesawatByAircraftId($aircraft_id,'other');
 
     $this->render_view($this->module['view'] .'/component/index');
   }
@@ -287,7 +291,8 @@ class Pesawat extends MY_Controller
       $_SESSION['component']['type']                  = $type;
       $_SESSION['component']['installation_date']     = date('Y-m-d');
       $_SESSION['component']['installation_by']       = config_item('auth_person_name');
-      $_SESSION['component']['source']                = isComponentExist($aircraft['nama_pesawat'])? 'change':'new';
+      $_SESSION['component']['source']                = 'new';
+      // $_SESSION['component']['source']                = isComponentExist($aircraft['nama_pesawat'],$type)? 'change':'new';
 
       redirect($this->module['route'] .'/create_component');
     }
@@ -354,16 +359,14 @@ class Pesawat extends MY_Controller
             'issuance_item_id'        => $_SESSION['component']['source']=='change'?$issuance_item_id:null,
             'unit'                    => $issuance_item['unit'],
             'historical'              => NULL,
-            // 'interval'                => null,
-            // 'af_tsn'                  => null,
-            // 'equip_tsn'               => null,
-            // 'tso'                     => null,
-            // 'due_at_af_tsn'           => null,
-            // 'remaining'               => null,
-            // 'remarks'                 => null,
-            // 'quantity'                => $_SESSION['component']['source']=='change'?$issuance_item['issued_quantity']:null,
-            // 'condition'               => $_SESSION['component']['source']=='change'?$issuance_item['condition']:null,
-            
+            'interval'                => null,
+            'interval_satuan'         => null,
+            'af_tsn'                  => null,
+            'equip_tsn'               => null,
+            'tso'                     => null,
+            'next_due_date'           => null,
+            'next_due_hour'           => null,
+            'remarks'                 => null,            
           );
         }
 
@@ -398,7 +401,7 @@ class Pesawat extends MY_Controller
         $item_id                  = $this->input->post('item_id');
         $part_number              = $this->input->post('part_number');
         $issuance_document_number = $this->input->post('issuance_document_number');
-        $issued_item_id           = $this->input->post('issued_item_id');
+        $issuance_item_id           = $this->input->post('issuance_item_id');
         $serial_number            = $this->input->post('serial_number');
         $alternate_part_number    = $this->input->post('alternate_part_number');
         $description              = $this->input->post('description');
@@ -406,7 +409,14 @@ class Pesawat extends MY_Controller
         $group                    = $this->input->post('group');
         $previous_component_id    = $this->input->post('previous_component_id');
         $installation_date        = $this->input->post('installation_date');
-        $historical        = $this->input->post('historical');
+        $remarks                  = $this->input->post('remarks');
+        $interval                 = $this->input->post('interval');
+        $interval_satuan          = $this->input->post('interval_satuan');
+        $af_tsn                   = $this->input->post('af_tsn');
+        $equip_tsn                = $this->input->post('equip_tsn');
+        $tso                      = $this->input->post('tso');
+        $next_due_date            = $this->input->post('next_due_date');
+        $next_due_hour            = $this->input->post('next_due_hour');
 
         $_SESSION['component']['items'] = array();
         foreach ($part_number as $key=>$part_number) {
@@ -422,14 +432,14 @@ class Pesawat extends MY_Controller
             'unit'                    => $unit[$key],
             'previous_component_id'   => $previous_component_id[$key],
             'installation_date'       => $installation_date[$key],            
-            'historical'              => $historical[$key],
-            'interval'                => null,
-            'af_tsn'                  => null,
-            'equip_tsn'               => null,
-            'tso'                     => null,
-            'due_at_af_tsn'           => null,
-            'remaining'               => null,
-            'remarks'                 => null,
+            'interval_satuan'         => trim($interval_satuan[$key]),
+            'interval'                => $interval[$key],
+            'af_tsn'                  => $af_tsn[$key],
+            'equip_tsn'               => $equip_tsn[$key],
+            'tso'                     => $tso[$key],
+            'next_due_date'           => $next_due_date[$key],
+            'next_due_hour'           => $next_due_hour[$key],
+            'remarks'                 => $remarks[$key],
             'quantity'                => null,
             'condition'               => null,
           );
@@ -590,5 +600,214 @@ class Pesawat extends MY_Controller
     }
 
     echo json_encode($data);
+  }
+
+  public function search_items_by_serial()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $entities = $this->model->searchItemsBySerial(config_item('auth_inventory'));
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['serial_number'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function search_items_by_part_number()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $entities = $this->model->searchItemsByPartNumber(config_item('auth_inventory'));
+
+    foreach ($entities as $key => $value){
+      $entities[$key]['label'] = $value['description'].' || P/N : '.$value['part_number'].' || S/N : '.$value['serial_number'];
+    }
+
+    echo json_encode($entities);
+  }
+
+  public function add_item()
+  {
+    $this->authorized($this->module, 'create_component');
+
+    if (isset($_POST) && !empty($_POST)){
+      $_SESSION['component']['items'][] = array(
+        'group'                   => $this->input->post('group'),
+        'description'             => trim(strtoupper($this->input->post('description'))),
+        'part_number'             => trim(strtoupper($this->input->post('part_number'))),
+        'alternate_part_number'   => trim(strtoupper($this->input->post('alternate_part_number'))),
+        'serial_number'           => trim(strtoupper($this->input->post('serial_number'))),
+        'unit'                    => trim($this->input->post('unit')),
+        'installation_date'       => $this->input->post('installation_date'),            
+        'interval_satuan'         => $this->input->post('interval_satuan'),
+        'interval'                => $this->input->post('interval'),
+        'af_tsn'                  => $this->input->post('af_tsn'),
+        'equip_tsn'               => $this->input->post('equip_tsn'),
+        'tso'                     => $this->input->post('tso'),
+        'next_due_date'           => $this->input->post('next_due_date'),
+        'next_due_hour'           => $this->input->post('next_due_hour'),
+        'remarks'                 => $this->input->post('remarks'),
+        'quantity'                => null,
+        'condition'               => null,
+        'item_id'                 => null,
+        'previous_component_id'   => null,
+        'issuance_item_id'        => null,
+        
+      );
+    }
+
+    redirect($this->module['route'] .'/create_component');
+  }
+
+  public function component_import()
+  {
+    // $this->authorized($this->module, 'import');
+
+    $this->load->library('form_validation');
+
+    if (isset($_POST) && !empty($_POST)){
+      $this->form_validation->set_rules('delimiter', 'Value Delimiter', 'trim|required');
+
+      if ($this->form_validation->run() === TRUE){
+        $file       = $_FILES['userfile']['tmp_name'];
+        $delimiter  = $this->input->post('delimiter');
+        $aircraft_id  = $this->input->post('aircraft_id');
+
+        if (($handle = fopen($file, "r")) !== FALSE){
+          $row     = 1;
+          $data    = array();
+          $errors  = array();
+          $user_id = array();
+          $index   = 0;
+          fgetcsv($handle); // skip first line (as header)
+
+          //... parsing line
+          while (($col = fgetcsv($handle, 1024, $delimiter)) !== FALSE)
+          {
+            $row++;
+
+            $type                   = trim(($col[0]));
+            $group                  = trim(strtoupper($col[1]));
+            $part_number            = trim(strtoupper($col[2]));
+            $alternate_part_number  = trim(strtoupper($col[3]));
+            $serial_number          = trim(strtoupper($col[4]));
+            $description            = trim(strtoupper($col[5]));
+            $unit                   = trim(strtoupper($col[6]));
+            $installation_date      = trim(strtoupper($col[7]));
+            $status_date            = trim(strtoupper($col[8]));
+            $interval               = trim(strtoupper($col[9]));
+            $interval_satuan        = trim(strtoupper($col[10]));
+            $af_tsn                 = trim(strtoupper($col[11]));
+            $equip_tsn              = trim(strtoupper($col[12]));
+            $tso                    = trim(strtoupper($col[13]));
+            $due_at_af_tsn_hour     = trim(strtoupper($col[14]));
+            $due_at_af_tsn_date     = trim(strtoupper($col[15]));
+            $remarks                = trim(strtoupper($col[16]));
+            $install_by             = trim(strtoupper($col[17]));
+            // $remarks                = trim(strtoupper($col[18]));
+
+            if ($type === null){
+              $errors[] = 'Line '. $row .': Type can`t be empty!';
+            }else{
+              if(!in_array($type,array_values(config_item('component_type')))){
+                $errors[] = 'Line '. $row .': Type '.$type.' is one of '.implode(",", array_values(config_item('component_type')));
+              }            
+            }
+
+            if($group==''){
+              $errors[] = 'Line '. $row .': Group can`t be empty!';
+            }else{
+              if(!in_array($group,available_item_groups(['SPARE PART','TOOLS']))){
+                $errors[] = 'Line '. $row .': Group '.$group.' is one of '.implode(",", available_item_groups(['SPARE PART','TOOLS']));
+              }            
+            }
+
+            if($part_number==''){
+              $errors[] = 'Line '. $row .': Part Number can`t be empty!';
+            }
+
+            if($description==''){
+              $errors[] = 'Line '. $row .': Description can`t be empty!';
+            }
+
+            if($unit==''){
+              $errors[] = 'Line '. $row .': Unit can`t be empty!';
+            }
+
+            if($installation_date==''){
+              $errors[] = 'Line '. $row .': Installation Date can`t be empty!';
+            }            
+
+            if($interval_satuan!=''){
+              if(!in_array($interval_satuan,['FH','MTHS'])){
+                $errors[] = 'Line '. $row .': Interval Satuan must be one of FH or MTHS. Your interal Satuan is '.$interval_satuan;
+              }              
+            }
+
+            if($af_tsn==''){
+              $errors[] = 'Line '. $row .': AF TSN can`t be empty! Minimal 0';
+            }
+
+            $data[$row]['type']                   = $type;
+            $data[$row]['group']                  = $group;
+            $data[$row]['part_number']            = $part_number;
+            $data[$row]['alternate_part_number']  = $alternate_part_number;
+            $data[$row]['serial_number']          = $serial_number;
+            $data[$row]['description']            = $description;
+            $data[$row]['unit']                   = $unit;
+            $data[$row]['installation_date']      = $installation_date;
+            $data[$row]['interval']               = $interval;
+            $data[$row]['interval_satuan']        = $interval_satuan;
+            $data[$row]['af_tsn']                 = $af_tsn;
+            $data[$row]['equip_tsn']              = $equip_tsn;
+            $data[$row]['tso']                    = $tso;
+            $data[$row]['due_at_af_tsn_hour']     = $due_at_af_tsn_hour;
+            $data[$row]['due_at_af_tsn_date']     = $due_at_af_tsn_date;
+            $data[$row]['install_by']             = $install_by;
+            // $data[$row]['remaining_date']         = $remaining_date;
+            $data[$row]['remarks']                = $remarks;
+            $data[$row]['status_date']            = $status_date;
+            $data[$row]['aircraft_id']            = $aircraft_id;
+            // $row++;
+          }
+          fclose($handle);
+
+          if (empty($errors)){
+            /**
+              * Insert into user table
+            */
+            if ($this->model->component_import($data)){
+              //... send message to view
+              $this->session->set_flashdata('alert', array(
+                'type' => 'success',
+                'info' => count($data)." data has been imported!"
+              ));
+
+              redirect($this->module['route'] . '/index_aircraft_component/' . $aircraft_id);
+            }
+          } else {
+            foreach ($errors as $key => $value){
+              $err[] = "\n#". $value;
+            }
+
+            $this->session->set_flashdata('alert', array(
+              'type' => 'danger',
+              'info' => "There are errors on data\n#". implode("\n#", $errors)
+            ));
+          }
+        } else {
+          $this->session->set_flashdata('alert', array(
+            'type' => 'danger',
+            'info' => 'Cannot open file!'
+          ));
+        }
+      }
+    }
+
+    redirect($this->module['route']. '/index_aircraft_component/' . $aircraft_id);
   }
 }

@@ -882,6 +882,7 @@ if ( ! function_exists('pesawat')) {
 
     $CI->db->select('nama_pesawat');
     $CI->db->from('tb_master_pesawat');
+    $CI->db->order_by('nama_pesawat');
 
     $query  = $CI->db->get();
     $result = $query->result_array();
@@ -2166,11 +2167,15 @@ if (!function_exists('currency_for_vendor_list')) {
         }
       }else if($status=='waiting'){
         //untuk purchase request maintenance
-        if($head_dept==config_item('auth_username')){
-          return true;
+        if(config_item('as_head_department')=='yes'){
+          if($head_dept==config_item('auth_username')){
+            return true;
+          }else{
+            return false;
+          }
         }else{
-          return false;
-        }
+          return true;
+        } 
       }else{
         return true;
       }
@@ -2979,10 +2984,10 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
   
-      $CI->db->select('alternate_warehouse_name');
+      $CI->db->select('tb_master_warehouses.*');
       $CI->db->from('tb_master_warehouses');
       $CI->db->where('UPPER(status)', 'AVAILABLE');
-      $CI->db->where('alternate_warehouse_name is NOT NULL', NULL, FALSE);
+      // $CI->db->where('alternate_warehouse_name is NOT NULL', NULL, FALSE);
   
       if ($warehouse !== NULL){
         if (is_array($warehouse)){
@@ -2994,13 +2999,13 @@ if (!function_exists('currency_for_vendor_list')) {
   
       $query  = $CI->db->get();
       $result = $query->result_array();
-      $return = array();
+      // $return = array();
   
-      foreach ($result as $row) {
-        $return[] = $row['alternate_warehouse_name'];
-      }
+      // foreach ($result as $row) {
+      //   $return[] = $row['alternate_warehouse_name'];
+      // }
   
-      return $return;
+      return $result;
     }
   }
 
@@ -3030,7 +3035,7 @@ if (!function_exists('currency_for_vendor_list')) {
   
       $CI->db->from('tb_aircraft_components');
       $CI->db->where('aircraft_code', strtoupper($aircraft_code));
-      $CI->db->where('type', strtoupper($type));
+      $CI->db->where('type', $type);
 
       $num_rows = $CI->db->count_all_results();
 
@@ -3537,5 +3542,31 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+
+  if ( ! function_exists('getAircraftByRegisterNumber')) {
+    function getAircraftByRegisterNumber($aircraft_register_number)
+    {   
+      $CI->db->from('tb_master_pesawat');
+      $CI->db->where('tb_master_pesawat.nama_pesawat',$aircraft_register_number);
+  
+      $query  = $CI->db->get();
+      $result = $query->unbuffered_row('array');
+  
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getAircraftComponentById')) {
+    function getAircraftComponentById($id)
+    {
+      $CI->db->from('tb_aircraft_components');
+      $CI->db->where('tb_aircraft_components.id',$id);
+  
+      $query  = $CI->db->get();
+      $result = $query->unbuffered_row('array');
+  
+      return $result;
+    }
+  }
 
     

@@ -16,25 +16,31 @@
                     <?php if ($_SESSION['component']['source']=='change'):?>
                     <th class="middle-alignment">Item yg off</th>
                     <?php endif; ?>
-                    <th class="middle-alignment">P/N</th>
-                    <th class="middle-alignment">S/N</th>
-                    <th class="middle-alignment">Alt. P/N</th>
-                    <th class="middle-alignment">Description</th>
-                    <th class="middle-alignment">Unit</th>
-                    <th class="middle-alignment">Group</th>
-                    <!-- <th class="middle-alignment">Interval</th> -->
-                    <th class="middle-alignment">Installation Date</th>
-                    <th class="middle-alignment">Historical</th>
-                    <!-- <th class="middle-alignment">Equip TSN</th>
-                    <th class="middle-alignment">TSO</th>
-                    <th class="middle-alignment">Remarks</th> -->
-                    <th class="middle-alignment"></th>
-                </tr>              
+                    <th class="middle-alignment" rowspan="2">P/N</th>
+                    <th class="middle-alignment" rowspan="2">S/N</th>
+                    <th class="middle-alignment" rowspan="2">Alt. P/N</th>
+                    <th class="middle-alignment" rowspan="2">Description</th>
+                    <th class="middle-alignment" rowspan="2">Unit</th>
+                    <th class="middle-alignment" rowspan="2">Group</th>
+                    <th class="middle-alignment" rowspan="2">Interval</th>
+                    <th class="middle-alignment" colspan="4">Installation</th>
+                    <th class="middle-alignment" colspan="2">Next Due</th>
+                    <th class="middle-alignment" rowspan="2">Remarks</th>
+                    <th class="middle-alignment" rowspan="2"></th>
+                </tr>  
+                <tr>  
+                  <th class="middle-alignment">Date</th>
+                  <th class="middle-alignment">AF TSN</th>
+                  <th class="middle-alignment">PART TSN</th>
+                  <th class="middle-alignment">PART TSO</th>
+                  <th class="middle-alignment">Date</th>
+                  <th class="middle-alignment">Hour</th>
+                </tr>          
             </thead>
             <tbody>
               <?php $no = 1;?>
               <?php foreach ($_SESSION['component']['items'] as $id => $item) : ?>
-              <tr id="row_2_<?= $id; ?>">
+              <tr id="row_1_<?= $id; ?>">
                 <!-- <td rowspan="1"> <?= $no++; ?></td> -->
                 <?php if ($_SESSION['component']['source']=='change'):?>
                 <td rowspan="2"> 
@@ -63,47 +69,39 @@
                   <input value="<?= $item['group']?>" type="text" name="group[]" data-tag-name="group" data-search-for="description" class="form-control input-sm" placeholder="Description" required>
                 </td>
                 <td> 
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <input type="number" data-search-for="interval" name="interval[]" class="form-control input-sm" value="<?=$item['interval']?>">
+                    </div>
+                    <div class="col-lg-6">
+                      <input type="text" data-search-for="interval_satuan" name="interval_satuan[]" class="form-control input-sm" value="<?=$item['interval_satuan']?>">
+                    </div>
+                  </div>
+                </td>
+                <td> 
                   <input type="date" name="installation_date[]" class="form-control input-sm" value="<?=$item['installation_date']?>" required>
                 </td>
-                <td>                  
-                  <input value="<?= $item['historical']?>" type="text" name="historical[]" data-tag-name="historical" data-search-for="historical" class="form-control input-sm" placeholder="Historical" required>
+                <td> 
+                  <input type="number" data-search-for="af_tsn" name="af_tsn[]" class="form-control input-sm" value="<?=$item['af_tsn']?>">
                 </td>
-                <!-- <td> 
-                  <input type="number" data-search-for="interval" name="items[<?= $id; ?>][interval]" class="form-control input-sm" value="<?=$item['interval']?>" required>
+                <td> 
+                  <input type="number" data-search-for="equip_tsn" name="equip_tsn[]" class="form-control input-sm" value="<?=$item['equip_tsn']?>">
+                </td>
+                <td> 
+                  <input type="number" data-search-for="tso" name="tso[]" class="form-control input-sm" value="<?=$item['tso']?>">
+                </td>
+                <td> 
+                  <input type="date" name="next_due_date[]" class="form-control input-sm" value="<?=$item['next_due_date']?>">
+                </td>
+                <td> 
+                  <input type="number" data-search-for="next_due_hour" name="next_due_hour[]" class="form-control input-sm" value="<?=$item['next_due_hour']?>">
                 </td>
                 <td rowspan="2"> 
-                  <input type="date" data-search-for="installation_date" name="items[<?= $id; ?>][installation_date]" class="form-control input-sm" value="<?=$item['installation_date']?>" required>
+                  <input type="text" data-search-for="remarks" name="remarks[]" class="form-control input-sm" value="<?=$item['remarks']?>" required>
                 </td>
-                <td> 
-                  <input type="number" data-search-for="af_tsn" name="items[<?= $id; ?>][af_tsn]" class="form-control input-sm" value="<?=$item['af_tsn']?>" required>
-                </td>
-                <td> 
-                  <input type="number" data-search-for="equip_tsn" name="items[<?= $id; ?>][equip_tsn]" class="form-control input-sm" value="<?=$item['equip_tsn']?>" required>
-                </td>
-                <td> 
-                  <input type="number" data-search-for="tso" name="items[<?= $id; ?>][tso]" class="form-control input-sm" value="<?=$item['tso']?>" required>
-                </td>
-                <td rowspan="2"> 
-                  <input type="text" data-search-for="remarks" name="items[<?= $id; ?>][remarks]" class="form-control input-sm" value="<?=$item['remarks']?>" required>
-                </td> -->
-                <td></td>
-              </tr>
-              <!-- <tr id="row_2_<?= $id; ?>">
-                <td> 
-                  <input type="number" data-search-for="interval" name="items[<?= $id; ?>][interval]" class="form-control input-sm" value="<?=$item['interval']?>" required>
-                </td>
-                <td> 
-                  <input type="number" data-search-for="af_tsn" name="items[<?= $id; ?>][af_tsn]" class="form-control input-sm" value="<?=$item['af_tsn']?>" required>
-                </td>
-                <td> 
-                  <input type="number" data-search-for="equip_tsn" name="items[<?= $id; ?>][equip_tsn]" class="form-control input-sm" value="<?=$item['equip_tsn']?>" required>
-                </td>
-                <td> 
-                  <input type="number" data-search-for="tso" name="items[<?= $id; ?>][tso]" class="form-control input-sm" value="<?=$item['tso']?>" required>
-                </td>
-                  
-              </tr> -->
                 
+                <td></td>
+              </tr>                
               <?php endforeach; ?>
             </tbody>
           </table>

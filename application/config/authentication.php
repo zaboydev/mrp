@@ -56,8 +56,9 @@ $config['levels_and_roles'] = array(
 	'27' 	=> 'MECHANIC',
 	'28'	=> 'QUALITY CONTROL',
 	'29'	=> 'PPC',
-	'30'	=> 'HR STAFF',
-	'31'	=> 'HR MANAGER',
+	'30'	=> 'ENGINEER',
+	'31'	=> 'HR STAFF',
+	'32'	=> 'HR MANAGER'
 );
 
 /*

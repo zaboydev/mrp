@@ -1140,8 +1140,8 @@ class Purchase_Request extends MY_Controller
 
   public function get_head_dept_user()
   {
-    if ($this->input->is_ajax_request() === FALSE)
-      redirect($this->modules['secure']['route'] . '/denied');
+    // if ($this->input->is_ajax_request() === FALSE)
+    //   redirect($this->modules['secure']['route'] . '/denied');
 
     $department_id = $_SESSION['request']['department_id'];
     $entities = list_user_in_head_department($department_id);

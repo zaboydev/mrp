@@ -26,7 +26,7 @@
 <?php startblock('datafilter') ?>
   <form method="post" class="form force-padding">
   <div class="form-group">
-    <input type="text" value="<?php echo $end_date;?>" name="start_date" id="start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control">
+    <input type="text" value="<?=$start_date;?>" name="start_date" id="start_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control">
     <input type="text"  value="<?php echo $end_date;?>" name="end_date" id="end_date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control">
     <label for="start_date">Date</label>
   </div>
@@ -58,6 +58,9 @@
   <div class="form-group">
     <label for="condition">Condition</label>
     <select class="form-control input-sm" id="condition" name="condition">
+      <option value="all condition">
+        All Condition
+      </option>
       <?php foreach (available_conditions() as $condition):?>
         <option value="<?=$condition;?>" <?=($condition == $selected_condition) ? 'selected' : '';?>>
           <?=$condition;?>

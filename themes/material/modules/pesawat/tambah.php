@@ -37,6 +37,11 @@
           </div>
 
           <div class="form-group">
+            <input type="text" name="aircraft_type" id="aircraft_type" class="form-control">
+            <label for="aircraft_type">Type</label>
+          </div>
+
+          <div class="form-group">
             <select name="engine_type" id="engine_type" class="form-control" required>
               <option value="single">Single Engine</option>
               <option value="multi">Multi Engine</option>
@@ -65,15 +70,18 @@
           </div>
 
           <div class="form-group">
-            <select name="base" id="base" class="form-control" required>
+            <select name="base" id="select_base" class="form-control" required>
               <option value=""></option>
-              <?php foreach (available_warehouses_alternate_name() as $base_alternate_name) : ?>
-                <option value="<?= $base_alternate_name; ?>">
-                  <?= $base_alternate_name; ?>
+              <?php foreach (available_warehouses_alternate_name() as $base) : ?>
+                <option value="<?= $base['warehouse']; ?>">
+                  <?= $base['warehouse']; ?> 
+                  <?php if($base['alternate_warehouse_name']!=NULL): ?>
+                  (<?= $base['alternate_warehouse_name']; ?>)
+                  <?php endif;?>
                 </option>
               <?php endforeach; ?>
             </select>
-            <label for="base">Base</label>
+            <label for="select_base">Base</label>
           </div>
           <div class="form-group">
             <textarea name="keterangan" id="keterangan" class="form-control" rows="4"></textarea>
@@ -102,7 +110,7 @@
             </div>
           </div>
           <div class="form-group" style="padding-top: 25px;">
-            <label for="instrument_nf">Instrument NF</label>
+            <label for="instrument_nf">Instrument</label>
             <select style="width: 100%" multiple="multiple" name="instrument_nf[]" id="instrument_nf" class="form-control select2" required>
             <?php foreach ($this->config->item('instrument_nf') as $instrument_nf) : ?>
               <option value="<?= $instrument_nf; ?>">
@@ -113,7 +121,7 @@
           </div>
 
           <div class="form-group" style="padding-top: 25px;">
-            <label for="instrument_avionic">Instrument Avionic</label>
+            <label for="instrument_avionic">Avionic</label>
             <select style="width: 100%" multiple="multiple" name="instrument_avionic[]" id="instrument_avionic" class="form-control select2" required>
             <?php foreach ($this->config->item('instrument_avionic') as $instrument_avionic) : ?>
               <option value="<?= $instrument_avionic; ?>">

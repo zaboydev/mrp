@@ -248,7 +248,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $this->connection->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
             }
         } else {
-            $this->connection->order_by('id', 'desc');
+            $this->connection->order_by('tb_request_payments.tanggal', 'desc');
         }
 
         if ($_POST['length'] != -1)
@@ -1372,7 +1372,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->join('tb_expense_purchase_requisition_details', 'tb_expense_purchase_requisition_details.expense_purchase_requisition_id = tb_expense_purchase_requisitions.id');
         $this->connection->join('tb_annual_cost_centers', 'tb_annual_cost_centers.id = tb_expense_purchase_requisitions.annual_cost_center_id');
         $this->connection->join('tb_cost_centers', 'tb_cost_centers.id = tb_annual_cost_centers.cost_center_id');
-        $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
+        // $this->connection->where('tb_annual_cost_centers.year_number',$this->budget_year);
         $this->connection->where_in('tb_expense_purchase_requisitions.status',['approved','PAYMENT PURPOSED']);
         $this->connection->where('tb_expense_purchase_requisitions.with_po','f');
         $this->connection->group_by(

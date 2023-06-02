@@ -336,11 +336,11 @@ class Capex_Purchase_Order_Model extends MY_Model
 
     if ((config_item('auth_role') == 'ASSISTANT HOS')
      && $row['review_status']=='WAITING FOR AHOS REVIEW') {
-      $level = 21;
-      $this->db->set('review_status', strtoupper("waiting for PROC MNG review"));
+      $level = 14;
+      $this->db->set('review_status', strtoupper("waiting for finance review"));
       $this->db->set('check_review_by', config_item('auth_person_name'));
       $this->db->set('check_review_at', date('Y-m-d'));
-      $status_prl = 'PO Approved by ASSISTANT HOS, waiting for PROCUREMENT MANAGER review';
+      $status_prl = 'PO Approved by ASSISTANT HOS, waiting for Finance review';
     }
 
     if ((config_item('auth_role') == 'PROCUREMENT MANAGER')
@@ -1031,7 +1031,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->set('updated_at', date('Y-m-d'));
     $this->db->set('updated_by', config_item('auth_person_name'));
     if($base=='JAKARTA' || $base=='WISNU'){
-      $this->db->set('review_status', strtoupper('waiting for proc mng review'));
+      $this->db->set('review_status', strtoupper('waiting for finance review'));
     }else{
       $this->db->set('review_status', strtoupper('waiting for ahos review'));
     }
@@ -1178,7 +1178,7 @@ class Capex_Purchase_Order_Model extends MY_Model
     $this->db->trans_commit();
     $this->connection->trans_commit();
     if($base=='JAKARTA' || $base=='WISNU'){
-      $this->send_mail($id_po, 21);
+      $this->send_mail($id_po, 14);
     }else{
       $this->send_mail($id_po, 22);
     }

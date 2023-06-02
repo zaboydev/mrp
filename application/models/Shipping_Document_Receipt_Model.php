@@ -218,6 +218,7 @@ class Shipping_Document_Receipt_Model extends MY_Model
       'tb_issuance_items.*',
       'tb_stocks.condition',
       'tb_stock_in_stores.stores',
+      'tb_stock_in_stores.stock_id',
       'tb_master_items.serial_number',
       'tb_master_items.part_number',
       'tb_master_items.description',
@@ -375,7 +376,8 @@ class Shipping_Document_Receipt_Model extends MY_Model
           /**
            * ADD ITEM INTO STOCK
            */
-          $stock_id   = getStockId($item_id, strtoupper($data['condition']));
+          // $stock_id   = getStockId($item_id, strtoupper($data['condition']));
+          $stock_id   = $data['stock_id'];
           // $prev_stock = getStockActive($stock_id);
           // $next_stock = floatval($prev_stock->total_quantity) + floatval($data['received_quantity']);
           $prev_stock = getStockPrev($stock_id, $data['stores']);

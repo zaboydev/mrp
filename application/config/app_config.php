@@ -78,10 +78,12 @@ $config['source_poe'] = array(
 
 $config['component_type'] = array(
   'system'                        => 'system',
+  'engine'                        => 'engine',
   'engine instrument'             => 'engine instrument',
   'flight instrument'             => 'flight instrument',
   'avionics'                      => 'avionics',
   'modification'                  => 'modification',
+  'other'                         => 'other',
 );
 
 $config['instrument_nf'] = array(

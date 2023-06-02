@@ -692,7 +692,6 @@
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,
-                    "price": price
                   },
                   cache: false,
                   success: function(response) {

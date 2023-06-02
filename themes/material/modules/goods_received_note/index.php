@@ -74,15 +74,15 @@
     <label for="filter_condition">Condition</label>
     <select class="form-control input-sm filter_dropdown" data-column="4" id="filter_condition">
       <option value="">
-        SERVICEABLE
+        Not filtered
       </option>
 
       <?php foreach (config_item('condition') as $condition) : ?>
-        <?php if ($condition !== 'SERVICEABLE') : ?>
+        
           <option value="<?= $condition; ?>">
             <?= $condition; ?>
           </option>
-        <?php endif; ?>
+        
       <?php endforeach; ?>
     </select>
   </div>
