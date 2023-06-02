@@ -88,6 +88,8 @@ class Employee extends MY_Controller
 
         $this->data['page']['content']    = $this->module['view'] .'/create';
         $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+        $this->data['entity']             = $entity;
+        $this->data['title']                = $entity['name'].' '.$entity['employee_number'];
 
         $this->render_view($this->module['view'] .'/detail');
     }
