@@ -235,4 +235,26 @@ class Employee_Model extends MY_Model
         $this->db->trans_commit();
         return TRUE;
     }
+
+    public function get_unused_id(array $except = null)
+    {
+        $random_unique_int = 2147483648 + mt_rand(-2147482448, 2147483647);
+
+        if ($except !== null){
+        if (in_array($random_unique_int, $except))
+            return $this->get_unused_id();
+        }
+
+        $query = $this->db->where('user_id', $random_unique_int)
+        ->get_where('tb_auth_users');
+
+        if ($query->num_rows() > 0)
+        {
+        $query->free_result();
+
+        return $this->get_unused_id();
+        }
+
+        return $random_unique_int;
+    }
 }
