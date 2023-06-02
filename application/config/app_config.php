@@ -106,7 +106,8 @@ $config['modules_for_head_dept'] = array(
   'purchase_order_evaluation',
   'Expense Order Evaluation',
   'Capex Order Evaluation',
-  'business_trip_request'
+  'business_trip_request',
+  'sppd'
 );
 
 $config['type_reimbursement'] = array(
@@ -114,4 +115,12 @@ $config['type_reimbursement'] = array(
   'Ticket'          => 'Ticket',
   'Medical'         => 'Medical',
   'Others'          => 'Others'
+);
+
+$config['additional_modules_for_hr_depatment'] = array(
+  'level',
+  'tujuan_perjalanan_dinas',
+  'employee_benefit',
+  'user_position',
+  'employee',
 );

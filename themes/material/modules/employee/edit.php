@@ -197,6 +197,7 @@
                 <div class="row">
                     <div class="col-sm-12 col-lg-4">
                         <div class="form-group">
+                            <input type="hidden" value="<?=$entity['employee_id'];?>" name="employee_id" id="employee_id" class="form-control">
                             <input type="text" value="<?=$entity['employee_number'];?>" name="employee_number" id="employee_number" class="form-control" data-validation-rule="unique" data-validation-url="<?= site_url('ajax/employee_number_validation'); ?>" data-validation-exception="<?=$entity['employee_number'];?>" required>
                             <label for="employee_number">Employee Number</label>
                         </div>

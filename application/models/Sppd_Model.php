@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Business_Trip_Request_Model extends MY_Model
+class Sppd_Model extends MY_Model
 {
     protected $module;
 
@@ -8,7 +8,7 @@ class Business_Trip_Request_Model extends MY_Model
     {
         parent::__construct();
 
-        $this->module = config_item('module')['business_trip_request'];
+        $this->module = config_item('module')['sppd'];
         // $this->data['modules']        = $this->modules;
     }
 
@@ -20,11 +20,11 @@ class Business_Trip_Request_Model extends MY_Model
             'Status',
             'Document Date',
             'Department',
+            'SPD Number',
             'Person in Charge',
             'Destination',
-            'Duration',
             'Date',
-            'Purpose',
+            'Notes',
             'Approval Notes'
         );
         return $return;
@@ -33,9 +33,11 @@ class Business_Trip_Request_Model extends MY_Model
     public function getSearchableColumns()
     {
         return array(
-            'business_trip_destination',
-            'code',
-            'notes',
+            'tb_sppd.document_number',
+            'tb_sppd.status',
+            'tb_business_trip_purposes.document_number',
+            'tb_business_trip_purposes.person_name',
+            'tb_master_business_trip_destinations.business_trip_destination',
         );
     }
 
@@ -43,10 +45,15 @@ class Business_Trip_Request_Model extends MY_Model
     {
         return array(
             null,
-            'business_trip_destination',
-            null,
-            'notes',
-            'updated_at',
+            'tb_sppd.document_number',
+            'tb_sppd.status',
+            'tb_sppd.date',
+            NULL,
+            'tb_business_trip_purposes.document_number',
+            'tb_business_trip_purposes.person_name',
+            'tb_master_business_trip_destinations.business_trip_destination',
+            'tb_business_trip_purposes.date',
+            NULL,
         );
     }
 
@@ -56,24 +63,23 @@ class Business_Trip_Request_Model extends MY_Model
             $search_required_date = $_POST['columns'][1]['search']['value'];
             $range_date  = explode(' ', $search_required_date);
 
-            $this->db->where('tb_business_trip_purposes.date >= ', $range_date[0]);
-            $this->db->where('tb_business_trip_purposes.date <= ', $range_date[1]);
+            $this->db->where('tb_sppd.date >= ', $range_date[0]);
+            $this->db->where('tb_sppd.date <= ', $range_date[1]);
         }
 
         if (!empty($_POST['columns'][2]['search']['value'])){
             $search_status = $_POST['columns'][2]['search']['value'];
 
             if($search_status!='all'){
-                $this->db->where('tb_business_trip_purposes.status', $search_status);         
+                $this->db->where('tb_sppd.status', $search_status);         
             }            
-        }else{    
-            
+        }else{                
             if (in_array(config_item('auth_username'),config_item('hr_manager'))){                
-                $this->db->where_in('tb_business_trip_purposes.status ', ['WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY HEAD DEPT']);
+                $this->db->where_in('tb_sppd.status ', ['WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY HEAD DEPT']);
             }
             elseif (config_item('as_head_department')=='yes'){
-                $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
-                $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
+                $this->db->where('tb_sppd.status ', 'WAITING APPROVAL BY HEAD DEPT');
+                $this->db->where('tb_sppd.head_dept ', config_item('auth_username'));
             }
         }
 
@@ -99,14 +105,18 @@ class Business_Trip_Request_Model extends MY_Model
     function getIndex($return = 'array')
     {
         $selected = array(
-            'tb_business_trip_purposes.*',
+            'tb_sppd.*',
+            'tb_business_trip_purposes.document_number as spd_number',
+            'tb_business_trip_purposes.date as spd_date',
+            'tb_business_trip_purposes.person_name',
             'tb_master_business_trip_destinations.business_trip_destination'
         );
         $this->db->select($selected);
+        $this->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_sppd.spd_id');
         $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-        $this->db->from('tb_business_trip_purposes');
+        $this->db->from('tb_sppd');
         if(is_granted($this->module, 'approval') === FALSE){
-            $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
+            $this->db->where_in('tb_sppd.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
         }
 
         $this->searchIndex();
@@ -166,13 +176,21 @@ class Business_Trip_Request_Model extends MY_Model
     public function findById($id)
     {
         $selected = array(
-            'tb_business_trip_purposes.*',
+            'tb_sppd.*',
+            'tb_business_trip_purposes.document_number as spd_number',
+            'tb_business_trip_purposes.person_name',
+            'tb_business_trip_purposes.occupation',
+            'tb_business_trip_purposes.from_base',
+            'tb_business_trip_purposes.duration',
+            'tb_business_trip_purposes.start_date',
+            'tb_business_trip_purposes.end_date',
             'tb_master_business_trip_destinations.business_trip_destination'
         );
         $this->db->select($selected);
-        $this->db->where('tb_business_trip_purposes.id', $id);
+        $this->db->where('tb_sppd.id', $id);
+        $this->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_sppd.spd_id');
         $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-        $query      = $this->db->get('tb_business_trip_purposes');
+        $query      = $this->db->get('tb_sppd');
         $row        = $query->unbuffered_row('array');
 
         $cost_center    = findCostCenter($row['annual_cost_center_id']);
@@ -185,7 +203,7 @@ class Business_Trip_Request_Model extends MY_Model
 
         $this->db->select('*');
         $this->db->from('tb_business_trip_purpose_items');
-        $this->db->where('tb_business_trip_purpose_items.business_trip_purpose_id', $id);
+        $this->db->where('tb_business_trip_purpose_items.business_trip_purpose_id', $row['spd_id']);
 
         $query = $this->db->get();
 
@@ -224,8 +242,8 @@ class Business_Trip_Request_Model extends MY_Model
 
         // DELETE OLD DOCUMENT
         
-        if (isset($_SESSION['business_trip']['id'])) {
-            $id = $_SESSION['business_trip']['id'];
+        if (isset($_SESSION['sppd']['id'])) {
+            $id = $_SESSION['sppd']['id'];
 
             $this->db->select('*');
             $this->db->where('id', $id);
@@ -235,10 +253,10 @@ class Business_Trip_Request_Model extends MY_Model
             $row   = $query->unbuffered_row('array');
             
             $this->db->set('status','REVISED');
-            $this->db->where('id', $_SESSION['business_trip']['id']);
-            $this->db->update('tb_business_trip_purposes');
+            $this->db->where('id', $_SESSION['sppd']['id']);
+            $this->db->update('tb_sppd');
 
-            $this->db->set('document_type','SPD');
+            $this->db->set('document_type','SPPD');
             $this->db->set('document_number',$row['document_number']);
             $this->db->set('document_id', $id);
             $this->db->set('action','revised by');
@@ -246,7 +264,7 @@ class Business_Trip_Request_Model extends MY_Model
             $this->db->set('username', config_item('auth_username'));
             $this->db->set('person_name', config_item('auth_person_name'));
             $this->db->set('roles', config_item('auth_role'));
-            $this->db->set('notes', $_SESSION['business_trip']['approval_notes']);
+            $this->db->set('notes', $_SESSION['sppd']['approval_notes']);
             $this->db->set('sign', get_ttd(config_item('auth_person_name')));
             $this->db->set('created_at', date('Y-m-d H:i:s'));
             $this->db->insert('tb_signers');
@@ -260,111 +278,81 @@ class Business_Trip_Request_Model extends MY_Model
         }
 
         // CREATE NEW DOCUMENT
-        // $document_id      = (isset($_SESSION['business_trip']['id'])) ? $_SESSION['business_trip']['id'] : NULL;
-        $document_edit    = (isset($_SESSION['business_trip']['edit'])) ? $_SESSION['business_trip']['edit'] : NULL;
-        $document_number  = sprintf('%06s', $_SESSION['business_trip']['document_number']) . $_SESSION['business_trip']['format_number'];
-        $date             = $_SESSION['business_trip']['date'];
-        $cost_center_code           = $_SESSION['business_trip']['cost_center_code'];
-        $cost_center_name           = $_SESSION['business_trip']['cost_center_name'];
-        $annual_cost_center_id      = $_SESSION['business_trip']['annual_cost_center_id'];
-        $warehouse                  = $_SESSION['business_trip']['warehouse'];
-        $notes                      = $_SESSION['business_trip']['notes'];
-        $person_in_charge           = $_SESSION['business_trip']['person_in_charge'];
+        // $document_id      = (isset($_SESSION['sppd']['id'])) ? $_SESSION['sppd']['id'] : NULL;
+        $document_edit    = (isset($_SESSION['sppd']['edit'])) ? $_SESSION['sppd']['edit'] : NULL;
+        $document_number  = sprintf('%06s', $_SESSION['sppd']['document_number']) . $_SESSION['sppd']['format_number'];
+        $date             = $_SESSION['sppd']['date'];
+        $cost_center_code           = $_SESSION['sppd']['cost_center_code'];
+        $cost_center_name           = $_SESSION['sppd']['cost_center_name'];
+        $annual_cost_center_id      = $_SESSION['sppd']['annual_cost_center_id'];
+        $warehouse                  = $_SESSION['sppd']['warehouse'];
+        $notes                      = $_SESSION['sppd']['notes'];
+        $person_in_charge           = $_SESSION['sppd']['person_in_charge'];
         $selected_person            = getEmployeeByEmployeeNumber($person_in_charge);
         $person_name                = $selected_person['name'];
-        $department_id              = $_SESSION['business_trip']['department_id'];
-        $head_dept                      = $_SESSION['business_trip']['head_dept'];
-        $business_trip_destination_id   = $_SESSION['business_trip']['business_trip_destination_id'];
-        $duration                       = $_SESSION['business_trip']['duration'];
-        $dateline                       = $_SESSION['business_trip']['dateline'];
-        $occupation                     = $_SESSION['business_trip']['occupation'];
-        $phone_number                   = $_SESSION['business_trip']['phone_number'];
-        $id_number                      = $_SESSION['business_trip']['id_number'];
-        $start_date                     = $_SESSION['business_trip']['start_date'];
-        $end_date                       = $_SESSION['business_trip']['end_date'];
-        $from_base                      = $_SESSION['business_trip']['from_base'];
-        $transportation                 = $_SESSION['business_trip']['transportation'];
-        $command_by                     = $_SESSION['business_trip']['command_by'];
+        $department_id              = $_SESSION['sppd']['department_id'];
+        $head_dept                      = $_SESSION['sppd']['head_dept'];
+        $business_trip_destination_id   = $_SESSION['sppd']['business_trip_destination_id'];
+        $duration                       = $_SESSION['sppd']['duration'];
+        $dateline                       = $_SESSION['sppd']['dateline'];
+        $occupation                     = $_SESSION['sppd']['occupation'];
+        $phone_number                   = $_SESSION['sppd']['phone_number'];
+        $id_number                      = $_SESSION['sppd']['id_number'];
+        $start_date                     = $_SESSION['sppd']['start_date'];
+        $end_date                       = $_SESSION['sppd']['end_date'];
+        $from_base                      = $_SESSION['sppd']['from_base'];
+        $transportation                 = $_SESSION['sppd']['transportation'];
+        $command_by                     = $_SESSION['sppd']['command_by'];
+        $spd_id                         = $_SESSION['sppd']['spd_id'];
+        $spd                            = $this->findSpdById($spd_id);
         $level                          = getLevelByPosition($occupation);
 
         $this->db->set('annual_cost_center_id', $annual_cost_center_id);
         $this->db->set('warehouse', $warehouse);
         $this->db->set('document_number', $document_number);
-        $this->db->set('from_base', $from_base);
-        $this->db->set('business_trip_destination_id', $business_trip_destination_id);
-        $this->db->set('user_id', $person_in_charge);
-        $this->db->set('person_name', $person_name);
+        $this->db->set('spd_id', $spd_id);
+        $this->db->set('spd_number', $spd['document_number']);
         $this->db->set('date', $date);
-        $this->db->set('occupation', $occupation);
-        $this->db->set('id_number', $id_number);
-        $this->db->set('phone_number', $phone_number);
-        $this->db->set('transportation', $transportation);
-        $this->db->set('duration', $duration);
-        $this->db->set('start_date', $start_date);
-        $this->db->set('end_date', $end_date);
         $this->db->set('head_dept', $head_dept);
         $this->db->set('notes', $notes);
-        $this->db->set('command_by', $command_by);
-        if (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve') {
-            $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
-            $this->db->set('known_by',config_item('auth_person_name'));
-        }
-        $this->db->set('request_by', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$row['request_by']:config_item('auth_person_name'));
+        $this->db->set('request_by', (isset($_SESSION['sppd']['edit_type']) && $_SESSION['sppd']['edit_type']=='edit_approve')?$row['request_by']:config_item('auth_person_name'));
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('updated_by', config_item('auth_person_name'));
-        $this->db->insert('tb_business_trip_purposes');
+        $this->db->insert('tb_sppd');
         $document_id = $this->db->insert_id();
 
-        $this->db->set('document_type','SPD');
+        $this->db->set('document_type','SPPD');
         $this->db->set('document_number',$document_number);
         $this->db->set('document_id', $document_id);
         $this->db->set('action','requested by');
         $this->db->set('date', $date);
-        $this->db->set('username', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['username']:config_item('auth_username'));
-        $this->db->set('person_name', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['person_name']:config_item('auth_person_name'));
-        $this->db->set('roles', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['roles']:config_item('auth_role'));
+        $this->db->set('username', config_item('auth_username'));
+        $this->db->set('person_name', config_item('auth_person_name'));
+        $this->db->set('roles', config_item('auth_role'));
         $this->db->set('notes', null);
-        $this->db->set('sign', (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve')?$getSignRequestBy['sign']:get_ttd(config_item('auth_person_name')));
+        $this->db->set('sign', get_ttd(config_item('auth_person_name')));
         $this->db->set('created_at', date('Y-m-d H:i:s'));
         $this->db->insert('tb_signers');
 
-        if (isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve') {
-            $this->db->set('document_type','SPD');
-            $this->db->set('document_number',$document_number);
-            $this->db->set('document_id', $document_id);
-            $this->db->set('action','known by');
-            $this->db->set('date', date('Y-m-d'));
-            $this->db->set('username', config_item('auth_username'));
-            $this->db->set('person_name', config_item('auth_person_name'));
-            $this->db->set('roles', config_item('auth_role'));
-            $this->db->set('notes', $_SESSION['business_trip']['approval_notes']);
-            $this->db->set('sign', get_ttd(config_item('auth_person_name')));
-            $this->db->set('created_at', date('Y-m-d H:i:s'));
-            $this->db->insert('tb_signers');
+        $item_ids       = $this->input->post('item_id');
+        $qty            = $this->input->post('qty');
+        $amount         = $this->input->post('amount');
+        $total          = $this->input->post('total');
+
+        foreach ($item_ids as $key=>$item_id) {
+            $this->db->set('real_qty', $qty[$key]);
+            $this->db->set('real_amount', $amount[$key]);
+            $this->db->set('real_total', $total[$key]);
+            $this->db->where('id',$item_id);
+            $this->db->update('tb_business_trip_purpose_items');
         }
 
-        $expenses = destination_list_expense($business_trip_destination_id,$level);
-
-        foreach ($expenses as $expense) {
-            $qty = ceil($duration/$expense['day']);
-            $this->db->set('business_trip_purpose_id', $document_id);
-            $this->db->set('business_trip_destination_item_id', $expense['id']);
-            $this->db->set('expense_name', $expense['expense_name']);
-            $this->db->set('expense_description', NULL);
-            $this->db->set('qty', $qty);
-            $this->db->set('amount', $expense['amount']);
-            $this->db->set('total', $expense['amount']*$qty);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('updated_by', config_item('auth_person_name'));
-            $this->db->insert('tb_business_trip_purpose_items');
-        }
-
-        if(!empty($_SESSION['business_trip']['attachment'])){
-            foreach ($_SESSION["business_trip"]["attachment"] as $key) {
+        if(!empty($_SESSION['sppd']['attachment'])){
+            foreach ($_SESSION["sppd"]["attachment"] as $key) {
                 $this->db->set('id_poe', $document_id);
                 $this->db->set('id_po', $document_id);
                 $this->db->set('file', $key);
-                $this->db->set('tipe', 'SPD');
+                $this->db->set('tipe', 'SPPD');
                 $this->db->set('tipe_att', 'other');
                 $this->db->insert('tb_attachment_poe');
             }
@@ -373,7 +361,7 @@ class Business_Trip_Request_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return FALSE;
 
-        if(isset($_SESSION['business_trip']['edit_type']) && $_SESSION['business_trip']['edit_type']=='edit_approve'){
+        if(isset($_SESSION['sppd']['edit_type']) && $_SESSION['sppd']['edit_type']=='edit_approve'){
             $this->send_mail($document_id, 'hr_manager');
             $this->send_mail_approval($document_id,config_item('auth_person_name'),'edit_approve');
         }else{
@@ -389,7 +377,7 @@ class Business_Trip_Request_Model extends MY_Model
     {
         $this->db->trans_begin();
 
-        $id = $_SESSION['business_trip']['id'];
+        $id = $_SESSION['sppd']['id'];
 
         $this->db->select('*');
         $this->db->where('id', $id);
@@ -522,28 +510,32 @@ class Business_Trip_Request_Model extends MY_Model
 
         foreach ($document_id as $id) {
             $selected = array(
-                'tb_business_trip_purposes.*',
+                'tb_sppd.*',
+                'tb_business_trip_purposes.document_number as spd_number',
+                'tb_business_trip_purposes.date as spd_date',
+                'tb_business_trip_purposes.person_name',
                 'tb_master_business_trip_destinations.business_trip_destination'
             );
             $this->db->select($selected);
-            $this->db->where('tb_business_trip_purposes.id', $id);
+            $this->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_sppd.spd_id');
+            $this->db->where('tb_sppd.id', $id);
             $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-            $query      = $this->db->get('tb_business_trip_purposes');
-            $spd        = $query->unbuffered_row('array');
+            $query      = $this->db->get('tb_sppd');
+            $sppd        = $query->unbuffered_row('array');
 
-            $cost_center = findCostCenter($spd['annual_cost_center_id']);
+            $cost_center = findCostCenter($sppd['annual_cost_center_id']);
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            if($sppd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $sppd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
                 $this->db->set('known_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
-                $this->db->update('tb_business_trip_purposes');
+                $this->db->update('tb_sppd');
 
-                $this->db->set('document_type','SPD');
-                $this->db->set('document_number',$spd['document_number']);
+                $this->db->set('document_type','SPPD');
+                $this->db->set('document_number',$sppd['document_number']);
                 $this->db->set('document_id', $id);
                 $this->db->set('action','known by');
                 $this->db->set('date', date('Y-m-d'));
@@ -555,8 +547,24 @@ class Business_Trip_Request_Model extends MY_Model
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
 
-            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
-                
+            }elseif($sppd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                $this->db->set('status','APPROVED');
+                $this->db->set('approved_by',config_item('auth_person_name'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_sppd');
+
+                $this->db->set('document_type','SPPD');
+                $this->db->set('document_number',$sppd['document_number']);
+                $this->db->set('document_id', $id);
+                $this->db->set('action','approved by');
+                $this->db->set('date', date('Y-m-d'));
+                $this->db->set('username', config_item('auth_username'));
+                $this->db->set('person_name', config_item('auth_person_name'));
+                $this->db->set('roles', config_item('auth_role'));
+                $this->db->set('notes', $approval_notes[$x]);
+                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_signers');
             }
             $total++;
             $success++;
@@ -586,11 +594,15 @@ class Business_Trip_Request_Model extends MY_Model
 
         foreach ($document_id as $id) {
             $selected = array(
-                'tb_business_trip_purposes.*',
+                'tb_sppd.*',
+                'tb_business_trip_purposes.document_number as spd_number',
+                'tb_business_trip_purposes.date as spd_date',
+                'tb_business_trip_purposes.person_name',
                 'tb_master_business_trip_destinations.business_trip_destination'
             );
             $this->db->select($selected);
-            $this->db->where('tb_business_trip_purposes.id', $id);
+            $this->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_sppd.spd_id');
+            $this->db->where('tb_sppd.id', $id);
             $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
             $query      = $this->db->get('tb_business_trip_purposes');
             $spd        = $query->unbuffered_row('array');
@@ -604,9 +616,9 @@ class Business_Trip_Request_Model extends MY_Model
                 $this->db->set('status','REJECTED');
                 $this->db->set('rejected_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
-                $this->db->update('tb_business_trip_purposes');
+                $this->db->update('tb_sppd');
 
-                $this->db->set('document_type','SPD');
+                $this->db->set('document_type','SPPD');
                 $this->db->set('document_number',$spd['document_number']);
                 $this->db->set('document_id', $id);
                 $this->db->set('action','rejected by');
@@ -620,7 +632,23 @@ class Business_Trip_Request_Model extends MY_Model
                 $this->db->insert('tb_signers');
 
             }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
-                
+                $this->db->set('status','REJECTED');
+                $this->db->set('rejected_by',config_item('auth_person_name'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_sppd');
+
+                $this->db->set('document_type','SPPD');
+                $this->db->set('document_number',$spd['document_number']);
+                $this->db->set('document_id', $id);
+                $this->db->set('action','rejected by');
+                $this->db->set('date', date('Y-m-d'));
+                $this->db->set('username', config_item('auth_username'));
+                $this->db->set('person_name', config_item('auth_person_name'));
+                $this->db->set('roles', config_item('auth_role'));
+                $this->db->set('notes', $approval_notes[$x]);
+                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_signers');
             }
             $total++;
             $success++;
@@ -647,11 +675,11 @@ class Business_Trip_Request_Model extends MY_Model
             $keterangan = 'HR Manager';
         }elseif($next_approval=='head_dept'){
             $selected = array(
-                'tb_business_trip_purposes.*',
+                'tb_sppd.*',
             );
             $this->db->select($selected);
-            $this->db->where('tb_business_trip_purposes.id',$doc_id);
-            $query      = $this->db->get('tb_business_trip_purposes');
+            $this->db->where('tb_sppd.id',$doc_id);
+            $query      = $this->db->get('tb_sppd');
             $row        = $query->unbuffered_row('array');
             $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
             $keterangan = "Head Dept : " . $department['department_name'];
@@ -666,17 +694,21 @@ class Business_Trip_Request_Model extends MY_Model
 
         if(!empty($recipient)){
             $selected = array(
-                'tb_business_trip_purposes.*',
+                'tb_sppd.*',
+                'tb_business_trip_purposes.document_number as spd_number',
+                'tb_business_trip_purposes.date as spd_date',
+                'tb_business_trip_purposes.person_name',
                 'tb_master_business_trip_destinations.business_trip_destination'
             );
             $this->db->select($selected);
+            $this->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_sppd.spd_id');
             $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
             if(is_array($doc_id)){
-                $this->db->where_in('tb_business_trip_purposes.id',$doc_id);
+                $this->db->where_in('tb_sppd.id',$doc_id);
             }else{
-                $this->db->where('tb_business_trip_purposes.id',$doc_id);
+                $this->db->where('tb_sppd.id',$doc_id);
             }
-            $query      = $this->db->get('tb_business_trip_purposes');
+            $query      = $this->db->get('tb_sppd');
     
             $item_message = '<tbody>';
             foreach ($query->result_array() as $key => $item) {
@@ -696,12 +728,12 @@ class Business_Trip_Request_Model extends MY_Model
             $from_email = "bifa.acd@gmail.com";
             $to_email = "aidanurul99@rocketmail.com";
             $message = "<p>Dear ".$keterangan."</p>";
-            $message .= "<p>SPD Berikut perlu Persetujuan Anda </p>";
+            $message .= "<p>SPPD Berikut perlu Persetujuan Anda </p>";
             $message .= "<table style='border-collapse: collapse;padding: 1.2em 0;margin-bottom: 20pxwidth: 100%!important;background: #fff;'>";
             $message .= "<thead>";
             $message .= "<tr>";
             $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Date</th>";
-            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>No. SPD</th>";
+            $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>No. SPPD</th>";
             $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Name</th>";
             $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>From</th>";
             $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Destination</th>";
@@ -715,7 +747,7 @@ class Business_Trip_Request_Model extends MY_Model
             $message .= "<p>Thanks and regards</p>";
             $this->email->from($from_email, 'Material Resource Planning');
             $this->email->to($recipient);
-            $this->email->subject('Permintaan Approval SPD');
+            $this->email->subject('Permintaan Approval SPPD');
             $this->email->message($message);
             
     
@@ -734,17 +766,21 @@ class Business_Trip_Request_Model extends MY_Model
     public function send_mail_approval($doc_id,$approver,$status)
     {
         $selected = array(
-            'tb_business_trip_purposes.*',
+            'tb_sppd.*',
+            'tb_business_trip_purposes.document_number as spd_number',
+            'tb_business_trip_purposes.date as spd_date',
+            'tb_business_trip_purposes.person_name',
             'tb_master_business_trip_destinations.business_trip_destination'
         );
         $this->db->select($selected);
+        $this->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_sppd.spd_id');
         $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
         if(is_array($doc_id)){
-            $this->db->where_in('tb_business_trip_purposes.id',$doc_id);
+            $this->db->where_in('tb_sppd.id',$doc_id);
         }else{
-            $this->db->where('tb_business_trip_purposes.id',$doc_id);
+            $this->db->where('tb_sppd.id',$doc_id);
         }
-        $query      = $this->db->get('tb_business_trip_purposes');
+        $query      = $this->db->get('tb_sppd');
 
         $item_message = '<tbody>';
         foreach ($query->result_array() as $key => $item) {
@@ -761,7 +797,7 @@ class Business_Trip_Request_Model extends MY_Model
 
         $this->db->select('*');
         $this->db->from('tb_signers');
-        $this->db->where('tb_signers.document_type', 'SPD');
+        $this->db->where('tb_signers.document_type', 'SPPD');
         if(is_array($doc_id)){
             $this->db->where_in('tb_signers.document_id',$doc_id);
         }else{
@@ -798,7 +834,7 @@ class Business_Trip_Request_Model extends MY_Model
             $from_email = "bifa.acd@gmail.com";
             $to_email = "aidanurul99@rocketmail.com";
             // $message = "<p>Dear ".$keterangan."</p>";
-            $message .= "<p>SPD Berikut Telah ".$status_desc." oleh ".$approver."</p>";
+            $message .= "<p>SPPD Berikut Telah ".$status_desc." oleh ".$approver."</p>";
             $message .= "<table style='border-collapse: collapse;padding: 1.2em 0;margin-bottom: 20pxwidth: 100%!important;background: #fff;'>";
             $message .= "<thead>";
             $message .= "<tr>";
@@ -817,7 +853,7 @@ class Business_Trip_Request_Model extends MY_Model
             $message .= "<p>Thanks and regards</p>";
             $this->email->from($from_email, 'Material Resource Planning');
             $this->email->to($recipient);
-            $this->email->subject('Permintaan Approval SPD');
+            $this->email->subject('Permintaan Approval SPPD');
             $this->email->message($message);
             
     
@@ -873,5 +909,30 @@ class Business_Trip_Request_Model extends MY_Model
 
         $this->db->trans_commit();
         return TRUE;
+    }
+
+    public function findSpdById($id)
+    {
+        $selected = array(
+            'tb_business_trip_purposes.*',
+            'tb_master_business_trip_destinations.business_trip_destination'
+        );
+        $this->db->select($selected);
+        $this->db->where('tb_business_trip_purposes.id', $id);
+        $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+        $query      = $this->db->get('tb_business_trip_purposes');
+        $row        = $query->unbuffered_row('array');   
+
+        $this->db->select('*');
+        $this->db->from('tb_business_trip_purpose_items');
+        $this->db->where('tb_business_trip_purpose_items.business_trip_purpose_id', $id);
+
+        $query = $this->db->get();
+
+        foreach ($query->result_array() as $key => $value) {
+            $row['items'][$key] = $value;
+        }
+
+        return $row;
     }
 }

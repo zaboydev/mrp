@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Business_Trip_Request extends MY_Controller
+class Sppd extends MY_Controller
 {
     protected $module;
     protected $id_item=0;
@@ -9,7 +9,7 @@ class Business_Trip_Request extends MY_Controller
     {
         parent::__construct();
 
-        $this->module = $this->modules['business_trip_request'];
+        $this->module = $this->modules['sppd'];
         $this->load->model($this->module['model'], 'model');
         $this->load->helper($this->module['helper']);
         $this->load->library('upload');        
@@ -39,13 +39,14 @@ class Business_Trip_Request extends MY_Controller
                 $cost_center_code = $cost_center['cost_center_code'];
                 $cost_center_name = $cost_center['cost_center_name'];
                 $department_name = $cost_center['department_name'];
+                $approval_notes = getNotesFromSigner($row['id'],'SPPD',$row['status']);
                 if (viewOrNot($row['status'],$row['head_dept'],$department_name)){
                     $no++;
                     $col = array();
                     if (is_granted($this->module, 'approval')){
                         if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                        }if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                        }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                         }else{
                             $col[] = print_number($no);
@@ -57,18 +58,18 @@ class Business_Trip_Request extends MY_Controller
                     $col[] = print_string($row['status']);
                     $col[] = print_date($row['date']);
                     $col[] = print_string($cost_center['cost_center_name']);
+                    $col[] = print_string($row['spd_number']);
                     $col[] = print_string($row['person_name']);
                     $col[] = print_string($row['business_trip_destination']);
-                    $col[] = print_string($row['duration']);
-                    $col[] = print_date($row['start_date'], 'd M Y').' s/d '.print_date($row['end_date'], 'd M Y');
+                    $col[] = print_date($row['spd_date']);                    
                     $col[] = print_string($row['notes']);
                     if($row['status']=='approved' || $row['status']=='closed'){
-                        $col[] = '';
+                        $col[] = $approval_notes;
                     }else{
                         if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                         }else{
-                            $col[] = '';
+                            $col[] = $approval_notes;
                         }
                     }
                     
@@ -128,7 +129,7 @@ class Business_Trip_Request extends MY_Controller
         else
             $number = $_GET['data'];
 
-        $_SESSION['business_trip']['document_number'] = $number;
+        $_SESSION['sppd']['document_number'] = $number;
     }
 
     public function set_person_in_charge()
@@ -136,7 +137,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['person_in_charge'] = $_GET['data'];
+        $_SESSION['sppd']['person_in_charge'] = $_GET['data'];
     }
 
     public function set_occupation()
@@ -144,7 +145,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['occupation'] = $_GET['data'];
+        $_SESSION['sppd']['occupation'] = $_GET['data'];
     }
 
     public function set_dateline()
@@ -152,7 +153,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['dateline'] = $_GET['data'];
+        $_SESSION['sppd']['dateline'] = $_GET['data'];
     }
 
     public function set_duration()
@@ -160,7 +161,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['duration'] = $_GET['data'];
+        $_SESSION['sppd']['duration'] = $_GET['data'];
     }
 
     public function set_start_date()
@@ -168,7 +169,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['start_date'] = $_GET['data'];
+        $_SESSION['sppd']['start_date'] = $_GET['data'];
     }
 
     public function set_end_date()
@@ -176,7 +177,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['end_date'] = $_GET['data'];
+        $_SESSION['sppd']['end_date'] = $_GET['data'];
     }
 
     public function set_head_dept()
@@ -184,7 +185,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['head_dept'] = $_GET['data'];
+        $_SESSION['sppd']['head_dept'] = $_GET['data'];
     }
 
     public function set_id_number()
@@ -192,7 +193,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['id_number'] = $_GET['data'];
+        $_SESSION['sppd']['id_number'] = $_GET['data'];
     }
 
     public function set_phone_number()
@@ -200,7 +201,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['phone_number'] = $_GET['data'];
+        $_SESSION['sppd']['phone_number'] = $_GET['data'];
     }
 
     public function search_person_in_charge()
@@ -222,7 +223,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['from_base'] = $_GET['data'];
+        $_SESSION['sppd']['from_base'] = $_GET['data'];
     }
 
     public function set_transportation()
@@ -230,7 +231,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['transportation'] = $_GET['data'];
+        $_SESSION['sppd']['transportation'] = $_GET['data'];
     }
 
     public function set_destination()
@@ -238,7 +239,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['business_trip_destination_id'] = $_GET['data'];
+        $_SESSION['sppd']['business_trip_destination_id'] = $_GET['data'];
     }
 
     public function set_notes()
@@ -246,7 +247,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['notes'] = $_GET['data'];
+        $_SESSION['sppd']['notes'] = $_GET['data'];
     }
 
     public function set_command_by()
@@ -254,7 +255,7 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['command_by'] = $_GET['data'];
+        $_SESSION['sppd']['command_by'] = $_GET['data'];
     }
 
     public function set_approval_notes()
@@ -262,7 +263,27 @@ class Business_Trip_Request extends MY_Controller
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
 
-        $_SESSION['business_trip']['approval_notes'] = $_GET['data'];
+        $_SESSION['sppd']['approval_notes'] = $_GET['data'];
+    }
+
+    public function set_spd_id($spd_id)
+    {
+
+        $this->authorized($this->module, 'create');
+
+        $spd = $this->model->findSpdById($spd_id);
+
+        $_SESSION['sppd']['person_in_charge']               = $spd['user_id'];
+        $_SESSION['sppd']['occupation']                     = $spd['occupation'];
+        $_SESSION['sppd']['business_trip_destination_id']   = $spd['business_trip_destination_id'];
+        $_SESSION['sppd']['notes']                          = $spd['notes'];
+        $_SESSION['sppd']['duration']                       = $spd['duration'];
+        $_SESSION['sppd']['dateline']                       = $spd['start_date'].' s/d '.$spd['end_date'];
+        $_SESSION['sppd']['spd_id']                         = $spd_id;
+        $_SESSION['sppd']['items']                          = $spd['items'];
+        $_SESSION['sppd']['advance']                        = $spd['paid_amount'];
+
+        redirect($this->module['route'] . '/create');
     }
 
     public function create($annual_cost_center_id = NULL)
@@ -276,37 +297,38 @@ class Business_Trip_Request extends MY_Controller
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];
 
-            $_SESSION['business_trip']['items']                     = array();
-            $_SESSION['business_trip']['annual_cost_center_id']     = $annual_cost_center_id;
-            $_SESSION['business_trip']['cost_center_id']            = $cost_center_id;
-            $_SESSION['business_trip']['cost_center_name']          = $cost_center_name;
-            $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
-            $_SESSION['business_trip']['document_number']           = travel_on_duty_last_number();
-            $_SESSION['business_trip']['format_number']             = travel_on_duty_format_number();
-            $_SESSION['business_trip']['date']                      = date('Y-m-d');
-            $_SESSION['business_trip']['created_by']                = config_item('auth_person_name');
-            $_SESSION['business_trip']['warehouse']                 = config_item('auth_warehouse');
-            $_SESSION['business_trip']['notes']                     = NULL;
-            $_SESSION['business_trip']['person_in_charge']          = NULL;
-            $_SESSION['business_trip']['department_id']             = $department_id;
-            $_SESSION['business_trip']['head_dept']                 = NULL;
-            $_SESSION['business_trip']['business_trip_destination_id']  = NULL;
-            $_SESSION['business_trip']['duration']                      = NULL;
-            $_SESSION['business_trip']['dateline']                      = NULL;
-            $_SESSION['business_trip']['occupation']                    = NULL;
-            $_SESSION['business_trip']['phone_number']                  = NULL;
-            $_SESSION['business_trip']['id_number']                     = NULL;
-            $_SESSION['business_trip']['start_date']                    = NULL;
-            $_SESSION['business_trip']['end_date']                      = NULL;
-            $_SESSION['business_trip']['from_base']                     = NULL;
-            $_SESSION['business_trip']['transportation']                = NULL;
-            $_SESSION['business_trip']['command_by']                    = NULL;
-            $_SESSION['business_trip']['attachment']                    = array();
+            $_SESSION['sppd']['items']                     = array();
+            $_SESSION['sppd']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['sppd']['cost_center_id']            = $cost_center_id;
+            $_SESSION['sppd']['cost_center_name']          = $cost_center_name;
+            $_SESSION['sppd']['cost_center_code']          = $cost_center_code;
+            $_SESSION['sppd']['document_number']           = sppd_last_number();
+            $_SESSION['sppd']['format_number']             = sppd_format_number();
+            $_SESSION['sppd']['date']                      = date('Y-m-d');
+            $_SESSION['sppd']['created_by']                = config_item('auth_person_name');
+            $_SESSION['sppd']['warehouse']                 = config_item('auth_warehouse');
+            $_SESSION['sppd']['notes']                     = NULL;
+            $_SESSION['sppd']['person_in_charge']          = NULL;
+            $_SESSION['sppd']['department_id']             = $department_id;
+            $_SESSION['sppd']['head_dept']                 = NULL;
+            $_SESSION['sppd']['business_trip_destination_id']  = NULL;
+            $_SESSION['sppd']['duration']                      = NULL;
+            $_SESSION['sppd']['dateline']                      = NULL;
+            $_SESSION['sppd']['occupation']                    = NULL;
+            $_SESSION['sppd']['phone_number']                  = NULL;
+            $_SESSION['sppd']['id_number']                     = NULL;
+            $_SESSION['sppd']['start_date']                    = NULL;
+            $_SESSION['sppd']['end_date']                      = NULL;
+            $_SESSION['sppd']['from_base']                     = NULL;
+            $_SESSION['sppd']['transportation']                = NULL;
+            $_SESSION['sppd']['command_by']                    = NULL;
+            $_SESSION['sppd']['attachment']                    = array();
+            $_SESSION['sppd']['advance']                       = 0;
 
             redirect($this->module['route'] .'/create');
         }
 
-        if (!isset($_SESSION['business_trip']))
+        if (!isset($_SESSION['sppd']))
           redirect($this->module['route']);
 
         $this->data['page']['content']    = $this->module['view'] .'/create';
@@ -366,25 +388,25 @@ class Business_Trip_Request extends MY_Controller
         $format_number      = substr($entity['document_number'], 6, 21);
         $revisi             = get_count_revisi($document_number.$format_number);
 
-        if (isset($_SESSION['business_trip']) === FALSE){
+        if (isset($_SESSION['sppd']) === FALSE){
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];
 
-            $_SESSION['business_trip']['annual_cost_center_id']     = $annual_cost_center_id;
-            $_SESSION['business_trip']['cost_center_id']            = $cost_center_id;
-            $_SESSION['business_trip']['cost_center_name']          = $cost_center_name;
-            $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
-            $_SESSION['business_trip']                              = $entity;
-            $_SESSION['business_trip']['id']                        = $id;
-            $_SESSION['business_trip']['edit_type']                 = 'edit';
-            $_SESSION['business_trip']['edit']                      = $entity['document_number'];
-            $_SESSION['business_trip']['document_number']           = $document_number;
-            $_SESSION['business_trip']['format_number']             = $format_number.'-R'.$revisi;
-            $_SESSION['business_trip']['department_id']             = $department_id;
-            $_SESSION['business_trip']['person_in_charge']          = $entity['user_id'];
-            $_SESSION['business_trip']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
+            $_SESSION['sppd']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['sppd']['cost_center_id']            = $cost_center_id;
+            $_SESSION['sppd']['cost_center_name']          = $cost_center_name;
+            $_SESSION['sppd']['cost_center_code']          = $cost_center_code;
+            $_SESSION['sppd']                              = $entity;
+            $_SESSION['sppd']['id']                        = $id;
+            $_SESSION['sppd']['edit_type']                 = 'edit';
+            $_SESSION['sppd']['edit']                      = $entity['document_number'];
+            $_SESSION['sppd']['document_number']           = $document_number;
+            $_SESSION['sppd']['format_number']             = $format_number.'-R'.$revisi;
+            $_SESSION['sppd']['department_id']             = $department_id;
+            $_SESSION['sppd']['person_in_charge']          = $entity['user_id'];
+            $_SESSION['sppd']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
             
         }
 
@@ -402,25 +424,25 @@ class Business_Trip_Request extends MY_Controller
         $format_number      = substr($entity['document_number'], 6, 21);
         $revisi             = get_count_revisi($document_number.$format_number);
 
-        if (isset($_SESSION['business_trip']) === FALSE){
+        if (isset($_SESSION['sppd']) === FALSE){
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];
 
-            $_SESSION['business_trip']['annual_cost_center_id']     = $annual_cost_center_id;
-            $_SESSION['business_trip']['cost_center_id']            = $cost_center_id;
-            $_SESSION['business_trip']['cost_center_name']          = $cost_center_name;
-            $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
-            $_SESSION['business_trip']                              = $entity;
-            $_SESSION['business_trip']['id']                        = $id;
-            $_SESSION['business_trip']['edit_type']                 = 'edit_approve';
-            $_SESSION['business_trip']['edit']                      = $entity['document_number'];
-            $_SESSION['business_trip']['document_number']           = $document_number;
-            $_SESSION['business_trip']['format_number']             = $format_number.'-R'.$revisi;
-            $_SESSION['business_trip']['department_id']             = $department_id;
-            $_SESSION['business_trip']['person_in_charge']          = $entity['user_id'];
-            $_SESSION['business_trip']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
+            $_SESSION['sppd']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['sppd']['cost_center_id']            = $cost_center_id;
+            $_SESSION['sppd']['cost_center_name']          = $cost_center_name;
+            $_SESSION['sppd']['cost_center_code']          = $cost_center_code;
+            $_SESSION['sppd']                              = $entity;
+            $_SESSION['sppd']['id']                        = $id;
+            $_SESSION['sppd']['edit_type']                 = 'edit_approve';
+            $_SESSION['sppd']['edit']                      = $entity['document_number'];
+            $_SESSION['sppd']['document_number']           = $document_number;
+            $_SESSION['sppd']['format_number']             = $format_number.'-R'.$revisi;
+            $_SESSION['sppd']['department_id']             = $department_id;
+            $_SESSION['sppd']['person_in_charge']          = $entity['user_id'];
+            $_SESSION['sppd']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
             
         }
 
@@ -439,35 +461,35 @@ class Business_Trip_Request extends MY_Controller
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];
 
-            $_SESSION['business_trip']['items']                     = array();
-            $_SESSION['business_trip']['annual_cost_center_id']     = $annual_cost_center_id;
-            $_SESSION['business_trip']['cost_center_id']            = $cost_center_id;
-            $_SESSION['business_trip']['cost_center_name']          = $cost_center_name;
-            $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
-            $_SESSION['business_trip']['document_number']           = travel_on_duty_last_number();
-            $_SESSION['business_trip']['format_number']             = travel_on_duty_format_number();
-            $_SESSION['business_trip']['date']                      = date('Y-m-d');
-            $_SESSION['business_trip']['created_by']                = config_item('auth_person_name');
-            $_SESSION['business_trip']['warehouse']                 = config_item('auth_warehouse');
-            $_SESSION['business_trip']['notes']                     = NULL;
-            $_SESSION['business_trip']['person_in_charge']          = NULL;
-            $_SESSION['business_trip']['department_id']             = $department_id;
-            $_SESSION['business_trip']['head_dept']                 = NULL;
-            $_SESSION['business_trip']['business_trip_destination_id']  = NULL;
-            $_SESSION['business_trip']['duration']                      = NULL;
-            $_SESSION['business_trip']['dateline']                      = NULL;
-            $_SESSION['business_trip']['occupation']                    = NULL;
-            $_SESSION['business_trip']['phone_number']                  = NULL;
-            $_SESSION['business_trip']['id_number']                     = NULL;
-            $_SESSION['business_trip']['start_date']                    = NULL;
-            $_SESSION['business_trip']['end_date']                      = NULL;
-            $_SESSION['business_trip']['from_base']                      = NULL;
-            $_SESSION['business_trip']['transportation']                      = NULL;
+            $_SESSION['sppd']['items']                     = array();
+            $_SESSION['sppd']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['sppd']['cost_center_id']            = $cost_center_id;
+            $_SESSION['sppd']['cost_center_name']          = $cost_center_name;
+            $_SESSION['sppd']['cost_center_code']          = $cost_center_code;
+            $_SESSION['sppd']['document_number']           = travel_on_duty_last_number();
+            $_SESSION['sppd']['format_number']             = travel_on_duty_format_number();
+            $_SESSION['sppd']['date']                      = date('Y-m-d');
+            $_SESSION['sppd']['created_by']                = config_item('auth_person_name');
+            $_SESSION['sppd']['warehouse']                 = config_item('auth_warehouse');
+            $_SESSION['sppd']['notes']                     = NULL;
+            $_SESSION['sppd']['person_in_charge']          = NULL;
+            $_SESSION['sppd']['department_id']             = $department_id;
+            $_SESSION['sppd']['head_dept']                 = NULL;
+            $_SESSION['sppd']['business_trip_destination_id']  = NULL;
+            $_SESSION['sppd']['duration']                      = NULL;
+            $_SESSION['sppd']['dateline']                      = NULL;
+            $_SESSION['sppd']['occupation']                    = NULL;
+            $_SESSION['sppd']['phone_number']                  = NULL;
+            $_SESSION['sppd']['id_number']                     = NULL;
+            $_SESSION['sppd']['start_date']                    = NULL;
+            $_SESSION['sppd']['end_date']                      = NULL;
+            $_SESSION['sppd']['from_base']                      = NULL;
+            $_SESSION['sppd']['transportation']                      = NULL;
 
             redirect($this->module['route'] .'/create_for_edit_approve');
         }
 
-        if (!isset($_SESSION['business_trip']))
+        if (!isset($_SESSION['sppd']))
           redirect($this->module['route']);
 
         $this->data['page']['content']    = $this->module['view'] .'/create';
@@ -487,14 +509,14 @@ class Business_Trip_Request extends MY_Controller
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
 
-            $document_number = $_SESSION['business_trip']['document_number'] . $_SESSION['business_trip']['format_number'];
+            $document_number = $_SESSION['sppd']['document_number'] . $_SESSION['sppd']['format_number'];
             $errors = array();
 
-            if ($_SESSION['business_trip']['head_dept']==NULL || $_SESSION['business_trip']['head_dept']=='') {
+            if ($_SESSION['sppd']['head_dept']==NULL || $_SESSION['sppd']['head_dept']=='') {
                 $errors[] = 'Attention!! Please select one of Head Dept for Approval';
             }
 
-            if ($_SESSION['business_trip']['notes']==NULL || $_SESSION['business_trip']['notes']=='') {
+            if ($_SESSION['sppd']['notes']==NULL || $_SESSION['sppd']['notes']=='') {
                 $errors[] = 'Attention!! Please Fill Notes!!';
             }
 
@@ -503,7 +525,7 @@ class Business_Trip_Request extends MY_Controller
                 $data['message'] = implode('<br />', $errors);
             } else {
                 if ($this->model->save()){
-                    unset($_SESSION['business_trip']);
+                    unset($_SESSION['sppd']);
         
                     $data['success'] = TRUE;
                     $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
@@ -527,14 +549,14 @@ class Business_Trip_Request extends MY_Controller
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
 
-            $document_number = $_SESSION['business_trip']['document_number'] . $_SESSION['business_trip']['format_number'];
+            $document_number = $_SESSION['sppd']['document_number'] . $_SESSION['sppd']['format_number'];
             $errors = array();
 
-            if ($_SESSION['business_trip']['head_dept']==NULL || $_SESSION['business_trip']['head_dept']=='') {
+            if ($_SESSION['sppd']['head_dept']==NULL || $_SESSION['sppd']['head_dept']=='') {
                 $errors[] = 'Attention!! Please select one of Head Dept for Approval';
             }
 
-            if ($_SESSION['business_trip']['notes']==NULL || $_SESSION['business_trip']['notes']=='') {
+            if ($_SESSION['sppd']['notes']==NULL || $_SESSION['sppd']['notes']=='') {
                 $errors[] = 'Attention!! Please Fill Notes!!';
             }
 
@@ -543,7 +565,7 @@ class Business_Trip_Request extends MY_Controller
                 $data['message'] = implode('<br />', $errors);
             } else {
                 if ($this->model->save()){
-                    unset($_SESSION['business_trip']);
+                    unset($_SESSION['sppd']);
         
                     $data['success'] = TRUE;
                     $data['message'] = 'Document '. $document_number .' has been saved. You will redirected now.';
@@ -564,10 +586,10 @@ class Business_Trip_Request extends MY_Controller
         $entity = $this->model->findById($id);
 
         if($entity['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
-            $_SESSION['business_trip']['id']                        = $id;
-            $_SESSION['business_trip']['edit']                      = $entity['document_number'];
-            $_SESSION['business_trip']['document_number']           = $entity['document_number'];
-            $_SESSION['business_trip']['format_number']             = $format_number.'-R'.$revisi;
+            $_SESSION['sppd']['id']                        = $id;
+            $_SESSION['sppd']['edit']                      = $entity['document_number'];
+            $_SESSION['sppd']['document_number']           = $entity['document_number'];
+            $_SESSION['sppd']['format_number']             = $format_number.'-R'.$revisi;
             $this->data['entity'] = $entity;        
 
             $this->data['page']['content']    = $this->module['view'] .'/create';
@@ -591,7 +613,7 @@ class Business_Trip_Request extends MY_Controller
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
 
-            $document_number = $_SESSION['business_trip']['document_number'];
+            $document_number = $_SESSION['sppd']['document_number'];
             $errors = array();
 
             if (!empty($errors)){
@@ -599,7 +621,7 @@ class Business_Trip_Request extends MY_Controller
                 $data['message'] = implode('<br />', $errors);
             } else {
                 if ($this->model->save_hr_approve()){
-                    unset($_SESSION['business_trip']);
+                    unset($_SESSION['sppd']);
         
                     $data['success'] = TRUE;
                     $data['message'] = 'Document '. $document_number .' has been approved by HR. You will redirected now.';
@@ -617,7 +639,7 @@ class Business_Trip_Request extends MY_Controller
     {
         $this->authorized($this->module['permission']['create']);
 
-        unset($_SESSION['business_trip']);
+        unset($_SESSION['sppd']);
 
         redirect($this->module['route']);
     }
@@ -685,13 +707,13 @@ class Business_Trip_Request extends MY_Controller
             // $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
-                'info' => $success . " data has been update!"
+                'info' => $save_approval['success'] . " data has been update!"
             ));
         }
         if ($save_approval['failed'] > 0) {
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
-                'info' => "There are " . $failed . " errors"
+                'info' => "There are " . $save_approval['failed'] . " errors"
             ));
         }
         
