@@ -19,186 +19,13 @@
     </div>
 
     <div class="card-body">
-        <div class="row" id="document_master">
-            <div class="col-sm-12 col-md-6">
-                <dl class="dl-inline">
-
-                    <dt>Employee Number</dt>
-                    <dd><?=print_string($entity['employee_number']);?></dd>
-
-                    <dt>Name</dt>
-                    <dd><?=print_string($entity['name']);?></dd>
-
-                    <dt>Date of Birth</dt>
-                    <dd><?=print_date($entity['date_of_birth']);?></dd>      
-
-                    <dt>Base</dt>
-                    <dd><?=print_string($entity['warehouse']);?></dd>
-
-                    <dt>Gender</dt>
-                    <dd><?=print_string($entity['gender']);?></dd>  
-
-                    <dt>Religion</dt>
-                    <dd><?=print_string($entity['religion']);?></dd>   
-
-                    <dt>Marital Status</dt>
-                    <dd><?=print_string($entity['marital_status']);?></dd>
-
-                    <dt>Identity Number</dt>
-                    <dd><?=print_string($entity['identity_type']);?> | <?=print_string($entity['identity_number']);?></dd>
-
-                    <dt>Phone Number</dt>
-                    <dd><?=print_string($entity['phone_number']);?></dd>
-
-                    <dt>Address</dt>
-                    <dd><?=$entity['address'];?></dd>
-
-                    <dt>Bank</dt>
-                    <dd><?=$entity['bank_account_name'];?> | No Rek : <?=$entity['bank_account'];?></dd>
-
-                    <dt>NPWP</dt>
-                    <dd><?=($entity['npwp']==null)? 'N/A':print_string($entity['npwp']);?></dd>
-
-                    <dt>Join Date</dt>
-                    <dd><?=$entity['tanggal_bergabung'];?></dd>
-
-                    <dt>Department</dt>
-                    <dd><?=($entity['department_name']==null)? 'N/A':print_string($entity['department_name']);?></dd>
-
-                    <dt>Occupation</dt>
-                    <dd><?=print_string($entity['position']);?></dd>
-                    
-                    <dt>Basic Salary</dt>
-                    <dd><?=number_format($entity['basic_salary'],2);?></dd>
-
-                </dl>
-            </div>
-            <div class="col-sm-12 col-md-6">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <h5>Riwayat Kontrak</h5>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-nowrap" id="table_contents">
-                                <thead id="table_header">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Benefit</th>
-                                        <th>Plafon</th>
-                                        <th>Used</th>
-                                        <th>Balance</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table_contents">
-                                <?php $n = 1; ?>
-                                <?php $amount_paid = array(); ?>
-                                <?php if(count($entity['benefit'])>0):?>
-                                <?php foreach ($entity['benefit'] as $benefit) : ?>
-                                    <tr>
-                                        <td><?= $n++;?></td>
-                                        <td><?= $benefit['employee_benefit']?></td>
-                                        <td><?=number_format($benefit['amount_plafond']);?></td>
-                                        <td><?=number_format($benefit['used_amount_plafond'],2);?></td>
-                                        <td><?=number_format($benefit['left_amount_plafond'],2);?></td>
-                                        <td>
-                                            <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
-                                            </a>
-                                            
-                                        </td>   
-                                    </tr>
-                                    <?php if(count($benefit['used'])>0) : ?>
-                                    <?php foreach ($benefit['used'] as $used) : ?>
-                                    <tr class="detail_<?=$n?> hide">                  
-                                        <td></td>
-                                        <td><?= $used['date']?></td>
-                                        <td><a class="link" href="<?= $used['link']?>" target="_blank"><?= $used['document_number']?></a></td>
-                                        <td><?= number_format($used['used_amount'],2)?></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>                            
-                                    <?php endforeach;?>              
-                                    <?php else:?>  
-                                    <tr class="detail_<?=$n?> hide">                  
-                                        <td colspan="6" style="text-align:center;">No Data Available</td>
-                                    </tr>            
-                                    <?php endif;?>
-                                <?php endforeach;?>
-                                <?php else:?>
-                                    <tr>
-                                        <td colspan="6" style="text-align:center;">No Benefit</td>
-                                    </tr>
-                                <?php endif;?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">                        
-                        <h5>Plafond</h5>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-nowrap" id="table_contents">
-                                <thead id="table_header">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Benefit</th>
-                                        <th>Plafon</th>
-                                        <th>Used</th>
-                                        <th>Balance</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table_contents">
-                                <?php $n = 1; ?>
-                                <?php $amount_paid = array(); ?>
-                                <?php if(count($entity['benefit'])>0):?>
-                                <?php foreach ($entity['benefit'] as $benefit) : ?>
-                                    <tr>
-                                        <td><?= $n++;?></td>
-                                        <td><?= $benefit['employee_benefit']?></td>
-                                        <td><?=number_format($benefit['amount_plafond']);?></td>
-                                        <td><?=number_format($benefit['used_amount_plafond'],2);?></td>
-                                        <td><?=number_format($benefit['left_amount_plafond'],2);?></td>
-                                        <td>
-                                            <a  href="javascript:;" title="View Detail PO" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
-                                            </a>
-                                            
-                                        </td>   
-                                    </tr>
-                                    <?php if(count($benefit['used'])>0) : ?>
-                                    <?php foreach ($benefit['used'] as $used) : ?>
-                                    <tr class="detail_<?=$n?> hide">                  
-                                        <td></td>
-                                        <td><?= $used['date']?></td>
-                                        <td><a class="link" href="<?= $used['link']?>" target="_blank"><?= $used['document_number']?></a></td>
-                                        <td><?= number_format($used['used_amount'],2)?></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>                            
-                                    <?php endforeach;?>              
-                                    <?php else:?>  
-                                    <tr class="detail_<?=$n?> hide">                  
-                                        <td colspan="6" style="text-align:center;">No Data Available</td>
-                                    </tr>            
-                                    <?php endif;?>
-                                <?php endforeach;?>
-                                <?php else:?>
-                                    <tr>
-                                        <td colspan="6" style="text-align:center;">No Benefit</td>
-                                    </tr>
-                                <?php endif;?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="view-form-edit" class="row hide">
+        <div id="view-form-edit" class="row">
             <div class="col-sm-12">
                 <div class="row">
                     <div class="col-sm-12 col-lg-4">
                         <div class="form-group">
                             <input type="hidden" value="<?=$entity['employee_id'];?>" name="employee_id" id="employee_id" class="form-control">
-                            <input type="text" value="<?=$entity['employee_number'];?>" name="employee_number" id="employee_number" class="form-control" data-validation-rule="unique" data-validation-url="<?= site_url('ajax/employee_number_validation'); ?>" data-validation-exception="<?=$entity['employee_number'];?>" required>
+                            <input type="text" value="<?=$entity['employee_number'];?>" name="employee_number" id="employee_number" class="form-control" data-validation-rule="unique" data-validation-url="<?= site_url('ajax/employee_number_validation'); ?>" data-validation-exception="<?=$entity['employee_number'];?>" required readonly>
                             <label for="employee_number">Employee Number</label>
                         </div>
 
@@ -258,7 +85,7 @@
                                 <option value="Islam" <?php if ($entity['religion']=='Islam'):echo 'selected'; endif;?>>Islam</option>
                                 <option value="Hindu" <?php if ($entity['religion']=='Hindu'):echo 'selected'; endif;?>>Hindu</option>
                                 <option value="Kristen" <?php if ($entity['religion']=='Kristen'):echo 'selected'; endif;?>>Kristen</option>
-                                <option value="Katolik" <?php if ($entity['religion']=='Islam'):echo 'selected'; endif;?>>Katolik</option>
+                                <option value="Katolik" <?php if ($entity['religion']=='Katolik'):echo 'selected'; endif;?>>Katolik</option>
                                 <option value="Budha" <?php if ($entity['religion']=='Budha'):echo 'selected'; endif;?>>Budha</option>
                                 <option value="Kong Hu Cu" <?php if ($entity['religion']=='Kong Hu Cu'):echo 'selected'; endif;?>>Kong Hu Cu</option>
                             </select>
@@ -389,12 +216,8 @@
         </a>
         <?php endif; ?>
 
-        <div class="pull-right">
-            <button type="button" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-                <i class="md md-edit"></i>
-                <small class="top right">edit</small>
-            </button>
-            <button type="submit" id="modal-edit-data-submit" class="btn btn-floating-action btn-primary btn-xhr-submit ink-reaction hide" data-title="save and update">
+        <div class="pull-right">            
+            <button type="submit" id="modal-edit-data-submit" class="btn btn-floating-action btn-primary btn-xhr-submit ink-reaction" data-title="save and update">
                 <i class="md md-save"></i>
             </button>
         </div>

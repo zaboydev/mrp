@@ -172,8 +172,12 @@ class Employee_Model extends MY_Model
         $this->db->where($criteria);
 
         $query = $this->db->get();
+        $row   = $query->unbuffered_row('array');
 
-        return $query->unbuffered_row('array');
+        $department = getDepartmentById($row['department_id']);
+        $row['department_name'] = $department['department_name'];
+
+        return $row;
     }
 
     public function insert(array $user_data)
