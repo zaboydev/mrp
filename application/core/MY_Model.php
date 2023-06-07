@@ -552,6 +552,19 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isEmployeeContractNumberExists($employee_contract_number, $employee_contract_number_exception = NULL)
+  {
+    $this->db->from('tb_employee_contracts');
+    $this->db->where('contract_number', $employee_contract_number);
+
+    if ($employee_contract_number_exception !== NULL)
+      $this->db->where('contract_number != ', $employee_contract_number_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
   
 
 }

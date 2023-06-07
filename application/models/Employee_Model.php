@@ -246,7 +246,9 @@ class Employee_Model extends MY_Model
 
         foreach ($user_data as $key => $data){
             $department = getDepartmentByName($data['department']);
+            $employee_id = $this->get_unused_id();
             $this->db->set('employee_number', strtoupper($data['employee_number']));
+            $this->db->set('employee_id', $employee_id);
             $this->db->set('department_id', $department['id']);
             $this->db->set('name', strtoupper($data['name']));
             $this->db->set('date_of_birth', $data['date_of_birth']);
@@ -298,5 +300,161 @@ class Employee_Model extends MY_Model
         }
 
         return $random_unique_int;
+    }
+
+    public function getSelectedColumnsContract()
+    {
+        return array(
+            'No',
+            'Date',
+            'Contract No.',
+            'Periode',
+            'File',
+            'Status',
+        );
+    }
+
+    public function getSearchableColumnsForContract()
+    {
+        return array(
+            'contract_number',
+        );
+    }
+
+    public function getOrderableColumnsForContract()
+    {
+        return array(
+            null,
+            'created_at',
+            'contract_number',
+            NULL,
+            null,
+            null,
+        );
+    }
+
+    private function searchIndexForContract()
+    {
+        if (!empty($_POST['columns'][1]['search']['value'])) {
+            $employee_number = $_POST['columns'][1]['search']['value'];      
+            $this->db->where('employee_number', $employee_number);
+        }
+        $i = 0;
+
+        foreach ($this->getSearchableColumnsForContract() as $item){
+            if ($_POST['search']['value']){
+                if ($i === 0){
+                $this->db->group_start();
+                $this->db->like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+                } else {
+                $this->db->or_like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+                }
+
+                if (count($this->getSearchableColumnsForContract()) - 1 == $i)
+                $this->db->group_end();
+            }
+
+            $i++;
+        }
+    }
+
+    function getIndexForContract($employee_number,$return = 'array')
+    {
+        $this->db->select('*');
+        $this->db->where('employee_number',$employee_number);
+        $this->db->from('tb_employee_contracts');
+
+        $this->searchIndexForContract();
+
+        $column_order = $this->getOrderableColumnsForContract();
+
+        if (isset($_POST['order'])){
+            foreach ($_POST['order'] as $key => $order){
+                $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+            }
+        } else {
+            $this->db->order_by('id', 'desc');
+        }
+
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+
+        $query = $this->db->get();
+
+        if ($return === 'object'){
+            return $query->result();
+        } elseif ($return === 'json'){
+            return json_encode($query->result());
+        } else {
+            return $query->result_array();
+        }
+    }
+
+    function countIndexFilteredForContract($employee_number)
+    {
+        $this->db->from('tb_employee_contracts');
+        $this->db->where('employee_number',$employee_number);
+
+        $this->searchIndexForContract();
+
+        $query = $this->db->get();
+
+        return $query->num_rows();
+    }
+
+    public function countIndexForContract($employee_number)
+    {
+        $this->db->from('tb_employee_contracts');
+        $this->db->where('employee_number',$employee_number);
+
+        $query = $this->db->get();
+
+        return $query->num_rows();
+    }
+
+    public function insert_contract(array $user_data)
+    {
+        $this->db->trans_begin();
+
+        $this->db->set('status', 'NOT ACTIVE');
+        $this->db->where('employee_number', $user_data['employee_number']);
+        $this->db->update('tb_employee_contracts');
+
+        $this->db->set($user_data);
+        $this->db->insert('tb_employee_contracts');
+
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        return TRUE;
+    }
+
+    public function update_contract(array $user_data,$id)
+    {
+        $this->db->trans_begin();
+
+        $this->db->set($user_data);
+        $this->db->where('id',$id);
+        $this->db->update('tb_employee_contracts');
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        return TRUE;
+    }
+
+    public function findContractById($id)
+    {
+        $this->db->select(array(
+            'tb_employee_contracts.*',
+            'tb_master_employees.name'
+        ));
+        $this->db->where('tb_employee_contracts.id', $id);
+        $this->db->join('tb_master_employees', 'tb_master_employees.employee_number = tb_employee_contracts.employee_number');
+        $query      = $this->db->get('tb_employee_contracts');
+        $row        = $query->unbuffered_row('array');
+
+        return $row;
     }
 }

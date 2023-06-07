@@ -363,7 +363,7 @@ class Employee extends MY_Controller
                         $data[$row]['address'] = $address;
 
                         //... 11th column is jabatan
-                        $jabatan = (trim($col[10]) == '') ? null : trim($col[10]);
+                        $jabatan = (trim($col[10]) == '') ? null : trim(strtoupper($col[10]));
                         $data[$row]['jabatan'] = $jabatan;
 
                         if ($jabatan === null)
@@ -441,13 +441,13 @@ class Employee extends MY_Controller
                          * Insert into user table
                          */
                         if ($this->model->insert_batch($data)){
-                        //... send message to view
-                        $this->session->set_flashdata('alert', array(
-                            'type' => 'success',
-                            'info' => count($data)." data has been imported!"
-                        ));
+                            //... send message to view
+                            $this->session->set_flashdata('alert', array(
+                                'type' => 'success',
+                                'info' => count($data)." data has been imported!"
+                            ));
 
-                        redirect('user');
+                            redirect('employee');
                         }
                     }
 
@@ -465,5 +465,228 @@ class Employee extends MY_Controller
         }
 
         redirect($this->module['route']);
+    }
+
+    // employee contract
+    public function contract($employee_id)
+    {
+        $this->authorized($this->module, 'contract');
+
+        $entity = $this->model->findOneBy(array('employee_id' => $employee_id));
+
+        $this->data['page']['content']      = $this->module['view'] .'/create';
+        $this->data['page']['offcanvas']    = $this->module['view'] .'/create_offcanvas_add_item';
+        $this->data['entity']               = $entity;
+        $this->data['page']['title']        = $entity['name'].' '.$entity['employee_number'];
+        $this->data['page']['menu']         = 'contract';
+        $this->data['grid']['column']           = $this->model->getSelectedColumnsContract();
+        $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_contract?employee_number='. $entity['employee_number']);
+        $this->data['grid']['fixed_columns']    = 2;
+        $this->data['grid']['summary_columns']  = NULL;
+        $this->data['grid']['order_columns']    = array (
+          0 => array (0 => 1, 1 => 'asc'),
+          1 => array (0 => 2, 1 => 'asc'),
+          2 => array (0 => 3, 1 => 'asc'),
+          3 => array (0 => 4, 1 => 'asc')
+        );
+
+        $this->render_view($this->module['view'] .'/contract');
+    }
+
+    public function index_data_source_contract()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'index') === FALSE){
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to access this page!";
+        } else {
+            if (isset($_GET['employee_number']) && $_GET['employee_number'] !== NULL){
+                $employee_number = $_GET['employee_number'];
+            } else {
+                $employee_number = NULL;
+            }
+
+            $entities = $this->model->getIndexForContract($employee_number);
+
+            $data = array();
+            $no   = $_POST['start'];
+
+            foreach ($entities as $row){
+                $no++;
+                $col = array();
+                $col[] = print_number($no);
+                $col[] = print_date($row['created_at']);
+                $col[] = print_string($row['contract_number']);
+                $col[] = print_date($row['start_date']).' s/d '.print_date($row['end_date']);
+                if($row['file_kontrak']!=null){
+                    $col[] = '<a target="_blank" href="'.site_url($row['file_kontrak']).'" class="btn"><i class="md md-file-download"></i></a>';
+                }else{
+                    $col[] = '';
+                }         
+                $col[] = print_string($row['status']);       
+                $col['DT_RowId'] = 'row_'. $row['id'];
+                $col['DT_RowData']['pkey']  = $row['id'];
+                $col['DT_RowAttr']['data-target'] = '#data-modal';
+                $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/edit_contract/'. $row['id']);
+                $col['DT_RowAttr']['onClick']     = '';
+
+                $data[] = $col;
+            }
+
+            $return = array(
+                "draw"            => $_POST['draw'],
+                "recordsTotal"    => $this->model->countIndexForContract($employee_number),
+                "recordsFiltered" => $this->model->countIndexFilteredForContract($employee_number),
+                "data"            => $data,
+            );
+        }
+
+        echo json_encode($return);
+    }
+
+    public function create_contract($employee_number)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'create') === FALSE){
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to create data!";
+        } else {
+            $entity = $this->model->findById($employee_number);
+            $this->data['entity'] = $entity;
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] .'/create_contract', $this->data, TRUE);
+        }
+
+        echo json_encode($return);
+    }
+
+    public function edit_contract($id)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'edit') === FALSE){
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to edit this data!";
+        } else {
+            $entity = $this->model->findContractById($id);
+
+            $this->data['entity'] = $entity;
+
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] .'/edit_contract', $this->data, TRUE);
+        }
+
+        echo json_encode($return);
+    }
+
+    public function save_contract()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'save') === FALSE){
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to access this page!";
+        } else {
+            if ($this->input->post('id')){
+                if ($this->model->isEmployeeContractNumberExists($this->input->post('contract_number'), $this->input->post('contract_number_rexception'))){
+                    $return['type'] = 'danger';
+                    $return['info'] = 'Duplicate Contract Number! Contract Number '. $this->input->post('contract_number') .' already exists.';
+                } else {
+                    
+                    $form_data = array(
+                        'employee_number'   => $this->input->post('employee_number'),
+                        'contract_number'   => $this->input->post('contract_number'),
+                        'start_date'        => $this->input->post('start_date'),
+                        'end_date'          => $this->input->post('end_date'),
+                        'month'             => $this->input->post('month'),
+                    );
+                    // if(isset($_FILES['contractfile'])){
+                    //     $filekontrak = $this->uploadFileKontrak($_FILES['contractfile']);
+                    //     $form_data['file_kontrak'] = $filekontrak;
+                    // }
+                    $config['upload_path'] = 'attachment/employee_contract/';
+                    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+                    $config['max_size']  = 2000;
+
+                    $this->upload->initialize($config);
+                    if (!$this->upload->do_upload('contractfile')) {
+                        $error = array('error' => $this->upload->display_errors());
+                    } else {
+                        $data = array('upload_data' => $this->upload->data());
+                        $file_kontrak = $config['upload_path'] . $data['upload_data']['file_name'];
+                        $form_data['file_kontrak'] = $file_kontrak;
+                    }
+
+                    $criteria = $this->input->post('id');
+
+                    if ($this->model->update_contract($form_data, $criteria)){
+                        $return['type'] = 'success';
+                        $return['info'] = 'Employee Contract ' . $this->input->post('name') .' updated.';
+                    } else {
+                        $return['type'] = 'danger';
+                        $return['info'] = 'There are error while updating data. Please try again later.';
+                    }
+                }
+            } else {
+                if ($this->model->isEmployeeContractNumberExists($this->input->post('contract_number'))){
+                    $return['type'] = 'danger';
+                    $return['info'] = 'Duplicate Contract Number! Contract Number '. $this->input->post('contract_number') .' already exists.';
+                } else {
+
+                    $form_data = array(
+                        'employee_number'   => $this->input->post('employee_number'),
+                        'contract_number'   => $this->input->post('contract_number'),
+                        'start_date'        => $this->input->post('start_date'),
+                        'end_date'          => $this->input->post('end_date'),
+                        'month'             => $this->input->post('month'),
+                    );
+
+                    $config['upload_path'] = 'attachment/employee_contract/';
+                    $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+                    $config['max_size']  = 2000;
+
+                    $this->upload->initialize($config);
+                    if (!$this->upload->do_upload('contractfile')) {
+                        $error = array('error' => $this->upload->display_errors());
+                    } else {
+                        $data = array('upload_data' => $this->upload->data());
+                        $file_kontrak = $config['upload_path'] . $data['upload_data']['file_name'];
+                        $form_data['file_kontrak'] = $file_kontrak;
+                    }
+
+                    if ($this->model->insert_contract($form_data)){
+                        $return['type'] = 'success';
+                        $return['info'] = 'Employee ' . $this->input->post('name') .' updated.';
+                    } else {
+                        $return['type'] = 'danger';
+                        $return['info'] = 'There are error while updating data. Please try again later.';
+                    }
+                }
+            }
+        }
+
+        echo json_encode($return);
+    }
+
+    public function uploadFileKontrak($file)
+    {
+        $config['upload_path'] = 'attachment/employee_contract/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+        if (!$this->upload->do_upload($file)) {
+            $error = array('error' => $this->upload->display_errors());
+        } else {
+            $data = array('upload_data' => $this->upload->data());
+            $file_kontrak = $config['upload_path'] . $data['upload_data']['file_name'];
+            return $file_kontrak;
+        }
     }
 }

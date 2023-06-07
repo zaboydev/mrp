@@ -690,4 +690,18 @@ class Ajax_Model extends MY_Model
     return ($query->num_rows() > 0) ? FALSE : TRUE;
   }
 
+  public function employee_contract_number_validation($value, $old_value = NULL)
+  {
+    $this->db->from('tb_employee_contracts');
+
+    if ($old_value !== NULL)
+      $this->db->where('contract_number != ', $old_value);
+
+    $this->db->where('contract_number', $value);
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
+
 }

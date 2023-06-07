@@ -18,4 +18,8 @@ $config['module']['employee']['permission']  = array(
     'info'    => 'ADMIN,SUPER ADMIN,HR MANAGER,HR STAFF',
     'save'    => 'ADMIN,SUPER ADMIN,HR MANAGER,HR STAFF',
     'delete'  => 'ADMIN,SUPER ADMIN,HR MANAGER,HR STAFF',
+    'contract'  => 'ADMIN,SUPER ADMIN,HR MANAGER,HR STAFF',
+    'contract_create'  => 'ADMIN,SUPER ADMIN,HR MANAGER,HR STAFF',
+    'contract_edit'  => 'ADMIN,SUPER ADMIN,HR MANAGER,HR STAFF',
+    'contract_delete'  => 'ADMIN,SUPER ADMIN,HR MANAGER,HR STAFF',
 );
