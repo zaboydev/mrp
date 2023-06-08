@@ -697,14 +697,26 @@ class Employee extends MY_Controller
         $this->authorized($this->module, 'contract');
 
         $entity = $this->model->findOneBy(array('employee_id' => $employee_id));
-        $kontrak_active = $this->model->findContractActive($entity['employee_number']);
+        if(isEmployeeContractActiveExist($entity['employee_number'])){
+            $kontrak_active = $this->model->findContractActive($entity['employee_number']);
+            $periodeContractActive = print_date($kontrak_active['start_date'],'d M Y').' s/d '.print_date($kontrak_active['end_date'],'d M Y');
+        }else{
+            $this->session->set_flashdata('alert', array(
+                'type' => 'danger',
+                'info' => "Please add Contract For ".$entity['name']
+            ));
+            $periodeContractActive = '-';
+            $kontrak_active = array();
+        }
+        
 
-        $this->data['page']['content']      = $this->module['view'] .'/create';
-        $this->data['page']['offcanvas']    = $this->module['view'] .'/create_offcanvas_add_item';
-        $this->data['entity']               = $entity;
-        $this->data['kontrak_active']       = $kontrak_active;
-        $this->data['page']['title']        = $entity['name'].' '.$entity['employee_number'];
-        $this->data['page']['menu']         = 'benefit';
+        $this->data['page']['content']          = $this->module['view'] .'/create';
+        $this->data['page']['offcanvas']        = $this->module['view'] .'/create_offcanvas_add_item';
+        $this->data['entity']                   = $entity;
+        $this->data['kontrak_active']           = $kontrak_active;
+        $this->data['periodeContractActive']    = $periodeContractActive;
+        $this->data['page']['title']            = $entity['name'].' '.$entity['employee_number'];
+        $this->data['page']['menu']             = 'benefit';
         $this->data['grid']['column']           = $this->model->getSelectedColumnsForBenefit();
         $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_benefit?employee_number='. $entity['employee_number']);
         $this->data['grid']['fixed_columns']    = 2;
@@ -751,7 +763,7 @@ class Employee extends MY_Controller
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
                 $col['DT_RowAttr']['data-target'] = '#data-modal';
-                $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/edit_contract/'. $row['id']);
+                $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/edit_benefit/'. $row['id']);
                 $col['DT_RowAttr']['onClick']     = '';
 
                 $data[] = $col;
@@ -777,12 +789,38 @@ class Employee extends MY_Controller
             $return['type'] = 'danger';
             $return['info'] = "You don't have permission to create data!";
         } else {
-            $entity = $this->model->findById($employee_number);            
-            $kontrak_active = $this->model->findContractActive($entity['employee_number']);
+            $entity = $this->model->findById($employee_number);          
+            if(isEmployeeContractActiveExist($entity['employee_number'])){  
+                $kontrak_active = $this->model->findContractActive($entity['employee_number']);
+                $this->data['entity'] = $entity;
+                $this->data['kontrak_active'] = $kontrak_active;
+                $return['type'] = 'success';
+                $return['info'] = $this->load->view($this->module['view'] .'/create_benefit', $this->data, TRUE);
+            }else{
+                $return['type'] = 'danger';
+                $return['info'] = "Please add Contract For ".$entity['name'];
+            }
+            
+        }
+
+        echo json_encode($return);
+    }
+
+    public function edit_benefit($id)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'edit') === FALSE){
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to edit this data!";
+        } else {
+            $entity = $this->model->findEmployeeBenefitById($id);
+
             $this->data['entity'] = $entity;
-            $this->data['kontrak_active'] = $kontrak_active;
+
             $return['type'] = 'success';
-            $return['info'] = $this->load->view($this->module['view'] .'/create_benefit', $this->data, TRUE);
+            $return['info'] = $this->load->view($this->module['view'] .'/edit_benefit', $this->data, TRUE);
         }
 
         echo json_encode($return);
@@ -798,7 +836,7 @@ class Employee extends MY_Controller
             $return['info'] = "You don't have permission to access this page!";
         } else {
             if ($this->input->post('id')){
-                if ($this->model->isBenefitExist($this->input->post('employee_benefit_id'), $this->input->post('employee_contract_id'))){
+                if ($this->model->isBenefitExist($this->input->post('employee_benefit_id'), $this->input->post('employee_contract_id'),$this->input->post('employee_benefit_id_exception'), $this->input->post('employee_contract_id_exception'))){
                     $selectedBenefit = $this->model->findBenefitById($this->input->post('employee_benefit_id'));
                     $selectedContract = $this->model->findContractById($this->input->post('employee_contract_id'));
                     $return['type'] = 'danger';
@@ -810,6 +848,8 @@ class Employee extends MY_Controller
                         'employee_number'       => $this->input->post('employee_number'),
                         'employee_benefit_id'   => $this->input->post('employee_benefit_id'),
                         'amount_plafond'        => $this->input->post('amount_plafond'),
+                        'left_amount_plafond'   => $this->input->post('amount_plafond'),
+                        'used_amount_plafond'   => 0,
                     );
 
                     $criteria = $this->input->post('id');

@@ -3605,4 +3605,36 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('isEmployeeContractActiveExist')) {
+    function isEmployeeContractActiveExist($employee_number)
+    {
+      $CI =& get_instance();
+
+      $CI->db->from('tb_employee_contracts');
+      $CI->db->where('employee_number', $employee_number);
+      $CI->db->where('tb_employee_contracts.status', 'ACTIVE');    
+
+      $query = $CI->db->get();
+
+      return ( $query->num_rows() > 0 ) ? true : false;
+    }
+  }
+
+  if ( ! function_exists('findContractActive')) {
+    function findContractActive($employee_number)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select(array(
+        'tb_employee_contracts.*'
+      ));
+      $CI->db->where('tb_employee_contracts.employee_number', $employee_number);
+      $CI->db->where('tb_employee_contracts.status', 'ACTIVE');
+      $query      = $CI->db->get('tb_employee_contracts');
+      $row        = $query->unbuffered_row('array');
+  
+      return $row;
+    }
+  }
+
     

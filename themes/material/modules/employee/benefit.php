@@ -11,7 +11,7 @@
                 <div class="card">
                     <?php startblock('page_head') ?>
                     <div class="card-head style-primary-dark">
-                        <header>Employee's Benefit Periode Kontrak : <?=print_date($kontrak_active['start_date'],'d M Y')?> s/d <?=print_date($kontrak_active['end_date'],'d M Y')?></header>
+                        <header>Employee's Benefit Periode Kontrak : <?=$periodeContractActive?></header>
 
                         <div class="tools">
                             <form class="navbar-search hidden" role="search" id="datatable-form">
@@ -210,11 +210,7 @@
             $.get(source, function(data) {
                 var obj = $.parseJSON(data);
 
-                if (obj.type == 'denied') {
-                    toastr.options.timeOut = 10000;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.error(obj.info, 'ACCESS DENIED!');
-                } else {
+                if (obj.type == 'success') {
                     $(popup)
                     .find('.modal-body')
                     .empty()
@@ -229,6 +225,10 @@
                     $(popup).on('click', '.modal-footer:not(a)', function() {
                         $(popup).modal('hide');
                     });
+                } else {
+                    toastr.options.timeOut = 10000;
+                    toastr.options.positionClass = 'toast-top-right';
+                    toastr.error(obj.info, 'ACCESS DENIED!');                    
                 }
             })
         }
