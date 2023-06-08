@@ -22,9 +22,9 @@
                             <a href="<?= site_url($module['route'].'/contract/'.$entity['employee_id']); ?>">
                                 <i class="md md-settings"></i> Employee's Contract </a>
                         </li>
-                        <li>
-                            <a href="page_user_profile_1_help.html">
-                                <i class="md md-info-outline"></i> Help </a>
+                        <li class="<?=($page['menu']=='benefit')? 'active':'';?>">
+                            <a href="<?= site_url($module['route'].'/benefit/'.$entity['employee_id']); ?>">
+                                <i class="md md-info-outline"></i> Employee's Benefit </a>
                         </li>
                     </ul>
                 </div>

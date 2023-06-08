@@ -3546,6 +3546,8 @@ if (!function_exists('currency_for_vendor_list')) {
   if ( ! function_exists('getAircraftByRegisterNumber')) {
     function getAircraftByRegisterNumber($aircraft_register_number)
     {   
+      $CI =& get_instance();
+
       $CI->db->from('tb_master_pesawat');
       $CI->db->where('tb_master_pesawat.nama_pesawat',$aircraft_register_number);
   
@@ -3559,12 +3561,46 @@ if (!function_exists('currency_for_vendor_list')) {
   if ( ! function_exists('getAircraftComponentById')) {
     function getAircraftComponentById($id)
     {
+      $CI =& get_instance();
+
       $CI->db->from('tb_aircraft_components');
       $CI->db->where('tb_aircraft_components.id',$id);
   
       $query  = $CI->db->get();
       $result = $query->unbuffered_row('array');
   
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getContractByEmployeeNumber')) {
+    function getContractByEmployeeNumber($employee_number)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->where('employee_number',$employee_number);
+      $CI->db->from('tb_employee_contracts');
+  
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+  
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('benefit_list')) {
+    function benefit_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_employee_benefits.*');
+      $CI->db->from('tb_master_employee_benefits');
+      $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
       return $result;
     }
   }
