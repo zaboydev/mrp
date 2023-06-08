@@ -387,26 +387,53 @@ class Reimbursement_Model extends MY_Model
     public function getEmployeeHasBenefit($employee_number,$employee_benefit,$position)
     {
         $level = getLevelByPosition($position);
+        if(isEmployeeContractActiveExist($employee_number)){
+            $kontrak_active = findContractActive($employee_number);
+            $this->db->select('tb_employee_has_benefit.*');
+            $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
+            $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+            $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
+            $this->db->where('tb_employee_has_benefit.employee_contract_id',$kontrak_active['id']);
+            $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
+            $this->db->from('tb_employee_has_benefit');
+            $queryemployee_has_benefit  = $this->db->get();
+            $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
 
-        $this->db->select('tb_master_employee_benefit_items.id');
-        $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_master_employee_benefit_items.employee_benefit_id');
-        $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
-        $this->db->where('tb_master_employee_benefit_items.level',$level);
-        $this->db->where('tb_master_employee_benefit_items.deleted_at IS NULL', null, false);
-        $this->db->from('tb_master_employee_benefit_items');
-        $query  = $this->db->get();
-        $row    = $query->unbuffered_row('array');
-        $employee_benefit_item_id = $row['id'];
+            if($queryemployee_has_benefit->num_rows()>0){
+                $return['status'] = 'success';
+                $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
+            }else{
+                $return['status'] = 'warning';
+                $return['saldo_balance'] = 0;
+                $return['employee_has_benefit_id'] = null;
+                $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
+            }            
+            
+            return $return;
+        }else{
+            $return['status'] = 'warning';
+            $return['saldo_balance'] = 0;
+            $return['employee_has_benefit_id'] = null;
+            $return['message'] = 'Karyawan ini tidak memiliki Kontrak Aktif dan Saldo balance';
+            
+            return $return;
+        }
 
+        
+
+        
+    }
+
+    public function getEmployeeHasBenefitById($employee_has_benefit_id)
+    {
+        $kontrak_active = findContractActive($employee_number);
         $this->db->select('tb_employee_has_benefit.*');
-        $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
-        $this->db->where('tb_employee_has_benefit.employee_benefit_item_id',$employee_benefit_item_id);
-        $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
-        $this->db->where('tb_employee_has_benefit.year',date('Y'));
+        $this->db->where('tb_employee_has_benefit.id',$employee_has_benefit_id);
         $this->db->from('tb_employee_has_benefit');
         $queryemployee_has_benefit  = $this->db->get();
         $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
-        
+
         return $rowemployee_has_benefit;
     }
 

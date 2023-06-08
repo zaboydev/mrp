@@ -584,9 +584,21 @@
                 success: function(data) {
                     console.log(data);
                     var obj = $.parseJSON(data);
+
+                    if(obj.status=='success'){
+                        $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                        $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
+                    }else{
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        if(obj.status=='error'){
+                            toastr.error(obj.message);
+                        }else if(obj.status=='warning'){
+                            toastr.warning(obj.message);
+                        }
+                        
+                    }                    
                     
-                    $('#saldo_balance').val(obj.left_amount_plafond).trigger('change');
-                    $('#employee_has_benefit_id').val(obj.id).trigger('change');
                 }
             });
         });

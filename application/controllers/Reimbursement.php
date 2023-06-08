@@ -308,6 +308,7 @@ class Reimbursement extends MY_Controller
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];
+            $employee_has_benefit    = $this->model->getEmployeeHasBenefitById($entity['employee_has_benefit_id']);
 
             $_SESSION['reimbursement']['annual_cost_center_id']     = $annual_cost_center_id;
             $_SESSION['reimbursement']['cost_center_id']            = $cost_center_id;
@@ -320,6 +321,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['format_number']             = $format_number.'-R'.$revisi;
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
+            $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond']+$entity['total'];
             $_SESSION['reimbursement']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
             
         }

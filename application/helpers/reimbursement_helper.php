@@ -85,7 +85,7 @@ if ( ! function_exists('get_reimbursement_last_number')) {
 
   
       $CI->db->select('document_number');
-      $CI->db->from('tb_business_trip_purposes');
+      $CI->db->from('tb_reimbursements');
       $CI->db->like('document_number', $document_number, 'both');
   
       $query  = $CI->db->get();
