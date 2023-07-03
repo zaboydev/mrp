@@ -1343,8 +1343,8 @@ class Expense_Purchase_Order_Model extends MY_Model
       $level = 14;
     }else{
       if($base=='JAKARTA' || $base=='WISNU'){
-        $this->db->set('review_status', strtoupper('waiting for proc mng review'));
-        $level = 21;
+        $this->db->set('review_status', strtoupper('waiting for finance review'));
+        $level = 14;
       }else{
         $this->db->set('review_status', strtoupper('waiting for ahos review'));
         $level = 22;
