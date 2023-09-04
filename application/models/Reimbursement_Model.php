@@ -459,13 +459,13 @@ class Reimbursement_Model extends MY_Model
 
         foreach ($document_id as $id) {
             $selected = array(
-                'tb_business_trip_purposes.*',
-                'tb_master_business_trip_destinations.business_trip_destination'
+                'tb_reimbursements.*',
+                // 'tb_master_business_trip_destinations.business_trip_destination'
             );
             $this->db->select($selected);
-            $this->db->where('tb_business_trip_purposes.id', $id);
-            $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-            $query      = $this->db->get('tb_business_trip_purposes');
+            $this->db->where('tb_reimbursements.id', $id);
+            // $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+            $query      = $this->db->get('tb_reimbursements');
             $spd        = $query->unbuffered_row('array');
 
             $cost_center = findCostCenter($spd['annual_cost_center_id']);
@@ -477,9 +477,9 @@ class Reimbursement_Model extends MY_Model
                 $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
                 $this->db->set('known_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
-                $this->db->update('tb_business_trip_purposes');
+                $this->db->update('tb_reimbursements');
 
-                $this->db->set('document_type','SPD');
+                $this->db->set('document_type','RF');
                 $this->db->set('document_number',$spd['document_number']);
                 $this->db->set('document_id', $id);
                 $this->db->set('action','known by');
