@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['sppd']['visible']         = TRUE;
+$config['module']['sppd']['visible']         = FALSE;
 $config['module']['sppd']['main_warehouse']   = TRUE;
 $config['module']['sppd']['parent']      = 'perjalanan_dinas';
 $config['module']['sppd']['label']       = 'SPPD';
