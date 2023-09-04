@@ -98,3 +98,32 @@ $config['instrument_avionic'] = array(
   'ASPEN'   => 'ASPEN',
   'GNS'     => 'GNS'
 );
+
+$config['modules_for_head_dept'] = array(
+  'dashboard',
+  'Capex Request',
+  'Expense Request',
+  'Inventory Request',
+  'purchase_request',
+  'purchase_order_evaluation',
+  'Expense Order Evaluation',
+  'Capex Order Evaluation',
+  'business_trip_request',
+  'sppd',
+  'reimbursement'
+);
+
+$config['type_reimbursement'] = array(
+  'Duty Allowance'  => 'Duty Allowance',
+  'Ticket'          => 'Ticket',
+  'Medical'         => 'Medical',
+  'Others'          => 'Others'
+);
+
+$config['additional_modules_for_hr_depatment'] = array(
+  'level',
+  'tujuan_perjalanan_dinas',
+  'employee_benefit',
+  'user_position',
+  'employee',
+);

@@ -810,7 +810,6 @@
             } else {
               $(this).popup();
             }
-
           });
 
           function getAttachment(id) {

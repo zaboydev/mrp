@@ -513,6 +513,58 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isPositionExists($position, $user_position_exception = NULL)
+  {
+    $this->db->from(config_item('module')['user_position']['table']);
+    $this->db->where('position', $position);
+
+    if ($user_position_exception !== NULL)
+      $this->db->where('position != ', $user_position_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
+  public function isLevelExists($level, $level_exception = NULL)
+  {
+    $this->db->from(config_item('module')['level']['table']);
+    $this->db->where('UPPER(level)', strtoupper($level));
+
+    if ($level_exception !== NULL)
+      $this->db->where('UPPER(level) != ', strtoupper($level_exception));
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+  
+  public function isEmployeeNumberExists($employee_number, $employee_number_exception = NULL)
+  {
+    $this->db->from(config_item('module')['employee']['table']);
+    $this->db->where('employee_number', $employee_number);
+
+    if ($employee_number_exception !== NULL)
+      $this->db->where('employee_number != ', $employee_number_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
+  public function isEmployeeContractNumberExists($employee_contract_number, $employee_contract_number_exception = NULL)
+  {
+    $this->db->from('tb_employee_contracts');
+    $this->db->where('contract_number', $employee_contract_number);
+
+    if ($employee_contract_number_exception !== NULL)
+      $this->db->where('contract_number != ', $employee_contract_number_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
   
 
 }

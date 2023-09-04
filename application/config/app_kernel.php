@@ -3,6 +3,9 @@
 $config['parent']['dashboard']['label']  = 'Dashboard';
 $config['parent']['dashboard']['icon']   = 'md md-home';
 
+$config['parent']['master_data_hrd']['label']  = 'Master Data HRD';
+$config['parent']['master_data_hrd']['icon']   = 'md md-storage';
+
 $config['parent']['master']['label']  = 'Master Data';
 $config['parent']['master']['icon']   = 'md md-storage';
 
@@ -48,9 +51,19 @@ $config['parent']['expense']['icon']   = 'fa fa-money';
 $config['parent']['finance_report']['label']  = 'Finance Report';
 $config['parent']['finance_report']['icon']   = 'fa fa-money';
 
+$config['parent']['perjalanan_dinas']['label']  = 'Perjalanan Dinas';
+$config['parent']['perjalanan_dinas']['icon']   = 'fa fa-road';
+
 $config['module'] = array();
 
 
+
+//master DATA HRD
+require('modules/level.php');
+require('modules/tujuan_perjalanan_dinas.php');
+require('modules/employee_benefit.php');
+require('modules/user_position.php');
+require('modules/employee.php');
 
 //MASTER DATA
 require('modules/master_akun.php');
@@ -72,6 +85,11 @@ require('modules/expense_item.php');
 require('modules/deliver.php');
 require('modules/bill.php');
 require('modules/daftar_pajak.php');
+
+//business trip
+require('modules/business_trip_request.php');
+require('modules/sppd.php');
+require('modules/reimbursement.php');
 
 //aircraft
 require('modules/pesawat.php');

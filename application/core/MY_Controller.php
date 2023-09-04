@@ -57,6 +57,7 @@ class MY_Controller extends CI_Controller
     $this->config->set_item('auth_warehouses', $this->auth_warehouses());
     $this->config->set_item('auth_inventory', $this->auth_inventory());
     $this->config->set_item('auth_annual_cost_centers', $this->auth_annual_cost_centers());
+    $this->config->set_item('auth_annual_cost_centers_id', $this->auth_annual_cost_centers_id());
     $this->config->set_item('auth_annual_cost_centers_name', $this->auth_annual_cost_centers_name());
     $this->config->set_item('period_year', get_setting('ACTIVE_YEAR'));
     $this->config->set_item('period_month', get_setting('ACTIVE_MONTH'));
@@ -69,6 +70,7 @@ class MY_Controller extends CI_Controller
     $this->config->set_item('auth_email', $_SESSION['email']);
     $this->config->set_item('as_head_department', $this->as_head_department());
     $this->config->set_item('head_department', $this->head_department());
+    $this->config->set_item('hr_manager', $this->hr_manager());
   }
 
   public function get_auth_role()
@@ -310,6 +312,46 @@ class MY_Controller extends CI_Controller
     // }
 
     return $result;
+  }
+
+  protected function auth_annual_cost_centers_id()
+  {
+    $year = $this->find_budget_setting('Active Year');
+    $this->connection->select(array('tb_users_mrp_in_annual_cost_centers.annual_cost_center_id'));
+    $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+    $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+    $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
+    $this->connection->where('tb_annual_cost_centers.year_number', $year);
+
+    $query  = $this->connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['annual_cost_center_id'];
+    }
+
+    return $return;
+  }
+
+  protected function hr_manager()
+  {
+    $this->db->select('tb_head_department.username,tb_auth_users.person_name');
+    $this->db->from('tb_head_department');
+    $this->db->join('tb_auth_users','tb_auth_users.username=tb_head_department.username');
+    $this->db->where('tb_head_department.department_id', 11);
+    $this->db->where('tb_head_department.status', 'active');
+    $this->db->order_by('tb_head_department.username', 'ASC');
+
+    $query  = $this->db->get();
+    $result = $query->result_array();
+        
+    $return = array();
+    foreach ($result as $key) {
+      $return[] = $key['username'];
+    }
+
+    return $return;
   }
 
   protected function auth_annual_cost_centers_name()
