@@ -134,7 +134,7 @@
                         <td></td>
                         <td class="expense_name" style="font-weight:500;">
                             <input name="expense_name[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['expense_name'];?>" readonly>
-                            <input name="item_id[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['id'];?>" readonly>
+                            <input name="item_id[]" type="hidden" class="sel_applied form-control input-sm" value="<?=$items['id'];?>" readonly>
                         </td>
                         <td class="qty" style="font-weight:500;">
                             <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>">

@@ -48,7 +48,7 @@ class Business_Trip_Request extends MY_Controller
                         }if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                         }else{
-                            $col[] = print_number($no);
+                            $col[] = '';
                         }                    
                     }else{
                         $col[] = print_number($no);
