@@ -484,7 +484,7 @@
       <?php if ($entity['revisi']=='t') : ?>
         <?php if ($entity['type']=='CASH') : ?>
           <?php if($entity['tanggal'] >= $data):?>
-            <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+            <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="hide btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
               <i class="md md-edit"></i>
               <small class="top right">edit</small>
             </a>
@@ -492,7 +492,7 @@
         <?php else: ?>
           <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
             <?php if (is_granted($module, 'document')) : ?>
-              <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+              <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="hidebtn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>
               </a>
