@@ -30,7 +30,6 @@
                 .tg .tg-ti5e{font-size:10px;font-family:"Arial", Helvetica, sans-serif !important;;text-align:center}
                 .tg .tg-rv4w{font-size:10px;font-family:"Arial", Helvetica, sans-serif !important;}
     </style>
-
 <?php endblock() ?>
 
 <?php startblock('body') ?>
@@ -79,7 +78,8 @@
   <?=html_script('vendors/bootstrap-daterangepicker/daterangepicker.js') ?>
   <?=html_script('themes/material/assets/js/libs/bootstrap-datepicker/bootstrap-datepicker.js') ?>
   <?=html_script('vendors/twbs-pagination-master/jquery.twbsPagination.js') ?>
-  <?=html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+  <?= html_script('vendors/select2-4.0.3/dist/js/select2.min.js') ?>
+  <?=html_script('themes/script/jquery.number.js') ?>
   
   <?php $this->load->view('material/_script') ?>
 

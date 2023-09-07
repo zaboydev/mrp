@@ -137,28 +137,19 @@ class User extends MY_Controller
           $return['info'] = 'Duplicate Username! Username '. $this->input->post('username') .' already exists.';
         } else {
           $user_data = array(
-            'username'    => $this->input->post('username'),
-            'person_name'    => $this->input->post('person_name'),
-            'email'       => $this->input->post('email'),
-            'banned'      => $this->input->post('banned'),
-            'auth_level'  => $this->input->post('auth_level'),
-            'warehouse'   => $this->input->post('warehouse'),
-            'modified_at' => date('Y-m-d H:i:s'),
-            // 'ttd_user'    => $this->_uploadImage()
+            'username'        => $this->input->post('username'),
+            'person_name'     => $this->input->post('person_name'),
+            'email'           => $this->input->post('email'),
+            'banned'          => $this->input->post('banned'),
+            'auth_level'      => $this->input->post('auth_level'),
+            'warehouse'       => $this->input->post('warehouse'),
+            'modified_at'     => date('Y-m-d H:i:s'),
           );
-
-          // if (!empty($_FILES["attachment"]["name"])) {
-          //     $user_data['ttd_user'] = $this->_uploadImage();
-          // }
 
           if ($this->input->post('passwd')){
             $passwd = $this->hash_passwd($this->input->post('passwd'));
             $user_data['passwd'] = $passwd;
           }
-          // if (!empty($_FILES['userfile']['name'])) {
-          //   $upload = $this->_do_upload();
-          //   $user_data['ttd_user'] = $upload;
-          // }
 
           $criteria = array('user_id' => $this->input->post('id'));
 
@@ -186,13 +177,7 @@ class User extends MY_Controller
             'auth_level' => $this->input->post('auth_level'),
             'warehouse'  => $this->input->post('warehouse'),
             'created_at' => date('Y-m-d H:i:s'),
-            // 'ttd_user'    => $this->_uploadImage()
           );
-          // if (!empty($_FILES['userfile']['name'])) {
-          //   $upload = $this->_do_upload();
-          //   $user_data['ttd_user'] = $upload;
-          // }
-
 
 
           if ($this->model->insert($user_data)){

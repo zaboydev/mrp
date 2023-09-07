@@ -688,13 +688,13 @@ class Expense_Request extends MY_Controller
         $this->upload->initialize($config);
 
         if (!$this->upload->do_upload('attachment')) {
-        $error = array('error' => $this->upload->display_errors());
+            $error = array('error' => $this->upload->display_errors());
         } else {
-        $data = array('upload_data' => $this->upload->data());
-        $url = $config['upload_path'] . $data['upload_data']['file_name'];
-        // array_push($_SESSION["poe"]["attachment"], $url);
-        $this->model->add_attachment_to_db($id, $url);
-        $result["status"] = 1;
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            // array_push($_SESSION["poe"]["attachment"], $url);
+            $this->model->add_attachment_to_db($id, $url);
+            $result["status"] = 1;
         }
         echo json_encode($result);
     }

@@ -9,6 +9,8 @@
 
   $('.select2').select2();
 
+  $('.number').number(true, 2);
+
   (function($) {
     $.fn.reset = function() {
       this.find('input:text, input[type="email"], input:password, select, textarea').val('');

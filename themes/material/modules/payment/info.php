@@ -492,7 +492,11 @@
         <?php else: ?>
           <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
             <?php if (is_granted($module, 'document')) : ?>
+<<<<<<< HEAD
               <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="hidebtn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+=======
+              <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="hide btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+>>>>>>> 8752331a66f5806fefe16eb6867bd93b8eb4fa50
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>
               </a>

@@ -1350,6 +1350,51 @@ class Payment_Model extends MY_MODEL
 		return $payment;
 	}
 
+	public function findByIdForEdit($id)
+	{
+		// $this->db->where('id', $id);
+
+		$this->db->select('tb_po_payments.*,tb_master_coa.group');
+		$this->db->join('tb_master_coa','tb_master_coa.coa = tb_po_payments.coa_kredit','left');
+		$this->db->from('tb_po_payments');
+		$this->db->where('tb_po_payments.id', $id);
+		$query = $this->db->get();
+		$payment = $query->unbuffered_row('array');
+		$payment['no_transaksi'] = $payment['document_number'];
+
+		$select = array(
+			'tb_purchase_order_items_payments.*',
+			'tb_po.document_number',
+			'tb_po.due_date',
+			'tb_po.tipe_po',
+			'tb_po.grand_total',
+			
+		);
+
+		$this->db->select($select);
+		$this->db->from('tb_purchase_order_items_payments');
+		$this->db->join('tb_po', 'tb_po.id = tb_purchase_order_items_payments.id_po','left');
+		$this->db->where('tb_purchase_order_items_payments.po_payment_id', $id);
+		$this->db->order_by('tb_purchase_order_items_payments.id_po','asc');
+
+		$query_item = $this->db->get();
+		$total = 0;
+
+		foreach ($query_item->result_array() as $key => $value) {
+			$payment['items'][$key] = $value;				
+			$total = $total+$value['amount_paid'];
+		}
+		$payment['total_amount'] = $total;
+
+		
+		$this->db->where('id_poe', $id);
+		$this->db->where('tipe', 'PAYMENT');
+    	$this->db->where(array('deleted_at' => NULL));
+		$payment['attachment'] = $this->db->get('tb_attachment_poe')->result_array();
+
+		return $payment;
+	}
+
 	public function additionalPriceInfo($id)
 	{
 		$select = array(
