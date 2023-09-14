@@ -45,10 +45,10 @@ class Business_Trip_Request extends MY_Controller
                     if (is_granted($this->module, 'approval')){
                         if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                        }if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                        }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                         }else{
-                            $col[] = '';
+                            $col[] = print_number($no);
                         }                    
                     }else{
                         $col[] = print_number($no);
@@ -56,7 +56,7 @@ class Business_Trip_Request extends MY_Controller
                     $col[] = print_string($row['document_number']);
                     $col[] = print_string($row['status']);
                     $col[] = print_date($row['date']);
-                    $col[] = print_string($cost_center['cost_center_name']);
+                    $col[] = print_string($cost_center['department_name']);
                     $col[] = print_string($row['person_name']);
                     $col[] = print_string($row['business_trip_destination']);
                     $col[] = print_string($row['duration']);

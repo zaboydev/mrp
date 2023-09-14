@@ -103,10 +103,29 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="form-group">
+                                    <label for="type">Type</label>
+                                    <div class="radio">
+                                        <input type="radio" name="spd_type" id="advance" value="advance">
+                                        <label for="advance">
+                                        Advance
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <input type="radio" name="spd_type" id="expense" value="expense">
+                                        <label for="expense">
+                                        Expenses
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-12">
+                                <div class="form-group">
                                     <textarea name="approval_notes" id="approval_notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_approval_notes'); ?>"><?= $entity['approval_notes']; ?></textarea>
                                     <label for="approval_notes">Approval Notes</label>
                                 </div>
                             </div>
+
                             <div class="col-sm-12">
                                 <h4>SPD Expenses</h4>
                                 <table class="table table-hover" id="table-document" width="100%">

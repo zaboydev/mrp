@@ -400,6 +400,7 @@ class Business_Trip_Request_Model extends MY_Model
 
         $this->db->set('status','APPROVED');
         $this->db->set('approved_by',config_item('auth_person_name'));
+        $this->db->set('type',$this->input->post('spd_type'));
         $this->db->where('id', $id);
         $this->db->update('tb_business_trip_purposes');
 
