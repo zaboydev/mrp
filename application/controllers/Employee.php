@@ -335,7 +335,7 @@ class Employee extends MY_Controller
 
                         //... 7th column is phone_number
                         $phone_number = (trim($col[6]) == '') ? null : trim($col[6]);
-                        $data[$row]['gender'] = $phone_number;
+                        $data[$row]['phone_number'] = $phone_number;
 
                         if ($phone_number === null)
                             $errors[] = 'Line ' . $row . ': phone_number is null!';

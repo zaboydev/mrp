@@ -127,3 +127,5 @@ $config['additional_modules_for_hr_depatment'] = array(
   'user_position',
   'employee',
 );
+
+$config['hr_department_name'] = 'Human Resources Dept';
