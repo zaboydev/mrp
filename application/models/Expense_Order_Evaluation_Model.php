@@ -109,7 +109,7 @@ class Expense_Order_Evaluation_Model extends MY_Model
       $search_status = $_POST['columns'][3]['search']['value'];
       if($search_status!='all'){
         $this->db->where('tb_purchase_orders.status', $search_status);
-        if($search_status=='evaluation'){
+        if($search_status=='evaluation' && config_item('as_head_department')=='yes'){
           $this->db->where('tb_purchase_orders.head_dept', config_item('auth_username'));
         }
       }      

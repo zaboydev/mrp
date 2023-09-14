@@ -170,73 +170,79 @@
             <thead>
               <tr>
                 <!-- <th class="middle-alignment">No.</th> -->
-                <th width="15%" class="middle-alignment">No PO</th>
-                <th width="13%" class="middle-alignment">Description</th>
-                <th width="7%" class="middle-alignment">Due Date</th>
-                <th width="5%" class="middle-alignment">GRN Qty</th>
-                <th width="7%" class="middle-alignment">GRN Val.</th>
-                <th width="7%" class="middle-alignment">Amount</th>
-                <th width="7%" class="middle-alignment">Purposed Amount</th>
-                <th width="7%" class="middle-alignment">Remaining Purposed</th>
-                <th width="8%" class="middle-alignment">Qty Paid</th>
-                <th width="8%" class="middle-alignment">Amount Purposed</th>
-                <th width="5%" class="middle-alignment"></th>
-                <th width="8%" class="middle-alignment">Adjustment</th>
+                <th class="middle-alignment">#</th>
+                <th class="middle-alignment">No PO</th>
+                <!-- <th class="middle-alignment">Status</th> -->
+                <th class="middle-alignment">Due Date</th>
+                <th class="middle-alignment">Qty PO</th>
+                <th class="middle-alignment">Total PO</th>
+                <th class="middle-alignment">GRN Qty</th>
+                <th class="middle-alignment">GRN Val.</th>
+                <th class="middle-alignment">Purposed Amount</th>
+                <th class="middle-alignment">Remaining Purposed</th>
+                <th class="middle-alignment">Qty Paid</th>
+                <th class="middle-alignment">Amount</th>
+                <th class="middle-alignment"></th>
+                <th class="middle-alignment"></th>
+                <th class="middle-alignment">Adjustment</th>
               </tr>
             </thead>
-            <tbody>
-                <?php foreach ($_SESSION['payment_request']['items'] as $id => $items):?> 
-                <tr>
-                <td>
-                  <?=$items['document_number']?> <input id="po_item_id_<?= $id; ?>" name="po_item_id[]" value="<?=$items['purchase_order_item_id']?>" type="hidden" class="form-control-payment">
-                </td>
-                <td><?=$items['description']?> <input id="desc_<?= $id; ?>" name="desc[]" value="<?=$items['description']?>" type="hidden" class="form-control-payment"></td>
-                <td><?=$items['due_date']?> <input id="po_id_<?= $id; ?>" name="po_id[]" value="<?=$items['id_po']?>" type="hidden" class="form-control-payment"></td>
-                <td><?=print_number($items['item']['quantity_received'],2)?></td>
-                <td>
-                  <?= print_number($items['item']['quantity_received'] * ($items['item']['unit_price'] + $items['item']['core_charge']), 2) ?>
-                </td>
-                <td><?=print_number($items['item']['total_amount'],2)?></td>
-                <td>
-                <?php if($items['purchase_order_item_id']!=null):?>
-                  <?=print_number($items['item']['total_amount']-$items['item']['left_paid_request']-$items['amount_paid'],2)?>
-                <?php else:?>
-                  <?php if($items['id_po']!=0):?>
-                    <?=print_number($items['item']['additional_price']-$items['item']['additional_price_remaining_request']-$items['amount_paid'],2)?>
-                  <?php else:?>
-                    <?=print_number(0,2)?>                
-                  <?php endif; ?>
-                <?php endif; ?>
-                </td>
-                <td>
-                <?php if($items['purchase_order_item_id']!=null):?>
-                  <?=print_number($items['item']['left_paid_request']+$items['amount_paid'],2)?>
-                  <input id="sis_item_<?= $id; ?>" type="number" rel="left_paid_request" name="item[<?= $id; ?>][left_paid_request]" value="<?= $items['item']['left_paid_request']+$items['amount_paid']; ?>" class="hide form-control sel_applied_item">
-                <?php else:?>
-                  <?php if($items['id_po']!=0):?>
-                    <?=print_number($items['item']['additional_price_remaining_request']+$items['amount_paid'],2)?>
-                    <input id="sis_item_<?= $id; ?>" type="number" rel="left_paid_request" name="item[<?= $id; ?>][left_paid_request]" value="<?= $items['item']['additional_price_remaining_request']+$items['amount_paid']; ?>" class="hide form-control sel_applied_item">
-                  <?php else:?>
-                    <?=print_number(0,2)?>
-                    <input id="sis_item_<?= $id; ?>" type="number" rel="left_paid_request" name="item[<?= $id; ?>][left_paid_request]" value="0" class="hide form-control sel_applied_item">
-                                  
-                  <?php endif; ?>
-                <?php endif; ?>
-                </td>
-                <td>
-                    <input name="qty_paid[]" id="in_qty_paid_<?= $id; ?>" data-id="<?= $id; ?>" type="number" class="form-control-payment sel_applied_item" value="<?=$items['quantity_paid']?>">
-                </td>
-                <td>
-                    <input name="value[]" id="in_item_<?= $id; ?>" data-id="<?= $id; ?>" type="number" class="form-control-payment sel_applied_item" value="<?=$items['amount_paid']?>">
-                </td>
-                <td>
-                  <input type="checkbox" id="cb_<?= $id ?>" data-row="<?= $id ?>" data-id="<?= $id ?>" style="display: inline;" class="check_adj" <?php if($items['adj_value']!=0):?> checked <?php endif;?>>
-                </td>
-                <td>
-                    <input name="adj_value[]" id="in_adj_<?= $id ?>" type="number" class="<?php if($items['adj_value']==0):?> hide <?php endif;?> form-control-payment sel_applied_adj" value="<?=$items['adj_value']?>" style="display: inline;">
-                </td>
-                </tr>
-                <?php endforeach;?>         
+            <tbody id="listView">
+            <?php 
+                $no = 1; 
+              ?>
+            <?php foreach ($_SESSION['payment_request']['items'] as $id => $detail_po) : ?>
+                  <tr>
+                    <td><?=$no?></td>
+                    <td>
+                        <input name="po_item_id[]" id="sel_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['purchase_order_item_id'] ?>" type="text">
+                        <input name="po_id[]" id="sel_item_2_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['id_po'] ?>" type="text">
+                        <?= print_string($detail_po['document_number']) ?> | <?= print_string($detail_po['deskripsi']) ?>
+                    </td>
+                    <td>
+                        <?= print_string($detail_po['description']) ?>
+                        <input name="desc[]" id="desc_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['deskripsi'] ?>" type="text">
+                        <input name="account_code[]" id="account_code_item_<?= $no ?>_<?= $no_item ?>" value="<?= $detail_po['account_code'] ?>" type="hidden">
+                    </td>
+                    <td>
+                        <?= $detail_po['due_date'] ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['total_amount'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity_received'], 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['quantity_received'] * ($detail_po['unit_price'] + $detail_po['core_charge']), 2) ?>
+                    </td>
+                    <td>
+                        <?= print_number($detail_po['total_amount'] - $detail_po['left_paid_request'], 2) ?>
+                    </td>
+                    <td>
+                        <input id="sis_item_<?= $no ?>_<?= $no_item ?>" class="sis_item_<?= $no ?>" value="<?= $detail_po['left_paid_request'] ?>" type="hidden">
+                        <?= print_number($detail_po['left_paid_request'], 2) ?>
+                    </td>
+                    <td>
+                        <input name="qty_paid[]" id="in_qty_paid_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="in_qty_paid_<?= $no ?> form-control-payment" value="<?= $detail_po['quantity']-$detail_po['quantity_paid'] ?>">
+                    </td>
+                    <td>
+                        <input name="value[]" id="in_item_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="sel_applied_item sel_applied_<?= $no ?> form-control-payment" value="<?=$detail_po['left_paid_request']?>">
+                    </td>
+                    <td>
+                        <input type="checkbox" id="cb_<?= $no ?>_<?= $no_item ?>" data-row="<?= $no_item ?>" data-id="<?= $no ?>_<?= $no_item ?>" name="" style="display: inline;" class="check_adj">
+                    </td>
+                    <!-- <td></td> -->
+                    <td colspan="2">
+                        <input name="adj_value[]" id="in_adj_<?= $no ?>_<?= $no_item ?>" data-parent="<?= $no ?>" data-row="<?= $no_item ?>" type="number" class="hide form-control-payment sel_applied_adj sel_applied_adj<?= $no ?>" value="0" style="display: inline;">
+                    </td>
+                    <?php $no_item++; ?>
+                  </tr>
+                <?php endforeach; ?>
+                       
             </tbody>
             <tfoot>
               <tr>
@@ -342,6 +348,22 @@
     $("#table-document").append(row);
     setAddValue();
   }
+
+  //klik icon mata utk lihat item po
+  $("#listView").on("click", ".btn_view_detail", function() {
+    console.log('klik detail');
+    var selRow = $(this).data("row");
+    var tipe = $(this).data("tipe");
+    if (tipe == "view") {
+      $(this).data("tipe", "hide");
+      $('.detail_' + selRow).removeClass('hide');
+      $("#in_" + selRow).attr('readonly', true);
+    } else {
+      $(this).data("tipe", "view");
+      $('.detail_' + selRow).addClass('hide');
+      $("#in_" + selRow).attr('readonly', false);
+    }
+  })
 
   (function($) {
     $.fn.reset = function() {

@@ -186,11 +186,11 @@
                             <label for="basic_salary">Basic Salary</label>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <input type="text" name="plafon_biaya_dinas" id="plafon_biaya_dinas" class="form-control number" value="0" step=".01">
                             <label for="plafon_biaya_dinas">Plafon Biaya Dinas</label>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <input type="text" name="plafon_biaya_kesehatan" id="plafon_biaya_kesehatan" class="form-control number" value="0" step=".01">
                             <label for="plafon_biaya_kesehatan">Plafon Biaya Kesehatan</label>
                         </div>

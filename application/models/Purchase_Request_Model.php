@@ -180,6 +180,7 @@ class Purchase_Request_Model extends MY_Model
       if(!empty($status)){
         $db->where_in('tb_inventory_purchase_requisition_details.status', $status);
       }
+      $db->where_not_in('tb_inventory_purchase_requisition_details.status', ['canceled']);
     }
 
     if (!empty($_POST['columns'][8]['search']['value'])) {

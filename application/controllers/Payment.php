@@ -538,7 +538,7 @@ class Payment extends MY_Controller
   {
     $this->authorized($this->module, 'document');
 
-    $entity = $this->model->findById($id);
+    $entity = $this->model->findByIdForEdit($id);
 
     $document_number  = sprintf('%06s', substr($entity['document_number'], 0, 6));
 

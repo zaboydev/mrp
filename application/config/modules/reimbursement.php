@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['reimbursement']['visible']         = TRUE;
+$config['module']['reimbursement']['visible']         = FALSE;
 $config['module']['reimbursement']['main_warehouse']   = TRUE;
 $config['module']['reimbursement']['parent']      = 'perjalanan_dinas';
 $config['module']['reimbursement']['label']       = 'Reimbursement';
