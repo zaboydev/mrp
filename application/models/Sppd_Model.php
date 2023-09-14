@@ -321,6 +321,13 @@ class Sppd_Model extends MY_Model
         $this->db->insert('tb_sppd');
         $document_id = $this->db->insert_id();
 
+
+        //update status SPD
+        $this->db->set('status','CLOSED');
+        $this->db->where('id', $spd_id);
+        $this->db->update('tb_business_trip_purposes');
+        //end
+
         $this->db->set('document_type','SPPD');
         $this->db->set('document_number',$document_number);
         $this->db->set('document_id', $document_id);
