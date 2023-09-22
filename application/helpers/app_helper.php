@@ -3639,4 +3639,50 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('get_count_revisi')) {
+    function get_count_revisi($document_number,$tipe)
+    {
+      $CI =& get_instance();
+
+      if($tipe=='SPD'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_business_trip_purposes');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }elseif($tipe=='PAYMENT'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_po_payment_no_transaksi');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }elseif($tipe=='REIMBURSEMENT'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_reimbursements');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }elseif($tipe=='SPPD'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_sppd');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }
+  
+  
+      
+  
+      return $return;
+    }
+  }
+
     

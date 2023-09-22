@@ -364,7 +364,7 @@ class Business_Trip_Request extends MY_Controller
 
         $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
         $format_number      = substr($entity['document_number'], 6, 21);
-        $revisi             = get_count_revisi($document_number.$format_number);
+        $revisi             = get_count_revisi($document_number.$format_number,'SPD');
 
         if (isset($_SESSION['business_trip']) === FALSE){
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
@@ -400,7 +400,7 @@ class Business_Trip_Request extends MY_Controller
 
         $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
         $format_number      = substr($entity['document_number'], 6, 21);
-        $revisi             = get_count_revisi($document_number.$format_number);
+        $revisi             = get_count_revisi($document_number.$format_number,'SPD');
 
         if (isset($_SESSION['business_trip']) === FALSE){
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
@@ -496,6 +496,10 @@ class Business_Trip_Request extends MY_Controller
 
             if ($_SESSION['business_trip']['notes']==NULL || $_SESSION['business_trip']['notes']=='') {
                 $errors[] = 'Attention!! Please Fill Notes!!';
+            }
+
+            if ($_SESSION['business_trip']['transportation']==NULL || $_SESSION['business_trip']['transportation']=='') {
+                $errors[] = 'Attention!! Please Fill Transportation!!';
             }
 
             if (!empty($errors)){

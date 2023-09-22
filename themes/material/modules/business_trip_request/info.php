@@ -73,6 +73,9 @@
 
             <dt>Requested By</dt>
             <dd><?=strtoupper($entity['request_by']);?></dd>
+
+            <dt>Payment Status</dt>
+            <dd><?=$entity['payment_status'];?> <?= ($entity['paid_at'])? 'at '.print_date($entity['paid_at'],'d M Y'): '';?></dd> 
         </dl>
       </div>
     </div>

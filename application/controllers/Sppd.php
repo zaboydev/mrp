@@ -386,7 +386,7 @@ class Sppd extends MY_Controller
 
         $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
         $format_number      = substr($entity['document_number'], 6, 21);
-        $revisi             = get_count_revisi($document_number.$format_number);
+        $revisi             = get_count_revisi($document_number.$format_number,'SPPD');
 
         if (isset($_SESSION['sppd']) === FALSE){
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
@@ -422,7 +422,7 @@ class Sppd extends MY_Controller
 
         $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
         $format_number      = substr($entity['document_number'], 6, 21);
-        $revisi             = get_count_revisi($document_number.$format_number);
+        $revisi             = get_count_revisi($document_number.$format_number,'SPPD');
 
         if (isset($_SESSION['sppd']) === FALSE){
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
