@@ -4,6 +4,8 @@ class Reimbursement_Model extends MY_Model
 {
     protected $module;
     protected $budget_year;
+    protected $connection;
+    protected $budget_month;
 
     public function __construct()
     {
@@ -11,6 +13,9 @@ class Reimbursement_Model extends MY_Model
         
         $this->budget_year  = find_budget_setting('Active Year');
         $this->module = config_item('module')['reimbursement'];
+        $this->connection   = $this->load->database('budgetcontrol', TRUE);
+        $this->budget_year  = find_budget_setting('Active Year');
+        $this->budget_month = find_budget_setting('Active Month');
     }
 
     public function getSelectedColumns()
@@ -65,12 +70,15 @@ class Reimbursement_Model extends MY_Model
                 $this->db->where('tb_reimbursements.status', $search_status);         
             }            
         }else{    
-            if (config_item('as_head_department')=='yes'){
+            if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
                 $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HEAD DEPT');
                 $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
             }
             elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
                 $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HR MANAGER');
+            }
+            elseif (config_item('auth_role')=='FINANCE MANAGER'){                
+                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY FINANCE MANAGER');
             }
         }
 
@@ -249,6 +257,7 @@ class Reimbursement_Model extends MY_Model
         $head_dept                  = $_SESSION['reimbursement']['head_dept'];
         $occupation                 = $_SESSION['reimbursement']['occupation'];
         $type                       = $_SESSION['reimbursement']['type'];
+        $account_code               = $_SESSION['reimbursement']['account_code'];
         $employee_has_benefit_id                       = $_SESSION['reimbursement']['employee_has_benefit_id'];
 
         $this->db->set('annual_cost_center_id', $annual_cost_center_id);
@@ -262,6 +271,7 @@ class Reimbursement_Model extends MY_Model
         $this->db->set('occupation', $occupation);
         $this->db->set('head_dept', $head_dept);
         $this->db->set('notes', $notes);
+        $this->db->set('account_code', $account_code);
         $this->db->set('total', 0);
         $this->db->set('request_by', config_item('auth_person_name'));
         $this->db->set('created_by', config_item('auth_person_name'));
@@ -384,6 +394,151 @@ class Reimbursement_Model extends MY_Model
         return TRUE;
     }
 
+    public function create_expense()
+    {
+        $this->db->trans_begin();        
+        $this->connection->trans_begin();
+
+        $id = $this->input->post('id');
+
+        $reimbursement = $this->findById($id);
+        $date = date('Y-m-d');
+
+        $this->db->set('status','EXPENSE REQUEST');
+        $this->db->set('validated_by',config_item('auth_person_name'));
+        $this->db->where('id', $id);
+        $this->db->update('tb_reimbursements');
+
+        $order_number = $this->getExpenseOrderNumber();
+        $cost_center = $this->findCostCenter($reimbursement['annual_cost_center_id']);
+        $format_number = $this->getExpenseFormatNumber($cost_center['cost_center_code']);
+        $pr_number = $order_number.$format_number;
+        $this->connection->set('annual_cost_center_id', $reimbursement['annual_cost_center_id']);
+        $this->connection->set('order_number', $order_number);
+        $this->connection->set('pr_number', $pr_number);
+        $this->connection->set('pr_date', $date);
+        $this->connection->set('required_date', $date);
+        $this->connection->set('status', 'pending');
+        $this->connection->set('notes', 'expense reimbursement : #'.$reimbursement['document_number']);
+        $this->connection->set('created_by', config_item('auth_person_name'));
+        $this->connection->set('updated_by', config_item('auth_person_name'));
+        $this->connection->set('created_at', date('Y-m-d H:i:s'));
+        $this->connection->set('updated_at', date('Y-m-d H:i:s'));
+        $this->connection->set('with_po', false);
+        $this->connection->set('head_dept', $reimbursement['head_dept']);
+        $this->connection->set('base', config_item('auth_warehouse'));
+        $this->connection->insert('tb_expense_purchase_requisitions');
+
+        $document_id = $this->connection->insert_id();
+
+        $account = $this->getAccountByAccountCode($reimbursement['account_code']);
+
+        // GET BUDGET MONTHLY ID
+        $this->connection->from('tb_expense_monthly_budgets');
+        $this->connection->where('tb_expense_monthly_budgets.account_id', $account['id']);
+        $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $reimbursement['annual_cost_center_id']);
+        $this->connection->where('tb_expense_monthly_budgets.month_number', $this->budget_month);
+        // $this->connection->where('tb_capex_monthly_budgets.year_number', $this->budget_year);
+
+        $query  = $this->connection->get();
+        if ($query->num_rows() == 0) {
+            //jika budget tidak ada
+            // // NEW BUDGET
+            $this->connection->set('annual_cost_center_id', $reimbursement['annual_cost_center_id']);
+            $this->connection->set('account_id', $account['id']);
+            $this->connection->set('month_number', $this->budget_month);
+            // $this->connection->set('year_number', $this->budget_year);
+            $this->connection->set('initial_quantity', floatval(0));
+            $this->connection->set('initial_budget', floatval(0));
+            $this->connection->set('mtd_quantity', floatval(0));
+            $this->connection->set('mtd_budget', floatval($reimbursement['total']));
+            $this->connection->set('mtd_used_quantity', floatval(0));
+            $this->connection->set('mtd_used_budget', floatval(0));
+            $this->connection->set('mtd_used_quantity_import', floatval(0));
+            $this->connection->set('mtd_used_budget_import', floatval(0));
+            $this->connection->set('mtd_prev_month_quantity', floatval(0));
+            $this->connection->set('mtd_prev_month_budget', floatval(0));
+            $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
+            $this->connection->set('mtd_prev_month_used_budget', floatval(0));
+            $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
+            $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
+            $this->connection->set('ytd_quantity', floatval(0));
+            $this->connection->set('ytd_budget', floatval($reimbursement['total']));
+            $this->connection->set('ytd_used_quantity', floatval(0));
+            $this->connection->set('ytd_used_budget', floatval(0));
+            $this->connection->set('ytd_used_quantity_import', floatval(0));
+            $this->connection->set('ytd_used_budget_import', floatval(0));
+            $this->connection->set('created_at', date('Y-m-d'));
+            $this->connection->set('created_by', config_item('auth_person_name'));
+            $this->connection->set('updated_at', date('Y-m-d'));
+            $this->connection->set('updated_by', config_item('auth_person_name'));
+            $this->connection->insert('tb_expense_monthly_budgets');
+
+            $expense_monthly_budget_id = $this->connection->insert_id();
+
+            //create expense unbudgeted
+            $this->connection->set('annual_cost_center_id', $reimbursement['annual_cost_center_id']);
+            $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
+            $this->connection->set('year_number', $this->budget_year);
+            $this->connection->set('amount', $reimbursement['total']);
+            $this->connection->set('previous_budget', 0);
+            $this->connection->set('new_budget', $reimbursement[['total']]);
+            $this->connection->set('created_at', date('Y-m-d'));
+            $this->connection->set('created_by', config_item('auth_person_name'));
+            $this->connection->set('notes', NULL);
+            $this->connection->insert('tb_expense_unbudgeted');
+        }else{
+            $expense_monthly_budget    = $query->unbuffered_row();
+            $expense_monthly_budget_id = $expense_monthly_budget->id;
+        }
+
+        $year = $this->budget_year;
+        $month = $this->budget_month;
+
+        for ($i = $month; $i < 13; $i++) {
+            $this->connection->set('ytd_used_budget', 'ytd_used_budget + ' . $reimbursement['total'], FALSE);
+            $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $reimbursement['annual_cost_center_id']);
+            $this->connection->where('tb_expense_monthly_budgets.account_id', $account['id']);
+            $this->connection->where('tb_expense_monthly_budgets.month_number', $i);
+            $this->connection->update('tb_expense_monthly_budgets');
+        }
+
+        //insert data on used budget 
+        $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
+        $this->connection->set('expense_purchase_requisition_id', $document_id);
+        $this->connection->set('pr_number', $pr_number);
+        $this->connection->set('cost_center', $cost_center['cost_center_name']);
+        $this->connection->set('year_number', $this->budget_year);
+        $this->connection->set('month_number', $this->budget_month);
+        $this->connection->set('account_name', $account['account_name']);
+        $this->connection->set('account_code', $account['account_code']);
+        $this->connection->set('used_budget', $reimbursement['total']);
+        $this->connection->set('created_at', date('Y-m-d H:i:s'));
+        $this->connection->set('created_by', config_item('auth_person_name'));
+        $this->connection->insert('tb_expense_used_budgets');
+
+        //update monthly budget
+        $this->connection->set('mtd_used_budget', 'mtd_used_budget + ' . $reimbursement['total'], FALSE);
+        $this->connection->where('id', $expense_monthly_budget_id);
+        $this->connection->update('tb_expense_monthly_budgets');
+
+        $this->connection->set('expense_purchase_requisition_id', $document_id);
+        $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
+        $this->connection->set('sort_order', floatval($key));
+        // $this->connection->set('sisa', floatval($data['amount']));
+        $this->connection->set('amount', floatval($reimbursement['total']));
+        $this->connection->set('total', floatval($reimbursement['total']));
+        $this->connection->set('reference_ipc', $reimbursement['document_number']);
+        $this->connection->insert('tb_expense_purchase_requisition_details');
+
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+            return ['status'=>FALSE,'pr_number'=>$pr_number];
+
+        $this->db->trans_commit();
+        $this->connection->trans_commit();
+        return ['status'=>TRUE,'pr_number'=>$pr_number];
+    }
+
     public function getEmployeeHasBenefit($employee_number,$employee_benefit,$position)
     {
         $level = getLevelByPosition($position);
@@ -456,6 +611,7 @@ class Reimbursement_Model extends MY_Model
         $success    = 0;
         $failed     = sizeof($document_id);
         $x          = 0;
+        $send_email_to = NULL;
 
         foreach ($document_id as $id) {
             $selected = array(
@@ -475,14 +631,14 @@ class Reimbursement_Model extends MY_Model
 
             if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
-                $this->db->set('known_by',config_item('auth_person_name'));
+                $this->db->set('validated_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
                 $this->db->update('tb_reimbursements');
 
                 $this->db->set('document_type','RF');
                 $this->db->set('document_number',$spd['document_number']);
                 $this->db->set('document_id', $id);
-                $this->db->set('action','known by');
+                $this->db->set('action','validated by');
                 $this->db->set('date', date('Y-m-d'));
                 $this->db->set('username', config_item('auth_username'));
                 $this->db->set('person_name', config_item('auth_person_name'));
@@ -491,9 +647,46 @@ class Reimbursement_Model extends MY_Model
                 $this->db->set('sign', get_ttd(config_item('auth_person_name')));
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
+                $send_email_to = 'hr_manager';
 
-            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
-                
+            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+                $this->db->set('status','WAITING APPROVAL BY FINANCE MANAGER');
+                $this->db->set('hr_approved_by',config_item('auth_person_name'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_reimbursements');
+
+                $this->db->set('document_type','RF');
+                $this->db->set('document_number',$spd['document_number']);
+                $this->db->set('document_id', $id);
+                $this->db->set('action','hr approved by');
+                $this->db->set('date', date('Y-m-d'));
+                $this->db->set('username', config_item('auth_username'));
+                $this->db->set('person_name', config_item('auth_person_name'));
+                $this->db->set('roles', config_item('auth_role'));
+                $this->db->set('notes', $approval_notes[$x]);
+                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_signers');
+                $send_email_to = 'finance_manager';
+            }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
+                $this->db->set('status','APPROVED');
+                $this->db->set('finance_approved_by',config_item('auth_person_name'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_reimbursements');
+
+                $this->db->set('document_type','RF');
+                $this->db->set('document_number',$spd['document_number']);
+                $this->db->set('document_id', $id);
+                $this->db->set('action','finance approved by');
+                $this->db->set('date', date('Y-m-d'));
+                $this->db->set('username', config_item('auth_username'));
+                $this->db->set('person_name', config_item('auth_person_name'));
+                $this->db->set('roles', config_item('auth_role'));
+                $this->db->set('notes', $approval_notes[$x]);
+                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_signers');
+                $send_email_to = NULL;
             }
             $total++;
             $success++;
@@ -505,7 +698,10 @@ class Reimbursement_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
-        $this->send_mail($document_id, 'hr_manager');
+        if($send_email_to!=NULL){
+            $this->send_mail($document_id, $send_email_to);
+        }
+        
 
         $this->db->trans_commit();
         return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
@@ -581,16 +777,19 @@ class Reimbursement_Model extends MY_Model
             $keterangan = 'HR Manager';
         }elseif($next_approval=='head_dept'){
             $selected = array(
-                'tb_business_trip_purposes.*',
+                'tb_reimbursements.*',
             );
             $this->db->select($selected);
-            $this->db->where('tb_business_trip_purposes.id',$doc_id);
-            $query      = $this->db->get('tb_business_trip_purposes');
+            $this->db->where('tb_reimbursements.id',$doc_id);
+            $query      = $this->db->get('tb_reimbursements');
             $row        = $query->unbuffered_row('array');
             $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
             $keterangan = "Head Dept : " . $department['department_name'];
 
             $recipientList = getNotifRecipient_byUsername($row['head_dept']);
+        }elseif($next_approval=='finance_manager'){
+            $recipientList = getNotifRecipientFinManager();
+            $keterangan = 'Finance Manager';
         }
 
         $recipient = array();
@@ -600,26 +799,23 @@ class Reimbursement_Model extends MY_Model
 
         if(!empty($recipient)){
             $selected = array(
-                'tb_business_trip_purposes.*',
-                'tb_master_business_trip_destinations.business_trip_destination'
+                'tb_reimbursements.*',
             );
             $this->db->select($selected);
-            $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
             if(is_array($doc_id)){
-                $this->db->where_in('tb_business_trip_purposes.id',$doc_id);
+                $this->db->where_in('tb_reimbursements.id',$doc_id);
             }else{
-                $this->db->where('tb_business_trip_purposes.id',$doc_id);
+                $this->db->where('tb_reimbursements.id',$doc_id);
             }
-            $query      = $this->db->get('tb_business_trip_purposes');
+            $query      = $this->db->get('tb_reimbursements');
     
             $item_message = '<tbody>';
             foreach ($query->result_array() as $key => $item) {
                 $item_message .= "<tr>";
                 $item_message .= "<td>" . print_date($item['date']) . "</td>";
                 $item_message .= "<td>" . $item['document_number'] . "</td>";
+                $item_message .= "<td>" . $item['type'] . "</td>";
                 $item_message .= "<td>" . $item['person_name'] . "</td>";
-                $item_message .= "<td>" . $item['business_trip_destination'] . "</td>";
-                $item_message .= "<td>" . print_date($item['start_date'],'d M Y').' s/d '.print_date($item['end_date'],'d M Y') . "</td>";
                 $item_message .= "</tr>";
             }
             $item_message .= '</tbody>';
@@ -634,10 +830,9 @@ class Reimbursement_Model extends MY_Model
             $message .= "<thead>";
             $message .= "<tr>";
             $message .= "<th>Date</th>";
-            $message .= "<th>No. SPD</th>";
+            $message .= "<th>No. Reimbursement</th>";
+            $message .= "<th>Type</th>";
             $message .= "<th>Name</th>";
-            $message .= "<th>Destination</th>";
-            $message .= "<th>Duration</th>";
             $message .= "</tr>";
             $message .= "</thead>";
             $message .= $item_message;
@@ -647,7 +842,7 @@ class Reimbursement_Model extends MY_Model
             $message .= "<p>Thanks and regards</p>";
             $this->email->from($from_email, 'Material Resource Planning');
             $this->email->to($recipient);
-            $this->email->subject('Permintaan Approval SPD');
+            $this->email->subject('Permintaan Approval Reimbursement');
             $this->email->message($message);
             
     
@@ -659,7 +854,50 @@ class Reimbursement_Model extends MY_Model
         }else{
             return true;
         }
-
         
+    }
+
+    public function getExpenseOrderNumber(){
+        $this->connection->select_max('order_number', 'last_number');
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $query        = $this->connection->get();
+        if($query->num_rows() > 0){      
+            $request      = $query->unbuffered_row('array');
+            $last_number  = $request['last_number'];
+            $return       = $last_number + 1;
+        }else{
+            $return = 1;
+        }
+
+        return $return;
+    }
+
+    public function findCostCenter($annual_cost_center_id){
+        $this->connection->select(array('cost_center_code','cost_center_name','department_id'));
+        $this->connection->from( 'tb_cost_centers' );
+        $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+        $this->connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
+
+        $query    = $this->connection->get();
+        $cost_center = $query->unbuffered_row('array');
+
+        return $cost_center;
+    }
+
+    public function getExpenseFormatNumber($cost_center_code){
+        $return = '/Exp/'.$cost_center_code.'/'.find_budget_setting('Active Year');
+
+        return $return;
+    }
+
+    public function getAccountByAccountCode($account_code){
+        $this->connection->select('*');
+        $this->connection->from( 'tb_accounts' );
+        $this->connection->where('tb_accounts.account_code', $account_code);
+
+        $query    = $this->connection->get();
+        $account = $query->unbuffered_row('array');
+
+        return $account;
     }
 }

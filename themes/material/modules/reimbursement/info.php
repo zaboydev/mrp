@@ -169,6 +169,16 @@
                 <small class="top right">print</small>
             </a>
             <?php endif;?>
+            <?=form_open(current_url(), array(
+                'class' => 'form-xhr-create-expense pull-left',
+            ));?>
+            <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+
+            <a href="<?=site_url($module['route'] .'/create_expense_ajax/');?>" class="btn btn-floating-action btn-primary btn-xhr-create-expense btn-tooltip ink-reaction" id="btn-xhr-create-expense">
+                <i class="fa fa-money"></i>
+                <small class="top left">Create Expense</small>
+            </a>
+            <?=form_close();?>
         </div>
     </div>
 </div>
