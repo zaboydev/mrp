@@ -32,6 +32,7 @@ class Business_Trip_Request extends MY_Controller
             $quantity     = array();
             $unit_value   = array();
             $total_value  = array();
+            $today = date('Y-m-d');
 
             foreach ($entities as $row){
                 
@@ -54,7 +55,11 @@ class Business_Trip_Request extends MY_Controller
                         $col[] = print_number($no);
                     }                
                     $col[] = print_string($row['document_number']);
-                    $col[] = print_string($row['status']);
+                    if($today>$row['end_date'] && $row['status']!='CLOSED'){
+                        $col[] = "<span class='label-status warning'>". print_string($row['status'])."</span>";
+                    }else{
+                        $col[] = "<span>". print_string($row['status'])."</span>";
+                    }                    
                     $col[] = print_date($row['date']);
                     $col[] = print_string($cost_center['department_name']);
                     $col[] = print_string($row['person_name']);
@@ -257,6 +262,14 @@ class Business_Trip_Request extends MY_Controller
         $_SESSION['business_trip']['command_by'] = $_GET['data'];
     }
 
+    public function set_remarks_transport()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['business_trip']['remarks_transport'] = $_GET['data'];
+    }
+
     public function set_approval_notes()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -300,6 +313,7 @@ class Business_Trip_Request extends MY_Controller
             $_SESSION['business_trip']['end_date']                      = NULL;
             $_SESSION['business_trip']['from_base']                     = NULL;
             $_SESSION['business_trip']['transportation']                = NULL;
+            $_SESSION['business_trip']['remarks_transport']             = NULL;
             $_SESSION['business_trip']['command_by']                    = NULL;
             $_SESSION['business_trip']['attachment']                    = array();
 
@@ -684,20 +698,6 @@ class Business_Trip_Request extends MY_Controller
                 'info' => "There are " . $save_approval['failed'] . " errors"
             ));
         }
-
-        if ($save_approval['success'] > 0) {
-            // $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
-            $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $success . " data has been update!"
-            ));
-        }
-        if ($save_approval['failed'] > 0) {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are " . $failed . " errors"
-            ));
-        }
         
         if ($save_approval['total'] == 0) {
             $result['status'] = 'failed';
@@ -834,6 +834,29 @@ class Business_Trip_Request extends MY_Controller
 
         redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
         // echo json_encode($result);
+    }
+
+    public function create_expense_ajax()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'create') === FALSE){
+            $alert['type']  = 'danger';
+            $alert['info']  = 'You are not allowed to create this data!';
+        } else {
+            $create_expense = $this->model->create_expense();
+            if ($create_expense['status']){
+                $alert['type'] = 'success';
+                $alert['info'] = 'SPD has beenn created in to Expense Request #'.$create_expense['pr_number'];
+                $alert['link'] = site_url($this->module['route']);
+            } else {
+                $alert['type'] = 'danger';
+                $alert['info'] = 'There are error while creating data. Please try again later.';
+            }
+        }
+
+        echo json_encode($alert);
     }
 
     public function test()

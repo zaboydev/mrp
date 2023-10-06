@@ -17,8 +17,8 @@
     <tr>
         <td>Date.</td>
         <th>: <?= print_date($entity['tanggal']); ?></th>
-        <td>Payment Status</td>
-        <th>: <?= $entity['status']; ?></th>
+        <td>Payment No</td>
+        <th>: <?= $entity['payment_number']; ?></th>
         <td>No. Konfirmasi</td>
         <th>: <?= ($entity['status']=='PAID')? $entity['no_konfirmasi']:'n/b'; ?></th>
     </tr>
@@ -42,8 +42,7 @@
             <th>Date</th>
             <th>Person in Charge</th>
             <th style="text-align:center;">Remarks</th>
-            <th style="text-align:right;">Amount</th>
-            <th style="text-align:right;">Amount Paid</th>
+            <th style="text-align:right;">Amount Request</th>
         </tr>
     </thead>
     <tbody>
@@ -56,22 +55,19 @@
                 <?= print_number($n); ?>
             </td>
             <td>
-                <?=print_string($request['document_number'])?>
+                <?=print_string($request['spd_number'])?>
             </td>                 
                                 
             <td>
                 <?= print_date($request['spd_date']); ?>
             </td>
             <td>
-                <?= print_string($request['person_name']); ?>
+                <?= print_string($request['spd_person_incharge']); ?>
             </td>
             <td>
                 <?= print_string($request['remarks']); ?>
             </td>
-            <td>
-                <?= print_number($request['total_spd'],2); ?>
-            </td>
-            <td>
+            <td style="text-align:right;">
                 <?= print_number($request['amount_paid'],2); ?>
                 <?php $amount_paid[] = $request['amount_paid']; ?>
             </td>
@@ -80,8 +76,12 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="3">Total</th>
+            <th colspan="5">Total</th>
             <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
+        </tr>
+        <tr>
+            <th colspan="5">Paid</th>
+            <th style="text-align: right;"><?= print_number($entity['amount_paid'], 2); ?></th>
         </tr>
     </tfoot>
 </table>
@@ -104,13 +104,9 @@
     <tr>
         <td valign="top" align="center">
             <p>
-            <?php if($entity['type']!='CASH'): ?>
-                Prepared by:
-            <?php else:?>
-                Prepared & Approved
-            <?php endif;?>
-                <br />AP STAFF
-                <br />&nbsp;<br>
+                Request by
+                <br /><?=$entity['signers']['created by']['roles'];?>
+                <br />&nbsp;
                 <?php if ($entity['signers']['created by']['sign']) : ?>
                 <?=print_date($entity['signers']['created by']['date'],'d M Y');?>
                 <br>
@@ -120,24 +116,32 @@
                 <br /><?=$entity['signers']['created by']['person_name'];?>
             </p>
         </td>
-        <?php if($entity['type']!='CASH'): ?>
-            
-
-            <td valign="top" align="center">
-                <p>
-                    Approved by:
-                    <br />Finance Manager
-                    <?php if ($entity['signers']['approved by']['sign']) : ?>
-                    <?=print_date($entity['signers']['approved by']['date'],'d M Y');?>
-                    <br>
-                    <img src="<?= base_url('ttd_user/' . $entity['signers']['approved by']['sign']); ?>" width="auto" height="50">
-                    <?php endif; ?>
-                    <br />
-                    <br /><?=$entity['signers']['approved by']['person_name'];?>
-                </p>
-            </td>
-
-        <?php endif;?>
+        <td valign="top" align="center">
+            <p>
+                Review by:
+                <br /><?=$entity['signers']['review by']['role'];?>
+                <?php if ($entity['signers']['review by']['sign']) : ?>
+                <?=print_date($entity['signers']['review by']['date'],'d M Y');?>
+                <br>
+                <img src="<?= base_url('ttd_user/' . $entity['signers']['review by']['sign']); ?>" width="auto" height="50">
+                <?php endif; ?>
+                <br />
+                <br /><?=$entity['signers']['review by']['person_name'];?>
+            </p>
+        </td>
+        <td valign="top" align="center">
+            <p>
+                Approved by:
+                <br /><?=$entity['signers']['approved by']['role'];?>
+                <?php if ($entity['signers']['approved by']['sign']) : ?>
+                <?=print_date($entity['signers']['approved by']['date'],'d M Y');?>
+                <br>
+                <img src="<?= base_url('ttd_user/' . $entity['signers']['approved by']['sign']); ?>" width="auto" height="50">
+                <?php endif; ?>
+                <br />
+                <br /><?=$entity['signers']['approved by']['person_name'];?>
+            </p>
+        </td>
     </tr>
 </table>
 

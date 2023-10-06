@@ -84,10 +84,21 @@
                             <label for="from">From / Kota Asal</label>
                         </div>
 
-                        <div class="form-group">
-                            <input type="text" name="transportation" id="transportation" class="form-control" value="<?= $_SESSION['business_trip']['transportation']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" required>
+                        <div class="form-group" style="padding-top: 25px;">
+                            <select name="transportation" id="transportation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" data-placeholder="Select Transport" required>
+                                <option></option>
+                                <?php foreach(transportation_list() as $transportation):?>
+                                <option value="<?=$transportation['transportation'];?>" <?= ($transportation['transportation'] == $_SESSION['business_trip']['transportation']) ? 'selected' : ''; ?>><?=$transportation['transportation'];?></option>
+                                <?php endforeach;?>
+                            </select>
+                            <input type="hidden" name="transportation" id="transportationinput" class="form-control" value="<?= $_SESSION['business_trip']['transportation']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" required>
                             <label for="transportation">Transportation / Jenis Transportasi</label>
                         </div>  
+
+                        <div class="form-group">
+                            <textarea name="remarks_transport" id="remarks_transport" class="form-control" rows="2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_remarks_transport'); ?>"><?= $_SESSION['business_trip']['remarks_transport']; ?></textarea>
+                            <label for="remarks_transport">Remarks Transport</label>
+                        </div>
 
                         <div class="form-group" style="padding-top: 25px;">
                             <select name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_destination'); ?>" data-placeholder="Select Destination" required>
@@ -100,8 +111,14 @@
                         </div> 
                         
                         <div class="form-group">
-                            <input type="hidden" name="start_date" id="start_date" class="form-control" value="<?= $_SESSION['business_trip']['start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_start_date'); ?>" required>
-                            <input type="hidden" name="end_date" id="end_date" class="form-control" value="<?= $_SESSION['business_trip']['end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_end_date'); ?>" required>
+                            <div class="row hide">
+                                <div class="col-md-6">
+                                    <input type="text" name="start_date" id="start_date" data-provide="datepicker" class="form-control" value="<?= $_SESSION['business_trip']['start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_start_date'); ?>" required readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="end_date" id="end_date" data-provide="datepicker" class="form-control" value="<?= $_SESSION['business_trip']['end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_end_date'); ?>" required readonly>
+                                </div>
+                            </div>                            
                             <input type="text" name="dateline" id="dateline" data-provide="daterange" class="form-control" value="<?= $_SESSION['business_trip']['dateline']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_dateline'); ?>" required readonly>
                             <label for="dateline">Date</label>
                         </div>
@@ -120,7 +137,7 @@
 
                         <div class="form-group">
                             <textarea name="command_by" id="command_by" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_command_by'); ?>"><?= $_SESSION['business_trip']['command_by']; ?></textarea>
-                            <label for="notes">Perintah Dinas Diberikan oleh</label>
+                            <label for="notes">Keterangan Perjalanan Dinas</label>
                         </div>
                     </div>
                 </div>

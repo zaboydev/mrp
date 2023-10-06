@@ -20,6 +20,10 @@
                         <div class="pull-right"><?= print_string($entity['document_number']); ?></div>
                     </div>
                     <div class="clearfix">
+                        <div class="pull-left">PAYMENT VOUCHER NO : </div>
+                        <div class="pull-right"><?= print_string($entity['payment_number']); ?></div>
+                    </div>
+                    <div class="clearfix">
                         <div class="pull-left"> DATE: </div>
                         <div class="pull-right"><?= print_date($entity['tanggal']); ?></div>
                     </div>
@@ -34,13 +38,13 @@
                 <dl class="dl-inline">
                     <dt>Status</dt>
                     <dd>
-                    <?php if($entity['status']=='PAID'):?>
-                    PAID by <?=$entity['paid_by']?> at <?= print_date($entity['paid_at'],'d/m/Y'); ?>
+                    <?php if($entity['status']=='PAID' || $entity['status']=='OPEN'):?>
+                    <?=$entity['status']?> by <?=$entity['paid_by']?> at <?= print_date($entity['paid_at'],'d/m/Y'); ?>
                     <?php endif;?>
                     <?php if($entity['status']=='APPROVED'):?>
                     WAITING PAYMENT
                     <?php endif;?>
-                    <?php if($entity['status']!='APPROVED' && $entity['status']!='PAID'):?>
+                    <?php if($entity['status']!='APPROVED' && $entity['status']!='PAID' && $entity['status']!='OPEN'):?>
                     Purpose Review
                     <?php endif;?>
                     </dd>
@@ -57,7 +61,7 @@
                     <dt>Transaction By</dt>
                     <dd><?= ($entity['type']=='BANK')? 'BANK TRANSFER':'CASH';?></dd>
 
-                    <?php if($entity['status']=='PAID'):?>
+                    <?php if($entity['status']=='PAID' || $entity['status']=='OPEN'):?>
                     <dt>Account</dt>
                     <?php else: ?>
                     <dt>Request Selected Account</dt>
@@ -86,8 +90,7 @@
                                 <th>Date</th>
                                 <th>Person in Charge</th>
                                 <th style="text-align:center;">Remarks</th>
-                                <th style="text-align:right;">Amount</th>
-                                <th style="text-align:right;">Amount Paid</th>
+                                <th style="text-align:right;">Amount Request</th>
                             </tr>
                         </thead>
                         <tbody id="table_contents">
@@ -113,9 +116,6 @@
                                     <?= print_string($request['remarks']); ?>
                                 </td>
                                 <td>
-                                    <?= print_number($request['spd_amount'],2); ?>
-                                </td>
-                                <td>
                                     <?= print_number($request['amount_paid'],2); ?>
                                     <?php $amount_paid[] = $request['amount_paid']; ?>
                                 </td>
@@ -127,6 +127,14 @@
                         <tr>
                             <th colspan="6">Total</th>
                             <th><?= print_number(array_sum($amount_paid), 2); ?></th>
+                        </tr>
+                        <tr>
+                            <th colspan="6">Paid</th>
+                            <th><?= print_number($entity['amount_paid'], 2); ?></th>
+                        </tr>
+                        <tr>
+                            <th colspan="6">Left</th>
+                            <th><?= print_number((array_sum($amount_paid)-$entity['amount_paid']), 2); ?></th>
                         </tr>
                         </tfoot>
                     </table>
@@ -211,31 +219,7 @@
         <?php endif; ?>
         </div>
         <div class="pull-right">
-        <?php if ($entity['revisi']=='t') : ?>
-            <?php if ($entity['type']=='CASH') : ?>
-            <?php if($entity['tanggal'] >= $data):?>
-                <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-                <i class="md md-edit"></i>
-                <small class="top right">edit</small>
-                </a>
-            <?php endif;  ?>
-            <?php else: ?>
-            <?php if ($entity['status'] != 'PAID' && $entity['status'] != 'APPROVED' && $entity['status'] != 'REVISI') : ?>
-                <?php if (is_granted($module, 'document')) : ?>
-                <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-                    <i class="md md-edit"></i>
-                    <small class="top right">edit</small>
-                </a>
-                <?php endif;  ?>
-            <?php endif;  ?>
-            <?php endif;  ?>  
-        <?php endif;  ?>
-        <?php if (is_granted($module, 'create')) : ?>
-            <a href="<?= site_url($module['route'] . '/edit/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-                <i class="md md-edit"></i>
-                <small class="top right">edit</small>
-            </a>
-        <?php endif;  ?>
+        
         <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>
             <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
             <i class="md md-attach-money"></i>

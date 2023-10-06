@@ -92,6 +92,12 @@
                                         <dd>
                                             <?=print_string($entity['notes']);?>
                                         </dd> 
+                                        <dt>
+                                            Transportasi
+                                        </dt>
+                                        <dd>
+                                            <?=print_string($entity['transportation']);?>
+                                        </dd> 
                                     </dl>
                                 </div>
                             </div>
@@ -102,6 +108,21 @@
                     <div class="col-sm-12 col-lg-7">
                         <div class="row">
                             <div class="col-sm-12">
+                                <div class="form-group" style="padding-top: 25px;">
+                                    <select name="transportation" id="transportation" class="form-control select2" data-placeholder="Select Transport" required>
+                                        <option></option>
+                                        <?php foreach(transportation_list() as $transportation):?>
+                                        <option value="<?=$transportation['transportation'];?>" <?= ($transportation['transportation'] == $entity['transportation']) ? 'selected' : ''; ?>><?=$transportation['transportation'];?></option>
+                                        <?php endforeach;?>
+                                    </select>
+                                    <label for="transportation">Transportation / Jenis Transportasi</label>
+                                </div>  
+
+                                <div class="form-group">
+                                    <textarea name="remarks_transport" id="remarks_transport" class="form-control" rows="1"><?= $entity['remarks_transport']; ?></textarea>
+                                    <label for="remarks_transport">Remarks Transport</label>
+                                </div>
+                                
                                 <div class="form-group">
                                     <label for="type">Type</label>
                                     <div class="radio">
@@ -148,6 +169,7 @@
                                             </td>
                                             <td class="expense_name" style="font-weight:500;">
                                                 <input name="expense_name[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['expense_name'];?>" readonly>
+                                                <input name="account_code[]" type="hidden" class="sel_applied form-control input-sm" value="<?=$items['account_code'];?>" readonly>
                                             </td>
                                             <td class="qty" style="font-weight:500;">
                                                 <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>">

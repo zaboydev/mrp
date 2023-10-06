@@ -24,10 +24,20 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
+                                <div class="input-group">
+                                <div class="input-group-content">
+                                    <input type="text" name="pr_number" maxlength="6" id="pr_number" class="form-control" value="<?= $_SESSION['bayar']['payment_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>">
+                                    <input type="hidden" name="format_number" id="format_number_input" class="form-control" value="<?= $_SESSION['bayar']['format_number']; ?>">
+                                    <label for="pr_number">Payment Voucher No.</label>
+                                </div>
+                                <span class="input-group-addon" id="format_number"><?=$_SESSION['bayar']['format_number'];?></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <input readonly value="<?= $_SESSION['bayar']['document_number'] ?>" type="text" name="no_transaksi" id="no_transaksi" class="form-control">
                                 <input value="<?= $_SESSION['bayar']['po_payment_id'] ?>" type="hidden" name="po_payment_id" id="po_payment_id" class="form-control">
 
-                                <label for="suplier_select">Transaction Number</label>
+                                <label for="suplier_select">Advance Number</label>
                             </div>
                             <div class="form-group">
                                 <input type="text" name="date" id="date" class="form-control" value="<?= $_SESSION['bayar']['purposed_date'] ?>" disabled>
@@ -56,6 +66,15 @@
                                 <input readonly value="<?= $_SESSION['bayar']['currency'] ?>" type="text" name="currency_select" id="currency_select" class="form-control">
                                 <label for="currency">Currency</label>
                             </div>
+
+                            <div class="form-group <?= (config_item('auth_role') == 'PIC STAFF') ? 'hide' : ''; ?>">
+                                <select name="type" id="type" class="form-control" data-source="<?= site_url($module['route'] . '/set_type_transaction/'); ?>" required>
+                                    <option value="CASH" <?= ('CASH' == $_SESSION['bayar']['type']) ? 'selected' : ''; ?>>Cash</option>
+                                    <option value="BANK" <?= ('BANK' == $_SESSION['bayar']['type']) ? 'selected' : ''; ?>>Bank Transfer</option>
+                                </select>
+                                <label for="vendor">Transaction Type</label>
+                            </div>
+                            
                             <div class="form-group">
                                 <select id="account_select" class="form-control" name="account" required>
                                     <option value="">No Account</option>
@@ -89,7 +108,7 @@
                                 <label for="warehouse">Warehouse</label>
                             </div>
                             <div class="form-group">
-                                <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['bayar']['total_amount'] ?>" readonly="readonly">
+                                <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['bayar']['total_amount'] ?>">
                                 <label for="amount">Amount</label>
                             </div>
                         </div>
@@ -119,20 +138,20 @@
                                         <?= print_number($n); ?>
                                     </td>
                                     <td>
-                                        <a class="link" href="<?= site_url('business_trip_request/print_pdf/' . $request['spd_id']) ?>" target="_blank"><?=print_string($request['document_number'])?></a>
+                                        <a class="link" href="<?= site_url('business_trip_request/print_pdf/' . $request['document_id']) ?>" target="_blank"><?=print_string($request['spd_number'])?></a>
                                     </td>                  
                                     
                                     <td>
                                         <?= print_date($request['spd_date']); ?>
                                     </td>
                                     <td>
-                                        <?= print_string($request['person_name']); ?>
+                                        <?= print_string($request['spd_person_incharge']); ?>
                                     </td>
                                     <td>
                                         <?= print_string($request['remarks']); ?>
                                     </td>
                                     <td>
-                                        <?= print_number($request['total_spd'],2); ?>
+                                        <?= print_number($request['spd_amount'],2); ?>
                                     </td>
                                     <td>
                                         <?= print_number($request['amount_paid'],2); ?>
@@ -331,6 +350,8 @@
                 "po_payment_id": $("#po_payment_id").val(),
                 "no_konfirmasi": $("#no_konfirmasi").val(),
                 "paid_base": $("#paid_base").val(),
+                "payment_number": $("#pr_number").val(),
+                "payment_format_number": $("#format_number_input").val(),
                 // "item": postData
             },
             cache: false,
@@ -392,6 +413,38 @@
         $("#listView").html("");
         $("#total_general").html("0");
     }
+
+    $('#type').change(function() {
+        type_trs = $(this).val();
+        var account_view = $('#account_select');
+        var format_number_view = $('#format_number');
+        var format_number_input = $('#format_number_input');
+        account_view.html('');    
+
+        $.ajax({
+          type: "post",
+          url: '<?= base_url() . "expense_closing_payment/get_accounts" ?>',
+          data: {
+            'type': type_trs
+          },
+          cache: false,
+          success: function(response) {
+            var data = jQuery.parseJSON(response);
+            account_view.html(data.account);
+
+            format_number_view.html('');
+            format_number_view.html(data.format_number);
+            format_number_input.val(data.format_number);
+            $('#pr_number').val(data.document_number).trigger('change');
+          }
+        });
+
+        var val = $(this).val();
+        var url = $(this).data('source');
+
+        $.get( url, { data: val });
+
+    });
 </script>
 
 <?= html_script('themes/material/assets/js/core/source/App.min.js') ?>
