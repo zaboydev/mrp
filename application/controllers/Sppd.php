@@ -113,7 +113,10 @@ class Sppd extends MY_Controller
         $this->data['grid']['summary_columns']  = array();
 
         $this->data['grid']['order_columns']    = array(
-            0   => array( 0 => 1,  1 => 'desc' ),
+            0   => array( 0 => 0,  1 => 'desc' ),
+            1   => array( 0 => 1,  1 => 'desc' ),
+            2   => array( 0 => 2,  1 => 'desc' ),
+            3   => array( 0 => 3,  1 => 'desc' ),
         );
 
         $this->render_view($this->module['view'] .'/index');
@@ -323,6 +326,7 @@ class Sppd extends MY_Controller
             $_SESSION['sppd']['transportation']                = NULL;
             $_SESSION['sppd']['command_by']                    = NULL;
             $_SESSION['sppd']['attachment']                    = array();
+            $_SESSION['sppd']['attachment_detail']             = array();
             $_SESSION['sppd']['advance']                       = 0;
 
             redirect($this->module['route'] .'/create');
@@ -792,6 +796,14 @@ class Sppd extends MY_Controller
         $this->render_view($this->module['view'] . '/attachment');
     }
 
+    public function attachment_detail_spd($item_id,$type)
+    {
+        $this->authorized($this->module, 'create');
+        $this->data['item_id'] = $item_id;
+        $this->data['type'] = $type;
+        $this->render_view($this->module['view'] . '/attachment_detail', $this->data);
+    }
+
     public function add_attachment()
     {
         $result["status"] = 0;
@@ -808,7 +820,30 @@ class Sppd extends MY_Controller
 
             $data = array('upload_data' => $this->upload->data());
             $url = $config['upload_path'] . $data['upload_data']['file_name'];
-            array_push($_SESSION["business_trip"]["attachment"], $url);
+            array_push($_SESSION["sppd"]["attachment"], $url);
+            $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function add_attachment_detail()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        $config['upload_path'] = 'attachment/sppd-detail/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+            $error = array('error' => $this->upload->display_errors());
+        } else {
+
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            $data_att = $url.'|,'.$this->input->post('id_poe').'|,'.$this->input->post('tipe');
+            array_push($_SESSION["sppd"]["attachment_detail"],$data_att);
             $result["status"] = 1;
         }
         echo json_encode($result);
@@ -820,6 +855,17 @@ class Sppd extends MY_Controller
 
         $this->data['manage_attachment'] = $this->model->listAttachment($id);
         $this->data['id'] = $id;
+        $this->data['tipe'] = 'SPPD';
+        $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function manage_attachment_detail($id)
+    {
+        $this->authorized($this->module, 'info');
+
+        $this->data['manage_attachment'] = $this->model->listAttachment($id,'SPD-DETAIL');
+        $this->data['id'] = $id;
+        $this->data['tipe'] = 'SPD-DETAIL';
         $this->render_view($this->module['view'] . '/manage_attachment');
     }
 
@@ -827,7 +873,12 @@ class Sppd extends MY_Controller
     {
         $result["status"] = 0;
         $date = new DateTime();
-        $config['upload_path'] = 'attachment/spd/';
+        if($this->input->post('tipe')=='SPPD'){
+            $config['upload_path'] = 'attachment/sppd/';
+        }else{
+            $config['upload_path'] = 'attachment/sppd-detail/';
+        }
+        
         $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
         $config['max_size']  = 2000;
 
@@ -840,18 +891,69 @@ class Sppd extends MY_Controller
             $data = array('upload_data' => $this->upload->data());
             $url = $config['upload_path'] . $data['upload_data']['file_name'];
             // array_push($_SESSION["poe"]["attachment"], $url);
-            $this->model->add_attachment_to_db($id, $url);
+            $this->model->add_attachment_to_db($id, $url,$this->input->post('tipe'));
             $result["status"] = 1;
         }
         echo json_encode($result);
     }
 
-    public function delete_attachment_in_db($id_att, $id_poe)
+    public function delete_attachment($index)
+    {
+        $file = FCPATH . $_SESSION["sppd"]["attachment"][$index];
+        if (unlink($file)) {
+            unset($_SESSION["sppd"]["attachment"][$index]);
+            $_SESSION["sppd"]["attachment"] = array_values($_SESSION["sppd"]["attachment"]);
+            redirect($this->module['route'] . "/attachment", 'refresh');
+        }
+    }
+
+    public function delete_attachment_detail($index,$item_id,$type)
+    {
+        $att = $_SESSION["sppd"]["attachment_detail"][$index];
+        $att_explode = explode("|,", $att);
+        $file = FCPATH . $att_explode[0];
+        if (unlink($file)) {
+            unset($_SESSION["sppd"]["attachment_detail"][$index]);
+            $_SESSION["sppd"]["attachment_detail"] = array_values($_SESSION["sppd"]["attachment_detail"]);
+            redirect($this->module['route'] . "/attachment_detail_spd/".$item_id."/".$type, 'refresh');
+        }
+    }
+
+    public function delete_attachment_in_db($id_att, $id_poe, $tipe='SPD')
     {
         $this->model->delete_attachment_in_db($id_att);
 
-        redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+        if ($tipe=='SPD') {
+            redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+        }else{
+            redirect($this->module['route'] . "/manage_attachment_detail/" . $id_poe, 'refresh');
+        }
+
+        
         // echo json_encode($result);
+    }
+
+    public function create_expense_ajax()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'delete') === FALSE){
+            $alert['type']  = 'danger';
+            $alert['info']  = 'You are not allowed to delete this data!';
+        } else {
+            $create_expense = $this->model->create_expense();
+            if ($create_expense['status']){
+                $alert['type'] = 'success';
+                $alert['info'] = 'SPPD has beenn created in to Expense Request #'.$create_expense['pr_number'];
+                $alert['link'] = site_url($this->module['route']);
+            } else {
+                $alert['type'] = 'danger';
+                $alert['info'] = 'There are error while creating data. Please try again later.';
+            }
+        }
+
+        echo json_encode($alert);
     }
 
     public function test()

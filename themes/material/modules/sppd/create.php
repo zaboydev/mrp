@@ -46,7 +46,7 @@
                             <select name="spd_id" id="spd_id" data-placeholder="Pilih SPD" class="form-control select2" data-source="<?= site_url($module['route'] . '/set_spd_id'); ?>" required>
                                 <option></option>
                                 <?php foreach(available_spd() as $spd):?>
-                                <option data-spd-number="<?=$spd['document_number'];?>" value="<?=$spd['id'];?>" <?= ($spd['id'] == $_SESSION['sppd']['spd_id']) ? 'selected' : ''; ?>><?=$spd['document_number'];?></option>
+                                <option data-spd-number="<?=$spd['document_number'];?>" value="<?=$spd['id'];?>" <?= ($spd['id'] == $_SESSION['sppd']['spd_id']) ? 'selected' : ''; ?>><?=$spd['document_number'];?> | <?=$spd['person_name'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="notes">SPD No</label>
@@ -122,10 +122,13 @@
                         </tr>
                         <tr>
                             <th></th>
-                            <th>Expense Name</th>
-                            <th style="text-align:center;">Qty</th>
-                            <th style="text-align:center;">Amount</th>
-                            <th style="text-align:center;">Total</th>
+                            <th>Expense Name</th> 
+                            <th style="text-align:center;" class="hide">Qty</th>
+                            <th style="text-align:center;" class="hide">Amount Budget</th>
+                            <th style="text-align:center;">Total Budget</th>
+                            <th style="text-align:center;" class="hide">Amount Real</th>
+                            <th style="text-align:center;">Total Real</th>
+                            <th></th>
                         </tr>
                     </thead>
                 <tbody>
@@ -135,19 +138,40 @@
                         <td class="expense_name" style="font-weight:500;">
                             <input name="expense_name[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['expense_name'];?>" readonly>
                             <input name="item_id[]" type="hidden" class="sel_applied form-control input-sm" value="<?=$items['id'];?>" readonly>
+                            <input name="account_code[]" type="hidden" class="sel_applied form-control input-sm" value="<?=$items['account_code'];?>" readonly>
                         </td>
-                        <td class="qty" style="font-weight:500;">
+                        <td class="qty hide" style="font-weight:500;">
                             <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>">
                         </td>
-                        <td class="amount" style="font-weight:500;word-wrap:break-word;">
+                        <td class="amount hide" style="font-weight:500;word-wrap:break-word;">
+                            <input name="amount_budget[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>" readonly>
+                        </td>
+                        <td class="total" style="font-weight:500;">
+                            <input name="total_budget[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['total'];?>" readonly>
+                        </td>
+                        <td class="amount hide" style="font-weight:500;word-wrap:break-word;">
                             <input name="amount[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>">
                         </td>
                         <td class="total" style="font-weight:500;">
-                            <input name="total[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['total'];?>">
+                            <input name="total[]" type="text" class="sel_applied form-control number input-sm sel_applied_item_add" value="<?=$items['total'];?>">
+                        </td>
+                        <td class="total" style="font-weight:500;">
+                            <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment_detail_spd/'.$items['id'].'/SPD-DETAIL'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-xs btn-primary ink-reaction btn-tooltip">
+                                <i class="md md-attach-file"></i>
+                                <small class="top right">Manage Attachment</small>
+                            </a>
                         </td>
                     </tr>
                 <?php endforeach; ?>                    
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th></th> 
+                        <th colspan="2">Total</th>                        
+                        <th><span id="total_real"></span></th>
+                        <th></th> 
+                    </tr>
+                </tfoot>
                 </table>
                 <?php endif; ?>
             </div>
@@ -569,6 +593,32 @@
 
             window.location.href = url + '/' + current;
         });
+
+        $("#table-document").on("change", ".sel_applied_item_add", function() {
+            // console.log('test');
+            sum_total_real();
+
+        });
+
+        sum_total_real()
+
+        function sum_total_real() {
+            var sum = 0
+            $('[name="total[]"]').each(function (key, val) {
+                var val = $(this).val();
+                
+                if(val!=''){
+                console.log(val);
+                sum = parseFloat(sum) + parseFloat(val);
+                }
+                
+            });
+            var currency = parseFloat(sum).toLocaleString('id-ID', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            $("#total_real").html(currency);
+        }
     });
 </script>
 
