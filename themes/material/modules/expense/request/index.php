@@ -800,8 +800,8 @@
               }
 
             } else if (e.target.nodeName === "SPAN") {
-              var a = $(e.target).data('id');
-              console.log(e.target.nodeName);
+              // var a = $(e.target).data('id');
+              // console.log(e.target.nodeName);
               // console.log(price);
               ///////////////////////////////////////eventdefault
             }else if (e.target.nodeName === "I") {
@@ -837,47 +837,47 @@
             });
           }
           
-          $(datatableElement).find('tbody').on('click', 'a', function(e) {
-            e.preventDefault();
-            // console.log("tuliskan fungsinya disini");
-            // tulis disini
-            var id = $(this).data('id');
-            if (id == 'item') {
-              var a = $(this).data('item-row');
-              $.ajax({
-                url: "<?= site_url($module['route'] . '/info_item/'); ?>" + "/" + a,
-                type: 'get',
-                success: function(data) {
-                  var dataModal = $('#modal-item');
-                  var obj = $.parseJSON(data);
-                  $(dataModal)
-                    .find('.modal-body')
-                    .empty()
-                    .append(obj.info);
-                  $(dataModal).modal('show');
-                }
-              });
-            }
+          // $(datatableElement).find('tbody').on('click', 'a', function(e) {
+          //   e.preventDefault();
+          //   // console.log("tuliskan fungsinya disini");
+          //   // tulis disini
+          //   var id = $(this).data('id');
+          //   if (id == 'item') {
+          //     var a = $(this).data('item-row');
+          //     $.ajax({
+          //       url: "<?= site_url($module['route'] . '/info_item/'); ?>" + "/" + a,
+          //       type: 'get',
+          //       success: function(data) {
+          //         var dataModal = $('#modal-item');
+          //         var obj = $.parseJSON(data);
+          //         $(dataModal)
+          //           .find('.modal-body')
+          //           .empty()
+          //           .append(obj.info);
+          //         $(dataModal).modal('show');
+          //       }
+          //     });
+          //   }
 
-            if (id == 'on-hand') {
-              var a = $(this).data('item-row');
-              $.ajax({
-                url: "<?= site_url($module['route'] . '/info_on_hand/'); ?>" + "/" + a,
-                type: 'get',
-                success: function(data) {
-                  var dataModal = $('#modal-item');
-                  var obj = $.parseJSON(data);
-                  $(dataModal)
-                    .find('.modal-body')
-                    .empty()
-                    .append(obj.info);
-                  $(dataModal).modal('show');
-                }
-              });
-            }
+          //   if (id == 'on-hand') {
+          //     var a = $(this).data('item-row');
+          //     $.ajax({
+          //       url: "<?= site_url($module['route'] . '/info_on_hand/'); ?>" + "/" + a,
+          //       type: 'get',
+          //       success: function(data) {
+          //         var dataModal = $('#modal-item');
+          //         var obj = $.parseJSON(data);
+          //         $(dataModal)
+          //           .find('.modal-body')
+          //           .empty()
+          //           .append(obj.info);
+          //         $(dataModal).modal('show');
+          //       }
+          //     });
+          //   }
 
 
-          });
+          // });
 
           $('.filter_numeric_text').on('keyup click', function() {
             var i = $(this).data('column');

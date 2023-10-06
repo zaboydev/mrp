@@ -85,6 +85,7 @@ class Expense_Request extends MY_Controller
             $total = array();
 
             foreach ($entities as $row) {
+                $reference_document = json_decode($row['reference_document']);
                 if (viewOrNot($row['status'],$row['head_dept'],$row['department_name'])) {                
                     $no++;
                     $col = array();
@@ -136,6 +137,12 @@ class Expense_Request extends MY_Controller
                             }   
                         }
                     }
+
+                    if(is_array($reference_document)){
+                        $col[] = '<a href="'.$reference_document[3].'" class="link" target="_blank">'.$reference_document[2].'</a>';
+                    }else{
+                        $col[] = '';
+                    }                    
                     
                     $col[] = isAttachementExists($row['id'],'expense') ==0 ? '' : '<a href="javascript:;" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-xs ">
                         <i class="fa fa-eye"></i>

@@ -60,6 +60,11 @@
           <dt>Deliver To</dt>
           <dd><?=($entity['deliver_to']==null)? 'N/A':print_string($entity['deliver_to']);?></dd>
 
+          <?php if($entity['reference_document']!=null):?>
+          <dt>Ref. Doc. No</dt>
+          <dd><a href="<?=$entity['url_ref_doc'];?>" class="link" target="_blank"><?=$entity['ref_doc'];?></a></dd>
+          <?php endif;?>
+
           <dt>Notes</dt>
           <dd><?=($entity['notes']==null)? 'N/A':print_string($entity['notes']);?></dd>
           <?php if($entity['status']=='rejected'||$entity['status']=='canceled'):?>

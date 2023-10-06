@@ -32,7 +32,8 @@ class Expense_Request_Model extends MY_Model
             'tb_expense_purchase_requisitions.head_dept'                        => 'Accounts',
             'SUM(tb_expense_purchase_requisition_details.total) as total_expense'  => 'Total',
             'tb_expense_purchase_requisitions.notes'                            => 'Notes',
-            'tb_expense_purchase_requisitions.approved_notes'                             => 'Notes',
+            'tb_expense_purchase_requisitions.approved_notes'                   => 'Notes',
+            'tb_expense_purchase_requisitions.reference_document'               => 'Ref. Doc',
             NULL                                                                => 'Attachment',
         );
         if (config_item('as_head_department')=='yes') {
@@ -381,6 +382,11 @@ class Expense_Request_Model extends MY_Model
 
         $query    = $this->connection->get();
         $request  = $query->unbuffered_row('array');
+        if($request['reference_document']!=null){            
+            $reference_document = json_decode($request['reference_document']);
+            $request['ref_doc'] = $reference_document[2];
+            $request['url_ref_doc'] = $reference_document[3];
+        }  
 
         $select = array(
             'tb_expense_purchase_requisition_details.*',
