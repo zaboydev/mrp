@@ -3252,6 +3252,23 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('transportation_list')) {
+    function transportation_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_transportations.*');
+      $CI->db->where('tb_master_transportations.status','AVAILABLE');
+      $CI->db->from('tb_master_transportations');
+      $CI->db->order_by('tb_master_transportations.transportation', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
   if ( ! function_exists('getUserById')) {
     function getUserById($user_id)
     {
@@ -3405,11 +3422,12 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
 
-      $CI->db->select('tb_master_business_trip_destination_items.*');
+      $CI->db->select(array('tb_master_business_trip_destination_items.*','tb_master_expense_duty.account_code'));   
       $CI->db->where('tb_master_business_trip_destination_items.deleted_at is NULL',null,false);
       $CI->db->where('tb_master_business_trip_destination_items.business_trip_purposes_id',$id);
       $CI->db->where('tb_master_business_trip_destination_items.level',$level);
-      $CI->db->from('tb_master_business_trip_destination_items');
+      $CI->db->from('tb_master_business_trip_destination_items');   
+      $CI->db->join('tb_master_expense_duty','tb_master_expense_duty.expense_name = tb_master_business_trip_destination_items.expense_name');
       $CI->db->order_by('tb_master_business_trip_destination_items.expense_name', 'ASC');
 
       $query  = $CI->db->get();
@@ -3486,7 +3504,7 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
 
-      $CI->db->select('tb_master_employee_benefits.employee_benefit');
+      $CI->db->select('*');
       $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
       $CI->db->from('tb_master_employee_benefits');
       $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
@@ -3680,6 +3698,82 @@ if (!function_exists('currency_for_vendor_list')) {
   
   
       
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getNotifRecipientHrManager')) {
+    function getNotifRecipientHrManager()
+    {
+      $CI =& get_instance();
+  
+      $head_dept = array();
+  
+      foreach (list_user_in_head_department(11) as $head) {
+        $head_dept[] = $head['username'];
+      }
+  
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where_in('username', $head_dept);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getNotifRecipientFinManager')) {
+    function getNotifRecipientFinManager()
+    {
+      $CI =& get_instance();
+  
+      $head_dept = array();
+  
+      foreach (list_user_in_head_department(11) as $head) {
+        $head_dept[] = $head['username'];
+      }
+  
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where_in('auth_level', ['14']);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getNotifRecipientByRoleLevel')) {
+    function getNotifRecipientByRoleLevel($level)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where_in('auth_level', [$level]);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('next_advance_document_number')) {
+    function next_advance_document_number()
+    {
+      $CI =& get_instance();
+  
+      $format = '/ADV/'.date('Y');
+  
+      $CI->db->select_max('document_number', 'last_number');
+      $CI->db->from('tb_advance_payments');
+      $CI->db->like('document_number', $format);
+  
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next).$format;
   
       return $return;
     }
