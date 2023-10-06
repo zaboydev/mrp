@@ -53,7 +53,7 @@ class Spd_Payment extends MY_Controller
                                 $col[] = print_number($no);
                             }
                         }
-                    }else if ($row['status'] == 'WAITING REVIEW BY VP FINANCE' && config_item('auth_role')=='VP FINANCE') {
+                    }else if ($row['status'] == 'WAITING APPROVAL BY HOS' && config_item('auth_role')=='HEAD OF SCHOOL') {
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }else{
                         $col[] = print_number($no);
@@ -68,11 +68,11 @@ class Spd_Payment extends MY_Controller
                 $col[]  = print_string($row['currency']);
                 $col[]  = '<a href="javascript:;" data-id="item" data-item-row="' . $row['id'] . '" data-href="' . site_url($this->module['route'] . '/change_account/' . $row['id']) . '">' . print_string($row['coa_kredit']).' '.print_string($row['akun_kredit']) . '</a>';
                 if($row['currency']=='IDR'){
-                    $col[]  = print_number($row['amount_paid'], 2);
+                    $col[]  = (in_array($row['status'],['PAID','OPEN']))?print_number($row['amount_paid'], 2):print_number($row['amount_request'], 2);
                     $col[]  = print_number(0, 2);
                 }else{
                     $col[]  = print_number(0, 2);
-                    $col[]  = print_number($row['amount_paid'], 2);
+                    $col[]  = (in_array($row['status'],['PAID','OPEN']))?print_number($row['amount_paid'], 2):print_number($row['amount_request'], 2);
                 }        
                 $col[]  = print_string($row['status']);
                 $col[] = $attachment == 0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
@@ -691,6 +691,8 @@ class Spd_Payment extends MY_Controller
         $_SESSION['bayar']['base']                  = $item['base'];
         $_SESSION['bayar']['po_payment_id']         = $item['id'];
         $_SESSION['bayar']['total_amount']          = 0;
+        $_SESSION['bayar']['payment_number']        = payment_request_last_number($item['type']);
+        $_SESSION['bayar']['format_number']         = payment_request_format_number($item['type']);
         $_SESSION['bayar']['attachment']            = array();
         foreach ($_SESSION['bayar']['request'] as $i => $request){
           $_SESSION['bayar']['total_amount']          = $_SESSION['bayar']['total_amount']+$request['amount_paid'];
