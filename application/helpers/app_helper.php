@@ -3402,10 +3402,9 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
   
-      $CI->db->select('tb_master_business_trip_destination_items.expense_name');
-      $CI->db->from('tb_master_business_trip_destination_items');
-      $CI->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
-      $CI->db->group_by('tb_master_business_trip_destination_items.expense_name');
+      $CI->db->select('tb_master_expense_duty.expense_name');
+      $CI->db->from('tb_master_expense_duty');
+      $CI->db->where('tb_master_expense_duty.status', 'AVAILABLE');
 
       $query = $CI->db->get();
 
