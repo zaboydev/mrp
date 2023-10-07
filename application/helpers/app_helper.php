@@ -3779,4 +3779,81 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('findAdvanceList')) {
+    function findAdvanceList($doc_id,$type)
+    {
+      $CI =& get_instance();
+  
+      if($type=='SPPD'){
+        $CI->db->select('tb_sppd.*');
+        $CI->db->from('tb_sppd');
+        $CI->db->where('tb_sppd.id', $doc_id);
+
+        $query    = $CI->db->get();
+        $sppd  = $query->unbuffered_row('array');
+
+        $CI->db->select(
+          'tb_advance_payments.id,
+          tb_advance_payments.document_number,
+          tb_advance_payments.payment_number,
+          tb_advance_payments.amount_paid,
+          tb_advance_payments.paid_at,
+          tb_business_trip_purposes.document_number as spd_number
+        ');
+        $CI->db->from('tb_advance_payments');
+        $CI->db->join('tb_advance_payments_details', 'tb_advance_payments_details.advance_id = tb_advance_payments.id');
+        $CI->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_advance_payments_details.document_id');
+        $CI->db->where('tb_business_trip_purposes.id', $sppd['spd_id']);
+        $CI->db->where('tb_advance_payments.source', 'SPD');
+        $CI->db->where_in('tb_advance_payments.status', ['OPEN','PAID']);
+        $query    = $CI->db->get();
+        foreach ($query->result_array() as $key => $value){
+          $advance[$key] = $value;
+          $advance[$key]['sppd_number'] = $sppd['document_number'];
+        }
+
+        $return = $advance;
+      }
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('sppd_format_number')) {
+    function sppd_format_number()
+    {
+      $div  = config_item('document_format_divider');
+      $base = (config_item('include_base_on_document') === TRUE) ? $div . config_item('auth_warehouse') : NULL;
+      $mod  = config_item('module');
+      $year = date('Y');
+      $month = date('m');
+  
+      $return = $div . 'SPPD' . $div . 'BWD-BIFA' . $div .$month .$div .$year;
+  
+      return $return;
+    }
+  }
+  
+  if ( ! function_exists('sppd_last_number')) {
+    function sppd_last_number()
+    {
+      $CI =& get_instance();
+  
+      $format = sppd_format_number();
+  
+      $CI->db->select_max('document_number', 'last_number');
+      $CI->db->from('tb_sppd');
+      $CI->db->like('document_number', $format, 'both');
+  
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+  
+      return $return;
+    }
+  }
+
     

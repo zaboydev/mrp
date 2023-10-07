@@ -135,8 +135,17 @@
             </tbody>
             <tfoot>
               <tr>
-                <th colspan="4">Total</th>
+                <th colspan="4">Total Request</th>
                 <th><?= print_number(array_sum($amount_paid), 2); ?></th>
+              </tr>
+              <tr>
+                <th colspan="4">Advance <a onClick="return popup(this, 'attachment')" href="<?= site_url($module['route'] . '/show_advance_request_payment/'.$entity['id']);?>" title="show detail advance" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail_advance" id="btn_view_detail_advance"><i class="fa fa-eye"></i>
+                    </a></th>
+                <th><?= print_number($entity['advance_total'], 2); ?></th>
+              </tr>
+              <tr>
+                <th colspan="4">Grandtotal</th>
+                <th><?= print_number($entity['total'], 2); ?></th>
               </tr>
             </tfoot>
           </table>
@@ -290,5 +299,5 @@
       $(this).data("tipe", "view");
       $('.detail_' + selRow).addClass('hide');
     }
-  })
+  });
 </script>
