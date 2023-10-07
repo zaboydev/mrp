@@ -565,6 +565,19 @@ class MY_Model extends CI_Model
     return ( $query->num_rows() > 0 ) ? true : false;
   }
 
+  public function isExpenseDutyNameExists($expense_name, $expense_name_exception = NULL)
+  {
+    $this->db->from(config_item('module')['master_expense_duty']['table']);
+    $this->db->where('expense_name', $expense_name);
+
+    if ($expense_name_exception !== NULL)
+      $this->db->where('expense_name != ', $expense_name_exception);
+
+    $query = $this->db->get();
+
+    return ( $query->num_rows() > 0 ) ? true : false;
+  }
+
   
 
 }

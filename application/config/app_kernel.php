@@ -60,10 +60,11 @@ $config['module'] = array();
 
 //master DATA HRD
 require('modules/level.php');
-require('modules/tujuan_perjalanan_dinas.php');
-require('modules/employee_benefit.php');
 require('modules/user_position.php');
+require('modules/employee_benefit.php');
 require('modules/employee.php');
+require('modules/master_expense_duty.php');
+require('modules/tujuan_perjalanan_dinas.php');
 
 //MASTER DATA
 require('modules/master_akun.php');
