@@ -1040,6 +1040,7 @@ class Sppd_Model extends MY_Model
         $data = $this->findById($id);
         $date = date('Y-m-d');
         $akun_advance_dinas = get_set_up_akun(6);
+        $cekSettingApproval = cekSettingApproval('EXPENSE from SPPD');
 
         $url_spd = site_url('sppd/print_pdf/'.$id);
         $order_number = $this->getExpenseOrderNumber();
@@ -1065,7 +1066,8 @@ class Sppd_Model extends MY_Model
             $this->connection->set('advance_nominal', $data['advance_spd']);
         }
         $this->connection->set('reference_document', json_encode(['SPPD',$id,$data['document_number'],$url_spd]));
-        $this->connection->set('revisi', 1);//expense dari SPPD tidak bisa direvisi
+        $this->connection->set('revisi', 1);//expense dari SPPD tidak bisa direvisi        
+        $this->connection->set('approval_type', ($cekSettingApproval=='FULL APPROVAL')? 'FULL':'NOT FULL');
         $this->connection->insert('tb_expense_purchase_requisitions');
 
         $document_id = $this->connection->insert_id();

@@ -960,6 +960,7 @@ class Business_Trip_Request_Model extends MY_Model
         $data = $this->findById($id);
         $date = date('Y-m-d');
         $akun_advance_dinas = get_set_up_akun(6);
+        $cekSettingApproval = cekSettingApproval('EXPENSE from SPD');
 
         //create expense
         $url_spd = site_url('business_trip_request/print_pdf/'.$id);
@@ -986,6 +987,7 @@ class Business_Trip_Request_Model extends MY_Model
             $this->connection->set('advance_nominal', 0);
         }        
         $this->connection->set('revisi', 1);//expense dari SPD tidak bisa direvisi
+        $this->connection->set('approval_type', ($cekSettingApproval=='FULL APPROVAL')? 'FULL':'NOT FULL');
         $this->connection->set('reference_document', json_encode(['SPD',$id,$data['document_number'],$url_spd]));
         $this->connection->insert('tb_expense_purchase_requisitions');
 

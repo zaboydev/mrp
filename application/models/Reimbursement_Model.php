@@ -403,6 +403,7 @@ class Reimbursement_Model extends MY_Model
 
         $reimbursement = $this->findById($id);
         $date = date('Y-m-d');
+        $cekSettingApproval = cekSettingApproval('EXPENSE from REIMBURSEMENT');
 
         $url_rf = site_url('reimbursement/print_pdf/'.$id);
         $order_number = $this->getExpenseOrderNumber();
@@ -424,6 +425,7 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('head_dept', $reimbursement['head_dept']);
         $this->connection->set('base', config_item('auth_warehouse'));
         $this->connection->set('revisi', 1);//expense dari reimbursement tidak bisa direvisi
+        $this->connection->set('approval_type', ($cekSettingApproval=='FULL APPROVAL')? 'FULL':'NOT FULL');
         $this->connection->set('reference_document', json_encode(['RF',$id,$reimbursement['document_number'],$url_rf]));
         $this->connection->insert('tb_expense_purchase_requisitions');
 

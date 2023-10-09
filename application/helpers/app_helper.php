@@ -3857,4 +3857,18 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('cekSettingApproval')) {
+    function cekSettingApproval($setting_name)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('setting_value');
+      $CI->db->where('setting_name', $setting_name);
+      $query = $CI->db->get('tb_settings');
+      $row = $query->row_array();
+
+      return $row['setting_value'];
+    }
+  }
+
     
