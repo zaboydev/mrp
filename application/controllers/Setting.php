@@ -171,19 +171,25 @@ class Setting extends MY_Controller
       //main warehouse
       $data_update[] = array(
         'id'    => 1,
-        'setting_value' => $this->input->post('main_warehouse')
+        'setting_name'    => 'MAIN BASE',
+        'setting_value' => $this->input->post('main_warehouse'),
+        'old_value' => $this->input->post('old_value_main_warehouse')
       );
 
       //expense from spd
       $data_update[] = array(
         'id'    => 7,
-        'setting_value' => str_replace("_"," ",strtoupper($this->input->post('expense_from_spd')))
+        'setting_name'    => 'EXPENSE from SPD',
+        'setting_value' => str_replace("_"," ",strtoupper($this->input->post('expense_from_spd'))),
+        'old_value' => $this->input->post('old_value_expense_from_spd')
       );
 
       //expense from sppd
       $data_update[] = array(
         'id'    => 8,
-        'setting_value' => str_replace("_"," ",strtoupper($this->input->post('expense_from_sppd')))
+        'setting_name'    => 'EXPENSE from SPPD',
+        'setting_value' => str_replace("_"," ",strtoupper($this->input->post('expense_from_sppd'))),
+        'old_value' => $this->input->post('old_value_expense_from_sppd')
       );
 
       if ($this->model->update_setting($data_update)){

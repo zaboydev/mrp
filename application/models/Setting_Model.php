@@ -63,8 +63,19 @@ class Setting_Model extends MY_Model
 
     foreach ($user_data as $key => $data){
       $this->db->set('setting_value', $data['setting_value']);
+      $this->db->set('updated_at', date('Y-m-d H:i:s'));
+      $this->db->set('updated_by', config_item('auth_person_name'));
       $this->db->where('id', $data['id']);
       $this->db->update('tb_settings');
+
+      if($data['setting_value']!=$data['old_value']){
+        $this->db->set('setting_name', $data['setting_name']);
+        $this->db->set('old_value', $data['old_value']);
+        $this->db->set('new_value', $data['setting_value']);
+        $this->db->set('created_by', config_item('auth_person_name'));
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->insert('tb_history_setting');
+      }
     }
 
     if ($this->db->trans_status() === FALSE)
