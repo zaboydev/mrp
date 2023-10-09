@@ -384,6 +384,7 @@ class Expense_Request_Model extends MY_Model
         $request  = $query->unbuffered_row('array');
         if($request['reference_document']!=null){            
             $reference_document = json_decode($request['reference_document']);
+            $request['ref_doc_type'] = $reference_document[0];
             $request['ref_doc'] = $reference_document[2];
             $request['url_ref_doc'] = $reference_document[3];
         }  
@@ -518,21 +519,40 @@ class Expense_Request_Model extends MY_Model
         }
 
         if(config_item('auth_role')=='ASSISTANT HOS' && $request['status']=='WAITING FOR AHOS REVIEW'){
-            if($created_by['auth_level']=='23'){
-                $this->connection->set('status','WAITING FOR HEAD DEPT UNIQ REVIEW');
-                $level = 24;
+            if($requst['approval_type']=='NOT FULL'){
+                if($with_po=='t'){
+                    $this->connection->set('status','approved');
+                    // $this->connection->set('head_approved_date',NULL);
+                    $this->connection->set('head_approved_by',"[automatic]");
+                    $this->connection->where('id',$id);
+                    $this->connection->update('tb_expense_purchase_requisitions');
+                    $level = 8;
+                }else{
+                    $this->connection->set('status','WAITING FOR FINANCE REVIEW');
+                    $this->connection->set('head_approved_date',NULL);
+                    $this->connection->set('head_approved_by',"[automatic]");
+                    $this->connection->where('id',$id);
+                    $this->connection->update('tb_expense_purchase_requisitions');
+                    $level = 14;
+                }
             }else{
-                $this->connection->set('status','WAITING FOR HEAD DEPT');
+                if($created_by['auth_level']=='23'){
+                    $this->connection->set('status','WAITING FOR HEAD DEPT UNIQ REVIEW');
+                    $level = 24;
+                }else{
+                    $this->connection->set('status','WAITING FOR HEAD DEPT');
+                    $level = -1;
+                }
+                $this->connection->set('ahos_approved_date',date('Y-m-d H:i:s'));
+                $this->connection->set('ahos_approved_by',config_item('auth_person_name'));
+                if($notes!=''){
+                    $this->connection->set('approved_notes',$approval_notes.'AHOS : '.$notes);
+                }            
+                $this->connection->where('id',$id);
+                $this->connection->update('tb_expense_purchase_requisitions');
                 $level = -1;
             }
-            $this->connection->set('ahos_approved_date',date('Y-m-d H:i:s'));
-            $this->connection->set('ahos_approved_by',config_item('auth_person_name'));
-            if($notes!=''){
-                $this->connection->set('approved_notes',$approval_notes.'AHOS : '.$notes);
-            }            
-            $this->connection->where('id',$id);
-            $this->connection->update('tb_expense_purchase_requisitions');
-            $level = -1;
+            
             
         }
 
