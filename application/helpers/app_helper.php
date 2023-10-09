@@ -3797,7 +3797,8 @@ if (!function_exists('currency_for_vendor_list')) {
           tb_advance_payments.payment_number,
           tb_advance_payments.amount_paid,
           tb_advance_payments.paid_at,
-          tb_business_trip_purposes.document_number as spd_number
+          tb_business_trip_purposes.document_number as spd_number,
+          tb_advance_payments_details.document_id as spd_id,
         ');
         $CI->db->from('tb_advance_payments');
         $CI->db->join('tb_advance_payments_details', 'tb_advance_payments_details.advance_id = tb_advance_payments.id');
@@ -3809,6 +3810,7 @@ if (!function_exists('currency_for_vendor_list')) {
         foreach ($query->result_array() as $key => $value){
           $advance[$key] = $value;
           $advance[$key]['sppd_number'] = $sppd['document_number'];
+          $advance[$key]['sppd_id'] = $sppd['id'];
         }
 
         $return = $advance;

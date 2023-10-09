@@ -14,11 +14,12 @@
                             <tr>
                                 <th>No</th>
                                 <th>ADV#</th>
-                                <th>Payment#</th>
+                                <!-- <th>Payment#</th> -->
                                 <th>Paid at</th>
                                 <th>SPD#</th>
                                 <th>SPPD#</th>
                                 <th align="right">Amount Paid</th>
+                                <th>#</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -29,22 +30,26 @@
                                     <?= print_number($n); ?>
                                 </td>
                                 <td class="no-space">
-                                    <?= print_string($request['document_number']); ?>
+                                    <a class="link" href="<?= site_url('spd_payment/print_pdf/' . $request['id']) ?>" target="_blank"><?=print_string($request['document_number'])?></a>
                                 </td>
-                                <td class="no-space">
+                                <td class="hide no-space">
                                     <?= print_string($request['payment_number']); ?>
                                 </td>
                                 <td class="no-space">
                                     <?= print_date($request['paid_at']); ?>
                                 </td>
                                 <td class="no-space">
-                                    <?= print_string($request['spd_number']); ?>
+                                    <a class="link" href="<?= site_url('business_trip_request/print_pdf/' . $request['spd_id']) ?>" target="_blank"><?=print_string($request['spd_number'])?></a>
                                 </td>
                                 <td class="no-space">
-                                    <?= print_string($request['sppd_number']); ?>
+                                    <a class="link" href="<?= site_url('sppd/print_pdf/' . $request['sppd_id']) ?>" target="_blank"><?=print_string($request['sppd_number'])?></a>
                                 </td>
                                 <td class="no-space">
                                     <?= print_number($request['amount_paid'],2); ?>
+                                </td>
+                                <td class="no-space">
+                                    <a href="<?= site_url('spd_payment/manage_attachment/'.$request['id']);?>" title="show Attachment advance" class="btn btn-icon-toggle btn-info btn-xs" onClick="return popup(this, 'attachment')"><i class="fa fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
