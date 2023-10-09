@@ -1,31 +1,76 @@
-<?=form_open(current_url(), array('class' => 'form-horizontal','autocomplete' => 'off'));?>
-<div class="box-body">
-    <?php
-    if ( $this->session->flashdata('alert') )
-        render_alert($this->session->flashdata('alert')['info'], $this->session->flashdata('alert')['type']);
-    ?>
+<?php include 'themes/material/page.php' ?>
 
-    <div class="form-group <?php echo (form_error('main_warehouse')) ? 'has-error' : '';?>">
-        <label for="main_warehouse" class="col-sm-3 control-label">Main Base</label>
-        <div class="col-sm-9">
-            <select name="main_warehouse" id="main_warehouse" class="form-control" required="required">
-                <option value="" <?=($main_warehouse == null) ? 'selected' : '';?>>-- Select Warehouse</option>
+<?php startblock('actions_right') ?>
+  <?php if (is_granted($module, 'create')):?>
+    <?php $this->load->view('material/templates/button_update_setting_modal') ?>
+  <?php endif ?>
+<?php endblock() ?>
 
-                <?php foreach ($warehouses as $warehouse):?>
-                    <option value="<?=$warehouse->code;?>" <?=($warehouse->code == $main_warehouse) ? 'selected' : '';?>>
-                        <?=$warehouse->code;?>
-                    </option>
-                <?php endforeach;?>
-            </select>
-            <?php echo form_error('main_warehouse', '<span class="help-block text-danger">', '</span>'); ?>
-        </div>
-    </div>
-</div>
-<div class="box-footer">
+
+<?php startblock('page_head_tools') ?>
+  <?php $this->load->view('material/templates/datatable_tools') ?>
+<?php endblock() ?>
+
+
+<?php startblock('page_body') ?>
+  <?php $this->load->view('material/templates/datatable') ?>
+<?php endblock() ?>
+
+
+<?php startblock('page_modals') ?>
+  <?php $this->load->view('material/templates/modal_fs') ?>
+<?php endblock() ?>
+
+
+<?php startblock('datafilter') ?>
+  <div class="form force-padding">
     <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-9">
-            <button type="submit" class="btn btn-primary">Update</button>
-        </div>
+      <label for="filter_warehouse">Status</label>
+      <select class="form-control filter_dropdown" data-column="1" id="filter_warehouse">
+        <option value="AVAILABLE">
+        AVAILABLE
+        </option>
+        <option value="NOT AVAILABLE">
+        NOT AVAILABLE
+        </option>
+      </select>
     </div>
-</div>
-<?=form_close();?>
+  </div>
+<?php endblock() ?>
+
+
+<?php if (is_granted($module, 'import')):?>
+  <?php startblock('offcanvas_left_actions') ?>
+    <li class="tile">
+      <a class="tile-content ink-reaction" href="#offcanvas-import" data-toggle="offcanvas">
+        <div class="tile-icon">
+          <i class="fa fa-download"></i>
+        </div>
+        <div class="tile-text">
+          Import Data
+          <small>import from csv file</small>
+        </div>
+      </a>
+    </li>
+  <?php endblock() ?>
+
+  <?php startblock('offcanvas_left_list') ?>
+    <div id="offcanvas-import" class="offcanvas-pane width-8">
+      <div class="offcanvas-head style-primary-dark">
+        <header>Import</header>
+        <div class="offcanvas-tools">
+          <a class="btn btn-icon-toggle pull-right" data-dismiss="offcanvas">
+            <i class="md md-close"></i>
+          </a>
+          <a class="btn btn-icon-toggle pull-right" href="#offcanvas-datatable-filter" data-toggle="offcanvas">
+            <i class="md md-arrow-back"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="offcanvas-body no-padding">
+        <?php $this->load->view('material/modules/stores/import') ?>
+      </div>
+    </div>
+  <?php endblock() ?>
+<?php endif;?>
