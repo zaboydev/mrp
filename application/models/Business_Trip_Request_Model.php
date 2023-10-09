@@ -2020,7 +2020,7 @@ class Business_Trip_Request_Model extends MY_Model
             
         }
 
-        if(array_sum($total_request==$amount)){
+        if(array_sum($total_request)==$amount){
             $this->db->set('status', "PAID");
             $this->db->where('id', $po_payment_id);
             $this->db->update('tb_advance_payments');
