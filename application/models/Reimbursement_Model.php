@@ -404,11 +404,7 @@ class Reimbursement_Model extends MY_Model
         $reimbursement = $this->findById($id);
         $date = date('Y-m-d');
 
-        $this->db->set('status','EXPENSE REQUEST');
-        $this->db->set('validated_by',config_item('auth_person_name'));
-        $this->db->where('id', $id);
-        $this->db->update('tb_reimbursements');
-
+        $url_rf = site_url('reimbursement/print_pdf/'.$id);
         $order_number = $this->getExpenseOrderNumber();
         $cost_center = $this->findCostCenter($reimbursement['annual_cost_center_id']);
         $format_number = $this->getExpenseFormatNumber($cost_center['cost_center_code']);
@@ -427,6 +423,8 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('with_po', false);
         $this->connection->set('head_dept', $reimbursement['head_dept']);
         $this->connection->set('base', config_item('auth_warehouse'));
+        $this->connection->set('revisi', 1);//expense dari reimbursement tidak bisa direvisi
+        $this->connection->set('reference_document', json_encode(['RF',$id,$reimbursement['document_number'],$url_rf]));
         $this->connection->insert('tb_expense_purchase_requisitions');
 
         $document_id = $this->connection->insert_id();
@@ -530,6 +528,12 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('total', floatval($reimbursement['total']));
         $this->connection->set('reference_ipc', $reimbursement['document_number']);
         $this->connection->insert('tb_expense_purchase_requisition_details');
+
+        $url_expense = site_url('expense_request/print_pdf/'.$document_id);
+        $this->db->set('status','EXPENSE REQUEST');
+        // $this->db->set('reference_document', json_encode(['RF',$id,$reimbursement['document_number'],$url_expense]));
+        $this->db->where('id', $id);
+        $this->db->update('tb_reimbursements');
 
         if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
             return ['status'=>FALSE,'pr_number'=>$pr_number];
