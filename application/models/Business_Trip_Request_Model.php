@@ -1716,7 +1716,9 @@ class Business_Trip_Request_Model extends MY_Model
         $query = $this->db->get();
 
         foreach ($query->result_array() as $key => $req){
-            $request['request'][$key] = $req;            
+            $request['request'][$key] = $req; 
+            $spd = $this->findById($req['document_id']);   
+            $request['request'][$key]['items_spd'] = $spd['items'];         
         }
 
         if($request['status']=='PAID'){
@@ -1800,7 +1802,7 @@ class Business_Trip_Request_Model extends MY_Model
             }elseif (config_item('auth_role')=='HEAD OF SCHOOL' && $request_payment['status'] == 'WAITING APPROVAL BY HOS') {
                 
                 $level = 10;
-                $this->db->set('status', 'APPROVED');          
+                $this->db->set('status', strtoupper('Waiting For Payment'));          
                 $this->db->set('approved_by', config_item('auth_person_name'));
                 $this->db->set('approved_at', date('Y-m-d'));
                 $this->db->where('id', $id);

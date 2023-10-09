@@ -103,7 +103,9 @@
                                     <?= print_number($n); ?>
                                 </td>
                                 <td>
-                                    <a class="link" href="<?= site_url('business_trip_request/print_pdf/' . $request['spd_id']) ?>" target="_blank"><?=print_string($request['spd_number'])?></a>
+                                    <a  href="javascript:;" title="View Detail" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
+                                    </a>
+                                    <a class="link" href="<?= site_url('business_trip_request/print_pdf/' . $request['document_id']) ?>" target="_blank"><?=print_string($request['spd_number'])?></a>
                                 </td>                  
                                 
                                 <td>
@@ -120,20 +122,42 @@
                                     <?php $amount_paid[] = $request['amount_paid']; ?>
                                 </td>
                             </tr>
+                            <?php foreach ($request['items_spd'] as $j => $items_spd) : ?>
+                            <tr class="detail_<?=$n?> hide">
+                                <td class="no-space">
+                                    
+                                </td> 
+                                <td class="no-space">
+                                <?= print_string($items_spd['expense_name']); ?>
+                                </td>  
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <?= print_number($items_spd['total'],2); ?>
+                                </td>   
+                            </tr>
+                            <?php endforeach; ?>
                                 
                             <?php endforeach; ?>
                         </tbody>
                         <tfoot>
                         <tr>
-                            <th colspan="6">Total</th>
+                            <th colspan="5">Total</th>
                             <th><?= print_number(array_sum($amount_paid), 2); ?></th>
                         </tr>
                         <tr>
-                            <th colspan="6">Paid</th>
+                            <th colspan="5">Paid</th>
                             <th><?= print_number($entity['amount_paid'], 2); ?></th>
                         </tr>
                         <tr>
-                            <th colspan="6">Left</th>
+                            <th colspan="5">Left</th>
                             <th><?= print_number((array_sum($amount_paid)-$entity['amount_paid']), 2); ?></th>
                         </tr>
                         </tfoot>
@@ -220,7 +244,7 @@
         </div>
         <div class="pull-right">
         
-        <?php if (is_granted($module, 'payment') && $entity['status'] == 'APPROVED') : ?>
+        <?php if (is_granted($module, 'payment') && $entity['status'] == strtoupper('Waiting For Payment')) : ?>
             <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
             <i class="md md-attach-money"></i>
             <small class="top right">payment</small>

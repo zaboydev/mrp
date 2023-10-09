@@ -46,9 +46,11 @@ class Business_Trip_Request extends MY_Controller
                     if (is_granted($this->module, 'approval')){
                         if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                        }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
-                            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                        }else{
+                        }
+                        // elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                        //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                        // }
+                        else{
                             $col[] = print_number($no);
                         }                    
                     }else{
@@ -56,8 +58,12 @@ class Business_Trip_Request extends MY_Controller
                     }                
                     $col[] = print_string($row['document_number']);
                     if($today>$row['end_date'] && $row['status']!='CLOSED'){
-                        $col[] = "<span class='label-status warning'>". print_string($row['status'])."</span>";
-                    }else{
+                        $col[] = "<span class='label-status warning'>". ('Waiting For SPPD')."</span>";
+                    }
+                    elseif($today>=$row['start_date'] && $today<=$row['end_date'] && in_array($row['payment_status'],['PAID','OPEN'])){
+                        $col[] = "<span>". strtoupper('ON GOING SPD')."</span>";
+                    }
+                    else{
                         $col[] = "<span>". print_string($row['status'])."</span>";
                     }                    
                     $col[] = print_date($row['date']);
