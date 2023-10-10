@@ -399,7 +399,8 @@ class Expense_Closing_Payment_Model extends MY_Model
             }
         }
 
-        $request['advance_list'] = $this->getAdvance($id);
+        // $request['advance_list'] = $this->getAdvance($id);
+        $request['advance_list'] = array();
 
         return $request;
     }
@@ -1037,8 +1038,6 @@ class Expense_Closing_Payment_Model extends MY_Model
                         //create SPPD
                         $spd_id = $reference_document[1];
                         $create_sppd = $this->create_sppd($spd_id);
-                    }elseif($reference_document[0]=='SPPD'){
-                        //update advance status
                     }
                 } 
                 
@@ -1065,6 +1064,15 @@ class Expense_Closing_Payment_Model extends MY_Model
                     $this->db->set('kode_rekening', $akun->coa);
                     $this->db->set('currency', $currency);
                     $this->db->insert('tb_jurnal_detail');
+
+                    if($reference_document[0]=='SPPD'){
+                        $advanceList = findAdvanceList($reference_document[1],'SPPD');
+                        foreach ($advanceList as $advance) {
+                            $this->db->set('status', 'CLOSED');
+                            $this->db->where('id', $advance['id']);
+                            $this->db->update('tb_advance_payments');
+                        }
+                    }
                 }
             }
 

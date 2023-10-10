@@ -74,7 +74,7 @@ class Spd_Payment extends MY_Controller
                     $col[]  = print_number(0, 2);
                     $col[]  = (in_array($row['status'],['PAID','OPEN']))?print_number($row['amount_paid'], 2):print_number($row['amount_request'], 2);
                 }        
-                $col[]  = print_string($row['status']);
+                $col[]  = ($row['status']=='APPROVED')? 'WAITING FOR PAYMENT':print_string($row['status']);
                 $col[] = $attachment == 0 ? '' : '<a href="#" data-id="' . $row["id"] . '" class="btn btn-icon-toggle btn-info btn-sm ">
                                <i class="fa fa-eye"></i>
                              </a>';
