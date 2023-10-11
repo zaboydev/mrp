@@ -2212,4 +2212,32 @@ class Business_Trip_Request_Model extends MY_Model
         }
         
     }
+
+    public function cekDateline($user_id,$start_date,$end_date)
+    {
+        $selected = array(
+            'tb_business_trip_purposes.*'
+        );
+        $this->db->select($selected);
+        $this->db->where('tb_business_trip_purposes.user_id', $user_id);
+        $this->db->where_not_in('tb_business_trip_purposes.status', ['CLOSED','REVISED']);
+        if (isset($_SESSION['business_trip']['id'])){
+            $this->db->where('tb_business_trip_purposes.id', '!=', $_SESSION['business_trip']['id']);
+        }
+        $query      = $this->db->get('tb_business_trip_purposes');
+
+        $return = 0;
+
+        foreach ($query->result_array() as $spd){
+            if($start_date<=$spd['start_date'] || $start_date<=$spd['end_date']){
+                $return++;
+            }
+
+            if($end_date<=$spd['start_date'] || $end_date<=$spd['end_date']){
+                $return++;
+            }
+        }
+
+        return ($return>0)? TRUE:FALSE;
+    }
 }

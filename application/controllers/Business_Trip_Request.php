@@ -57,10 +57,10 @@ class Business_Trip_Request extends MY_Controller
                         $col[] = print_number($no);
                     }                
                     $col[] = print_string($row['document_number']);
-                    if($today>$row['end_date'] && $row['status']!='CLOSED'){
+                    if($today>$row['end_date'] && $row['status']!='CLOSED' && in_array($row['payment_status'],['PAID'])){
                         $col[] = "<span class='label-status warning'>". ('Waiting For SPPD')."</span>";
                     }
-                    elseif($today>=$row['start_date'] && $today<=$row['end_date'] && in_array($row['payment_status'],['PAID','OPEN'])){
+                    elseif($today>=$row['start_date'] && $today<=$row['end_date'] && in_array($row['payment_status'],['PAID'])){
                         $col[] = "<span>". strtoupper('ON GOING SPD')."</span>";
                     }
                     else{
@@ -520,6 +520,14 @@ class Business_Trip_Request extends MY_Controller
 
             if ($_SESSION['business_trip']['transportation']==NULL || $_SESSION['business_trip']['transportation']=='') {
                 $errors[] = 'Attention!! Please Fill Transportation!!';
+            }
+
+            if (strtotime($_SESSION['business_trip']['start_date']) > strtotime($_SESSION['business_trip']['end_date'])) {
+                $errors[] = 'Attention!! Start Date must earlier than End Date!! Change Your Start Date';
+            }
+
+            if($this->model->cekDateline($_SESSION['business_trip']['person_in_charge'],$_SESSION['business_trip']['start_date'],$_SESSION['business_trip']['end_date'])){
+                $errors[] = 'This employee still has an unfinished business trip for The Date!! You Should select the right Date';
             }
 
             if (!empty($errors)){
