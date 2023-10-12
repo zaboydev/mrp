@@ -803,4 +803,104 @@ class Dashboard_Model extends MY_Model
     return $data;
   }
 
+  public function count_spd(){
+    // $status = array();
+    $count_as_role = 0;
+    $count_as_role_head = 0;
+
+    if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
+      $status = 'WAITING APPROVAL BY HR MANAGER';
+    }
+
+    $this->db->from('tb_business_trip_purposes');
+    $this->db->where('tb_business_trip_purposes.status', $status);
+    $query = $this->db->get();
+    $count_as_role = $query->num_rows();
+
+    if(config_item('as_head_department')=='yes'){
+      $this->db->from('tb_business_trip_purposes');
+      $this->db->where_in('tb_business_trip_purposes.status', ['WAITING APPROVAL BY HEAD DEPT']);
+      $this->db->where('tb_business_trip_purposes.head_dept', config_item('auth_username'));
+      $query = $this->db->get();
+      $count_as_role_head = $query->num_rows();
+    }
+
+    return $count_as_role+$count_as_role_head;
+  }
+
+  public function count_sppd(){
+    // $status = array();
+    $count_as_role = 0;
+    $count_as_role_head = 0;
+
+    if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
+      $status = 'WAITING APPROVAL BY HR MANAGER';
+    }
+
+    $this->db->from('tb_sppd');
+    $this->db->where('tb_sppd.status', $status);
+    $query = $this->db->get();
+    $count_as_role = $query->num_rows();
+
+    if(config_item('as_head_department')=='yes'){
+      $this->db->from('tb_sppd');
+      $this->db->where_in('tb_sppd.status', ['WAITING APPROVAL BY HEAD DEPT']);
+      $this->db->where('tb_sppd.head_dept', config_item('auth_username'));
+      $query = $this->db->get();
+      $count_as_role_head = $query->num_rows();
+    }
+
+    return $count_as_role+$count_as_role_head;
+  }
+
+  public function count_reimbursement(){
+    // $status = array();
+    $count_as_role = 0;
+    $count_as_role_head = 0;
+
+    if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
+      $status = 'WAITING APPROVAL BY HR MANAGER';
+    }
+
+    if(config_item('auth_role')=='FINANCE MANAGER'){
+      $status = 'WAITING APPROVAL BY FINANCE MANAGER';
+    }
+
+    $this->db->from('tb_reimbursements');
+    $this->db->where('tb_reimbursements.status', $status);
+    $query = $this->db->get();
+    $count_as_role = $query->num_rows();
+
+    if(config_item('as_head_department')=='yes'){
+      $this->db->from('tb_reimbursements');
+      $this->db->where_in('tb_reimbursements.status', ['WAITING APPROVAL BY HEAD DEPT']);
+      $this->db->where('tb_reimbursements.head_dept', config_item('auth_username'));
+      $query = $this->db->get();
+      $count_as_role_head = $query->num_rows();
+    }
+
+    return $count_as_role+$count_as_role_head;
+  }
+
+  public function count_advance(){
+    // $status = array();
+    $count_as_role = 0;
+    $count_as_role_head = 0;
+
+    if(config_item('auth_role')=='FINANCE MANAGER'){
+      $status = 'WAITING REVIEW BY FIN MNG';
+    }
+
+    if(config_item('auth_role')=='HEAD OF SCHOOL'){
+      $status = 'WAITING APPROVAL BY HOS';
+    }
+
+    $this->db->from('tb_advance_payments');
+    $this->db->where('tb_advance_payments.status', $status);
+    $query = $this->db->get();
+    $count_as_role = $query->num_rows();
+
+    return $count_as_role+$count_as_role_head;
+  }
+
 }
