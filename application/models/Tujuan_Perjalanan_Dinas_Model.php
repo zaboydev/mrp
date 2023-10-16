@@ -322,6 +322,6 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
 
         $query  = $this->db->get();
 
-        return ($query->num_rows() === 0) ? TRUE : FALSE;
+        return ($query->num_rows() > 0) ? TRUE : FALSE;
     }
 }

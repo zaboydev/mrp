@@ -3,7 +3,7 @@
 <?php startblock('body') ?>
 <div class="container">
 
-  <h4 class="page-header">Select Vendor</h4>
+  <h4 class="page-header">Select Level</h4>
 
   <form id="form_add_vendor" class="form" role="form" method="post" action="<?= site_url($module['route'] . '/add_selected_level'); ?>">
     <div class="row">
