@@ -22,10 +22,10 @@ class Reimbursement_Model extends MY_Model
     {
         $return = array(
             'No',
+            'Document Date',
             'Document Number',
             'Type',
             'Status',
-            'Document Date',
             'Department',
             'Name',
             'Amount',
@@ -46,10 +46,10 @@ class Reimbursement_Model extends MY_Model
     {
         return array(
             null,
+            'date',
             'document_number',
-            null,
-            'notes',
-            'updated_at',
+            'type',
+            'status',
         );
     }
 

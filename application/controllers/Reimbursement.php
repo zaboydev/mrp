@@ -50,11 +50,11 @@ class Reimbursement extends MY_Controller
                     }                    
                 }else{
                     $col[] = print_number($no);
-                }                
+                }            
+                $col[] = print_date($row['date'], 'd F Y');    
                 $col[] = print_string($row['document_number']);
                 $col[] = print_string($row['type']);
                 $col[] = print_string($row['status']);
-                $col[] = print_date($row['date']);
                 $col[] = print_string($cost_center['cost_center_name']);
                 $col[] = print_string($row['person_name']);
                 $col[] = print_number($row['total'],2);
@@ -109,7 +109,10 @@ class Reimbursement extends MY_Controller
         $this->data['grid']['summary_columns']  = array(7);
 
         $this->data['grid']['order_columns']    = array(
-            0   => array( 0 => 1,  1 => 'desc' ),
+            0   => array( 0 => 0,  1 => 'desc' ),
+            1   => array( 0 => 1,  1 => 'desc' ),
+            2   => array( 0 => 2,  1 => 'desc' ),
+            3   => array( 0 => 3,  1 => 'desc' ),
         );
 
         $this->render_view($this->module['view'] .'/index');
