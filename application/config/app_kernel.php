@@ -92,7 +92,6 @@ require('modules/daftar_pajak.php');
 require('modules/business_trip_request.php');
 require('modules/sppd.php');
 require('modules/reimbursement.php');
-require('modules/spd_payment.php');
 
 //aircraft
 require('modules/pesawat.php');
@@ -172,6 +171,7 @@ require('modules/payment_voucher_purposed.php');
 require('modules/receipt_nota.php');
 require('modules/account_payable.php');
 require('modules/payment.php');
+require('modules/spd_payment.php');
 require('modules/payment_report.php');
 //finance report
 require('modules/payment_voucher_report.php');

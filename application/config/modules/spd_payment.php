@@ -2,7 +2,7 @@
 
 $config['module']['spd_payment']['visible']         = TRUE;
 $config['module']['spd_payment']['main_warehouse']   = FALSE;
-$config['module']['spd_payment']['parent']      = 'perjalanan_dinas';
+$config['module']['spd_payment']['parent']      = 'account_payable';
 $config['module']['spd_payment']['label']       = 'SPD Advance';
 $config['module']['spd_payment']['name']        = 'spd_payment';
 $config['module']['spd_payment']['route']       = 'spd_payment';
@@ -15,7 +15,7 @@ $config['module']['spd_payment']['permission']  = array(
     'index'               => 'PIC STAFF,AP STAFF,TELLER,FINANCE,FINANCE SUPERVISOR,FINANCE MANAGER,VP FINANCE,SUPER ADMIN,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,HEAD OF SCHOOL',
     'info'                => 'PIC STAFF,AP STAFF,TELLER,FINANCE,FINANCE SUPERVISOR,FINANCE MANAGER,VP FINANCE,SUPER ADMIN,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,HEAD OF SCHOOL',
     'print'               => 'PIC STAFF,AP STAFF,TELLER,FINANCE,FINANCE SUPERVISOR,FINANCE MANAGER,VP FINANCE,SUPER ADMIN,CHIEF OPERATION OFFICER,CHIEF OF FINANCE,HEAD OF SCHOOL',
-    'create'              => 'PIC STAFF,AP STAFF,SUPER ADMIN',//tambhan supervisor
+    'createe'              => 'PIC STAFF,AP STAFF,SUPER ADMIN',//tambhan supervisor
     'payment'             => 'PIC STAFF,FINANCE SUPERVISOR,TELLER,SUPER ADMIN',
     'approval'            => 'FINANCE MANAGER,SUPER ADMIN,HEAD OF SCHOOL',
     'check'               => 'FINANCE MANAGER,SUPER ADMIN',
