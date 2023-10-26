@@ -412,6 +412,47 @@ class Business_Trip_Request extends MY_Controller
         //$this->render_view($this->module['view'] .'/edit');
     }
 
+    public function extend($id,$type="extend")
+    {
+        $this->authorized($this->module, 'create');
+
+        $entity = $this->model->findById($id);
+
+        $document_number    = travel_on_duty_last_number();
+        $format_number      = travel_on_duty_format_number();
+
+        if (isset($_SESSION['business_trip']) === FALSE){
+            $cost_center = findCostCenter($entity['annual_cost_center_id']);
+            $cost_center_code = $cost_center['cost_center_code'];
+            $cost_center_name = $cost_center['cost_center_name'];          
+            $department_id    = $cost_center['department_id'];
+            $get_start_date   = strtotime('+1 day',strtotime($entity['end_date']));
+            $start_date       = date('Y-m-d', $get_start_date);
+
+            $_SESSION['business_trip']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['business_trip']['cost_center_id']            = $cost_center_id;
+            $_SESSION['business_trip']['cost_center_name']          = $cost_center_name;
+            $_SESSION['business_trip']['cost_center_code']          = $cost_center_code;
+            $_SESSION['business_trip']                              = $entity;
+            // $_SESSION['business_trip']['id']                        = $id;
+            $_SESSION['business_trip']['edit_type']                 = $type;
+            // $_SESSION['business_trip']['edit']                      = $entity['document_number'];
+            $_SESSION['business_trip']['document_number']           = $document_number;
+            $_SESSION['business_trip']['format_number']             = $format_number;
+            $_SESSION['business_trip']['department_id']             = $department_id;
+            $_SESSION['business_trip']['person_in_charge']          = $entity['user_id'];
+            $_SESSION['business_trip']['start_date']                = $start_date;
+            $_SESSION['business_trip']['end_date']                  = $start_date;
+            $_SESSION['business_trip']['duration']                  = 1;
+            $_SESSION['business_trip']['dateline']                  = print_date($_SESSION['business_trip']['start_date'], 'd-m-Y').' s/d '.print_date($_SESSION['business_trip']['end_date'], 'd-m-Y');
+            $_SESSION['business_trip']['additional_notes']          = 'extend from SPD #'.$entity['document_number'];
+            
+        }
+
+        redirect($this->module['route'] .'/create');
+        //$this->render_view($this->module['view'] .'/edit');
+    }
+
     public function edit_approve($id)
     {
         $this->authorized($this->module, 'approval');

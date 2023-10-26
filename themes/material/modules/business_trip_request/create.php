@@ -144,6 +144,14 @@
                         <div class="form-group">
                             <textarea name="command_by" id="command_by" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_command_by'); ?>"><?= $_SESSION['business_trip']['command_by']; ?></textarea>
                             <label for="notes">Keterangan Perjalanan Dinas</label>
+                            
+                            <?php if(isset($_SESSION['business_trip']['additional_notes'])):?>
+                            <span class="input-group-addon" style="text-align:left;"><?= $_SESSION['business_trip']['additional_notes']; ?></span>
+                            <?php endif;?>
+                        </div>
+                        
+                        <div class="form-group">
+                            
                         </div>
                     </div>
                 </div>

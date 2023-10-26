@@ -194,6 +194,14 @@
             </a>
             <?=form_close();?>
             <?php endif;?>
+
+            <?php if (is_granted($module, 'create') && $entity['status']=='APPROVED'):?>
+            <a href="<?=site_url($module['route'] .'/extend/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+                <!-- <i class="material-symbols-outlined">edit_square</i> -->
+                <i class="md md-border-color"></i>
+                <small class="top right">Extend</small>
+            </a>
+            <?php endif;?>
         </div>
     </div>
 </div>
