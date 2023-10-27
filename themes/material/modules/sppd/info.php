@@ -139,7 +139,7 @@
     <div class="card-foot">
         <?php
             $today    = date('Y-m-d');
-            $date     = strtotime('-2 day',strtotime($today));
+            $date     = strtotime('-20 day',strtotime($today));
             $data     = date('Y-m-d',$date);
         ?>
         

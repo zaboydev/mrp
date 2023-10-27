@@ -215,13 +215,15 @@ if ( ! function_exists('is_granted')) {
         }else{
           return FALSE;
         }
-      }if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
-        if(in_array($module['name'],config_item('additional_modules_for_hr_depatment'))){
-          return TRUE;
-        }else{
-          return FALSE;
-        }   
-      }else{
+      }
+      // elseif(in_array(config_item('auth_username'),list_username_in_head_department(11))){
+      //   if(in_array($module['name'],config_item('additional_modules_for_hr_depatment'))){
+      //     return TRUE;
+      //   }else{
+      //     return FALSE;
+      //   }   
+      // }
+      else{
         return FALSE;
       }
     }

@@ -608,7 +608,7 @@ class Internal_Delivery_Shipping_Model extends MY_Model
 
         $i = 0;
 
-        foreach ($this->getSearchableColumns() as $item){
+        foreach ($this->getSearchableColumnsReceipt() as $item){
             if ($_POST['search']['value']){
                 $term = strtoupper($_POST['search']['value']);
 
@@ -619,7 +619,7 @@ class Internal_Delivery_Shipping_Model extends MY_Model
                 $this->db->or_like('UPPER('.$item.')', $term);
                 }
 
-                if (count($this->getSearchableColumns()) - 1 == $i)
+                if (count($this->getSearchableColumnsReceipt()) - 1 == $i)
                 $this->db->group_end();
             }
 

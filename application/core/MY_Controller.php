@@ -300,6 +300,8 @@ class MY_Controller extends CI_Controller
       $this->connection->from('tb_users_mrp_in_annual_cost_centers');
       $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
       $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
+      $this->connection->where('tb_annual_cost_centers.year_number', $year);
       $this->connection->order_by('cost_center_name', 'ASC');
     }
 

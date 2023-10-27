@@ -150,19 +150,19 @@ class Employee_Model extends MY_Model
         $this->db->insert('tb_master_employees');
 
         //insert employee benefit
-        $employee_benefit = getEmployeeBenefitByOccupation($user_data['position']);
+        // $employee_benefit = getEmployeeBenefitByOccupation($user_data['position']);
 
-        foreach ($employee_benefit as $key => $value) {
-            $this->db->set('employee_number',$user_data['employee_number']);
-            $this->db->set('year',$value['year']);
-            $this->db->set('employee_benefit_item_id',$value['id']);
-            $this->db->set('amount_plafond',$value['amount']);
-            $this->db->set('left_amount_plafond',$value['amount']);
-            $this->db->set('used_amount_plafond',0);
-            $this->db->set('created_by', config_item('auth_person_name'));
-            $this->db->set('updated_by', config_item('auth_person_name'));
-            $this->db->insert('tb_employee_has_benefit');
-        }
+        // foreach ($employee_benefit as $key => $value) {
+        //     $this->db->set('employee_number',$user_data['employee_number']);
+        //     $this->db->set('year',$value['year']);
+        //     $this->db->set('employee_benefit_item_id',$value['id']);
+        //     $this->db->set('amount_plafond',$value['amount']);
+        //     $this->db->set('left_amount_plafond',$value['amount']);
+        //     $this->db->set('used_amount_plafond',0);
+        //     $this->db->set('created_by', config_item('auth_person_name'));
+        //     $this->db->set('updated_by', config_item('auth_person_name'));
+        //     $this->db->insert('tb_employee_has_benefit');
+        // }
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;

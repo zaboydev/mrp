@@ -196,7 +196,7 @@
                             <input type="text" name="plafon_biaya_kesehatan" id="plafon_biaya_kesehatan" class="form-control number" value="<?=$entity['plafon_biaya_kesehatan'];?>" step=".01">
                             <label for="plafon_biaya_kesehatan">Plafon Biaya Kesehatan</label>
                         </div>
-                        <div class="form-group hide">
+                        <div class="form-group">
                             <input type="number" name="cuti" id="cuti" class="form-control" value="<?=$entity['cuti'];?>">
                             <label for="cuti">Jumlah Cuti</label>
                         </div>

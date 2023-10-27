@@ -18,5 +18,5 @@ $config['module']['internal_delivery_shipping']['permission']       = array(
   'print'     => 'PIC STOCK,SUPERVISOR,VP FINANCE,FINANCE,PIC PROCUREMENT,SUPER ADMIN,MECHANIC',
   'delete'    => 'SUPERVISOR,VP FINANCE,SUPER ADMIN,MECHANIC',
   'approval'  => 'SUPERVISOR,PIC STOCK,MECHANIC,CHIEF OF MAINTANCE',
-  'receipt'   => 'SUPER ADMIN,PIC STOCK'
+  'receipt'   => 'SUPER ADMIN,PIC STOCK,SUPERVISOR'
 );

@@ -247,7 +247,7 @@ class Sppd_Model extends MY_Model
 
             $this->db->select('*');
             $this->db->where('id', $id);
-            $this->db->from('tb_business_trip_purposes');
+            $this->db->from('tb_sppd');
 
             $query = $this->db->get();
             $row   = $query->unbuffered_row('array');
