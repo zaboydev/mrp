@@ -244,7 +244,7 @@
         </div>
         <div class="pull-right">
         
-        <?php if (is_granted($module, 'payment') && in_array($entity['status'],['APPROVED','Waiting For Payment'])) : ?>
+        <?php if (is_granted($module, 'payment') && in_array($entity['status'],['APPROVED','WAITING FOR PAYMENT'])) : ?>
             <a href="<?= site_url($module['route'] . '/bayar/' . $id); ?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-payment-data-button">
             <i class="md md-attach-money"></i>
             <small class="top right">payment</small>
