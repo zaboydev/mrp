@@ -79,7 +79,7 @@ class Expense_Duty_Model extends MY_Model
     {
         $this->db->select('tb_master_expense_duty.*,tb_master_coa.group');
         $this->db->from('tb_master_expense_duty');
-        $this->db->join('tb_master_coa','tb_master_coa.coa = tb_master_expense_duty.account_code');
+        $this->db->join('tb_master_coa','tb_master_coa.coa = tb_master_expense_duty.account_code','left');
 
         $this->searchIndex();
 
@@ -110,7 +110,7 @@ class Expense_Duty_Model extends MY_Model
     function countIndexFiltered()
     {
         $this->db->from('tb_master_expense_duty');
-        $this->db->join('tb_master_coa','tb_master_coa.coa=tb_master_expense_duty.account_code');
+        $this->db->join('tb_master_coa','tb_master_coa.coa=tb_master_expense_duty.account_code','left');
 
         $this->searchIndex();
 
@@ -122,7 +122,7 @@ class Expense_Duty_Model extends MY_Model
     public function countIndex()
     {
         $this->db->from('tb_master_expense_duty');
-        $this->db->join('tb_master_coa','tb_master_coa.coa=tb_master_expense_duty.account_code');
+        $this->db->join('tb_master_coa','tb_master_coa.coa=tb_master_expense_duty.account_code','left');
 
         $query = $this->db->get();
 
