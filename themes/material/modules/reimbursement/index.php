@@ -66,6 +66,9 @@
       <option value="WAITING APPROVAL BY HR MANAGER" <?php if (in_array(config_item('auth_username'),list_username_in_head_department(11))):echo 'selected'; endif;?>>
         Waiting Approval By HR Manager
       </option>
+      <option value="WAITING APPROVAL BY FINANCE MANAGER" <?php if (config_item('auth_role')=='FINANCE MANAGER'):echo 'selected'; endif;?>>
+        Waiting Approval By Finance Manager
+      </option>
       <option value="APPROVED">
         Approved
       </option>
@@ -606,6 +609,46 @@
           toastr.options.timeOut = 10000;
           toastr.options.positionClass = 'toast-top-right';
           toastr.error('Delete Failed! This data is still being used by another document.');
+        });
+      }
+
+      button.attr('disabled', false);
+    });
+
+    $(document).on('click', '.btn-xhr-create-expense', function(e) {
+      e.preventDefault();
+
+      var button = $(this);
+      var form = $('.form-xhr-create-expense');
+      var action = button.attr('href');
+
+      button.attr('disabled', true);
+
+      if (confirm('Are you sure want to create this data to Expense Request? Continue?')) {
+        $.post(action, form.serialize()).done(function(data) {
+          var obj = $.parseJSON(data);
+          if (obj.type == 'danger') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.info);
+
+            buttonToDelete.attr('disabled', false);
+          } else {
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.info);
+
+            form.reset();
+
+            $('[data-dismiss="modal"]').trigger('click');
+
+            if (datatable) {
+              datatable.ajax.reload(null, false);
+            }
+          }
+        }).fail(function() {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Create Expense Failed! Please Contact The Technician!!.');
         });
       }
 

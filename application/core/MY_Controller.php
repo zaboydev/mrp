@@ -71,6 +71,7 @@ class MY_Controller extends CI_Controller
     $this->config->set_item('as_head_department', $this->as_head_department());
     $this->config->set_item('head_department', $this->head_department());
     $this->config->set_item('hr_manager', $this->hr_manager());
+    $this->config->set_item('auth_department_id', $this->auth_department_id());
   }
 
   public function get_auth_role()
@@ -307,11 +308,7 @@ class MY_Controller extends CI_Controller
 
     $query  = $this->connection->get();
     $result = $query->result_array();
-    // $return = array();
-
-    // foreach ($result as $row) {
-    //   $return[] = $row['cost_center_name'];
-    // }
+    
 
     return $result;
   }
@@ -380,6 +377,27 @@ class MY_Controller extends CI_Controller
 
     foreach ($result as $row) {
       $return[] = $row['cost_center_name'];
+    }
+
+    return $return;
+  }
+
+  protected function auth_department_id()
+  {
+    $year = $this->find_budget_setting('Active Year');
+    $this->connection->select(array('tb_cost_centers.department_id'));
+    $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+    $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+    $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+    $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
+    $this->connection->where('tb_annual_cost_centers.year_number', $year);
+
+    $query  = $this->connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['department_id'];
     }
 
     return $return;

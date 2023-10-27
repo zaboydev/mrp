@@ -628,6 +628,37 @@ class Expense_Closing_Payment extends MY_Controller
         // echo json_encode($result);
     }
 
+    public function show_advance()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] . '/denied');
+
+        if (is_granted($this->module, 'document') === FALSE) {
+            $return['type'] = 'denied';
+            $return['info'] = "You don't have permission to access this data. You may need to login again.";
+        } else {
+            $expense_id = $_POST['id'];
+            $entity = $this->model->getAdvance($expense_id);
+
+            $this->data['entity'] = $entity;
+
+            $return['type'] = 'success';
+            $return['info'] = $this->load->view($this->module['view'] . '/info-advance', $this->data, TRUE);
+        }
+
+        echo json_encode($return);
+    }
+
+    public function show_advance_request_payment($id)
+    {
+        // $this->authorized($this->module, 'manage_attachment');
+
+        $this->data['entity'] = $this->model->getAdvance($id);
+        $this->data['page']['title']    = "Advance List";
+        $this->data['id'] = $id;
+        $this->render_view($this->module['view'] . '/show_advance');
+    }
+
     public function add_item()
     {
         $this->authorized($this->module, 'document');
@@ -650,6 +681,7 @@ class Expense_Closing_Payment extends MY_Controller
             if (isset($_POST['request_id']) && !empty($_POST['request_id'])) {
                 $_SESSION['request_closing']['items'] = array();
                 $total_amount = array();
+                $total_advance_amount = array();
                 foreach ($_POST['request_id'] as $key => $request_id) {
                     // $item_id_explode  = explode('-', $item_id);
                     // $po_id = $item_id_explode[0];
@@ -668,13 +700,17 @@ class Expense_Closing_Payment extends MY_Controller
                         'process_amount'                    => $request['process_amount'],            
                         'total'                             => $request['total'],            
                         'amount'                            => $request['amount'],
-                        'reference_ipc'                     => $request['reference_ipc']
+                        'reference_ipc'                     => $request['reference_ipc'],
+                        'uang_muka'                         => $request['advance_nominal'],
+                        'advance_account_code'              => $request['advance_account_code']
                     );
                     $_SESSION['request_closing']['items'][$request_id]['request_detail'] = $request['items'];
                     $total_amount[] = $request['total']-$request['process_amount'];
+                    $total_advance_amount[] = $request['advance_nominal'];
                 }
 
                 $_SESSION['request_closing']['total_amount'] = array_sum($total_amount);
+                $_SESSION['request_closing']['total_advance_amount'] = array_sum($total_advance_amount);
 
                 $data['success'] = TRUE;
             } else {

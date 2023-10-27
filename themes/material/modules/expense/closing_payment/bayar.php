@@ -89,7 +89,7 @@
                                 <label for="warehouse">Warehouse</label>
                             </div>
                             <div class="form-group">
-                                <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment']['total_amount'] ?>" readonly="readonly">
+                                <input type="number" name="amount" id="amount" class="form-control" value="<?= $_SESSION['payment']['total'] ?>" readonly="readonly">
                                 <label for="amount">Amount</label>
                             </div>
                         </div>
@@ -152,6 +152,34 @@
                                 <?php endforeach; ?>
                                 <?php endforeach; ?>
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th colspan="2">Subtotal</th>
+                                    <!-- <th></th> -->
+                                    <th><input type="hidden" value="<?= array_sum($amount_paid); ?>" name="subtotal"></th>
+                                    <th><span id="total_general"><?= print_number(array_sum($amount_paid), 2); ?></span></th>
+                                    </tr> 
+                                    <?php if($_SESSION['payment']['advance_total']>0) : ?>      
+                                    <tr>
+                                    <th></th>
+                                    <th colspan="2">Advance 
+                                        <a data-href="<?= site_url($module['route'] . '/show_advance');?>" title="show detail advance" class="hide btn btn-icon-toggle btn-info btn-xs btn_view_detail_advance" id="btn_view_detail_advance"><i class="fa fa-eye"></i>
+                                        </a>
+                                    </th>
+                                    <!-- <th></th> -->
+                                    <th><input type="hidden" value="<?= $_SESSION['payment']['advance_total']; ?>" name="total_advance_amount"></th>
+                                    <th><span id="total_advance"><?= print_number($_SESSION['payment']['advance_total'], 2); ?></span></th>
+                                    </tr>
+                                    <?php endif; ?>   
+                                    <tr>
+                                    <th></th>
+                                    <th colspan="2">Grandtotal</th>
+                                    <!-- <th></th> -->
+                                    <th><input type="hidden" value="<?= (array_sum($amount_paid)-$_SESSION['payment']['advance_total']); ?>" name="grandtotal"></th>
+                                    <th><span id="total_general"><?= print_number((array_sum($amount_paid)-$_SESSION['payment']['advance_total']), 2); ?></span></th>
+                                </tr>                
+                            </tfoot>
                         </table>
                     </div>
                 <?php endif; ?>

@@ -3,6 +3,9 @@
 class Sppd_Model extends MY_Model
 {
     protected $module;
+    protected $connection;
+    protected $budget_year;
+    protected $budget_month;
 
     public function __construct()
     {
@@ -10,6 +13,9 @@ class Sppd_Model extends MY_Model
 
         $this->module = config_item('module')['sppd'];
         // $this->data['modules']        = $this->modules;
+        $this->connection   = $this->load->database('budgetcontrol', TRUE);
+        $this->budget_year  = find_budget_setting('Active Year');
+        $this->budget_month = find_budget_setting('Active Month');
     }
 
     public function getSelectedColumns()
@@ -44,7 +50,7 @@ class Sppd_Model extends MY_Model
     public function getOrderableColumns()
     {
         return array(
-            null,
+            'tb_sppd.id',
             'tb_sppd.document_number',
             'tb_sppd.status',
             'tb_sppd.date',
@@ -239,6 +245,7 @@ class Sppd_Model extends MY_Model
     public function save()
     {
         $this->db->trans_begin();
+        $this->connection->trans_begin();
 
         // DELETE OLD DOCUMENT
         
@@ -304,6 +311,7 @@ class Sppd_Model extends MY_Model
         $transportation                 = $_SESSION['sppd']['transportation'];
         $command_by                     = $_SESSION['sppd']['command_by'];
         $spd_id                         = $_SESSION['sppd']['spd_id'];
+        $advance_spd                    = $_SESSION['sppd']['advance'];
         $spd                            = $this->findSpdById($spd_id);
         $level                          = getLevelByPosition($occupation);
 
@@ -314,12 +322,20 @@ class Sppd_Model extends MY_Model
         $this->db->set('spd_number', $spd['document_number']);
         $this->db->set('date', $date);
         $this->db->set('head_dept', $head_dept);
+        $this->db->set('advance_spd', $advance_spd);
         $this->db->set('notes', $notes);
         $this->db->set('request_by', (isset($_SESSION['sppd']['edit_type']) && $_SESSION['sppd']['edit_type']=='edit_approve')?$row['request_by']:config_item('auth_person_name'));
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('updated_by', config_item('auth_person_name'));
         $this->db->insert('tb_sppd');
         $document_id = $this->db->insert_id();
+
+
+        //update status SPD
+        $this->db->set('status','CLOSED');
+        $this->db->where('id', $spd_id);
+        $this->db->update('tb_business_trip_purposes');
+        //end
 
         $this->db->set('document_type','SPPD');
         $this->db->set('document_number',$document_number);
@@ -338,8 +354,11 @@ class Sppd_Model extends MY_Model
         $qty            = $this->input->post('qty');
         $amount         = $this->input->post('amount');
         $total          = $this->input->post('total');
+        $account_code          = $this->input->post('account_code');
+        $total_relisasi = 0;
 
         foreach ($item_ids as $key=>$item_id) {
+            $total_relisasi = $total_relisasi+$total[$key];
             $this->db->set('real_qty', $qty[$key]);
             $this->db->set('real_amount', $amount[$key]);
             $this->db->set('real_total', $total[$key]);
@@ -358,7 +377,19 @@ class Sppd_Model extends MY_Model
             }
         }
 
-        if ($this->db->trans_status() === FALSE)
+        if(!empty($_SESSION['sppd']['attachment_detail'])){
+            foreach ($_SESSION["sppd"]["attachment_detail"] as $key) {
+                $att = explode("|,", $key);
+                $this->db->set('id_poe', $att[1]);
+                $this->db->set('id_po', $document_id);
+                $this->db->set('file', $att[0]);
+                $this->db->set('tipe', $att[2]);
+                $this->db->set('tipe_att', 'other');
+                $this->db->insert('tb_attachment_poe');
+            }
+        }
+
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
             return FALSE;
 
         if(isset($_SESSION['sppd']['edit_type']) && $_SESSION['sppd']['edit_type']=='edit_approve'){
@@ -370,6 +401,7 @@ class Sppd_Model extends MY_Model
             
 
         $this->db->trans_commit();
+        $this->connection->trans_commit();
         return TRUE;
     }
 
@@ -565,6 +597,11 @@ class Sppd_Model extends MY_Model
                 $this->db->set('sign', get_ttd(config_item('auth_person_name')));
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
+
+                $create_expense = $this->create_expense($id);
+
+                if($create_expense['status'] === FALSE)
+                    return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
             }
             $total++;
             $success++;
@@ -869,22 +906,22 @@ class Sppd_Model extends MY_Model
         
     }
 
-    public function listAttachment($id)
+    public function listAttachment($id,$tipe='SPD')
     {
         $this->db->where('id_poe', $id);
-        $this->db->where('tipe', 'SPD');
+        $this->db->where('tipe', $tipe);
         $this->db->where(array('deleted_at' => NULL));
         return $this->db->get('tb_attachment_poe')->result_array();
     }
 
-    function add_attachment_to_db($id_poe, $url,$tipe_att='other')
+    function add_attachment_to_db($id_poe, $url, $tipe, $tipe_att='other')
     {
         $this->db->trans_begin();
 
         $this->db->set('id_poe', $id_poe);
         $this->db->set('id_po', $id_poe);
         $this->db->set('file', $url);
-        $this->db->set('tipe', 'SPD');
+        $this->db->set('tipe', $tipe);
         $this->db->set('tipe_att', $tipe_att);
         $this->db->insert('tb_attachment_poe');
 
@@ -898,6 +935,19 @@ class Sppd_Model extends MY_Model
     function delete_attachment_in_db($id_att)
     {
         $this->db->trans_begin();
+
+        // $this->db->select('*');
+        // $this->db->where('tb_attachment_poe.id', $id_att);
+        // $query      = $this->db->get('tb_attachment_poe');
+        // $row        = $query->unbuffered_row('array');
+
+        // $file = FCPATH . $row['file'];
+        // if (unlink($file)) {
+        //     $this->db->set('deleted_at',date('Y-m-d'));
+        //     $this->db->set('deleted_by', config_item('auth_person_name'));
+        //     $this->db->where('id', $id_att);
+        //     $this->db->update('tb_attachment_poe');
+        // }
 
         $this->db->set('deleted_at',date('Y-m-d'));
         $this->db->set('deleted_by', config_item('auth_person_name'));
@@ -934,5 +984,207 @@ class Sppd_Model extends MY_Model
         }
 
         return $row;
+    }
+
+    public function getExpenseOrderNumber(){
+        $this->connection->select_max('order_number', 'last_number');
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $query        = $this->connection->get();
+        if($query->num_rows() > 0){      
+            $request      = $query->unbuffered_row('array');
+            $last_number  = $request['last_number'];
+            $return       = $last_number + 1;
+        }else{
+            $return = 1;
+        }
+
+        return $return;
+    }
+
+    public function findCostCenter($annual_cost_center_id){
+        $this->connection->select(array('cost_center_code','cost_center_name','department_id'));
+        $this->connection->from( 'tb_cost_centers' );
+        $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
+        $this->connection->where('tb_annual_cost_centers.id', $annual_cost_center_id);
+
+        $query    = $this->connection->get();
+        $cost_center = $query->unbuffered_row('array');
+
+        return $cost_center;
+    }
+
+    public function getExpenseFormatNumber($cost_center_code){
+        $return = '/Exp/'.$cost_center_code.'/'.find_budget_setting('Active Year');
+
+        return $return;
+    }
+
+    public function getAccountByAccountCode($account_code){
+        $this->connection->select('*');
+        $this->connection->from( 'tb_accounts' );
+        $this->connection->where('tb_accounts.account_code', $account_code);
+
+        $query    = $this->connection->get();
+        $account = $query->unbuffered_row('array');
+
+        return $account;
+    }
+
+    public function create_expense($id)
+    {
+        $this->db->trans_begin();        
+        $this->connection->trans_begin();
+
+        // $id = $this->input->post('id');
+
+        $data = $this->findById($id);
+        $date = date('Y-m-d');
+        $akun_advance_dinas = get_set_up_akun(6);
+        $cekSettingApproval = cekSettingApproval('EXPENSE from SPPD');
+
+        $url_spd = site_url('sppd/print_pdf/'.$id);
+        $order_number = $this->getExpenseOrderNumber();
+        $cost_center = $this->findCostCenter($data['annual_cost_center_id']);
+        $format_number = $this->getExpenseFormatNumber($cost_center['cost_center_code']);
+        $pr_number = $order_number.$format_number;
+        $this->connection->set('annual_cost_center_id', $data['annual_cost_center_id']);
+        $this->connection->set('order_number', $order_number);
+        $this->connection->set('pr_number', $pr_number);
+        $this->connection->set('pr_date', $date);
+        $this->connection->set('required_date', $date);
+        $this->connection->set('status', 'pending');
+        $this->connection->set('notes', 'expense sppd : #'.$data['document_number']);
+        $this->connection->set('created_by', config_item('auth_person_name'));
+        $this->connection->set('updated_by', config_item('auth_person_name'));
+        $this->connection->set('created_at', date('Y-m-d H:i:s'));
+        $this->connection->set('updated_at', date('Y-m-d H:i:s'));
+        $this->connection->set('with_po', false);
+        $this->connection->set('head_dept', $data['head_dept']);
+        $this->connection->set('base', config_item('auth_warehouse'));
+        if($data['advance_spd']>0){            
+            $this->connection->set('advance_account_code', $akun_advance_dinas->coa);
+            $this->connection->set('advance_nominal', $data['advance_spd']);
+        }
+        $this->connection->set('reference_document', json_encode(['SPPD',$id,$data['document_number'],$url_spd]));
+        $this->connection->set('revisi', 1);//expense dari SPPD tidak bisa direvisi        
+        $this->connection->set('approval_type', ($cekSettingApproval=='FULL APPROVAL')? 'FULL':'NOT FULL');
+        $this->connection->insert('tb_expense_purchase_requisitions');
+
+        $document_id = $this->connection->insert_id();
+
+        foreach ($data['items'] as $key => $item) {
+            $account = $this->getAccountByAccountCode($item['account_code']);
+
+            // GET BUDGET MONTHLY ID
+            $this->connection->from('tb_expense_monthly_budgets');
+            $this->connection->where('tb_expense_monthly_budgets.account_id', $account['id']);
+            $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $data['annual_cost_center_id']);
+            $this->connection->where('tb_expense_monthly_budgets.month_number', $this->budget_month);
+            // $this->connection->where('tb_capex_monthly_budgets.year_number', $this->budget_year);
+
+            $query  = $this->connection->get();
+            if ($query->num_rows() == 0) {
+                //jika budget tidak ada
+                // // NEW BUDGET
+                $this->connection->set('annual_cost_center_id', $data['annual_cost_center_id']);
+                $this->connection->set('account_id', $account['id']);
+                $this->connection->set('month_number', $this->budget_month);
+                // $this->connection->set('year_number', $this->budget_year);
+                $this->connection->set('initial_quantity', floatval(0));
+                $this->connection->set('initial_budget', floatval(0));
+                $this->connection->set('mtd_quantity', floatval(0));
+                $this->connection->set('mtd_budget', floatval($item['real_total']));
+                $this->connection->set('mtd_used_quantity', floatval(0));
+                $this->connection->set('mtd_used_budget', floatval(0));
+                $this->connection->set('mtd_used_quantity_import', floatval(0));
+                $this->connection->set('mtd_used_budget_import', floatval(0));
+                $this->connection->set('mtd_prev_month_quantity', floatval(0));
+                $this->connection->set('mtd_prev_month_budget', floatval(0));
+                $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
+                $this->connection->set('mtd_prev_month_used_budget', floatval(0));
+                $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
+                $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
+                $this->connection->set('ytd_quantity', floatval(0));
+                $this->connection->set('ytd_budget', floatval($item['real_total']));
+                $this->connection->set('ytd_used_quantity', floatval(0));
+                $this->connection->set('ytd_used_budget', floatval(0));
+                $this->connection->set('ytd_used_quantity_import', floatval(0));
+                $this->connection->set('ytd_used_budget_import', floatval(0));
+                $this->connection->set('created_at', date('Y-m-d'));
+                $this->connection->set('created_by', config_item('auth_person_name'));
+                $this->connection->set('updated_at', date('Y-m-d'));
+                $this->connection->set('updated_by', config_item('auth_person_name'));
+                $this->connection->insert('tb_expense_monthly_budgets');
+
+                $expense_monthly_budget_id = $this->connection->insert_id();
+
+                //create expense unbudgeted
+                $this->connection->set('annual_cost_center_id', $data['annual_cost_center_id']);
+                $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
+                $this->connection->set('year_number', $this->budget_year);
+                $this->connection->set('amount', $item['real_total']);
+                $this->connection->set('previous_budget', 0);
+                $this->connection->set('new_budget', $item[['real_total']]);
+                $this->connection->set('created_at', date('Y-m-d'));
+                $this->connection->set('created_by', config_item('auth_person_name'));
+                $this->connection->set('notes', NULL);
+                $this->connection->insert('tb_expense_unbudgeted');
+            }else{
+                $expense_monthly_budget    = $query->unbuffered_row();
+                $expense_monthly_budget_id = $expense_monthly_budget->id;
+            }
+
+            $year = $this->budget_year;
+            $month = $this->budget_month;
+
+            for ($i = $month; $i < 13; $i++) {
+                $this->connection->set('ytd_used_budget', 'ytd_used_budget + ' . $item['real_total'], FALSE);
+                $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $data['annual_cost_center_id']);
+                $this->connection->where('tb_expense_monthly_budgets.account_id', $account['id']);
+                $this->connection->where('tb_expense_monthly_budgets.month_number', $i);
+                $this->connection->update('tb_expense_monthly_budgets');
+            }
+
+            //insert data on used budget 
+            $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
+            $this->connection->set('expense_purchase_requisition_id', $document_id);
+            $this->connection->set('pr_number', $pr_number);
+            $this->connection->set('cost_center', $cost_center['cost_center_name']);
+            $this->connection->set('year_number', $this->budget_year);
+            $this->connection->set('month_number', $this->budget_month);
+            $this->connection->set('account_name', $account['account_name']);
+            $this->connection->set('account_code', $account['account_code']);
+            $this->connection->set('used_budget', $item['real_total']);
+            $this->connection->set('created_at', date('Y-m-d H:i:s'));
+            $this->connection->set('created_by', config_item('auth_person_name'));
+            $this->connection->insert('tb_expense_used_budgets');
+
+            //update monthly budget
+            $this->connection->set('mtd_used_budget', 'mtd_used_budget + ' . $item['real_total'], FALSE);
+            $this->connection->where('id', $expense_monthly_budget_id);
+            $this->connection->update('tb_expense_monthly_budgets');
+
+            $this->connection->set('expense_purchase_requisition_id', $document_id);
+            $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
+            $this->connection->set('sort_order', floatval($key));
+            // $this->connection->set('sisa', floatval($data['amount']));
+            $this->connection->set('amount', floatval($item['real_total']));
+            $this->connection->set('total', floatval($item['real_total']));
+            $this->connection->set('reference_ipc', $data['document_number']);
+            $this->connection->insert('tb_expense_purchase_requisition_details');
+        }
+
+        $url_expense = site_url('expense_request/print_pdf/'.$document_id);
+        $this->db->set('status','EXPENSE REQUEST');
+        $this->db->set('reference_document', json_encode(['EXP',$document_id,$pr_number,$url_expense]));
+        $this->db->where('id', $id);
+        $this->db->update('tb_sppd');        
+
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+            return ['status'=>FALSE,'pr_number'=>$pr_number];
+
+        $this->db->trans_commit();
+        $this->connection->trans_commit();
+        return ['status'=>TRUE,'pr_number'=>$pr_number];
     }
 }

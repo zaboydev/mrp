@@ -67,6 +67,11 @@ class Dashboard extends MY_Controller
     $this->data['count_expense_purposed_payment_need_to_pay']               = $this->model->count_purposed_payment_need_to_pay('EXPENSE');    
     $this->data['count_capex_purposed_payment_need_to_pay']                 = $this->model->count_purposed_payment_need_to_pay('CAPEX');
 
+    $this->data['count_spd']            = $this->model->count_spd();
+    $this->data['count_sppd']           = $this->model->count_sppd();
+    $this->data['count_reimbursement']  = $this->model->count_reimbursement();
+    $this->data['count_advance']        = $this->model->count_advance();
+
 
     $this->data['ap_maintenance']                               = $this->model->count_ap('maintenance');
     $this->data['ap_local']                                     = $this->model->count_ap('local');

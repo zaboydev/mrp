@@ -157,6 +157,43 @@
                     </header>
                   </div>
                 <?php endif;?>
+                <?php if (is_granted($modules['business_trip_request'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['business_trip_request']['route']);?>">
+                        Surat Perjalanan Dinas (<strong><font color="red"><?=$count_spd;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+                <?php if (is_granted($modules['sppd'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['sppd']['route']);?>">
+                        SPJ Dinas (<strong><font color="red"><?=$count_sppd;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+                <?php if (is_granted($modules['reimbursement'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['reimbursement']['route']);?>">
+                        Reimbursement (<strong><font color="red"><?=$count_reimbursement;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
+
+                <?php if (is_granted($modules['spd_payment'], 'approval')):?>
+                  <div class="card-head collapsed">
+                    <header>
+                      <a href="<?=site_url($modules['spd_payment']['route']);?>">
+                        Advance (<strong><font color="red"><?=$count_advance;?></font></strong>)
+                      </a>
+                    </header>
+                  </div>
+                <?php endif;?>
             </div>
           </div> 
         <?php endif; ?>

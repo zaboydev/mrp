@@ -145,6 +145,7 @@
         <?php if (isset($_SESSION['request_closing']['items'])) : ?>
           <?php $grand_total = array(); ?>
           <?php $total_quantity = array(); ?>
+          <?php $total_advance_amount = array(); ?>
           <div class="document-data table-responsive">
             <table class="table table-hover" id="table-document">
               <thead>
@@ -159,6 +160,7 @@
               <tbody>
                 <?php foreach ($_SESSION['request_closing']['items'] as $i => $items) : ?>
                   <?php $grand_total[] = $items['total']; ?>
+                  <?php $total_advance_amount[] = $items['uang_muka']; ?>
                   <tr id="row_<?= $i; ?>">
                     <td>
                       <a  href="javascript:;" title="show detail" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $i ?>" data-row="<?= $i ?>" data-tipe="view"><i class="fa fa-angle-right"></i>
@@ -187,9 +189,11 @@
                         <input name="request_item_id[]" id="request_item_id_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['id']?>">
                         <input name="remarks[]" id="remarks_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$items['notes']?>">
                         <input name="account_code[]" id="account_code_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$detail['account_code']?>">
+                        <input name="advance_account_code[]" id="advance_account_code_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="form-control-payment" value="<?=$items['advance_account_code']?>">
                         <?= print_string($detail['account_code']); ?> - <?= print_string($detail['account_name']); ?>
                       </td>
                       <td>
+                      <input name="uang_muka[]" id="in_uang_muka_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="hidden" class="sel_applied_item sel_applied_<?= $i ?> form-control-payment" value="<?=$items['uang_muka']?>">
                         <input name="value[]" id="in_item_<?= $i ?>_<?= $j ?>" data-parent="<?= $i ?>" data-row="<?= $j ?>" type="number" class="sel_applied_item sel_applied_<?= $i ?> form-control-payment" value="<?=$detail['total']-$detail['process_amount']?>">
                         
                       </td>
@@ -198,11 +202,32 @@
                 <?php endforeach; ?>
               </tbody>
               <tfoot>
-                <th></th>
-                <th>Total</th>
-                <!-- <th></th> -->
-                <th></th>
-                <th><span id="total_general"><?= print_number(array_sum($grand_total), 2); ?></span></th>
+                <tr>
+                  <th></th>
+                  <th>Subtotal</th>
+                  <!-- <th></th> -->
+                  <th><input type="hidden" value="<?= array_sum($grand_total); ?>" name="subtotal"></th>
+                  <th><span id="total_general"><?= print_number(array_sum($grand_total), 2); ?></span></th>
+                </tr> 
+                <?php if(array_sum($total_advance_amount)>0) : ?>      
+                <tr>
+                  <th></th>
+                  <th>Advance 
+                    <a data-href="<?= site_url($module['route'] . '/show_advance');?>" title="show detail advance" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail_advance" id="btn_view_detail_advance"><i class="fa fa-eye"></i>
+                    </a>
+                  </th>
+                  <!-- <th></th> -->
+                  <th><input type="hidden" value="<?= array_sum($total_advance_amount); ?>" name="total_advance_amount"></th>
+                  <th><span id="total_advance"><?= print_number(array_sum($total_advance_amount), 2); ?></span></th>
+                </tr>
+                <?php endif; ?>   
+                <tr>
+                  <th></th>
+                  <th>Grandtotal</th>
+                  <!-- <th></th> -->
+                  <th><input type="hidden" value="<?= (array_sum($grand_total)-array_sum($total_advance_amount)); ?>" name="grandtotal"></th>
+                  <th><span id="total_general"><?= print_number((array_sum($grand_total)-array_sum($total_advance_amount)), 2); ?></span></th>
+                </tr>                
               </tfoot>
             </table>
           </div>
@@ -240,6 +265,14 @@
   </div>
 </section>
 <?= form_close(); ?>
+
+<div id="modal-show-advance" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-show-advance-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+    </div>
+  </div>
+</div>
 <table class="table-row-item hide">
   <tbody>
     <tr>
@@ -464,6 +497,7 @@
     var buttonSubmitDocument = $('#btn-submit-document');
     var buttonDeleteDocumentItem = $('.btn_delete_document_item');
     var buttonEditDocumentItem = $('.btn_edit_document_item');
+    var buttonShowAdvance = $('#btn_view_detail_advance');
     var autosetInputData = $('[data-input-type="autoset"]');
 
     toastr.options.closeButton = true;
@@ -660,6 +694,28 @@
 
       $.get(url, {
         data: val
+      });
+    });
+
+    $(buttonShowAdvance).on('click', function(e) {
+      e.preventDefault();
+
+      var url = $(this).data('href');
+      var dataModal = $('#modal-show-advance');
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "JSON",
+        success: function(response) {
+          // var obj = $.parseJSON(response);
+          $(dataModal)
+          .find('.modal-content')
+          .empty()
+          .append(response.info);
+
+          $(dataModal).modal('show');
+        }
       });
     });
 

@@ -84,10 +84,21 @@
                             <label for="from">From / Kota Asal</label>
                         </div>
 
-                        <div class="form-group">
-                            <input type="text" name="transportation" id="transportation" class="form-control" value="<?= $_SESSION['business_trip']['transportation']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" required>
+                        <div class="form-group" style="padding-top: 25px;">
+                            <select name="transportation" id="transportation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" data-placeholder="Select Transport" required>
+                                <option></option>
+                                <?php foreach(transportation_list() as $transportation):?>
+                                <option value="<?=$transportation['transportation'];?>" <?= ($transportation['transportation'] == $_SESSION['business_trip']['transportation']) ? 'selected' : ''; ?>><?=$transportation['transportation'];?></option>
+                                <?php endforeach;?>
+                            </select>
+                            <input type="hidden" name="transportation" id="transportationinput" class="form-control" value="<?= $_SESSION['business_trip']['transportation']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_transportation'); ?>" required>
                             <label for="transportation">Transportation / Jenis Transportasi</label>
                         </div>  
+
+                        <div class="form-group">
+                            <textarea name="remarks_transport" id="remarks_transport" class="form-control" rows="2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_remarks_transport'); ?>"><?= $_SESSION['business_trip']['remarks_transport']; ?></textarea>
+                            <label for="remarks_transport">Remarks Transport</label>
+                        </div>
 
                         <div class="form-group" style="padding-top: 25px;">
                             <select name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_destination'); ?>" data-placeholder="Select Destination" required>
@@ -99,12 +110,24 @@
                             <label for="tujuan_perjalanan_dinas">To / Kota Tujuan</label>
                         </div> 
                         
-                        <div class="form-group">
-                            <input type="hidden" name="start_date" id="start_date" class="form-control" value="<?= $_SESSION['business_trip']['start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_start_date'); ?>" required>
-                            <input type="hidden" name="end_date" id="end_date" class="form-control" value="<?= $_SESSION['business_trip']['end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_end_date'); ?>" required>
-                            <input type="text" name="dateline" id="dateline" data-provide="daterange" class="form-control" value="<?= $_SESSION['business_trip']['dateline']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_dateline'); ?>" required readonly>
-                            <label for="dateline">Date</label>
-                        </div>
+                        <!-- <div class="form-group"> -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="start_date" id="start_date" data-provide="datepicker" class="form-control" value="<?= $_SESSION['business_trip']['start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_start_date'); ?>" required readonly>
+                                        <label for="start_date">Startdate</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="end_date" id="end_date" data-provide="datepicker" class="form-control" value="<?= $_SESSION['business_trip']['end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_end_date'); ?>" required readonly>
+                                        <label for="end_date">Enddate</label>
+                                    </div>
+                                </div>
+                            </div>                            
+                            <input type="text" name="dateline" id="dateline" data-provide="daterange" class="hide form-control" value="<?= $_SESSION['business_trip']['dateline']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_dateline'); ?>" required readonly>
+                            <label for="dateline" class="hide">Date</label>
+                        <!-- </div> -->
 
                         <div class="form-group">
                             <input type="number" name="duration" id="duration" class="form-control" value="<?= $_SESSION['business_trip']['duration']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_duration'); ?>" required>
@@ -120,7 +143,15 @@
 
                         <div class="form-group">
                             <textarea name="command_by" id="command_by" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_command_by'); ?>"><?= $_SESSION['business_trip']['command_by']; ?></textarea>
-                            <label for="notes">Perintah Dinas Diberikan oleh</label>
+                            <label for="notes">Keterangan Perjalanan Dinas</label>
+                            
+                            <?php if(isset($_SESSION['business_trip']['additional_notes'])):?>
+                            <span class="input-group-addon" style="text-align:left;"><?= $_SESSION['business_trip']['additional_notes']; ?></span>
+                            <?php endif;?>
+                        </div>
+                        
+                        <div class="form-group">
+                            
                         </div>
                     </div>
                 </div>
@@ -417,9 +448,17 @@
         $('[data-provide="datepicker"]').datepicker({
             autoclose: true,
             todayHighlight: true,
-            format: 'dd-mm-yyyy',
+            format: 'yyyy-mm-dd',
             startDate: today,
             // endDate: last_opname
+        });
+
+        $('#start_date').on('change', function() {
+            getDuration();
+        });
+
+        $('#end_date').on('change', function() {
+            getDuration();
         });
 
         $('[data-provide="daterange"]').daterangepicker({
@@ -451,6 +490,29 @@
         }).on('cancel.daterangepicker', function(ev, picker) {
             
         });
+
+        function getDuration(){
+            var start_date_val = $('#start_date').val();
+            var end_date_val = $('#end_date').val();
+
+            if((start_date_val!='' && end_date_val!='')){
+                var start_date = new Date(start_date_val);
+                var end_date = new Date(end_date_val);
+                // To calculate the time difference of two dates
+                var Difference_In_Time = end_date.getTime() - start_date.getTime();
+                
+                // To calculate the no. of days between two dates
+                var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+
+                console.log(start_date);
+                console.log(end_date);
+                console.log(Difference_In_Days+1);
+
+                $('#duration').val(Difference_In_Days+1).trigger('change');
+                // $('#start_date').val(picker.startDate.format('YYYY-MM-DD')).trigger('change');
+                // $('#end_date').val(picker.endDate.format('YYYY-MM-DD')).trigger('change');
+            }
+        }
 
         $(document).on('click', '.btn-xhr-submit', function(e) {
             e.preventDefault();

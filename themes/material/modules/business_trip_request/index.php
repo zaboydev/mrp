@@ -612,6 +612,46 @@
       button.attr('disabled', false);
     });
 
+    $(document).on('click', '.btn-xhr-create-expense', function(e) {
+      e.preventDefault();
+
+      var button = $(this);
+      var form = $('.form-xhr-create-expense');
+      var action = button.attr('href');
+
+      button.attr('disabled', true);
+
+      if (confirm('Are you sure want to create this data to Expense Request? Continue?')) {
+        $.post(action, form.serialize()).done(function(data) {
+          var obj = $.parseJSON(data);
+          if (obj.type == 'danger') {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.info);
+
+            buttonToDelete.attr('disabled', false);
+          } else {
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.info);
+
+            form.reset();
+
+            $('[data-dismiss="modal"]').trigger('click');
+
+            if (datatable) {
+              datatable.ajax.reload(null, false);
+            }
+          }
+        }).fail(function() {
+          toastr.options.timeOut = 10000;
+          toastr.options.positionClass = 'toast-top-right';
+          toastr.error('Create Expense Failed! Please Contact The Technician!!.');
+        });
+      }
+
+      button.attr('disabled', false);
+    });
+
     $("#modal-approve-data-button-multi").click(function() {
       var action = $(this).data('source');
       encodeNotes()

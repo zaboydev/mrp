@@ -216,13 +216,13 @@ if ( ! function_exists('is_granted')) {
           return FALSE;
         }
       }
-      // elseif(in_array(config_item('auth_username'),list_username_in_head_department(11))){
-      //   if(in_array($module['name'],config_item('additional_modules_for_hr_depatment'))){
-      //     return TRUE;
-      //   }else{
-      //     return FALSE;
-      //   }   
-      // }
+      elseif(in_array(config_item('hr_department_name'),config_item('head_department'))){
+        if(in_array($module['name'],config_item('additional_modules_for_hr_depatment'))){
+          return TRUE;
+        }else{
+          return FALSE;
+        }   
+      }
       else{
         return FALSE;
       }
@@ -3251,6 +3251,23 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('transportation_list')) {
+    function transportation_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_transportations.*');
+      $CI->db->where('tb_master_transportations.status','AVAILABLE');
+      $CI->db->from('tb_master_transportations');
+      $CI->db->order_by('tb_master_transportations.transportation', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
   if ( ! function_exists('getUserById')) {
     function getUserById($user_id)
     {
@@ -3384,10 +3401,9 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
   
-      $CI->db->select('tb_master_business_trip_destination_items.expense_name');
-      $CI->db->from('tb_master_business_trip_destination_items');
-      $CI->db->where('tb_master_business_trip_destination_items.deleted_at IS NULL', null, false);
-      $CI->db->group_by('tb_master_business_trip_destination_items.expense_name');
+      $CI->db->select('tb_master_expense_duty.expense_name');
+      $CI->db->from('tb_master_expense_duty');
+      $CI->db->where('tb_master_expense_duty.status', 'AVAILABLE');
 
       $query = $CI->db->get();
 
@@ -3404,11 +3420,12 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
 
-      $CI->db->select('tb_master_business_trip_destination_items.*');
+      $CI->db->select(array('tb_master_business_trip_destination_items.*','tb_master_expense_duty.account_code'));   
       $CI->db->where('tb_master_business_trip_destination_items.deleted_at is NULL',null,false);
       $CI->db->where('tb_master_business_trip_destination_items.business_trip_purposes_id',$id);
       $CI->db->where('tb_master_business_trip_destination_items.level',$level);
-      $CI->db->from('tb_master_business_trip_destination_items');
+      $CI->db->from('tb_master_business_trip_destination_items');   
+      $CI->db->join('tb_master_expense_duty','tb_master_expense_duty.expense_name = tb_master_business_trip_destination_items.expense_name');
       $CI->db->order_by('tb_master_business_trip_destination_items.expense_name', 'ASC');
 
       $query  = $CI->db->get();
@@ -3485,7 +3502,7 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
 
-      $CI->db->select('tb_master_employee_benefits.employee_benefit');
+      $CI->db->select('*');
       $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
       $CI->db->from('tb_master_employee_benefits');
       $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
@@ -3635,6 +3652,221 @@ if (!function_exists('currency_for_vendor_list')) {
       $row        = $query->unbuffered_row('array');
   
       return $row;
+    }
+  }
+
+  if ( ! function_exists('get_count_revisi')) {
+    function get_count_revisi($document_number,$tipe)
+    {
+      $CI =& get_instance();
+
+      if($tipe=='SPD'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_business_trip_purposes');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }elseif($tipe=='PAYMENT'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_po_payment_no_transaksi');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }elseif($tipe=='REIMBURSEMENT'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_reimbursements');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }elseif($tipe=='SPPD'){
+        $CI->db->select('document_number');
+        $CI->db->from('tb_sppd');
+        $CI->db->like('document_number', $document_number, 'both');
+    
+        $query  = $CI->db->get();
+        $row    = $query->num_rows();
+        $return = $row;
+      }
+  
+  
+      
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('getNotifRecipientHrManager')) {
+    function getNotifRecipientHrManager()
+    {
+      $CI =& get_instance();
+  
+      $head_dept = array();
+  
+      foreach (list_user_in_head_department(11) as $head) {
+        $head_dept[] = $head['username'];
+      }
+  
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where_in('username', $head_dept);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getNotifRecipientFinManager')) {
+    function getNotifRecipientFinManager()
+    {
+      $CI =& get_instance();
+  
+      $head_dept = array();
+  
+      foreach (list_user_in_head_department(11) as $head) {
+        $head_dept[] = $head['username'];
+      }
+  
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where_in('auth_level', ['14']);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getNotifRecipientByRoleLevel')) {
+    function getNotifRecipientByRoleLevel($level)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where_in('auth_level', [$level]);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('next_advance_document_number')) {
+    function next_advance_document_number()
+    {
+      $CI =& get_instance();
+  
+      $format = '/ADV/'.date('Y');
+  
+      $CI->db->select_max('document_number', 'last_number');
+      $CI->db->from('tb_advance_payments');
+      $CI->db->like('document_number', $format);
+  
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next).$format;
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('findAdvanceList')) {
+    function findAdvanceList($doc_id,$type)
+    {
+      $CI =& get_instance();
+  
+      if($type=='SPPD'){
+        $CI->db->select('tb_sppd.*');
+        $CI->db->from('tb_sppd');
+        $CI->db->where('tb_sppd.id', $doc_id);
+
+        $query    = $CI->db->get();
+        $sppd  = $query->unbuffered_row('array');
+
+        $CI->db->select(
+          'tb_advance_payments.id,
+          tb_advance_payments.document_number,
+          tb_advance_payments.payment_number,
+          tb_advance_payments.amount_paid,
+          tb_advance_payments.paid_at,
+          tb_business_trip_purposes.document_number as spd_number,
+          tb_advance_payments_details.document_id as spd_id,
+        ');
+        $CI->db->from('tb_advance_payments');
+        $CI->db->join('tb_advance_payments_details', 'tb_advance_payments_details.advance_id = tb_advance_payments.id');
+        $CI->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_advance_payments_details.document_id');
+        $CI->db->where('tb_business_trip_purposes.id', $sppd['spd_id']);
+        $CI->db->where('tb_advance_payments.source', 'SPD');
+        $CI->db->where_in('tb_advance_payments.status', ['OPEN','PAID']);
+        $query    = $CI->db->get();
+        foreach ($query->result_array() as $key => $value){
+          $advance[$key] = $value;
+          $advance[$key]['sppd_number'] = $sppd['document_number'];
+          $advance[$key]['sppd_id'] = $sppd['id'];
+        }
+
+        $return = $advance;
+      }
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('sppd_format_number')) {
+    function sppd_format_number()
+    {
+      $div  = config_item('document_format_divider');
+      $base = (config_item('include_base_on_document') === TRUE) ? $div . config_item('auth_warehouse') : NULL;
+      $mod  = config_item('module');
+      $year = date('Y');
+      $month = date('m');
+  
+      $return = $div . 'SPPD' . $div . 'BWD-BIFA' . $div .$month .$div .$year;
+  
+      return $return;
+    }
+  }
+  
+  if ( ! function_exists('sppd_last_number')) {
+    function sppd_last_number()
+    {
+      $CI =& get_instance();
+  
+      $format = sppd_format_number();
+  
+      $CI->db->select_max('document_number', 'last_number');
+      $CI->db->from('tb_sppd');
+      $CI->db->like('document_number', $format, 'both');
+  
+      $query  = $CI->db->get();
+      $row    = $query->unbuffered_row();
+      $last   = $row->last_number;
+      $number = substr($last, 0, 6);
+      $next   = $number + 1;
+      $return = sprintf('%06s', $next);
+  
+      return $return;
+    }
+  }
+
+  if ( ! function_exists('cekSettingApproval')) {
+    function cekSettingApproval($setting_name)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('setting_value');
+      $CI->db->where('setting_name', $setting_name);
+      $query = $CI->db->get('tb_settings');
+      $row = $query->row_array();
+
+      return $row['setting_value'];
     }
   }
 

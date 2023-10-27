@@ -327,7 +327,9 @@ class Expense_Closing_Payment_Model extends MY_Model
             'sum(tb_request_payment_details.amount_paid) as amount_paid',
             'tb_request_payment_details.request_id',
             'tb_request_payment_details.remarks',
-            'tb_request_payment_details.pr_number'
+            'tb_request_payment_details.pr_number',
+            'tb_request_payment_details.advance_account_code',
+            'tb_request_payment_details.uang_muka'
         );
 
         $this->connection->select($select);
@@ -336,10 +338,13 @@ class Expense_Closing_Payment_Model extends MY_Model
         $this->connection->group_by(array(
             'tb_request_payment_details.request_id',
             'tb_request_payment_details.remarks',
-            'tb_request_payment_details.pr_number'
+            'tb_request_payment_details.pr_number',
+            'tb_request_payment_details.advance_account_code',
+            'tb_request_payment_details.uang_muka'
         ));
 
         $query = $this->connection->get();
+        $total_paid = 0;
 
         foreach ($query->result_array() as $key => $req){
             $request['request'][$key] = $req;
@@ -372,8 +377,9 @@ class Expense_Closing_Payment_Model extends MY_Model
                     $request['request'][$key]['items'][$i] = $item;
                 }
             }
-            
+            $total_paid = $total_paid+$req['amount_paid'];
         }
+        $request['total_paid'] = $total_paid;
 
         if($request['status']=='PAID'){
             $this->db->select('tb_jurnal.*');
@@ -392,6 +398,9 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $request['jurnalDetail'][$key] = $detail;
             }
         }
+
+        // $request['advance_list'] = $this->getAdvance($id);
+        $request['advance_list'] = array();
 
         return $request;
     }
@@ -448,6 +457,13 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $this->connection->set('review_at', date('Y-m-d'));
                 $this->connection->where('id', $id);
                 $this->connection->update('tb_request_payments');
+
+                $statusPayment = $this->getStatuspayment($id);
+
+                if($statusPayment['status']=='PAID'){
+                    //langsung ubah request payment
+                    $this->buat_pembayaran_langsung($id,$statusPayment['advance_account_code']); 
+                }
             }
 
             if (config_item('auth_role')=='VP FINANCE' && $request_payment['status'] == 'WAITING REVIEW BY VP FINANCE') {
@@ -666,6 +682,11 @@ class Expense_Closing_Payment_Model extends MY_Model
         $amount                     = $this->input->post('value');
         $remarks                    = $this->input->post('remarks');
         $account_code               = $this->input->post('account_code');
+        $uang_muka                  = $this->input->post('uang_muka');
+        $advance_account_code                  = $this->input->post('advance_account_code');
+
+        $array_request_id = array();
+        $array_advance_nominal = array();
 
         /*foreach ($_SESSION['request_closing']['items'] as $key => $request) {
             foreach ($request['request_detail'] as $j => $item) {
@@ -728,6 +749,8 @@ class Expense_Closing_Payment_Model extends MY_Model
             }
             
         }*/
+        $total_amount = array();
+        $total_advance = array();
         foreach ($request_items_id as $key=>$request_item_id){
 
             if($request_item_id!=NULL){
@@ -750,7 +773,8 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->connection->set('created_by', config_item('auth_person_name'));
             $this->connection->set('adj_value', 0);
             $this->connection->set('quantity_paid', 1);
-            $this->connection->set('uang_muka', 0);
+            $this->connection->set('uang_muka', $uang_muka[$key]);
+            $this->connection->set('advance_account_code', $advance_account_code[$key]);
             $this->connection->insert('tb_request_payment_details');
 
             if($request_item_id!=NULL){
@@ -771,6 +795,11 @@ class Expense_Closing_Payment_Model extends MY_Model
                     }                
                     $this->connection->where('id', $request_item['expense_purchase_requisition_id']);
                     $this->connection->update('tb_expense_purchase_requisitions');
+                }
+                if(!in_array($request_item['expense_purchase_requisition_id'],$array_request_id)){
+                    array_push($array_request_id,$request_item['expense_purchase_requisition_id']);
+                    array_push($array_advance_nominal,$uang_muka[$key]);
+                    $total_advance[] = $uang_muka[$key];
                 }
             }
             
@@ -797,7 +826,14 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $this->db->set('currency', $currency);
                 $this->db->insert('tb_jurnal_detail');
             }
+
+            $total_amount[] = $amount[$key];
         }
+
+        $this->connection->set('total', (array_sum($total_amount)-array_sum($total_advance)));
+        $this->connection->set('advance_total', array_sum($total_advance));
+        $this->connection->where('id', $request_payment_id);
+        $this->connection->update('tb_request_payments');
 
 
         if($type=='CASH2'){
@@ -818,6 +854,12 @@ class Expense_Closing_Payment_Model extends MY_Model
             $this->db->set('kode_rekening', $account);
             $this->db->set('currency', $currency);
             $this->db->insert('tb_jurnal_detail');
+        }
+
+        foreach ($array_request_id as $key=>$request_id){
+            $this->connection->set('advance_nominal', '"advance_nominal" - ' . $array_advance_nominal[$key], false);
+            $this->connection->where('id', $request_id);
+            $this->connection->update('tb_expense_purchase_requisitions');
         }
 
         // $this->connection->set('closing_date', $closing_date);
@@ -843,7 +885,7 @@ class Expense_Closing_Payment_Model extends MY_Model
         
 
         if ($this->connection->trans_status() === FALSE || $this->db->trans_status() === FALSE)
-          return FALSE;
+            return FALSE;
 
         $this->connection->trans_commit();
         $this->db->trans_commit();
@@ -949,6 +991,7 @@ class Expense_Closing_Payment_Model extends MY_Model
                         $this->connection->set('account', $account);         
                         $this->connection->where('id', $key['request_id']);
                         $this->connection->update('tb_expense_purchase_requisitions');
+
                     }
                 }
                 
@@ -977,6 +1020,63 @@ class Expense_Closing_Payment_Model extends MY_Model
                 $this->db->insert('tb_jurnal_detail');
             }
 
+            if($request['request_id']!=NULL){
+                $expense_request_id = $request['request_id'];
+
+                $this->connection->select('tb_expense_purchase_requisitions.*');
+                $this->connection->from('tb_expense_purchase_requisitions');
+                $this->connection->where('tb_expense_purchase_requisitions.id', $expense_request_id);
+
+                $query    = $this->connection->get();
+                $expense_request  = $query->unbuffered_row('array');
+
+                if($expense_request['reference_document']!=null){            
+                    $reference_document = json_decode($expense_request['reference_document']);
+                    
+
+                    if($reference_document[0]=='SPD'){
+                        //create SPPD
+                        $spd_id = $reference_document[1];
+                        $create_sppd = $this->create_sppd($spd_id);
+                    }
+                } 
+                
+                if($request['uang_muka']>0){
+
+                    if ($currency == 'IDR') {
+                        $uang_muka_idr = $request["uang_muka"];
+                        $uang_muka_usd = $request["uang_muka"] / $kurs;
+                    } else {
+                        $uang_muka_usd = $request["uang_muka"];
+                        $uang_muka_idr = $request["uang_muka"] * $kurs;
+                    }
+
+                    $akun = getAccountMrpByCode($request['advance_account_code']);
+
+                    $this->db->set('id_jurnal', $id_jurnal);
+                    $this->db->set('jenis_transaksi', strtoupper($akun->group));
+                    $this->db->set('trs_kredit', $uang_muka_idr);
+                    $this->db->set('trs_debet', 0);
+
+                    $this->db->set('trs_kredit_usd', $uang_muka_usd);
+                    $this->db->set('trs_debet_usd', 0);
+
+                    $this->db->set('kode_rekening', $akun->coa);
+                    $this->db->set('currency', $currency);
+                    $this->db->insert('tb_jurnal_detail');
+
+                    if($reference_document[0]=='SPPD'){
+                        $advanceList = findAdvanceList($reference_document[1],'SPPD');
+                        foreach ($advanceList as $advance) {
+                            $this->db->set('status', 'CLOSED');
+                            $this->db->where('id', $advance['id']);
+                            $this->db->update('tb_advance_payments');
+                        }
+                    }
+                }
+            }
+
+            
             
         }
 
@@ -1019,6 +1119,17 @@ class Expense_Closing_Payment_Model extends MY_Model
         $total_process_amount = $this->connection->get('')->row()->sum;
 
         return ($total_request<=$total_process_amount)? true:false;
+    }
+
+    public function checkExpenseReferenceDocument($id){
+        $this->connection->select('*');
+        $this->connection->from('tb_expense_purchase_requisitions');
+        $this->connection->where('tb_expense_purchase_requisitions.id', $id);
+
+        $query    = $this->connection->get();
+        $request  = $query->unbuffered_row('array');
+
+        return ($request['reference_document']!=NULL)? TRUE:FALSE;
     }
 
     public function findPrlByPoeItemid($poe_item_id)
@@ -1410,6 +1521,8 @@ class Expense_Closing_Payment_Model extends MY_Model
             'tb_expense_purchase_requisitions.notes',
             'tb_cost_centers.cost_center_name',
             'tb_expense_purchase_requisitions.id',
+            'tb_expense_purchase_requisitions.advance_nominal',
+            'tb_expense_purchase_requisitions.advance_account_code',
             // 'tb_expense_purchase_requisitions.reference_ipc'
         ));
 
@@ -1427,6 +1540,8 @@ class Expense_Closing_Payment_Model extends MY_Model
                 'tb_expense_purchase_requisitions.notes',
                 'tb_cost_centers.cost_center_name',
                 'tb_expense_purchase_requisitions.id',
+                'tb_expense_purchase_requisitions.advance_nominal',
+                'tb_expense_purchase_requisitions.advance_account_code',
                 // 'tb_expense_purchase_requisitions.reference_ipc'
             )
         );
@@ -1522,4 +1637,373 @@ class Expense_Closing_Payment_Model extends MY_Model
 		$this->connection->trans_commit();
 		return TRUE;
 	}
+
+    public function getStatuspayment($id)
+    {
+        $this->connection->select(array(
+            'sum(tb_request_payment_details.amount_paid) as amount_paid',
+            'tb_request_payment_details.uang_muka',
+            'tb_request_payment_details.request_payment_id',
+            'tb_request_payment_details.advance_account_code',
+        ));
+
+        $this->connection->from('tb_request_payment_details');
+        $this->connection->where('tb_request_payment_details.request_payment_id',$id);
+        $this->connection->group_by(
+            array(
+                'tb_request_payment_details.uang_muka',
+                'tb_request_payment_details.request_payment_id',
+                'tb_request_payment_details.advance_account_code',
+            )
+        );
+        $query = $this->connection->get();
+        $result = $query->unbuffered_row('array');
+
+        if($result['amount_paid']==$result['uang_muka']){
+            $status = 'PAID';
+            $advance_account_code = $result['advance_account_code'];
+        }else{
+            $status = 'NOT PAID';
+            $advance_account_code = $result['advance_account_code'];
+        }
+
+
+        return [
+            'status' => $status,
+            'advance_account_code' => $advance_account_code
+        ];
+    }
+
+    function buat_pembayaran_langsung($request_payment_id,$account)
+    {
+        $this->connection->trans_begin();
+        $this->db->trans_begin();
+        // $item = $this->input->post('item');
+        $request_payment = $this->findById($request_payment_id);
+        $account        = $account;
+        $vendor         = $request_payment['vendor'];
+        $no_cheque      = $request_payment['no_cheque'];
+        $tanggal        = date('Y-m-d');
+        $no_jurnal      = $request_payment['document_number'];
+        $currency       = $request_payment['currency'];
+        $no_konfirmasi  = $request_payment['no_konfirmasi'];
+        $paid_base      = $request_payment['paid_base'];
+        $kurs           = $this->tgl_kurs(date("Y-m-d"));
+        $tipe           = $request_payment['type'];
+        $po_payment_id          = $request_payment_id;
+        
+        $amount         = $request_payment['total_paid'];
+        if ($currency == 'IDR') {
+            $amount_idr = $amount;
+            $amount_usd = $amount / $kurs;
+        } else {
+            $amount_usd = $amount;
+            $amount_idr = $amount * $kurs;
+        }
+
+
+        $this->db->set('no_jurnal', $no_jurnal);
+        $this->db->set('tanggal_jurnal  ', date("Y-m-d",strtotime($tanggal)));
+        $this->db->set('source', "EXPENSE-PAYMENT");
+        $this->db->set('vendor', $vendor);
+        $this->db->set('grn_no', $no_jurnal);
+        $this->db->set('keterangan', strtoupper("pembayaran expense payment"));
+        $this->db->set('created_by',config_item('auth_person_name'));
+        $this->db->set('created_at',date('Y-m-d'));
+        $this->db->insert('tb_jurnal');
+        $id_jurnal = $this->db->insert_id();
+
+        $akun_kredit = getAccountByCode($account);
+        $this->db->set('id_jurnal', $id_jurnal);
+        $this->db->set('jenis_transaksi', $akun_kredit->group);
+        $this->db->set('trs_debet', 0);
+        $this->db->set('trs_kredit', $amount_idr);
+        $this->db->set('trs_debet_usd', 0);
+        $this->db->set('trs_kredit_usd', $amount_usd);
+        $this->db->set('kode_rekening', $account);
+        $this->db->set('currency', $currency);
+        $this->db->insert('tb_jurnal_detail');
+
+        $this->connection->set('coa_kredit', $account);
+        $this->connection->set('no_cheque', $no_cheque);
+        $this->connection->set('akun_kredit', $akun_kredit->group);
+        $this->connection->set('no_konfirmasi', $no_konfirmasi);
+        $this->connection->set('paid_base', $paid_base);
+        $this->connection->set('vendor', $vendor);
+        $this->connection->set('status', "PAID");
+        $this->connection->set('paid_by', config_item('auth_person_name'));
+        $this->connection->set('paid_at', date("Y-m-d",strtotime($tanggal)));
+        $this->connection->where('id', $po_payment_id);
+        $this->connection->update('tb_request_payments');
+
+
+        foreach ($request_payment['request'] as $i => $request) {
+            foreach ($request['items'] as $j => $key) {
+                if($key['request_id']!=NULL){
+                    if($this->updateStatusExpense($key['request_id'])){
+                        $this->connection->set('closing_date', $tanggal);
+                        $this->connection->set('status', 'close');
+                        // $this->connection->set('closing_notes', $notes);
+                        $this->connection->set('closing_by', config_item('auth_person_name'));
+                        $this->connection->set('account', $account);         
+                        $this->connection->where('id', $key['request_id']);
+                        $this->connection->update('tb_expense_purchase_requisitions');
+                    }
+                }
+                
+
+                if ($currency == 'IDR') {
+                    $amount_idr = $key["amount_paid"];
+                    $amount_usd = $key["amount_paid"] / $kurs;
+                } else {
+                    $amount_usd = $key["amount_paid"];
+                    $amount_idr = $key["amount_paid"] * $kurs;
+                }
+
+                        
+                $akun = getAccountMrpByCode($key['account_code']);
+
+                $this->db->set('id_jurnal', $id_jurnal);
+                $this->db->set('jenis_transaksi', strtoupper($akun->group));
+                $this->db->set('trs_kredit', ($amount_idr<0)? ($amount_idr*-1):0);
+                $this->db->set('trs_debet', ($amount_idr>0)? $amount_idr:0);
+
+                $this->db->set('trs_kredit_usd', ($amount_usd<0)? ($amount_usd*-1):0);
+                $this->db->set('trs_debet_usd', ($amount_usd>0)? $amount_usd:0);
+
+                $this->db->set('kode_rekening', $akun->coa);
+                $this->db->set('currency', $currency);
+                $this->db->insert('tb_jurnal_detail');
+            }
+
+            
+        }
+
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        $this->connection->trans_commit();
+        return TRUE;
+    }
+
+    function getAdvance($request_payment_id=NULL){
+
+        if($request_payment_id!=NULL){
+            $request_payment = $this->findById($request_payment_id);
+            $payment_item   = $request_payment['request'];
+        }else{
+            $payment_item = $_SESSION['request_closing']['items'];
+        }
+        $advance_list = array();
+        foreach ($payment_item as $item) {
+            $expense_request_id = $item['request_id'];
+
+            $this->connection->select('tb_expense_purchase_requisitions.*');
+            $this->connection->from('tb_expense_purchase_requisitions');
+            $this->connection->where('tb_expense_purchase_requisitions.id', $expense_request_id);
+
+            $query    = $this->connection->get();
+            $expense_request  = $query->unbuffered_row('array');
+
+            if($expense_request['reference_document']!=null){            
+                $reference_document = json_decode($expense_request['reference_document']);
+
+                if($reference_document[0]=='SPPD'){
+                    $ref_doc = findAdvanceList($reference_document[1],$reference_document[0]);
+
+                    foreach ($ref_doc as $item) {
+                        array_push($advance_list,$item);
+                    }
+                }
+                // array_push($advance_list,$reference_document);
+            }  
+            // array_push($advance_list,$expense_request);
+        }
+
+        return $advance_list;
+    }
+
+    public function create_sppd($spd_id)
+    {
+        $this->db->trans_begin();
+        $this->connection->trans_begin();
+
+        $spd = $this->findSpdById($spd_id);
+
+        // CREATE NEW DOCUMENT
+        $document_number  = sppd_last_number() . sppd_format_number();
+        $date             = date('Y-m-d');
+        $cost_center_code           = $spd['cost_center_code'];
+        $cost_center_name           = $spd['cost_center_name'];
+        $annual_cost_center_id      = $spd['annual_cost_center_id'];
+        $warehouse                  = $spd['warehouse'];
+        $notes                      = NULL;
+        $person_in_charge           = $spd['user_id'];
+        $selected_person            = getEmployeeByEmployeeNumber($person_in_charge);
+        $person_name                = $selected_person['name'];
+        $department_id              = $spd['department_id'];
+        $head_dept                      = $spd['head_dept'];
+        $advance_spd                    = 0;
+        $spd                            = $this->findSpdById($spd_id);
+        $level                          = getLevelByPosition($occupation);
+
+        $this->db->set('annual_cost_center_id', $annual_cost_center_id);
+        $this->db->set('warehouse', $warehouse);
+        $this->db->set('document_number', $document_number);
+        $this->db->set('spd_id', $spd_id);
+        $this->db->set('spd_number', $spd['document_number']);
+        $this->db->set('date', $date);
+        $this->db->set('head_dept', $head_dept);
+        $this->db->set('advance_spd', $advance_spd);
+        $this->db->set('notes', $notes);
+        $this->db->set('request_by', '[auto]');
+        $this->db->set('created_by', '[auto by expense payment]');
+        $this->db->set('updated_by', '[auto]');
+        $this->db->insert('tb_sppd');
+        $document_id = $this->db->insert_id();
+
+
+        //update status SPD
+        $this->db->set('status','CLOSED');
+        $this->db->set('payment_status','PAID');
+        $this->db->where('id', $spd_id);
+        $this->db->update('tb_business_trip_purposes');
+        //end
+
+        //sementara signer di hide
+
+        // $this->db->set('document_type','SPPD');
+        // $this->db->set('document_number',$document_number);
+        // $this->db->set('document_id', $document_id);
+        // $this->db->set('action','requested by');
+        // $this->db->set('date', $date);
+        // $this->db->set('username', '[auto]');
+        // $this->db->set('person_name', '[auto]');
+        // $this->db->set('roles', 'Employee');
+        // $this->db->set('notes', null);
+        // $this->db->set('sign', '[auto]');
+        // $this->db->set('created_at', date('Y-m-d H:i:s'));
+        // $this->db->insert('tb_signers');
+
+        // $this->db->set('document_type','SPPD');
+        // $this->db->set('document_number',$document_number);
+        // $this->db->set('document_id', $document_id);
+        // $this->db->set('action','known by');
+        // $this->db->set('date', date('Y-m-d'));
+        // $this->db->set('username', '[auto]');
+        // $this->db->set('person_name', '[auto]');
+        // $this->db->set('roles', 'Head Dept/Spv');
+        // $this->db->set('notes', "approval automatic");
+        // $this->db->set('sign', '[auto]');
+        // $this->db->set('created_at', date('Y-m-d H:i:s'));
+        // $this->db->insert('tb_signers');
+
+        // $this->db->set('document_type','SPPD');
+        // $this->db->set('document_number',$document_number);
+        // $this->db->set('document_id', $document_id);
+        // $this->db->set('action','approved by');
+        // $this->db->set('date', date('Y-m-d'));
+        // $this->db->set('username', '[auto]');
+        // $this->db->set('person_name', '[auto]');
+        // $this->db->set('roles', 'HR MANAGER');
+        // $this->db->set('notes', "approval automatic");
+        // $this->db->set('sign', '[auto]');
+        // $this->db->set('created_at', date('Y-m-d H:i:s'));
+        // $this->db->insert('tb_signers');
+
+        $total_relisasi = 0;
+
+        foreach ($spd['items'] as $item) {
+            $total_relisasi = $item['total'];
+            $this->db->set('real_qty', $item['qty']);
+            $this->db->set('real_amount', $item['amount']);
+            $this->db->set('real_total', $item['total']);
+            $this->db->where('id',$item['id']);
+            $this->db->update('tb_business_trip_purpose_items');
+        }
+
+        // if(!empty($_SESSION['sppd']['attachment'])){
+        //     foreach ($_SESSION["sppd"]["attachment"] as $key) {
+        //         $this->db->set('id_poe', $document_id);
+        //         $this->db->set('id_po', $document_id);
+        //         $this->db->set('file', $key);
+        //         $this->db->set('tipe', 'SPPD');
+        //         $this->db->set('tipe_att', 'other');
+        //         $this->db->insert('tb_attachment_poe');
+        //     }
+        // }
+
+        // if(!empty($_SESSION['sppd']['attachment_detail'])){
+        //     foreach ($_SESSION["sppd"]["attachment_detail"] as $key) {
+        //         $att = explode("|,", $key);
+        //         $this->db->set('id_poe', $att[1]);
+        //         $this->db->set('id_po', $document_id);
+        //         $this->db->set('file', $att[0]);
+        //         $this->db->set('tipe', $att[2]);
+        //         $this->db->set('tipe_att', 'other');
+        //         $this->db->insert('tb_attachment_poe');
+        //     }
+        // }
+
+        if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
+            return FALSE;
+
+        //sppd dari expense kirim email ke?
+            
+
+        $this->db->trans_commit();
+        $this->connection->trans_commit();
+        return TRUE;
+    }
+
+    public function findSpdById($id)
+    {
+        $selected = array(
+            'tb_business_trip_purposes.*',
+            'tb_master_business_trip_destinations.business_trip_destination'
+        );
+        $this->db->select($selected);
+        $this->db->where('tb_business_trip_purposes.id', $id);
+        $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+        $query      = $this->db->get('tb_business_trip_purposes');
+        $row        = $query->unbuffered_row('array');
+
+        $cost_center    = findCostCenter($row['annual_cost_center_id']);
+        $head_dept      = findUserByUsername($row['head_dept']);
+        $row['cost_center_code']    = $cost_center['cost_center_code'];
+        $row['cost_center_name']    = $cost_center['cost_center_name'];
+        $row['department_name']     = $cost_center['department_name']; 
+        $row['department_id']       = $cost_center['department_id'];  
+        $row['head_dept_name']       = $head_dept['person_name'];
+        if($row['reference_document']!=null){            
+            $reference_document = json_decode($row['reference_document']);
+            $row['pr_number'] = $reference_document[2];
+            $row['url_expense'] = $reference_document[3];
+        }       
+
+        $this->db->select('*');
+        $this->db->from('tb_business_trip_purpose_items');
+        $this->db->where('tb_business_trip_purpose_items.business_trip_purpose_id', $id);
+
+        $query = $this->db->get();
+
+        foreach ($query->result_array() as $key => $value) {
+            $row['items'][$key] = $value;
+        }
+
+        $this->db->select('*');
+        $this->db->from('tb_signers');
+        $this->db->where('tb_signers.document_number', $row['document_number']);
+        $query_signers = $this->db->get();
+        foreach ($query_signers->result_array() as $key => $valuesigners) {
+            $row['signers'][$valuesigners['action']]['sign'] = $valuesigners['sign'];
+            $row['signers'][$valuesigners['action']]['person_name'] = $valuesigners['person_name'];
+            $row['signers'][$valuesigners['action']]['date'] = $valuesigners['date'];
+            $row['signers'][$valuesigners['action']]['action'] = $valuesigners['action'];
+            $row['signers'][$valuesigners['action']]['roles'] = $valuesigners['roles'];
+        }
+
+        return $row;
+    }
 }

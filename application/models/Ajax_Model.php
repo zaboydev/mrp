@@ -704,4 +704,32 @@ class Ajax_Model extends MY_Model
     return ($query->num_rows() > 0) ? FALSE : TRUE;
   }
 
+  public function expense_duty_name_validation($value, $old_value = NULL)
+  {
+    $this->db->from(config_item('module')['master_expense_duty']['table']);
+
+    if ($old_value !== NULL)
+      $this->db->where('UPPER(expense_name) != ', strtoupper($old_value));
+
+    $this->db->where('UPPER(expense_name)', strtoupper($value));
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
+
+  public function transportation_validation($value, $old_value = NULL)
+  {
+    $this->db->from(config_item('module')['master_transportation']['table']);
+
+    if ($old_value !== NULL)
+      $this->db->where('UPPER(transportation) != ', strtoupper($old_value));
+
+    $this->db->where('UPPER(transportation)', strtoupper($value));
+
+    $query = $this->db->get();
+
+    return ($query->num_rows() > 0) ? FALSE : TRUE;
+  }
+
 }

@@ -3,7 +3,7 @@
 <?php startblock('body') ?>
 <div class="container">
 
-    <h4 class="page-header">Select Vendor</h4>
+    <h4 class="page-header">Add Expense</h4>
 
     <form id="form_add_vendor" class="form" role="form" method="post" action="<?= site_url($module['route'] . '/add_input_expense'); ?>">
         <div class="row">

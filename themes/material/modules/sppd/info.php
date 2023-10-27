@@ -83,14 +83,16 @@
           <table class="table table-striped table-nowrap">
             <thead id="table_header">
               <tr>
-                <th colspan="5">Realization</th>
+                <th colspan="7">Realization</th>
               </tr>
               <tr>
-                <th>No</th>
+                <th width="5%">No</th>
+                <th></th>
                 <th>Description</th>
                 <th style="text-align:center;">Days</th>
                 <th style="text-align:right;">Amount</th>
-                <th style="text-align:right;">Total</th>
+                <th style="text-align:right;">Total Budget</th>
+                <th style="text-align:right;">Total Realization</th>
               </tr>
             </thead>
             <tbody id="table_contents">
@@ -99,11 +101,18 @@
               <?php foreach ($entity['items'] as $item) :?>
                 <tr>
                   <td><?=$n++;?></td>
-                  <td><?=print_string($item['expense_name']);?></td>
+                  <td>
+                    <a href="<?= site_url($module['route'] . '/manage_attachment_detail/' . $item['id']); ?>" onClick="return popup(this, 'attachment')" title="View Attachment Detail" class="btn btn-icon-toggle btn-info btn-xs btn_view_detail" id="btn_<? $n ?>" data-row="<?= $n ?>" data-tipe="view"><i class="md md-attach-file"></i>
+                    </a>
+                  </td>
+                  <td>
+                    <?=print_string($item['expense_name']);?></td>
                   <td style="text-align:center;"><?=number_format($item['real_qty']);?></td>
                   <td style="text-align:right;"><?=print_number($item['real_amount'],2);?></td>
+                  <td style="text-align:right;"><?=print_number($item['total'],2)?></td>
                   <td style="text-align:right;"><?=print_number($item['real_total'],2)?></td>
                 </tr>
+                <?php $total_real[] = $item['real_total'];?>
                 <?php $total[] = $item['total'];?>
               <?php endforeach;?>
             </tbody>
@@ -113,10 +122,14 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
                 <th><?=print_number(array_sum($total), 2);?></th>
+                <th><?=print_number(array_sum($total_real), 2);?></th>
               </tr>
               <tr>
                 <th>Advance SPD</th>
+                <th></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -124,6 +137,8 @@
               </tr>
               <tr>
                 <th>Balance</th>
+                <th></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -161,7 +176,7 @@
         </a>
 
         <div class="pull-right">
-            <?php if (is_granted($module, 'create') && $entity['date'] >= $data):?>
+            <?php if (is_granted($module, 'create') && $entity['date'] >= $data && in_array($entity['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])):?>
             <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>
@@ -175,13 +190,18 @@
                 <small class="top right">Edit & Approve</small>
             </a>
             <?php endif;?>
-            <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HR MANAGER'):?>
-            <a href="<?=site_url($module['route'] .'/hr_approve/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
-                <i class="md md-spellcheck"></i>
-                <small class="top right">HR Approve</small>
+            
+            <?=form_open(current_url(), array(
+                'class' => 'form-xhr-create-expense pull-left',
+            ));?>
+            <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+            <?php if (in_array($entity['status'],['APPROVED']) && $entity['payment_status']=='OPEN'):?>
+            <a href="<?=site_url($module['route'] .'/create_expense_ajax/');?>" class="hide btn btn-floating-action btn-primary btn-xhr-create-expense btn-tooltip ink-reaction" id="btn-xhr-create-expense">
+                <i class="fa fa-money"></i>
+                <small class="top left">Create Expense</small>
             </a>
             <?php endif;?>
-        
+            <?=form_close();?>
 
             <?php if (is_granted($module, 'print')):?>
             <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">

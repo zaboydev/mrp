@@ -169,6 +169,9 @@ Budgetcontrol Review by : <?= $entity['approved_by']; ?> ,at : <?= print_date($e
         <?php endif; ?>
         <br />
         <br /><?= $entity['head_approved_by']; ?>
+        <?php if ($entity['head_approved_by'] == '[automatic]') : ?>
+        <br />From <?= $entity['ref_doc_type']; ?> #<?= $entity['ref_doc']; ?>
+        <?php endif; ?>
       </p>
     </td>
 

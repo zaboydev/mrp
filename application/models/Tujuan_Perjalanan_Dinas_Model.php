@@ -214,7 +214,13 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
                 $this->db->set('created_by', config_item('auth_person_name'));
                 $this->db->set('updated_by', config_item('auth_person_name'));
                 $this->db->insert('tb_master_business_trip_destination_items');
-            }            
+            }
+            
+            if(!$this->isExpenseDutyNameExist($item['expense_name'])){
+                $this->db->set('expense_name',$item['expense_name']);
+                $this->db->set('account_code',NULL);
+                $this->db->insert('tb_master_expense_duty');
+            }
         }
 
         if ($this->db->trans_status() === FALSE)
@@ -303,5 +309,19 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
             return true;
 
         return false;
+    }
+
+    public function isExpenseDutyNameExist($expense_name, $exception = NULL)
+    {
+        $this->db->select('expense_name');
+        $this->db->from('tb_master_expense_duty');
+        $this->db->where('UPPER(expense_name)', strtoupper($expense_name));
+
+        if ($exception !== NULL)
+        $this->db->where('UPPER(expense_name) != ', strtoupper($expense_name));
+
+        $query  = $this->db->get();
+
+        return ($query->num_rows() > 0) ? TRUE : FALSE;
     }
 }

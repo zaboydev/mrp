@@ -39,6 +39,11 @@
             <dt>Status</dt>
             <dd><?=$entity['status'];?></dd>
 
+            <?php if($entity['type']=='expense' && $entity['reference_document']!=null):?>
+            <dt>Exp. No</dt>
+            <dd><a href="<?=$entity['url_expense'];?>"><?=$entity['pr_number'];?></a></dd>
+            <?php endif;?>
+
             <?php if($entity['status']=='REJECTED'):?>
               <dt>Rejected By</dt>
               <dd><?=($entity['rejected_by']==null)? 'N/A':print_string($entity['rejected_by']);?></dd>
@@ -73,6 +78,9 @@
 
             <dt>Requested By</dt>
             <dd><?=strtoupper($entity['request_by']);?></dd>
+
+            <dt>Payment Status</dt>
+            <dd><?=$entity['payment_status'];?> <?= ($entity['paid_at'])? 'at '.print_date($entity['paid_at'],'d M Y'): '';?></dd> 
         </dl>
       </div>
     </div>
@@ -146,7 +154,7 @@
         </a>
 
         <div class="pull-right">
-            <?php if (is_granted($module, 'create') && $entity['date'] >= $data):?>
+            <?php if (is_granted($module, 'create') && $entity['date'] >= $data && in_array($entity['status'],['WAITING APPROVAL BY HEAD DEPT'])):?>
             <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>
@@ -157,7 +165,7 @@
             <a href="<?=site_url($module['route'] .'/edit_approve/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <!-- <i class="material-symbols-outlined">edit_square</i> -->
                 <i class="md md-border-color"></i>
-                <small class="top right">Edit & Approve</small>
+                <small class="top right">Edit</small>
             </a>
             <?php endif;?>
             <?php if (is_granted($module, 'approval') && $entity['status']=='WAITING APPROVAL BY HR MANAGER'):?>
@@ -172,6 +180,26 @@
             <a href="<?=site_url($module['route'] .'/print_pdf/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" target="_blank" id="modal-print-data-button">
                 <i class="md md-print"></i>
                 <small class="top right">print</small>
+            </a>
+            <?php endif;?>
+            <?php if ($entity['status']=='APPROVED' && in_array(11,config_item('auth_department_id'))):?>
+            <?=form_open(current_url(), array(
+                'class' => 'form-xhr-create-expense pull-left',
+            ));?>
+            <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
+
+            <a href="<?=site_url($module['route'] .'/create_expense_ajax/');?>" class="btn btn-floating-action btn-primary btn-xhr-create-expense btn-tooltip ink-reaction" id="btn-xhr-create-expense">
+                <i class="fa fa-money"></i>
+                <small class="top left">Create Expense</small>
+            </a>
+            <?=form_close();?>
+            <?php endif;?>
+
+            <?php if (is_granted($module, 'create') && $entity['status']=='APPROVED'):?>
+            <a href="<?=site_url($module['route'] .'/extend/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
+                <!-- <i class="material-symbols-outlined">edit_square</i> -->
+                <i class="md md-border-color"></i>
+                <small class="top right">Extend</small>
             </a>
             <?php endif;?>
         </div>

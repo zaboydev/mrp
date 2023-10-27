@@ -68,8 +68,16 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="3">Total</th>
-            <th style="text-align: right;"><?= print_number(array_sum($amount_paid), 2); ?></th>
+            <th colspan="4">Total Request</th>
+            <th><?= print_number(array_sum($amount_paid), 2); ?></th>
+        </tr>
+        <tr>
+            <th colspan="4">Advance </th>
+            <th><?= print_number($entity['advance_total'], 2); ?></th>
+        </tr>
+        <tr>
+            <th colspan="4">Grandtotal</th>
+            <th><?= print_number($entity['total'], 2); ?></th>
         </tr>
     </tfoot>
 </table>

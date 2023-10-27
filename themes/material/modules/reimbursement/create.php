@@ -36,7 +36,7 @@
                             <select name="type" id="type_reimbursement" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>" required>
                                 <option></option>
                                 <?php foreach(getBenefits() as $benefit):?>
-                                <option value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
+                                <option data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="type_reimbursement">Type</label>
@@ -97,6 +97,10 @@
                             <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['reimbursement']['notes']; ?></textarea>
                             <label for="notes">Notes</label>
                         </div>
+                        <div class="form-group hide">
+                            <input type="text" name="account_code" id="account_code" class="form-control" value="<?= $_SESSION['reimbursement']['account_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account_code'); ?>" readonly>
+                            <label for="account_code">Account Code</label>
+                        </div>  
                     </div>
                 </div>
             </div>
@@ -148,7 +152,9 @@
                     <tr>
                         <th></th>
                         <th colspan="3">Total</th>
-                        <th><?= number_format(array_sum($total),2);?></th>
+                        <th><?= number_format(array_sum($total),2);?>
+                        <input type="hidden" name="total" id="total" value="<?= array_sum($total); ?>">
+                        </th>
                     </tr>
                 </tfoot>
                 </table>
@@ -518,27 +524,56 @@
 
             var url = $(this).attr('href');
 
-            $.post(url, formDocument.serialize(), function(data) {
-                var obj = $.parseJSON(data);
+            var saldo = $('#saldo_balance').val();
+            var total = $('#total').val();
 
-                if (obj.success == false) {
-                    toastr.options.timeOut = 10000;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.error(obj.message);
-                } else {
-                    toastr.options.timeOut = 4500;
-                    toastr.options.closeButton = false;
-                    toastr.options.progressBar = true;
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.success(obj.message);
+            if(saldo<total){
+                if (confirm('Your balance is less than the total reimbursement. The amount to be reimbursed is the balance. Continue?')) {
+                    $.post(url, formDocument.serialize(), function(data) {
+                        var obj = $.parseJSON(data);
 
-                    window.setTimeout(function() {
-                        window.location.href = '<?= site_url($module['route']); ?>';
-                    }, 5000);
+                        if (obj.success == false) {
+                            toastr.options.timeOut = 10000;
+                            toastr.options.positionClass = 'toast-top-right';
+                            toastr.error(obj.message);
+                        } else {
+                            toastr.options.timeOut = 4500;
+                            toastr.options.closeButton = false;
+                            toastr.options.progressBar = true;
+                            toastr.options.positionClass = 'toast-top-right';
+                            toastr.success(obj.message);
+
+                            window.setTimeout(function() {
+                                window.location.href = '<?= site_url($module['route']); ?>';
+                            }, 5000);
+                        }
+                    });
                 }
+            }else{
+                $.post(url, formDocument.serialize(), function(data) {
+                    var obj = $.parseJSON(data);
 
-                $(buttonSubmitDocument).attr('disabled', false);
-            });
+                    if (obj.success == false) {
+                        toastr.options.timeOut = 10000;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.error(obj.message);
+                    } else {
+                        toastr.options.timeOut = 4500;
+                        toastr.options.closeButton = false;
+                        toastr.options.progressBar = true;
+                        toastr.options.positionClass = 'toast-top-right';
+                        toastr.success(obj.message);
+
+                        window.setTimeout(function() {
+                            window.location.href = '<?= site_url($module['route']); ?>';
+                        }, 5000);
+                    }
+
+                    $(buttonSubmitDocument).attr('disabled', false);
+                });
+            }
+
+            $(buttonSubmitDocument).attr('disabled', false);            
         });
 
         $(buttonDeleteDocumentItem).on('click', function(e) {
@@ -596,6 +631,9 @@
                         }else if(obj.status=='warning'){
                             toastr.warning(obj.message);
                         }
+
+                        $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                        $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                         
                     }                    
                     
@@ -604,6 +642,47 @@
         });
 
         $('#type_reimbursement').change(function () {
+            var account_code = $('#type_reimbursement option:selected').data('account-code');  
+
+            $('#account_code').val(account_code).trigger('change');
+            var employee_number = $('#employee_number').val();                        
+            var position = $('#employee_number option:selected').data('position');  
+            var url = $('#employee_number').data('source-get-balance');
+            var type = $('#type_reimbursement').val();   
+            if(employee_number!=NULL){
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: {
+                        employee_number   : employee_number,
+                        type      : type,
+                        position : position
+                    },
+                    success: function(data) {
+                        console.log(data);
+                        var obj = $.parseJSON(data);
+
+                        if(obj.status=='success'){
+                            $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                            $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
+                        }else{
+                            toastr.options.timeOut = 10000;
+                            toastr.options.positionClass = 'toast-top-right';
+                            if(obj.status=='error'){
+                                toastr.error(obj.message);
+                            }else if(obj.status=='warning'){
+                                toastr.warning(obj.message);
+                            }
+
+                            $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                            $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
+                            
+                        }                    
+                        
+                    }
+                });
+            }
+            
             type_reimbursement();            
         });
 
