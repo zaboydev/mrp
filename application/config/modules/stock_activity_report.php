@@ -11,7 +11,7 @@ $config['module']['stock_activity_report']['language']        = 'stock_activity_
 $config['module']['stock_activity_report']['table']           = 'tb_stock_activity_reports';
 $config['module']['stock_activity_report']['model']           = 'Stock_Activity_Report_Model';
 $config['module']['stock_activity_report']['permission']      = array(
-  'index'     => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN',
-  'summary'   => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN',
-  'detail'    => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN',
+  'index'     => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN,PIC STOCK,PIC STAFF',
+  'summary'   => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN,PIC STOCK,PIC STAFF',
+  'detail'    => 'SUPERVISOR,VP FINANCE,OTHER,SUPER ADMIN,PIC STOCK,PIC STAFF',
 );
