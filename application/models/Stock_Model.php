@@ -951,6 +951,7 @@ class Stock_Model extends MY_Model
       $stores_quantity    = $current_quantity - $mixed_quantity;
       $prev_quantity      = getStockPrev($stock['stock_id'],$stock['stores']);
       $balance_quantity   = getStockPrev($stock['stock_id'],$stock['stores']) + $mixed_quantity;
+      $balance_quantity_adj   = $current_quantity + $mixed_quantity;
       $unit_value         = floatval($stock['unit_value']);
       $total_value        = $stores_quantity * $stock['unit_value'];
       $grand_total_value  = floatval($stock['grand_total_value']) + $total_value;
@@ -971,7 +972,7 @@ class Stock_Model extends MY_Model
       $this->db->set('period_month', config_item('period_month'));
       $this->db->set('previous_quantity', $current_quantity);
       $this->db->set('adjustment_quantity', $mixed_quantity);
-      $this->db->set('balance_quantity', $balance_quantity);
+      $this->db->set('balance_quantity', $balance_quantity_adj);
       $this->db->set('created_by', config_item('auth_person_name'));
       $this->db->set('as_mix', TRUE);
       $this->db->set('updated_status', 'APPROVED');

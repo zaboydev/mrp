@@ -249,7 +249,10 @@ class Stock_Activity_Report extends MY_Controller
     $data = array();
     $no   = $_POST['start'];
 
-    $previous_quantity          = array();
+    $previous_quantity  = array();
+    $in_qty             = array();
+    $out_qty            = array();
+    $balance_quantity   = array();
     
 
     foreach ($entities as $row){
