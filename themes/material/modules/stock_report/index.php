@@ -63,6 +63,7 @@
   <div class="form-group">
     <label for="condition">Condition</label>
     <select class="form-control input-sm" id="condition" name="condition">
+      <option value="all" <?=($selected_condition == 'all') ? 'selected' : '';?>>-- ALL Condition --</option>
       <?php foreach (available_conditions() as $condition):?>
         <option value="<?=$condition;?>" <?=($condition == $selected_condition) ? 'selected' : '';?>>
           <?=$condition;?>

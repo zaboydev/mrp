@@ -19,8 +19,8 @@ class Stock_Report_Model extends MY_Model
       'tb_master_items.serial_number'               => 'Serial Number',
       'tb_master_items.kode_stok'                   => 'Stock Code',
       'tb_master_item_groups.coa'                   => 'COA',
-      'tb_master_items.group'                       => 'Group',
-      'tb_master_item_categories.category'          => 'Category',
+      'tb_master_items.group'                       => 'Category',
+      'tb_master_item_categories.category'          => 'Group',
       'tb_stocks.condition'                         => 'Condition',
       'SUM(tb_stock_cards.quantity) as qty'         => 'Quantity',
       'tb_master_items.unit'                        => 'Unit',
@@ -135,19 +135,23 @@ class Stock_Report_Model extends MY_Model
     }
   }
 
-  public function getIndex($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL,  $return = 'array')
+  public function getIndex($condition = NULL, $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL,  $return = 'array')
   {
     
     $this->db->select(array_keys($this->getIndexSelectedColumns()));
     // $this->db->select('tb_stock_in_stores_reports.received_date');
     $this->db->from('tb_stock_cards');
     $this->db->join('tb_stocks', 'tb_stock_cards.stock_id = tb_stocks.id');
-    // $this->db->join('tb_master_stores', 'tb_master_stores.stores = tb_stock_cards.stores');
+    $this->db->join('tb_master_stores', 'tb_master_stores.stores = tb_stock_cards.stores','left');
     $this->db->join('tb_master_items', 'tb_master_items.id = tb_stocks.item_id');
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
     // $this->db->where('quantity != ', 0);
-	  $this->db->where('tb_stocks.condition', $condition);
+	  // $this->db->where('tb_stocks.condition', $condition);
+
+    if ($condition !== NULL){
+      $this->db->where('tb_stocks.condition', $condition);
+    }
     
 
     if ($category !== NULL){
@@ -156,7 +160,7 @@ class Stock_Report_Model extends MY_Model
       $this->db->where_in('tb_master_item_categories.category', config_item('auth_inventory'));
     }
 
-    if ($start_date && $end_date !== NULL){
+    if ($start_date !== NULL && $end_date !== NULL){
       // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
       $this->db->where('tb_stock_cards.date_of_entry <= ', $end_date);
     }
@@ -164,39 +168,19 @@ class Stock_Report_Model extends MY_Model
     if ($warehouse !== NULL){
       if($warehouse == 'WISNU'){
         $this->db->group_start()
-                  ->like('tb_stock_cards.warehouse', 'WISNU')
+                  ->like('tb_master_stores.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
                   ->group_end();
       }
       else if($warehouse == "all base rekondisi"){
         $this->db->group_start()
-                  ->like('tb_stock_cards.warehouse', 'REKONDISI')
+                  ->like('tb_master_stores.warehouse', 'REKONDISI')
                   ->group_end();
       }
       else{
-        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+        $this->db->where('tb_master_stores.warehouse', $warehouse);
       }
-      // if($warehouse == 'LOMBOK'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'JEMBER'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'SOLO'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'PALANGKARAYA'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'BSR REKONDISI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'BANYUWANGI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      // if($warehouse == 'WISNU REKONDISI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }      
+         
     }
     $this->db->group_by($this->getIndexGroupedColumns());
 
@@ -226,7 +210,7 @@ class Stock_Report_Model extends MY_Model
     }
   }
 
-  public function countIndexFiltered($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  public function countIndexFiltered($condition = NULL, $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
   {
     $this->db->select(array_keys($this->getIndexSelectedColumns()));
     // $this->db->select('tb_stock_in_stores_reports.received_date');
@@ -237,7 +221,10 @@ class Stock_Report_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
     $this->db->where('quantity != ', 0);
-	  $this->db->where('tb_stocks.condition', $condition);
+	  // $this->db->where('tb_stocks.condition', $condition);
+    if ($condition !== NULL){
+      $this->db->where('tb_stocks.condition', $condition);
+    }
     $this->db->group_by($this->getIndexGroupedColumns());
     if ($category !== NULL){
       $this->db->where('tb_master_item_categories.category', $category);
@@ -245,7 +232,7 @@ class Stock_Report_Model extends MY_Model
       $this->db->where_in('tb_master_item_categories.category', config_item('auth_inventory'));
     }
 
-    if ($start_date && $end_date !== NULL){
+    if ($start_date !== NULL && $end_date !== NULL){
       // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
       $this->db->where('tb_stock_cards.date_of_entry <= ', $end_date);
     }
@@ -253,39 +240,18 @@ class Stock_Report_Model extends MY_Model
     if ($warehouse !== NULL){
       if($warehouse == 'WISNU'){
         $this->db->group_start()
-                  ->like('tb_stock_cards.warehouse', 'WISNU')
+                  ->like('tb_master_stores.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
                   ->group_end();
       }
       elseif($warehouse == "all base rekondisi"){
         $this->db->group_start()
-                  ->like('tb_stock_cards.warehouse', 'REKONDISI')
+                  ->like('tb_master_stores.warehouse', 'REKONDISI')
                   ->group_end();
       }
       else{
-        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+        $this->db->where('tb_master_stores.warehouse', $warehouse);
       }
-      // if($warehouse == 'LOMBOK'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'JEMBER'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'SOLO'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'PALANGKARAYA'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'BSR REKONDISI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'BANYUWANGI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      // if($warehouse == 'WISNU REKONDISI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }      
     }
    
 
@@ -296,7 +262,7 @@ class Stock_Report_Model extends MY_Model
     return $query->num_rows();
   }
 
-  public function countIndex($condition = 'SERVICEABLE', $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
+  public function countIndex($condition = NULL, $warehouse= NULL, $start_date = NULL, $end_date = NULL, $category = NULL)
   {
     $this->db->select(array_keys($this->getIndexSelectedColumns()));
     // $this->db->select('tb_stock_in_stores_reports.received_date');
@@ -307,7 +273,10 @@ class Stock_Report_Model extends MY_Model
     $this->db->join('tb_master_item_groups', 'tb_master_item_groups.group = tb_master_items.group');
     $this->db->join('tb_master_item_categories', 'tb_master_item_categories.category = tb_master_item_groups.category');
     $this->db->where('quantity != ', 0);
-	  $this->db->where('tb_stocks.condition', $condition);
+	  // $this->db->where('tb_stocks.condition', $condition);
+    if ($condition !== NULL){
+      $this->db->where('tb_stocks.condition', $condition);
+    }
     $this->db->group_by($this->getIndexGroupedColumns());
     if ($category !== NULL){
       $this->db->where('tb_master_item_categories.category', $category);
@@ -315,7 +284,7 @@ class Stock_Report_Model extends MY_Model
       $this->db->where_in('tb_master_item_categories.category', config_item('auth_inventory'));
     }
 
-    if ($start_date && $end_date !== NULL){
+    if ($start_date !== NULL && $end_date !== NULL){
       // $this->db->where('tb_stock_in_stores.received_date >= ', $start_date);
       $this->db->where('tb_stock_cards.date_of_entry <= ', $end_date);
     }
@@ -323,39 +292,18 @@ class Stock_Report_Model extends MY_Model
     if ($warehouse !== NULL){
       if($warehouse == 'WISNU'){
         $this->db->group_start()
-                  ->like('tb_stock_cards.warehouse', 'WISNU')
+                  ->like('tb_master_stores.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
                   ->group_end();
       }
       elseif($warehouse == "all base rekondisi"){
         $this->db->group_start()
-                  ->like('tb_stock_cards.warehouse', 'REKONDISI')
+                  ->like('tb_master_stores.warehouse', 'REKONDISI')
                   ->group_end();
       }
       else{
-        $this->db->where('tb_stock_cards.warehouse', $warehouse);
+        $this->db->where('tb_master_stores.warehouse', $warehouse);
       }
-      // if($warehouse == 'LOMBOK'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'JEMBER'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'SOLO'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'PALANGKARAYA'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'BSR REKONDISI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      //  if($warehouse == 'BANYUWANGI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }
-      // if($warehouse == 'WISNU REKONDISI'){
-      //   $this->db->where('tb_stock_cards.warehouse', $warehouse);
-      // }      
     }
 
     $query = $this->db->get();
