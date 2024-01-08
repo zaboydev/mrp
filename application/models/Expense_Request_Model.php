@@ -732,6 +732,7 @@ class Expense_Request_Model extends MY_Model
         $this->connection->from('tb_expense_monthly_budgets');
         $this->connection->join('tb_accounts', 'tb_accounts.id = tb_expense_monthly_budgets.account_id');
         $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $annual_cost_center_id);
+        $this->connection->where_not_in('tb_accounts.account_code', config_item('account_code_hide'));
         // if ($with_po !== NULL || !empty($with_po)) {
         //     if($with_po=='f'){
         //         $this->connection->where_in('tb_accounts.id',$item_no_po);
