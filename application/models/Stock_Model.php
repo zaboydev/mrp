@@ -124,7 +124,7 @@ class Stock_Model extends MY_Model
     if (!empty($_POST['columns'][1]['search']['value'])) {
       $base = $_POST['columns'][1]['search']['value'];
 
-      if($base == 'WISNU'){
+      if($base == 'WISNU-'){
         $this->db->group_start()
         ->like('tb_stock_in_stores.warehouse', 'WISNU')
         // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')

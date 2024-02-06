@@ -132,7 +132,7 @@ class Material_Slip_Model extends MY_Model
     if (!empty($_POST['columns'][3]['search']['value'])) {
       $search_warehouse = $_POST['columns'][3]['search']['value'];
       // $this->db->where('tb_issuances.warehouse', $search_warehouse);
-      if($search_warehouse == 'WISNU'){
+      if($search_warehouse == 'WISNU-'){
         $this->db->group_start()
         ->like('tb_issuances.warehouse', 'WISNU')
         ->group_end();

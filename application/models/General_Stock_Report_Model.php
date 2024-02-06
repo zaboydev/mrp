@@ -182,7 +182,7 @@ class General_Stock_Report_Model extends MY_Model
     // }
 
     if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
+      if($warehouse == 'WISNU-'){
         $this->db->group_start()
                   ->like('tb_master_stores.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
@@ -290,7 +290,7 @@ class General_Stock_Report_Model extends MY_Model
     // }
 
     if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
+      if($warehouse == 'WISNU-'){
         $this->db->group_start()
                   ->like('tb_master_stores.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
@@ -379,7 +379,7 @@ class General_Stock_Report_Model extends MY_Model
     // }
 
     if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
+      if($warehouse == 'WISNU-'){
         $this->db->group_start()
                   ->like('tb_master_stores.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
@@ -999,7 +999,7 @@ class General_Stock_Report_Model extends MY_Model
     // }
 
     if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
+      if($warehouse == 'WISNU-'){
         $this->db->group_start()
                   ->like('tb_stock_cards.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
@@ -1086,7 +1086,7 @@ class General_Stock_Report_Model extends MY_Model
     // }
 
     if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
+      if($warehouse == 'WISNU-'){
         $this->db->group_start()
                   ->like('tb_stock_cards.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
@@ -1154,7 +1154,7 @@ class General_Stock_Report_Model extends MY_Model
     // }
 
     if ($warehouse !== NULL){
-      if($warehouse == 'WISNU'){
+      if($warehouse == 'WISNU-'){
         $this->db->group_start()
                   ->like('tb_stock_cards.warehouse', 'WISNU')
                   // ->or_where('tb_stock_in_stores_reports.warehouse=', 'WISNU REKONDISI')
