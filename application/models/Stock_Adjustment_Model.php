@@ -76,8 +76,8 @@ class Stock_Adjustment_Model extends MY_Model
     if (!empty($_POST['columns'][0]['search']['value'])){
       $search_as_mix = $_POST['columns'][0]['search']['value'];
 
-      $this->db->where('tb_stock_adjustments.as_mix', $search_as_mix);
-    }
+    $this->db->where('tb_stock_adjustments.as_mix', $search_as_mix);
+  }
 	
 	if (!empty($_POST['columns'][1]['search']['value'])){
       $status = $_POST['columns'][1]['search']['value'];
