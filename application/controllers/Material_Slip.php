@@ -293,6 +293,7 @@ class Material_Slip extends MY_Controller
           $col[]  = print_date($row['issued_date']);
         }
         $col[]  = print_string($row['category']);
+        $col[]  = print_string($row['group']);
         $col[]  = print_string($row['warehouse']);
         $col[]  = print_string($row['description']);
         $col[]  = print_string($row['item_id']);
@@ -349,49 +350,23 @@ class Material_Slip extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          10 => print_number(array_sum($quantity), 2),
+          11 => print_number(array_sum($quantity), 2),
         )
       );
 
       if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN'){
         if (config_item('auth_role') == 'SUPERVISOR'){
-          $result['total'][22] = print_number(array_sum($unit_value), 2);
-          $result['total'][23] = print_number(array_sum($total_value), 2);
+          $result['total'][25] = print_number(array_sum($unit_value), 2);
+          $result['total'][26] = print_number(array_sum($total_value), 2);
         } else {
-          $result['total'][20] = print_number(array_sum($unit_value), 2);
-          $result['total'][21] = print_number(array_sum($total_value), 2);
+          $result['total'][23] = print_number(array_sum($unit_value), 2);
+          $result['total'][24] = print_number(array_sum($total_value), 2);
         }
       }
     }
 
     echo json_encode($result);
   }
-
-  // public function index()
-  // {
-  //   $this->authorized($this->module, 'index');
-
-  //   $this->data['page']['title']            = $this->module['label'];
-  //   $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
-  //   $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
-  //   $this->data['grid']['fixed_columns']    = 2;
-  //   $this->data['grid']['summary_columns']  = array( 9 );
-
-  //   if (config_item('auth_role') != 'PIC STOCK'){
-  //     if (config_item('auth_role') == 'SUPERVISOR'){
-  //       $this->data['grid']['summary_columns'][] = 21;
-  //       $this->data['grid']['summary_columns'][] = 22;
-  //     } else {
-  //       $this->data['grid']['summary_columns'][] = 19;
-  //       $this->data['grid']['summary_columns'][] = 20;
-  //     }
-  //   }
-
-  //   $this->data['grid']['order_columns']    = array();
-
-  //   $this->render_view($this->module['view'] .'/index');
-  // }
-  //edit
 
   public function index()
   {
@@ -401,15 +376,15 @@ class Material_Slip extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array( 10 );
+    $this->data['grid']['summary_columns']  = array( 11 );
 
     if (config_item('auth_role') != 'PIC STOCK'){
       if (config_item('auth_role') == 'SUPERVISOR'){
-        $this->data['grid']['summary_columns'][] = 22;
-        $this->data['grid']['summary_columns'][] = 23;
+        $this->data['grid']['summary_columns'][] = 25;
+        $this->data['grid']['summary_columns'][] = 26;
       } else {
-        $this->data['grid']['summary_columns'][] = 20;
-        $this->data['grid']['summary_columns'][] = 21;
+        $this->data['grid']['summary_columns'][] = 23;
+        $this->data['grid']['summary_columns'][] = 24;
       }
     }
 
