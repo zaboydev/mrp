@@ -354,14 +354,12 @@ class Material_Slip extends MY_Controller
         )
       );
 
-      if (config_item('auth_role') != 'PIC STOCK' || config_item('auth_role') == 'SUPER ADMIN'){
-        if (config_item('auth_role') == 'SUPERVISOR'){
-          $result['total'][25] = print_number(array_sum($unit_value), 2);
-          $result['total'][26] = print_number(array_sum($total_value), 2);
-        } else {
-          $result['total'][23] = print_number(array_sum($unit_value), 2);
-          $result['total'][24] = print_number(array_sum($total_value), 2);
-        }
+      if (config_item('auth_role') == 'SUPERVISOR'||config_item('auth_role') == 'SUPER ADMIN'){
+        $result['total'][23] = print_number(array_sum($unit_value), 2);
+        $result['total'][24] = print_number(array_sum($total_value), 2);
+      }else{
+        $result['total'][21] = print_number(array_sum($unit_value), 2);
+        $result['total'][22] = print_number(array_sum($total_value), 2);
       }
     }
 
@@ -378,14 +376,12 @@ class Material_Slip extends MY_Controller
     $this->data['grid']['fixed_columns']    = 2;
     $this->data['grid']['summary_columns']  = array( 11 );
 
-    if (config_item('auth_role') != 'PIC STOCK'){
-      if (config_item('auth_role') == 'SUPERVISOR'){
-        $this->data['grid']['summary_columns'][] = 25;
-        $this->data['grid']['summary_columns'][] = 26;
-      } else {
-        $this->data['grid']['summary_columns'][] = 23;
-        $this->data['grid']['summary_columns'][] = 24;
-      }
+    if (config_item('auth_role') == 'SUPERVISOR'||config_item('auth_role') == 'SUPER ADMIN'){
+      $this->data['grid']['summary_columns'][] = 23;
+      $this->data['grid']['summary_columns'][] = 24;
+    }else{
+      $this->data['grid']['summary_columns'][] = 21;
+      $this->data['grid']['summary_columns'][] = 22;
     }
 
     $this->data['grid']['order_columns']    = array();
