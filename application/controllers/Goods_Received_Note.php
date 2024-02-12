@@ -215,7 +215,7 @@ class Goods_Received_Note extends MY_Controller
         $col[]  = print_date($row['received_date']);
         // $col[]  = print_string($row['received_date']);
         $col[]  = print_string($row['category']);
-        // $col[]  = print_string($row['group']);
+        $col[]  = print_string($row['group']);
         $col[]  = print_string($row['warehouse']);
         // $col[]  = print_string($row['stores']);
         $col[]  = print_string($row['description']);
@@ -273,13 +273,13 @@ class Goods_Received_Note extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data"            => $data,
         "total"           => array(
-          11 => print_number(array_sum($quantity), 2),
+          12 => print_number(array_sum($quantity), 2),
         )
       );
 
       if (config_item('auth_role') != 'PIC STOCK'){
         // $result['total'][17] = print_number(array_sum($unit_value), 2);
-        $result['total'][21] = print_number(array_sum($total_value), 2);
+        $result['total'][23] = print_number(array_sum($total_value), 2);
       }
     }
 
@@ -295,11 +295,11 @@ class Goods_Received_Note extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array( 11 );
+    $this->data['grid']['summary_columns']  = array( 12 );
 
     if (config_item('auth_role') != 'PIC STOCK'){
       // $this->data['grid']['summary_columns'][] = 19;
-      $this->data['grid']['summary_columns'][] = 21;
+      $this->data['grid']['summary_columns'][] = 23;
     }
 
     // $this->data['grid']['order_columns']    = array();

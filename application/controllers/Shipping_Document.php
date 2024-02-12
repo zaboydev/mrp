@@ -192,6 +192,7 @@ class Shipping_Document extends MY_Controller
         $col[]  = print_string($row['document_number']);
         $col[]  = print_date($row['issued_date']);
         $col[]  = print_string($row['category']);
+        $col[]  = print_string($row['group']);
         $col[]  = print_string($row['warehouse']);
         $col[]  = print_string($row['description']);
         $col[]  = print_string($row['item_id']);
@@ -235,12 +236,12 @@ class Shipping_Document extends MY_Controller
         "recordsFiltered" => $this->model->countIndexFiltered(),
         "data" => $data,
         "total"           => array(
-          10 => print_number(array_sum($quantity), 2),
+          11 => print_number(array_sum($quantity), 2),
         )
       );
       if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
         // $result['total'][19] = print_number(array_sum($unit_value), 2);
-        $result['total'][20] = print_number(array_sum($total_value), 2);
+        $result['total'][21] = print_number(array_sum($total_value), 2);
       }
     }
 
@@ -255,11 +256,11 @@ class Shipping_Document extends MY_Controller
     $this->data['grid']['column']           = array_values($this->model->getSelectedColumns());
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
     $this->data['grid']['fixed_columns']    = 2;
-    $this->data['grid']['summary_columns']  = array( 10 );
+    $this->data['grid']['summary_columns']  = array( 11 );
 
     if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'SUPER ADMIN'){
       // $this->data['grid']['summary_columns'][] = 19;
-      $this->data['grid']['summary_columns'][] = 20;
+      $this->data['grid']['summary_columns'][] = 21;
     }
     $this->data['grid']['order_columns']    = array(
       0   => array( 0 => 1,  1 => 'desc' ),
