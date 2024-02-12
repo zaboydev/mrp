@@ -67,7 +67,7 @@ class General_Stock_Report extends MY_Controller
     
     $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source/'. $condition .'/'. $warehouse.'/'. $category.'/'.$start_date.'/'.$end_date);
     $this->data['grid']['fixed_columns']    = 4;
-    $this->data['grid']['summary_columns']  = array(8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25);
+    $this->data['grid']['summary_columns']  = array(9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
     // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){
     //   $this->data['grid']['summary_columns'][] = 15;
     // }
@@ -140,7 +140,8 @@ class General_Stock_Report extends MY_Controller
       $col[]  = print_string($row['item_id']);
       $col[] = print_string($row['part_number']);
       $col[] = print_string($row['serial_number']);
-      $col[] = print_string($row['description']);
+      $col[] = print_string($row['description']); 
+      $col[] = print_string($row['group']);
       $col[] = print_string($row['condition']);
       $col[] = print_string($row['kode_stok']);	  
       $col[] = print_string($row['coa']);
@@ -211,24 +212,24 @@ class General_Stock_Report extends MY_Controller
         "data" => $data,
         "total" => array(
           //6   => print_number(array_sum($balance_qty), 2),
-          8   => print_number(array_sum($balance_qty), 2),
-          9   => print_number(array_sum($balance_total_value), 2),
-          10   => print_number(array_sum($grn_qty), 2),
-          11   => print_number(array_sum($grn_total_value), 2),
-          12   => print_number(array_sum($ms_qty), 2),
-          13   => print_number(array_sum($ms_total_value), 2),
-          14   => print_number(array_sum($mix_qty), 2),
-          15  => print_number(array_sum($mix_total_value), 2),
-          16  => print_number(array_sum($adj_qty), 2),
-          17  => print_number(array_sum($adj_total_value), 2),
-          18  => print_number(array_sum($ship_out_qty), 2),
-          19  => print_number(array_sum($ship_out_total_value), 2),
-          20  => print_number(array_sum($ship_in_qty), 2),
-          21  => print_number(array_sum($ship_in_total_value), 2),
-          22  => print_number(array_sum($retur_qty), 2),
-          23  => print_number(array_sum($retur_total_value), 2),
-          24  => print_number(array_sum($iniatial_qty), 2),
-          25  => print_number(array_sum($iniatial_total_value), 2),
+          9   => print_number(array_sum($balance_qty), 2),
+          10   => print_number(array_sum($balance_total_value), 2),
+          11   => print_number(array_sum($grn_qty), 2),
+          12   => print_number(array_sum($grn_total_value), 2),
+          13   => print_number(array_sum($ms_qty), 2),
+          14   => print_number(array_sum($ms_total_value), 2),
+          15   => print_number(array_sum($mix_qty), 2),
+          16  => print_number(array_sum($mix_total_value), 2),
+          17  => print_number(array_sum($adj_qty), 2),
+          18  => print_number(array_sum($adj_total_value), 2),
+          19  => print_number(array_sum($ship_out_qty), 2),
+          20  => print_number(array_sum($ship_out_total_value), 2),
+          21  => print_number(array_sum($ship_in_qty), 2),
+          22  => print_number(array_sum($ship_in_total_value), 2),
+          23  => print_number(array_sum($retur_qty), 2),
+          24  => print_number(array_sum($retur_total_value), 2),
+          25  => print_number(array_sum($iniatial_qty), 2),
+          26  => print_number(array_sum($iniatial_total_value), 2),
         )
       );
     // if (config_item('auth_role') == 'FINANCE' || config_item('auth_role') == 'VP FINANCE'){

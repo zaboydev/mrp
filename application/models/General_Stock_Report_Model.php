@@ -17,6 +17,7 @@ class General_Stock_Report_Model extends MY_Model
       'tb_master_items.part_number'                 => 'Part Number',
       'tb_master_items.serial_number'               => 'Serial Number',
       'tb_master_items.description'                 => 'Description',
+      'tb_master_items.group'                       => 'Group',
       'tb_stocks.condition'                         => 'Condition',
       'tb_master_items.kode_stok'                   => 'Stock Code',
 	    'tb_master_item_groups.coa'               	  => 'COA',
