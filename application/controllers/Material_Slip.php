@@ -357,7 +357,7 @@ class Material_Slip extends MY_Controller
       if (config_item('auth_role') == 'SUPERVISOR'||config_item('auth_role') == 'SUPER ADMIN'){
         $result['total'][23] = print_number(array_sum($unit_value), 2);
         $result['total'][24] = print_number(array_sum($total_value), 2);
-      }else{
+      }elseif(config_item('auth_role') != 'PIC STOCK'){
         $result['total'][21] = print_number(array_sum($unit_value), 2);
         $result['total'][22] = print_number(array_sum($total_value), 2);
       }
@@ -379,7 +379,7 @@ class Material_Slip extends MY_Controller
     if (config_item('auth_role') == 'SUPERVISOR'||config_item('auth_role') == 'SUPER ADMIN'){
       $this->data['grid']['summary_columns'][] = 23;
       $this->data['grid']['summary_columns'][] = 24;
-    }else{
+    }elseif(config_item('auth_role') != 'PIC STOCK'){
       $this->data['grid']['summary_columns'][] = 21;
       $this->data['grid']['summary_columns'][] = 22;
     }
