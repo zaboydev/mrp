@@ -14,6 +14,7 @@ class Shipping_Document_Model extends MY_Model
       'tb_issuances.document_number'          => 'Document Number',
       'tb_issuances.issued_date'              => 'Issued Date',
       'tb_issuances.category'                 => 'Category',
+      'tb_master_item_groups.group'             => 'Group',
       'tb_issuances.warehouse'                => 'Base',
       'tb_master_items.description'           => 'Description',
       'tb_master_items.id as item_id'           => 'Item Id',
