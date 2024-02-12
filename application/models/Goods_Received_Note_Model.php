@@ -14,7 +14,7 @@ class Goods_Received_Note_Model extends MY_Model
       'tb_receipts.document_number'             => 'Document Number',
       'tb_receipts.received_date'               => 'Received Date',
       'tb_receipts.category'                    => 'Category',
-      // 'tb_master_item_groups.group'             => 'Group',
+      'tb_master_item_groups.group'             => 'Group',
       'tb_receipts.warehouse'                   => 'Base',
       // 'tb_stock_in_stores.stores'                   => 'Stores',
       'tb_master_items.description'             => 'Description',
