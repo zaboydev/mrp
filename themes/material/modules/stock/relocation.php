@@ -187,9 +187,10 @@
   });
 
   $(function(){
-    $('#btn-submit-document').on('click', function(e){
+    var buttonSubmitDocument      = $('#btn-submit-document');
+    $(buttonSubmitDocument).on('click', function(e){
       e.preventDefault();
-      $(this).attr('disabled', true);
+      $('#btn-submit-document').attr('disabled', true);
 
       var url = $(this).attr('href');
       var frm = $('#form-document');
@@ -214,7 +215,7 @@
         }
       });
 
-      $(this).attr('disabled', false);
+      // $(buttonSubmitDocument).attr('disabled', false);
     });
 
     $( 'input[id="relocation_stores"]' ).on('focus click', function(){
@@ -223,6 +224,7 @@
         dataType: "json",
         success: function (data) {
           $( 'input[id="relocation_stores"]' ).autocomplete({
+            minLength: 1,
             source: function (request, response) {
               var results = $.ui.autocomplete.filter(data, request.term);
               response(results.slice(0, 10));
