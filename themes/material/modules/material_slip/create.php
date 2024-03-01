@@ -691,9 +691,9 @@ $(function(){
   var lastDate = new Date(<?=config_item('period_year');?>, <?=config_item('period_month');?>, 0);
   var last_publish = $('[name="opname_start_date"]').val();
   // var today       = new Date();
-  // today.setDate(today.getDate() - 2);
+  // today.setDate(today.getDate() - 60);
 
-  var today = moment().startOf('month').format('YYYY-MM-DD');
+  var today = moment().startOf('year').format('YYYY-MM-DD');
 
   $('[data-provide="datepicker"]').datepicker({
     autoclose: true,
