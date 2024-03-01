@@ -596,7 +596,7 @@ class Stock_Report extends MY_Controller
     $this->render_view($this->module['view'] .'/index');
   }
 
-  public function index_data_source_no_shipping($condition = 'SERVICEABLE', $warehouse='ALL BASES', $category = 'all', $start_date = NULL, $end_date = NULL)
+  public function index_data_source_no_shipping($condition = 'all', $warehouse='ALL BASES', $category = 'all', $start_date = NULL, $end_date = NULL)
   {
     $this->authorized($this->module, 'index');
 
@@ -605,6 +605,13 @@ class Stock_Report extends MY_Controller
     } 
     else {
       $warehouse = urldecode($warehouse);
+    }
+
+    if ($condition !== NULL){
+      $condition = (urldecode($condition) === 'all') ? NULL : urldecode($condition);
+    } 
+    else {
+      $condition = urldecode($condition);
     }
 
     // if ($category !== NULL){
@@ -659,6 +666,7 @@ class Stock_Report extends MY_Controller
         
         // $col[] = print_number($row['total_value'], 2);
       }
+      // $col[] = print_string($row['warehouse']);
 
 
 
