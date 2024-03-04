@@ -18,6 +18,11 @@
           <div class="row">
             <div class="col-sm-6">
               <div class="form-group">
+                <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="yyyy-mm-dd" class="form-control" value="<?= $_SESSION['mix']['mixed_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_mixed_date'); ?>" required>
+                <label for="date">Date</label>
+              </div>
+
+              <div class="form-group">
                 <input type="text" name="mixing_category" id="mixing_category" class="form-control" value="<?= $_SESSION['mix']['category']; ?>" disabled>
                 <label for="mixing_category">Inventory</label>
               </div>
