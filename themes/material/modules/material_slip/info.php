@@ -139,7 +139,8 @@
     <?php
       $today    = date('Y-m-d');
       $tgl     	= strtotime('-2 day',strtotime($today));
-      $data     = date('Y-m-d',$tgl);
+      // $data     = date('Y-m-d',$tgl);
+      $data     = date('Y-01-01');
     ?>
     <?php if (is_granted($module, 'delete') && $entity['issued_date'] >= $data):?>
       <?=form_open(current_url(), array(
