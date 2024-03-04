@@ -912,7 +912,7 @@ class Stock_Model extends MY_Model
     $value_mix = 0;
 
     //$document_number        = '000004/MS/BB/2018';
-    $issued_date            = date('Y-m-d');
+    $issued_date            = $_SESSION['mix']['mixed_date'];
     $issued_by              = config_item('auth_person_name');
     $issued_to              = 'MIX';
     $required_by            = '';

@@ -196,6 +196,14 @@ class Mixing extends MY_Controller
     echo json_encode($entities);
   }
 
+  public function set_mixed_date()
+  {
+    if ($this->input->is_ajax_request() === FALSE)
+      redirect($this->modules['secure']['route'] .'/denied');
+
+    $_SESSION['mix']['mixed_date'] = $_GET['data'];
+  }
+
   public function mix($id = NULL)
   {
     $this->authorized($this->module, 'mix');
@@ -217,6 +225,7 @@ class Mixing extends MY_Controller
       $_SESSION['mix']['stores']            = $mixing_item['stores'];
       $_SESSION['mix']['warehouse']         = $mixing_item['warehouse'];
       $_SESSION['mix']['notes']             = NULL;
+      $_SESSION['mix']['mixed_date']        = date('Y-m-d');
 
       redirect($this->module['route'] .'/mix');
     }
