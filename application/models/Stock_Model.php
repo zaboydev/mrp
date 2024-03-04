@@ -1033,7 +1033,7 @@ class Stock_Model extends MY_Model
 
     $mixing_quantity    = floatval($_SESSION['mix']['mixing_quantity']);
     $remarks            = $_SESSION['mix']['notes'];
-    $date               = date('Y-m-d');
+    $date               = $_SESSION['mix']['mixed_date'];
     
     $unit_value         = floatval($value_mix/$mixing_quantity);
     $total_value        = $stores_quantity * $stock['unit_value'];
