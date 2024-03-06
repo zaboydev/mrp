@@ -349,13 +349,15 @@ $(function(){
 
   var startDate = new Date(<?=config_item('period_year');?>, <?=config_item('period_month');?>-1, 1);
   var lastDate = new Date(<?=config_item('period_year');?>, <?=config_item('period_month');?>, 0);
-  var last_publish = $('[name="opname_start_date"]').val();
+  // var last_publish = $('[name="opname_start_date"]').val();
+
+  var today = moment().startOf('year').format('YYYY-MM-DD');
 
   $('[data-provide="datepicker"]').datepicker({
     autoclose: true,
     todayHighlight: true,
     format: 'yyyy-mm-dd',
-    startDate: last_publish,
+    startDate: today,
     // endDate: lastDate
   });
 
