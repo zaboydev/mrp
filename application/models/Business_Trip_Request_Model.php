@@ -31,7 +31,7 @@ class Business_Trip_Request_Model extends MY_Model
             'Duration',
             'Date',
             'Purpose',
-            'Approval Notes'
+            'Approval/Rejected Notes'
         );
         return $return;
     }
@@ -2220,7 +2220,7 @@ class Business_Trip_Request_Model extends MY_Model
         );
         $this->db->select($selected);
         $this->db->where('tb_business_trip_purposes.user_id', $user_id);
-        $this->db->where_not_in('tb_business_trip_purposes.status', ['CLOSED','REVISED']);
+        $this->db->where_not_in('tb_business_trip_purposes.status', ['CLOSED','REVISED','REJECTED']);
         if (isset($_SESSION['business_trip']['id'])){
             $this->db->where('tb_business_trip_purposes.id', '!=', $_SESSION['business_trip']['id']);
         }

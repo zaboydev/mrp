@@ -31,7 +31,7 @@ class Sppd_Model extends MY_Model
             'Destination',
             'Date',
             'Notes',
-            'Approval Notes'
+            'Approval/Rejected Notes'
         );
         return $return;
     }

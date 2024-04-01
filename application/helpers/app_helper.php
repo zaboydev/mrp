@@ -3871,4 +3871,37 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('findApprovalRejectedNotes')) {
+    function findApprovalRejectedNotes($document_type,$document_number,$status)
+    {
+      $CI =& get_instance();      
+
+      $CI->db->select('*');
+      $CI->db->from('tb_signers');
+      $CI->db->where('tb_signers.document_type', $document_type);
+      $CI->db->where('tb_signers.document_number', $document_number);
+      if($status=='approved'){
+        $CI->db->where_not_in('tb_signers.action', ['rejected by','requested by']);
+      }
+      if($status=='rejected'){
+        $CI->db->where_in('tb_signers.action', ['rejected by']);
+      }
+      $query_signers = $CI->db->get();
+      $count = $query_signers->num_rows();
+      $notes = '';
+      $no = 1;
+      foreach ($query_signers->result_array() as $key => $valuesigners) {
+        
+        if($no==$count){
+          $notes .= $valuesigners['person_name'].' : '.$valuesigners['notes'];
+        }else{
+          $notes .= $valuesigners['person_name'].' : '.$valuesigners['notes'].' | ';
+        }
+        $no++;
+      }
+
+      return $notes;
+    }
+  }
+
     

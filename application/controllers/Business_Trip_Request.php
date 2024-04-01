@@ -40,6 +40,8 @@ class Business_Trip_Request extends MY_Controller
                 $cost_center_code = $cost_center['cost_center_code'];
                 $cost_center_name = $cost_center['cost_center_name'];
                 $department_name = $cost_center['department_name'];
+                $approval_notes = findApprovalRejectedNotes('SPD',$row['document_number'],'approved');
+                $rejected_notes = findApprovalRejectedNotes('SPD',$row['document_number'],'rejected');
                 if (viewOrNot($row['status'],$row['head_dept'],$department_name)){
                     $no++;
                     $col = array();
@@ -73,13 +75,14 @@ class Business_Trip_Request extends MY_Controller
                     $col[] = print_string($row['duration']);
                     $col[] = print_date($row['start_date'], 'd M Y').' s/d '.print_date($row['end_date'], 'd M Y');
                     $col[] = print_string($row['notes']);
-                    if($row['status']=='approved' || $row['status']=='closed'){
-                        $col[] = '';
+                    if($row['status']=='approved' || $row['status']=='closed' || $row['status']=='OPEN'){
+                        
+                        $col[] = $approval_notes;
                     }else{
                         if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                         }else{
-                            $col[] = '';
+                            $col[] = $rejected_notes;
                         }
                     }
                     
@@ -733,7 +736,7 @@ class Business_Trip_Request extends MY_Controller
 
         $str_notes = $this->input->post('notes');
         $notes = str_replace("|", "", $str_notes);
-        $notes = substr($price, 0, -3);
+        $notes = substr($notes, 0, -3);
         $notes = explode("##,", $notes);
 
         $total = 0;
@@ -771,7 +774,7 @@ class Business_Trip_Request extends MY_Controller
 
         $str_notes = $this->input->post('notes');
         $notes = str_replace("|", "", $str_notes);
-        $notes = substr($price, 0, -3);
+        $notes = substr($notes, 0, -3);
         $notes = explode("##,", $notes);
 
         $total = 0;
@@ -789,20 +792,6 @@ class Business_Trip_Request extends MY_Controller
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
                 'info' => "There are " . $save_approval['failed'] . " errors"
-            ));
-        }
-
-        if ($success > 0) {
-            // $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
-            $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $success . " data has been update!"
-            ));
-        }
-        if ($failed > 0) {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are " . $failed . " errors"
             ));
         }
         
