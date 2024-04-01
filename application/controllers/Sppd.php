@@ -39,7 +39,8 @@ class Sppd extends MY_Controller
                 $cost_center_code = $cost_center['cost_center_code'];
                 $cost_center_name = $cost_center['cost_center_name'];
                 $department_name = $cost_center['department_name'];
-                $approval_notes = getNotesFromSigner($row['id'],'SPPD',$row['status']);
+                $approval_notes = findApprovalRejectedNotes('SPPD',$row['document_number'],'approved');
+                $rejected_notes = findApprovalRejectedNotes('SPPD',$row['document_number'],'rejected');
                 if (viewOrNot($row['status'],$row['head_dept'],$department_name)){
                     $no++;
                     $col = array();
@@ -69,7 +70,7 @@ class Sppd extends MY_Controller
                         if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                         }else{
-                            $col[] = $approval_notes;
+                            $col[] = $rejected_notes;
                         }
                     }
                     
@@ -686,7 +687,7 @@ class Sppd extends MY_Controller
 
         $str_notes = $this->input->post('notes');
         $notes = str_replace("|", "", $str_notes);
-        $notes = substr($price, 0, -3);
+        $notes = substr($notes, 0, -3);
         $notes = explode("##,", $notes);
 
         $total = 0;
@@ -738,7 +739,7 @@ class Sppd extends MY_Controller
 
         $str_notes = $this->input->post('notes');
         $notes = str_replace("|", "", $str_notes);
-        $notes = substr($price, 0, -3);
+        $notes = substr($notes, 0, -3);
         $notes = explode("##,", $notes);
 
         $total = 0;
