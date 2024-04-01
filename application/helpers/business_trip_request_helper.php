@@ -116,3 +116,23 @@ if ( ! function_exists('available_spd')) {
   }
 }
 
+if ( ! function_exists('all_spd')) {
+  function all_spd()
+  {
+    $CI =& get_instance();
+
+    $selected = array(
+      'tb_business_trip_purposes.*',
+      'tb_master_business_trip_destinations.business_trip_destination'
+    );
+    $CI->db->select($selected);
+    $CI->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+    $CI->db->from('tb_business_trip_purposes');
+    // $CI->db->where_in('tb_business_trip_purposes.status',['APPROVED','OPEN']);
+
+    $return  = $CI->db->get();
+
+    return $return->result_array();
+  }
+}
+

@@ -390,7 +390,7 @@ class Sppd extends MY_Controller
         $entity = $this->model->findById($id);
 
         $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
-        $format_number      = substr($entity['document_number'], 6, 21);
+        $format_number      = substr($entity['document_number'], 6, 22);
         $revisi             = get_count_revisi($document_number.$format_number,'SPPD');
 
         if (isset($_SESSION['sppd']) === FALSE){
@@ -412,6 +412,7 @@ class Sppd extends MY_Controller
             $_SESSION['sppd']['department_id']             = $department_id;
             $_SESSION['sppd']['person_in_charge']          = $entity['user_id'];
             $_SESSION['sppd']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
+            $_SESSION['sppd']['advance']                   = $entity['advance_spd'];
             
         }
 
@@ -696,26 +697,13 @@ class Sppd extends MY_Controller
         $x = 0;
 
         $save_approval = $this->model->approve($document_id, $notes);
+
         if ($save_approval['status']) {
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
                 'info' => $save_approval['success'] . " data has been update!"
             ));
         }else{
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are " . $save_approval['failed'] . " errors"
-            ));
-        }
-
-        if ($save_approval['success'] > 0) {
-            // $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
-            $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $save_approval['success'] . " data has been update!"
-            ));
-        }
-        if ($save_approval['failed'] > 0) {
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
                 'info' => "There are " . $save_approval['failed'] . " errors"
@@ -748,6 +736,7 @@ class Sppd extends MY_Controller
         $x = 0;
 
         $save_approval = $this->model->reject($document_id, $notes);
+
         if ($save_approval['status']) {
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
@@ -757,20 +746,6 @@ class Sppd extends MY_Controller
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
                 'info' => "There are " . $save_approval['failed'] . " errors"
-            ));
-        }
-
-        if ($success > 0) {
-            // $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);
-            $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $success . " data has been update!"
-            ));
-        }
-        if ($failed > 0) {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are " . $failed . " errors"
             ));
         }
         
