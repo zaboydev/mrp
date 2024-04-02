@@ -42,6 +42,17 @@
                             <label for="notes">Supervisor / Atasan</label>
                         </div>
 
+                        <?php if (isset($_SESSION['sppd']['edit'])) : ?>
+                        <div class="form-group" style="padding-top: 25px;">
+                            <select disabled name="spd_id" id="spd_id" data-placeholder="Pilih SPD" class="form-control select2" data-source="<?= site_url($module['route'] . '/set_spd_id'); ?>" required>
+                                <option></option>
+                                <?php foreach(all_spd() as $spd):?>
+                                <option data-spd-number="<?=$spd['document_number'];?>" value="<?=$spd['id'];?>" <?= ($spd['id'] == $_SESSION['sppd']['spd_id']) ? 'selected' : ''; ?>><?=$spd['document_number'];?> | <?=$spd['person_name'];?></option>
+                                <?php endforeach;?>
+                            </select>
+                            <label for="notes">SPD No</label>
+                        </div>
+                        <?php else:?>
                         <div class="form-group" style="padding-top: 25px;">
                             <select name="spd_id" id="spd_id" data-placeholder="Pilih SPD" class="form-control select2" data-source="<?= site_url($module['route'] . '/set_spd_id'); ?>" required>
                                 <option></option>
@@ -51,6 +62,7 @@
                             </select>
                             <label for="notes">SPD No</label>
                         </div>
+                        <?php endif;?>
 
                         <div class="form-group" style="padding-top: 25px;">
                             <select disabled name="person_in_charge" id="person_in_charge" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_person_in_charge'); ?>" required>

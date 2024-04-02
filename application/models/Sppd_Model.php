@@ -190,6 +190,8 @@ class Sppd_Model extends MY_Model
             'tb_business_trip_purposes.duration',
             'tb_business_trip_purposes.start_date',
             'tb_business_trip_purposes.end_date',
+            'tb_business_trip_purposes.user_id',
+            'tb_business_trip_purposes.business_trip_destination_id',
             'tb_master_business_trip_destinations.business_trip_destination'
         );
         $this->db->select($selected);
@@ -641,7 +643,7 @@ class Sppd_Model extends MY_Model
             $this->db->join('tb_business_trip_purposes', 'tb_business_trip_purposes.id = tb_sppd.spd_id');
             $this->db->where('tb_sppd.id', $id);
             $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-            $query      = $this->db->get('tb_business_trip_purposes');
+            $query      = $this->db->get('tb_sppd');
             $spd        = $query->unbuffered_row('array');
 
             $cost_center = findCostCenter($spd['annual_cost_center_id']);

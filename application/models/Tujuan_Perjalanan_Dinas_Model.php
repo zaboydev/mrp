@@ -16,7 +16,7 @@ class Tujuan_Perjalanan_Dinas_Model extends MY_Model
         return array(
             'No',
             'Tujuan Perjalanan Dinas',
-            'Expense Amount',
+            // 'Expense Amount',
             'Notes',
             'Last Update'
         );

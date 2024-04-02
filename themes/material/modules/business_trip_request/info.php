@@ -154,7 +154,7 @@
         </a>
 
         <div class="pull-right">
-            <?php if (is_granted($module, 'create') && $entity['date'] >= $data && in_array($entity['status'],['WAITING APPROVAL BY HEAD DEPT'])):?>
+            <?php if (is_granted($module, 'create') && $entity['date'] >= $data && in_array($entity['status'],['WAITING APPROVAL BY HEAD DEPT','REJECTED'])):?>
             <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>

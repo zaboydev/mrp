@@ -61,7 +61,7 @@
                                     <?php if($entity['items'][$i]['levels'][$key]['amount']>0):?>
                                     <?=number_format($entity['items'][$i]['levels'][$key]['amount'], 2);?>/<?=number_format($entity['items'][$i]['levels'][$key]['day'], 0);?> days
                                     <?php else:?>
-                                    <?=$entity['items'][$i]['levels'][$key]['notes'];?>
+                                    
                                     <?php endif;?>
                                     <?php $total_expense[] = $entity['items'][$i]['levels'][$key]['amount'];?>
                                 </td>

@@ -33,12 +33,12 @@ class Tujuan_Perjalanan_Dinas extends MY_Controller
             $total_value  = array();
 
             foreach ($entities as $row){
-                $expense_amount = $this->model->countExpenseAmount($row['id']);
+                // $expense_amount = $this->model->countExpenseAmount($row['id']);
                 $no++;
                 $col = array();
                 $col[] = print_number($no);
                 $col[] = print_string($row['business_trip_destination']);
-                $col[] = print_number($expense_amount,2);
+                // $col[] = print_number($expense_amount,2);
                 $col[] = print_string($row['notes']);
                 $col[] = print_date($row['updated_at']);
                 $col['DT_RowId'] = 'row_'. $row['id'];
