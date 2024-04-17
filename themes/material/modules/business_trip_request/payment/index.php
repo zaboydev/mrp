@@ -689,7 +689,7 @@
               } else {
                 $.ajax({
                   type: "POST",
-                  url: 'expense_closing_payment/multi_reject',
+                  url: 'spd_payment/multi_reject',
                   data: {
                     "id_purchase_order": id_purchase_order,
                     "notes": notes,

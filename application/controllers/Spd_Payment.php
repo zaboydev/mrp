@@ -627,14 +627,14 @@ class Spd_Payment extends MY_Controller
 
     public function multi_reject()
     {
-        $document_id = $this->input->post('id_expense_request');
+        $document_id = $this->input->post('id_purchase_order');
         $document_id = str_replace("|", "", $document_id);
         $document_id = substr($document_id, 0, -1);
         $document_id = explode(",", $document_id);
 
         $str_notes = $this->input->post('notes');
         $notes = str_replace("|", "", $str_notes);
-        $notes = substr($price, 0, -3);
+        $notes = substr($notes, 0, -3);
         $notes = explode("##,", $notes);
 
         $total = 0;
@@ -642,7 +642,7 @@ class Spd_Payment extends MY_Controller
         $failed = sizeof($document_id);
         $x = 0;
 
-        $save_approval = $this->model->reject($document_id, $notes);
+        $save_approval = $this->model->rejectForPayment($document_id, $notes);
         if ($save_approval['status']) {
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
@@ -728,7 +728,7 @@ class Spd_Payment extends MY_Controller
 
     public function attachment()
     {
-        $this->authorized($this->module, 'create');
+        $this->authorized($this->module, 'manage_attachment');
 
         $this->render_view($this->module['view'] . '/attachment');
     }
