@@ -881,6 +881,36 @@ class Business_Trip_Request_Model extends MY_Model
         return $this->db->get('tb_attachment_poe')->result_array();
     }
 
+    public function checkAttachment($id)
+    {
+        $this->db->where('id_poe', $id);
+        $this->db->where('tipe', 'SPD');
+        $this->db->where(array('deleted_at' => NULL));
+		$this->db->from('tb_attachment_poe');
+        $num_rows = $this->db->count_all_results();
+
+		return $num_rows;
+    }
+
+    public function listAttachmentSpdAdvance($id)
+    {
+        $this->db->where('id_poe', $id);
+        $this->db->where('tipe', 'ADV PAYMENT');
+        $this->db->where(array('deleted_at' => NULL));
+        return $this->db->get('tb_attachment_poe')->result_array();
+    }
+
+    public function checkAttachmentSpdAdvance($id)
+    {
+        $this->db->where('id_poe', $id);
+        $this->db->where('tipe', 'ADV PAYMENT');
+        $this->db->where(array('deleted_at' => NULL));
+		$this->db->from('tb_attachment_poe');
+        $num_rows = $this->db->count_all_results();
+
+		return $num_rows;
+    }
+
     function add_attachment_to_db($id_poe, $url,$tipe_att='other')
     {
         $this->db->trans_begin();
@@ -2047,7 +2077,7 @@ class Business_Trip_Request_Model extends MY_Model
             $this->db->set('id_poe', $po_payment_id);
             $this->db->set('tipe', "ADV PAYMENT");
             $this->db->set('file', $file);
-            $this->db->set('type_att', "payment");
+            $this->db->set('tipe_att', "payment");
             $this->db->insert('tb_attachment_poe');
         }
         if ($this->db->trans_status() === FALSE)

@@ -34,8 +34,7 @@ class Spd_Payment extends MY_Controller
             $total_value  = array();
 
             foreach ($entities as $row) {
-                // $attachment = $this->model->checkAttachment($row['id']);
-                $attachment = 0;
+                $attachment = $this->model->checkAttachmentSpdAdvance($row['id']);
                 $no++;
                 $col = array();
                 if (is_granted($this->module, 'approval') === TRUE) {
@@ -749,7 +748,7 @@ class Spd_Payment extends MY_Controller
 
             $data = array('upload_data' => $this->upload->data());
             $url = $config['upload_path'] . $data['upload_data']['file_name'];
-            array_push($_SESSION["business_trip"]["attachment"], $url);
+            array_push($_SESSION["bayar"]["attachment"], $url);
             $result["status"] = 1;
         }
         echo json_encode($result);
@@ -759,9 +758,15 @@ class Spd_Payment extends MY_Controller
     {
         $this->authorized($this->module, 'info');
 
-        $this->data['manage_attachment'] = $this->model->listAttachment($id);
+        $this->data['manage_attachment'] = $this->model->listAttachmentSpdAdvance($id);
         $this->data['id'] = $id;
         $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function listAttachment($id)
+    {
+        $data = $this->model->listAttachmentSpdAdvance($id);
+        echo json_encode($data);
     }
 
     public function add_attachment_to_db($id)
