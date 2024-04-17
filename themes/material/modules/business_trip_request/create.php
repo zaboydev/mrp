@@ -35,6 +35,9 @@
                         <div class="form-group">
                             <select name="with_po" id="with_po" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
                                 <option></option>
+                                <?php foreach(list_user_approval([10,16]) as $atasan):?>
+                                <option value="<?=$atasan['username'];?>" <?= ($atasan['username'] == $_SESSION['business_trip']['head_dept']) ? 'selected' : ''; ?>><?=$atasan['person_name'];?></option>
+                                <?php endforeach;?>
                                 <?php foreach(list_user_in_head_department($_SESSION['business_trip']['department_id']) as $head):?>
                                 <option value="<?=$head['username'];?>" <?= ($head['username'] == $_SESSION['business_trip']['head_dept']) ? 'selected' : ''; ?>><?=$head['person_name'];?></option>
                                 <?php endforeach;?>

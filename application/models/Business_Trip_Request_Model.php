@@ -78,6 +78,14 @@ class Business_Trip_Request_Model extends MY_Model
                 $this->db->where_in('tb_business_trip_purposes.status ', ['WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY HEAD DEPT']);
             }
             elseif (config_item('as_head_department')=='yes'){
+                if(in_array(config_item('auth_role'),['HEAD OF SCHOOL','CHIEF OPERATION OFFICER'])){
+                    $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
+                    $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
+                }else{
+                    $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
+                    $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
+                }                
+            }elseif(in_array(config_item('auth_role'),['HEAD OF SCHOOL','CHIEF OPERATION OFFICER'])){
                 $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
                 $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
             }else{
@@ -567,7 +575,7 @@ class Business_Trip_Request_Model extends MY_Model
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && $spd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
                 $this->db->set('known_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
@@ -631,7 +639,7 @@ class Business_Trip_Request_Model extends MY_Model
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && $spd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','REJECTED');
                 $this->db->set('rejected_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
@@ -685,9 +693,10 @@ class Business_Trip_Request_Model extends MY_Model
             $query      = $this->db->get('tb_business_trip_purposes');
             $row        = $query->unbuffered_row('array');
             $department = getDepartmentByAnnualCostCenterId($row['annual_cost_center_id']);
-            $keterangan = "Head Dept : " . $department['department_name'];
 
             $recipientList = getNotifRecipient_byUsername($row['head_dept']);
+            $atasan = getUserByUserName($row['head_dept']);
+            $keterangan = "Head Dept : " . $department['department_name'];
         }
 
         $recipient = array();
@@ -1990,7 +1999,7 @@ class Business_Trip_Request_Model extends MY_Model
         foreach ($_SESSION['bayar']['request'] as $i => $request) {
             $total_request[] = $request['amount_paid'];
             if($request['amount_paid']==$amount){
-                // $this->db->set('payment_status', "PAID"); 
+                $this->db->set('payment_status', "PAID"); 
             }else{
                 $this->db->set('payment_status', "OPEN"); 
             }                 
