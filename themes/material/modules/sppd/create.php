@@ -85,37 +85,68 @@
                         </div>                 
                     </div>
 
-                    <div class="col-sm-12 col-lg-4">
-                        <div class="form-group" style="padding-top: 25px;">
-                            <select disabled name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_destination'); ?>" data-placeholder="Select Destination" required>
-                                <option></option>
-                                <?php foreach(destination_list() as $destination):?>
-                                <option value="<?=$destination['id'];?>" <?= ($destination['id'] == $_SESSION['sppd']['business_trip_destination_id']) ? 'selected' : ''; ?>><?=$destination['business_trip_destination'];?></option>
-                                <?php endforeach;?>
-                            </select>
-                            <label for="tujuan_perjalanan_dinas">To / Kota Tujuan</label>
-                        </div> 
+                    <div class="col-sm-12 col-lg-8">
+                        <div class="row">
+                            <div class="col-sm-6 col-lg-6">
+                                    <div class="form-group" style="padding-top: 25px;">
+                                    <select disabled name="tujuan_perjalanan_dinas" id="tujuan_perjalanan_dinas" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_destination'); ?>" data-placeholder="Select Destination" required>
+                                        <option></option>
+                                        <?php foreach(destination_list() as $destination):?>
+                                        <option value="<?=$destination['id'];?>" <?= ($destination['id'] == $_SESSION['sppd']['business_trip_destination_id']) ? 'selected' : ''; ?>><?=$destination['business_trip_destination'];?></option>
+                                        <?php endforeach;?>
+                                    </select>
+                                    <label for="tujuan_perjalanan_dinas">To / Kota Tujuan</label>
+                                </div> 
 
-                        <div class="form-group">
-                            <textarea name="notes" id="notes" class="form-control" rows="3" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>" readonly><?= $_SESSION['sppd']['notes']; ?></textarea>
-                            <label for="notes">Purpose of Travel on Duty / Maksud perjalanan dinas</label>
+                                <div class="form-group">
+                                    <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>" readonly><?= $_SESSION['sppd']['notes']; ?></textarea>
+                                    <label for="notes">Purpose of Travel on Duty / Maksud perjalanan dinas</label>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="form-group">
-                            <input type="hidden" name="start_date" id="start_date" class="form-control" value="<?= $_SESSION['sppd']['start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_start_date'); ?>" required>
-                            <input type="hidden" name="end_date" id="end_date" class="form-control" value="<?= $_SESSION['sppd']['end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_end_date'); ?>" required>
-                            <input type="text" name="dateline" id="dateline" data-provide="daterange" class="form-control" value="<?= $_SESSION['sppd']['dateline']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_dateline'); ?>" required readonly>
-                            <label for="dateline">Date</label>
-                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-lg-4">
+                                <div class="form-group">
+                                    <input type="hidden" name="start_date" id="start_date" class="form-control" value="<?= $_SESSION['sppd']['start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_start_date'); ?>" required>
+                                    <input type="hidden" name="end_date" id="end_date" class="form-control" value="<?= $_SESSION['sppd']['end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_end_date'); ?>" required>
+                                    <input type="text" name="dateline" id="dateline" data-provide="daterange" class="form-control" value="<?= $_SESSION['sppd']['dateline']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_dateline'); ?>" required readonly>
+                                    <label for="dateline">Date</label>
+                                </div>
+                                <input type="text" name="dateline" id="dateline" data-provide="daterange" class="hide form-control" value="<?= $_SESSION['business_trip']['dateline']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_dateline'); ?>" required readonly>
+                                <label for="dateline" class="hide">Date</label>
 
-                        <div class="form-group">
-                            <input type="number" name="duration" id="duration" class="form-control" value="<?= $_SESSION['sppd']['duration']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_duration'); ?>" required readonly>
-                            <label for="duration">Duration</label>
-                        </div>
+                                <div class="form-group">
+                                    <input type="number" name="duration" id="duration" class="form-control" value="<?= $_SESSION['sppd']['duration']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_duration'); ?>" required readonly>
+                                    <label for="duration">Duration</label>
+                                </div>
 
-                        <div class="form-group">
-                            <input type="number" name="advance" id="advance" class="form-control" value="<?= $_SESSION['sppd']['advance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_duration'); ?>" required readonly>
-                            <label for="duration">Advance/Uang Muka Perjalanan Dinas</label>
+                                <div class="form-group">
+                                    <input type="number" name="advance" id="advance" class="form-control" value="<?= $_SESSION['sppd']['advance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_duration'); ?>" required readonly>
+                                    <label for="duration">Advance/Uang Muka Perjalanan Dinas</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="text" name="real_start_date" id="real_start_date" data-provide="datepicker" class="form-control" value="<?= $_SESSION['sppd']['real_start_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_real_start_date'); ?>" required readonly>
+                                            <label for="real_start_date">Realisation Startdate</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="text" name="real_end_date" id="real_end_date" data-provide="datepicker" class="form-control" value="<?= $_SESSION['sppd']['real_end_date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_real_end_date'); ?>" required readonly>
+                                            <label for="real_end_date">Realisation Enddate</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" name="real_duration" id="real_duration" class="form-control" value="<?= $_SESSION['sppd']['real_duration']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_real_duration'); ?>" required readonly>
+                                    <label for="real_duration">Realisation Duration</label>
+                                </div>      
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                            </div>
                         </div>
                     </div>
 
@@ -154,6 +185,7 @@
                         </td>
                         <td class="qty hide" style="font-weight:500;">
                             <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>">
+                            <input name="real_qty[]" type="text" class="sel_applied form-control input-sm real_qty" value="<?=$items['qty'];?>">
                         </td>
                         <td class="amount hide" style="font-weight:500;word-wrap:break-word;">
                             <input name="amount_budget[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>" readonly>
@@ -165,7 +197,7 @@
                             <input name="amount[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>">
                         </td>
                         <td class="total" style="font-weight:500;">
-                            <input name="total[]" type="text" class="sel_applied form-control number input-sm sel_applied_item_add" value="<?=$items['total'];?>">
+                            <input name="total[]" type="text" class="sel_applied form-control number input-sm real_total" value="<?=($items['real_total']==0)?$items['total']:$items['real_total'];?>">
                         </td>
                         <td class="total" style="font-weight:500;">
                             <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment_detail_spd/'.$items['id'].'/SPD-DETAIL'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-xs btn-primary ink-reaction btn-tooltip">
@@ -466,7 +498,7 @@
         $('[data-provide="datepicker"]').datepicker({
             autoclose: true,
             todayHighlight: true,
-            format: 'dd-mm-yyyy',
+            format: 'yyyy-mm-dd',
             startDate: today,
             // endDate: last_opname
         });
@@ -500,6 +532,40 @@
         }).on('cancel.daterangepicker', function(ev, picker) {
             
         });
+
+        $('#real_start_date').on('change', function() {
+            getDuration();
+        });
+
+        $('#real_end_date').on('change', function() {
+            getDuration();
+        });
+
+        function getDuration(){
+            var start_date_val = $('#real_start_date').val();
+            var end_date_val = $('#real_end_date').val();
+            console.log(start_date_val);
+            console.log(end_date_val);
+
+            if((start_date_val!='' && end_date_val!='')){
+                var start_date = new Date(start_date_val);
+                var end_date = new Date(end_date_val);
+                // To calculate the time difference of two dates
+                var Difference_In_Time = end_date.getTime() - start_date.getTime();
+                
+                // To calculate the no. of days between two dates
+                var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+
+                console.log(start_date);
+                console.log(end_date);
+                console.log(Difference_In_Days+1);
+
+                var real_duration = Difference_In_Days+1;
+
+                $('#real_duration').val(real_duration).trigger('change');
+                $('[name="real_qty[]"]').val(real_duration).trigger('change');
+            }
+        }
 
         $(document).on('click', '.btn-xhr-submit', function(e) {
             e.preventDefault();
@@ -606,9 +672,14 @@
             window.location.href = url + '/' + current;
         });
 
-        $("#table-document").on("change", ".sel_applied_item_add", function() {
+        $("#table-document").on("change", ".real_total", function() {
             // console.log('test');
             sum_total_real();
+
+        });
+
+        $("#real_duration").on("change", function() {
+            recount_total_real();
 
         });
 
@@ -630,6 +701,23 @@
                 maximumFractionDigits: 2
             });
             $("#total_real").html(currency);
+        }
+
+        function recount_total_real() {
+            var sum = 0
+            $('[name="real_qty[]"]').each(function (key, val) {
+                var val_qty = $(this).val();
+                var amount_budget = $(this).parents('td').siblings('td.amount').children('input').val();
+                var real_total_input = $(this).parents('td').siblings('td.total').children('input');
+                
+                if(val_qty!=''){
+                    console.log(val_qty);
+                    var real_total = parseFloat(val_qty)*parseFloat(amount_budget);                    
+                    real_total_input.val(real_total);
+                }
+                
+            });
+            sum_total_real()
         }
     });
 </script>

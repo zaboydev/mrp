@@ -190,6 +190,9 @@ class Sppd_Model extends MY_Model
             'tb_business_trip_purposes.duration',
             'tb_business_trip_purposes.start_date',
             'tb_business_trip_purposes.end_date',
+            'tb_business_trip_purposes.real_duration',
+            'tb_business_trip_purposes.real_start_date',
+            'tb_business_trip_purposes.real_end_date',
             'tb_business_trip_purposes.user_id',
             'tb_business_trip_purposes.business_trip_destination_id',
             'tb_master_business_trip_destinations.business_trip_destination'
@@ -314,6 +317,10 @@ class Sppd_Model extends MY_Model
         $command_by                     = $_SESSION['sppd']['command_by'];
         $spd_id                         = $_SESSION['sppd']['spd_id'];
         $advance_spd                    = $_SESSION['sppd']['advance'];
+        $real_start_date                = $_SESSION['sppd']['real_start_date'];
+        $real_end_date                  = $_SESSION['sppd']['real_end_date'];
+        $real_duration                  = $_SESSION['sppd']['real_duration'];
+
         $spd                            = $this->findSpdById($spd_id);
         $level                          = getLevelByPosition($occupation);
 
@@ -334,6 +341,9 @@ class Sppd_Model extends MY_Model
 
 
         //update status SPD
+        $this->db->set('real_start_date',$real_start_date);
+        $this->db->set('real_end_date',$real_end_date);
+        $this->db->set('real_duration',$real_duration);
         $this->db->set('status','CLOSED');
         $this->db->where('id', $spd_id);
         $this->db->update('tb_business_trip_purposes');
@@ -356,12 +366,13 @@ class Sppd_Model extends MY_Model
         $qty            = $this->input->post('qty');
         $amount         = $this->input->post('amount');
         $total          = $this->input->post('total');
+        $real_qty            = $this->input->post('real_qty');
         $account_code          = $this->input->post('account_code');
         $total_relisasi = 0;
 
         foreach ($item_ids as $key=>$item_id) {
             $total_relisasi = $total_relisasi+$total[$key];
-            $this->db->set('real_qty', $qty[$key]);
+            $this->db->set('real_qty', $real_qty[$key]);
             $this->db->set('real_amount', $amount[$key]);
             $this->db->set('real_total', $total[$key]);
             $this->db->where('id',$item_id);
@@ -1092,25 +1103,25 @@ class Sppd_Model extends MY_Model
                 $this->connection->set('account_id', $account['id']);
                 $this->connection->set('month_number', $this->budget_month);
                 // $this->connection->set('year_number', $this->budget_year);
-                $this->connection->set('initial_quantity', floatval(0));
+                // $this->connection->set('initial_quantity', floatval(0));
                 $this->connection->set('initial_budget', floatval(0));
-                $this->connection->set('mtd_quantity', floatval(0));
+                //$this->connection->set('mtd_quantity', floatval(0));
                 $this->connection->set('mtd_budget', floatval($item['real_total']));
-                $this->connection->set('mtd_used_quantity', floatval(0));
+                //$this->connection->set('mtd_used_quantity', floatval(0));
                 $this->connection->set('mtd_used_budget', floatval(0));
-                $this->connection->set('mtd_used_quantity_import', floatval(0));
+                //$this->connection->set('mtd_used_quantity_import', floatval(0));
                 $this->connection->set('mtd_used_budget_import', floatval(0));
-                $this->connection->set('mtd_prev_month_quantity', floatval(0));
+                //$this->connection->set('mtd_prev_month_quantity', floatval(0));
                 $this->connection->set('mtd_prev_month_budget', floatval(0));
-                $this->connection->set('mtd_prev_month_used_quantity', floatval(0));
+                //$this->connection->set('mtd_prev_month_used_quantity', floatval(0));
                 $this->connection->set('mtd_prev_month_used_budget', floatval(0));
-                $this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
+                //$this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
                 $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
-                $this->connection->set('ytd_quantity', floatval(0));
+                //$this->connection->set('ytd_quantity', floatval(0));
                 $this->connection->set('ytd_budget', floatval($item['real_total']));
-                $this->connection->set('ytd_used_quantity', floatval(0));
+                //$this->connection->set('ytd_used_quantity', floatval(0));
                 $this->connection->set('ytd_used_budget', floatval(0));
-                $this->connection->set('ytd_used_quantity_import', floatval(0));
+                //$this->connection->set('ytd_used_quantity_import', floatval(0));
                 $this->connection->set('ytd_used_budget_import', floatval(0));
                 $this->connection->set('created_at', date('Y-m-d'));
                 $this->connection->set('created_by', config_item('auth_person_name'));

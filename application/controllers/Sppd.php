@@ -270,6 +270,30 @@ class Sppd extends MY_Controller
         $_SESSION['sppd']['approval_notes'] = $_GET['data'];
     }
 
+    public function set_real_start_date()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['sppd']['real_start_date'] = $_GET['data'];
+    }
+
+    public function set_real_end_date()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['sppd']['real_end_date'] = $_GET['data'];
+    }
+
+    public function set_real_duration()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['sppd']['real_duration'] = $_GET['data'];
+    }
+
     public function set_spd_id($spd_id)
     {
 
@@ -286,6 +310,9 @@ class Sppd extends MY_Controller
         $_SESSION['sppd']['spd_id']                         = $spd_id;
         $_SESSION['sppd']['items']                          = $spd['items'];
         $_SESSION['sppd']['advance']                        = $spd['paid_amount'];
+        $_SESSION['sppd']['real_start_date']                = $spd['start_date'];
+        $_SESSION['sppd']['real_end_date']                  = $spd['end_date'];
+        $_SESSION['sppd']['real_duration']                  = $spd['duration'];
 
         redirect($this->module['route'] . '/create');
     }
@@ -323,6 +350,9 @@ class Sppd extends MY_Controller
             $_SESSION['sppd']['id_number']                     = NULL;
             $_SESSION['sppd']['start_date']                    = NULL;
             $_SESSION['sppd']['end_date']                      = NULL;
+            $_SESSION['sppd']['real_start_date']               = NULL;
+            $_SESSION['sppd']['real_end_date']                 = NULL;
+            $_SESSION['sppd']['real_duration']                 = NULL;
             $_SESSION['sppd']['from_base']                     = NULL;
             $_SESSION['sppd']['transportation']                = NULL;
             $_SESSION['sppd']['command_by']                    = NULL;
