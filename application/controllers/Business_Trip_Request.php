@@ -670,6 +670,25 @@ class Business_Trip_Request extends MY_Controller
             $document_number = $_SESSION['business_trip']['document_number'];
             $errors = array();
 
+            $expense_name   = $this->input->post('expense_name');
+            $qty            = $this->input->post('qty');
+            $amount         = $this->input->post('amount');
+            $total          = $this->input->post('total');
+
+            foreach ($expense_name as $key=>$expense_name_item){
+                if($expense_name_item!=''){
+                    if($qty[$key]==''){
+                        $errors[] = "Kolom Days di SPD Expenses Tidak Boleh Kosong!";
+                    }
+                    if($amount[$key]==''){
+                        $errors[] = "Kolom Amount di SPD Expenses Tidak Boleh Kosong!";
+                    }
+                    if($total[$key]==''){
+                        $errors[] = "Kolom Amount di SPD Expenses Tidak Boleh Kosong!";
+                    }
+                }
+            }
+
             if (!empty($errors)){
                 $data['success'] = FALSE;
                 $data['message'] = implode('<br />', $errors);

@@ -168,17 +168,17 @@
                                                 <?= $n++; ?>
                                             </td>
                                             <td class="expense_name" style="font-weight:500;">
-                                                <input name="expense_name[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['expense_name'];?>" readonly>
-                                                <input name="account_code[]" type="hidden" class="sel_applied form-control input-sm" value="<?=$items['account_code'];?>" readonly>
+                                                <input name="expense_name[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['expense_name'];?>" readonly required>
+                                                <input name="account_code[]" type="hidden" class="sel_applied form-control input-sm" value="<?=$items['account_code'];?>" readonly required>
                                             </td>
                                             <td class="qty" style="font-weight:500;">
-                                                <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>">
+                                                <input name="qty[]" type="text" class="sel_applied form-control input-sm" value="<?=$items['qty'];?>" required>
                                             </td>
                                             <td class="amount" style="font-weight:500;word-wrap:break-word;">
-                                                <input name="amount[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>">
+                                                <input name="amount[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['amount'];?>" required>
                                             </td>
                                             <td class="total" style="font-weight:500;">
-                                                <input name="total[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['total'];?>">
+                                                <input name="total[]" type="text" class="sel_applied form-control number input-sm" value="<?=$items['total'];?>" required>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -265,18 +265,18 @@
                     </a>                     
                 </td>
                 <td class="expense_name item-list">
-                    <input type="text" name="expense_name[]" class="form-control input-sm">
+                    <input type="text" name="expense_name[]" class="form-control input-sm" required>
                 </td>
                 <td class="qty item-list">
-                    <input type="text" name="qty[]" value="<?= $entity['duration']?>" class="form-control input-sm">
+                    <input type="text" name="qty[]" value="<?= $entity['duration']?>" class="form-control input-sm" required>
                 </td>
                 
                 <td class="amount item-list">
-                    <input type="text" name="amount[]" class="form-control number input-sm">
+                    <input type="text" name="amount[]" class="form-control number input-sm" required>
                 </td>
 
                 <td class="total item-list">
-                    <input type="text" name="total[]" class="form-control number input-sm">
+                    <input type="text" name="total[]" class="form-control number input-sm" required>
                 </td>
             </tr>
         </tbody>
