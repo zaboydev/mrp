@@ -46,7 +46,7 @@ class Business_Trip_Request extends MY_Controller
                     $no++;
                     $col = array();
                     if (is_granted($this->module, 'approval')){
-                        if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username')){
+                        if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && $row['head_dept']==config_item('auth_username')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                         }
                         // elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
@@ -669,6 +669,25 @@ class Business_Trip_Request extends MY_Controller
 
             $document_number = $_SESSION['business_trip']['document_number'];
             $errors = array();
+
+            $expense_name   = $this->input->post('expense_name');
+            $qty            = $this->input->post('qty');
+            $amount         = $this->input->post('amount');
+            $total          = $this->input->post('total');
+
+            foreach ($expense_name as $key=>$expense_name_item){
+                if($expense_name_item!=''){
+                    if($qty[$key]==''){
+                        $errors[] = "Kolom Days di SPD Expenses Tidak Boleh Kosong!";
+                    }
+                    if($amount[$key]==''){
+                        $errors[] = "Kolom Amount di SPD Expenses Tidak Boleh Kosong!";
+                    }
+                    if($total[$key]==''){
+                        $errors[] = "Kolom Amount di SPD Expenses Tidak Boleh Kosong!";
+                    }
+                }
+            }
 
             if (!empty($errors)){
                 $data['success'] = FALSE;

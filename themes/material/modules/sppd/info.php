@@ -65,8 +65,11 @@
             <dt>Destination / Kota Tujuan</dt>
             <dd><?=strtoupper($entity['business_trip_destination']);?></dd>
 
-            <dt>Duration / Lama Perjalanan</dt>
+            <dt>Duration / Lama Perjalanan (SPD)</dt>
             <dd><?=$entity['duration'];?> days from <?= print_date($entity['start_date'],'d M Y')?> to <?= print_date($entity['end_date'],'d M Y')?></dd>
+
+            <dt>Real Duration / Lama Perjalanan (SPPD)</dt>
+            <dd><?=$entity['real_duration'];?> days from <?= print_date($entity['real_start_date'],'d M Y')?> to <?= print_date($entity['real_end_date'],'d M Y')?></dd>
 
             <dt>Notes</dt>
             <dd><?=$entity['notes'];?></dd>

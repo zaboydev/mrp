@@ -2161,6 +2161,18 @@ if (!function_exists('currency_for_vendor_list')) {
         if(config_item('as_head_department')=='yes'){
           if(in_array($department_request,config_item('head_department')) && $head_dept==config_item('auth_username')){
             return true;
+          }elseif(in_array(config_item('auth_role'),['HEAD OF SCHOOL','CHIEF OPERATION OFFICER'])){
+            if($head_dept==config_item('auth_username')){
+              return true;
+            }else{
+              return false;
+            }
+          }else{
+            return false;
+          }
+        }elseif(in_array(config_item('auth_role'),['HEAD OF SCHOOL','CHIEF OPERATION OFFICER'])){
+          if($head_dept==config_item('auth_username')){
+            return true;
           }else{
             return false;
           }
@@ -3900,6 +3912,42 @@ if (!function_exists('currency_for_vendor_list')) {
       }
 
       return $notes;
+    }
+  }
+
+  if ( ! function_exists('list_user_approval')) {
+    function list_user_approval($auth_level)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_auth_users.username,tb_auth_users.person_name');
+      $CI->db->from('tb_auth_users');
+      $CI->db->where_in('tb_auth_users.auth_level', $auth_level);
+      $CI->db->order_by('tb_auth_users.username', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array(); 
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getUserByUserName')) {
+    function getUserByUserName($username)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('email');
+      $CI->db->from('tb_auth_users');
+      if(is_array($username)){
+        $CI->db->where_in('tb_auth_users.username',$username);
+      }else{
+        $CI->db->where('tb_auth_users.username',$username);
+      }
+      // $CI->db->where('username', $username);
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
     }
   }
 
