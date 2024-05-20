@@ -1128,7 +1128,13 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->set('payment_status', "EXPENSE REQUEST"); 
         $this->db->set('reference_document', json_encode(['EXP',$document_id,$pr_number,$url_expense]));
         $this->db->where('id', $id);
-        $this->db->update('tb_business_trip_purposes');          
+        $this->db->update('tb_business_trip_purposes');  
+        
+        //update status expense
+        $this->connection->set('status','approved');
+        $this->connection->set('approval_type', 'automatic');
+        $this->connection->where('id',$document_id);
+        $this->connection->update('tb_expense_purchase_requisitions');
 
         if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
             return ['status'=>FALSE,'pr_number'=>$pr_number];
@@ -2124,7 +2130,7 @@ class Business_Trip_Request_Model extends MY_Model
         if($akun_kredit!=NULL){
             $this->db->set('akun_kredit', $akun_kredit->group);
         }
-        $this->db->set('status','WAITING REVIEW BY FIN MNG');
+        $this->db->set('status','WAITING FOR PAYMENT');
         $this->db->set('type',$type);
         $this->db->insert('tb_advance_payments');
         $advance_payment_id = $this->db->insert_id();

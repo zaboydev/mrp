@@ -1102,26 +1102,15 @@ class Sppd_Model extends MY_Model
                 $this->connection->set('annual_cost_center_id', $data['annual_cost_center_id']);
                 $this->connection->set('account_id', $account['id']);
                 $this->connection->set('month_number', $this->budget_month);
-                // $this->connection->set('year_number', $this->budget_year);
-                // $this->connection->set('initial_quantity', floatval(0));
                 $this->connection->set('initial_budget', floatval(0));
-                //$this->connection->set('mtd_quantity', floatval(0));
                 $this->connection->set('mtd_budget', floatval($item['real_total']));
-                //$this->connection->set('mtd_used_quantity', floatval(0));
                 $this->connection->set('mtd_used_budget', floatval(0));
-                //$this->connection->set('mtd_used_quantity_import', floatval(0));
                 $this->connection->set('mtd_used_budget_import', floatval(0));
-                //$this->connection->set('mtd_prev_month_quantity', floatval(0));
                 $this->connection->set('mtd_prev_month_budget', floatval(0));
-                //$this->connection->set('mtd_prev_month_used_quantity', floatval(0));
                 $this->connection->set('mtd_prev_month_used_budget', floatval(0));
-                //$this->connection->set('mtd_prev_month_used_quantity_import', floatval(0));
                 $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
-                //$this->connection->set('ytd_quantity', floatval(0));
                 $this->connection->set('ytd_budget', floatval($item['real_total']));
-                //$this->connection->set('ytd_used_quantity', floatval(0));
                 $this->connection->set('ytd_used_budget', floatval(0));
-                //$this->connection->set('ytd_used_quantity_import', floatval(0));
                 $this->connection->set('ytd_used_budget_import', floatval(0));
                 $this->connection->set('created_at', date('Y-m-d'));
                 $this->connection->set('created_by', config_item('auth_person_name'));
@@ -1191,7 +1180,13 @@ class Sppd_Model extends MY_Model
         $this->db->set('status','EXPENSE REQUEST');
         $this->db->set('reference_document', json_encode(['EXP',$document_id,$pr_number,$url_expense]));
         $this->db->where('id', $id);
-        $this->db->update('tb_sppd');        
+        $this->db->update('tb_sppd');      
+        
+        //update status expense
+        $this->connection->set('status','approved');
+        $this->connection->set('approval_type', 'automatic');
+        $this->connection->where('id',$document_id);
+        $this->connection->update('tb_expense_purchase_requisitions');
 
         if ($this->db->trans_status() === FALSE || $this->connection->trans_status() === FALSE)
             return ['status'=>FALSE,'pr_number'=>$pr_number];
