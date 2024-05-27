@@ -104,6 +104,21 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <br /><?=$entity['signers']['approved by']['person_name'];?>
       </p>
     </td>
+
+    <td valign="top" style="text-align:center;">
+      <p>
+        Approved by
+        <br />HEad of School
+        <br />&nbsp;
+        <?php if ($entity['signers']['review by']['sign']) : ?>
+          <?=print_date($entity['signers']['review by']['date'],'d M Y');?>
+          <br>
+          <img src="<?= base_url('ttd_user/' . $entity['signers']['review by']['sign']); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?=$entity['signers']['review by']['person_name'];?>
+      </p>
+    </td>
   </tr>
 </table>
 <?php endif; ?>
