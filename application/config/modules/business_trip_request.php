@@ -12,12 +12,12 @@ $config['module']['business_trip_request']['helper']      = 'business_trip_reque
 $config['module']['business_trip_request']['table']       = 'tb_business_trip_request';
 $config['module']['business_trip_request']['model']       = 'Business_Trip_Request_Model';
 $config['module']['business_trip_request']['permission']  = array(
-    'index'   => 'ADMIN,SUPER ADMIN,PIC STAFF,CHIEF OPERATION OFFICER',
+    'index'   => 'ADMIN,SUPER ADMIN,PIC STAFF,CHIEF OPERATION OFFICER,HEAD OF SCHOOL',
     'create'  => 'ADMIN,SUPER ADMIN,PIC STAFF',
     'import'  => 'ADMIN,SUPER ADMIN,PIC STAFF',
     'print'   => 'ADMIN,SUPER ADMIN,PIC STAFF,CHIEF OPERATION OFFICER',
-    'info'    => 'ADMIN,SUPER ADMIN,PIC STAFF,CHIEF OPERATION OFFICER',
+    'info'    => 'ADMIN,SUPER ADMIN,PIC STAFF,CHIEF OPERATION OFFICER,HEAD OF SCHOOL',
     'save'    => 'ADMIN,SUPER ADMIN,PIC STAFF',
     'delete'  => 'ADMIN,SUPER ADMIN,PIC STAFF',
-    'approval'  => 'SUPER ADMIN,HEAD OF SCHOOL,CHIEF OPERATION OFFICER',
+    'approval'  => 'SUPER ADMIN,HEAD OF SCHOOL,CHIEF OPERATION OFFICER,HEAD OF SCHOOL',
 );

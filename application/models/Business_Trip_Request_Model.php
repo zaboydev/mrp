@@ -72,20 +72,21 @@ class Business_Trip_Request_Model extends MY_Model
             if($search_status!='all'){
                 $this->db->where('tb_business_trip_purposes.status', $search_status);         
             }          
-        }else{    
-            
+        }else{                
             if (in_array(config_item('auth_username'),config_item('hr_manager'))){                
                 $this->db->where_in('tb_business_trip_purposes.status ', ['WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY HEAD DEPT']);
             }
             elseif (config_item('as_head_department')=='yes'){
-                if(in_array(config_item('auth_role'),['HEAD OF SCHOOL','CHIEF OPERATION OFFICER'])){
+                if(in_array(config_item('auth_role'),['CHIEF OPERATION OFFICER'])){
                     $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
                     $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
+                }elseif(in_array(config_item('auth_role'),['HEAD OF SCHOOL'])){
+                    $this->db->where_in('tb_business_trip_purposes.status ', ['WAITING APPROVAL BY HOS','WAITING APPROVAL BY HEAD DEPT']);
                 }else{
                     $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
                     $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
                 }                
-            }elseif(in_array(config_item('auth_role'),['HEAD OF SCHOOL','CHIEF OPERATION OFFICER'])){
+            }elseif(in_array(config_item('auth_role'),['CHIEF OPERATION OFFICER'])){
                 $this->db->where('tb_business_trip_purposes.status ', 'WAITING APPROVAL BY HEAD DEPT');
                 $this->db->where('tb_business_trip_purposes.head_dept ', config_item('auth_username'));
             }else{
@@ -426,7 +427,7 @@ class Business_Trip_Request_Model extends MY_Model
         $query = $this->db->get();
         $row   = $query->unbuffered_row('array');
 
-        $this->db->set('status','APPROVED');
+        $this->db->set('status','WAITING APPROVAL BY HOS');
         $this->db->set('approved_by',config_item('auth_person_name'));
         $this->db->set('transportation',$this->input->post('transportation'));
         $this->db->set('remarks_transport',$this->input->post('remarks_transport'));
@@ -474,16 +475,17 @@ class Business_Trip_Request_Model extends MY_Model
             
         }
 
-        if($this->input->post('spd_type')=='expense'){
-            $create_next = $this->create_expense($id);
-        }else{
-            $create_next = $this->create_advance($id);
-        }        
+        // if($this->input->post('spd_type')=='expense'){
+        //     $create_next = $this->create_expense($id);
+        // }else{
+        //     $create_next = $this->create_advance($id);
+        // }        
 
         if ($this->db->trans_status() === FALSE || $create_next === FALSE)
             return FALSE;
 
-        // $this->send_mail_approval($id,config_item('auth_person_name'),'approve');            
+        $this->send_mail($document_id, 'hos');
+        // $this->send_mail_approval($document_id,config_item('auth_person_name'),'approve');            
 
         $this->db->trans_commit();
         return TRUE;
@@ -594,8 +596,30 @@ class Business_Trip_Request_Model extends MY_Model
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
 
-            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
-                
+            }elseif($spd['status']=='WAITING APPROVAL BY HOS' && config_item('auth_role')=='HEAD OF SCHOOL'){
+                $this->db->set('status','approved');
+                // $this->db->set('known_by',config_item('auth_person_name'));
+                $this->db->where('id', $id);
+                $this->db->update('tb_business_trip_purposes');
+
+                $this->db->set('document_type','SPD');
+                $this->db->set('document_number',$spd['document_number']);
+                $this->db->set('document_id', $id);
+                $this->db->set('action','review by');
+                $this->db->set('date', date('Y-m-d'));
+                $this->db->set('username', config_item('auth_username'));
+                $this->db->set('person_name', config_item('auth_person_name'));
+                $this->db->set('roles', config_item('auth_role'));
+                $this->db->set('notes', $approval_notes[$x]);
+                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                $this->db->set('created_at', date('Y-m-d H:i:s'));
+                $this->db->insert('tb_signers');
+
+                if($spd->type=='expense'){
+                    $create_next = $this->create_expense($id);
+                }else{
+                    $create_next = $this->create_advance($id);
+                }  
             }
             $total++;
             $success++;
@@ -696,7 +720,10 @@ class Business_Trip_Request_Model extends MY_Model
 
             $recipientList = getNotifRecipient_byUsername($row['head_dept']);
             $atasan = getUserByUserName($row['head_dept']);
-            $keterangan = "Head Dept : " . $department['department_name'];
+            $keterangan = $atasan;
+        }elseif($next_approval=='hos'){
+            $recipientList = getNotifRecipientByRoleLevel(10);
+            $keterangan = 'Head of School';
         }
 
         $recipient = array();

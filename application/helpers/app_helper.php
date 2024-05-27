@@ -3938,7 +3938,7 @@ if (!function_exists('currency_for_vendor_list')) {
     {
       $CI =& get_instance();
 
-      $CI->db->select('email');
+      $CI->db->select('person_name');
       $CI->db->from('tb_auth_users');
       if(is_array($username)){
         $CI->db->where_in('tb_auth_users.username',$username);
@@ -3947,7 +3947,7 @@ if (!function_exists('currency_for_vendor_list')) {
       }
       // $CI->db->where('username', $username);
       $query  = $CI->db->get();
-      $result = $query->result_array();
+      $result = $query->unbuffered_row('array');
       return $result;
     }
   }

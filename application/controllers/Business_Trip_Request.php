@@ -48,6 +48,8 @@ class Business_Trip_Request extends MY_Controller
                     if (is_granted($this->module, 'approval')){
                         if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && $row['head_dept']==config_item('auth_username')){
                             $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                        }elseif($row['status']=='WAITING APPROVAL BY HOS' && config_item('auth_role')=='HEAD OF SCHOOL'){
+                            $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                         }
                         // elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                         //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -79,7 +81,7 @@ class Business_Trip_Request extends MY_Controller
                         
                         $col[] = $approval_notes;
                     }else{
-                        if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
+                        if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY HOS'])) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                         }else{
                             $col[] = $rejected_notes;
