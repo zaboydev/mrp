@@ -125,6 +125,15 @@ class Business_Trip_Request_Model extends MY_Model
         if(is_granted($this->module, 'approval') === FALSE){
             $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
         }
+        if (in_array(config_item('auth_username'),config_item('hr_manager'))){  
+            if(config_item('auth_warehouse')=='JAKARTA'){
+                $this->db->where_in('tb_business_trip_purposes.warehouse', [config_item('auth_warehouse')]);
+            }else{           
+                $this->db->where_not_in('tb_business_trip_purposes.warehouse', ['JAKARTA']);
+            }
+        }else{
+            $this->db->where_in('tb_business_trip_purposes.warehouse', config_item('auth_warehouses'));
+        }
 
         $this->searchIndex();
 
@@ -159,6 +168,15 @@ class Business_Trip_Request_Model extends MY_Model
         if(is_granted($this->module, 'approval') === FALSE){
             $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
         }
+        if (in_array(config_item('auth_username'),config_item('hr_manager'))){                
+            if(config_item('auth_warehouse')=='JAKARTA'){
+                $this->db->where_in('tb_business_trip_purposes.warehouse', [config_item('auth_warehouse')]);
+            }else{           
+                $this->db->where_not_in('tb_business_trip_purposes.warehouse', ['JAKARTA']);
+            }
+        }else{
+            $this->db->where_in('tb_business_trip_purposes.warehouse', config_item('auth_warehouses'));
+        }
 
         $this->searchIndex();
 
@@ -173,6 +191,15 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->from('tb_business_trip_purposes');
         if(is_granted($this->module, 'approval') === FALSE){
             $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
+        }
+        if (in_array(config_item('auth_username'),config_item('hr_manager'))){                
+            if(config_item('auth_warehouse')=='JAKARTA'){
+                $this->db->where_in('tb_business_trip_purposes.warehouse', [config_item('auth_warehouse')]);
+            }else{           
+                $this->db->where_not_in('tb_business_trip_purposes.warehouse', ['JAKARTA']);
+            }
+        }else{
+            $this->db->where_in('tb_business_trip_purposes.warehouse', config_item('auth_warehouses'));
         }
 
         $query = $this->db->get();

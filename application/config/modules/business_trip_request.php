@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['business_trip_request']['visible']         = TRUE;
-$config['module']['business_trip_request']['main_warehouse']   = TRUE;
+$config['module']['business_trip_request']['main_warehouse']   = FALSE;
 $config['module']['business_trip_request']['parent']      = 'perjalanan_dinas';
 $config['module']['business_trip_request']['label']       = 'Surat Perjalanan Dinas';
 $config['module']['business_trip_request']['name']        = 'business_trip_request';
