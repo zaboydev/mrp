@@ -169,12 +169,12 @@
                                     </th>
                                     <!-- <th></th> -->
                                     <th><input type="hidden" value="<?= $_SESSION['payment']['advance_total']; ?>" name="total_advance_amount"></th>
-                                    <th><span id="total_advance"><?= print_number($_SESSION['payment']['advance_total'], 2); ?></span></th>
+                                    <th style="text-align:right;">(<?= number_format($_SESSION['payment']['advance_total'], 2); ?>)</th>
                                     </tr>
                                     <?php endif; ?>   
                                     <tr>
                                     <th></th>
-                                    <th colspan="2">Grandtotal</th>
+                                    <th colspan="2">Balance</th>
                                     <!-- <th></th> -->
                                     <th><input type="hidden" value="<?= (array_sum($amount_paid)-$_SESSION['payment']['advance_total']); ?>" name="grandtotal"></th>
                                     <th><span id="total_general"><?= print_number((array_sum($amount_paid)-$_SESSION['payment']['advance_total']), 2); ?></span></th>
