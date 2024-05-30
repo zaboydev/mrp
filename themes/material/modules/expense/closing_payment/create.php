@@ -218,12 +218,12 @@
                   </th>
                   <!-- <th></th> -->
                   <th><input type="hidden" value="<?= array_sum($total_advance_amount); ?>" name="total_advance_amount"></th>
-                  <th><span id="total_advance"><?= print_number(array_sum($total_advance_amount), 2); ?></span></th>
+                  <th style="text-align:right;"><span id="total_advance">(<?= number_format(array_sum($total_advance_amount), 2); ?>)</span></th>
                 </tr>
                 <?php endif; ?>   
                 <tr>
                   <th></th>
-                  <th>Grandtotal</th>
+                  <th>Balance</th>
                   <!-- <th></th> -->
                   <th><input type="hidden" value="<?= (array_sum($grand_total)-array_sum($total_advance_amount)); ?>" name="grandtotal"></th>
                   <th><span id="total_general"><?= print_number((array_sum($grand_total)-array_sum($total_advance_amount)), 2); ?></span></th>

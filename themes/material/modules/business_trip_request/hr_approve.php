@@ -126,7 +126,7 @@
                                 <div class="form-group">
                                     <label for="type">Type</label>
                                     <div class="radio">
-                                        <input type="radio" name="spd_type" id="advance" value="advance">
+                                        <input type="radio" name="spd_type" id="advance" value="advance" checked>
                                         <label for="advance">
                                         Advance
                                         </label>
