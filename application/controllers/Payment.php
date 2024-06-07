@@ -1349,7 +1349,7 @@ class Payment extends MY_Controller
             foreach ($entity_poe['request'] as $key => $request) {
               if(!in_array($request['inventory_purchase_request_detail_id'],$request_item_ids)){
                 $request_item_ids[] = $request['inventory_purchase_request_detail_id'];
-              }          
+              }                       
             }
           }
         }
