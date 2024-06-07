@@ -3692,7 +3692,7 @@ class Payment_Model extends MY_MODEL
 				$request['items'][$key]['ytd_used_budget'] = $row['ytd_used_budget'];
 				$request['items'][$key]['on_hand_qty'] = $this->tb_on_hand_stock($value['id'])->sum;
 
-				$request['items'][$key]['history']          = $this->getHistory($value['id_cot'],$request['order_number']);
+				$request['items'][$key]['history']          = $this->getHistoryPurchaseRequestMrp($value['id_cot'],$request['order_number']);
 			}
 
 			return $request;
@@ -4036,6 +4036,69 @@ class Payment_Model extends MY_MODEL
 
 		return $num_rows;
 	}
+
+	public function tb_on_hand_stock($prl_item_id)
+	{
+		$this->db->select('sum(on_hand_stock)');
+		$this->db->from('tb_purchase_request_items_on_hand_stock');
+		//tambahan
+		// $this->db->join('tb_stocks', 'tb_stocks.id=tb_stock_in_stores.stock_id');
+		// $this->db->join('tb_master_items', 'tb_master_items.id=tb_stocks.item_id');
+		$this->db->group_by('tb_purchase_request_items_on_hand_stock.prl_item_id');
+		//tambahan
+		$this->db->where('tb_purchase_request_items_on_hand_stock.prl_item_id', $prl_item_id);
+		return $this->db->get('')->row();
+	}
+
+	public function getHistoryPurchaseRequestMrp($id_cot,$order_number)
+  	{
+
+    	// if ($_SESSION['request']['request_to'] == 1){
+        $select = array(
+          'tb_inventory_purchase_requisitions.pr_number',
+          'tb_inventory_purchase_requisitions.pr_date',
+          'tb_inventory_purchase_requisitions.created_by',
+          'tb_inventory_purchase_requisition_details.id',
+          'tb_inventory_purchase_requisition_details.quantity',
+          'tb_inventory_purchase_requisition_details.unit',
+          'tb_inventory_purchase_requisition_details.price',
+          'tb_inventory_purchase_requisition_details.total',
+          'sum(case when tb_purchase_order_items.quantity is null then 0.00 else tb_purchase_order_items.quantity end) as "poe_qty"',  
+          'sum(case when tb_purchase_order_items.total_amount is null then 0.00 else tb_purchase_order_items.total_amount end) as "poe_value"',  
+          'sum(case when tb_po_item.quantity is null then 0.00 else tb_po_item.quantity end) as "po_qty"',  
+          'sum(case when tb_po_item.total_amount is null then 0.00 else tb_po_item.total_amount end) as "po_value"',
+          'sum(case when tb_receipt_items.received_quantity is null then 0.00 else tb_receipt_items.received_quantity end) as "grn_qty"',  
+          'sum(case when tb_receipt_items.received_total_value is null then 0.00 else tb_receipt_items.received_total_value end) as "grn_value"',       
+        );
+
+        $group = array(
+          'tb_inventory_purchase_requisitions.pr_number',
+          'tb_inventory_purchase_requisitions.pr_date',
+          'tb_inventory_purchase_requisitions.created_by',
+          'tb_inventory_purchase_requisition_details.id',
+          'tb_inventory_purchase_requisition_details.quantity',
+          'tb_inventory_purchase_requisition_details.unit',
+          'tb_inventory_purchase_requisition_details.price',
+          'tb_inventory_purchase_requisition_details.total',
+        );
+
+        $this->db->select($select);
+        $this->db->from('tb_inventory_purchase_requisition_details');
+        $this->db->join('tb_inventory_purchase_requisitions', 'tb_inventory_purchase_requisitions.id = tb_inventory_purchase_requisition_details.inventory_purchase_requisition_id');
+        $this->db->join('tb_budget', 'tb_budget.id = tb_inventory_purchase_requisition_details.budget_id', 'left');
+        $this->db->join('tb_purchase_order_items', 'tb_inventory_purchase_requisition_details.id = tb_purchase_order_items.inventory_purchase_request_detail_id','left');
+        $this->db->join('tb_po_item', 'tb_po_item.poe_item_id = tb_purchase_order_items.id','left');
+        $this->db->join('tb_receipt_items', 'tb_receipt_items.purchase_order_item_id = tb_po_item.id','left');
+        $this->db->where('tb_budget.id_cot', $id_cot);
+        $this->db->where('tb_inventory_purchase_requisitions.order_number <',$order_number);
+        $this->db->group_by($group);
+        $query  = $this->db->get();
+        $return = $query->result_array();
+
+        return $return;
+    	// }
+        
+  	}
 }
 
 /* End of file Payment_Model.php */
