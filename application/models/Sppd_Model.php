@@ -162,10 +162,10 @@ class Sppd_Model extends MY_Model
 
     function countIndexFiltered()
     {
-        $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-        $this->db->from('tb_business_trip_purposes');
+        // $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+        $this->db->from('tb_sppd');
         if(is_granted($this->module, 'approval') === FALSE){
-            $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
+            $this->db->where_in('tb_sppd.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
         }
         if (in_array(config_item('auth_username'),config_item('hr_manager'))){  
             if(config_item('auth_warehouse')=='JAKARTA'){
@@ -186,10 +186,10 @@ class Sppd_Model extends MY_Model
 
     public function countIndex()
     {
-        $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-        $this->db->from('tb_business_trip_purposes');
+        // $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+        $this->db->from('tb_sppd');
         if(is_granted($this->module, 'approval') === FALSE){
-            $this->db->where_in('tb_business_trip_purposes.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
+            $this->db->where_in('tb_sppd.annual_cost_center_id', config_item('auth_annual_cost_centers_id'));
         }
         if (in_array(config_item('auth_username'),config_item('hr_manager'))){  
             if(config_item('auth_warehouse')=='JAKARTA'){
