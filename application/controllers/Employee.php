@@ -147,7 +147,7 @@ class Employee extends MY_Controller
                     $form_data = array(
                         'employee_number'           => $this->input->post('employee_number'),
                         'name'                      => $this->input->post('name'),
-                        'user_id'                   => $this->input->post('user_id'),
+                        'user_id'                   => ($this->input->post('user_id')=="")? NULL:$this->input->post('user_id'),
                         'date_of_birth'             => $this->input->post('date_of_birth'),
                         'gender'                    => $this->input->post('gender'),
                         'religion'                  => $this->input->post('religion'),
@@ -156,6 +156,7 @@ class Employee extends MY_Controller
                         'email'                     => $this->input->post('email'),
                         'address'                   => $this->input->post('address'),
                         'position'                  => $this->input->post('position'),
+                        'department_id'             => $this->input->post('department_id'),
                         'plafon_biaya_dinas'        => $this->input->post('plafon_biaya_dinas'),
                         'plafon_biaya_kesehatan'    => $this->input->post('plafon_biaya_kesehatan'),
                         'cuti'                      => $this->input->post('cuti'),
