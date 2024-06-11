@@ -63,8 +63,8 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
   <tr>
     <td valign="top" style="text-align:center;">
       <p>
-        Requested by
-        <br />Employee<br />
+        Prepared by
+        <br />&nbsp;<br />
         <?php if ($entity['signers']['requested by']['sign']) : ?>
           <?=print_date($entity['signers']['requested by']['date'],'d M Y');?>
           <br>
