@@ -747,7 +747,7 @@ class Business_Trip_Request_Model extends MY_Model
 
             $recipientList = getNotifRecipient_byUsername($row['head_dept']);
             $atasan = getUserByUserName($row['head_dept']);
-            $keterangan = $atasan;
+            $keterangan = $atasan['person_name'];
         }elseif($next_approval=='hos'){
             $recipientList = getNotifRecipientByRoleLevel(10);
             $keterangan = 'Head of School';
