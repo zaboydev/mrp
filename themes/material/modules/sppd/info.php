@@ -145,7 +145,7 @@
                 <th></th>
                 <th></th>
                 <th></th>
-                <th><?=print_number((array_sum($total)-$entity['advance_spd']), 2);?></th>
+                <th><?=print_number((array_sum($total_real)-$entity['advance_spd']), 2);?></th>
               </tr>
             </tfoot>
           </table>
