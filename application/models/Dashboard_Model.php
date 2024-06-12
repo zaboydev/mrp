@@ -810,6 +810,8 @@ class Dashboard_Model extends MY_Model
 
     if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
       $status = 'WAITING APPROVAL BY HR MANAGER';
+    }elseif(config_item('auth_role')=='HEAD OF SCHOOL'){
+      $status = 'WAITING APPROVAL BY HOS';
     }
 
     $this->db->from('tb_business_trip_purposes');
