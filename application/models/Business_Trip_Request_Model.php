@@ -2328,11 +2328,11 @@ class Business_Trip_Request_Model extends MY_Model
         $return = 0;
 
         foreach ($query->result_array() as $spd){
-            if($start_date<=$spd['start_date'] || $start_date<=$spd['end_date']){
+            if($start_date>=$spd['start_date'] && $start_date<=$spd['end_date']){
                 $return++;
             }
 
-            if($end_date<=$spd['start_date'] || $end_date<=$spd['end_date']){
+            if($end_date>=$spd['start_date'] && $end_date<=$spd['end_date']){
                 $return++;
             }
         }
