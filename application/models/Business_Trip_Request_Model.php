@@ -2200,7 +2200,7 @@ class Business_Trip_Request_Model extends MY_Model
         $this->db->set('date', date('Y-m-d'));
         $this->db->set('username', config_item('auth_username'));
         $this->db->set('person_name', config_item('auth_person_name'));
-        $this->db->set('roles', 'HR MANAGER');
+        $this->db->set('roles', config_item('auth_role'));
         $this->db->set('notes', NULL);
         $this->db->set('sign', get_ttd(config_item('auth_person_name')));
         $this->db->set('created_at', date('Y-m-d H:i:s'));
