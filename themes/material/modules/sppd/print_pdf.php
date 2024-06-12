@@ -64,6 +64,7 @@
     <tbody id="table_contents">
         <?php $n = 1;?>
         <?php $total = array();?>
+        <?php $total_real = array();?>
         <?php foreach ($entity['items'] as $item) :?>
         <tr>
             <td><?=$n++;?></td>
@@ -73,6 +74,7 @@
             <td style="text-align:right;"><?=print_number($item['real_total'],2)?></td>
         </tr>
         <?php $total[] = $item['total'];?>
+        <?php $total_real[] = $item['real_total'];?>
         <?php endforeach;?>
     </tbody>
     <tfoot>
@@ -81,7 +83,7 @@
             <th></th>
             <th></th>
             <th></th>
-            <th><?=print_number(array_sum($total), 2);?></th>
+            <th><?=print_number(array_sum($total_real), 2);?></th>
         </tr>
         <tr>
             <th>Advance SPD</th>
@@ -95,7 +97,7 @@
             <th></th>
             <th></th>
             <th></th>
-            <th><?=print_number((array_sum($total)-$entity['advance_spd']), 2);?></th>
+            <th><?=print_number((array_sum($total_real)-$entity['advance_spd']), 2);?></th>
         </tr>
     </tfoot>
 </table>
