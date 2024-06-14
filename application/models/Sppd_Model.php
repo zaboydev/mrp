@@ -946,7 +946,7 @@ class Sppd_Model extends MY_Model
         
     }
 
-    public function listAttachment($id,$tipe='SPD')
+    public function listAttachment($id,$tipe='SPPD')
     {
         $this->db->where('id_poe', $id);
         $this->db->where('tipe', $tipe);

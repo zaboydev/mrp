@@ -925,11 +925,11 @@ class Sppd extends MY_Controller
         }
     }
 
-    public function delete_attachment_in_db($id_att, $id_poe, $tipe='SPD')
+    public function delete_attachment_in_db($id_att, $id_poe, $tipe='SPPD')
     {
         $this->model->delete_attachment_in_db($id_att);
 
-        if ($tipe=='SPD') {
+        if ($tipe=='SPPD') {
             redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
         }else{
             redirect($this->module['route'] . "/manage_attachment_detail/" . $id_poe, 'refresh');
