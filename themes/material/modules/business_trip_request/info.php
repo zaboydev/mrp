@@ -93,7 +93,7 @@
             <thead id="table_header">
               <tr>
                 <th>No</th>
-                <th>Description</th>
+                <th>Budget Description</th>
                 <th style="text-align:center;">Days</th>
                 <th style="text-align:right;">Amount</th>
                 <th style="text-align:right;">Total</th>
@@ -126,7 +126,8 @@
         </div>
       </div>
     </div>
-    <?php endif;?>
+    <p><strong>Note: Ticket tidak termasuk</strong></p>
+    <?php endif;?>    
   </div>
 
     <div class="card-foot">
