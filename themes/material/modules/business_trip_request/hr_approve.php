@@ -184,7 +184,7 @@
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
-                                <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction number">
+                                <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction number hide">
                                     Add
                                 </button>
                             </div>
