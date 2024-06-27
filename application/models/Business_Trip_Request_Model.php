@@ -39,9 +39,9 @@ class Business_Trip_Request_Model extends MY_Model
     public function getSearchableColumns()
     {
         return array(
-            'business_trip_destination',
-            'code',
-            'notes',
+            'tb_business_trip_purposes.document_number',
+            'tb_business_trip_purposes.person_name',
+            'tb_business_trip_purposes.notes',
         );
     }
 
