@@ -844,7 +844,7 @@ class Dashboard_Model extends MY_Model
     $query = $this->db->get();
     $count_as_role = $query->num_rows();
 
-    if(config_item('as_head_department')=='yes'){
+    if(config_item('as_head_department')=='yes' || in_array(config_item('auth_role'),['CHIEF OPERATION OFFICER','HEAD OF SCHOOL'])){
       $this->db->from('tb_sppd');
       $this->db->where_in('tb_sppd.status', ['WAITING APPROVAL BY HEAD DEPT']);
       $this->db->where('tb_sppd.head_dept', config_item('auth_username'));

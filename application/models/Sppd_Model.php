@@ -84,8 +84,20 @@ class Sppd_Model extends MY_Model
                 $this->db->where_in('tb_sppd.status ', ['WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY HEAD DEPT']);
             }
             elseif (config_item('as_head_department')=='yes'){
+                if(in_array(config_item('auth_role'),['CHIEF OPERATION OFFICER'])){
+                    $this->db->where('tb_sppd.status ', 'WAITING APPROVAL BY HEAD DEPT');
+                    $this->db->where('tb_sppd.head_dept ', config_item('auth_username'));
+                }elseif(in_array(config_item('auth_role'),['HEAD OF SCHOOL'])){
+                    $this->db->where_in('tb_sppd.status ', ['WAITING APPROVAL BY HOS','WAITING APPROVAL BY HEAD DEPT']);
+                }else{
+                    $this->db->where('tb_sppd.status ', 'WAITING APPROVAL BY HEAD DEPT');
+                    $this->db->where('tb_sppd.head_dept ', config_item('auth_username'));
+                }
+            }elseif(in_array(config_item('auth_role'),['CHIEF OPERATION OFFICER'])){
                 $this->db->where('tb_sppd.status ', 'WAITING APPROVAL BY HEAD DEPT');
                 $this->db->where('tb_sppd.head_dept ', config_item('auth_username'));
+            }else{
+                $this->db->where_not_in('tb_sppd.status ', ['REVISED']);
             }
         }
 
@@ -600,7 +612,7 @@ class Sppd_Model extends MY_Model
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
 
-            if($sppd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $sppd['head_dept']==config_item('auth_username')){
+            if($sppd['status']=='WAITING APPROVAL BY HEAD DEPT' && $sppd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
                 $this->db->set('known_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
@@ -618,6 +630,8 @@ class Sppd_Model extends MY_Model
                 $this->db->set('sign', get_ttd(config_item('auth_person_name')));
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
+
+                $this->send_mail($id, 'hr_manager');
 
             }elseif($sppd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                 $this->db->set('status','APPROVED');
@@ -653,7 +667,6 @@ class Sppd_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
-        $this->send_mail($document_id, 'hr_manager');
         $this->send_mail_approval($document_id,config_item('auth_person_name'),'approve');
 
         $this->db->trans_commit();
@@ -775,6 +788,9 @@ class Sppd_Model extends MY_Model
                 'tb_business_trip_purposes.document_number as spd_number',
                 'tb_business_trip_purposes.date as spd_date',
                 'tb_business_trip_purposes.person_name',
+                'tb_business_trip_purposes.start_date',
+                'tb_business_trip_purposes.end_date',
+                'tb_business_trip_purposes.from_base',
                 'tb_master_business_trip_destinations.business_trip_destination'
             );
             $this->db->select($selected);
@@ -847,6 +863,9 @@ class Sppd_Model extends MY_Model
             'tb_business_trip_purposes.document_number as spd_number',
             'tb_business_trip_purposes.date as spd_date',
             'tb_business_trip_purposes.person_name',
+            'tb_business_trip_purposes.start_date',
+            'tb_business_trip_purposes.end_date',
+            'tb_business_trip_purposes.from_base',
             'tb_master_business_trip_destinations.business_trip_destination'
         );
         $this->db->select($selected);
