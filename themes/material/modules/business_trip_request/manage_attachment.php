@@ -37,7 +37,7 @@
                     <?php $n++;?>
                     <tr>
                     <td><?=$n?></td>
-                    <td><a href="<?=site_url('dashboard/open_attachment/' . $detail['id'].'/budgetcontrol')?>" target="_blank"><?=$detail['file'];?></a></td>
+                    <td><a href="<?=site_url('dashboard/open_attachment/' . $detail['id'].'/mrp')?>" target="_blank"><?=$detail['file'];?></a></td>
                     <td>                    
                         <a href="<?=site_url($module['route'] .'/delete_attachment_in_db/'. $detail['id'].'/'.$id);?>" style="color: red" class="btn-delete-att">
                             <i class="fa fa-trash"></i>
