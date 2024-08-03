@@ -1172,7 +1172,7 @@ class Sppd_Model extends MY_Model
                 $this->connection->set('year_number', $this->budget_year);
                 $this->connection->set('amount', $item['real_total']);
                 $this->connection->set('previous_budget', 0);
-                $this->connection->set('new_budget', $item[['real_total']]);
+                $this->connection->set('new_budget', $item['real_total']);
                 $this->connection->set('created_at', date('Y-m-d'));
                 $this->connection->set('created_by', config_item('auth_person_name'));
                 $this->connection->set('notes', NULL);

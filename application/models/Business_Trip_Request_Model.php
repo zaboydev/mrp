@@ -658,8 +658,8 @@ class Business_Trip_Request_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
-        $this->send_mail($document_id, 'hr_manager');
-        $this->send_mail_approval($document_id,config_item('auth_person_name'),'approve');
+        // $this->send_mail($document_id, 'hr_manager');
+        // $this->send_mail_approval($document_id,config_item('auth_person_name'),'approve');
 
         $this->db->trans_commit();
         return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
