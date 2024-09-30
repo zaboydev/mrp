@@ -1,0 +1,31 @@
+FROM php:5.6-apache
+
+# Ubah source list ke archive debian karena paket yang lama tidak tersedia
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org|archive.debian.org|g' /etc/apt/sources.list && \
+    sed -i '/stretch-updates/d' /etc/apt/sources.list && \
+    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
+
+# Enable mod_rewrite
+RUN a2enmod rewrite
+
+# Install nano dan ekstensi PHP yang dibutuhkan
+RUN apt-get update && apt-get install -y nano libpng-dev libjpeg-dev libfreetype6-dev libmcrypt-dev libpq-dev && apt-get clean
+
+# Install ekstensi tambahan jika diperlukan
+RUN docker-php-ext-install pdo pdo_pgsql pgsql
+
+# Tambahkan DirectoryIndex agar Apache mencari file index.php atau index.html
+RUN echo "DirectoryIndex index.php index.html" >> /etc/apache2/apache2.conf
+
+# Copy aplikasi Anda ke dalam container
+COPY ./ /var/www/html
+
+# Set izin untuk direktori aplikasi
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
+# Expose port 80
+EXPOSE 80
+
+# Jalankan Apache di foreground
+CMD ["apache2-foreground"]

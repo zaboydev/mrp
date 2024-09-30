@@ -115,6 +115,8 @@ switch (ENVIRONMENT)
  * NO TRAILING SLASH!
  */
 	$application_folder = 'application';
+	date_default_timezone_set('Asia/Jakarta');
+
 
 /*
  *---------------------------------------------------------------

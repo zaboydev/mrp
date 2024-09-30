@@ -31,7 +31,7 @@ class MY_Controller extends CI_Controller
 
     $this->load->helper('form');
     $this->load->helper('date');
-    $this->load->model('app_model', '_model');
+    $this->load->model('App_Model', '_model');
 
     $this->modules        = config_item('module');
     $this->main_warehouse = $this->main_warehouse();
