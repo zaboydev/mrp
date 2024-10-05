@@ -10,10 +10,14 @@ RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
     echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
 
 RUN a2enmod rewrite
+
+
+
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Install necessary packages and PHP extensions
 RUN apt-get update && apt-get install -y \
+    apache2-utils \
     nano \
     libbz2-dev \
     libcurl4-openssl-dev \
@@ -38,6 +42,8 @@ RUN apt-get update && apt-get install -y \
 # Set the DocumentRoot for Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html
 
+RUN a2enmod rewrite speling
+
 # Update Apache configuration to allow .htaccess files
 RUN echo "<Directory /var/www/html/>\n\
     Options Indexes FollowSymLinks\n\
@@ -54,6 +60,7 @@ COPY ./ /var/www/html
 
 # Set permissions for the application directory
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
 
 # Expose port 80
 EXPOSE 80
