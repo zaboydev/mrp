@@ -215,6 +215,7 @@ class Reimbursement_Model extends MY_Model
         // DELETE OLD DOCUMENT
         if (isset($_SESSION['reimbursement']['id'])) {
             $id = $_SESSION['reimbursement']['id'];
+            $date = $_SESSION['reimbursement']['date'];
 
             $this->db->select('*');
             $this->db->where('id', $id);
@@ -635,7 +636,8 @@ class Reimbursement_Model extends MY_Model
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT'){
                 $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
                 $this->db->set('validated_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
@@ -655,7 +657,9 @@ class Reimbursement_Model extends MY_Model
                 $this->db->insert('tb_signers');
                 $send_email_to = 'hr_manager';
 
-            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+            // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+
                 $this->db->set('status','WAITING APPROVAL BY FINANCE MANAGER');
                 $this->db->set('hr_approved_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
@@ -674,7 +678,8 @@ class Reimbursement_Model extends MY_Model
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
                 $send_email_to = 'finance_manager';
-            }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
+            // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
+            }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
                 $this->db->set('status','APPROVED');
                 $this->db->set('finance_approved_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);

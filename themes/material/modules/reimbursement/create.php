@@ -116,38 +116,35 @@
                             <th>Amount</th>
                         </tr>
                     </thead>
-                <tbody>
-                    <?php $total = array();?>
-                <?php foreach ($_SESSION['reimbursement']['items'] as $i => $items) : ?>
-                    <tr id="row_<?= $i; ?>">
-                        <td>
+                    <tbody>
+                        <?php $total = array(); ?>
 
-                            <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
-                                <i class="fa fa-trash"></i>
-                            </a>
-                            <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?= $i; ?>}'>
-                                <i class="fa fa-edit"></i>
-                            </a>
-                        </td>
+                        <?php if (!empty($_SESSION['reimbursement']['items'])): ?>
+                            <?php foreach ($_SESSION['reimbursement']['items'] as $i => $items): ?>
+                                <tr id="row_<?= $i; ?>">
+                                    <td>
+                                        <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                        <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?= $i; ?>}'>
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    </td>
 
-                        <td>
-                            <?= $items['description']; ?>
-                        </td>
+                                    <td><?= $items['description']; ?></td>
+                                    <td><?= $items['transaction_date']; ?></td>
+                                    <td><?= $items['notes']; ?></td>
+                                    <td><?= number_format($items['amount'], 2); ?></td>
 
-                        <td>
-                            <?= $items['transaction_date']; ?>
-                        </td>
-                        <td>
-                            <?= $items['notes']; ?>
-                        </td>
-                        
-                        <td>
-                            <?= number_format($items['amount'],2); ?>
-                        </td>
-                        <?php $total[] = $items['amount'];?>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
+                                    <?php $total[] = $items['amount']; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center">No items available</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
                 <tfoot>
                     <tr>
                         <th></th>
