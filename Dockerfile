@@ -56,7 +56,7 @@ RUN echo "<Directory /var/www/html/>\n\
 RUN echo "DirectoryIndex index.php index.html" >> /etc/apache2/apache2.conf
 
 # Copy your application files into the container
-COPY ./ /var/www/html
+# COPY ./ /var/www/html
 
 # Set permissions for the application directory
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html

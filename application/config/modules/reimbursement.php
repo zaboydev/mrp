@@ -1,8 +1,8 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['module']['reimbursement']['visible']         = FALSE;
+$config['module']['reimbursement']['visible']         = true;
 $config['module']['reimbursement']['main_warehouse']   = FALSE;
-$config['module']['reimbursement']['parent']      = 'perjalanan_dinas';
+$config['module']['reimbursement']['parent']      = 'reimbursment';
 $config['module']['reimbursement']['label']       = 'Reimbursement';
 $config['module']['reimbursement']['name']        = 'reimbursement';
 $config['module']['reimbursement']['route']       = 'reimbursement';
@@ -19,5 +19,5 @@ $config['module']['reimbursement']['permission']  = array(
     'info'    => 'ADMIN,SUPER ADMIN,HR MANAGER,HEAD OF SCHOOL,FINANCE MANAGER',
     'save'    => 'ADMIN,SUPER ADMIN',
     'delete'  => 'ADMIN,SUPER ADMIN',
-    'approval'  => 'SUPER ADMIN,FINANCE MANAGER',
+    'approval'  => 'SUPER ADMIN,HR MANAGER,FINANCE MANAGER',
 );

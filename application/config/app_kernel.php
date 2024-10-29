@@ -54,6 +54,10 @@ $config['parent']['finance_report']['icon']   = 'fa fa-money';
 $config['parent']['perjalanan_dinas']['label']  = 'Perjalanan Dinas';
 $config['parent']['perjalanan_dinas']['icon']   = 'fa fa-road';
 
+
+$config['parent']['reimbursment']['label']  = 'Reimbursement';
+$config['parent']['reimbursment']['icon']   = 'fa fa-ticket';
+
 $config['module'] = array();
 
 

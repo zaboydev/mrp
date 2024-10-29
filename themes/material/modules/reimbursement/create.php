@@ -450,7 +450,9 @@
         $('[data-provide="datepicker"]').datepicker({
             autoclose: true,
             todayHighlight: true,
-            format: 'dd-mm-yyyy',
+            format: 'yyyy-mm-dd',
+            startDate: today,
+            // endDate: last_opname
         });
 
         $('[data-provide="daterange"]').daterangepicker({

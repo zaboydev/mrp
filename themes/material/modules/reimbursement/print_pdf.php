@@ -36,6 +36,43 @@
 
 <div class="clear"></div>
 
+<table class="table table-striped table-nowrap">
+    <thead id="table_header">
+        <tr>
+            <th colspan="4">Realization</th>
+        </tr>
+        <tr>
+            <th>No</th>
+            <th>Expense Detail</th>
+            <th style="text-align:right;">Date</th>
+            <th style="text-align:right;">Amount</th>
+        </tr>
+    </thead>
+    <tbody id="table_contents">
+        <?php $n = 1;?>
+        <?php $total = array();?>
+        <?php $total_real = array();?>
+        <?php foreach ($entity['items'] as $item) :?>
+        <tr>
+            <td><?=$n++;?></td>
+            <td><?=print_string($item['description']);?></td>
+            <td style="text-align:right;"><?=print_date($item['transaction_date']);?></td>
+            <td style="text-align:right;"><?=print_number($item['amount'],2);?></td>
+        </tr>
+        <?php $total[] = $item['amount'];?>
+        <?php endforeach;?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Total Claim</th>
+            <th></th>
+            <th></th>
+            <th style="text-align:right;"><?=print_number(array_sum($total), 2);?></th>
+        </tr>
+        
+    </tfoot>
+</table>
+
 <?php if ($entity['signers']['rejected by']['person_name']) : ?>
 Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=print_date($entity['signers']['rejected by']['date'],'d M Y');?>
 <?php endif; ?>
@@ -104,3 +141,5 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
   </tr>
 </table>
 <?php endif; ?>
+
+

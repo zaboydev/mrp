@@ -228,7 +228,7 @@ class Reimbursement_Model extends MY_Model
             $this->db->update('tb_reimbursements');
 
             $this->db->set('document_type','RF');
-            $this->db->set('document_number',$row['document_number']);
+            $this->db->set('document_number',12323);
             $this->db->set('document_id', $id);
             $this->db->set('action','revised by');
             $this->db->set('date', $date);

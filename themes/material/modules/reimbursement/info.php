@@ -48,7 +48,7 @@
               <dd><?=($entity['rejected_by']==null)? 'N/A':print_string($entity['rejected_by']);?></dd>
             <?php else:?>
               <dt>Validated By</dt>
-              <dd><?=($entity['validated_by']==null)? 'N/A':print_string($entity['knvalidated_byown_by']);?></dd>
+              <dd><?=($entity['validated_by']==null)? 'N/A':print_string($entity['validated_by']);?></dd>
 
               <dt>HR Approved By</dt>
               <dd><?=($entity['hr_approved_by']==null)? 'N/A':print_string($entity['hr_approved_by']);?></dd>
@@ -74,6 +74,9 @@
 
             <dt>Requested By</dt>
             <dd><?=strtoupper($entity['request_by']);?></dd>
+
+
+            
         </dl>
       </div>
     </div>
