@@ -726,16 +726,17 @@ class Reimbursement_Model extends MY_Model
         $success    = 0;
         $failed     = sizeof($document_id);
         $x          = 0;
+        $send_email_to = NULL;
 
         foreach ($document_id as $id) {
             $selected = array(
-                'tb_business_trip_purposes.*',
-                'tb_master_business_trip_destinations.business_trip_destination'
+                'tb_reimbursements.*',
+                // 'tb_master_business_trip_destinations.business_trip_destination'
             );
             $this->db->select($selected);
-            $this->db->where('tb_business_trip_purposes.id', $id);
-            $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
-            $query      = $this->db->get('tb_business_trip_purposes');
+            $this->db->where('tb_reimbursements.id', $id);
+            // $this->db->join('tb_master_business_trip_destinations', 'tb_master_business_trip_destinations.id = tb_business_trip_purposes.business_trip_destination_id');
+            $query      = $this->db->get('tb_reimbursements');
             $spd        = $query->unbuffered_row('array');
 
             $cost_center = findCostCenter($spd['annual_cost_center_id']);
@@ -743,16 +744,17 @@ class Reimbursement_Model extends MY_Model
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
-                $this->db->set('status','REJECTED');
-                $this->db->set('rejected_by',config_item('auth_person_name'));
+            // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT'){
+                $this->db->set('status','REJECT');
+                $this->db->set('validated_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
-                $this->db->update('tb_business_trip_purposes');
+                $this->db->update('tb_reimbursements');
 
-                $this->db->set('document_type','SPD');
+                $this->db->set('document_type','RF');
                 $this->db->set('document_number',$spd['document_number']);
                 $this->db->set('document_id', $id);
-                $this->db->set('action','rejected by');
+                $this->db->set('action','validated by');
                 $this->db->set('date', date('Y-m-d'));
                 $this->db->set('username', config_item('auth_username'));
                 $this->db->set('person_name', config_item('auth_person_name'));
@@ -761,9 +763,14 @@ class Reimbursement_Model extends MY_Model
                 $this->db->set('sign', get_ttd(config_item('auth_person_name')));
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
+                $send_email_to = 'hr_manager';
 
-            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(list_user_in_head_department($cost_center['department_id']),config_item('auth_username'))){
-                
+            // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+
+            // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
+            }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
+              
             }
             $total++;
             $success++;
@@ -775,7 +782,10 @@ class Reimbursement_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
-        // $this->send_mail($document_id, 'hr_manager');
+        if($send_email_to!=NULL){
+            $this->send_mail($document_id, $send_email_to);
+        }
+        
 
         $this->db->trans_commit();
         return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
