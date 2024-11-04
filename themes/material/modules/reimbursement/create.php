@@ -121,6 +121,7 @@
 
                         <?php if (!empty($_SESSION['reimbursement']['items'])): ?>
                             <?php foreach ($_SESSION['reimbursement']['items'] as $i => $items): ?>
+                                <?php $total[] = $items['amount']; ?>
                                 <tr id="row_<?= $i; ?>">
                                     <td>
                                         <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
@@ -136,7 +137,7 @@
                                     <td><?= $items['notes']; ?></td>
                                     <td><?= number_format($items['amount'], 2); ?></td>
 
-                                    <?php $total[] = $items['amount']; ?>
+                                    
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
@@ -196,7 +197,7 @@
 
                 <?= form_open(site_url($module['route'] . '/add_item'), array(
                     'autocomplete' => 'off',
-                    'id'    => 'ajax-form-create-document',
+                    'item_id'    => 'ajax-form-create-document',
                     'class' => 'form form-validate ui-front',
                     'role'  => 'form'
                 )); ?>
@@ -575,20 +576,38 @@
             $(buttonSubmitDocument).attr('disabled', false);            
         });
 
+       
+
         $(buttonDeleteDocumentItem).on('click', function(e) {
             e.preventDefault();
 
             var url = $(this).attr('href');
             var tr = $(this).closest('tr');
 
-            $.get(url);
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function(response) {
+                    var data = JSON.parse(response);
 
-            $(tr).remove();
+                    // Remove the row from the table
+                    $(tr).remove();
 
-            if ($("#table-document > tbody > tr").length == 0) {
-                $(buttonSubmit).attr('disabled', true);
-            }
+                    // Update the total in the footer
+                    $('#total').val(data.total);
+                    $('#table-document tfoot th:last').text(data.total.toFixed(2));
+
+                    // Check if table is empty
+                    if ($("#table-document > tbody > tr").length == 0) {
+                        $(buttonSubmit).attr('disabled', true);
+                    }
+                },
+                error: function() {
+                    alert('Failed to delete the item.');
+                }
+            });
         });
+
 
         $(autosetInputData).on('change', function() {
             var val = $(this).val();
@@ -714,7 +733,7 @@
                 data: data_send,
                 dataType: "JSON",
                 success: function(response) {
-                    var action = "<?=site_url($module['route'] .'/edit_item')?>";
+                    var action = "<?=site_url($module['route'] .'/edit_item')?>/" + id;
                     console.log(JSON.stringify(response));
                     $('[name="description"]').val(response.description);
                     $('[name="date"]').val(response.transaction_date);

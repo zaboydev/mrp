@@ -39,17 +39,23 @@ class Reimbursement extends MY_Controller
                 $no++;
                 $col = array();
                 if (is_granted($this->module, 'approval')){
-                    // if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
-                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    // }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
-                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    // }elseif($row['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
-                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    // }else{
-                    //     $col[] = print_number($no);
-                    // }   
+                    if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-
+                    }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }elseif($row['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    }elseif($row['status']=='REVISED'){
+                        $col[] = print_number($no);
+                    }else {
+                        $col[] = print_number($no);
+                    }
+                    
+                    // if($row['status']=='REVISED'){
+                    //     $col[] = print_number($no);
+                    // } else {
+                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    // }
                 }else{
                     $col[] = print_number($no);
                 }            
@@ -251,7 +257,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['occupation']                = NULL;
             $_SESSION['reimbursement']['department_name']           = $department_name;
             $_SESSION['reimbursement']['head_dept']                 = NULL;
-            $_SESSION['reimbursement']['type']                      = 'Duty Allowance';
+            $_SESSION['reimbursement']['type']                      = 'Reimbursement';
             $_SESSION['reimbursement']['saldo_balance']             = 0;
             $_SESSION['reimbursement']['employee_has_benefit_id']   = NULL;
             $_SESSION['reimbursement']['account_code']   = NULL;
@@ -316,7 +322,7 @@ class Reimbursement extends MY_Controller
         $entity = $this->model->findById($id);
 
         $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
-        $format_number      = substr($entity['document_number'], 6, 21);
+        $format_number      = substr($entity['document_number'], 6, 25);
         $revisi             = get_count_revisi($document_number.$format_number,'REIMBURSEMENT');
 
         if (isset($_SESSION['receipt']) === FALSE){
@@ -333,8 +339,8 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']                              = $entity;
             $_SESSION['reimbursement']['id']                        = $id;
             $_SESSION['reimbursement']['edit']                      = $entity['document_number'];
-            $_SESSION['reimbursement']['document_number']           = $document_number;
-            $_SESSION['reimbursement']['format_number']             = $format_number.'-R'.$revisi;
+            $_SESSION['reimbursement']['document_number']           = $document_number.'-R'.$revisi;
+            $_SESSION['reimbursement']['format_number']             = $format_number;
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
             $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond']+$entity['total'];
@@ -453,13 +459,14 @@ class Reimbursement extends MY_Controller
         echo json_encode($entity);
     }
 
-    public function edit_item()
+    public function edit_item($key)
     {
+        
         $this->authorized($this->module, 'create');
 
-        $key=$this->input->post('item_id');
+        // $key=$this->input->post('item_id');
         if (isset($_POST) && !empty($_POST)){
-            //$receipts_items_id = $this->input->post('item_id')
+            // $receipts_items_id = $this->input->post('item_id')
             $_SESSION['reimbursement']['items'][$key] = array(        
                 'description'       => $this->input->post('description'),
                 'transaction_date'  => $this->input->post('date'),
@@ -467,18 +474,24 @@ class Reimbursement extends MY_Controller
                 'amount'            => $this->input->post('amount'),
 
             );
-        }
+        } 
         redirect($this->module['route'] .'/create');
 
     }
 
-    public function del_item($key)
-    {
-        if ($this->input->is_ajax_request() === FALSE)
-            redirect($this->modules['secure']['route'] .'/denied');
-
-        if (isset($_SESSION['reimbursement']['items']))
-            unset($_SESSION['reimbursement']['items'][$key]);
+    public function del_item($item_index) {
+        if (isset($_SESSION['reimbursement']['items'][$item_index])) {
+            // Delete the item
+            unset($_SESSION['reimbursement']['items'][$item_index]);
+    
+            // Recalculate the total
+            $total = array_sum(array_column($_SESSION['reimbursement']['items'], 'amount'));
+    
+            // Return the new total in JSON format
+            echo json_encode(['total' => $total]);
+        } else {
+            echo json_encode(['total' => 0]);
+        }
     }
 
     public function multi_approve()
@@ -500,10 +513,26 @@ class Reimbursement extends MY_Controller
 
         $save_approval = $this->model->approve($document_id, $notes);
         if ($save_approval['status']) {
-            $this->session->set_flashdata('alert', array(
-                'type' => 'success',
-                'info' => $save_approval['success'] . " data has been update!"
-            ));
+
+            
+                if(!empty($save_approval['approved_ids'])){
+                    foreach ($save_approval['approved_ids'] as $id) {
+
+                        $this->model->create_expense_auto($id);
+                        
+                    }
+                    $this->session->set_flashdata('alert', array(
+                        'type' => 'success',
+                        'info' => $save_approval['success'] . " expense has been create!"
+                    ));
+                } else {
+                    $this->session->set_flashdata('alert', array(
+                        'type' => 'success',
+                        'info' => $save_approval['success'] . " data has been update!"
+                    ));
+                }
+            
+            
         }else{
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',

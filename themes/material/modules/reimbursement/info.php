@@ -97,6 +97,7 @@
             <tbody id="table_contents">
               <?php $n = 1;?>
               <?php $total = array();?>
+              <?php if (!empty($entity['items'])): ?>
               <?php foreach ($entity['items'] as $i => $detail):?>
               <tr>
                 <td class="no-space">
@@ -116,7 +117,12 @@
                 </td>
                 <?php $total[] = $detail['amount'];?>
               </tr>
-              <?php endforeach;?>
+              <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center">No items available</td>
+                            </tr>
+                        <?php endif; ?>
             </tbody>
             <tfoot>
               <tr>
