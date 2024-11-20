@@ -80,11 +80,22 @@
                             <input type="text" name="department_name" id="department_name" class="form-control" value="<?= $_SESSION['reimbursement']['department_name']; ?>" readonly>
                             <label for="department_name">Department</label>
                         </div>  
+                        <div class="form-group">
+                            <input type="text" name="plafond_balance" id="plafond_balance" class="form-control number" value="<?= $_SESSION['reimbursement']['plafond_balance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_plafond_saldo_balance'); ?>" readonly>
+                            <label for="plafond_balance">Plafond Balance</label>
+                        </div> 
+
+                        <div class="form-group">
+                            <input type="text" name="used_balance" id="used_balance" class="form-control number" value="<?= $_SESSION['reimbursement']['used_balance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_used_saldo_balance'); ?>" readonly>
+                            <label for="used_balance">Used Balance</label>
+                        </div> 
                         
                         <div class="form-group">
                             <input type="text" name="saldo_balance" id="saldo_balance" class="form-control number" value="<?= $_SESSION['reimbursement']['saldo_balance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_saldo_balance'); ?>" readonly>
                             <label for="saldo_balance">Saldo Balance</label>
                         </div>  
+
+                       
 
                         <div class="form-group hide">
                             <input type="text" name="employee_has_benefit_id" id="employee_has_benefit_id" class="form-control" value="<?= $_SESSION['reimbursement']['employee_has_benefit_id']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_has_benefit_id'); ?>" readonly>
@@ -167,6 +178,16 @@
                 <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
                     Add Item
                 </a>
+
+                <div class="pull-left">
+                    <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left hide">
+                    Add
+                    </button>
+
+                    <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
+                        Attachment
+                    </a>
+                </div>
 
                 <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
                     Discard
@@ -444,7 +465,7 @@
         var lastDate = new Date(<?= config_item('period_year'); ?>, <?= config_item('period_month'); ?>, 0);
         var last_publish = $('[name="opname_start_date"]').val();
         var today = new Date();
-        today.setDate(today.getDate() - 2);
+        today.setDate(today.getDate() - 30);
         $('[data-provide="datepicker"]').datepicker({
             autoclose: true,
             todayHighlight: true,
@@ -525,6 +546,8 @@
             var url = $(this).attr('href');
 
             var saldo = $('#saldo_balance').val();
+            var saldo = $('#plafond_balance').val();
+            var saldo = $('#used_balance').val();
             var total = $('#total').val();
 
             if(saldo<total){
@@ -640,6 +663,9 @@
 
                     if(obj.status=='success'){
                         $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                        $('#plafond_balance').val(obj.plafond_balance).trigger('change');
+                        $('#used_balance').val(obj.used_balance).trigger('change');
+
                         $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                     }else{
                         toastr.options.timeOut = 10000;
@@ -651,6 +677,9 @@
                         }
 
                         $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                        $('#plafond_balance').val(obj.plafond_balance).trigger('change');
+                        $('#used_balance').val(obj.used_balance).trigger('change');
+
                         $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                         
                     }                    
@@ -682,6 +711,9 @@
 
                         if(obj.status=='success'){
                             $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                            $('#plafond_balance').val(obj.plafond_balance).trigger('change');
+                            $('#used_balance').val(obj.used_balance).trigger('change');
+
                             $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                         }else{
                             toastr.options.timeOut = 10000;
@@ -693,6 +725,10 @@
                             }
 
                             $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                            $('#plafond_balance').val(obj.plafond_balance).trigger('change');
+                            $('#used_balance').val(obj.used_balance).trigger('change');
+
+
                             $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                             
                         }                    

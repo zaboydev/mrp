@@ -1,7 +1,7 @@
 <?php include 'themes/material/page.php' ?>
 
 <?php startblock('page_head_tools') ?>
-<?php $this->load->view('material/templates/datatable_tools') ?>
+<?php $this->load->view('material/templates/datatable_tools_reimbursement') ?>
 <?php endblock() ?>
 
 <?php startblock('page_body') ?>
@@ -55,8 +55,20 @@
   </div>
 
   <div class="form-group">
+    <label for="filter_cost_centers">Cost Center</label>
+    <select class="form-control input-sm filter_cost_centers" data-column="2" id="filter_cost_centers">
+      <?php foreach (config_item('auth_annual_cost_centers') as $annual_cost_center) : ?>
+        <option value=<?= $annual_cost_center['id']; ?>>
+        <?= $annual_cost_center['cost_center_name']; ?>
+      </option>
+      <?php endforeach; ?>
+      
+    </select>
+  </div>
+
+  <div class="form-group">
     <label for="filter_status">Status</label>
-    <select class="form-control input-sm filter_dropdown" data-column="2" id="filter_status">
+    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_status">
       <option value="all">
         All Status
       </option>
@@ -518,6 +530,12 @@
       datatable.columns(i).search(v).draw();
     });
 
+    $('.filter_cost_centers').on('change', function() {
+      var i = $(this).data('column');
+      var v = $(this).val();
+      datatable.columns(i).search(v).draw();
+    });
+
     $('.filter_boolean').on('change', function() {
       var checked = $(this).is(':checked');
       var i = $(this).data('column');
@@ -717,6 +735,37 @@
       }
       console.log(document_id);
     });
+
+    function getAttachment(id) {
+      $.ajax({
+        type: "GET",
+        url: 'reimbursement/listAttachment/' + id,
+        cache: false,
+        success: function(response) {
+          var data = $.parseJSON(response);
+          $("#attachment_modal").modal("show");
+          $("#attachment_modal")
+          .find('.modal-body')
+          .empty()
+          .append(data.info);
+          // var data = jQuery.parseJSON(response)
+          // $("#listView").html("")
+          // $("#attachment_modal").modal("show");
+          // $.each(data, function(i, item) {
+          //   var text = '<tr>' +
+          //     '<td>' + (i + 1) + '</td>' +
+          //     '<td><a href="<?= base_url() ?>' + item.file + '" target="_blank">' + item.file + '</a></td>' +
+          //     '</tr>';
+          //   $("#listView").append(text);
+          // });
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          console.log(xhr.status);
+          console.log(xhr.responseText);
+          console.log(thrownError);
+        }
+      });
+    }
 
     function encodeNotes() {
       new_document_id = document_id.replace(/\|/g, "");

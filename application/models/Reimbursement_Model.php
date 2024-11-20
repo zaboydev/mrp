@@ -28,6 +28,7 @@ class Reimbursement_Model extends MY_Model
             'Status',
             'Department',
             'Name',
+            'COA',
             'Amount',
             'Approval Notes'
         );
@@ -37,8 +38,8 @@ class Reimbursement_Model extends MY_Model
     public function getSearchableColumns()
     {
         return array(
-            'document_number',
-            'person_name',
+            'tb_reimbursements.document_number',
+            'tb_reimbursements.person_name',
         );
     }
 
@@ -64,7 +65,15 @@ class Reimbursement_Model extends MY_Model
         }
 
         if (!empty($_POST['columns'][2]['search']['value'])){
-            $search_status = $_POST['columns'][2]['search']['value'];
+            $search_cost = $_POST['columns'][2]['search']['value'];
+            $this->db->where('tb_reimbursements.annual_cost_center_id', $search_cost);       
+        }
+
+
+        
+
+        if (!empty($_POST['columns'][3]['search']['value'])){
+            $search_status = $_POST['columns'][3]['search']['value'];
 
             if($search_status!='all'){
                 $this->db->where('tb_reimbursements.status', $search_status);         
@@ -81,6 +90,8 @@ class Reimbursement_Model extends MY_Model
                 $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY FINANCE MANAGER');
             }
         }
+
+       
 
         $i = 0;
 
@@ -335,6 +346,18 @@ class Reimbursement_Model extends MY_Model
         $this->db->set('created_by', config_item('auth_person_name'));
         $this->db->set('updated_by', config_item('auth_person_name'));
         $this->db->insert('tb_used_benefits');
+
+
+        if(!empty($_SESSION['reimbursement']['attachment'])){
+            foreach ($_SESSION["reimbursement"]["attachment"] as $key) {
+                $this->db->set('id_poe', $document_id);
+                $this->db->set('id_po', $document_id);
+                $this->db->set('file', $key);
+                $this->db->set('tipe', 'REIMBURSEMENT');
+                $this->db->set('tipe_att', 'other');
+                $this->db->insert('tb_attachment_poe');
+            }
+        }
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;
@@ -698,10 +721,14 @@ class Reimbursement_Model extends MY_Model
             if($queryemployee_has_benefit->num_rows()>0){
                 $return['status'] = 'success';
                 $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
+                $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
                 $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
             }else{
                 $return['status'] = 'warning';
                 $return['saldo_balance'] = 0;
+                $return['plafond_balance'] = 0;
+                $return['used_balance'] = 0;
                 $return['employee_has_benefit_id'] = null;
                 $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
             }            
@@ -710,6 +737,8 @@ class Reimbursement_Model extends MY_Model
         }else{
             $return['status'] = 'warning';
             $return['saldo_balance'] = 0;
+            $return['plafond_balance'] = 0;
+            $return['used_balance'] = 0;
             $return['employee_has_benefit_id'] = null;
             $return['message'] = 'Karyawan ini tidak memiliki Kontrak Aktif dan Saldo balance';
             
@@ -1061,5 +1090,62 @@ class Reimbursement_Model extends MY_Model
         $account = $query->unbuffered_row('array');
 
         return $account;
+    }
+
+    //Attachment Models
+
+    public function listAttachment($id,$tipe='REIMBURSEMENT')
+    {
+        $this->db->where('id_poe', $id);
+        $this->db->where('tipe', $tipe);
+        $this->db->where(array('deleted_at' => NULL));
+        return $this->db->get('tb_attachment_poe')->result_array();
+    }
+
+    function add_attachment_to_db($id_poe, $url, $tipe, $tipe_att='other')
+    {
+        $this->db->trans_begin();
+
+        $this->db->set('id_poe', $id_poe);
+        $this->db->set('id_po', $id_poe);
+        $this->db->set('file', $url);
+        $this->db->set('tipe', $tipe);
+        $this->db->set('tipe_att', $tipe_att);
+        $this->db->insert('tb_attachment_poe');
+
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        return TRUE;
+    }
+
+    function delete_attachment_in_db($id_att)
+    {
+        $this->db->trans_begin();
+
+        // $this->db->select('*');
+        // $this->db->where('tb_attachment_poe.id', $id_att);
+        // $query      = $this->db->get('tb_attachment_poe');
+        // $row        = $query->unbuffered_row('array');
+
+        // $file = FCPATH . $row['file'];
+        // if (unlink($file)) {
+        //     $this->db->set('deleted_at',date('Y-m-d'));
+        //     $this->db->set('deleted_by', config_item('auth_person_name'));
+        //     $this->db->where('id', $id_att);
+        //     $this->db->update('tb_attachment_poe');
+        // }
+
+        $this->db->set('deleted_at',date('Y-m-d'));
+        $this->db->set('deleted_by', config_item('auth_person_name'));
+        $this->db->where('id', $id_att);
+        $this->db->update('tb_attachment_poe');
+
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+
+        $this->db->trans_commit();
+        return TRUE;
     }
 }

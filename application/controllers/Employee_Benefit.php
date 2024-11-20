@@ -125,6 +125,14 @@ class Employee_Benefit extends MY_Controller
         $_SESSION['benefit']['notes'] = $_GET['data'];
     }
 
+    public function set_kode_akun()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['benefit']['kode_akun'] = $_GET['data'];
+    }
+
     public function set_employee_benefit()
     {
         if ($this->input->is_ajax_request() === FALSE)

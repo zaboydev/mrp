@@ -22,6 +22,11 @@
                             <input type="text" name="employee_benefit" id="employee_benefit" value="<?= $_SESSION['benefit']['employee_benefit']; ?>" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_benefit'); ?>" required>
                             <label for="employee_benefit">Employee's Benefit</label>
                         </div>
+
+                        <div class="form-group">
+                            <input type="text" name="kode_akun" id="kode_akun" value="<?= $_SESSION['benefit']['kode_akun']; ?>" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_kode_akun'); ?>" required>
+                            <label for="kode_akun">Kode Akun</label>
+                        </div>
                         <div class="form-group">
                             <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['benefit']['notes']; ?></textarea>
                             <label for="notes">Notes</label>
@@ -65,12 +70,12 @@
                 </button> -->
                 <div class="pull-left">
                     <a href="<?=site_url($module['route'] .'/add_level');?>" onClick="return popup(this, 'add_level')" class="btn btn-primary ink-reaction">
-                        Add Value
+                        Add Leveling Assignment
                     </a>
                     <?php if (isset($_SESSION['tujuan_dinas']['items'])) : ?>            
-                    <a href="<?=site_url($module['route'] .'/edit_expense');?>" onClick="return popup(this, 'edit_expense')" class="btn btn-primary ink-reaction">
+                    <!-- <a href="<?=site_url($module['route'] .'/edit_expense');?>" onClick="return popup(this, 'edit_expense')" class="btn btn-primary ink-reaction">
                         Edit Value
-                    </a>
+                    </a> -->
                     <?php endif;?>
                 </div>                
 

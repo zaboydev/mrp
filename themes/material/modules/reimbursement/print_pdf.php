@@ -96,19 +96,7 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
       </p>
     </td>
 
-    <td valign="top" style="text-align:center;">
-      <p>
-        Validated by
-        <br />
-        <?php if ($entity['signers']['validated by']['sign']) : ?>
-          <?=print_date($entity['signers']['validated by']['date'],'d M Y');?>
-          <br>
-          <img src="<?= base_url('ttd_user/' . $entity['signers']['validated by']['sign']); ?>" width="auto" height="50">
-        <?php endif; ?>
-        <br />
-        <br /><?=$entity['signers']['validated by']['person_name'];?>
-      </p>
-    </td>
+    
 
     <td valign="top" style="text-align:center;">
       <p>

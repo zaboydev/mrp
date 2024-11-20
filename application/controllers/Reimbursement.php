@@ -65,6 +65,7 @@ class Reimbursement extends MY_Controller
                 $col[] = print_string($row['status']);
                 $col[] = print_string($cost_center['cost_center_name']);
                 $col[] = print_string($row['person_name']);
+                $col[] = print_string($row['account_code']);
                 $col[] = print_number($row['total'],2);
                 $col[] = print_string($row['notes']);
                 if($row['status']=='approved' || $row['status']=='closed'){
@@ -121,6 +122,10 @@ class Reimbursement extends MY_Controller
             1   => array( 0 => 1,  1 => 'desc' ),
             2   => array( 0 => 2,  1 => 'desc' ),
             3   => array( 0 => 3,  1 => 'desc' ),
+            4   => array( 0 => 4,  1 => 'desc' ),
+            5   => array( 0 => 5,  1 => 'desc' ),
+
+
         );
 
         $this->render_view($this->module['view'] .'/index');
@@ -170,6 +175,24 @@ class Reimbursement extends MY_Controller
 
 
         $_SESSION['reimbursement']['saldo_balance'] = $_GET['data'];
+    }
+
+    public function set_plafond_saldo_balance()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+
+        $_SESSION['reimbursement']['plafond_balance'] = $_GET['data'];
+    }
+
+    public function set_used_saldo_balance()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+
+        $_SESSION['reimbursement']['used_balance'] = $_GET['data'];
     }
 
     public function set_employee_number()
@@ -259,6 +282,8 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['head_dept']                 = NULL;
             $_SESSION['reimbursement']['type']                      = 'Reimbursement';
             $_SESSION['reimbursement']['saldo_balance']             = 0;
+            $_SESSION['reimbursement']['plafond_balance']           = 0;
+            $_SESSION['reimbursement']['used_balance']              = 0;
             $_SESSION['reimbursement']['employee_has_benefit_id']   = NULL;
             $_SESSION['reimbursement']['account_code']   = NULL;
 
@@ -641,5 +666,159 @@ class Reimbursement extends MY_Controller
         
         // $result['status'] = $send;
         echo json_encode($data);
+    }
+
+    //Attachment Function
+
+
+    public function attachment()
+    {
+        $this->authorized($this->module, 'create');
+
+        $this->render_view($this->module['view'] . '/attachment');
+    }
+
+    public function attachment_detail_spd($item_id,$type)
+    {
+        $this->authorized($this->module, 'create');
+        $this->data['item_id'] = $item_id;
+        $this->data['type'] = $type;
+        $this->render_view($this->module['view'] . '/attachment_detail', $this->data);
+    }
+
+    public function add_attachment()
+    {
+      $result["status"] = 0;
+      $date = new DateTime();
+      // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+      $config['upload_path'] = 'attachment/reimbursement/';
+      $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+      $config['max_size']  = 2000;
+  
+      $this->upload->initialize($config);
+  
+      if (!$this->upload->do_upload('attachment')) {
+        $error = array('error' => $this->upload->display_errors());
+      } else {
+
+        if (!isset($_SESSION["reimbursement"]["attachment"]) || !is_array($_SESSION["reimbursement"]["attachment"])) {
+            $_SESSION["reimbursement"]["attachment"] = [];
+        }
+  
+        $data = array('upload_data' => $this->upload->data());
+        $url = $config['upload_path'] . $data['upload_data']['file_name'];
+        array_push($_SESSION["reimbursement"]["attachment"], $url);
+        $result["status"] = 1;
+      }
+      echo json_encode($result);
+    }
+
+    
+
+    public function add_attachment_detail()
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        $config['upload_path'] = 'attachment/reimbursement-detail/';
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+            $error = array('error' => $this->upload->display_errors());
+        } else {
+
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            $data_att = $url.'|,'.$this->input->post('id_poe').'|,'.$this->input->post('tipe');
+            array_push($_SESSION["reimbursement"]["attachment_detail"],$data_att);
+            $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function manage_attachment($id)
+    {
+        $this->authorized($this->module, 'info');
+
+        $this->data['manage_attachment'] = $this->model->listAttachment($id);
+        $this->data['id'] = $id;
+        $this->data['tipe'] = 'REIMBURSEMENT';
+        $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function manage_attachment_detail($id)
+    {
+        $this->authorized($this->module, 'info');
+
+        $this->data['manage_attachment'] = $this->model->listAttachment($id,'REIMBURESEMENT-DETAIL');
+        $this->data['id'] = $id;
+        $this->data['tipe'] = 'REIMBURSEMENT-DETAIL';
+        $this->render_view($this->module['view'] . '/manage_attachment');
+    }
+
+    public function add_attachment_to_db($id)
+    {
+        $result["status"] = 0;
+        $date = new DateTime();
+        if($this->input->post('tipe')=='REIMBURSEMENT'){
+            $config['upload_path'] = 'attachment/reimbursement/';
+        }else{
+            $config['upload_path'] = 'attachment/reimbursement-detail/';
+        }
+        
+        $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+        $config['max_size']  = 2000;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('attachment')) {
+            $error = array('error' => $this->upload->display_errors());
+            $result["status"] = $error;
+        } else {
+            $data = array('upload_data' => $this->upload->data());
+            $url = $config['upload_path'] . $data['upload_data']['file_name'];
+            // array_push($_SESSION["poe"]["attachment"], $url);
+            $this->model->add_attachment_to_db($id, $url,$this->input->post('tipe'));
+            $result["status"] = 1;
+        }
+        echo json_encode($result);
+    }
+
+    public function delete_attachment($index)
+    {
+        $file = FCPATH . $_SESSION["reimbursement"]["attachment"][$index];
+        if (unlink($file)) {
+            unset($_SESSION["reimbursement"]["attachment"][$index]);
+            $_SESSION["reimbursement"]["attachment"] = array_values($_SESSION["reimbursement"]["attachment"]);
+            redirect($this->module['route'] . "/attachment", 'refresh');
+        }
+    }
+
+    public function delete_attachment_detail($index,$item_id,$type)
+    {
+        $att = $_SESSION["reimbursement"]["attachment_detail"][$index];
+        $att_explode = explode("|,", $att);
+        $file = FCPATH . $att_explode[0];
+        if (unlink($file)) {
+            unset($_SESSION["reimbursement"]["attachment_detail"][$index]);
+            $_SESSION["reimbursement"]["attachment_detail"] = array_values($_SESSION["reimbursement"]["attachment_detail"]);
+            redirect($this->module['route'] . "/attachment_detail_reimbursement/".$item_id."/".$type, 'refresh');
+        }
+    }
+
+    public function delete_attachment_in_db($id_att, $id_poe, $tipe='REIMBURSEMENT')
+    {
+        $this->model->delete_attachment_in_db($id_att);
+
+        if ($tipe=='REIMBURSEMENT') {
+            redirect($this->module['route'] . "/manage_attachment/" . $id_poe, 'refresh');
+        }else{
+            redirect($this->module['route'] . "/manage_attachment_detail/" . $id_poe, 'refresh');
+        }
+
+        
+        // echo json_encode($result);
     }
 }

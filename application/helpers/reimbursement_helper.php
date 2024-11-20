@@ -23,7 +23,7 @@ if ( ! function_exists('reimbursement_last_number')) {
     $format = reimbursement_format_number();
 
     $CI->db->select_max('document_number', 'last_number');
-    $CI->db->from('tb_business_trip_purposes');
+    $CI->db->from('tb_reimbursements');
     $CI->db->like('document_number', $format, 'both');
 
     $query  = $CI->db->get();
@@ -65,7 +65,7 @@ if ( ! function_exists('get_reimbursement_last_number')) {
     $format = travel_on_duty_format_number();
 
     $CI->db->select_max('document_number', 'last_number');
-    $CI->db->from('tb_business_trip_purposes');
+    $CI->db->from('tb_reimbursements');
     $CI->db->like('document_number', $format, 'both');
 
     $query  = $CI->db->get();

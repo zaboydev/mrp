@@ -43,6 +43,7 @@
                         <tbody id="table_contents">
                         <?php $n = 0;?>
                         <?php $total_expense = array();?>
+                        <?php if (!empty($entity['items'])): ?>
                         <?php foreach ($entity['levels'] as $i => $detail):?>
                             <?php $n++;?>
                             <tr>
@@ -58,6 +59,11 @@
                                 </td>
                             </tr>
                         <?php endforeach;?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center">No items available</td>
+                            </tr>
+                        <?php endif; ?>
                         </tbody>
                         <tfoot>
                         
