@@ -3246,6 +3246,22 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('level_list')) {
+    function level_list()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_levels.*');
+      $CI->db->from('tb_master_levels');
+      $CI->db->order_by('tb_master_levels.level', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
   if ( ! function_exists('destination_list')) {
     function destination_list()
     {

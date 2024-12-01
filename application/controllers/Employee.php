@@ -174,6 +174,7 @@ class Employee extends MY_Controller
                         'updated_by'                        => config_item('auth_person_name'),
                         'updated_at'                        => date('Y-m-d H:i:s'),
                         'employee_id'                       => $this->input->post('employee_id'),
+                        'level_id'                       => $this->input->post('level_id'),
                     );
 
                     $criteria = $this->input->post('id');
@@ -222,6 +223,8 @@ class Employee extends MY_Controller
                         'updated_by'                        => config_item('auth_person_name'),
                         'updated_at'                        => date('Y-m-d H:i:s'),
                         'employee_id'                       => $this->model->get_unused_id(),
+                        'level_id'                         => $this->input->post('level_id'),
+
                     );
 
                     if ($this->model->insert($form_data)){

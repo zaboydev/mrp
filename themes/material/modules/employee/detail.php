@@ -134,6 +134,12 @@
                                             <dd>
                                                 <?=print_date($entity['tanggal_bergabung']);?>
                                             </dd>
+                                            <dt>
+                                                Level Akun
+                                            </dt>
+                                            <dd>
+                                                <?=$entity['level_name'];?>
+                                            </dd>
                                         </dl>
                                     </div>
                                 </div>

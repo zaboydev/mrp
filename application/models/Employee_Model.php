@@ -118,29 +118,105 @@ class Employee_Model extends MY_Model
 
     public function findById($id)
     {
-        $this->db->where('employee_number', $id);
-        $query      = $this->db->get('tb_master_employees');
-        $row        = $query->unbuffered_row('array');
+        $this->db->select(array(
+            'tb_master_levels.level AS level_name',
+            'tb_master_levels.id AS level_id',
+            'tb_master_employees.*'
+        ));
+        $this->db->from('tb_master_employees');
+        $this->db->join('tb_master_levels', 'tb_master_employees.level_id = tb_master_levels.id', 'left'); // Use LEFT JOIN
+        $this->db->where('tb_master_employees.employee_number', $id);
 
+        
+        $query = $this->db->get();
+
+        $row = $query->unbuffered_row('array');
+        
         $department = getDepartmentById($row['department_id']);
         $row['department_name'] = $department['department_name'];
+        
 
         return $row;
     }
 
-    public function findOneBy($criteria)
+
+    // public function findById($id)
+    // {
+    //     $this->db->select(array(
+    //         'tb_master_levels.level AS level_name',
+    //         'tb_master_levels.id AS level_id',
+    //         'tb_master_employees.*'
+    //     ));
+    //     $this->db->from('tb_master_employees');
+    //     $this->db->join('tb_master_levels', 'tb_master_employees.level_id = tb_master_levels.id', 'left'); // Use LEFT JOIN
+    //     $this->db->where('tb_master_employees.employee_number', $id);
+    //     $query      = $this->db->get('tb_master_employees');
+    //     $row        = $query->unbuffered_row('array');
+
+    //     $department = getDepartmentById($row['department_id']);
+    //     $row['department_name'] = $department['department_name'];
+
+    //     return $row;
+    // }
+
+//     public function findOneBy($conditions)
+// {
+
+//     $this->db->select(
+        
+//         'tb_master_employees.*'
+//     );
+//     $this->db->from('tb_master_employees');
+//     $this->db->join('tb_master_levels', 'tb_master_employees.level_id = tb_master_levels.id'); 
+//     $this->db->where($conditions); // Use the associative array for WHERE conditions
+
+//     $query = $this->db->get();
+//     $row = $query->unbuffered_row('array');
+
+//     if ($row) {
+//         $department = getDepartmentById($row['department_id']);
+//         $row['department_name'] = $department['department_name'];
+//     }
+
+//     return $row;
+// }
+
+    public function findOneBy($conditions)
     {
+
+        $this->db->select(array(
+            'tb_master_levels.level AS level_name',
+            'tb_master_levels.id AS level_id',
+            'tb_master_employees.*'
+        ));
         $this->db->from('tb_master_employees');
-        $this->db->where($criteria);
+        $this->db->join('tb_master_levels', 'tb_master_employees.level_id = tb_master_levels.id', 'left'); // Use LEFT JOIN
+        $this->db->where($conditions); // Dynamic conditions
 
         $query = $this->db->get();
-        $row   = $query->unbuffered_row('array');
+        $row = $query->unbuffered_row('array');
 
-        $department = getDepartmentById($row['department_id']);
-        $row['department_name'] = $department['department_name'];
+        if ($row) {
+            $department = getDepartmentById($row['department_id']);
+            $row['department_name'] = $department['department_name'];
+        }
 
         return $row;
     }
+
+    // public function findOneBy($criteria)
+    // {
+    //     $this->db->from('tb_master_employees');
+    //     $this->db->where($criteria);
+
+    //     $query = $this->db->get();
+    //     $row   = $query->unbuffered_row('array');
+
+    //     $department = getDepartmentById($row['department_id']);
+    //     $row['department_name'] = $department['department_name'];
+
+    //     return $row;
+    // }
 
     public function insert(array $user_data)
     {

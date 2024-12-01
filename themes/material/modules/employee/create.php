@@ -199,6 +199,16 @@
                             <label for="cuti">Jumlah Cuti</label>
                         </div>
 
+                        <div class="form-group">
+                            <select name="level_id" id="level_id" class="form-control" style="width: 100%" data-placeholder="Select Level">
+                                <option value="">Select Level</option>
+                                <?php foreach(level_list() as $level):?>
+                                <option data-level-id="<?=$level['id'];?>" value="<?=$level['id'];?>" <?php if ($entity['level_id']==$level['id']):echo 'selected'; endif;?>><?=$level['level'];?></option>
+                                <?php endforeach;?>
+                            </select>
+                            <label for="level_id">Level</label>
+                        </div>
+
 
                     </div>
                 </div>
