@@ -74,8 +74,8 @@
                     </a>
                     <?php if (isset($_SESSION['tujuan_dinas']['items'])) : ?>            
                     <!-- <a href="<?=site_url($module['route'] .'/edit_expense');?>" onClick="return popup(this, 'edit_expense')" class="btn btn-primary ink-reaction">
-                        Edit Value
-                    </a> -->
+                        Edit Value -->
+                    </a>
                     <?php endif;?>
                 </div>                
 

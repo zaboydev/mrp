@@ -7,7 +7,7 @@
 
 <div class="card style-default-bright">
     <div class="card-head style-primary-dark">
-        <header>Create New Contract <?= $module['label']; ?></header>
+        <header>Add New Benefit to Employee <?= $module['label']; ?></header>
 
         <div class="tools">
         <div class="btn-group">
@@ -44,8 +44,8 @@
                         <div class="form-group" style="padding-top: 25px;">
                             <select name="employee_benefit_id" id="employee_benefit_id" class="form-control select2" style="width: 100%" data-placeholder="Select Benefit" required>
                                 <option value="">Select Benefit</option>
-                                <?php foreach(benefit_list() as $benefit):?>
-                                <option value="<?=$benefit['id'];?>"><?=$benefit['employee_benefit'];?></option>
+                                <?php foreach(getBenefitsByEmployeeNumber($entity['employee_number']) as $benefit):?>
+                                <option data-amount="<?=$benefit['amount'];?>" value="<?=$benefit['benefit_item_id'];?>"><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="start_date">Benefit Name</label>
@@ -72,4 +72,11 @@
 <script type="text/javascript">
     $('.number').number(true, 2, '.', ',');
     $('.select2').select2();
+    
+    
+    $('#employee_benefit_id').change(function () {
+        var amount_plafond = $('#employee_benefit_id option:selected').data('amount');  
+        console.log(amount_plafond);
+        $('#amount_plafond').val(amount_plafond).trigger('change');
+    });
 </script>

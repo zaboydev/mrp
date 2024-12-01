@@ -124,6 +124,7 @@
                             <th><span class="title_1">Expense Detail</span></th>
                             <th>Date</th>
                             <th><span class="title_2">Description/Notes</span></th>
+                            <th>Account Code</th>
                             <th>Amount</th>
                         </tr>
                     </thead>
@@ -146,6 +147,8 @@
                                     <td><?= $items['description']; ?></td>
                                     <td><?= $items['transaction_date']; ?></td>
                                     <td><?= $items['notes']; ?></td>
+                                    <td><?= $items['account_code_item']; ?></td>
+
                                     <td><?= number_format($items['amount'], 2); ?></td>
 
                                     
@@ -231,9 +234,19 @@
                                 <fieldset>
                                     <legend><?=$_SESSION['reimbursement']['type']?></legend>
 
-                                    <div class="form-group">
+                                    <!-- <div class="form-group">
                                         <input type="text" name="description" id="description" class="form-control input-sm input-autocomplete">
                                         <label for="description"><span class="title_1">Expense Detail</span></label>
+                                    </div> -->
+
+                                    <div class="form-group" style="padding-top: 25px;">
+                                        <select name="description" id="description" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_description'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_expense_reimbursement'); ?>"required>
+                                            <option></option>
+                                            <?php foreach(available_expense_reimbursement() as $user):?>
+                                            <option data-account-code-item="<?=$user['account_code'];?>" value="<?=$user['expense_name'];?>" <?= ($user['expense_name'] == $_SESSION['reimbursement']['description']) ? 'selected' : ''; ?>><?=$user['expense_name'];?></option>
+                                            <?php endforeach;?>
+                                        </select>
+                                        <label for="description">Expense Name</label>
                                     </div>
 
                                     <div class="form-group">
@@ -249,6 +262,10 @@
                                     <div class="form-group">
                                         <input type="text" id="amount" class="form-control input-sm" name="amount" value="0" step=".02">
                                         <label for="amount">Amount</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" name="account_code_item" id="account_code_item" class="form-control"  data-input-type="autoset" readonly>
+                                        <label for="account_code_item">Account Code</label>
                                     </div>
                                 </fieldset>
                             </div>
@@ -546,9 +563,14 @@
             var url = $(this).attr('href');
 
             var saldo = $('#saldo_balance').val();
-            var saldo = $('#plafond_balance').val();
-            var saldo = $('#used_balance').val();
+            var plafond_balance = $('#plafond_balance').val();
+            var used_balance = $('#used_balance').val();
             var total = $('#total').val();
+            console.log("Total");
+            console.log(total);
+            console.log(saldo);
+            console.log(plafond_balance);
+
 
             if(saldo<total){
                 if (confirm('Your balance is less than the total reimbursement. The amount to be reimbursed is the balance. Continue?')) {
@@ -686,6 +708,12 @@
                     
                 }
             });
+        });
+
+        $('#description').change(function () {
+            var account_code_item = $('#description option:selected').data('account-code-item');  
+
+            $('#account_code_item').val(account_code_item).trigger('change');
         });
 
         $('#type_reimbursement').change(function () {

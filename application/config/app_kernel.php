@@ -58,6 +58,8 @@ $config['parent']['perjalanan_dinas']['icon']   = 'fa fa-road';
 $config['parent']['reimbursment']['label']  = 'Reimbursement';
 $config['parent']['reimbursment']['icon']   = 'fa fa-ticket';
 
+
+
 $config['module'] = array();
 
 
@@ -68,6 +70,7 @@ require('modules/user_position.php');
 require('modules/employee_benefit.php');
 require('modules/employee.php');
 require('modules/master_expense_duty.php');
+require('modules/master_expense_reimbursement.php');
 require('modules/tujuan_perjalanan_dinas.php');
 require('modules/master_transportation.php');
 

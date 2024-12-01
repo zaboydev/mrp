@@ -95,10 +95,8 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <br /><?=$entity['signers']['requested by']['person_name'];?>
       </p>
     </td>
-
-    
-
-    <td valign="top" style="text-align:center;">
+    <?php if ($entity['type'] != "SANTUNAN DUKA") : ?>
+      <td valign="top" style="text-align:center;">
       <p>
         HR Approved by
         <br />
@@ -111,7 +109,24 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <br /><?=$entity['signers']['hr approved by']['person_name'];?>
       </p>
     </td>
-
+    <td valign="top" style="text-align:center;">
+      <p>
+        Validated by
+        <?php if ($entity['occupation'] == "HEAD OF SCHOOL" || $entity['occupation'] == "VP FINANCE") : ?>
+        <br />CFO/COO<br />
+        <?php else:?>
+          <br />Head Dept / VP Finance<br />
+        <?php endif; ?>
+        <?php if ($entity['signers']['validated by']['sign']) : ?>
+          <?=print_date($entity['signers']['validated by']['date'],'d M Y');?>
+          <br>
+          <img src="<?= base_url('ttd_user/' . $entity['signers']['validated by']['sign']); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?=$entity['signers']['validated by']['person_name'];?>
+      </p>
+    </td>
+    <?php if ($entity['type'] == "SANTUNAN DUKA") : ?>
     <td valign="top" style="text-align:center;">
       <p>
         Finance Approved by
@@ -126,6 +141,28 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <br /><?=$entity['signers']['finance approved by']['person_name'];?>
       </p>
     </td>
+    <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if ($entity['type'] == "SANTUNAN DUKA") : ?>
+    <td valign="top" style="text-align:center;">
+      <p>
+        Validated by
+        <br />Head Dept/ VP Finance<br />
+        <?php if ($entity['signers']['validated by']['sign']) : ?>
+          <?=print_date($entity['signers']['validated by']['date'],'d M Y');?>
+          <br>
+          <img src="<?= base_url('ttd_user/' . $entity['signers']['validated by']['sign']); ?>" width="auto" height="50">
+        <?php endif; ?>
+        <br />
+        <br /><?=$entity['signers']['validated by']['person_name'];?>
+      </p>
+    </td>
+    <?php endif; ?>
+
+    
+
+    
   </tr>
 </table>
 <?php endif; ?>

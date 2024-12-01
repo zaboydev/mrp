@@ -3310,6 +3310,21 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('findPositionByEmployeeNumber')) {
+    function findPositionByEmployeeNumber($employee_number)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_employees.*');
+      $CI->db->where('tb_master_employees.employee_number',  $employee_number);
+
+      $query  = $CI->db->get('tb_master_employees');
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
   if ( ! function_exists('list_username_in_head_department')) {
     function list_username_in_head_department($department_id)
     {
@@ -3394,6 +3409,22 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('available_expense_reimbursement')) {
+    function available_expense_reimbursement()
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_expense_reimbursement');  
+      
+      $CI->db->order_by('expense_name', 'ASC');
+  
+      $query = $CI->db->get();
+  
+      return $query->result_array();
+    }
+  }
+
   if ( ! function_exists('getEmployeeByEmployeeNumber')) {
     function getEmployeeByEmployeeNumber($employee_number)
     {
@@ -3407,6 +3438,7 @@ if (!function_exists('currency_for_vendor_list')) {
       return $query->unbuffered_row('array');
     }
   }
+  
 
   if ( ! function_exists('getDefaultExpenseName')) {
     function getDefaultExpenseName()
@@ -3510,21 +3542,39 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('getBenefits')) {
-    function getBenefits()
+    function getBenefits($employee_number)
     {
       $CI =& get_instance();
 
       $CI->db->select('*');
       $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
+      $CI->db->where('tb_master_employee_benefits.reimbursement','t');
       $CI->db->from('tb_master_employee_benefits');
       $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
 
       $query  = $CI->db->get();
       $result = $query->result_array();
 
+      // $CI->db->select(array(
+      //     'tb_employee_contracts.start_date',
+      //     'tb_employee_contracts.end_date',
+      //     'tb_employee_has_benefit.id',
+      //     'tb_employee_has_benefit.amount_plafond',
+      //     'tb_employee_has_benefit.used_amount_plafond',
+      //     'tb_employee_has_benefit.left_amount_plafond',
+      //     'tb_master_employee_benefits.employee_benefit'
+      // ));
+      // $CI->db->join('tb_employee_contracts', 'tb_employee_contracts.id = tb_employee_has_benefit.employee_contract_id');
+      // $CI->db->join('tb_master_employee_benefits', 'tb_master_employee_benefits.id = tb_employee_has_benefit.employee_benefit_id');
+      // $CI->db->where('tb_employee_has_benefit.employee_number',$employee_number);
+      // $CI->db->from('tb_employee_has_benefit');
+      // $query  = $CI->db->get();
+      // $result = $query->result_array();
       return $result;
     }
   }
+
+  
 
   if ( ! function_exists('getDepartmentByName')) {
     function getDepartmentByName($department_name)
@@ -3625,6 +3675,7 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI =& get_instance();
 
       $CI->db->select('tb_master_employee_benefits.*');
+      $CI->db->where('reimbursement', 't');
       $CI->db->from('tb_master_employee_benefits');
       $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
 
@@ -3632,6 +3683,29 @@ if (!function_exists('currency_for_vendor_list')) {
       $result = $query->result_array();
 
       return $result;
+    }
+  }
+  if ( ! function_exists('getBenefitsByEmployeeNumber')) {
+  function getBenefitsByEmployeeNumber($employee_number) {
+      $CI =& get_instance();
+        $CI->db->select('
+            benefit_items.id AS benefit_item_id,
+            benefits.id AS benefit_item_id,
+            benefits.employee_benefit,
+            benefit_items.level,
+            benefit_items.year,
+            benefit_items.amount
+        ');
+        $CI->db->from('tb_master_employee_benefit_items AS benefit_items');
+        $CI->db->join('tb_master_employee_benefits AS benefits', 'benefit_items.employee_benefit_id = benefits.id', 'inner');
+        $CI->db->join('tb_master_levels AS levels', 'benefit_items.level = levels.level', 'inner');
+        $CI->db->join('tb_master_employees AS employees', 'employees.level_id = levels.id', 'inner');
+        $CI->db->where('employees.employee_number', $employee_number);
+
+        $query = $CI->db->get();
+        $result = $query->result_array();
+
+        return $result; // Mengembalikan array hasil query
     }
   }
 

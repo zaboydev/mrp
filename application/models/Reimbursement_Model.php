@@ -219,6 +219,32 @@ class Reimbursement_Model extends MY_Model
         return $query->unbuffered_row('array');
     }
 
+    public function canRequestReimbursement($employee_id) {
+        // Ambil data pengajuan terakhir untuk karyawan ini
+        $this->db->select('created_at');
+        $this->db->where('employee_number', $employee_id);
+        $this->db->from('tb_reimbursements');
+        $this->db->order_by('created_at', 'DESC');
+        $this->db->limit(1);
+        $query = $this->db->get();
+
+        // Jika belum pernah melakukan pengajuan, izinkan
+        if ($query->num_rows() == 0) {
+            return true;
+        }
+
+        // Jika pernah, cek tanggal terakhir pengajuan
+        $last_request_date = $query->row();
+        $last_request_date = $last_request_date->created_at;
+        $two_years_ago = date('Y-m-d', strtotime('-2 years'));
+
+        if ($last_request_date < $two_years_ago) {
+            return true; // Bisa mengajukan
+        } else {
+            return false; // Tidak bisa mengajukan
+        }
+    }
+
     public function save()
     {
         $this->db->trans_begin();
@@ -253,10 +279,16 @@ class Reimbursement_Model extends MY_Model
             $this->db->insert('tb_signers');
         }
 
+        $status = "WAITING APPROVAL BY HR MANAGER";
+
+        if($_SESSION['reimbursement']['type'] == 'SANTUNAN DUKA'){
+            $status = "WAITING APPROVAL BY HEAD DEPT";
+        }
+
         // CREATE NEW DOCUMENT
-        $document_edit    = (isset($_SESSION['reimbursement']['edit'])) ? $_SESSION['reimbursement']['edit'] : NULL;
-        $document_number  = sprintf('%06s', $_SESSION['reimbursement']['document_number']) . $_SESSION['reimbursement']['format_number'];
-        $date             = $_SESSION['reimbursement']['date'];
+        $document_edit              = (isset($_SESSION['reimbursement']['edit'])) ? $_SESSION['reimbursement']['edit'] : NULL;
+        $document_number            = sprintf('%06s', $_SESSION['reimbursement']['document_number']) . $_SESSION['reimbursement']['format_number'];
+        $date                       = $_SESSION['reimbursement']['date'];
         $cost_center_code           = $_SESSION['reimbursement']['cost_center_code'];
         $cost_center_name           = $_SESSION['reimbursement']['cost_center_name'];
         $annual_cost_center_id      = $_SESSION['reimbursement']['annual_cost_center_id'];
@@ -270,10 +302,13 @@ class Reimbursement_Model extends MY_Model
         $occupation                 = $_SESSION['reimbursement']['occupation'];
         $type                       = $_SESSION['reimbursement']['type'];
         $account_code               = $_SESSION['reimbursement']['account_code'];
-        $employee_has_benefit_id                       = $_SESSION['reimbursement']['employee_has_benefit_id'];
+        $employee_has_benefit_id    = $_SESSION['reimbursement']['employee_has_benefit_id'];
+
+       
 
         $this->db->set('annual_cost_center_id', $annual_cost_center_id);
         $this->db->set('warehouse', $warehouse);
+        $this->db->set('status', $status);
         $this->db->set('employee_has_benefit_id', $employee_has_benefit_id);
         $this->db->set('document_number', $document_number);
         $this->db->set('type', $type);
@@ -317,6 +352,7 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('transaction_date', $data['transaction_date']);
             $this->db->set('notes', $data['notes']);
             $this->db->set('amount', $data['amount']);
+            $this->db->set('account_code', $data['account_code_item']);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->insert('tb_reimbursement_items');
@@ -744,11 +780,35 @@ class Reimbursement_Model extends MY_Model
             
             return $return;
         }
-
-        
-
-        
     }
+
+    public function getExpenseReimbursement($id_expense)
+    {
+        
+            $this->db->select('tb_master_expense_reimbursement.*');
+            $this->db->where('tb_master_expense_reimbursement.id',$id_expense);
+            $this->db->from('tb_master_expense_reimbursement');
+            $queryemployee_has_benefit  = $this->db->get();
+            $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
+
+            if($queryemployee_has_benefit->num_rows()>0){
+                $return['status'] = 'success';
+                $return['id_expense'] = $rowemployee_has_benefit['id'];
+                $return['account_code'] = $rowemployee_has_benefit['account_code'];
+                $return['expense_name'] = $rowemployee_has_benefit['expense_name'];
+            }else{
+                $return['status'] = 'warning';
+                $return['id_expense'] = 0;
+                $return['account_code'] = null;
+                $return['expense_name'] = null;
+                $return['message'] = 'Tidak ditemukan Expense';
+            }            
+            
+            return $return;
+       
+    }
+
+
 
     public function getEmployeeHasBenefitById($employee_has_benefit_id)
     {
@@ -799,9 +859,10 @@ class Reimbursement_Model extends MY_Model
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
-            // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT'){
-                $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
+            $findDataPosition = findPositionByEmployeeNumber($spd['employee_number']);
+
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && $spd['type'] == "SANTUNAN DUKA" && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+                $this->db->set('status','APPROVED');
                 $this->db->set('validated_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
                 $this->db->update('tb_reimbursements');
@@ -818,55 +879,140 @@ class Reimbursement_Model extends MY_Model
                 $this->db->set('sign', get_ttd(config_item('auth_person_name')));
                 $this->db->set('created_at', date('Y-m-d H:i:s'));
                 $this->db->insert('tb_signers');
-                $send_email_to = 'hr_manager';
-
-            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
-            // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
-
-                $this->db->set('status','WAITING APPROVAL BY FINANCE MANAGER');
-                $this->db->set('hr_approved_by',config_item('auth_person_name'));
-                $this->db->where('id', $id);
-                $this->db->update('tb_reimbursements');
-
-                $this->db->set('document_type','RF');
-                $this->db->set('document_number',$spd['document_number']);
-                $this->db->set('document_id', $id);
-                $this->db->set('action','hr approved by');
-                $this->db->set('date', date('Y-m-d'));
-                $this->db->set('username', config_item('auth_username'));
-                $this->db->set('person_name', config_item('auth_person_name'));
-                $this->db->set('roles', config_item('auth_role'));
-                $this->db->set('notes', $approval_notes[$x]);
-                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
-                $this->db->set('created_at', date('Y-m-d H:i:s'));
-                $this->db->insert('tb_signers');
-                $send_email_to = 'finance_manager';
-            }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
-            // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
-                $this->db->set('status','APPROVED');
-                $this->db->set('finance_approved_by',config_item('auth_person_name'));
-                $this->db->where('id', $id);
-                $this->db->update('tb_reimbursements');
-
-                $this->db->set('document_type','RF');
-                $this->db->set('document_number',$spd['document_number']);
-                $this->db->set('document_id', $id);
-                $this->db->set('action','finance approved by');
-                $this->db->set('date', date('Y-m-d'));
-                $this->db->set('username', config_item('auth_username'));
-                $this->db->set('person_name', config_item('auth_person_name'));
-                $this->db->set('roles', config_item('auth_role'));
-                $this->db->set('notes', $approval_notes[$x]);
-                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
-                $this->db->set('created_at', date('Y-m-d H:i:s'));
-                $this->db->insert('tb_signers');
                 $send_email_to = NULL;
 
                 $approved_ids[] = $id;  // Add ID to the approved list
+
+                $total++;
+                $success++;
+                $failed--;
+
+            } else {
+                if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CHIEF OF FINANCE" || $findDataPosition['position'] == "CHIEF OPERATION OFFICER"){
+                    if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+                        // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+            
+                            $this->db->set('status','WAITING APPROVAL BY COO OR CFO');
+                            $this->db->set('hr_approved_by',config_item('auth_person_name'));
+                            $this->db->where('id', $id);
+                            $this->db->update('tb_reimbursements');
+            
+                            $this->db->set('document_type','RF');
+                            $this->db->set('document_number',$spd['document_number']);
+                            $this->db->set('document_id', $id);
+                            $this->db->set('action','hr approved by');
+                            $this->db->set('date', date('Y-m-d'));
+                            $this->db->set('username', config_item('auth_username'));
+                            $this->db->set('person_name', config_item('auth_person_name'));
+                            $this->db->set('roles', config_item('auth_role'));
+                            $this->db->set('notes', $approval_notes[$x]);
+                            $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                            $this->db->set('created_at', date('Y-m-d H:i:s'));
+                            $this->db->insert('tb_signers');
+                            $send_email_to = 'finance_manager';
+                        }elseif($spd['status']=='WAITING APPROVAL BY COO OR CFO' && config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
+            
+                        // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
+                            $this->db->set('status','APPROVED');
+                            $this->db->set('validated_by',config_item('auth_person_name'));
+                            $this->db->where('id', $id);
+                            $this->db->update('tb_reimbursements');
+            
+                            $this->db->set('document_type','RF');
+                            $this->db->set('document_number',$spd['document_number']);
+                            $this->db->set('document_id', $id);
+                            $this->db->set('action','validated by');
+                            $this->db->set('date', date('Y-m-d'));
+                            $this->db->set('username', config_item('auth_username'));
+                            $this->db->set('person_name', config_item('auth_person_name'));
+                            $this->db->set('roles', config_item('auth_role'));
+                            $this->db->set('notes', $approval_notes[$x]);
+                            $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                            $this->db->set('created_at', date('Y-m-d H:i:s'));
+                            $this->db->insert('tb_signers');
+                            $send_email_to = NULL;
+            
+                            $approved_ids[] = $id;  // Add ID to the approved list
+                        }
+                        $total++;
+                        $success++;
+                        $failed--;
+                } else {
+                    if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+                        // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+            
+                            $this->db->set('status','WAITING APPROVAL BY HEAD DEPT');
+                            $this->db->set('hr_approved_by',config_item('auth_person_name'));
+                            $this->db->where('id', $id);
+                            $this->db->update('tb_reimbursements');
+            
+                            $this->db->set('document_type','RF');
+                            $this->db->set('document_number',$spd['document_number']);
+                            $this->db->set('document_id', $id);
+                            $this->db->set('action','hr approved by');
+                            $this->db->set('date', date('Y-m-d'));
+                            $this->db->set('username', config_item('auth_username'));
+                            $this->db->set('person_name', config_item('auth_person_name'));
+                            $this->db->set('roles', config_item('auth_role'));
+                            $this->db->set('notes', $approval_notes[$x]);
+                            $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                            $this->db->set('created_at', date('Y-m-d H:i:s'));
+                            $this->db->insert('tb_signers');
+                            $send_email_to = 'finance_manager';
+                        }elseif($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            
+                        // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
+                            $this->db->set('status','APPROVED');
+                            $this->db->set('validated_by',config_item('auth_person_name'));
+                            $this->db->where('id', $id);
+                            $this->db->update('tb_reimbursements');
+            
+                            $this->db->set('document_type','RF');
+                            $this->db->set('document_number',$spd['document_number']);
+                            $this->db->set('document_id', $id);
+                            $this->db->set('action','validated by');
+                            $this->db->set('date', date('Y-m-d'));
+                            $this->db->set('username', config_item('auth_username'));
+                            $this->db->set('person_name', config_item('auth_person_name'));
+                            $this->db->set('roles', config_item('auth_role'));
+                            $this->db->set('notes', $approval_notes[$x]);
+                            $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                            $this->db->set('created_at', date('Y-m-d H:i:s'));
+                            $this->db->insert('tb_signers');
+                            $send_email_to = NULL;
+            
+                            $approved_ids[] = $id;  // Add ID to the approved list
+                        }
+                        $total++;
+                        $success++;
+                        $failed--;
+                }
             }
-            $total++;
-            $success++;
-            $failed--;
+
+            // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            // // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT'){
+            //     $this->db->set('status','WAITING APPROVAL BY HR MANAGER');
+            //     $this->db->set('validated_by',config_item('auth_person_name'));
+            //     $this->db->where('id', $id);
+            //     $this->db->update('tb_reimbursements');
+
+            //     $this->db->set('document_type','RF');
+            //     $this->db->set('document_number',$spd['document_number']);
+            //     $this->db->set('document_id', $id);
+            //     $this->db->set('action','validated by');
+            //     $this->db->set('date', date('Y-m-d'));
+            //     $this->db->set('username', config_item('auth_username'));
+            //     $this->db->set('person_name', config_item('auth_person_name'));
+            //     $this->db->set('roles', config_item('auth_role'));
+            //     $this->db->set('notes', $approval_notes[$x]);
+            //     $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+            //     $this->db->set('created_at', date('Y-m-d H:i:s'));
+            //     $this->db->insert('tb_signers');
+            //     $send_email_to = 'hr_manager';
+
+            // }else
+            
+            
         }
 
         
@@ -874,9 +1020,9 @@ class Reimbursement_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
-        if($send_email_to!=NULL){
-            $this->send_mail($document_id, $send_email_to);
-        }
+        // if($send_email_to!=NULL){
+        //     $this->send_mail($document_id, $send_email_to);
+        // }
 
         
 
@@ -913,38 +1059,106 @@ class Reimbursement_Model extends MY_Model
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
+            $findDataPosition = findPositionByEmployeeNumber($spd['employee_number']);
+            if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CHIEF OF FINANCE" || $findDataPosition['position'] == "CHIEF OPERATION OFFICER"){
+                // if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            // if($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+                if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+                    $this->db->set('status','REJECT');
+                    $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->where('id', $id);
+                    $this->db->update('tb_reimbursements');
 
+                    $this->db->set('document_type','RF');
+                    $this->db->set('document_number',$spd['document_number']);
+                    $this->db->set('document_id', $id);
+                    $this->db->set('action','validated by');
+                    $this->db->set('date', date('Y-m-d'));
+                    $this->db->set('username', config_item('auth_username'));
+                    $this->db->set('person_name', config_item('auth_person_name'));
+                    $this->db->set('roles', config_item('auth_role'));
+                    $this->db->set('notes', $approval_notes[$x]);
+                    $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                    $this->db->set('created_at', date('Y-m-d H:i:s'));
+                    $this->db->insert('tb_signers');
+                    $send_email_to = 'hr_manager';
+
+                // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+                // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+                }elseif($spd['status']=='WAITING APPROVAL BY COO OR CFO' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+                    $this->db->set('status','REJECT');
+                    $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->where('id', $id);
+                    $this->db->update('tb_reimbursements');
+
+                    $this->db->set('document_type','RF');
+                    $this->db->set('document_number',$spd['document_number']);
+                    $this->db->set('document_id', $id);
+                    $this->db->set('action','validated by');
+                    $this->db->set('date', date('Y-m-d'));
+                    $this->db->set('username', config_item('auth_username'));
+                    $this->db->set('person_name', config_item('auth_person_name'));
+                    $this->db->set('roles', config_item('auth_role'));
+                    $this->db->set('notes', $approval_notes[$x]);
+                    $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                    $this->db->set('created_at', date('Y-m-d H:i:s'));
+                    $this->db->insert('tb_signers');
+                    $send_email_to = 'hr_manager';
+                    // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
+                }
+                $total++;
+                $success++;
+                $failed--;
+            } else {
             // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT'){
-                $this->db->set('status','REJECT');
-                $this->db->set('validated_by',config_item('auth_person_name'));
-                $this->db->where('id', $id);
-                $this->db->update('tb_reimbursements');
+                if($spd['status']=='WAITING APPROVAL BY HEAD DEPT'){
+                    $this->db->set('status','REJECT');
+                    $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->where('id', $id);
+                    $this->db->update('tb_reimbursements');
 
-                $this->db->set('document_type','RF');
-                $this->db->set('document_number',$spd['document_number']);
-                $this->db->set('document_id', $id);
-                $this->db->set('action','validated by');
-                $this->db->set('date', date('Y-m-d'));
-                $this->db->set('username', config_item('auth_username'));
-                $this->db->set('person_name', config_item('auth_person_name'));
-                $this->db->set('roles', config_item('auth_role'));
-                $this->db->set('notes', $approval_notes[$x]);
-                $this->db->set('sign', get_ttd(config_item('auth_person_name')));
-                $this->db->set('created_at', date('Y-m-d H:i:s'));
-                $this->db->insert('tb_signers');
-                $send_email_to = 'hr_manager';
+                    $this->db->set('document_type','RF');
+                    $this->db->set('document_number',$spd['document_number']);
+                    $this->db->set('document_id', $id);
+                    $this->db->set('action','validated by');
+                    $this->db->set('date', date('Y-m-d'));
+                    $this->db->set('username', config_item('auth_username'));
+                    $this->db->set('person_name', config_item('auth_person_name'));
+                    $this->db->set('roles', config_item('auth_role'));
+                    $this->db->set('notes', $approval_notes[$x]);
+                    $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                    $this->db->set('created_at', date('Y-m-d H:i:s'));
+                    $this->db->insert('tb_signers');
+                    $send_email_to = 'hr_manager';
 
-            // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
-            }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+                }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+                // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+                    $this->db->set('status','REJECT');
+                    $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->where('id', $id);
+                    $this->db->update('tb_reimbursements');
 
-            // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
-            }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
-              
+                    $this->db->set('document_type','RF');
+                    $this->db->set('document_number',$spd['document_number']);
+                    $this->db->set('document_id', $id);
+                    $this->db->set('action','validated by');
+                    $this->db->set('date', date('Y-m-d'));
+                    $this->db->set('username', config_item('auth_username'));
+                    $this->db->set('person_name', config_item('auth_person_name'));
+                    $this->db->set('roles', config_item('auth_role'));
+                    $this->db->set('notes', $approval_notes[$x]);
+                    $this->db->set('sign', get_ttd(config_item('auth_person_name')));
+                    $this->db->set('created_at', date('Y-m-d H:i:s'));
+                    $this->db->insert('tb_signers');
+                    $send_email_to = 'hr_manager';
+
+                }
+                $total++;
+                $success++;
+                $failed--;
             }
-            $total++;
-            $success++;
-            $failed--;
+
+           
         }
 
         
@@ -952,9 +1166,9 @@ class Reimbursement_Model extends MY_Model
         if ($this->db->trans_status() === FALSE)
             return $return = ['status'=> FALSE,'total'=>$total,'success'=>$success,'failed'=>$failed];
 
-        if($send_email_to!=NULL){
-            $this->send_mail($document_id, $send_email_to);
-        }
+        // if($send_email_to!=NULL){
+        //     $this->send_mail($document_id, $send_email_to);
+        // }
         
 
         $this->db->trans_commit();

@@ -43,7 +43,7 @@ class Reimbursement extends MY_Controller
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }elseif($row['status']=='WAITING APPROVAL BY FINANCE MANAGER' && config_item('auth_role')=='FINANCE MANAGER'){
+                    }elseif($row['status']=='WAITING APPROVAL BY COO OR CFO'&& config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }elseif($row['status']=='REVISED'){
                         $col[] = print_number($no);
@@ -71,7 +71,7 @@ class Reimbursement extends MY_Controller
                 if($row['status']=='approved' || $row['status']=='closed'){
                     $col[] = '';
                 }else{
-                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER'])) {
+                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
                         $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                     }else{
                         $col[] = '';
@@ -146,6 +146,19 @@ class Reimbursement extends MY_Controller
         echo json_encode($employee_has_benefit);
     }
 
+    public function get_expense_reimbursement()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+        
+
+        $id_expense = $_GET['id_expense_reimbursement'];
+
+        $employee_has_benefit = $this->model->getExpenseReimbursement($id_expense);
+        
+        echo json_encode($employee_has_benefit);
+    }
+
     public function set_doc_number()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -184,6 +197,14 @@ class Reimbursement extends MY_Controller
 
 
         $_SESSION['reimbursement']['plafond_balance'] = $_GET['data'];
+    }
+
+    public function set_description()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['reimbursement']['description'] = $number;
     }
 
     public function set_used_saldo_balance()
@@ -226,6 +247,14 @@ class Reimbursement extends MY_Controller
 
         $_SESSION['reimbursement']['account_code'] = $_GET['data'];
     }
+
+    // public function set_account_code_item()
+    // {
+    //     if ($this->input->is_ajax_request() === FALSE)
+    //         redirect($this->modules['secure']['route'] .'/denied');
+
+    //     $_SESSION['reimbursement']['account_code_item'] = $_GET['data'];
+    // }
 
     public function set_head_dept()
     {
@@ -299,6 +328,22 @@ class Reimbursement extends MY_Controller
         $this->render_view($this->module['view'] .'/create');
     }
 
+    public function search_budget()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $annual_cost_center_id = $_SESSION['reimbursement']['annual_cost_center_id'];
+        $entities = $this->model->getExpenseReimbursementItem($annual_cost_center_id,$with_po);
+
+        foreach ($entities as $key => $value) {
+                $entities[$key]['label'] .= $value['account_code'];
+                $entities[$key]['label'] .= $value['expense_name'];
+        }
+
+        echo json_encode($entities);
+    }
+
     public function info($id)
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -324,8 +369,10 @@ class Reimbursement extends MY_Controller
         $this->authorized($this->module, 'print');
 
         $entity = $this->model->findById($id);
+        $level_akun = config_item('auth_role');
 
         $this->data['entity']           = $entity;
+        $this->data['level_akun']       = $level_akun;
         $this->data['page']['title']    = strtoupper($this->module['label']);
         $this->data['page']['content']  = $this->module['view'] .'/print_pdf';
 
@@ -379,16 +426,30 @@ class Reimbursement extends MY_Controller
 
     public function save()
     {
+
+        
+
+        
         if ($this->input->is_ajax_request() == FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
+
+        
 
         if (is_granted($this->module, 'create') == FALSE){
             $data['success'] = FALSE;
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
+            $errors = array();
+
+            $isMore2Year = $this->model->canRequestReimbursement($_SESSION['reimbursement']['employee_number']);
+
+            if ($_SESSION['reimbursement']['type'] == 'PLAFON OPTIK') {
+                if($isMore2Year == false){
+                    $errors[] = "Reimbursement can only be done every 2 years";
+                }
+            }
 
             $document_number = $_SESSION['reimbursement']['document_number'] . $_SESSION['reimbursement']['format_number'];
-            $errors = array();
 
             if ($_SESSION['reimbursement']['head_dept']==NULL || $_SESSION['reimbursement']['head_dept']=='') {
                 $errors[] = 'Attention!! Please select one of Head Dept for Approval';
@@ -401,6 +462,7 @@ class Reimbursement extends MY_Controller
             if ($_SESSION['reimbursement']['saldo_balance']==0) {
                 $errors[] = "Saldo balance is 0. You Can't create reimbursement";
             }
+            
 
             if (!empty($errors)){
                 $data['success'] = FALSE;
@@ -431,6 +493,8 @@ class Reimbursement extends MY_Controller
                 'transaction_date'  => $this->input->post('date'),
                 'notes'             => $this->input->post('notes'),
                 'amount'            => $this->input->post('amount'),
+                'account_code_item'            => $this->input->post('account_code_item'),
+
             );        
         }
 
@@ -497,6 +561,8 @@ class Reimbursement extends MY_Controller
                 'transaction_date'  => $this->input->post('date'),
                 'notes'             => $this->input->post('notes'),
                 'amount'            => $this->input->post('amount'),
+                'account_code_item'            => $this->input->post('account_code_item'),
+
 
             );
         } 
@@ -535,6 +601,8 @@ class Reimbursement extends MY_Controller
         $success = 0;
         $failed = sizeof($document_id);
         $x = 0;
+
+        
 
         $save_approval = $this->model->approve($document_id, $notes);
         if ($save_approval['status']) {
@@ -602,6 +670,7 @@ class Reimbursement extends MY_Controller
                 'info' => "There are " . $save_approval['failed'] . " errors"
             ));
         }
+        
 
         if ($success > 0) {
             // $this->model->send_mail_approval($id_expense_request, 'approve', config_item('auth_person_name'),$notes);

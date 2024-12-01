@@ -91,6 +91,7 @@
                 <th><?= ($entity['type']=='MEDICAL')? 'Patient Name':'Expense Detail'?></th>
                 <th>Date</th>
                 <th><?= ($entity['type']=='MEDICAL')? 'Diagnoses':'Description'?></th>
+                <th>Account Code</th>
                 <th>Amount</th>
               </tr>
             </thead>
@@ -111,6 +112,9 @@
                 </td>
                 <td>
                   <?=print_string($detail['notes']);?>
+                </td>
+                <td>
+                  <?=print_string($detail['account_code']);?>
                 </td>
                 <td>
                   <?=print_number($detail['amount'],2);?>

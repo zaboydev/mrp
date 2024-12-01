@@ -170,6 +170,7 @@ class Employee_Benefit_Model extends MY_Model
             $this->db->set('notes', $_SESSION['benefit']['notes']);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->set('reimbursement', 't');
             $this->db->insert('tb_master_employee_benefits');
             $employee_benefit_id = $this->db->insert_id();
         }        
