@@ -48,7 +48,7 @@
         <tr>
             <th>No</th>
             <th>Expense Detail</th>
-            <th style="text-align:right;">Date</th>
+            <th style="text-align:right;">Date of invoice / provide</th>
             <th style="text-align:right;">Amount</th>
         </tr>
     </thead>
