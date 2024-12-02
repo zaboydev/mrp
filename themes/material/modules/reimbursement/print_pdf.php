@@ -12,6 +12,10 @@
   }
 </style>
 <table class="table-spd" width="100%">
+<tr>
+    <th width="30%"> Date </th>
+    <td width="70%">: <?=print_date($entity['created_at'],'d M Y');?></td>
+  </tr>
   <tr>
     <th width="30%"> NO </th>
     <td width="70%">: <?= print_string($entity['document_number']); ?></td>
