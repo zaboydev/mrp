@@ -110,7 +110,7 @@
                         </div>
                         <div class="form-group hide">
                             <input type="text" name="account_code" id="account_code" class="form-control" value="<?= $_SESSION['reimbursement']['account_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account_code'); ?>" readonly>
-                            <label for="account_code">Account Code</label>
+                            <label for="account_code">Account Code (COA)</label>
                         </div>  
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                             <th><span class="title_1">Expense Detail</span></th>
                             <th>Date</th>
                             <th><span class="title_2">Description/Notes</span></th>
-                            <th>Account Code</th>
+                            <th>Account Code (COA)</th>
                             <th>Amount</th>
                         </tr>
                     </thead>
@@ -280,7 +280,7 @@
                                     </div>
                                     <div class="form-group">
                                         <input type="text" name="account_code_item" id="account_code_item" class="form-control"  data-input-type="autoset" readonly>
-                                        <label for="account_code_item">Account Code</label>
+                                        <label for="account_code_item">Account Code (COA)</label>
                                     </div>
                                 </fieldset>
                             </div>

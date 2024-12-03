@@ -91,7 +91,7 @@
                 <th><?= ($entity['type']=='MEDICAL')? 'Patient Name':'Expense Detail'?></th>
                 <th>Date</th>
                 <th><?= ($entity['type']=='MEDICAL')? 'Diagnoses':'Description'?></th>
-                <th>Account Code</th>
+                <th>Account Code (COA)</th>
                 <th>Amount</th>
               </tr>
             </thead>
