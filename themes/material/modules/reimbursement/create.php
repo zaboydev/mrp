@@ -178,7 +178,7 @@
                 Add
                 </button>
 
-                <a href="#modal-add-item" data-toggle="modal" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
+                <a href="#modal-add-item" data-toggle="modal" onClick="setPlafondBalance()" data-target="#modal-add-item" class="btn btn-primary ink-reaction btn-open-offcanvas pull-left">
                     Add Item
                 </a>
 
@@ -260,8 +260,23 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <input type="text" id="amount" class="form-control input-sm" name="amount" value="0" step=".02">
+                                        <input type="text" id="amount" class="form-control input-sm" name="amount" value="0" step=".02" oninput="updateSaldoBalance()">
                                         <label for="amount">Amount</label>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <input type="text" id="plafond_balance_modal" class="form-control input-sm" name="plafond_balance_modal" value="0" step=".02" readonly>
+                                        <label for="plafond_balance_modal">Plafond Balance</label>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <input type="text" id="used_balance_modal" class="form-control input-sm" name="used_balance_modal" value="0" step=".02" readonly>
+                                        <label for="used_balance_modal">Last Used Balance</label>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <input type="text" id="saldo_balance_modal" class="form-control input-sm" name="saldo_balance_modal" value="0" step=".02" readonly>
+                                        <label for="saldo_balance_modal">Saldo Balance</label>
                                     </div>
                                     <div class="form-group">
                                         <input type="text" name="account_code_item" id="account_code_item" class="form-control"  data-input-type="autoset" readonly>
@@ -338,6 +353,28 @@
     $('.select2').select2({
         // theme: "bootstrap",
     });
+
+    function setPlafondBalance() {
+        var saldo_balance_modal = $('#saldo_balance').val();
+        var plafond_balance_modal = $('#plafond_balance').val();
+        var used_balance_modal = $('#used_balance').val();
+        $('#saldo_balance_modal').val(saldo_balance_modal).trigger('change');
+        $('#plafond_balance_modal').val(plafond_balance_modal).trigger('change');
+        $('#used_balance_modal').val(used_balance_modal).trigger('change');
+    }
+
+    function updateSaldoBalance() {
+        var initialBalance = $('#saldo_balance').val();
+        const amount = parseFloat(document.getElementById('amount').value) || 0;
+        const saldoBalanceField = document.getElementById('saldo_balance_modal');
+
+        // Calculate the updated balance
+        const updatedBalance = initialBalance - amount;
+
+        // Update the saldo_balance field
+        saldoBalanceField.value = updatedBalance.toFixed(0); // Ensures 2 decimal places
+
+    }
 
     function popup(mylink, windowname){
         var height = window.innerHeight;
@@ -687,6 +724,12 @@
                         $('#saldo_balance').val(obj.saldo_balance).trigger('change');
                         $('#plafond_balance').val(obj.plafond_balance).trigger('change');
                         $('#used_balance').val(obj.used_balance).trigger('change');
+                        //modal
+                        $('#saldo_balance_modal').val(obj.saldo_balance).trigger('change');
+                        $('#plafond_balance_modal').val(obj.plafond_balance).trigger('change');
+                        $('#used_balance_modal').val(obj.used_balance).trigger('change');
+
+
 
                         $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                     }else{
@@ -701,6 +744,11 @@
                         $('#saldo_balance').val(obj.saldo_balance).trigger('change');
                         $('#plafond_balance').val(obj.plafond_balance).trigger('change');
                         $('#used_balance').val(obj.used_balance).trigger('change');
+
+                        $('#saldo_balance_modal').val(obj.saldo_balance).trigger('change');
+                        $('#plafond_balance_modal').val(obj.plafond_balance).trigger('change');
+                        $('#used_balance_modal').val(obj.used_balance).trigger('change');
+
 
                         $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                         
