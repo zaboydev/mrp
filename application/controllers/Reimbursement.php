@@ -159,6 +159,20 @@ class Reimbursement extends MY_Controller
         echo json_encode($employee_has_benefit);
     }
 
+
+    public function get_expense_name()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+        
+
+        $id_expense = $_GET['id_type'];
+
+        $expense = $this->model->getExpenseName($id_expense);
+        
+        echo json_encode($expense);
+    }
+
     public function set_doc_number()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -238,6 +252,14 @@ class Reimbursement extends MY_Controller
             redirect($this->modules['secure']['route'] .'/denied');
 
         $_SESSION['reimbursement']['type'] = $_GET['data'];
+    }
+
+    public function set_type_reimbursement_id()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['reimbursement']['type_id'] = $_GET['data'];
     }
 
     public function set_account_code()
@@ -488,14 +510,29 @@ class Reimbursement extends MY_Controller
         $this->authorized($this->module, 'create');
 
         if (isset($_POST) && !empty($_POST)){
-            $_SESSION['reimbursement']['items'][] = array(
-                'description'       => $this->input->post('description'),
-                'transaction_date'  => $this->input->post('date'),
-                'notes'             => $this->input->post('notes'),
-                'amount'            => $this->input->post('amount'),
-                'account_code_item'            => $this->input->post('account_code_item'),
+            if($this->input->post('amount') >= $this->input->post('saldo_balance_modal')){
+                $_SESSION['reimbursement']['items'][] = array(
+                    'description'       => $this->input->post('description'),
+                    'transaction_date'  => $this->input->post('date'),
+                    'notes'             => $this->input->post('notes'),
+                    'amount'            => $this->input->post('amount'),
+                    'paid_amount'       => $this->input->post('paid_amount_modal'),
+                    'account_code_item' => $this->input->post('account_code_item'),
+    
+                );    
 
-            );        
+            } else {
+                $_SESSION['reimbursement']['items'][] = array(
+                    'description'       => $this->input->post('description'),
+                    'transaction_date'  => $this->input->post('date'),
+                    'notes'             => $this->input->post('notes'),
+                    'amount'            => $this->input->post('amount'),
+                    'paid_amount'       => $this->input->post('paid_amount_modal'),
+                    'account_code_item' => $this->input->post('account_code_item'),
+    
+                );    
+            }
+               
         }
 
         redirect($this->module['route'] .'/create');
@@ -561,7 +598,7 @@ class Reimbursement extends MY_Controller
                 'transaction_date'  => $this->input->post('date'),
                 'notes'             => $this->input->post('notes'),
                 'amount'            => $this->input->post('amount'),
-                'account_code_item'            => $this->input->post('account_code_item'),
+                'account_code_item' => $this->input->post('account_code_item'),
 
 
             );

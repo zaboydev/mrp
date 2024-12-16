@@ -3426,12 +3426,13 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('available_expense_reimbursement')) {
-    function available_expense_reimbursement()
+    function available_expense_reimbursement($id_benefit)
     {
       $CI =& get_instance();
-  
       $CI->db->select('*');
       $CI->db->from('tb_master_expense_reimbursement');  
+      $CI->db->where('id_benefit', $id_benefit);  
+      
       
       $CI->db->order_by('expense_name', 'ASC');
   

@@ -352,6 +352,7 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('transaction_date', $data['transaction_date']);
             $this->db->set('notes', $data['notes']);
             $this->db->set('amount', $data['amount']);
+            $this->db->set('paid_amount', $data['paid_amount']);
             $this->db->set('account_code', $data['account_code_item']);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
@@ -361,15 +362,15 @@ class Reimbursement_Model extends MY_Model
              * UPDATE TOTAL IN TABLE REIMBURSEMENT
              */
             $this->db->where('id', $document_id);
-            $this->db->set('total', 'total +' . $data['amount'], FALSE);
+            $this->db->set('total', 'total +' . $data['paid_amount'], FALSE);
             $this->db->update('tb_reimbursements');
 
-            $this->db->set('used_amount_plafond', 'used_amount_plafond + ' . $data['amount'], FALSE);
-            $this->db->set('left_amount_plafond', 'left_amount_plafond - ' . $data['amount'], FALSE);
+            $this->db->set('used_amount_plafond', 'used_amount_plafond + ' . $data['paid_amount'], FALSE);
+            $this->db->set('left_amount_plafond', 'left_amount_plafond - ' . $data['paid_amount'], FALSE);
             $this->db->where('tb_employee_has_benefit.id', $employee_has_benefit_id);
             $this->db->update('tb_employee_has_benefit');
 
-            $total[] = $data['amount'];
+            $total[] = $data['paid_amount'];
         }
 
         $this->db->set('employee_has_benefit_id', $employee_has_benefit_id);
@@ -1275,6 +1276,18 @@ class Reimbursement_Model extends MY_Model
         }
 
         return $return;
+    }
+
+    public function getExpenseName($id_benefit){
+
+        $this->db->from('tb_master_expense_reimbursement');
+        $this->db->where('id_benefit', $id_benefit);  
+        $this->db->order_by('expense_name', 'ASC');  
+
+
+        $query = $this->db->get();
+
+        return $query->unbuffered_row('array');
     }
 
     public function findCostCenter($annual_cost_center_id){

@@ -33,10 +33,10 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="type" id="type_reimbursement" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>" required>
+                            <select name="type" id="type_reimbursement" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>" data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>"required>
                                 <option></option>
                                 <?php foreach(getBenefits() as $benefit):?>
-                                <option data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
+                                <option data-account-id="<?=$benefit['id'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="type_reimbursement">Type</label>
@@ -126,6 +126,8 @@
                             <th><span class="title_2">Description/Notes</span></th>
                             <th>Account Code (COA)</th>
                             <th>Amount</th>
+                            <th>Paid Amount</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -133,7 +135,7 @@
 
                         <?php if (!empty($_SESSION['reimbursement']['items'])): ?>
                             <?php foreach ($_SESSION['reimbursement']['items'] as $i => $items): ?>
-                                <?php $total[] = $items['amount']; ?>
+                                <?php $total[] = $items['paid_amount']; ?>
                                 <tr id="row_<?= $i; ?>">
                                     <td>
                                         <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
@@ -150,6 +152,8 @@
                                     <td><?= $items['account_code_item']; ?></td>
 
                                     <td><?= number_format($items['amount'], 2); ?></td>
+                                    <td><?= number_format($items['paid_amount'], 2); ?></td>
+
 
                                     
                                 </tr>
@@ -164,7 +168,7 @@
                     <tr>
                         <th></th>
                         <th colspan="3">Total</th>
-                        <th><?= number_format(array_sum($total),2);?>
+                        <th><?= number_format(array_sum($total));?>
                         <input type="hidden" name="total" id="total" value="<?= array_sum($total); ?>">
                         </th>
                     </tr>
@@ -239,15 +243,27 @@
                                         <label for="description"><span class="title_1">Expense Detail</span></label>
                                     </div> -->
 
+
                                     <div class="form-group" style="padding-top: 25px;">
-                                        <select name="description" id="description" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_description'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_expense_reimbursement'); ?>"required>
+                                        <select name="description" id="description" class="form-control" 
+                                            data-input-type="autoset" 
+                                            data-source="<?= site_url($module['route'] . '/set_description'); ?>"
+                                            required>
                                             <option></option>
-                                            <?php foreach(available_expense_reimbursement() as $user):?>
-                                            <option data-account-code-item="<?=$user['account_code'];?>" value="<?=$user['expense_name'];?>" <?= ($user['expense_name'] == $_SESSION['reimbursement']['description']) ? 'selected' : ''; ?>><?=$user['expense_name'];?></option>
-                                            <?php endforeach;?>
+                                            <!-- This will be dynamically populated -->
                                         </select>
                                         <label for="description">Expense Name</label>
                                     </div>
+
+                                    <!-- <div class="form-group" style="padding-top: 25px;">
+                                        <select name="description" id="description" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_description'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_expense_reimbursement'); ?>"required>
+                                            <option></option>
+                                            <?php foreach(available_expense_reimbursement() as $user):?>
+                                            
+                                            <?php endforeach;?>
+                                        </select>
+                                        <label for="description">Expense Name</label>
+                                    </div> -->
 
                                     <div class="form-group">
                                         <input type="text" name="date" id="date" data-tag-name="date" class="form-control input-sm" required="required" data-provide="datepicker">
@@ -265,6 +281,11 @@
                                     </div>
 
                                     <div class="form-group">
+                                        <input type="text" id="paid_amount_modal" class="form-control input-sm" name="paid_amount_modal" value="0" step=".02" readonly>
+                                        <label for="paid_amount_modal">Paid Amount</label>
+                                    </div>
+
+                                    <div class="form-group">
                                         <input type="text" id="plafond_balance_modal" class="form-control input-sm" name="plafond_balance_modal" value="0" step=".02" readonly>
                                         <label for="plafond_balance_modal">Plafond Balance</label>
                                     </div>
@@ -278,6 +299,8 @@
                                         <input type="text" id="saldo_balance_modal" class="form-control input-sm" name="saldo_balance_modal" value="0" step=".02" readonly>
                                         <label for="saldo_balance_modal">Saldo Balance</label>
                                     </div>
+
+                                   
                                     <div class="form-group">
                                         <input type="text" name="account_code_item" id="account_code_item" class="form-control"  data-input-type="autoset" readonly>
                                         <label for="account_code_item">Account Code (COA)</label>
@@ -367,13 +390,23 @@
         var initialBalance = $('#saldo_balance').val();
         const amount = parseFloat(document.getElementById('amount').value) || 0;
         const saldoBalanceField = document.getElementById('saldo_balance_modal');
+        const paidAmountField = document.getElementById('paid_amount_modal'); // Field paid amount modal
 
-        // Calculate the updated balance
-        const updatedBalance = initialBalance - amount;
+        var paidAmount = amount; // Default nilai paidAmount adalah amount
 
-        // Update the saldo_balance field
-        saldoBalanceField.value = updatedBalance.toFixed(0); // Ensures 2 decimal places
+        if (amount >= initialBalance) {
+            // Jika amount melebihi initialBalance
+            paidAmount = initialBalance; // Paid amount adalah sisa saldo awal
+            saldoBalanceField.value = 0; // Saldo menjadi 0
+        } else {
+            // Jika amount tidak melebihi initialBalance
+            const updatedBalance = initialBalance - amount; // Hitung saldo yang diperbarui
+            saldoBalanceField.value = updatedBalance.toFixed(0); // Update saldo tersisa
+        }
 
+        // Update paidAmount field
+        paidAmountField.value = paidAmount;
+       
     }
 
     function popup(mylink, windowname){
@@ -701,6 +734,8 @@
             });
         });
 
+       
+
         $('#employee_number').change(function () {
             var employee_number = $('#employee_number').val();                        
             var position = $('#employee_number option:selected').data('position');  
@@ -766,13 +801,41 @@
 
         $('#type_reimbursement').change(function () {
             var account_code = $('#type_reimbursement option:selected').data('account-code');  
+            var id_benefit = $('#type_reimbursement option:selected').data('account-id');
 
             $('#account_code').val(account_code).trigger('change');
             var employee_number = $('#employee_number').val();                        
             var position = $('#employee_number option:selected').data('position');  
             var url = $('#employee_number').data('source-get-balance');
+            var sourceUrl = $('#type_reimbursement').data('source-get-expense-name');
+
             var type = $('#type_reimbursement').val();   
+
+
+            $.ajax({
+                    url: sourceUrl,
+                    type: 'GET',
+                    data: {
+                        id_type   : id_benefit,
+                    },
+                    success: function (data) {
+                        console.log("dataexpense");
+                        console.log(data);
+                        var obj = $.parseJSON(data);
+                        const option = `
+                            <option data-account-code-item="${obj.account_code}" 
+                                    value="${obj.expense_name}">
+                                ${obj.expense_name}
+                            </option>`;
+                        $('#description').append(option); // Append to dropdown
+                    },
+                    error: function () {
+                        alert('Failed to fetch data. Please try again.');
+                    }
+                });
+
             if(employee_number!=NULL){
+                
                 $.ajax({
                     url: url,
                     type: 'GET',
@@ -815,6 +878,7 @@
             
             type_reimbursement();            
         });
+        
 
         function type_reimbursement(){
             var type_reimbursement = $('#type_reimbursement').val(); 
