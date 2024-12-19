@@ -44,6 +44,8 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html
 
 RUN a2enmod rewrite speling
 
+RUN a2enmod rewrite
+
 # Update Apache configuration to allow .htaccess files
 RUN echo "<Directory /var/www/html/>\n\
     Options Indexes FollowSymLinks\n\
