@@ -1287,7 +1287,7 @@ class Reimbursement_Model extends MY_Model
 
         $query = $this->db->get();
 
-        return $query->unbuffered_row('array');
+        return $query->result_array();
     }
 
     public function findCostCenter($annual_cost_center_id){

@@ -822,12 +822,15 @@
                         console.log("dataexpense");
                         console.log(data);
                         var obj = $.parseJSON(data);
-                        const option = `
-                            <option data-account-code-item="${obj.account_code}" 
-                                    value="${obj.expense_name}">
-                                ${obj.expense_name}
-                            </option>`;
-                        $('#description').append(option); // Append to dropdown
+                        $('#description').empty();
+                        obj.forEach(function (item) {
+                            const option = `
+                                <option data-account-code-item="${item.account_code}" 
+                                        value="${item.expense_name}">
+                                    ${item.expense_name}
+                                </option>`;
+                            $('#description').append(option); // Append each option
+                        });
                     },
                     error: function () {
                         alert('Failed to fetch data. Please try again.');
