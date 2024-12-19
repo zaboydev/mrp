@@ -92,7 +92,8 @@
                 <th>Date</th>
                 <th><?= ($entity['type']=='MEDICAL')? 'Diagnoses':'Description'?></th>
                 <th>Account Code (COA)</th>
-                <th>Amount</th>
+                <th>Paid Amount</th>
+                
               </tr>
             </thead>
             <tbody id="table_contents">
@@ -122,11 +123,11 @@
                 <?php $total[] = $detail['amount'];?>
               </tr>
               <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="text-center">No items available</td>
-                            </tr>
-                        <?php endif; ?>
+              <?php else: ?>
+                  <tr>
+                      <td colspan="5" class="text-center">No items available</td>
+                  </tr>
+              <?php endif; ?>
             </tbody>
             <tfoot>
               <tr>
