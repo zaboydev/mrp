@@ -12,7 +12,6 @@ RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
 RUN a2enmod rewrite
 
 
-
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Install necessary packages and PHP extensions
