@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class ExpenseReimbursement extends MY_Controller
+class Expense_Reimbursement extends MY_Controller
 {
     protected $module;
 
