@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Employee_Benefit extends MY_Controller
+class Employee_benefit extends MY_Controller
 {
     protected $module;
     protected $id_item=0;

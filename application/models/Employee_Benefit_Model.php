@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Employee_Benefit_Model extends MY_Model
+class Employee_benefit_model extends MY_Model
 {
     protected $module;
 
