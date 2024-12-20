@@ -3705,22 +3705,27 @@ if (!function_exists('currency_for_vendor_list')) {
   if ( ! function_exists('getBenefitsByEmployeeNumber')) {
   function getBenefitsByEmployeeNumber($employee_number) {
       $CI =& get_instance();
-        $CI->db->select('
-            benefit_items.id AS benefit_item_id,
-            benefits.id AS benefit_item_id,
-            benefits.employee_benefit,
-            benefit_items.level,
-            benefit_items.year,
-            benefit_items.amount
-        ');
+      $CI->db->select('
+        benefit_items.id AS benefit_item_id,
+        benefits.id AS benefit_id,
+        benefits.employee_benefit,
+        benefits.spesific_gender,        
+        benefit_items.level,
+        benefit_items.year,
+        benefit_items.amount
+      ');
         $CI->db->from('tb_master_employee_benefit_items AS benefit_items');
         $CI->db->join('tb_master_employee_benefits AS benefits', 'benefit_items.employee_benefit_id = benefits.id', 'inner');
         $CI->db->join('tb_master_levels AS levels', 'benefit_items.level = levels.level', 'inner');
         $CI->db->join('tb_master_employees AS employees', 'employees.level_id = levels.id', 'inner');
         $CI->db->where('employees.employee_number', $employee_number);
-
+        $CI->db->group_start(); // Start grouping the conditions
+        $CI->db->where('benefits.spesific_gender', $gender); // Match gender
+        $CI->db->or_where('benefits.spesific_gender IS NULL', null, false); // Match NULL
+        $CI->db->group_end(); // End grouping
+        
         $query = $CI->db->get();
-        $result = $query->result_array();
+        $result = $query->result_array(); // Fetch results
 
         return $result; // Mengembalikan array hasil query
     }

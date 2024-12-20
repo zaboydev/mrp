@@ -133,6 +133,14 @@ class Employee_Benefit extends MY_Controller
         $_SESSION['benefit']['kode_akun'] = $_GET['data'];
     }
 
+    public function set_gender()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['benefit']['gender'] = $_GET['data'];
+    }
+
     public function set_employee_benefit()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -232,7 +240,7 @@ class Employee_Benefit extends MY_Controller
             $data['success'] = TRUE;
         } else {
             $data['success'] = FALSE;
-            $data['message'] = 'Please select any vendors!';
+            $data['message'] = 'Please select any Level!';
         }
         }
 

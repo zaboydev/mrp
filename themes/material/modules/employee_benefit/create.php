@@ -22,11 +22,56 @@
                             <input type="text" name="employee_benefit" id="employee_benefit" value="<?= $_SESSION['benefit']['employee_benefit']; ?>" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_benefit'); ?>" required>
                             <label for="employee_benefit">Employee's Benefit</label>
                         </div>
-
+<!-- 
                         <div class="form-group">
                             <input type="text" name="kode_akun" id="kode_akun" value="<?= $_SESSION['benefit']['kode_akun']; ?>" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_kode_akun'); ?>" required>
                             <label for="kode_akun">Kode Akun</label>
+                        </div> -->
+
+                        <div class="form-group">
+                            <select name="kode_akun" id="kode_akun" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_kode_akun'); ?>" required>
+                                <option value="">Select Code of Account</option>
+                                <?php foreach (master_coa() as $group) : ?>
+                                <option value="<?= $group['coa']; ?>" data-coa="<?= $group['coa']; ?>" data-group="<?= $group['group']; ?>">
+                                    <?= $group['coa']; ?> - <?= $group['group']; ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <label for="kode_akun">Code of Account</label>
                         </div>
+
+                        <div class="form-group">
+                            <select name="gender" id="gender" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_gender'); ?>" required>
+                                <option value="">All Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                            <label for="gender">Select Gender</label>
+                        </div>
+
+
+                        <!-- <div class="form-group">
+                            <label for="gender">Spesific Gender</label>
+                            <div class="radio">
+                                <input type="radio" name="gender" id="male" value="male" <?php if ($entity['spesific_gender']=='male'):echo 'checked'; endif;?>>
+                                <label for="male">
+                                    Male
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <input type="radio" name="gender" id="female" value="female" <?php if ($entity['spesific_gender']=='female'):echo 'checked'; endif;?>>
+                                <label for="female">
+                                    Female
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <input type="radio" name="gender" id="all" value="" <?php if ($entity['spesific_gender']==''):echo 'checked'; endif;?>>
+                                <label for="female">
+                                    All
+                                </label>
+                            </div>
+                        </div> -->
+
                         <div class="form-group">
                             <textarea name="notes" id="notes" class="form-control" rows="4" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_notes'); ?>"><?= $_SESSION['benefit']['notes']; ?></textarea>
                             <label for="notes">Notes</label>
