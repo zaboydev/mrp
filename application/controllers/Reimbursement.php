@@ -61,6 +61,7 @@ class Reimbursement extends MY_Controller
                 }            
                 $col[] = print_date($row['date'], 'd F Y');    
                 $col[] = print_string($row['document_number']);
+                $col[] = print_string($row['pr_number']);
                 $col[] = print_string($row['type']);
                 $col[] = print_string($row['status']);
                 $col[] = print_string($cost_center['cost_center_name']);

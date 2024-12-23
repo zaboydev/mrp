@@ -124,7 +124,7 @@
                             <th><span class="title_1">Expense Detail</span></th>
                             <th>Date</th>
                             <th><span class="title_2">Description/Notes</span></th>
-                            <th>Account Code (COA)</th>
+                            <!-- <th>Account Code (COA)</th> -->
                             <th>Amount</th>
                             <th>Paid Amount</th>
 
@@ -149,7 +149,7 @@
                                     <td><?= $items['description']; ?></td>
                                     <td><?= $items['transaction_date']; ?></td>
                                     <td><?= $items['notes']; ?></td>
-                                    <td><?= $items['account_code_item']; ?></td>
+                                    <!-- <td><?= $items['account_code_item']; ?></td> -->
 
                                     <td><?= number_format($items['amount'], 2); ?></td>
                                     <td><?= number_format($items['paid_amount'], 2); ?></td>
@@ -301,7 +301,7 @@
                                     </div>
 
                                    
-                                    <div class="form-group">
+                                    <div class="form-group hide">
                                         <input type="text" name="account_code_item" id="account_code_item" class="form-control"  data-input-type="autoset" readonly>
                                         <label for="account_code_item">Account Code (COA)</label>
                                     </div>

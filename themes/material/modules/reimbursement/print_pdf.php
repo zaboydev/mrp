@@ -21,6 +21,10 @@
     <td width="70%">: <?= print_string($entity['document_number']); ?></td>
   </tr>
   <tr>
+    <th width="30%"> Expense Number </th>
+    <td width="70%">: <?= print_string($entity['pr_number']); ?></td>
+  </tr>
+  <tr>
     <th> ID. Nbr/No Karyawan </th>
     <td>: <?= print_string($entity['employee_number']); ?></td>
   </tr>

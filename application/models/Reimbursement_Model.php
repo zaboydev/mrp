@@ -24,6 +24,7 @@ class Reimbursement_Model extends MY_Model
             'No',
             'Document Date',
             'Document Number',
+            'Expense Number',
             'Type',
             'Status',
             'Department',
@@ -455,6 +456,23 @@ class Reimbursement_Model extends MY_Model
         return TRUE;
     }
 
+
+    public function set_pr_number($id, $pr_number){
+        $this->db->trans_begin();
+
+        $this->db->set('pr_number', $pr_number);
+        $this->db->set('updated_by', config_item('auth_person_name'));
+        $this->db->set('updated_at', date('Y-m-d H:i:s'));
+        $this->db->where('id', $id);
+        $this->db->update('tb_reimbursements');    
+        if ($this->db->trans_status() === FALSE)
+        return FALSE;
+
+        $this->db->trans_commit();
+        return TRUE;
+
+    }
+
     public function create_expense_auto($id)
     {
         $this->db->trans_begin();        
@@ -595,6 +613,9 @@ class Reimbursement_Model extends MY_Model
 
         $this->db->trans_commit();
         $this->connection->trans_commit();
+
+        $set_pr = $this->set_pr_number($id, $pr_number);
+
         return ['status'=>TRUE,'pr_number'=>$pr_number];
     }
 
