@@ -80,6 +80,16 @@
       </option>
     </select>
   </div>
+  <div class="form-group">
+    <label for="filter_item_category">Year</label>
+    <select class="form-control input-sm filter_dropdown" data-column="3" id="filter_year">
+      <?php foreach (getYears() as $year) : ?>
+        <option value="<?= $year['year_number']; ?>" <?php if(find_budget_setting('Active Year')==$year['year_number']):echo 'selected'; endif;?>>
+          <?= $year['year_number'] ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div> 
 </div>
 <?php endblock() ?>
 

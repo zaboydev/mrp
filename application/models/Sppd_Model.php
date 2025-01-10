@@ -101,6 +101,11 @@ class Sppd_Model extends MY_Model
             }
         }
 
+        if (!empty($_POST['columns'][3]['search']['value'])) {
+            $year = $_POST['columns'][3]['search']['value'];
+            $this->db->where("EXTRACT(YEAR FROM tb_sppd.date) =", $year);
+        }
+
         $i = 0;
 
         foreach ($this->getSearchableColumns() as $item){
