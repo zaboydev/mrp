@@ -294,13 +294,7 @@ class Employee_benefit extends MY_Controller
                 $errors = array();
                 if (!isset($_SESSION['benefit']['employee_benefit']) || empty($_SESSION['benefit']['employee_benefit'])){
                     $errors[] = 'Employee Benefit Harus isi.';
-                }
-
-                // if(isset($_SESSION['benefit']['id'])){
-                //     if($this->model->isDestinationExist($_SESSION['benefit']['business_trip_destination'])){
-                //         $errors[] = 'Tujuan Dinas '.$_SESSION['benefit']['business_trip_destination'].' Sudah Terdaftar.';
-                //     }
-                // }                
+                }         
 
                 if (!empty($errors)) {
                     $data['success'] = FALSE;

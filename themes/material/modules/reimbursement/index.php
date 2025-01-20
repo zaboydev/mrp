@@ -337,7 +337,7 @@
           $(row).addClass('selected');
         }
       },
-      drawCallback: function(settings) {
+      drawCallback: function(settings) { 
         var api = this.api();
         var data = api.rows({
           page: 'current'

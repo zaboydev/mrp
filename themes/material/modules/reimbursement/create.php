@@ -95,7 +95,7 @@
                             <label for="saldo_balance">Saldo Balance</label>
                         </div>  
 
-                       
+                        
 
                         <div class="form-group hide">
                             <input type="text" name="employee_has_benefit_id" id="employee_has_benefit_id" class="form-control" value="<?= $_SESSION['reimbursement']['employee_has_benefit_id']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_has_benefit_id'); ?>" readonly>
@@ -124,7 +124,7 @@
                             <th><span class="title_1">Expense Detail</span></th>
                             <th>Date</th>
                             <th><span class="title_2">Description/Notes</span></th>
-                            <!-- <th>Account Code (COA)</th> -->
+                            <th>Account Code (COA)</th>
                             <th>Amount</th>
                             <th>Paid Amount</th>
 
@@ -149,7 +149,7 @@
                                     <td><?= $items['description']; ?></td>
                                     <td><?= $items['transaction_date']; ?></td>
                                     <td><?= $items['notes']; ?></td>
-                                    <!-- <td><?= $items['account_code_item']; ?></td> -->
+                                    <td><?= $items['account_code_item']; ?></td>
 
                                     <td><?= number_format($items['amount'], 2); ?></td>
                                     <td><?= number_format($items['paid_amount'], 2); ?></td>
@@ -381,9 +381,17 @@
         var saldo_balance_modal = $('#saldo_balance').val();
         var plafond_balance_modal = $('#plafond_balance').val();
         var used_balance_modal = $('#used_balance').val();
+        var account_code_item = $('#description option:selected').data('account-code-item');  
+
+        console.log("MulaiBuka");
+        console.log(account_code_item);
+
         $('#saldo_balance_modal').val(saldo_balance_modal).trigger('change');
         $('#plafond_balance_modal').val(plafond_balance_modal).trigger('change');
         $('#used_balance_modal').val(used_balance_modal).trigger('change');
+        $('#account_code_item').val(account_code_item).trigger('change');
+
+
     }
 
     function updateSaldoBalance() {
@@ -795,8 +803,9 @@
 
         $('#description').change(function () {
             var account_code_item = $('#description option:selected').data('account-code-item');  
-
             $('#account_code_item').val(account_code_item).trigger('change');
+            console.log("Data account code");
+            console.log(account_code_item);
         });
 
         $('#type_reimbursement').change(function () {

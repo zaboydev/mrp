@@ -82,7 +82,7 @@ class Reimbursement_Model extends MY_Model
         }else{    
             if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
                 $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HEAD DEPT');
-                $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
+                // $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
             }
             elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
                 $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HR MANAGER');
