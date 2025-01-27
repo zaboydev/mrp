@@ -3566,6 +3566,7 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI->db->select('*');
       $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
       $CI->db->where('tb_master_employee_benefits.reimbursement','t');
+      $CI->db->where('benefit_items.deleted_by IS NULL', null, false);
       $CI->db->from('tb_master_employee_benefits');
       $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
 
