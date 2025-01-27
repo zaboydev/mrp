@@ -3795,6 +3795,23 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('findDetailBenefit')) {
+    function findDetailBenefit($employee_benefit)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select(array(
+        'tb_master_employee_benefits.*'
+      ));
+      $CI->db->where('tb_master_employee_benefits.employee_benefit', $employee_benefit);
+      $CI->db->where('tb_master_employee_benefits.status', 'AVAILABLE');
+      $query      = $CI->db->get('tb_master_employee_benefits');
+      $row        = $query->unbuffered_row('array');
+  
+      return $row;
+    }
+  }
+
   if ( ! function_exists('get_count_revisi')) {
     function get_count_revisi($document_number,$tipe)
     {

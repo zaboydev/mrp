@@ -127,6 +127,7 @@ $config['additional_modules_for_hr_depatment'] = array(
   'employee_benefit',
   'user_position',
   'employee',
+  'expense_reimbursement',
 );
 
 $config['hr_department_name'] = 'Human Resources Dept';

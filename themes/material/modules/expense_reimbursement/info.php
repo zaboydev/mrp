@@ -16,11 +16,11 @@
 
             <div class="col-sm-12 col-md-12">
                 <dl class="dl-inline">
-                    <dt>Employee's Benefit</dt>
-                    <dd><?=$entity['employee_benefit'];?></dd>
+                    <dt>Expense Name</dt>
+                    <dd><?=$entity['expense_name'];?></dd>
 
-                    <dt>Notes</dt>
-                    <dd><?=($entity['notes'])? $entity['notes']:'n/b';?></dd>
+                    <dt>Account Code</dt>
+                    <dd><?=($entity['account_code'])? $entity['account_code']:'n/b';?></dd>
 
                     <dt>Modified at</dt>
                     <dd><?=print_date($entity['updated_at']);?></dd>
@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div class="row" id="document_details">
+        <!-- <div class="row" id="document_details">
             <div class="col-sm-12">
                 <div class="table-responsive">
                     <table class="table table-striped table-nowrap">
@@ -43,17 +43,20 @@
                         <tbody id="table_contents">
                         <?php $n = 0;?>
                         <?php $total_expense = array();?>
-                        <?php if (isset($_SESSION['benefit']['levels'])) : ?>
-                            <?php foreach ($entity['levels'] as $id => $item):?>
+                        <?php if (!empty($entity['items'])): ?>
+                        <?php foreach ($entity['levels'] as $i => $detail):?>
                             <?php $n++;?>
                             <tr>
                                 <td class="no-space">
                                     <?=print_number($n);?>
                                 </td>
-                                <td><?=$item['level'];?></td>
-                                <td style="text-align:left;">
-                                    <?= number_format($item['amount'], 2); ?>
-                                </td>     
+                                <td>
+                                    <?=print_string($detail['level']);?>
+                                </td>
+                                <td style="text-align:right;">
+                                    <?=print_number($detail['amount'], 2);?>
+                                    <?php $total_expense[] = $detail['amount'];?>
+                                </td>
                             </tr>
                         <?php endforeach;?>
                         <?php else: ?>
@@ -68,11 +71,11 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <div class="card-foot">
-        <?php if (is_granted($module, 'delete')):?>
+        <!-- <?php if (is_granted($module, 'delete')):?>
         <?=form_open(current_url(), array(
             'class' => 'form-xhr pull-left',
         ));?>
@@ -83,7 +86,7 @@
             <small class="top left">delete</small>
             </a>
         <?=form_close();?>
-        <?php endif;?>
+        <?php endif;?> -->
 
         <div class="pull-right">
         <?php if (is_granted($module, 'create')):?>

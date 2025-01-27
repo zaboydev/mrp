@@ -1,11 +1,16 @@
 <?php include 'themes/material/page.php' ?>
-
 <?php startblock('actions_right') ?>
-  <?php if (is_granted($module, 'create')):?>
-    <?php $this->load->view('material/templates/button_create_data_modal') ?>
-  <?php endif ?>
+<div class="section-floating-action-row">
+    <?php if (is_granted($module, 'create')) : ?>
+    <div class="btn-group dropup">
+        <a href="<?= site_url($module['route'] . '/create'); ?>" type="button" class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-create-document">
+            <i class="md md-add"></i>
+            <small class="top right">Create <?= $module['label']; ?></small>
+        </a>
+    </div>        
+    <?php endif ?>
+</div>
 <?php endblock() ?>
-
 
 <?php startblock('page_head_tools') ?>
   <?php $this->load->view('material/templates/datatable_tools') ?>
@@ -74,3 +79,4 @@
     </div>
   <?php endblock() ?>
 <?php endif;?>
+

@@ -29,7 +29,6 @@ class Reimbursement_Model extends MY_Model
             'Status',
             'Department',
             'Name',
-            'COA',
             'Amount',
             'Approval Notes'
         );
@@ -220,17 +219,18 @@ class Reimbursement_Model extends MY_Model
         return $query->unbuffered_row('array');
     }
 
-    public function canRequestReimbursement($employee_id) {
+    public function canRequestReimbursement($employee_id, $id_benefit) {
         // Ambil data pengajuan terakhir untuk karyawan ini
         $this->db->select('created_at');
         $this->db->where('employee_number', $employee_id);
+        $this->db->where('id_benefit', $id_benefit);
         $this->db->from('tb_reimbursements');
         $this->db->order_by('created_at', 'DESC');
         $this->db->limit(1);
         $query = $this->db->get();
 
         // Jika belum pernah melakukan pengajuan, izinkan
-        if ($query->num_rows() == 0) {
+        if ($query->num_rows() === 0) {
             return true;
         }
 
@@ -244,6 +244,52 @@ class Reimbursement_Model extends MY_Model
         } else {
             return false; // Tidak bisa mengajukan
         }
+    }
+
+    public function canRequestOptik($employee_id, $id_benefit) {
+        // Ambil data pengajuan terakhir untuk karyawan ini
+        $this->db->select('created_at');
+        $this->db->where('employee_number', $employee_id);
+        $this->db->where('id_benefit', $id_benefit);
+        $this->db->from('tb_reimbursements');
+        $this->db->order_by('created_at', 'DESC');
+        $this->db->limit(1);
+        $query = $this->db->get();
+
+        // Jika belum pernah melakukan pengajuan, izinkan
+        if ($query->num_rows() === 0) {
+            return true;
+        }
+
+        // Jika pernah, cek tanggal terakhir pengajuan
+        $last_request_date = $query->row();
+        $last_request_date = $last_request_date->created_at;
+        $two_years_ago = date('Y-m-d', strtotime('-2 years'));
+
+        if ($last_request_date < $two_years_ago) {
+            return true; // Bisa mengajukan
+        } else {
+            return false; // Tidak bisa mengajukan
+        }
+    }
+
+
+    public function canGetOnceBenefit($employee_id, $id_benefit) {
+        // Ambil data pengajuan terakhir untuk karyawan ini
+        $this->db->select('created_at');
+        $this->db->where('employee_number', $employee_id);
+        $this->db->where('id_benefit', $id_benefit);
+        $this->db->from('tb_reimbursements');
+        $this->db->order_by('created_at', 'DESC');
+        $query = $this->db->get();
+
+        // Jika belum pernah melakukan pengajuan, izinkan
+        if ($query->num_rows() === 0) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     public function save()
@@ -282,7 +328,7 @@ class Reimbursement_Model extends MY_Model
 
         $status = "WAITING APPROVAL BY HR MANAGER";
 
-        if($_SESSION['reimbursement']['type'] == 'SANTUNAN DUKA'){
+        if($_SESSION['reimbursement']['benefit_code'] === 'B4'){
             $status = "WAITING APPROVAL BY HEAD DEPT";
         }
 
@@ -302,8 +348,11 @@ class Reimbursement_Model extends MY_Model
         $head_dept                  = $_SESSION['reimbursement']['head_dept'];
         $occupation                 = $_SESSION['reimbursement']['occupation'];
         $type                       = $_SESSION['reimbursement']['type'];
-        $account_code               = $_SESSION['reimbursement']['account_code'];
         $employee_has_benefit_id    = $_SESSION['reimbursement']['employee_has_benefit_id'];
+        $id_benefit                 = $_SESSION['reimbursement']['id_benefit'];
+        $benefit_code               = $_SESSION['reimbursement']['benefit_code'];
+
+
 
        
 
@@ -312,6 +361,8 @@ class Reimbursement_Model extends MY_Model
         $this->db->set('status', $status);
         $this->db->set('employee_has_benefit_id', $employee_has_benefit_id);
         $this->db->set('document_number', $document_number);
+        $this->db->set('id_benefit', $id_benefit);
+        $this->db->set('benefit_code', $benefit_code);
         $this->db->set('type', $type);
         $this->db->set('employee_number', $employee_number);
         $this->db->set('person_name', $person_name);
@@ -319,7 +370,6 @@ class Reimbursement_Model extends MY_Model
         $this->db->set('occupation', $occupation);
         $this->db->set('head_dept', $head_dept);
         $this->db->set('notes', $notes);
-        $this->db->set('account_code', $account_code);
         $this->db->set('total', 0);
         $this->db->set('request_by', config_item('auth_person_name'));
         $this->db->set('created_by', config_item('auth_person_name'));
@@ -763,44 +813,181 @@ class Reimbursement_Model extends MY_Model
 
     public function getEmployeeHasBenefit($employee_number,$employee_benefit,$position)
     {
-        $level = getLevelByPosition($position);
-        if(isEmployeeContractActiveExist($employee_number)){
-            $kontrak_active = findContractActive($employee_number);
-            $this->db->select('tb_employee_has_benefit.*');
-            $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
-            $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
-            $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
-            $this->db->where('tb_employee_has_benefit.employee_contract_id',$kontrak_active['id']);
-            $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
-            $this->db->from('tb_employee_has_benefit');
-            $queryemployee_has_benefit  = $this->db->get();
-            $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
+        // $level = getLevelByPosition($position);
+        $categoryBenefit = findDetailBenefit($employee_benefit);
+        // if($categoryBenefit === NULL){
+        //     $return['status'] = 'warning';
+        //     $return['saldo_balance'] = 0;
+        //     $return['plafond_balance'] = 0;
+        //     $return['used_balance'] = 0;
+        //     $return['employee_has_benefit_id'] = null;
+        //     $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
+        //     return $return;
+        // } else {
+        //     $return['status'] = 'warning';
+        //     $return['saldo_balance'] = 0;
+        //     $return['plafond_balance'] = 0;
+        //     $return['used_balance'] = 0;
+        //     $return['employee_has_benefit_id'] = null;
+        //     $return['message'] = 'Berhasil ambil data';
+        //     return $return;
+        // }
+        if($categoryBenefit['benefit_type'] !== 'contract'){
+            
+            if($categoryBenefit['benefit_type'] == 'once'){
 
-            if($queryemployee_has_benefit->num_rows()>0){
-                $return['status'] = 'success';
-                $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
-                $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
-                $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
-                $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
+                $isCanClaim = $this->canGetOnceBenefit($employee_number, $categoryBenefit['id']);
+
+                if($isCanClaim){
+                     $this->db->select('tb_employee_has_benefit.*');
+                    $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
+                    $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+                    $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
+                    $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
+                    $this->db->order_by('tb_employee_has_benefit.created_at', 'DESC');
+                    $this->db->limit(1);
+                    $this->db->from('tb_employee_has_benefit');
+                    $queryemployee_has_benefit  = $this->db->get();
+                    $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
+    
+                    if($queryemployee_has_benefit->num_rows()>0){
+                        $return['status'] = 'success';
+                        $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                        $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
+                        $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
+                        $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
+                    }else{
+                        $return['status'] = 'warning';
+                        $return['saldo_balance'] = 0;
+                        $return['plafond_balance'] = 0;
+                        $return['used_balance'] = 0;
+                        $return['employee_has_benefit_id'] = null;
+                        $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
+                    }            
+                    return $return;
+                } else {
+                    $return['status'] = 'warning';
+                    $return['saldo_balance'] = 0;
+                    $return['plafond_balance'] = 0;
+                    $return['used_balance'] = 0;
+                    $return['employee_has_benefit_id'] = null;
+                    $return['message'] = 'Karyawan ini sudah melakukan claim pada benefit ini';
+                    return $return;
+                }
+                
+            } else if($categoryBenefit['benefit_type'] == 'yearly') {
+                $isCanClaimOptik = $this->canRequestOptik($employee_number, $categoryBenefit['id']);
+
+                if($isCanClaimOptik){
+                    $this->db->select('tb_employee_has_benefit.*');
+                    $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
+                    $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+                    $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
+                    $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
+                    $this->db->order_by('tb_employee_has_benefit.created_at', 'DESC');
+                    $this->db->limit(1);
+                    $this->db->from('tb_employee_has_benefit');
+                    $queryemployee_has_benefit  = $this->db->get();
+                    $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
+
+                    if($queryemployee_has_benefit->num_rows()>0){
+                        $return['status'] = 'success';
+                        $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                        $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
+                        $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
+                        $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
+                    }else{
+
+
+                        $return['status'] = 'warning';
+                        $return['saldo_balance'] = 0;
+                        $return['plafond_balance'] = 0;
+                        $return['used_balance'] = 0;
+                        $return['employee_has_benefit_id'] = null;
+                        $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
+                    }  
+                    return $return;
+
+                } else {
+                    $return['status'] = 'warning';
+                    $return['saldo_balance'] = 0;
+                    $return['plafond_balance'] = 0;
+                    $return['used_balance'] = 0;
+                    $return['employee_has_benefit_id'] = null;
+                    $return['message'] = 'Karyawan ini sudah melakukan claim optik dibawah 2 tahun pada benefit ini';
+                    return $return;
+                }
+                
+
+            } else {
+                //Period
+                $this->db->select('tb_employee_has_benefit.*');
+                $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
+                $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+                $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
+                $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
+                $this->db->order_by('tb_employee_has_benefit.created_at', 'DESC');
+                $this->db->limit(1);
+                $this->db->from('tb_employee_has_benefit');
+                $queryemployee_has_benefit  = $this->db->get();
+                $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
+
+                if($queryemployee_has_benefit->num_rows()>0){
+                    $return['status'] = 'success';
+                    $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                    $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
+                    $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
+                    $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
+                }else{
+                    $return['status'] = 'warning';
+                    $return['saldo_balance'] = 0;
+                    $return['plafond_balance'] = 0;
+                    $return['used_balance'] = 0;
+                    $return['employee_has_benefit_id'] = null;
+                    $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
+                }  
+                return $return;
+            }
+
+        } else {
+            if(isEmployeeContractActiveExist($employee_number)){
+                $kontrak_active = findContractActive($employee_number);
+                $this->db->select('tb_employee_has_benefit.*');
+                $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
+                $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+                $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
+                $this->db->where('tb_employee_has_benefit.employee_contract_id',$kontrak_active['id']);
+                $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
+                $this->db->from('tb_employee_has_benefit');
+                $queryemployee_has_benefit  = $this->db->get();
+                $rowemployee_has_benefit    = $queryemployee_has_benefit->unbuffered_row('array');
+    
+                if($queryemployee_has_benefit->num_rows()>0){
+                    $return['status'] = 'success';
+                    $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                    $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
+                    $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
+                    $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
+                }else{
+                    $return['status'] = 'warning';
+                    $return['saldo_balance'] = 0;
+                    $return['plafond_balance'] = 0;
+                    $return['used_balance'] = 0;
+                    $return['employee_has_benefit_id'] = null;
+                    $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
+                }            
+                
+                return $return;
             }else{
                 $return['status'] = 'warning';
                 $return['saldo_balance'] = 0;
                 $return['plafond_balance'] = 0;
                 $return['used_balance'] = 0;
                 $return['employee_has_benefit_id'] = null;
-                $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
-            }            
-            
-            return $return;
-        }else{
-            $return['status'] = 'warning';
-            $return['saldo_balance'] = 0;
-            $return['plafond_balance'] = 0;
-            $return['used_balance'] = 0;
-            $return['employee_has_benefit_id'] = null;
-            $return['message'] = 'Karyawan ini tidak memiliki Kontrak Aktif dan Saldo balance';
-            
-            return $return;
+                $return['message'] = 'Karyawan ini tidak memiliki Kontrak Aktif dan Saldo balance';
+                
+                return $return;
+            }
         }
     }
 
@@ -883,7 +1070,7 @@ class Reimbursement_Model extends MY_Model
 
             $findDataPosition = findPositionByEmployeeNumber($spd['employee_number']);
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && $spd['type'] == "SANTUNAN DUKA" && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && $spd['benefit_code'] == "B4" && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','APPROVED');
                 $this->db->set('validated_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);

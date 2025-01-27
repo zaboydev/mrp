@@ -66,7 +66,6 @@ class Reimbursement extends MY_Controller
                 $col[] = print_string($row['status']);
                 $col[] = print_string($cost_center['cost_center_name']);
                 $col[] = print_string($row['person_name']);
-                $col[] = print_string($row['account_code']);
                 $col[] = print_number($row['total'],2);
                 $col[] = print_string($row['notes']);
                 if($row['status']=='approved' || $row['status']=='closed'){
@@ -271,6 +270,22 @@ class Reimbursement extends MY_Controller
         $_SESSION['reimbursement']['account_code'] = $_GET['data'];
     }
 
+    public function set_id_benefit()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['reimbursement']['id_benefit'] = $_GET['data'];
+    }
+
+    public function set_benefit_code()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['reimbursement']['benefit_code'] = $_GET['data'];
+    }
+
     // public function set_account_code_item()
     // {
     //     if ($this->input->is_ajax_request() === FALSE)
@@ -449,9 +464,6 @@ class Reimbursement extends MY_Controller
 
     public function save()
     {
-
-        
-
         
         if ($this->input->is_ajax_request() == FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
@@ -463,14 +475,6 @@ class Reimbursement extends MY_Controller
             $data['message'] = 'You are not allowed to save this Document!';
         } else {
             $errors = array();
-
-            $isMore2Year = $this->model->canRequestReimbursement($_SESSION['reimbursement']['employee_number']);
-
-            if ($_SESSION['reimbursement']['type'] == 'PLAFON OPTIK') {
-                if($isMore2Year == false){
-                    $errors[] = "Reimbursement can only be done every 2 years";
-                }
-            }
 
             $document_number = $_SESSION['reimbursement']['document_number'] . $_SESSION['reimbursement']['format_number'];
 

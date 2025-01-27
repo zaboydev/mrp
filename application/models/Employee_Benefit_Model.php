@@ -154,8 +154,9 @@ class Employee_benefit_model extends MY_Model
         if($id!=NULL){
             $this->db->set('employee_benefit', trim($_SESSION['benefit']['employee_benefit']));
             $this->db->set('notes', $_SESSION['benefit']['notes']);
-            $this->db->set('kode_akun', $_SESSION['benefit']['kode_akun']);
             $this->db->set('spesific_gender', $_SESSION['benefit']['gender']);
+            $this->db->set('benefit_type', $_SESSION['benefit']['benefit_type']);
+            $this->db->set('benefit_code', $_SESSION['benefit']['benefit_code']);
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->where('id', $id);
             $this->db->update('tb_master_employee_benefits');
@@ -167,9 +168,10 @@ class Employee_benefit_model extends MY_Model
             $this->db->update('tb_master_employee_benefit_items');
         }else{
             $this->db->set('employee_benefit', $_SESSION['benefit']['employee_benefit']);
-            $this->db->set('kode_akun', $_SESSION['benefit']['kode_akun']);
             $this->db->set('notes', $_SESSION['benefit']['notes']);
             $this->db->set('spesific_gender', $_SESSION['benefit']['gender']);
+            $this->db->set('benefit_type', $_SESSION['benefit']['benefit_type']);
+            $this->db->set('benefit_code', $_SESSION['benefit']['benefit_code']);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->set('reimbursement', 't');

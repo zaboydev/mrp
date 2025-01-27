@@ -113,8 +113,8 @@ class Employee_benefit extends MY_Controller
             $_SESSION['benefit']['id']               = $id;
             $_SESSION['benefit']['edit']             = $entity['id'];
         }
-
-        redirect($this->module['route'] . '/create');
+        
+        redirect($this->module['route'] . '/create/'. $id);
     }
 
     public function set_notes()
@@ -141,6 +141,22 @@ class Employee_benefit extends MY_Controller
         $_SESSION['benefit']['gender'] = $_GET['data'];
     }
 
+    public function set_benefit_type()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['benefit']['benefit_type'] = $_GET['data'];
+    }
+
+    public function set_benefit_code()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] . '/denied');
+
+        $_SESSION['benefit']['benefit_code'] = $_GET['data'];
+    }
+
     public function set_employee_benefit()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -153,21 +169,35 @@ class Employee_benefit extends MY_Controller
     {
         $this->authorized($this->module, 'create');
 
-        if ($category !== NULL) {
-            $category = urldecode($category);
+        // if ($category !== NULL) {
+            // $category = urldecode($category);
       
-            $_SESSION['benefit']['items']                      = array();
-            $_SESSION['benefit']['levels']                     = array();
-            $_SESSION['benefit']['employee_benefit']           = NULL;
-            $_SESSION['benefit']['notes']                      = NULL;
+            // $_SESSION['benefit']['items']                      = array();
+            // $_SESSION['benefit']['levels']                     = array();
+            // $_SESSION['benefit']['employee_benefit']           = NULL;
+            // $_SESSION['benefit']['notes']                      = NULL;
       
-            redirect($this->module['route'] . '/create');
-        }
+            // redirect($this->module['route'] . '/create');
+        // }
 
-        $this->data['page']['content']    = $this->module['view'] .'/create';
-        $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+        // if($category == 'new'){
+        //     $_SESSION['benefit']['items']                      = array();
+        //     $_SESSION['benefit']['levels']                     = array();
+        //     $_SESSION['benefit']['employee_benefit']           = NULL;
+        //     $_SESSION['benefit']['notes']                      = NULL;
+        //     $_SESSION['benefit']['id']                         = NULL;
 
-        $this->render_view($this->module['view'] .'/create');
+
+        //     $this->data['page']['content']    = $this->module['view'] .'/create';
+        //     $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+        //     $this->render_view($this->module['view'] .'/create');
+        // } else {
+            $this->data['page']['content']    = $this->module['view'] .'/create';
+            $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+            $this->render_view($this->module['view'] .'/create');
+        // }
+
+        
     }
 
     public function add_expense_item()

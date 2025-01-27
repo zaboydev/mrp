@@ -61,9 +61,14 @@ class Expense_reimbursement extends MY_Controller
                 $col[] = print_date($row['updated_at']);
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
-                $col['DT_RowAttr']['onClick']     = '$(this).popup();';
-                $col['DT_RowAttr']['data-target'] = '#data-modal';
-                $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/edit/'. $row['id']);
+                // $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+                // $col['DT_RowAttr']['data-target'] = '#data-modal';
+                // $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/edit/'. $row['id']);
+                if ($this->has_role($this->module, 'info')){
+                    $col['DT_RowAttr']['onClick']     = '$(this).popup();';
+                    $col['DT_RowAttr']['data-target'] = '#data-modal';
+                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                }
 
                 $data[] = $col;
               }
@@ -81,39 +86,69 @@ class Expense_reimbursement extends MY_Controller
 
     public function create()
     {
-        if ($this->input->is_ajax_request() === FALSE)
-            redirect($this->modules['secure']['route'] .'/denied');
+        // if ($this->input->is_ajax_request() === FALSE)
+        //     redirect($this->modules['secure']['route'] .'/denied');
 
-        if (is_granted($this->module, 'create') === FALSE){
-            $return['type'] = 'danger';
-            $return['info'] = "You don't have permission to create data!";
-        } else {
-            $return['type'] = 'success';
-            $return['info'] = $this->load->view($this->module['view'] .'/create', $this->data, TRUE);
+        // if (is_granted($this->module, 'create') === FALSE){
+        //     $return['type'] = 'danger';
+        //     $return['info'] = "You don't have permission to create data!";
+        // } else {
+        //     $return['type'] = 'success';
+        //     $return['info'] = $this->load->view($this->module['view'] .'/create', $this->data, TRUE);
+        // }
+
+        // echo json_encode($return);
+
+        $this->authorized($this->module, 'create');
+
+        if ($category !== NULL) {
+            $category = urldecode($category);
+      
+            $_SESSION['expense_reimbursement']['items'] = array();
+      
+            redirect($this->module['route'] . '/create');
         }
 
-        echo json_encode($return);
+        $this->data['page']['content']    = $this->module['view'] .'/create';
+        $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
+
+        $this->render_view($this->module['view'] .'/create');
     }
 
     public function edit($id)
     {
-        if ($this->input->is_ajax_request() === FALSE)
-            redirect($this->modules['secure']['route'] .'/denied');
+        $this->authorized($this->module, 'create');
 
-        if (is_granted($this->module, 'edit') === FALSE){
-            $return['type'] = 'danger';
-            $return['info'] = "You don't have permission to edit this data!";
-        } else {
-            $entity = $this->model->findById($id);
+        $entity = $this->model->findById($id);
 
-            $this->data['entity'] = $entity;
-
-            $return['type'] = 'success';
-            $return['info'] = $this->load->view($this->module['view'] .'/edit', $this->data, TRUE);
+        if (!isset($_SESSION['expense_reimbursement']['items'])) {
+            $_SESSION['expense_reimbursement']                     = $entity;
+            $_SESSION['expense_reimbursement']['id']               = $id;
+            $_SESSION['expense_reimbursement']['edit']             = $entity['id'];
         }
 
-        echo json_encode($return);
+        redirect($this->module['route'] . '/create');
     }
+
+    // public function edit($id)
+    // {
+    //     if ($this->input->is_ajax_request() === FALSE)
+    //         redirect($this->modules['secure']['route'] .'/denied');
+
+    //     if (is_granted($this->module, 'edit') === FALSE){
+    //         $return['type'] = 'danger';
+    //         $return['info'] = "You don't have permission to edit this data!";
+    //     } else {
+    //         $entity = $this->model->findById($id);
+
+    //         $this->data['entity'] = $entity;
+
+    //         $return['type'] = 'success';
+    //         $return['info'] = $this->load->view($this->module['view'] .'/edit', $this->data, TRUE);
+    //     }
+
+    //     echo json_encode($return);
+    // }
 
     public function save()
     {
@@ -124,13 +159,14 @@ class Expense_reimbursement extends MY_Controller
             $return['type'] = 'danger';
             $return['info'] = "You don't have permission to access this page!";
         } else {
-            if ($this->input->post('id')){
+            if ($this->input->post('id') != ''){
                 if ($this->model->isExpenseDutyNameExists($this->input->post('expense_name'), $this->input->post('expense_name_exception'))){
                     $return['type'] = 'danger';
                     $return['info'] = 'Duplicate Expense Name! Expense Name '. $this->input->post('expense_name') .' already exists.';
                 } else {
                     $position_data = array(
                         'expense_name'  => strtoupper($this->input->post('expense_name')),
+                        'id_benefit'    => $this->input->post('id_benefit'),
                         'account_code'  => $this->input->post('account_code'),
                         'updated_by'    => config_item('auth_person_name'),
                         'updated_at'    => date('Y-m-d H:i:s'),
@@ -139,22 +175,23 @@ class Expense_reimbursement extends MY_Controller
                     $criteria = $this->input->post('id');
 
                     if ($this->model->update($position_data, $criteria)){
-                        $return['type'] = 'success';
-                        $return['info'] = 'Expense Name ' . $this->input->post('expense_name') .' updated.';
+                        $return['success'] = TRUE;
+                        $return['message'] = 'Expense Name ' . $this->input->post('expense_name') .' updated.';
                     } else {
-                        $return['type'] = 'danger';
-                        $return['info'] = 'There are error while updating data. Please try again later.';
+                        $return['success'] = FALSE;
+                        $return['message'] = 'There are error while updating data. Please try again later.';
                     }
                 }
             } else {
                 if ($this->model->isExpenseDutyNameExists($this->input->post('expense_name'))){
-                    $return['type'] = 'danger';
-                    $return['info'] = 'Duplicate Expense Name! Expense Name '. $this->input->post('expense_name') .' already exists.';
+                    $return['success'] = FALSE;
+                    $return['message'] = 'Duplicate Expense Name! Expense Name '. $this->input->post('expense_name') .' already exists.';
                 } else {
 
                     $position_data = array(
                         'expense_name'  => strtoupper($this->input->post('expense_name')),
                         'account_code'  => $this->input->post('account_code'),
+                        'id_benefit'    => $this->input->post('id_benefit'),
                         'created_by'    => config_item('auth_person_name'),
                         'created_at'    => date('Y-m-d H:i:s'),
                         'updated_by'    => config_item('auth_person_name'),
@@ -162,14 +199,34 @@ class Expense_reimbursement extends MY_Controller
                     );
 
                     if ($this->model->insert($position_data)){
-                        $return['type'] = 'success';
-                        $return['info'] = 'Expense Name for ' . $this->input->post('expense_name') .' created.';
+                        $return['success'] = TRUE;
+                        $return['message'] = 'Expense Name for ' . $this->input->post('expense_name') .' created.';
                     } else {
-                        $return['type'] = 'danger';
-                        $return['info'] = 'There are error while updating data. Please try again later.';
+                        $return['success'] = FALSE;
+                        $return['message'] = 'There are error while updating data. Please try again later.';
                     }
                 }
             }
+        }
+
+        echo json_encode($return);
+    }
+
+    public function info($id)
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+        redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'info') === FALSE){
+        $return['type'] = 'denied';
+        $return['info'] = "You don't have permission to access this data. You may need to login again.";
+        } else {
+        $entity = $this->model->findById($id);
+
+        $this->data['entity'] = $entity;
+
+        $return['type'] = 'success';
+        $return['info'] = $this->load->view($this->module['view'] .'/info', $this->data, TRUE);
         }
 
         echo json_encode($return);

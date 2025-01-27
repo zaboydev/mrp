@@ -36,7 +36,7 @@
                             <select name="type" id="type_reimbursement" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>" data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>"required>
                                 <option></option>
                                 <?php foreach(getBenefits() as $benefit):?>
-                                <option data-account-id="<?=$benefit['id'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
+                                <option data-account-id="<?=$benefit['id'];?>" data-account-ben-code="<?=$benefit['benefit_code'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="type_reimbursement">Type</label>
@@ -95,7 +95,6 @@
                             <label for="saldo_balance">Saldo Balance</label>
                         </div>  
 
-                        
 
                         <div class="form-group hide">
                             <input type="text" name="employee_has_benefit_id" id="employee_has_benefit_id" class="form-control" value="<?= $_SESSION['reimbursement']['employee_has_benefit_id']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_has_benefit_id'); ?>" readonly>
@@ -111,6 +110,16 @@
                         <div class="form-group hide">
                             <input type="text" name="account_code" id="account_code" class="form-control" value="<?= $_SESSION['reimbursement']['account_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_account_code'); ?>" readonly>
                             <label for="account_code">Account Code (COA)</label>
+                        </div>  
+
+                        <div class="form-group hide">
+                            <input type="text" name="id_benefit" id="id_benefit" class="form-control" value="<?= $_SESSION['reimbursement']['id_benefit']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_id_benefit'); ?>" readonly>
+                            <label for="id_benefit">ID Benefit</label>
+                        </div>  
+
+                        <div class="form-group hide">
+                            <input type="text" name="benefit_code" id="benefit_code" class="form-control" value="<?= $_SESSION['reimbursement']['benefit_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefit_code'); ?>" readonly>
+                            <label for="benefit_code">Benefit CODE</label>
                         </div>  
                     </div>
                 </div>
@@ -609,6 +618,7 @@
             button.attr('disabled', true);
 
             if (form.valid()) {
+                console.log("Masuk sini");
                 $.post(action, form.serialize()).done(function(data) {
                     var obj = $.parseJSON(data);
 
@@ -634,70 +644,65 @@
             button.attr('disabled', false);
         });
 
-        $(buttonSubmitDocument).on('click', function(e) {
-            e.preventDefault();
-            $(buttonSubmitDocument).attr('disabled', true);
+        $(buttonSubmitDocument).on('click', function (e) {
+    e.preventDefault();
+    var button = $(this);
+    button.attr('disabled', true); // Disable the button to prevent multiple clicks.
 
-            var url = $(this).attr('href');
+    var url = button.attr('href');
+    var saldo = parseFloat($('#saldo_balance').val()) || 0; // Default to 0 if invalid.
+    var total = parseFloat($('#total').val()) || 0;         // Default to 0 if invalid.
 
-            var saldo = $('#saldo_balance').val();
-            var plafond_balance = $('#plafond_balance').val();
-            var used_balance = $('#used_balance').val();
-            var total = $('#total').val();
-            console.log("Total");
-            console.log(total);
-            console.log(saldo);
-            console.log(plafond_balance);
+    console.log("Total:", total);
+    console.log("Saldo:", saldo);
 
+    // Validation for invalid inputs
+    if (isNaN(saldo) || isNaN(total)) {
+        alert('Invalid balance or total value. Please check your inputs.');
+        button.attr('disabled', false); // Re-enable the button.
+        return;
+    }
 
-            if(saldo<total){
-                if (confirm('Your balance is less than the total reimbursement. The amount to be reimbursed is the balance. Continue?')) {
-                    $.post(url, formDocument.serialize(), function(data) {
-                        var obj = $.parseJSON(data);
+    // Check if saldo is less than the total reimbursement
+    if (saldo < total) {
+        if (confirm('Your balance is less than the total reimbursement. The amount to be reimbursed is the balance. Continue?')) {
+            submitForm(url, button);
+        } else {
+            button.attr('disabled', false); // Re-enable the button if user cancels.
+        }
+    } else {
+        submitForm(url, button);
+    }
+});
 
-                        if (obj.success == false) {
-                            toastr.options.timeOut = 10000;
-                            toastr.options.positionClass = 'toast-top-right';
-                            toastr.error(obj.message);
-                        } else {
-                            toastr.options.timeOut = 4500;
-                            toastr.options.closeButton = false;
-                            toastr.options.progressBar = true;
-                            toastr.options.positionClass = 'toast-top-right';
-                            toastr.success(obj.message);
+// Function to submit the form via POST
+function submitForm(url, button) {
+    $.post(url, formDocument.serialize(), function (data) {
+        var obj = $.parseJSON(data);
 
-                            window.setTimeout(function() {
-                                window.location.href = '<?= site_url($module['route']); ?>';
-                            }, 5000);
-                        }
-                    });
-                }
-            }else{
-                $.post(url, formDocument.serialize(), function(data) {
-                    var obj = $.parseJSON(data);
+        if (obj.success === false) {
+            toastr.options.timeOut = 10000;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.error(obj.message);
+        } else {
+            toastr.options.timeOut = 4500;
+            toastr.options.closeButton = false;
+            toastr.options.progressBar = true;
+            toastr.options.positionClass = 'toast-top-right';
+            toastr.success(obj.message);
 
-                    if (obj.success == false) {
-                        toastr.options.timeOut = 10000;
-                        toastr.options.positionClass = 'toast-top-right';
-                        toastr.error(obj.message);
-                    } else {
-                        toastr.options.timeOut = 4500;
-                        toastr.options.closeButton = false;
-                        toastr.options.progressBar = true;
-                        toastr.options.positionClass = 'toast-top-right';
-                        toastr.success(obj.message);
+            setTimeout(function () {
+                window.location.href = '<?= site_url($module['route']); ?>';
+            }, 5000);
+        }
 
-                        window.setTimeout(function() {
-                            window.location.href = '<?= site_url($module['route']); ?>';
-                        }, 5000);
-                    }
+        button.attr('disabled', false); // Re-enable the button after completion.
+    }).fail(function () {
+        alert('An error occurred while submitting the form.');
+        button.attr('disabled', false); // Re-enable the button on error.
+    });
+}
 
-                    $(buttonSubmitDocument).attr('disabled', false);
-                });
-            }
-
-            $(buttonSubmitDocument).attr('disabled', false);            
-        });
 
        
 
@@ -809,10 +814,16 @@
         });
 
         $('#type_reimbursement').change(function () {
-            var account_code = $('#type_reimbursement option:selected').data('account-code');  
+            // var account_code = $('#type_reimbursement option:selected').data('account-code');  
             var id_benefit = $('#type_reimbursement option:selected').data('account-id');
+            var benefit_code = $('#type_reimbursement option:selected').data('account-ben-code');
 
-            $('#account_code').val(account_code).trigger('change');
+
+            // $('#account_code').val(account_code).trigger('change');
+            $('#id_benefit').val(id_benefit).trigger('change');
+            $('#benefit_code').val(benefit_code).trigger('change');
+
+
             var employee_number = $('#employee_number').val();                        
             var position = $('#employee_number option:selected').data('position');  
             var url = $('#employee_number').data('source-get-balance');
@@ -836,7 +847,7 @@
                             const option = `
                                 <option data-account-code-item="${item.account_code}" 
                                         value="${item.expense_name}">
-                                    ${item.expense_name}
+                                    ${item.expense_name} - ${item.account_code}
                                 </option>`;
                             $('#description').append(option); // Append each option
                         });
