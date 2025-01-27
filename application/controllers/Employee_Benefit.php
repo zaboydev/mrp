@@ -149,7 +149,7 @@ class Employee_benefit extends MY_Controller
         $_SESSION['benefit']['benefit_type'] = $_GET['data'];
     }
 
-    public function set_benefit_code()
+    public function set_benefit_code_data()
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
