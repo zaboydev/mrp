@@ -133,7 +133,7 @@ class Employee_benefit extends MY_Controller
         $_SESSION['benefit']['kode_akun'] = $_GET['data'];
     }
 
-    public function set_gender_code_name()
+    public function set_gender()
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
@@ -141,7 +141,7 @@ class Employee_benefit extends MY_Controller
         $_SESSION['benefit']['gender'] = $_GET['data'];
     }
 
-    public function set_benefit_type()
+    public function set_benefittype()
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');
@@ -149,7 +149,7 @@ class Employee_benefit extends MY_Controller
         $_SESSION['benefit']['benefit_type'] = $_GET['data'];
     }
 
-    public function set_benefit_code_data()
+    public function set_benefitcode()
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');

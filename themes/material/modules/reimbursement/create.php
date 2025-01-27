@@ -118,7 +118,7 @@
                         </div>  
 
                         <div class="form-group hide">
-                            <input type="text" name="benefit_code" id="benefit_code" class="form-control" value="<?= $_SESSION['reimbursement']['benefit_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefit_code'); ?>" readonly>
+                            <input type="text" name="benefit_code" id="benefit_code" class="form-control" value="<?= $_SESSION['reimbursement']['benefit_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefitcode'); ?>" readonly>
                             <label for="benefit_code">Benefit CODE</label>
                         </div>  
                     </div>

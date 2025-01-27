@@ -278,7 +278,7 @@ class Reimbursement extends MY_Controller
         $_SESSION['reimbursement']['id_benefit'] = $_GET['data'];
     }
 
-    public function set_benefit_code()
+    public function set_benefitcode()
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] .'/denied');
