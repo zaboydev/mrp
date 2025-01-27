@@ -133,7 +133,7 @@ class Employee_benefit extends MY_Controller
         $_SESSION['benefit']['kode_akun'] = $_GET['data'];
     }
 
-    public function set_gender()
+    public function set_gender_code_name()
     {
         if ($this->input->is_ajax_request() === FALSE)
             redirect($this->modules['secure']['route'] . '/denied');

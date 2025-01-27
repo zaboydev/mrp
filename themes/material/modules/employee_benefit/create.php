@@ -24,7 +24,7 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="gender" id="gender" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_gender'); ?>" required>
+                            <select name="gender" id="gender" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_gender_code_name'); ?>" required>
                                 <option value="" <?= ("" == $_SESSION['benefit']['spesific_gender']) ? 'selected' : ''; ?> >All Gender</option>
                                 <option value="male" <?= ("male" == $_SESSION['benefit']['spesific_gender']) ? 'selected' : ''; ?>>Male</option>
                                 <option value="female" <?= ("female" == $_SESSION['benefit']['spesific_gender']) ? 'selected' : ''; ?>>Female</option>
@@ -33,7 +33,7 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="benefit_code" id="benefit_code" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefit_code'); ?>" required>
+                            <select name="benefit_code" id="benefit_code" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefit_code_data'); ?>" required>
                                 <option value="B1" <?= ("B1" == $_SESSION['benefit']['benefit_code']) ? 'selected' : ''; ?>>BENEFIT MEDICAL</option>
                                 <option value="B2" <?= ("B2" == $_SESSION['benefit']['benefit_code']) ? 'selected' : ''; ?>>BENEFIT OPTIK</option>
                                 <option value="B3" <?= ("B3" == $_SESSION['benefit']['benefit_code']) ? 'selected' : ''; ?>>DONATION PERSALINAN</option>
