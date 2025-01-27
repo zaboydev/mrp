@@ -167,8 +167,10 @@ class Reimbursement extends MY_Controller
         
 
         $id_expense = $_GET['id_type'];
+        $group_cost = config_item('auth_annual_cost_group_id')[0];
 
-        $expense = $this->model->getExpenseName($id_expense);
+
+        $expense = $this->model->getExpenseName($id_expense,$group_cost);
         
         echo json_encode($expense);
     }

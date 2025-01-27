@@ -1486,13 +1486,12 @@ class Reimbursement_Model extends MY_Model
         return $return;
     }
 
-    public function getExpenseName($id_benefit){
+    public function getExpenseName($id_benefit,$group_cost){
 
         $this->db->from('tb_master_expense_reimbursement');
-        $this->db->where('id_benefit', $id_benefit);  
+        $this->db->where('id_benefit', $id_benefit);
+        $this->db->where('group_cost', $group_cost);  
         $this->db->order_by('expense_name', 'ASC');  
-
-
         $query = $this->db->get();
 
         return $query->result_array();

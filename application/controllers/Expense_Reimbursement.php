@@ -162,11 +162,13 @@ class Expense_reimbursement extends MY_Controller
             if ($this->input->post('id') != ''){
                 if ($this->model->isExpenseDutyNameExists($this->input->post('expense_name'), $this->input->post('expense_name_exception'))){
                     $return['type'] = 'danger';
-                    $return['info'] = 'Duplicate Expense Name! Expense Name '. $this->input->post('expense_name') .' already exists.';
+                    $return['success'] = FALSE;
+                    $return['message'] = 'Duplicate Expense Name! Expense Name '. $this->input->post('expense_name') .' already exists.';
                 } else {
                     $position_data = array(
                         'expense_name'  => strtoupper($this->input->post('expense_name')),
                         'id_benefit'    => $this->input->post('id_benefit'),
+                        'group_cost'    => $this->input->post('group_cost'),
                         'account_code'  => $this->input->post('account_code'),
                         'updated_by'    => config_item('auth_person_name'),
                         'updated_at'    => date('Y-m-d H:i:s'),
@@ -192,6 +194,7 @@ class Expense_reimbursement extends MY_Controller
                         'expense_name'  => strtoupper($this->input->post('expense_name')),
                         'account_code'  => $this->input->post('account_code'),
                         'id_benefit'    => $this->input->post('id_benefit'),
+                        'group_cost'    => $this->input->post('group_cost'),
                         'created_by'    => config_item('auth_person_name'),
                         'created_at'    => date('Y-m-d H:i:s'),
                         'updated_by'    => config_item('auth_person_name'),

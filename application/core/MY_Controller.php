@@ -61,6 +61,7 @@ class MY_Controller extends CI_Controller
     $this->config->set_item('auth_annual_cost_centers', $this->auth_annual_cost_centers());
     $this->config->set_item('auth_annual_cost_centers_id', $this->auth_annual_cost_centers_id());
     $this->config->set_item('auth_annual_cost_centers_name', $this->auth_annual_cost_centers_name());
+    $this->config->set_item('auth_annual_cost_group_id', $this->auth_annual_cost_group_id());
     $this->config->set_item('period_year', get_setting('ACTIVE_YEAR'));
     $this->config->set_item('period_month', get_setting('ACTIVE_MONTH'));
     $this->config->set_item('auth_role', $this->get_auth_role());
@@ -379,6 +380,35 @@ class MY_Controller extends CI_Controller
 
     foreach ($result as $row) {
       $return[] = $row['cost_center_name'];
+    }
+
+    return $return;
+  }
+
+  protected function auth_annual_cost_group_id()
+  {
+    $year = $this->find_budget_setting('Active Year');
+    if ($_SESSION['auth_level'] > 5){
+      $this->connection->select('group_id');
+      $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+      $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $_SESSION['username']);
+      $this->connection->where('tb_annual_cost_centers.year_number', $year);
+    } else {
+      $this->connection->select('group_id');
+      $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+      $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $this->connection->order_by('group_id', 'ASC');
+    }
+
+    $query  = $this->connection->get();
+    $result = $query->result_array();
+    $return = array();
+
+    foreach ($result as $row) {
+      $return[] = $row['group_id'];
     }
 
     return $return;

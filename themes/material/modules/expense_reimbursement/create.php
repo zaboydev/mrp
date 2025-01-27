@@ -23,6 +23,17 @@
                             <label for="expense_name"><?= $module['label']; ?></label>
                         </div>
                         <div class="form-group">
+                            <select name="group_cost" id="group_cost" data-placeholder="Pilih Group" class="form-control select2" required>
+                                <?php foreach(findListCostCenter() as $listCost):?>
+                                <option value="<?= $listCost['id']; ?>" data-list-cost-id="<?= $listCost['id']; ?>" <?= ($listCost['id'] == $_SESSION['expense_reimbursement']['group_cost']) ? 'selected' : ''; ?>>
+                                    <?= $listCost['group_name']; ?>
+                                </option>
+                                <?php endforeach;?>
+                            </select>
+                            <label for="group_cost">Group Cost</label>
+                        </div>
+                        
+                        <div class="form-group">
                             <select name="id_benefit" id="id_benefit" data-placeholder="Pilih Benefit" class="form-control select2" required>
                                 <option></option>
                                 <?php foreach(getBenefits() as $benefit):?>
@@ -34,7 +45,7 @@
                             <label for="id_benefit">Plafond Benefit</label>
                         </div>
                         <div class="form-group">
-                        <select name="account_code" id="account_code" data-placeholder="Account Code" class="form-control select2" required>
+                            <select name="account_code" id="account_code" data-placeholder="Account Code" class="form-control select2" required>
                                 <?php foreach (master_coa() as $group) : ?>
                                 <option value="<?= $group['coa']; ?>" data-coa="<?= $group['coa']; ?>" data-group="<?= $group['group']; ?>" <?= ($group['coa'] == $_SESSION['expense_reimbursement']['account_code']) ? 'selected' : ''; ?>>
                                     <?= $group['coa']; ?> - <?= $group['group']; ?>
@@ -43,6 +54,7 @@
                             </select>
                             <label for="account_code">Code of Account</label>
                         </div>
+                        
                     </div>
                 </div>
             </div>
