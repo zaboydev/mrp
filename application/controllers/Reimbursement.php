@@ -456,6 +456,10 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
             $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond']+$entity['total'];
+            $_SESSION['reimbursement']['plafond_balance']           = $employee_has_benefit['amount_plafond'];
+            $_SESSION['reimbursement']['used_balance']              = $employee_has_benefit['used_amount_plafond'];
+
+
             $_SESSION['reimbursement']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
             
         }
