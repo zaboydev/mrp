@@ -521,7 +521,7 @@ class Reimbursement extends MY_Controller
                 $_SESSION['reimbursement']['items'][] = array(
                     'description'       => $this->input->post('description'),
                     'transaction_date'  => $this->input->post('date'),
-                    'notes'             => $this->input->post('notes'),
+                    'notes_modal'       => $this->input->post('notes_modal'),
                     'amount'            => $this->input->post('amount'),
                     'paid_amount'       => $this->input->post('paid_amount_modal'),
                     'account_code_item' => $this->input->post('account_code_item'),
@@ -532,7 +532,7 @@ class Reimbursement extends MY_Controller
                 $_SESSION['reimbursement']['items'][] = array(
                     'description'       => $this->input->post('description'),
                     'transaction_date'  => $this->input->post('date'),
-                    'notes'             => $this->input->post('notes'),
+                    'notes_modal'       => $this->input->post('notes_modal'),
                     'amount'            => $this->input->post('amount'),
                     'paid_amount'       => $this->input->post('paid_amount_modal'),
                     'account_code_item' => $this->input->post('account_code_item'),
@@ -603,11 +603,10 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['items'][$key] = array(        
                 'description'       => $this->input->post('description'),
                 'transaction_date'  => $this->input->post('date'),
-                'notes'             => $this->input->post('notes'),
+                'notes_modal'       => $this->input->post('notes_modal'),
                 'amount'            => $this->input->post('amount'),
                 'account_code_item' => $this->input->post('account_code_item'),
-
-
+                'paid_amount'       => $this->input->post('paid_amount_modal'),
             );
         } 
         redirect($this->module['route'] .'/create');

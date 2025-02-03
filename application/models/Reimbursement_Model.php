@@ -401,7 +401,7 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('reimbursement_id', $document_id);
             $this->db->set('description', $data['description']);
             $this->db->set('transaction_date', $data['transaction_date']);
-            $this->db->set('notes', $data['notes']);
+            $this->db->set('notes', $data['notes_modal']);
             $this->db->set('amount', $data['amount']);
             $this->db->set('paid_amount', $data['paid_amount']);
             $this->db->set('account_code', $data['account_code_item']);

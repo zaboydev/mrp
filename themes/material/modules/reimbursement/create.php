@@ -157,7 +157,7 @@
 
                                     <td><?= $items['description']; ?></td>
                                     <td><?= $items['transaction_date']; ?></td>
-                                    <td><?= $items['notes']; ?></td>
+                                    <td><?= $items['notes_modal']; ?></td>
                                     <td><?= $items['account_code_item']; ?></td>
 
                                     <td><?= number_format($items['amount'], 2); ?></td>
@@ -259,20 +259,11 @@
                                             data-source="<?= site_url($module['route'] . '/set_description'); ?>"
                                             required>
                                             <option></option>
+                                           
                                             <!-- This will be dynamically populated -->
                                         </select>
                                         <label for="description">Expense Name</label>
                                     </div>
-
-                                    <!-- <div class="form-group" style="padding-top: 25px;">
-                                        <select name="description" id="description" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_description'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_expense_reimbursement'); ?>"required>
-                                            <option></option>
-                                            <?php foreach(available_expense_reimbursement() as $user):?>
-                                            
-                                            <?php endforeach;?>
-                                        </select>
-                                        <label for="description">Expense Name</label>
-                                    </div> -->
 
                                     <div class="form-group">
                                         <input type="text" name="date" id="date" data-tag-name="date" class="form-control input-sm" required="required" data-provide="datepicker">
@@ -280,8 +271,8 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <textarea name="notes" id="notes" data-tag-name="notes" class="form-control input-sm"></textarea>
-                                        <label for="notes"><span class="title_2">Description/Notes</span></label>
+                                        <textarea name="notes_modal" id="notes_modal" data-tag-name="notes_modal" class="form-control input-sm"></textarea>
+                                        <label for="notes_modal"><span class="notes_modal">Description/Notes</span></label>
                                     </div>
 
                                     <div class="form-group">
@@ -400,10 +391,32 @@
         $('#used_balance_modal').val(used_balance_modal).trigger('change');
         $('#account_code_item').val(account_code_item).trigger('change');
 
+       
+
+        var objExpenseItem = localStorage.getItem("expense_name_item");
+        var objExpenseData = $.parseJSON(objExpenseItem);
+        $('#description').empty();
+        const emptyOption = `
+                                <option data-account-code-item="" 
+                                        value="">
+                                     Pilih Expense Name 
+                                </option>`;
+                        $('#description').append(emptyOption);
+        objExpenseData.forEach(function (item) {
+                const option = `
+                    <option data-account-code-item="${item.account_code}" 
+                            value="${item.expense_name}">
+                        ${item.expense_name} - ${item.account_code}
+                    </option>`;
+                $('#description').append(option); // Append each option
+        });
 
     }
 
     function updateSaldoBalance() {
+        console.log('masuksini');
+
+
         var initialBalance = $('#saldo_balance').val();
         const amount = parseFloat(document.getElementById('amount').value) || 0;
         const saldoBalanceField = document.getElementById('saldo_balance_modal');
@@ -747,6 +760,7 @@ function submitForm(url, button) {
             });
         });
 
+
        
 
         $('#employee_number').change(function () {
@@ -776,6 +790,12 @@ function submitForm(url, button) {
                         $('#saldo_balance_modal').val(obj.saldo_balance).trigger('change');
                         $('#plafond_balance_modal').val(obj.plafond_balance).trigger('change');
                         $('#used_balance_modal').val(obj.used_balance).trigger('change');
+
+                        localStorage.setItem("saldoModal", obj.saldo_balance); 
+                        localStorage.setItem("plafonModal", obj.plafond_balance); 
+                        localStorage.setItem("usedBalance", obj.used_balance); 
+
+
 
 
 
@@ -813,6 +833,8 @@ function submitForm(url, button) {
             console.log(account_code_item);
         });
 
+        var objExpense;
+
         $('#type_reimbursement').change(function () {
             // var account_code = $('#type_reimbursement option:selected').data('account-code');  
             var id_benefit = $('#type_reimbursement option:selected').data('account-id');
@@ -841,9 +863,14 @@ function submitForm(url, button) {
                     success: function (data) {
                         console.log("dataexpense");
                         console.log(data);
-                        var obj = $.parseJSON(data);
+                        objExpense = $.parseJSON(data);
                         $('#description').empty();
-                        obj.forEach(function (item) {
+                        const emptyOption = `<option data-account-code-item="" 
+                                        value="">
+                                        Pilih Expense Name 
+                                </option>`;
+                        $('#description').append(emptyOption);
+                        objExpense.forEach(function (item) {
                             const option = `
                                 <option data-account-code-item="${item.account_code}" 
                                         value="${item.expense_name}">
@@ -851,6 +878,9 @@ function submitForm(url, button) {
                                 </option>`;
                             $('#description').append(option); // Append each option
                         });
+                        
+
+                        localStorage.setItem("expense_name_item", data); 
                     },
                     error: function () {
                         alert('Failed to fetch data. Please try again.');
@@ -899,22 +929,22 @@ function submitForm(url, button) {
                 });
             }
             
-            type_reimbursement();            
+            // type_reimbursement();            
         });
         
 
-        function type_reimbursement(){
-            var type_reimbursement = $('#type_reimbursement').val(); 
-            if(type_reimbursement=='MEDICAL'){
-                $('.title_1').html('Patient Name');
-                $('.title_2').html('Diagnoses');
-            }else{
-                $('.title_1').html('Expense Detail');
-                $('.title_2').html('Description/Notes');
-            }
-        }
+        // function type_reimbursement(){
+        //     var type_reimbursement = $('#type_reimbursement').val(); 
+        //     if(type_reimbursement=='MEDICAL'){
+        //         $('.title_1').html('Patient Name');
+        //         $('.title_2').html('Diagnoses');
+        //     }else{
+        //         $('.title_1').html('Expense Detail');
+        //         $('.title_2').html('Description/Notes');
+        //     }
+        // }
 
-        type_reimbursement();
+        // type_reimbursement();
 
         $(buttonEditDocumentItem).on('click', function(e) {
             e.preventDefault();
@@ -936,19 +966,60 @@ function submitForm(url, button) {
                     console.log(JSON.stringify(response));
                     $('[name="description"]').val(response.description);
                     $('[name="date"]').val(response.transaction_date);
-                    $('[name="notes"]').val(response.notes);
+                    $('[name="notes_modal"]').val(response.notes_modal);
                     $('[name="amount"]').val(response.amount);
+
+
+                   
+                    $('#saldo_balance_modal').val(localStorage.getItem("saldoModal")).trigger('change');
+                    $('#paid_amount_modal').val(response.amount).trigger('change');
+                    $('#plafond_balance_modal').val(localStorage.getItem("plafonModal")).trigger('change');
+                    $('#used_balance_modal').val(localStorage.getItem("usedBalance")).trigger('change');
+                    
+
+                    var objExpenseItem = localStorage.getItem("expense_name_item");
+                    var objExpenseData = $.parseJSON(objExpenseItem);
+                    $('#description').empty();
+                    const emptyOption = `
+                                <option data-account-code-item="" 
+                                        value="">
+                                     Pilih Expense Name
+                                </option>`;
+                        $('#description').append(emptyOption);
+                    objExpenseData.forEach(function (item) {
+                            const option = `
+                                <option data-account-code-item="${item.account_code}" 
+                                        value="${item.expense_name}">
+                                    ${item.expense_name} - ${item.account_code}
+                                </option>`;
+                            $('#description').append(option); // Append each option
+                        });
+
+                        
+
+                       
+
+                    if(response.account_code_item == ""){
+                        var account_code_item = $('#description option:selected').data('account-code-item');  
+                        $('#account_code_item').val(account_code_item).trigger('change');
+                    } else {
+                        $('[name="account_code_item"]').val(response.account_code_item);
+                    }
+
 
 
                     $('#modal-add-item').modal('show'); // show bootstrap modal when complete loaded
                     $('.modal-title').text('Edit Item'); // Set title to Bootstrap modal title
                     $('#modal-add-item form').attr('action', action);// Set form action
+                    
 
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     alert('Error get data from ajax');
                 }
             });
+
+            
         });
     });
 </script>
