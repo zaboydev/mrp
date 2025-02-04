@@ -56,8 +56,10 @@
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
+
+
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" required>
+                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?>  required>
                                 <option></option>
                                 <?php foreach(available_employee($_SESSION['reimbursement']['department_id']) as $user):?>
                                 <option data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['reimbursement']['employee_number']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
@@ -67,7 +69,7 @@
                         </div>
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" required>
+                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?> required>
                                 <option></option>
                                 <?php foreach(occupation_list() as $occupation):?>
                                 <option value="<?=$occupation['position'];?>" <?= ($occupation['position'] == $_SESSION['reimbursement']['occupation']) ? 'selected' : ''; ?>><?=$occupation['position'];?></option>
@@ -121,6 +123,16 @@
                             <input type="text" name="benefit_code" id="benefit_code" class="form-control" value="<?= $_SESSION['reimbursement']['benefit_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefitcode'); ?>" readonly>
                             <label for="benefit_code">Benefit CODE</label>
                         </div>  
+
+                        <div class="form-group hide">
+                            <input type="text" name="cost_center_group_id" id="cost_center_group_id" class="form-control" value="<?= $_SESSION['reimbursement']['cost_center_group_id']; ?>" data-input-type="autoset" readonly>
+                            <label for="cost_center_group_id">Cost Center Group</label>
+                        </div> 
+
+                        <div class="form-group hide">
+                            <input type="text" name="id_reimbursement_log" id="id_reimbursement_log" class="form-control" value="<?= $_SESSION['reimbursement']['id']; ?>" data-input-type="autoset" readonly>
+                            <label for="id_reimbursement_log">ID REIMBURSEMENT</label>
+                        </div> 
                     </div>
                 </div>
             </div>
@@ -133,7 +145,7 @@
                             <th><span class="title_1">Expense Detail</span></th>
                             <th>Date</th>
                             <th><span class="title_2">Description/Notes</span></th>
-                            <th>Account Code (COA)</th>
+                            <th>Account Code (A)</th>
                             <th>Amount</th>
                             <th>Paid Amount</th>
 
@@ -157,9 +169,8 @@
 
                                     <td><?= $items['description']; ?></td>
                                     <td><?= $items['transaction_date']; ?></td>
-                                    <td><?= $items['notes_modal']; ?></td>
-                                    <td><?= $items['account_code_item']; ?></td>
-
+                                    <td><?= ($items['notes'] == '') ? $items['notes_modal'] : $items['notes']; ?></td>
+                                    <td><?= ($items['account_code'] == '') ? $items['account_code_item'] : $items['notes']; ?></td>
                                     <td><?= number_format($items['amount'], 2); ?></td>
                                     <td><?= number_format($items['paid_amount'], 2); ?></td>
 
@@ -169,7 +180,7 @@
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="text-center">No items available</td>
+                                <td colspan="7" class="text-center">No items available</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -313,7 +324,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction">
+                    <button type="submit" id="modal-add-item-submit" onClick="setLastBalance()" class="btn btn-primary btn-create ink-reaction">
                         Add Item
                     </button>
 
@@ -377,6 +388,81 @@
         // theme: "bootstrap",
     });
 
+
+    window.onload = function() {
+        console.log('mulaiinit');
+        var id = $('#id_reimbursement_log').val();
+
+        if(id != ''){
+        $('#type_reimbursement').trigger('change');
+        $('#employee_number').trigger('change');
+
+        setTimeout(function() {
+        calculateItemReimbursement();
+        }, 3000); 
+
+        } else {
+            
+        }
+        
+
+        
+    };
+
+    function calculateItemReimbursement(){
+
+        var total = $('#total').val();
+        var used_balance = $('#used_balance').val();
+        var saldo_balance = $('#saldo_balance').val();
+
+
+        var lastSaldo = parseFloat(used_balance)+parseFloat(total);
+        var saldoLast = parseFloat(saldo_balance) - parseFloat(lastSaldo);
+
+
+        localStorage.setItem("saldoModal", saldoLast); 
+        localStorage.setItem("usedBalance", lastSaldo); 
+
+        $('#saldo_balance').val(saldoLast).trigger('change');
+        $('#used_balance').val(lastSaldo).trigger('change');
+        
+        console.log("HitungCalculate");
+        console.log(total);
+        console.log(used_balance);
+        console.log(saldoLast);
+        console.log(lastSaldo);
+
+
+
+    }
+
+    function setLastBalance() {
+        console.log("Mulai menghitung saldo");
+        var saldo_balance_modal = $('#saldo_balance_modal').val();
+        var paid_amount_modal = $('#paid_amount_modal').val();
+        var used_balance_modal = $('#used_balance_modal').val();
+        var used_balance = $('#used_balance').val();
+
+
+        var usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+
+
+        localStorage.setItem("saldoModal", saldo_balance_modal); 
+        localStorage.setItem("usedBalanceModal", usedMerge); 
+
+        $('#saldo_balance').val(saldo_balance_modal).trigger('change');
+        $('#used_balance').val(usedMerge).trigger('change');
+
+        console.log(saldo_balance_modal);
+        console.log(paid_amount_modal);
+        console.log(used_balance_modal);
+        console.log(used_balance);
+        console.log(usedMerge);
+
+        
+
+    }
+
     function setPlafondBalance() {
         var saldo_balance_modal = $('#saldo_balance').val();
         var plafond_balance_modal = $('#plafond_balance').val();
@@ -436,6 +522,9 @@
 
         // Update paidAmount field
         paidAmountField.value = paidAmount;
+
+
+        
        
     }
 
@@ -739,9 +828,13 @@ function submitForm(url, button) {
                     $('#table-document tfoot th:last').text(data.total.toFixed(2));
 
                     // Check if table is empty
-                    if ($("#table-document > tbody > tr").length == 0) {
-                        $(buttonSubmit).attr('disabled', true);
-                    }
+                    // if ($("#table-document > tbody > tr").length == 0) {
+                    //     $(buttonSubmitDocument).attr('disabled', true);
+                    // }
+                    window.location.reload();
+
+
+                    
                 },
                 error: function() {
                     alert('Failed to delete the item.');
@@ -846,22 +939,27 @@ function submitForm(url, button) {
             $('#benefit_code').val(benefit_code).trigger('change');
 
 
-            var employee_number = $('#employee_number').val();                        
+            var employee_number = $('#employee_number').val();     
+                               
             var position = $('#employee_number option:selected').data('position');  
             var url = $('#employee_number').data('source-get-balance');
             var sourceUrl = $('#type_reimbursement').data('source-get-expense-name');
 
             var type = $('#type_reimbursement').val();   
 
+            console.log("dataexpense");
+            console.log(id_benefit);
+            var dataGroup =$('#cost_center_group_id').val();     
 
             $.ajax({
                     url: sourceUrl,
                     type: 'GET',
                     data: {
                         id_type   : id_benefit,
+                        cost_center_group_id : dataGroup
                     },
                     success: function (data) {
-                        console.log("dataexpense");
+                       
                         console.log(data);
                         objExpense = $.parseJSON(data);
                         $('#description').empty();
@@ -887,46 +985,61 @@ function submitForm(url, button) {
                     }
                 });
 
-            if(employee_number!=NULL){
+            if(employee_number != ""){
+
+                $('#employee_number').trigger("change");
                 
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    data: {
-                        employee_number   : employee_number,
-                        type      : type,
-                        position : position
-                    },
-                    success: function(data) {
-                        console.log(data);
-                        var obj = $.parseJSON(data);
 
-                        if(obj.status=='success'){
-                            $('#saldo_balance').val(obj.saldo_balance).trigger('change');
-                            $('#plafond_balance').val(obj.plafond_balance).trigger('change');
-                            $('#used_balance').val(obj.used_balance).trigger('change');
+                var saldoModal = localStorage.getItem("saldoModal"); 
+                var plafonModal = localStorage.getItem("plafonModal"); 
+                var usedBalance = localStorage.getItem("usedBalance"); 
 
-                            $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
-                        }else{
-                            toastr.options.timeOut = 10000;
-                            toastr.options.positionClass = 'toast-top-right';
-                            if(obj.status=='error'){
-                                toastr.error(obj.message);
-                            }else if(obj.status=='warning'){
-                                toastr.warning(obj.message);
-                            }
-
-                            $('#saldo_balance').val(obj.saldo_balance).trigger('change');
-                            $('#plafond_balance').val(obj.plafond_balance).trigger('change');
-                            $('#used_balance').val(obj.used_balance).trigger('change');
+                console.log("Print Refresh");
+                console.log(saldoModal);
+                console.log(plafonModal);
+                console.log(usedBalance);
 
 
-                            $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
+
+                
+                // $.ajax({
+                //     url: url,
+                //     type: 'GET',
+                //     data: {
+                //         employee_number   : employee_number,
+                //         type      : type,
+                //         position : position
+                //     },
+                //     success: function(data) {
+                //         console.log(data);
+                //         var obj = $.parseJSON(data);
+
+                //         if(obj.status=='success'){
+                //             $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                //             $('#plafond_balance').val(obj.plafond_balance).trigger('change');
+                //             $('#used_balance').val(obj.used_balance).trigger('change');
+
+                //             $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
+                //         }else{
+                //             toastr.options.timeOut = 10000;
+                //             toastr.options.positionClass = 'toast-top-right';
+                //             if(obj.status=='error'){
+                //                 toastr.error(obj.message);
+                //             }else if(obj.status=='warning'){
+                //                 toastr.warning(obj.message);
+                //             }
+
+                //             $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                //             $('#plafond_balance').val(obj.plafond_balance).trigger('change');
+                //             $('#used_balance').val(obj.used_balance).trigger('change');
+
+
+                //             $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                             
-                        }                    
+                //         }                    
                         
-                    }
-                });
+                //     }
+                // });
             }
             
             // type_reimbursement();            

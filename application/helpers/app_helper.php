@@ -3238,7 +3238,7 @@ if (!function_exists('currency_for_vendor_list')) {
 
       $connection = $CI->load->database('budgetcontrol', TRUE);
 
-      $connection->select(array('cost_center_code','cost_center_name','department_id', 'tb_departments.department_name'));
+      $connection->select(array('cost_center_code','cost_center_name','department_id', 'tb_departments.department_name', 'group_id'));
       $connection->from( 'tb_cost_centers' );
       $connection->join('tb_annual_cost_centers','tb_annual_cost_centers.cost_center_id=tb_cost_centers.id');
       $connection->join('tb_departments','tb_cost_centers.department_id=tb_departments.id');
@@ -3346,6 +3346,21 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI->db->where('tb_auth_users.username',  $username);
 
       $query  = $CI->db->get('tb_auth_users');
+      $result = $query->unbuffered_row('array');
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('findEmployeeByUserId')) {
+    function findEmployeeByUserId($id)
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('tb_master_employees.*');
+      $CI->db->where('tb_master_employees.user_id',$id);
+
+      $query  = $CI->db->get('tb_master_employees');
       $result = $query->unbuffered_row('array');
 
       return $result;

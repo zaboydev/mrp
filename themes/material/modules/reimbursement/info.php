@@ -92,7 +92,10 @@
                 <th>Date</th>
                 <th><?= ($entity['type']=='MEDICAL')? 'Diagnoses':'Description'?></th>
                 <th>Account Code (COA)</th>
+                <th>Amount</th>
                 <th>Paid Amount</th>
+
+
                 
               </tr>
             </thead>
@@ -119,6 +122,9 @@
                 </td>
                 <td>
                   <?=print_number($detail['amount'],2);?>
+                </td>
+                <td>
+                  <?=print_number($detail['paid_amount'],2);?>
                 </td>
                 <?php $total[] = $detail['amount'];?>
               </tr>
@@ -157,10 +163,10 @@
         ));?>
         <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
 
-        <a href="<?=site_url($module['route'] .'/delete_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-delete btn-tooltip ink-reaction" id="modal-delete-data-button">
+        <!-- <a href="<?=site_url($module['route'] .'/delete_ajax/');?>" class="btn btn-floating-action btn-danger btn-xhr-delete btn-tooltip ink-reaction" id="modal-delete-data-button">
             <i class="md md-delete"></i>
             <small class="top left">delete</small>
-        </a>
+        </a> -->
         <?=form_close();?>
         <?php endif;?>
         <a href="<?= site_url($module['route'] . '/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
@@ -169,7 +175,7 @@
         </a>
 
         <div class="pull-right">
-            <?php if (is_granted($module, 'create') && $entity['date'] >= $data):?>
+            <?php if (is_granted($module, 'create') && $entity['date'] >= $data && $entity['status'] != 'REVISED'):?>
             <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>
@@ -187,11 +193,11 @@
                 'class' => 'form-xhr-create-expense pull-left',
             ));?>
             <input type="hidden" name="id" id="id" value="<?=$entity['id'];?>">
-
+<!-- 
             <a href="<?=site_url($module['route'] .'/create_expense_ajax/');?>" class="btn btn-floating-action btn-primary btn-xhr-create-expense btn-tooltip ink-reaction" id="btn-xhr-create-expense">
                 <i class="fa fa-money"></i>
                 <small class="top left">Create Expense</small>
-            </a>
+            </a> -->
             <?=form_close();?>
         </div>
     </div>

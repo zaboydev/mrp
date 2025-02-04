@@ -167,10 +167,10 @@ class Reimbursement extends MY_Controller
         
 
         $id_expense = $_GET['id_type'];
-        $group_cost = config_item('auth_annual_cost_group_id')[0];
+        $id_annual_cost = $_GET['cost_center_group_id'];
 
 
-        $expense = $this->model->getExpenseName($id_expense,$group_cost);
+        $expense = $this->model->getExpenseName($id_expense,$id_annual_cost);
         
         echo json_encode($expense);
     }
@@ -331,6 +331,10 @@ class Reimbursement extends MY_Controller
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];         
             $department_name  = $cost_center['department_name'];
+            $cost_center_group_id  = $cost_center['group_id'];
+
+            $employee_id  = config_item('auth_user_id');
+            $employee_and_user = findEmployeeByUserId($employee_id);
 
             $_SESSION['reimbursement']['items']                     = array();
             $_SESSION['reimbursement']['annual_cost_center_id']     = $annual_cost_center_id;
@@ -343,18 +347,21 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['created_by']                = config_item('auth_person_name');
             $_SESSION['reimbursement']['warehouse']                 = config_item('auth_warehouse');
             $_SESSION['reimbursement']['notes']                     = NULL;
-            $_SESSION['reimbursement']['employee_number']           = NULL;
+            $_SESSION['reimbursement']['employee_number']           = $employee_and_user['employee_number'];
             $_SESSION['reimbursement']['person_name']               = NULL;
             $_SESSION['reimbursement']['department_id']             = $department_id;
-            $_SESSION['reimbursement']['occupation']                = NULL;
+            $_SESSION['reimbursement']['occupation']                = $employee_and_user['position'];
             $_SESSION['reimbursement']['department_name']           = $department_name;
             $_SESSION['reimbursement']['head_dept']                 = NULL;
+            $_SESSION['reimbursement']['id']                        = NULL;
             $_SESSION['reimbursement']['type']                      = 'Reimbursement';
             $_SESSION['reimbursement']['saldo_balance']             = 0;
             $_SESSION['reimbursement']['plafond_balance']           = 0;
             $_SESSION['reimbursement']['used_balance']              = 0;
             $_SESSION['reimbursement']['employee_has_benefit_id']   = NULL;
             $_SESSION['reimbursement']['account_code']   = NULL;
+            $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
+
 
             redirect($this->module['route'] .'/create');
         }
@@ -442,6 +449,7 @@ class Reimbursement extends MY_Controller
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];
+            $cost_center_group_id  = $cost_center['group_id'];
             $employee_has_benefit    = $this->model->getEmployeeHasBenefitById($entity['employee_has_benefit_id']);
 
             $_SESSION['reimbursement']['annual_cost_center_id']     = $annual_cost_center_id;
@@ -455,9 +463,10 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['format_number']             = $format_number;
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
-            $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond']+$entity['total'];
+            $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['plafond_balance']           = $employee_has_benefit['amount_plafond'];
             $_SESSION['reimbursement']['used_balance']              = $employee_has_benefit['used_amount_plafond'];
+            $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
 
 
             $_SESSION['reimbursement']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
@@ -619,11 +628,14 @@ class Reimbursement extends MY_Controller
 
     public function del_item($item_index) {
         if (isset($_SESSION['reimbursement']['items'][$item_index])) {
+            $_SESSION['reimbursement']['saldo_balance'] =  $_SESSION['reimbursement']['saldo_balance'] + $_SESSION['reimbursement']['items'][$item_index]['paid_amount'];
             // Delete the item
             unset($_SESSION['reimbursement']['items'][$item_index]);
     
             // Recalculate the total
-            $total = array_sum(array_column($_SESSION['reimbursement']['items'], 'amount'));
+            $total = array_sum(array_column($_SESSION['reimbursement']['items'], 'paid_amount'));
+
+        
     
             // Return the new total in JSON format
             echo json_encode(['total' => $total]);

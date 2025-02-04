@@ -544,7 +544,7 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('pr_number', $pr_number);
         $this->connection->set('pr_date', $date);
         $this->connection->set('required_date', $date);
-        $this->connection->set('status', 'pending');
+        $this->connection->set('status', 'approved');
         $this->connection->set('notes', 'expense reimbursement : #'.$reimbursement['document_number']);
         $this->connection->set('created_by', config_item('auth_person_name'));
         $this->connection->set('updated_by', config_item('auth_person_name'));
@@ -554,13 +554,13 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('head_dept', $reimbursement['head_dept']);
         $this->connection->set('base', config_item('auth_warehouse'));
         $this->connection->set('revisi', 1);//expense dari reimbursement tidak bisa direvisi
-        $this->connection->set('approval_type', ($cekSettingApproval=='FULL APPROVAL')? 'FULL':'NOT FULL');
+        $this->connection->set('approval_type', 'automatic');
         $this->connection->set('reference_document', json_encode(['RF',$id,$reimbursement['document_number'],$url_rf]));
         $this->connection->insert('tb_expense_purchase_requisitions');
 
         $document_id = $this->connection->insert_id();
-
-        $account = $this->getAccountByAccountCode($reimbursement['account_code']);
+        foreach ($reimbursement['items'] as $key => $item) {
+        $account = $this->getAccountByAccountCode($item['account_code']);
 
         // GET BUDGET MONTHLY ID
         $this->connection->from('tb_expense_monthly_budgets');
@@ -580,13 +580,13 @@ class Reimbursement_Model extends MY_Model
             // $this->connection->set('initial_quantity', floatval(0));
             $this->connection->set('initial_budget', floatval(0));
             // $this->connection->set('mtd_quantity', floatval(0));
-            $this->connection->set('mtd_budget', floatval($reimbursement['total']));
+            $this->connection->set('mtd_budget', floatval($item['paid_amount']));
             $this->connection->set('mtd_used_budget', floatval(0));
             $this->connection->set('mtd_used_budget_import', floatval(0));
             $this->connection->set('mtd_prev_month_budget', floatval(0));
             $this->connection->set('mtd_prev_month_used_budget', floatval(0));
             $this->connection->set('mtd_prev_month_used_budget_import', floatval(0));
-            $this->connection->set('ytd_budget', floatval($reimbursement['total']));
+            $this->connection->set('ytd_budget', floatval($item['paid_amount']));
             $this->connection->set('ytd_used_budget', floatval(0));
             $this->connection->set('ytd_used_budget_import', floatval(0));
             $this->connection->set('created_at', date('Y-m-d'));
@@ -601,9 +601,9 @@ class Reimbursement_Model extends MY_Model
             $this->connection->set('annual_cost_center_id', $reimbursement['annual_cost_center_id']);
             $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
             $this->connection->set('year_number', $this->budget_year);
-            $this->connection->set('amount', $reimbursement['total']);
+            $this->connection->set('amount', $item['paid_amount']);
             $this->connection->set('previous_budget', 0);
-            $this->connection->set('new_budget', $reimbursement['total']);
+            $this->connection->set('new_budget', $item['paid_amount']);
             $this->connection->set('created_at', date('Y-m-d'));
             $this->connection->set('created_by', config_item('auth_person_name'));
             $this->connection->set('notes', NULL);
@@ -617,7 +617,7 @@ class Reimbursement_Model extends MY_Model
         $month = $this->budget_month;
 
         for ($i = $month; $i < 13; $i++) {
-            $this->connection->set('ytd_used_budget', 'ytd_used_budget + ' . $reimbursement['total'], FALSE);
+            $this->connection->set('ytd_used_budget', 'ytd_used_budget + ' . $item['paid_amount'], FALSE);
             $this->connection->where('tb_expense_monthly_budgets.annual_cost_center_id', $reimbursement['annual_cost_center_id']);
             $this->connection->where('tb_expense_monthly_budgets.account_id', $account['id']);
             $this->connection->where('tb_expense_monthly_budgets.month_number', $i);
@@ -633,13 +633,13 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('month_number', $this->budget_month);
         $this->connection->set('account_name', $account['account_name']);
         $this->connection->set('account_code', $account['account_code']);
-        $this->connection->set('used_budget', $reimbursement['total']);
+        $this->connection->set('used_budget', $item['paid_amount']);
         $this->connection->set('created_at', date('Y-m-d H:i:s'));
         $this->connection->set('created_by', config_item('auth_person_name'));
         $this->connection->insert('tb_expense_used_budgets');
 
         //update monthly budget
-        $this->connection->set('mtd_used_budget', 'mtd_used_budget + ' . $reimbursement['total'], FALSE);
+        $this->connection->set('mtd_used_budget', 'mtd_used_budget + ' . $item['paid_amount'], FALSE);
         $this->connection->where('id', $expense_monthly_budget_id);
         $this->connection->update('tb_expense_monthly_budgets');
 
@@ -647,10 +647,11 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('expense_monthly_budget_id', $expense_monthly_budget_id);
         $this->connection->set('sort_order', floatval($key));
         // $this->connection->set('sisa', floatval($data['amount']));
-        $this->connection->set('amount', floatval($reimbursement['total']));
-        $this->connection->set('total', floatval($reimbursement['total']));
+        $this->connection->set('amount', floatval($item['paid_amount']));
+        $this->connection->set('total', floatval($item['paid_amount']));
         $this->connection->set('reference_ipc', $reimbursement['document_number']);
         $this->connection->insert('tb_expense_purchase_requisition_details');
+    }
 
         $url_expense = site_url('expense_request/print_pdf/'.$document_id);
         $this->db->set('status','EXPENSE REQUEST');
@@ -690,7 +691,7 @@ class Reimbursement_Model extends MY_Model
         $this->connection->set('pr_number', $pr_number);
         $this->connection->set('pr_date', $date);
         $this->connection->set('required_date', $date);
-        $this->connection->set('status', 'pending');
+        $this->connection->set('status', 'pending'); //Tambahkan Auto Approved
         $this->connection->set('notes', 'expense reimbursement : #'.$reimbursement['document_number']);
         $this->connection->set('created_by', config_item('auth_person_name'));
         $this->connection->set('updated_by', config_item('auth_person_name'));
