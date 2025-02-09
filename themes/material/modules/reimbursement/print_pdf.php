@@ -5,16 +5,20 @@
     }
   }
 
-  .table-spd th,
-  .table-spd td {
+  .table-reimbursement th,
+  .table-reimbursement td {
     padding: 5px 5px;
     font-size: 12px;
   }
 </style>
-<table class="table-spd" width="100%">
-<tr>
-    <th width="30%"> Date </th>
+<table class="table-reimbursement" width="100%">
+  <tr>
+    <th width="30%"> Date of Invoice </th>
     <td width="70%">: <?=print_date($entity['date'],'d M Y');?></td>
+  </tr>
+  <tr>
+    <th width="30%"> Date Created </th>
+    <td width="70%">: <?=print_date($entity['created_at'],'d M Y');?></td>
   </tr>
   <tr>
     <th width="30%"> NO </th>
@@ -54,7 +58,6 @@
             <th>Expense Detail</th>
             <th style="text-align:right;">Description</th>
             <th style="text-align:right;">Amount</th>
-            <th style="text-align:right;">Date of invoice / provide</th>
             <th style="text-align:right;">Amount</th>
             <th style="text-align:right;">Paid Amount</th>
         </tr>
@@ -69,7 +72,6 @@
             <td><?=print_string($item['description']);?></td>
             <td><?=print_string($item['notes']);?></td>
             <td><?=print_string($item['account_code']);?></td>
-            <td style="text-align:right;"><?=print_date($item['transaction_date']);?></td>
             <td style="text-align:right;"><?=print_number($item['amount'],2);?></td>
             <td style="text-align:right;"><?=print_number($item['paid_amount'],2);?></td>
 
@@ -112,7 +114,7 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <br /><?=$entity['signers']['requested by']['person_name'];?>
       </p>
     </td>
-    <?php if ($entity['type'] != "SANTUNAN DUKA") : ?>
+    <?php if ($entity['benefit_code'] != "B4") : ?>
       <td valign="top" style="text-align:center;">
       <p>
         HR Approved by
@@ -132,7 +134,7 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <?php if ($entity['occupation'] == "HEAD OF SCHOOL" || $entity['occupation'] == "VP FINANCE") : ?>
         <br />CFO/COO<br />
         <?php else:?>
-          <br />Head Dept / VP Finance<br />
+          <br />HOST / VP Finance<br />
         <?php endif; ?>
         <?php if ($entity['signers']['validated by']['sign']) : ?>
           <?=print_date($entity['signers']['validated by']['date'],'d M Y');?>
@@ -143,7 +145,7 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <br /><?=$entity['signers']['validated by']['person_name'];?>
       </p>
     </td>
-    <?php if ($entity['type'] == "SANTUNAN DUKA") : ?>
+    <?php if ($entity['benefit_code'] == "B4") : ?>
     <td valign="top" style="text-align:center;">
       <p>
         Finance Approved by
@@ -161,11 +163,11 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
     <?php endif; ?>
     <?php endif; ?>
 
-    <?php if ($entity['type'] == "SANTUNAN DUKA") : ?>
+    <?php if ($entity['benefit_code'] == "B4") : ?>
     <td valign="top" style="text-align:center;">
       <p>
         Validated by
-        <br />Head Dept/ VP Finance<br />
+        <br />HOS / VP Finance<br />
         <?php if ($entity['signers']['validated by']['sign']) : ?>
           <?=print_date($entity['signers']['validated by']['date'],'d M Y');?>
           <br>

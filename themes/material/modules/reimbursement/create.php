@@ -29,7 +29,12 @@
 
                         <div class="form-group">
                             <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="dd-mm-yyyy" class="form-control" value="<?= $_SESSION['reimbursement']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_received_date'); ?>" required>
-                            <label for="date">Date</label>
+                            <label for="date">Date Invoice</label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="date_created" id="date_created" data-date-format="dd-mm-yyyy" class="form-control" value="<?= date('Y-m-d') ?>" data-input-type="autoset" readonly>
+                            <label for="date_created">Date Created</label>
                         </div>
 
                         <div class="form-group">
@@ -283,10 +288,10 @@
                                         <label for="description">Expense Name</label>
                                     </div>
 
-                                    <div class="form-group">
+                                    <!-- <div class="form-group">
                                         <input type="text" name="date" id="date" data-tag-name="date" class="form-control input-sm" required="required" data-provide="datepicker">
                                         <label for="date">Date</label>
-                                    </div>
+                                    </div> -->
 
                                     <div class="form-group">
                                         <textarea name="notes_modal" id="notes_modal" data-tag-name="notes_modal" class="form-control input-sm"></textarea>
