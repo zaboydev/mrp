@@ -27,10 +27,11 @@ class Reimbursement_Model extends MY_Model
             'Expense Number',
             'Type',
             'Status',
+            'Approval Notes',
             'Department',
             'Name',
             'Amount',
-            'Approval Notes'
+            'Notes'
         );
         return $return;
     }
@@ -1138,6 +1139,7 @@ class Reimbursement_Model extends MY_Model
 
             if($spd['status']=='WAITING APPROVAL BY HOS OR VP' && $spd['benefit_code'] == "B4" && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','APPROVED');
+                $this->db->set('notes_approval', $approval_notes[$x]);
                 $this->db->set('validated_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
                 $this->db->update('tb_reimbursements');
@@ -1161,6 +1163,8 @@ class Reimbursement_Model extends MY_Model
                 $total++;
                 $success++;
                 $failed--;
+                $x++;
+
 
             } else {
                 if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CHIEF OF FINANCE" || $findDataPosition['position'] == "CHIEF OPERATION OFFICER"){
@@ -1168,6 +1172,7 @@ class Reimbursement_Model extends MY_Model
                         // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
             
                             $this->db->set('status','WAITING APPROVAL BY COO OR CFO');
+                            $this->db->set('notes_approval', $approval_notes[$x]);
                             $this->db->set('hr_approved_by',config_item('auth_person_name'));
                             $this->db->where('id', $id);
                             $this->db->update('tb_reimbursements');
@@ -1189,6 +1194,7 @@ class Reimbursement_Model extends MY_Model
             
                         // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
                             $this->db->set('status','APPROVED');
+                            $this->db->set('notes_approval', $approval_notes[$x]);
                             $this->db->set('validated_by',config_item('auth_person_name'));
                             $this->db->where('id', $id);
                             $this->db->update('tb_reimbursements');
@@ -1212,11 +1218,13 @@ class Reimbursement_Model extends MY_Model
                         $total++;
                         $success++;
                         $failed--;
+                        $x++;
                 } else {
                     if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
                         // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
             
                             $this->db->set('status','WAITING APPROVAL BY HOS OR VP');
+                            $this->db->set('notes_approval', $approval_notes[$x]);
                             $this->db->set('hr_approved_by',config_item('auth_person_name'));
                             $this->db->where('id', $id);
                             $this->db->update('tb_reimbursements');
@@ -1238,6 +1246,7 @@ class Reimbursement_Model extends MY_Model
             
                         // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
                             $this->db->set('status','APPROVED');
+                            $this->db->set('notes_approval', $approval_notes[$x]);
                             $this->db->set('validated_by',config_item('auth_person_name'));
                             $this->db->where('id', $id);
                             $this->db->update('tb_reimbursements');
@@ -1261,6 +1270,7 @@ class Reimbursement_Model extends MY_Model
                         $total++;
                         $success++;
                         $failed--;
+                        $x++;
                 }
             }
 

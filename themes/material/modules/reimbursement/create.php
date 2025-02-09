@@ -40,10 +40,19 @@
                         <div class="form-group">
                             <select name="type" id="type_reimbursement" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>"  data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> required>
                                 <?php foreach(getBenefits() as $benefit):?>
-                                <option data-account-id="<?=$benefit['id'];?>" data-account-ben-code="<?=$benefit['benefit_code'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
+                                <option data-account-ben-type="<?=$benefit['benefit_type'];?>" data-account-id="<?=$benefit['id'];?>" data-account-ben-code="<?=$benefit['benefit_code'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="type_reimbursement">Type</label>
+                        </div>
+
+                        <div class="form-group">
+                            <select name="type" id="type_benefit" class="form-control" data-input-type="autoset" disabled>
+                                <option value="yearly" <?= ("yearly" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>2 Tahun Sekali</option>
+                                <option value="once" <?= ("once" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>Sekali</option>
+                                <option value="contract" <?= ("contract" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>Mengikuti Kontrak</option>
+                            </select>
+                            <label for="type_benefit">Type</label>
                         </div>
 
                         <div class="form-group">
@@ -960,11 +969,15 @@ function submitForm(url, button) {
             // var account_code = $('#type_reimbursement option:selected').data('account-code');  
             var id_benefit = $('#type_reimbursement option:selected').data('account-id');
             var benefit_code = $('#type_reimbursement option:selected').data('account-ben-code');
+            var benefit_type = $('#type_reimbursement option:selected').data('account-ben-type');
+
 
 
             // $('#account_code').val(account_code).trigger('change');
             $('#id_benefit').val(id_benefit).trigger('change');
             $('#benefit_code').val(benefit_code).trigger('change');
+            $('#type_benefit').val(benefit_type).trigger('change');
+
 
 
             var employee_number = $('#employee_number').val();     

@@ -679,6 +679,13 @@
     $("#modal-approve-data-button-multi").click(function() {
       var action = $(this).data('source');
       encodeNotes()
+      console.log("Notes");
+      console.log(notes);
+      if (!encodeNotes()) {
+        toastr.options.timeOut = 10000;
+        toastr.options.positionClass = 'toast-top-right';
+        toastr.error('You must filled Notes for each item that you want to approve');
+      } else {
       $(this).attr('disabled', true);
       $("#modal-reject-data-button-multi").attr('disabled', true);
       if (document_id !== "") {
@@ -714,6 +721,7 @@
         toastr.options.positionClass = 'toast-top-right';
         toastr.error('Empty selected data');
       }
+    }
     });
 
     $(datatableElement).find('tbody').on('click', 'tr', function(e) {
@@ -780,6 +788,7 @@
         if ($("#note_" + x).val() != "") {
           notes = notes + "|" + $("#note_" + x).val() + "##,";
           y += 1;
+          
         } else {
           return false;
         }
@@ -789,6 +798,8 @@
       } else {
         return false
       }
+
+      
     }
 
     $("#modal-reject-data-button-multi").click(function() {

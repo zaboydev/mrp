@@ -67,6 +67,20 @@ class Reimbursement extends MY_Controller
                 $col[] = print_string($row['pr_number']);
                 $col[] = print_string($row['type']);
                 $col[] = print_string($row['status']);
+                if($row['status']=='approved' || $row['status']=='closed'){
+                    $col[] = $row['notes_approval'];
+                }else{
+                    if($row['notes_approval'] != ''){
+                        if (is_granted($this->module, 'approval') === TRUE) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" value="' . $row['notes_approval'] . '" autocomplete="off"/>';
+                        }
+                    } else {
+                        if (is_granted($this->module, 'approval') === TRUE) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                        }
+                    }
+                    
+                }
                 $col[] = print_string($cost_center['cost_center_name']);
                 $col[] = print_string($row['person_name']);
                 $col[] = print_number($row['total'],2);
@@ -80,6 +94,7 @@ class Reimbursement extends MY_Controller
                         $col[] = '';
                     }
                 }
+               
 
                 $total_value[] = $row['total'];
                 
@@ -347,6 +362,8 @@ class Reimbursement extends MY_Controller
             $department_name  = $cost_center['department_name'];
             $cost_center_group_id  = $cost_center['group_id'];
 
+            
+
             $employee_id  = config_item('auth_user_id');
             $employee_and_user = findEmployeeByUserId($employee_id);
 
@@ -376,6 +393,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['employee_has_benefit_id']   = NULL;
             $_SESSION['reimbursement']['account_code']   = NULL;
             $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
+            $_SESSION['reimbursement']['type_benefit']   = NULL;
 
 
             redirect($this->module['route'] .'/create');
@@ -460,7 +478,9 @@ class Reimbursement extends MY_Controller
         $revisi             = get_count_revisi($document_number.$format_number,'REIMBURSEMENT');
 
         if (isset($_SESSION['receipt']) === FALSE){
+            
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
+            $type_benefit = getBenefitById($entity['id_benefit']);
             $cost_center_code = $cost_center['cost_center_code'];
             $cost_center_name = $cost_center['cost_center_name'];          
             $department_id    = $cost_center['department_id'];
@@ -479,10 +499,12 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
             $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond'];
-            $_SESSION['reimbursement']['saldo_balance_initial']      = $employee_has_benefit['left_amount_plafond'];
+            $_SESSION['reimbursement']['saldo_balance_initial']     = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['plafond_balance']           = $employee_has_benefit['amount_plafond'];
             $_SESSION['reimbursement']['used_balance']              = $employee_has_benefit['used_amount_plafond'];
-            $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
+            $_SESSION['reimbursement']['cost_center_group_id']      = $cost_center_group_id;
+            $_SESSION['reimbursement']['type_benefit']              = $type_benefit['benefit_type'];
+
 
 
             $_SESSION['reimbursement']['dateline']                  = print_date($entity['start_date'], 'd-m-Y').' s/d '.print_date($entity['end_date'], 'd-m-Y');
@@ -683,7 +705,7 @@ class Reimbursement extends MY_Controller
 
         $str_notes = $this->input->post('notes');
         $notes = str_replace("|", "", $str_notes);
-        $notes = substr($price, 0, -3);
+        $notes = substr($notes, 0, -3);
         $notes = explode("##,", $notes);
 
         $total = 0;
