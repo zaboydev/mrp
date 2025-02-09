@@ -19,6 +19,9 @@ class Employee_Model extends MY_Model
             'Name',
             'Department',
             'Occupation',
+            'Has Benefit',
+            'Last Contract',
+            'Contract Start - End',
             'Last Update'
         );
     }
@@ -26,7 +29,6 @@ class Employee_Model extends MY_Model
     public function getSearchableColumns()
     {
         return array(
-            'employee_number',
             'name',
             'position',
         );
@@ -67,8 +69,48 @@ class Employee_Model extends MY_Model
 
     function getIndex($return = 'array')
     {
-        $this->db->select('*');
-        $this->db->from('tb_master_employees');
+        // $this->db->select('*');
+        // $this->db->from('tb_master_employees');
+        $this->db->select('
+        emp.employee_number,
+        emp.name AS name,
+        emp.position,
+        emp.department_id,
+        emp.updated_at,
+        emp.employee_id,
+        latest_contract.contract_number,
+        latest_contract.start_date,
+        latest_contract.end_date,
+        latest_contract.status AS contract_status,
+        COALESCE(STRING_AGG(benefit.employee_benefit, \', \'), \'No Benefits\') AS benefits
+        ');
+        $this->db->from('tb_master_employees emp');
+        
+        // Subquery untuk kontrak terbaru dengan alias yang lebih jelas
+        $this->db->join('(
+            SELECT DISTINCT ON (employee_number) employee_number, contract_number, start_date, end_date, status
+            FROM tb_employee_contracts
+            WHERE status = \'ACTIVE\'
+            ORDER BY employee_number, start_date DESC
+        ) latest_contract', 'emp.employee_number = latest_contract.employee_number', 'left');
+        
+        $this->db->join('tb_employee_has_benefit emp_benefit', 'emp.employee_number = emp_benefit.employee_number', 'left');
+        $this->db->join('tb_master_employee_benefits benefit', 'emp_benefit.employee_benefit_id = benefit.id', 'left');
+        
+        // Gunakan emp.employee_number untuk menghindari ambigu
+        $this->db->group_by([
+            'emp.employee_number',
+            'emp.name',
+            'emp.position',
+            'emp.department_id',
+            'emp.updated_at',
+            'emp.employee_id',
+            'latest_contract.contract_number',
+            'latest_contract.start_date',
+            'latest_contract.end_date',
+            'latest_contract.status'
+        ]);
+    
 
         $this->searchIndex();
 

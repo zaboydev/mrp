@@ -26,6 +26,8 @@ class Reimbursement extends MY_Controller
             $return['type'] = 'danger';
             $return['info'] = "You don't have permission to access this page!";
         } else {
+
+
             $entities = $this->model->getIndex();
             $data     = array();
             $no       = $_POST['start'];
@@ -39,7 +41,8 @@ class Reimbursement extends MY_Controller
                 $no++;
                 $col = array();
                 if (is_granted($this->module, 'approval')){
-                    if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
+                    // if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
+                    if($row['status']=='WAITING APPROVAL BY HOS OR VP' && config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -71,7 +74,7 @@ class Reimbursement extends MY_Controller
                 if($row['status']=='approved' || $row['status']=='closed'){
                     $col[] = '';
                 }else{
-                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HEAD DEPT','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
+                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS OR VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
                         $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                     }else{
                         $col[] = '';
@@ -204,6 +207,17 @@ class Reimbursement extends MY_Controller
 
 
         $_SESSION['reimbursement']['saldo_balance'] = $_GET['data'];
+
+    }
+
+    public function set_saldo_balance_init()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+
+        $_SESSION['reimbursement']['saldo_balance_initial'] = $_GET['data'];
+
     }
 
     public function set_plafond_saldo_balance()
@@ -358,6 +372,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['saldo_balance']             = 0;
             $_SESSION['reimbursement']['plafond_balance']           = 0;
             $_SESSION['reimbursement']['used_balance']              = 0;
+            $_SESSION['reimbursement']['saldo_balance_initial']     = 0;
             $_SESSION['reimbursement']['employee_has_benefit_id']   = NULL;
             $_SESSION['reimbursement']['account_code']   = NULL;
             $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
@@ -464,6 +479,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
             $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond'];
+            $_SESSION['reimbursement']['saldo_balance_initial']      = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['plafond_balance']           = $employee_has_benefit['amount_plafond'];
             $_SESSION['reimbursement']['used_balance']              = $employee_has_benefit['used_amount_plafond'];
             $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
@@ -626,22 +642,36 @@ class Reimbursement extends MY_Controller
 
     }
 
+
     public function del_item($item_index) {
-        if (isset($_SESSION['reimbursement']['items'][$item_index])) {
-            $_SESSION['reimbursement']['saldo_balance'] =  $_SESSION['reimbursement']['saldo_balance'] + $_SESSION['reimbursement']['items'][$item_index]['paid_amount'];
-            // Delete the item
-            unset($_SESSION['reimbursement']['items'][$item_index]);
-    
-            // Recalculate the total
-            $total = array_sum(array_column($_SESSION['reimbursement']['items'], 'paid_amount'));
+        // . '/'.$items['id'] 
+
+      
 
         
+            if (isset($_SESSION['reimbursement']['items'][$item_index])) {
+               
+                $this->model->delete_reimbursement_item($_SESSION['reimbursement']['items'][$item_index]['id']);
+                
+
+                $_SESSION['reimbursement']['saldo_balance'] =  $_SESSION['reimbursement']['saldo_balance'] + $_SESSION['reimbursement']['items'][$item_index]['paid_amount'];
+                $_SESSION['reimbursement']['used_balance'] =  $_SESSION['reimbursement']['used_balance'] - $_SESSION['reimbursement']['items'][$item_index]['paid_amount'];
+
+                // Delete the item
+                unset($_SESSION['reimbursement']['items'][$item_index]);
+        
+                // Recalculate the total
+                $total = array_sum(array_column($_SESSION['reimbursement']['items'], 'paid_amount'));
     
-            // Return the new total in JSON format
-            echo json_encode(['total' => $total]);
-        } else {
-            echo json_encode(['total' => 0]);
-        }
+            
+        
+                // Return the new total in JSON format
+                echo json_encode(['total' => $total]);
+            } else {
+                echo json_encode(['total' => 0]);
+            }
+        
+        
     }
 
     public function multi_approve()

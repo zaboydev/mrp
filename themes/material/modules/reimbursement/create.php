@@ -33,8 +33,7 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="type" id="type_reimbursement" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>" data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>"required>
-                                <option></option>
+                            <select name="type" id="type_reimbursement" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>"  data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> required>
                                 <?php foreach(getBenefits() as $benefit):?>
                                 <option data-account-id="<?=$benefit['id'];?>" data-account-ben-code="<?=$benefit['benefit_code'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
@@ -69,7 +68,7 @@
                         </div>
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?> required>
+                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?> required>
                                 <option></option>
                                 <?php foreach(occupation_list() as $occupation):?>
                                 <option value="<?=$occupation['position'];?>" <?= ($occupation['position'] == $_SESSION['reimbursement']['occupation']) ? 'selected' : ''; ?>><?=$occupation['position'];?></option>
@@ -95,6 +94,11 @@
                         <div class="form-group">
                             <input type="text" name="saldo_balance" id="saldo_balance" class="form-control number" value="<?= $_SESSION['reimbursement']['saldo_balance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_saldo_balance'); ?>" readonly>
                             <label for="saldo_balance">Saldo Balance</label>
+                        </div>  
+
+                        <div class="form-group hide">
+                            <input type="text" name="saldo_balance_initial" id="saldo_balance_initial" class="form-control number" value="<?= $_SESSION['reimbursement']['saldo_balance_initial']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_saldo_balance_init'); ?>" readonly>
+                            <label for="saldo_balance_initial">Saldo Balance Initial</label>
                         </div>  
 
 
@@ -142,6 +146,8 @@
                     <thead>
                         <tr>
                             <th></th>
+                            <th><span class="title_1">id</span></th>
+
                             <th><span class="title_1">Expense Detail</span></th>
                             <th>Date</th>
                             <th><span class="title_2">Description/Notes</span></th>
@@ -167,10 +173,11 @@
                                         </a>
                                     </td>
 
+                                    <td><?= $items['id']; ?></td>
                                     <td><?= $items['description']; ?></td>
                                     <td><?= $items['transaction_date']; ?></td>
                                     <td><?= ($items['notes'] == '') ? $items['notes_modal'] : $items['notes']; ?></td>
-                                    <td><?= ($items['account_code'] == '') ? $items['account_code_item'] : $items['notes']; ?></td>
+                                    <td><?= ($items['account_code'] == '') ? $items['account_code_item'] : $items['account_code']; ?></td>
                                     <td><?= number_format($items['amount'], 2); ?></td>
                                     <td><?= number_format($items['paid_amount'], 2); ?></td>
 
@@ -225,7 +232,7 @@
         <?= form_close(); ?>
         <div class="section-action style-default-bright">
             <div class="section-floating-action-row">
-                <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction" id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>">
+                <a class="btn btn-floating-action btn-lg btn-danger btn-tooltip ink-reaction"<?= empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?>  id="btn-submit-document" href="<?= site_url($module['route'] . '/save'); ?>" >
                     <i class="md md-save"></i>
                     <small class="top right">Save Document</small>
                 </a>
@@ -393,17 +400,12 @@
         console.log('mulaiinit');
         var id = $('#id_reimbursement_log').val();
 
-        if(id != ''){
-        $('#type_reimbursement').trigger('change');
-        $('#employee_number').trigger('change');
+        // if(id != ''){
+        // $('#type_reimbursement').trigger('change');
+        // $('#employee_number').trigger('change');
+        // }
 
-        setTimeout(function() {
-        calculateItemReimbursement();
-        }, 3000); 
 
-        } else {
-            
-        }
         
 
         
@@ -458,10 +460,13 @@
         console.log(used_balance_modal);
         console.log(used_balance);
         console.log(usedMerge);
+        
+    }
+        
 
         
 
-    }
+    
 
     function setPlafondBalance() {
         var saldo_balance_modal = $('#saldo_balance').val();
@@ -672,12 +677,13 @@
         var last_publish = $('[name="opname_start_date"]').val();
         var today = new Date();
         today.setDate(today.getDate() - 30);
+        var lastToday = new Date();
         $('[data-provide="datepicker"]').datepicker({
             autoclose: true,
             todayHighlight: true,
             format: 'yyyy-mm-dd',
             startDate: today,
-            // endDate: last_opname
+            endDate: lastToday
         });
 
         $('[data-provide="daterange"]').daterangepicker({
@@ -747,35 +753,44 @@
         });
 
         $(buttonSubmitDocument).on('click', function (e) {
-    e.preventDefault();
-    var button = $(this);
-    button.attr('disabled', true); // Disable the button to prevent multiple clicks.
+            e.preventDefault();
+            var button = $(this);
+            button.attr('disabled', true); // Disable the button to prevent multiple clicks.
 
-    var url = button.attr('href');
-    var saldo = parseFloat($('#saldo_balance').val()) || 0; // Default to 0 if invalid.
-    var total = parseFloat($('#total').val()) || 0;         // Default to 0 if invalid.
+            var dataBalanceInit = $('#saldo_balance_initial').val();
 
-    console.log("Total:", total);
-    console.log("Saldo:", saldo);
+            var url = button.attr('href');
+            var saldo = parseFloat($('#saldo_balance').val()) || 0; // Default to 0 if invalid.
+            var saldoinit = parseFloat(dataBalanceInit) || 0; // Default to 0 if invalid.
+            var id = parseFloat($('#employee_has_benefit_id').val()) || 0; // Default to 0 if invalid.
 
-    // Validation for invalid inputs
-    if (isNaN(saldo) || isNaN(total)) {
-        alert('Invalid balance or total value. Please check your inputs.');
-        button.attr('disabled', false); // Re-enable the button.
-        return;
-    }
+            var total = parseFloat($('#total').val()) || 0;         // Default to 0 if invalid.
 
-    // Check if saldo is less than the total reimbursement
-    if (saldo < total) {
-        if (confirm('Your balance is less than the total reimbursement. The amount to be reimbursed is the balance. Continue?')) {
-            submitForm(url, button);
-        } else {
-            button.attr('disabled', false); // Re-enable the button if user cancels.
-        }
-    } else {
-        submitForm(url, button);
-    }
-});
+            console.log("Total:", total);
+            console.log("Saldo init:", saldoinit);
+            console.log("Saldo balance:", saldo);
+
+
+            
+
+            // Validation for invalid inputs
+            if (isNaN(saldo) || isNaN(total)) {
+                alert('Invalid balance or total value. Please check your inputs.');
+                button.attr('disabled', false); // Re-enable the button.
+                return;
+            }
+
+            // Check if saldo is less than the total reimbursement
+            if (saldo < total ) {
+                if (confirm('Your balance is less than the total reimbursement. The amount to be reimbursed is the balance. Continue?')) {
+                    submitForm(url, button);
+                } else {
+                    button.attr('disabled', false); // Re-enable the button if user cancels.
+                }
+            } else {
+                submitForm(url, button);
+            }
+        });
 
 // Function to submit the form via POST
 function submitForm(url, button) {
@@ -877,6 +892,7 @@ function submitForm(url, button) {
 
                     if(obj.status=='success'){
                         $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                        $('#saldo_balance_initial').val(obj.saldo_balance).trigger('change');
                         $('#plafond_balance').val(obj.plafond_balance).trigger('change');
                         $('#used_balance').val(obj.used_balance).trigger('change');
                         //modal
@@ -884,6 +900,12 @@ function submitForm(url, button) {
                         $('#plafond_balance_modal').val(obj.plafond_balance).trigger('change');
                         $('#used_balance_modal').val(obj.used_balance).trigger('change');
 
+                        var dataInit = $('#saldo_balance_initial').val();
+                        console.log("Saldo init");
+                        console.log(dataInit);
+
+
+                        localStorage.setItem("saldoInit", obj.saldo_balance);
                         localStorage.setItem("saldoModal", obj.saldo_balance); 
                         localStorage.setItem("plafonModal", obj.plafond_balance); 
                         localStorage.setItem("usedBalance", obj.used_balance); 
@@ -903,6 +925,7 @@ function submitForm(url, button) {
                         }
 
                         $('#saldo_balance').val(obj.saldo_balance).trigger('change');
+                        $('#saldo_balance_initial').val(obj.saldo_balance).trigger('change');
                         $('#plafond_balance').val(obj.plafond_balance).trigger('change');
                         $('#used_balance').val(obj.used_balance).trigger('change');
 

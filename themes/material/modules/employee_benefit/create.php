@@ -45,7 +45,7 @@
 
                         <div class="form-group">
                             <select name="benefit_type" id="benefit_type" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefittype'); ?>" required>
-                                <option value="yearly" <?= ("yearly" == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>>2 Tahunan</option>
+                                <option value="yearly" <?= ("yearly" == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>>2 Tahun Sekali</option>
                                 <option value="once" <?= ("once" == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>>Sekali</option>
                                 <option value="contract" <?= ("contract" == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>>Mengikuti Kontrak</option>
                             </select>

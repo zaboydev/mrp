@@ -53,6 +53,7 @@
             <th>No</th>
             <th>Expense Detail</th>
             <th style="text-align:right;">Description</th>
+            <th style="text-align:right;">Amount</th>
             <th style="text-align:right;">Date of invoice / provide</th>
             <th style="text-align:right;">Amount</th>
             <th style="text-align:right;">Paid Amount</th>
@@ -67,6 +68,7 @@
             <td><?=$n++;?></td>
             <td><?=print_string($item['description']);?></td>
             <td><?=print_string($item['notes']);?></td>
+            <td><?=print_string($item['account_code']);?></td>
             <td style="text-align:right;"><?=print_date($item['transaction_date']);?></td>
             <td style="text-align:right;"><?=print_number($item['amount'],2);?></td>
             <td style="text-align:right;"><?=print_number($item['paid_amount'],2);?></td>

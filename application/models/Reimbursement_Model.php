@@ -79,8 +79,10 @@ class Reimbursement_Model extends MY_Model
                 $this->db->where('tb_reimbursements.status', $search_status);         
             }            
         }else{    
-            if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
-                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HEAD DEPT');
+            // if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
+                if (config_item('auth_role')=='VP FINANCE' || config_item('auth_role')=='HEAD OF SCHOOL' ){                
+
+                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HOS OR VP');
                 // $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
             }
             elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
@@ -329,7 +331,7 @@ class Reimbursement_Model extends MY_Model
         $status = "WAITING APPROVAL BY HR MANAGER";
 
         if($_SESSION['reimbursement']['benefit_code'] === 'B4'){
-            $status = "WAITING APPROVAL BY HEAD DEPT";
+            $status = "WAITING APPROVAL BY HOS OR VP";
         }
 
         // CREATE NEW DOCUMENT
@@ -505,6 +507,58 @@ class Reimbursement_Model extends MY_Model
         $this->db->trans_commit();
         return TRUE;
     }
+
+    public function delete_reimbursement_item($id_item) {
+        // Mulai transaksi
+        $this->db->trans_begin();
+    
+        // 1. Ambil informasi reimbursement item
+        $this->db->select('reimbursement_id, paid_amount');
+        $this->db->where('id', $id_item);
+        $query = $this->db->get('tb_reimbursement_items');
+        $item = $query->row();
+    
+        if (!$item) {
+            $this->db->trans_rollback();
+            return FALSE; // Item tidak ditemukan
+        }
+    
+        $reimbursement_id = $item->reimbursement_id;
+        $paid_amount = $item->paid_amount;
+    
+        // 2. Cari employee_number dari tb_reimbursements
+        $this->db->select('employee_number');
+        $this->db->where('id', $reimbursement_id);
+        $query = $this->db->get('tb_reimbursements');
+        $reimbursement = $query->row();
+    
+        if (!$reimbursement) {
+            $this->db->trans_rollback();
+            return FALSE; // Data reimbursement tidak ditemukan
+        }
+    
+        $employee_number = $reimbursement->employee_number;
+    
+        // 3. Update saldo used_amount_plafond dan left_amount_plafond di tb_employee_has_benefit
+        $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $paid_amount, FALSE);
+        $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $paid_amount, FALSE);
+        $this->db->where('employee_number', $employee_number);
+        $this->db->update('tb_employee_has_benefit');
+    
+        // 4. Hapus reimbursement item
+        $this->db->where('id', $id_item);
+        $this->db->delete('tb_reimbursement_items');
+    
+        // 5. Periksa transaksi
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            return FALSE;
+        }
+    
+        $this->db->trans_commit();
+        return TRUE;
+    }
+    
 
 
     public function set_pr_number($id, $pr_number){
@@ -854,12 +908,14 @@ class Reimbursement_Model extends MY_Model
                     if($queryemployee_has_benefit->num_rows()>0){
                         $return['status'] = 'success';
                         $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                        $return['saldo_balance_initial'] = $rowemployee_has_benefit['left_amount_plafond'];
                         $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
                         $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
                         $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
                     }else{
                         $return['status'] = 'warning';
                         $return['saldo_balance'] = 0;
+                        $return['saldo_balance_initial'] = 0;
                         $return['plafond_balance'] = 0;
                         $return['used_balance'] = 0;
                         $return['employee_has_benefit_id'] = null;
@@ -869,6 +925,7 @@ class Reimbursement_Model extends MY_Model
                 } else {
                     $return['status'] = 'warning';
                     $return['saldo_balance'] = 0;
+                    $return['saldo_balance_initial'] = 0;
                     $return['plafond_balance'] = 0;
                     $return['used_balance'] = 0;
                     $return['employee_has_benefit_id'] = null;
@@ -894,6 +951,7 @@ class Reimbursement_Model extends MY_Model
                     if($queryemployee_has_benefit->num_rows()>0){
                         $return['status'] = 'success';
                         $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                        $return['saldo_balance_initial'] = $rowemployee_has_benefit['left_amount_plafond'];
                         $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
                         $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
                         $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
@@ -902,6 +960,7 @@ class Reimbursement_Model extends MY_Model
 
                         $return['status'] = 'warning';
                         $return['saldo_balance'] = 0;
+                        $return['saldo_balance_initial'] = 0;
                         $return['plafond_balance'] = 0;
                         $return['used_balance'] = 0;
                         $return['employee_has_benefit_id'] = null;
@@ -912,6 +971,7 @@ class Reimbursement_Model extends MY_Model
                 } else {
                     $return['status'] = 'warning';
                     $return['saldo_balance'] = 0;
+                    $return['saldo_balance_initial'] = 0;
                     $return['plafond_balance'] = 0;
                     $return['used_balance'] = 0;
                     $return['employee_has_benefit_id'] = null;
@@ -936,12 +996,14 @@ class Reimbursement_Model extends MY_Model
                 if($queryemployee_has_benefit->num_rows()>0){
                     $return['status'] = 'success';
                     $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                    $return['saldo_balance_initial'] = $rowemployee_has_benefit['left_amount_plafond'];
                     $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
                     $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
                     $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
                 }else{
                     $return['status'] = 'warning';
                     $return['saldo_balance'] = 0;
+                    $return['saldo_balance_initial'] = 0;
                     $return['plafond_balance'] = 0;
                     $return['used_balance'] = 0;
                     $return['employee_has_benefit_id'] = null;
@@ -966,12 +1028,14 @@ class Reimbursement_Model extends MY_Model
                 if($queryemployee_has_benefit->num_rows()>0){
                     $return['status'] = 'success';
                     $return['saldo_balance'] = $rowemployee_has_benefit['left_amount_plafond'];
+                    $return['saldo_balance_initial'] = $rowemployee_has_benefit['left_amount_plafond'];
                     $return['plafond_balance'] = $rowemployee_has_benefit['amount_plafond'];
                     $return['used_balance'] = $rowemployee_has_benefit['used_amount_plafond'];
                     $return['employee_has_benefit_id'] = $rowemployee_has_benefit['id'];
                 }else{
                     $return['status'] = 'warning';
                     $return['saldo_balance'] = 0;
+                    $return['saldo_balance_initial'] = 0;
                     $return['plafond_balance'] = 0;
                     $return['used_balance'] = 0;
                     $return['employee_has_benefit_id'] = null;
@@ -982,6 +1046,7 @@ class Reimbursement_Model extends MY_Model
             }else{
                 $return['status'] = 'warning';
                 $return['saldo_balance'] = 0;
+                $return['saldo_balance_initial'] = 0;
                 $return['plafond_balance'] = 0;
                 $return['used_balance'] = 0;
                 $return['employee_has_benefit_id'] = null;
@@ -1071,7 +1136,7 @@ class Reimbursement_Model extends MY_Model
 
             $findDataPosition = findPositionByEmployeeNumber($spd['employee_number']);
 
-            if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && $spd['benefit_code'] == "B4" && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+            if($spd['status']=='WAITING APPROVAL BY HOS OR VP' && $spd['benefit_code'] == "B4" && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
                 $this->db->set('status','APPROVED');
                 $this->db->set('validated_by',config_item('auth_person_name'));
                 $this->db->where('id', $id);
@@ -1151,7 +1216,7 @@ class Reimbursement_Model extends MY_Model
                     if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
                         // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
             
-                            $this->db->set('status','WAITING APPROVAL BY HEAD DEPT');
+                            $this->db->set('status','WAITING APPROVAL BY HOS OR VP');
                             $this->db->set('hr_approved_by',config_item('auth_person_name'));
                             $this->db->where('id', $id);
                             $this->db->update('tb_reimbursements');
@@ -1169,7 +1234,7 @@ class Reimbursement_Model extends MY_Model
                             $this->db->set('created_at', date('Y-m-d H:i:s'));
                             $this->db->insert('tb_signers');
                             $send_email_to = 'finance_manager';
-                        }elseif($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+                        }elseif($spd['status']=='WAITING APPROVAL BY HOS OR VP' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
             
                         // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
                             $this->db->set('status','APPROVED');
@@ -1321,7 +1386,7 @@ class Reimbursement_Model extends MY_Model
                 $failed--;
             } else {
             // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
-                if($spd['status']=='WAITING APPROVAL BY HEAD DEPT'){
+                if($spd['status']=='WAITING APPROVAL BY HOS OR VP'){
                     $this->db->set('status','REJECT');
                     $this->db->set('rejected_by',config_item('auth_person_name'));
                     $this->db->where('id', $id);

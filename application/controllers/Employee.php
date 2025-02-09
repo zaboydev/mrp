@@ -45,7 +45,7 @@ class Employee extends MY_Controller
             $return['type'] = 'danger';
             $return['info'] = "You don't have permission to access this page!";
         } else {
-              $entities = $this->model->getIndex();
+            $entities = $this->model->getIndex();
 
             $data = array();
             $no   = $_POST['start'];
@@ -59,6 +59,14 @@ class Employee extends MY_Controller
                 $col[] = print_string($row['name']);
                 $col[] = print_string($department['department_name']);
                 $col[] = print_string($row['position']);
+                $col[] = print_string($row['benefits']);
+                $col[] = print_string($row['contract_number']);
+                $diff = (strtotime($row['end_date']) - strtotime(date('Y-m-d'))) / (60 * 60 * 24);
+                if ($diff <= 20) {
+                $col[] = "<b style='color:red;'>".print_string(print_date($row['start_date']) . ' - '. print_date($row['end_date']))."</b>";
+                } else {
+                    $col[] = print_string(print_date($row['start_date']) . ' - '. print_date($row['end_date']));
+                }
                 $col[] = print_date($row['updated_at']);
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
