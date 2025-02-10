@@ -393,6 +393,88 @@ class Secure_model extends MY_Model
       ->delete(config_item('auth_sessions_table'));
   }
 
+  public function send_email_contract($employees){
+    $this->load->library('email');
+    $this->email->set_newline("\r\n");
+      if (!empty($employees)) {
+       
+        $recipient = array();
+        
+        array_push($recipient, 'andrio.zaboy@gmail.com');
+        
+
+        $message = "<h3>Notifikasi Kontrak Karyawan</h3>";
+        $message .= "<p>Berikut daftar karyawan yang kontraknya akan berakhir dalam 20 hari:</p>";
+        $message .= "<table border='1' cellpadding='5' cellspacing='0'>";
+        $message .= "<tr><th>Employee Number</th><th>Name</th><th>Contract Number</th><th>End Date</th></tr>";
+
+        foreach ($employees as $emp) {
+            $message .= "<tr>
+                <td>{$emp->employee_number}</td>
+                <td>{$emp->name}</td>
+                <td>{$emp->contract_number}</td>
+                <td>{$emp->end_date}</td>
+            </tr>";
+        }
+        $message .= "</table>";
+
+        // Konfigurasi email
+        $this->email->from('bifa.acd@gmail.com', 'HR Notification');
+        $this->email->to($recipient);
+        $this->email->subject('Pemberitahuan: Kontrak Karyawan Akan Habis');
+        $this->email->message($message);
+
+        // Kirim email
+        if ($this->email->send()) {
+            echo "Email berhasil dikirim.";
+        } else {
+            echo "Gagal mengirim email. ". $recipient[0];
+            log_message('error', $this->email->print_debugger());
+        }
+
+        } else {
+            echo "Tidak ada kontrak yang akan habis dalam 20 hari.";
+        }
+        // if(!empty($recipient)){            
+
+        //     $this->load->library('email');
+        //     $this->email->set_newline("\r\n");
+        //     $from_email = "bifa.acd@gmail.com";
+        //     $to_email = "aidanurul99@rocketmail.com";
+        //     // $message = "<p>Dear ".$keterangan."</p>";
+        //     $message .= "<p>SPPD Berikut Telah</p>";
+        //     $message .= "<table style='border-collapse: collapse;padding: 1.2em 0;margin-bottom: 20pxwidth: 100%!important;background: #fff;'>";
+        //     $message .= "<thead>";
+        //     $message .= "<tr>";
+        //     $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Date</th>";
+        //     $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>No. SPD</th>";
+        //     $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Name</th>";
+        //     $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>From</th>";
+        //     $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Destination</th>";
+        //     $message .= "<th style='padding: 2px 10px;text-align: left;font-size: 12px;border: 1px solid #999;'>Duration</th>";
+        //     $message .= "</tr>";
+        //     $message .= "</thead>";
+        //     $message .= $item_message;
+        //     $message .= "</table>";
+        //     $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+        //     $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+        //     $message .= "<p>Thanks and regards</p>";
+        //     $this->email->from($from_email, 'Material Resource Planning');
+        //     $this->email->to($recipient);
+        //     $this->email->subject('Permintaan Approval SPPD');
+        //     $this->email->message($message);
+            
+    
+        //     // Send mail 
+        //     if ($this->email->send())
+        //       return true;
+        //     else
+        //       return $this->email->print_debugger();
+        // }else{
+        //     return true;
+        // }
+  }
+
   public function auth_sessions_gc()
   {
     if (config_item('sess_driver') == 'database')

@@ -181,7 +181,10 @@ class Secure extends MY_Controller
 
   public function cron_job_send_email()
   {
-    $this->_model->cron_job_send_email();
+    $employees = getExpiringContracts();
+    var_dump($employees);
+    $this->model->send_email_contract($employees);
+    // $this->render_view($this->module['view'] .'/file_not_found');
   }
 
   public function file_not_found()

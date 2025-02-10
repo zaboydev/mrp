@@ -1299,6 +1299,26 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+
+  if (!function_exists('getExpiringContracts')) {
+    function getExpiringContracts()
+    {
+      $CI = &get_instance();
+
+      $CI->db->select('e.employee_number, e.name, c.contract_number, c.end_date');
+      $CI->db->from('tb_employee_contracts c');
+      $CI->db->join('tb_master_employees e', 'c.employee_number = e.employee_number');
+      $CI->db->where('c.status', 'ACTIVE');
+      $CI->db->where('c.end_date', date('Y-m-d', strtotime('+20 days')));
+
+      $query = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+
   if (!function_exists('get_set_up_akun')) {
     function get_set_up_akun($id)
     {
