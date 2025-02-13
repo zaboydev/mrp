@@ -71,6 +71,8 @@ require('modules/employee_benefit.php');
 require('modules/employee.php');
 require('modules/master_expense_duty.php');
 require('modules/master_expense_reimbursement.php');
+require('modules/master_benefit_category.php');
+require('modules/master_benefit_type.php');
 require('modules/tujuan_perjalanan_dinas.php');
 require('modules/master_transportation.php');
 

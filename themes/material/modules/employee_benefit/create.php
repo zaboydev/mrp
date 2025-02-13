@@ -33,6 +33,24 @@
                         </div>
 
                         <div class="form-group">
+                            <select name="type" id="benefit_code" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefitcode'); ?>"  required>
+                                <?php foreach(getBenefitCategory() as $benefit):?>
+                                <option data-account-id="<?=$benefit['id'];?>" value="<?=$benefit['benefit_code'];?>" <?= ($benefit['benefit_code'] == $_SESSION['benefit']['benefit_code']) ? 'selected' : ''; ?>><?=$benefit['benefit_name'];?></option>
+                                <?php endforeach;?>
+                            </select>
+                            <label for="benefit_code">Type</label>
+                        </div>
+
+                        <div class="form-group">
+                            <select name="type" id="benefit_type" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefittype'); ?>"  required>
+                                <?php foreach(getBenefitType() as $benefit):?>
+                                <option data-account-id="<?=$benefit['id'];?>" value="<?=$benefit['benefit_type'];?>" <?= ($benefit['benefit_type'] == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>><?=$benefit['notes'];?></option>
+                                <?php endforeach;?>
+                            </select>
+                            <label for="benefit_code">Type</label>
+                        </div>
+
+                        <!-- <div class="form-group">
                             <select name="benefit_code" id="benefit_code" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefitcode'); ?>" required>
                                 <option value="B1" <?= ("B1" == $_SESSION['benefit']['benefit_code']) ? 'selected' : ''; ?>>BENEFIT MEDICAL</option>
                                 <option value="B2" <?= ("B2" == $_SESSION['benefit']['benefit_code']) ? 'selected' : ''; ?>>BENEFIT OPTIK</option>
@@ -41,16 +59,16 @@
 
                             </select>
                             <label for="benefit_code">Select Benefit Category</label>
-                        </div>
+                        </div> -->
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <select name="benefit_type" id="benefit_type" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefittype'); ?>" required>
                                 <option value="yearly" <?= ("yearly" == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>>2 Tahun Sekali</option>
                                 <option value="once" <?= ("once" == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>>Sekali</option>
                                 <option value="contract" <?= ("contract" == $_SESSION['benefit']['benefit_type']) ? 'selected' : ''; ?>>Mengikuti Kontrak</option>
                             </select>
                             <label for="benefit_type">Select Type Benefit</label>
-                        </div>
+                        </div> -->
 
 
                         <div class="form-group">

@@ -111,7 +111,7 @@ $config['modules_for_head_dept'] = array(
   'business_trip_request',
   'sppd',
   'reimbursement',
-  'expense_reimbursement'
+  'expense_reimbursement',
 );
 
 $config['type_reimbursement'] = array(
@@ -128,6 +128,7 @@ $config['additional_modules_for_hr_depatment'] = array(
   'user_position',
   'employee',
   'expense_reimbursement',
+  'benefit_category'
 );
 
 $config['hr_department_name'] = 'Human Resources Dept';

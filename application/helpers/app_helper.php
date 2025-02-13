@@ -3636,6 +3636,39 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('getBenefitType')) {
+    function getBenefitType()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->from('tb_master_benefit_type');
+      $CI->db->order_by('tb_master_benefit_type.id', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
+  if ( ! function_exists('getBenefitCategory')) {
+    function getBenefitCategory()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->where('tb_master_benefit_category.status','AVAILABLE');
+      $CI->db->from('tb_master_benefit_category');
+      $CI->db->order_by('tb_master_benefit_category.id', 'ASC');
+
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+
+      return $result;
+    }
+  }
+
   if ( ! function_exists('getBenefits')) {
     function getBenefits($employee_number)
     {
