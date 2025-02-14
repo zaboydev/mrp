@@ -410,6 +410,7 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('account_code', $data['account_code_item']);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
+            $this->db->set('attachment', $data['attachment']);
             $this->db->insert('tb_reimbursement_items');
 
             /**

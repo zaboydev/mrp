@@ -563,38 +563,85 @@ class Reimbursement extends MY_Controller
         echo json_encode($data);
     }
 
+    // public function add_item()
+    // {
+    //     $this->authorized($this->module, 'create');
+
+    //     if (isset($_POST) && !empty($_POST)){
+    //         if($this->input->post('amount') >= $this->input->post('saldo_balance_modal')){
+    //             $_SESSION['reimbursement']['items'][] = array(
+    //                 'description'       => $this->input->post('description'),
+    //                 'transaction_date'  => $this->input->post('date'),
+    //                 'notes_modal'       => $this->input->post('notes_modal'),
+    //                 'amount'            => $this->input->post('amount'),
+    //                 'paid_amount'       => $this->input->post('paid_amount_modal'),
+    //                 'account_code_item' => $this->input->post('account_code_item'),
+
+    
+    //             );    
+
+    //         } else {
+    //             $_SESSION['reimbursement']['items'][] = array(
+    //                 'description'       => $this->input->post('description'),
+    //                 'transaction_date'  => $this->input->post('date'),
+    //                 'notes_modal'       => $this->input->post('notes_modal'),
+    //                 'amount'            => $this->input->post('amount'),
+    //                 'paid_amount'       => $this->input->post('paid_amount_modal'),
+    //                 'account_code_item' => $this->input->post('account_code_item'),
+    
+    //             );    
+    //         }
+               
+    //     }
+
+    //     redirect($this->module['route'] .'/create');
+    // }
+
     public function add_item()
     {
         $this->authorized($this->module, 'create');
 
-        if (isset($_POST) && !empty($_POST)){
-            if($this->input->post('amount') >= $this->input->post('saldo_balance_modal')){
-                $_SESSION['reimbursement']['items'][] = array(
-                    'description'       => $this->input->post('description'),
-                    'transaction_date'  => $this->input->post('date'),
-                    'notes_modal'       => $this->input->post('notes_modal'),
-                    'amount'            => $this->input->post('amount'),
-                    'paid_amount'       => $this->input->post('paid_amount_modal'),
-                    'account_code_item' => $this->input->post('account_code_item'),
-    
-                );    
+        
+            // File upload handling
+            $file_path = $this->input->post('existing_attachment');
+            if (!empty($_FILES['attachment']['name'])) {
+                $date = new DateTime();
+                // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+                $config['upload_path'] = 'attachment/reimbursement/';
+                $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+                $config['max_size']      = 1024; // 1MB
+                $config['file_name']     = time() . "_" . $_FILES['attachment']['name'];
 
-            } else {
-                $_SESSION['reimbursement']['items'][] = array(
-                    'description'       => $this->input->post('description'),
-                    'transaction_date'  => $this->input->post('date'),
-                    'notes_modal'       => $this->input->post('notes_modal'),
-                    'amount'            => $this->input->post('amount'),
-                    'paid_amount'       => $this->input->post('paid_amount_modal'),
-                    'account_code_item' => $this->input->post('account_code_item'),
-    
-                );    
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('attachment')) {
+                    $data = $this->upload->data();
+                    $file_path = $data['file_name']; // Store file name for reference
+                } else {
+                    // Handle upload error
+                    $this->session->set_flashdata('error', $this->upload->display_errors());
+                    redirect($this->module['route'] . '/create');
+                    return;
+                }
             }
-               
-        }
 
-        redirect($this->module['route'] .'/create');
+            // Add item with file path
+            $_SESSION['reimbursement']['items'][] = array(
+                'description'       => $this->input->post('description'),
+                'transaction_date'  => $this->input->post('date'),
+                'notes_modal'       => $this->input->post('notes_modal'),
+                'amount'            => $this->input->post('amount'),
+                'paid_amount'       => $this->input->post('paid_amount_modal'),
+                'account_code_item' => $this->input->post('account_code_item'),
+                'attachment'        => $file_path, 
+                'existing_attachment' => $file_path,
+
+            );
+
+            redirect($this->module['route'] . '/create');
+        
     }
+
 
     public function discard()
     {
@@ -650,6 +697,27 @@ class Reimbursement extends MY_Controller
 
         // $key=$this->input->post('item_id');
         if (isset($_POST) && !empty($_POST)){
+            $file_path = $this->input->post('existing_attachment');
+            if (!empty($_FILES['attachment']['name'])) {
+                $date = new DateTime();
+                // $config['file_name'] = $date->getTimestamp().random_string('alnum', 5);
+                $config['upload_path'] = 'attachment/reimbursement/';
+                $config['allowed_types'] = 'jpg|png|jpeg|doc|docx|xls|xlsx|pdf';
+                $config['max_size']      = 1024; // 1MB
+                $config['file_name']     = time() . "_" . $_FILES['attachment']['name'];
+
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('attachment')) {
+                    $data = $this->upload->data();
+                    $file_path = $data['file_name']; // Store file name for reference
+                } else {
+                    // Handle upload error
+                    $this->session->set_flashdata('error', $this->upload->display_errors());
+                    redirect($this->module['route'] . '/create');
+                    return;
+                }
+            }
             // $receipts_items_id = $this->input->post('item_id')
             $_SESSION['reimbursement']['items'][$key] = array(        
                 'description'       => $this->input->post('description'),
@@ -658,6 +726,9 @@ class Reimbursement extends MY_Controller
                 'amount'            => $this->input->post('amount'),
                 'account_code_item' => $this->input->post('account_code_item'),
                 'paid_amount'       => $this->input->post('paid_amount_modal'),
+                'attachment'        =>  $file_path,
+                'existing_attachment' =>  $file_path,
+
             );
         } 
         redirect($this->module['route'] .'/create');

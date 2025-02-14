@@ -94,9 +94,7 @@
                 <th>Account Code (COA)</th>
                 <th>Amount</th>
                 <th>Paid Amount</th>
-
-
-                
+                <th>Attachment</th>
               </tr>
             </thead>
             <tbody id="table_contents">
@@ -126,6 +124,15 @@
                 <td>
                   <?=print_number($detail['paid_amount'],2);?>
                 </td>
+                <td>
+                  <?php if (!empty($detail['attachment'])): ?>
+                      <a href="<?= base_url('attachment/reimbursement/' . $detail['attachment']); ?>" target="_blank" title="View Attachment">
+                          <i class="fa fa-eye text-primary"></i>
+                      </a>
+                  <?php else: ?>
+                      <span class="text-muted">No Attachment</span>
+                  <?php endif; ?>
+              </td>
                 <?php $total[] = $detail['amount'];?>
               </tr>
               <?php endforeach; ?>
@@ -169,10 +176,10 @@
         </a> -->
         <?=form_close();?>
         <?php endif;?>
-        <a href="<?= site_url($module['route'] . '/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
+        <!-- <a href="<?= site_url($module['route'] . '/manage_attachment/' . $entity['id']); ?>" onClick="return popup(this, 'attachment')" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction">
             <i class="md md-attach-file"></i>
             <small class="top right">Manage Attachment</small>
-        </a>
+        </a> -->
 
         <div class="pull-right">
             <?php if (is_granted($module, 'create') && $entity['date'] >= $data && $entity['status'] != 'REVISED'):?>

@@ -160,15 +160,13 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th><span class="title_1">id</span></th>
-
                             <th><span class="title_1">Expense Detail</span></th>
                             <th>Date</th>
                             <th><span class="title_2">Description/Notes</span></th>
                             <th>Account Code (A)</th>
                             <th>Amount</th>
                             <th>Paid Amount</th>
-
+                            <th>Attachment</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -186,14 +184,21 @@
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>
-
-                                    <td><?= $items['id']; ?></td>
                                     <td><?= $items['description']; ?></td>
-                                    <td><?= $items['transaction_date']; ?></td>
+                                    <td><?= ($items['transaction_date'] == '') ?$_SESSION['reimbursement']['date'] : $items['transaction_date']; ?></td>
                                     <td><?= ($items['notes'] == '') ? $items['notes_modal'] : $items['notes']; ?></td>
                                     <td><?= ($items['account_code'] == '') ? $items['account_code_item'] : $items['account_code']; ?></td>
                                     <td><?= number_format($items['amount'], 2); ?></td>
                                     <td><?= number_format($items['paid_amount'], 2); ?></td>
+                                    <td>
+                                        <?php if (!empty($items['attachment'])): ?>
+                                            <a href="<?= base_url('attachment/reimbursement/' . $items['attachment']); ?>" target="_blank" title="View Attachment">
+                                                <i class="fa fa-eye text-primary"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-muted">No Attachment</span>
+                                        <?php endif; ?>
+                                    </td>
 
 
                                     
@@ -231,10 +236,10 @@
                     <button type="button" href="" onClick="addRow()" class="btn btn-primary ink-reaction pull-left hide">
                     Add
                     </button>
-
+<!-- 
                     <a style="margin-left: 15px;" href="<?= site_url($module['route'] . '/attachment'); ?>" onClick="return popup(this, 'attachment')" class="btn btn-primary ink-reaction">
                         Attachment
-                    </a>
+                    </a> -->
                 </div>
 
                 <a href="<?= site_url($module['route'] . '/discard'); ?>" class="btn btn-flat btn-danger ink-reaction">
@@ -264,7 +269,7 @@
                     <h4 class="modal-title" id="modal-add-item-label">Add Item</h4>
                 </div>
 
-                <?= form_open(site_url($module['route'] . '/add_item'), array(
+                <?= form_open_multipart(site_url($module['route'] . '/add_items'), array(
                     'autocomplete' => 'off',
                     'item_id'    => 'ajax-form-create-document',
                     'class' => 'form form-validate ui-front',
@@ -278,29 +283,16 @@
                                 <div class="col-sm-12">
                                 <fieldset>
                                     <legend><?=$_SESSION['reimbursement']['type']?></legend>
-
-                                    <!-- <div class="form-group">
-                                        <input type="text" name="description" id="description" class="form-control input-sm input-autocomplete">
-                                        <label for="description"><span class="title_1">Expense Detail</span></label>
-                                    </div> -->
-
-
                                     <div class="form-group" style="padding-top: 25px;">
                                         <select name="description" id="description" class="form-control" 
                                             data-input-type="autoset" 
                                             data-source="<?= site_url($module['route'] . '/set_description'); ?>"
                                             required>
                                             <option></option>
-                                           
-                                            <!-- This will be dynamically populated -->
                                         </select>
                                         <label for="description">Expense Name</label>
                                     </div>
 
-                                    <!-- <div class="form-group">
-                                        <input type="text" name="date" id="date" data-tag-name="date" class="form-control input-sm" required="required" data-provide="datepicker">
-                                        <label for="date">Date</label>
-                                    </div> -->
 
                                     <div class="form-group">
                                         <textarea name="notes_modal" id="notes_modal" data-tag-name="notes_modal" class="form-control input-sm"></textarea>
@@ -332,7 +324,32 @@
                                         <label for="saldo_balance_modal">Saldo Balance</label>
                                     </div>
 
-                                   
+                                    <!-- <div class="form-group">
+                                        <label for="attachment">Attachment</label>
+                                        <input type="file" id="attachment" class="form-control input-sm" name="attachment" accept=".jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.pdf">
+                                        <small id="file-error" class="text-danger" style="display: none;">File size must be less than 1MB.</small>
+                                    </div> -->
+                                    <div class="form-group">
+                                        <label for="attachment">Attachment</label>
+                                        
+                                        <!-- Display Existing File (if any) -->
+                                        <div id="existing-attachment">
+                                            <?php if (!empty($item['attachment'])): ?>
+                                                <a href="<?= base_url('attachment/reimbursement/' . $item['attachment']); ?>" target="_blank">
+                                                    <i class="fa fa-eye text-primary"></i> View Existing File
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="text-muted">No Attachment</span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- File Input -->
+                                        <input type="file" id="attachment" class="form-control input-sm" name="attachment"
+                                            accept=".jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.pdf">
+                                        <small id="file-error" class="text-danger" style="display: none;">File size must be less than 1MB.</small>
+                                    </div>
+                                    <label for="saldo_balance_modal"><?php $item['attachment']; ?></label>
+
                                     <div class="form-group hide">
                                         <input type="text" name="account_code_item" id="account_code_item" class="form-control"  data-input-type="autoset" readonly>
                                         <label for="account_code_item">Account Code (COA)</label>
@@ -424,6 +441,17 @@
 
         
     };
+    document.getElementById("attachment").addEventListener("change", function() {
+        var file = this.files[0];
+        var errorMessage = document.getElementById("file-error");
+
+        if (file && file.size > 1048576) { // 1MB = 1048576 bytes
+            errorMessage.style.display = "block"; // Show error message
+            this.value = ""; // Clear the file input
+        } else {
+            errorMessage.style.display = "none"; // Hide error message if valid
+        }
+    });
 
     function calculateItemReimbursement(){
 
@@ -1122,6 +1150,21 @@ function submitForm(url, button) {
                     $('[name="date"]').val(response.transaction_date);
                     $('[name="notes_modal"]').val(response.notes_modal);
                     $('[name="amount"]').val(response.amount);
+                    // Handle attachment display
+                    if (response.attachment) {
+                        var attachmentUrl = "<?= base_url('attachment/reimbursement') ?>" +"/" + response.attachment;
+                        $('#existing-attachment').html(
+                            `<a href="${attachmentUrl}" target="_blank" value="${response.attachment}">
+                                <i class="fa fa-eye text-primary"></i> View Existing File
+                            </a>`
+                        );
+                        $('#existing_attachment').html(
+                         `<input type="hidden" name="existing_attachment" value="${response.attachment}">`
+                        );
+                    } else {
+                        $('#existing-attachment').html('<span class="text-muted">No Attachment</span>');
+                    }
+
 
 
                    
