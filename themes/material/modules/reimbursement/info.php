@@ -88,9 +88,9 @@
             <thead id="table_header">
               <tr>
                 <th></th>
-                <th><?= ($entity['type']=='MEDICAL')? 'Patient Name':'Expense Detail'?></th>
+                <th>Expense Detail</th>
                 <th>Date</th>
-                <th><?= ($entity['type']=='MEDICAL')? 'Diagnoses':'Description'?></th>
+                <th>Description</th>
                 <th>Account Code (COA)</th>
                 <th>Amount</th>
                 <th>Paid Amount</th>

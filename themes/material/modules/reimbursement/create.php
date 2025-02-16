@@ -269,7 +269,7 @@
                     <h4 class="modal-title" id="modal-add-item-label">Add Item</h4>
                 </div>
 
-                <?= form_open_multipart(site_url($module['route'] . '/add_items'), array(
+                <?= form_open_multipart(site_url($module['route'] . '/add_item'), array(
                     'autocomplete' => 'off',
                     'item_id'    => 'ajax-form-create-document',
                     'class' => 'form form-validate ui-front',
@@ -353,6 +353,11 @@
                                     <div class="form-group hide">
                                         <input type="text" name="account_code_item" id="account_code_item" class="form-control"  data-input-type="autoset" readonly>
                                         <label for="account_code_item">Account Code (COA)</label>
+                                    </div>
+
+                                    <div class="form-group hide">
+                                        <textarea name="existing_attachment" id="existing_attachment" data-tag-name="existing_attachment" class="form-control input-sm"></textarea>
+                                        <label for="existing_attachment">Existing Attachment</label>
                                     </div>
                                 </fieldset>
                             </div>
@@ -1150,6 +1155,7 @@ function submitForm(url, button) {
                     $('[name="date"]').val(response.transaction_date);
                     $('[name="notes_modal"]').val(response.notes_modal);
                     $('[name="amount"]').val(response.amount);
+                    $('[name="existing_attachment"]').val(response.attachment);
                     // Handle attachment display
                     if (response.attachment) {
                         var attachmentUrl = "<?= base_url('attachment/reimbursement') ?>" +"/" + response.attachment;
@@ -1157,9 +1163,6 @@ function submitForm(url, button) {
                             `<a href="${attachmentUrl}" target="_blank" value="${response.attachment}">
                                 <i class="fa fa-eye text-primary"></i> View Existing File
                             </a>`
-                        );
-                        $('#existing_attachment').html(
-                         `<input type="hidden" name="existing_attachment" value="${response.attachment}">`
                         );
                     } else {
                         $('#existing-attachment').html('<span class="text-muted">No Attachment</span>');

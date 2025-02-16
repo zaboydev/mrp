@@ -397,6 +397,16 @@ class Reimbursement_Model extends MY_Model
 
         // PROCESSING reimbursement ITEMS
         foreach ($_SESSION['reimbursement']['items'] as $key => $data) {
+            $dataNotes = $data['notes'];
+            $accountCode = $data['account_code'];
+
+            if($dataNotes == ''){
+                $dataNotes = $data['notes_modal'];
+            }
+
+            if($accountCode == ''){
+                $accountCode = $data['account_code_item'];
+            }
             
             /**
              * INSERT INTO TABLE REIMBURSEMENT ITEMS
@@ -404,10 +414,10 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('reimbursement_id', $document_id);
             $this->db->set('description', $data['description']);
             $this->db->set('transaction_date', $date);
-            $this->db->set('notes', $data['notes_modal']);
+            $this->db->set('notes', $dataNotes);
             $this->db->set('amount', $data['amount']);
             $this->db->set('paid_amount', $data['paid_amount']);
-            $this->db->set('account_code', $data['account_code_item']);
+            $this->db->set('account_code', $accountCode);
             $this->db->set('created_by', config_item('auth_person_name'));
             $this->db->set('updated_by', config_item('auth_person_name'));
             $this->db->set('attachment', $data['attachment']);
@@ -440,11 +450,11 @@ class Reimbursement_Model extends MY_Model
         $this->db->insert('tb_used_benefits');
 
 
-        if(!empty($_SESSION['reimbursement']['attachment'])){
-            foreach ($_SESSION["reimbursement"]["attachment"] as $key) {
+        if(!empty($_SESSION['reimbursement']['items'])){
+            foreach ($_SESSION['reimbursement']['items'] as $key => $data) {
                 $this->db->set('id_poe', $document_id);
                 $this->db->set('id_po', $document_id);
-                $this->db->set('file', $key);
+                $this->db->set('file', 'attachment/reimbursement/'.$data['attachment']);
                 $this->db->set('tipe', 'REIMBURSEMENT');
                 $this->db->set('tipe_att', 'other');
                 $this->db->insert('tb_attachment_poe');
