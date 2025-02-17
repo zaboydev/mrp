@@ -180,7 +180,7 @@
                                         <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
                                             <i class="fa fa-trash"></i>
                                         </a>
-                                        <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?= $i; ?>}'>
+                                        <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?= $i; ?>}'data-item-id-db='{"item":<?= $items['id']; ?>}'>
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>
@@ -356,6 +356,16 @@
                                     </div>
 
                                     <div class="form-group hide">
+                                        <input type="text" name="id_reimbursement_item" id="id_reimbursement_item" class="form-control"  data-input-type="autoset" readonly>
+                                        <label for="id_reimbursement_item">ID Reimbusement Item</label>
+                                    </div>
+
+                                    <div class="form-group hide">
+                                        <input type="text" name="amount_awal_item" id="amount_awal_item" class="form-control" step=".02"  data-input-type="autoset" readonly>
+                                        <label for="amount_awal_item">Amount Awal Item</label>
+                                    </div>
+
+                                    <div class="form-group hide">
                                         <textarea name="existing_attachment" id="existing_attachment" data-tag-name="existing_attachment" class="form-control input-sm"></textarea>
                                         <label for="existing_attachment">Existing Attachment</label>
                                     </div>
@@ -490,10 +500,17 @@
         var saldo_balance_modal = $('#saldo_balance_modal').val();
         var paid_amount_modal = $('#paid_amount_modal').val();
         var used_balance_modal = $('#used_balance_modal').val();
+        var amount_awal_item = $('#amount_awal_item').val();
         var used_balance = $('#used_balance').val();
+        var usedMerge = 0;
+        if(amount_awal_item != 0){
+            usedMerge = (parseFloat(used_balance)-parseFloat(amount_awal_item))+parseFloat(paid_amount_modal);
+        } else {
+            usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+        }
 
 
-        var usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+        
 
 
         localStorage.setItem("saldoModal", saldo_balance_modal); 
@@ -556,28 +573,51 @@
 
 
         var initialBalance = $('#saldo_balance').val();
+        var initialBalanceAwal = $('#saldo_balance_initial').val();
+
+        const valueAmountAwal = $('#amount_awal_item').val();
+        const amountAwal = valueAmountAwal.trim() === "" ? 0 : parseFloat(valueAmountAwal);
         const amount = parseFloat(document.getElementById('amount').value) || 0;
         const saldoBalanceField = document.getElementById('saldo_balance_modal');
         const paidAmountField = document.getElementById('paid_amount_modal'); // Field paid amount modal
 
+        const id_reimbursement_item = document.getElementById('id_reimbursement_item');
+
         var paidAmount = amount; // Default nilai paidAmount adalah amount
 
-        if (amount >= initialBalance) {
+        if(amountAwal == 0){
+            console.log('masuksini2');
+            if (amount >= initialBalance) {
             // Jika amount melebihi initialBalance
             paidAmount = initialBalance; // Paid amount adalah sisa saldo awal
             saldoBalanceField.value = 0; // Saldo menjadi 0
+            } else {
+                // Jika amount tidak melebihi initialBalance
+                const updatedBalance = (parseFloat(initialBalance) - parseFloat(amount)) + parseFloat(amountAwal); // Hitung saldo yang diperbarui
+                saldoBalanceField.value = updatedBalance.toFixed(0); // Update saldo tersisa
+            }
         } else {
-            // Jika amount tidak melebihi initialBalance
-            const updatedBalance = initialBalance - amount; // Hitung saldo yang diperbarui
-            saldoBalanceField.value = updatedBalance.toFixed(0); // Update saldo tersisa
+            console.log('masuksini3');
+            console.log(amount);
+            console.log((parseFloat(initialBalance) + parseFloat(amountAwal)));
+
+            if (amount >= (parseFloat(initialBalance) + parseFloat(amountAwal))) {
+            console.log('masuksini4');
+
+            // Jika amount melebihi initialBalance
+            paidAmount = (parseFloat(initialBalance) + parseFloat(amountAwal)); // Paid amount adalah sisa saldo awal
+            saldoBalanceField.value = 0; // Saldo menjadi 0
+            } else {
+            console.log('masuksini5');
+
+                // Jika amount tidak melebihi initialBalance
+                const updatedBalance = parseFloat(initialBalance) - parseFloat(amount) + parseFloat(amountAwal); // Hitung saldo yang diperbarui
+                saldoBalanceField.value = updatedBalance.toFixed(0); // Update saldo tersisa
+            }
         }
 
         // Update paidAmount field
         paidAmountField.value = paidAmount;
-
-
-        
-       
     }
 
     function popup(mylink, windowname){
@@ -828,7 +868,7 @@
             }
 
             // Check if saldo is less than the total reimbursement
-            if (saldo < total ) {
+            if (saldoinit < total ) {
                 if (confirm('Your balance is less than the total reimbursement. The amount to be reimbursed is the balance. Continue?')) {
                     submitForm(url, button);
                 } else {
@@ -1137,6 +1177,10 @@ function submitForm(url, button) {
             e.preventDefault();
 
             var id = $(this).data('todo').todo;
+            var idDbItem = $(this).data('item-id-db').item;
+
+            console.log("ID DB");
+            console.log(idDbItem);
             var data_send = {
                 id: id
             };
@@ -1152,10 +1196,13 @@ function submitForm(url, button) {
                     var action = "<?=site_url($module['route'] .'/edit_item')?>/" + id;
                     console.log(JSON.stringify(response));
                     $('[name="description"]').val(response.description);
-                    $('[name="date"]').val(response.transaction_date);
                     $('[name="notes_modal"]').val(response.notes_modal);
                     $('[name="amount"]').val(response.amount);
                     $('[name="existing_attachment"]').val(response.attachment);
+                    $('[name="id_reimbursement_item"]').val(response.id);
+                    $('[name="amount_awal_item"]').val(response.paid_amount);
+
+
                     // Handle attachment display
                     if (response.attachment) {
                         var attachmentUrl = "<?= base_url('attachment/reimbursement') ?>" +"/" + response.attachment;
@@ -1168,13 +1215,10 @@ function submitForm(url, button) {
                         $('#existing-attachment').html('<span class="text-muted">No Attachment</span>');
                     }
 
-
-
-                   
-                    $('#saldo_balance_modal').val(localStorage.getItem("saldoModal")).trigger('change');
-                    $('#paid_amount_modal').val(response.amount).trigger('change');
-                    $('#plafond_balance_modal').val(localStorage.getItem("plafonModal")).trigger('change');
-                    $('#used_balance_modal').val(localStorage.getItem("usedBalance")).trigger('change');
+                    $('#saldo_balance_modal').val($('#saldo_balance').val()).trigger('change');
+                    $('#paid_amount_modal').val(response.paid_amount).trigger('change');
+                    $('#plafond_balance_modal').val($('#plafond_balance').val()).trigger('change');
+                    $('#used_balance_modal').val($('#used_balance').val()).trigger('change');
                     
 
                     var objExpenseItem = localStorage.getItem("expense_name_item");

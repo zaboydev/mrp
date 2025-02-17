@@ -215,6 +215,16 @@ class Reimbursement extends MY_Controller
         $_SESSION['reimbursement']['employee_has_benefit_id'] = $_GET['data'];
     }
 
+    public function set_received_date()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+
+        $_SESSION['reimbursement']['date'] = $_GET['data'];
+
+    }
+
     public function set_saldo_balance()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -539,7 +549,7 @@ class Reimbursement extends MY_Controller
                 $errors[] = 'Attention!! Please Fill Notes!!';
             }
 
-            if ($_SESSION['reimbursement']['saldo_balance']==0) {
+            if ($_SESSION['reimbursement']['saldo_balance_initial']==0 && $_SESSION['reimbursement']['saldo_balance']==0) {
                 $errors[] = "Saldo balance is 0. You Can't create reimbursement";
             }
             

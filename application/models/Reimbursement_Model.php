@@ -310,6 +310,13 @@ class Reimbursement_Model extends MY_Model
 
             $query = $this->db->get();
             $row   = $query->unbuffered_row('array');
+
+            $this->db->select('*');
+            $this->db->where('reimbursement_id', $id);
+            $this->db->from('tb_reimbursement_items');
+
+            $queryReimbursementItem = $this->db->get();
+            $rowReimbursementItem   = $queryReimbursementItem->result();
             
             $this->db->set('status','REVISED');
             $this->db->where('id', $_SESSION['reimbursement']['id']);
@@ -327,6 +334,13 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('sign', get_ttd(config_item('auth_person_name')));
             $this->db->set('created_at', date('Y-m-d H:i:s'));
             $this->db->insert('tb_signers');
+
+            foreach ($rowReimbursementItem as $item) {
+                $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $item->paid_amount, FALSE);
+                $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $item->paid_amount, FALSE);
+                $this->db->where('tb_employee_has_benefit.id', $row['employee_has_benefit_id']);
+                $this->db->update('tb_employee_has_benefit');
+            }
         }
 
         $status = "WAITING APPROVAL BY HR MANAGER";
