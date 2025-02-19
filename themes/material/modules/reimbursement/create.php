@@ -39,7 +39,7 @@
 
                         <div class="form-group">
                             <select name="type" id="type_reimbursement" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>"  data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> required>
-                                <?php foreach(getBenefits() as $benefit):?>
+                                <?php foreach(getBenefits($_SESSION['reimbursement']['employee_number']) as $benefit):?>
                                 <option data-account-ben-type="<?=$benefit['benefit_type'];?>" data-account-id="<?=$benefit['id'];?>" data-account-ben-code="<?=$benefit['benefit_code'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>

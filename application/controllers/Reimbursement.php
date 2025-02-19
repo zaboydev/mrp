@@ -42,15 +42,15 @@ class Reimbursement extends MY_Controller
                 $col = array();
                 if (is_granted($this->module, 'approval')){
                     // if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
-                    if($row['status']=='WAITING APPROVAL BY HOS OR VP' && config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
+                    if($row['status']=='WAITING APPROVAL BY HOS OR VP' && (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL')){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }elseif($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                    } else if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }elseif($row['status']=='WAITING APPROVAL BY COO OR CFO'&& config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
+                    } else if($row['status']=='WAITING APPROVAL BY COO OR CFO' && (config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER')){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    }elseif($row['status']=='REVISED'){
+                    } else if($row['status']=='REVISED'){
                         $col[] = print_number($no);
-                    }else {
+                    } else {
                         $col[] = print_number($no);
                     }
                     
@@ -878,8 +878,10 @@ class Reimbursement extends MY_Controller
         }
         if ($failed > 0) {
             $this->session->set_flashdata('alert', array(
-                'type' => 'danger',
-                'info' => "There are " . $failed . " errors"
+                // 'type' => 'danger',
+                'type' => 'success',
+                'info' => $success . " data has been update!"
+                // 'info' => "There are " . $failed . " errors"
             ));
         }
         

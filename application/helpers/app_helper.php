@@ -3684,18 +3684,14 @@ if (!function_exists('currency_for_vendor_list')) {
       return $result;
     }
   }
+  
 
   if ( ! function_exists('getBenefits')) {
-    function getBenefits($employee_number)
+    function getBenefits($employee)
     {
 
-      // $CI =& get_instance();
-
-      // $CI->db->select('*');
-      // $CI->db->where('tb_master_employees.user_id',config_item('auth_username'));
-      // $CI->db->from('tb_master_employees');
-      // $queryEmployee  = $CI->db->get();
-      // $resultEmployee = $queryEmployee->result_array();
+      // $selected_person     = getEmployeeByEmployeeNumber($employee);
+      // $gender              = $selected_person['gender'];
 
 
 
@@ -3706,6 +3702,8 @@ if (!function_exists('currency_for_vendor_list')) {
         $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
         $CI->db->where('tb_master_employee_benefits.reimbursement','t');
         $CI->db->where('tb_master_employee_benefits.deleted_by IS NULL', null, false);
+        // $CI->db->where('tb_master_employee_benefits.spesific_gender', $gender);
+        // $CI->db->or_where('tb_master_employee_benefits.spesific_gender IS NULL', null, false);
         $CI->db->from('tb_master_employee_benefits');
         $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
   
@@ -3718,6 +3716,8 @@ if (!function_exists('currency_for_vendor_list')) {
         $CI->db->select('*');
         $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
         $CI->db->where('tb_master_employee_benefits.benefit_code !=','B4');
+        // $CI->db->where('tb_master_employee_benefits.spesific_gender', $gender);
+        // $CI->db->where('tb_master_employee_benefits.spesific_gender IS NULL', null, false);
         $CI->db->where('tb_master_employee_benefits.reimbursement','t');
         $CI->db->where('tb_master_employee_benefits.deleted_by IS NULL', null, false);
         $CI->db->from('tb_master_employee_benefits');
