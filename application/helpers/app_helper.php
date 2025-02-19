@@ -3486,14 +3486,16 @@ if (!function_exists('currency_for_vendor_list')) {
   
       $CI->db->select('*');
       $CI->db->from('tb_master_employees');  
+
+      // Temporary
       
-      if ($department_id !== NULL){
-        if (is_array($department_id)){
-          $CI->db->where_in('department_id', $department_id);
-        } else {
-          $CI->db->where('department_id', $department_id);
-        }
-      }
+      // if ($department_id !== NULL){
+      //   if (is_array($department_id)){
+      //     $CI->db->where_in('department_id', $department_id);
+      //   } else {
+      //     $CI->db->where('department_id', $department_id);
+      //   }
+      // }
       
       $CI->db->order_by('name', 'ASC');
   
