@@ -68,19 +68,19 @@ class Reimbursement extends MY_Controller
                 $col[] = print_string($row['type']);
                 $col[] = print_string($row['status']);
                 if($row['status']=='approved' || $row['status']=='closed'){
-                    $col[] = $row['notes_approval'];
+                    $col[] = print_string($row['notes_approval']);
                 }else{
                     if($row['notes_approval'] != ''){
                         if (is_granted($this->module, 'approval') === TRUE) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" value="' . $row['notes_approval'] . '" autocomplete="off"/>';
                         } else {
-                            $col[] = $row['notes_approval'];
+                            $col[] = print_string($row['notes_approval']);
                         }
                     } else {
                         if (is_granted($this->module, 'approval') === TRUE) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                         } else {
-                            $col[] = $row['notes_approval'];
+                            $col[] = print_string($row['notes_approval']);
                         }
                     }
                     
