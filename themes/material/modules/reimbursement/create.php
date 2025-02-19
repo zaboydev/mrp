@@ -55,7 +55,7 @@
                             <label for="type_benefit">Type</label>
                         </div>
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <select name="head_dept" id="head_dept" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
                                 <option></option>
                                 <?php foreach(list_user_in_head_department($_SESSION['reimbursement']['department_id']) as $head):?>
@@ -63,7 +63,7 @@
                                 <?php endforeach;?>
                             </select>
                             <label for="head_dept">Supervisor / Atasan</label>
-                        </div>
+                        </div> -->
 
                                       
                     </div>
@@ -150,6 +150,11 @@
                         <div class="form-group hide">
                             <input type="text" name="id_reimbursement_log" id="id_reimbursement_log" class="form-control" value="<?= $_SESSION['reimbursement']['id']; ?>" data-input-type="autoset" readonly>
                             <label for="id_reimbursement_log">ID REIMBURSEMENT</label>
+                        </div> 
+
+                        <div class="form-group hide">
+                            <input type="text" name="head_dept" id="head_dept" class="form-control" value="<?= $_SESSION['reimbursement']['head_dept']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" readonly>
+                            <label for="head_dept">Head Dept</label>
                         </div> 
                     </div>
                 </div>
@@ -345,7 +350,7 @@
 
                                         <!-- File Input -->
                                         <input type="file" id="attachment" class="form-control input-sm" name="attachment"
-                                            accept=".jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.pdf">
+                                            accept=".jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.pdf" required>
                                         <small id="file-error" class="text-danger" style="display: none;">File size must be less than 1MB.</small>
                                     </div>
                                     <label for="saldo_balance_modal"><?php $item['attachment']; ?></label>
@@ -378,6 +383,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
                     <button type="submit" id="modal-add-item-submit" onClick="setLastBalance()" class="btn btn-primary btn-create ink-reaction">
+                    <!-- <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction"> -->
                         Add Item
                     </button>
 
@@ -442,19 +448,17 @@
     });
 
 
-    window.onload = function() {
+    window.onload = async function(){
         console.log('mulaiinit');
         var id = $('#id_reimbursement_log').val();
+        
 
         // if(id != ''){
         // $('#type_reimbursement').trigger('change');
         // $('#employee_number').trigger('change');
+        // await calculateItemReimbursement();
         // }
 
-
-        
-
-        
     };
     document.getElementById("attachment").addEventListener("change", function() {
         var file = this.files[0];
@@ -469,6 +473,7 @@
     });
 
     function calculateItemReimbursement(){
+        console.log("calculated");
 
         var total = $('#total').val();
         var used_balance = $('#used_balance').val();

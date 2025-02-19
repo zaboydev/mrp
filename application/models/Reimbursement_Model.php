@@ -117,11 +117,24 @@ class Reimbursement_Model extends MY_Model
 
     function getIndex($return = 'array')
     {
-        $selected = array(
-            'tb_reimbursements.*',
-        );
-        $this->db->select($selected);
-        $this->db->from('tb_reimbursements');
+
+        if(config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL' || in_array(config_item('auth_username'),list_username_in_head_department(11))){
+            $selected = array(
+                'tb_reimbursements.*',
+            );
+            $this->db->select($selected);
+            $this->db->from('tb_reimbursements');
+        } else {
+            $selected_person            = getEmployeeById(config_item('auth_user_id'));
+            $person_number              = $selected_person['employee_number'];
+            $selected = array(
+                'tb_reimbursements.*',
+            );
+            $this->db->select($selected);
+            $this->db->where('tb_reimbursements.employee_number', $person_number);
+            $this->db->from('tb_reimbursements');
+        }
+        
 
         $this->searchIndex();
 
@@ -253,6 +266,8 @@ class Reimbursement_Model extends MY_Model
         // Ambil data pengajuan terakhir untuk karyawan ini
         $this->db->select('created_at');
         $this->db->where('employee_number', $employee_id);
+        $this->db->where('status !=', 'REJECT');
+        $this->db->where('status !=', 'REVISED');
         $this->db->where('id_benefit', $id_benefit);
         $this->db->from('tb_reimbursements');
         $this->db->order_by('created_at', 'DESC');
@@ -282,6 +297,8 @@ class Reimbursement_Model extends MY_Model
         $this->db->select('created_at');
         $this->db->where('employee_number', $employee_id);
         $this->db->where('id_benefit', $id_benefit);
+        $this->db->where('status !=', 'REJECT');
+        $this->db->where('status !=', 'REVISED');
         $this->db->from('tb_reimbursements');
         $this->db->order_by('created_at', 'DESC');
         $query = $this->db->get();
@@ -368,6 +385,7 @@ class Reimbursement_Model extends MY_Model
         $employee_has_benefit_id    = $_SESSION['reimbursement']['employee_has_benefit_id'];
         $id_benefit                 = $_SESSION['reimbursement']['id_benefit'];
         $benefit_code               = $_SESSION['reimbursement']['benefit_code'];
+
 
 
 
@@ -1356,6 +1374,7 @@ class Reimbursement_Model extends MY_Model
                 if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
                     $this->db->set('status','REJECT');
                     $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->set('notes_approval', $approval_notes[$x]);
                     $this->db->where('id', $id);
                     $this->db->update('tb_reimbursements');
 
@@ -1374,17 +1393,20 @@ class Reimbursement_Model extends MY_Model
                     $this->db->set('created_at', date('Y-m-d H:i:s'));
                     $this->db->insert('tb_signers');
 
-                    $this->db->select('*');
-                    $this->db->where('reimbursement_id', $id);
+                    $selected = array(
+                        'tb_reimbursement_items.*',
+                    );
+                    $this->db->select($selected);
+                    $this->db->where('tb_reimbursement_items.reimbursement_id', $id);
                     $this->db->from('tb_reimbursement_items');
         
                     $queryReimbursementItem = $this->db->get();
                     $rowReimbursementItem   = $queryReimbursementItem->result();
-
+                    
                     foreach ($rowReimbursementItem as $item) {
                         $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $item->paid_amount, FALSE);
                         $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $item->paid_amount, FALSE);
-                        $this->db->where('tb_employee_has_benefit.id', $row['employee_has_benefit_id']);
+                        $this->db->where('tb_employee_has_benefit.id', $spd['employee_has_benefit_id']);
                         $this->db->update('tb_employee_has_benefit');
                     }
 
@@ -1392,9 +1414,10 @@ class Reimbursement_Model extends MY_Model
 
                 // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
                 // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
-                }elseif($spd['status']=='WAITING APPROVAL BY COO OR CFO' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
+                }elseif($spd['status']=='WAITING APPROVAL BY COO OR CFO' && config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
                     $this->db->set('status','REJECT');
                     $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->set('notes_approval', $approval_notes[$x]);
                     $this->db->where('id', $id);
                     $this->db->update('tb_reimbursements');
 
@@ -1411,17 +1434,21 @@ class Reimbursement_Model extends MY_Model
                     $this->db->set('created_at', date('Y-m-d H:i:s'));
                     $this->db->insert('tb_signers');
 
-                    $this->db->select('*');
-                    $this->db->where('reimbursement_id', $id);
+                    $selected = array(
+                        'tb_reimbursement_items.*',
+                    );
+                    $this->db->select($selected);
+                    $this->db->where('tb_reimbursement_items.reimbursement_id', $id);
                     $this->db->from('tb_reimbursement_items');
-        
+
+
                     $queryReimbursementItem = $this->db->get();
                     $rowReimbursementItem   = $queryReimbursementItem->result();
 
                     foreach ($rowReimbursementItem as $item) {
                         $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $item->paid_amount, FALSE);
                         $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $item->paid_amount, FALSE);
-                        $this->db->where('tb_employee_has_benefit.id', $row['employee_has_benefit_id']);
+                        $this->db->where('tb_employee_has_benefit.id', $spd['employee_has_benefit_id']);
                         $this->db->update('tb_employee_has_benefit');
                     }
 
@@ -1431,11 +1458,14 @@ class Reimbursement_Model extends MY_Model
                 $total++;
                 $success++;
                 $failed--;
+                $x++;
+
             } else {
             // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
                 if($spd['status']=='WAITING APPROVAL BY HOS OR VP'){
                     $this->db->set('status','REJECT');
                     $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->set('notes_approval', $approval_notes[$x]);
                     $this->db->where('id', $id);
                     $this->db->update('tb_reimbursements');
 
@@ -1452,17 +1482,20 @@ class Reimbursement_Model extends MY_Model
                     $this->db->set('created_at', date('Y-m-d H:i:s'));
                     $this->db->insert('tb_signers');
 
-                    $this->db->select('*');
-                    $this->db->where('reimbursement_id', $id);
+                    $selected = array(
+                        'tb_reimbursement_items.*',
+                    );
+                    $this->db->select($selected);
+                    $this->db->where('tb_reimbursement_items.reimbursement_id', $id);
                     $this->db->from('tb_reimbursement_items');
-        
+
                     $queryReimbursementItem = $this->db->get();
                     $rowReimbursementItem   = $queryReimbursementItem->result();
 
                     foreach ($rowReimbursementItem as $item) {
                         $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $item->paid_amount, FALSE);
                         $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $item->paid_amount, FALSE);
-                        $this->db->where('tb_employee_has_benefit.id', $row['employee_has_benefit_id']);
+                        $this->db->where('tb_employee_has_benefit.id', $spd['employee_has_benefit_id']);
                         $this->db->update('tb_employee_has_benefit');
                     }
 
@@ -1472,6 +1505,7 @@ class Reimbursement_Model extends MY_Model
                 // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
                     $this->db->set('status','REJECT');
                     $this->db->set('rejected_by',config_item('auth_person_name'));
+                    $this->db->set('notes_approval', $approval_notes[$x]);
                     $this->db->where('id', $id);
                     $this->db->update('tb_reimbursements');
 
@@ -1488,29 +1522,33 @@ class Reimbursement_Model extends MY_Model
                     $this->db->set('created_at', date('Y-m-d H:i:s'));
                     $this->db->insert('tb_signers');
 
-                    $this->db->select('*');
-                    $this->db->where('reimbursement_id', $id);
+                    $selected = array(
+                        'tb_reimbursement_items.*',
+                    );
+                    $this->db->select($selected);
+                    $this->db->where('tb_reimbursement_items.reimbursement_id', $id);
                     $this->db->from('tb_reimbursement_items');
-        
+
                     $queryReimbursementItem = $this->db->get();
                     $rowReimbursementItem   = $queryReimbursementItem->result();
+
 
                     foreach ($rowReimbursementItem as $item) {
                         $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $item->paid_amount, FALSE);
                         $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $item->paid_amount, FALSE);
-                        $this->db->where('tb_employee_has_benefit.id', $row['employee_has_benefit_id']);
+                        $this->db->where('tb_employee_has_benefit.id', $spd['employee_has_benefit_id']);
                         $this->db->update('tb_employee_has_benefit');
                     }
-                    
+
                     $send_email_to = 'hr_manager';
 
                 }
                 $total++;
                 $success++;
                 $failed--;
-            }
+                $x++;
 
-           
+            }
         }
 
         

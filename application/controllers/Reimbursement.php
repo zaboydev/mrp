@@ -372,8 +372,6 @@ class Reimbursement extends MY_Controller
             $department_name  = $cost_center['department_name'];
             $cost_center_group_id  = $cost_center['group_id'];
 
-            
-
             $employee_id  = config_item('auth_user_id');
             $employee_and_user = findEmployeeByUserId($employee_id);
 
@@ -518,6 +516,15 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['format_number']             = $format_number;
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
+
+            // if(!empty($entity['items'])){
+            //     foreach ($_SESSION['reimbursement']['items'] as $key => $data) {
+            //         $_SESSION['reimbursement']['saldo_balance'] =  $employee_has_benefit['left_amount_plafond'] - $data['paid_amount'];
+            //         $_SESSION['reimbursement']['saldo_balance_initial'] =  $employee_has_benefit['left_amount_plafond'] - $data['paid_amount'];
+            //         $_SESSION['reimbursement']['used_balance'] =  $employee_has_benefit['used_amount_plafond'] + $data['paid_amount'];
+            //     }
+            // }
+            
             $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['saldo_balance_initial']     = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['plafond_balance']           = $employee_has_benefit['amount_plafond'];
@@ -551,9 +558,6 @@ class Reimbursement extends MY_Controller
 
             $document_number = $_SESSION['reimbursement']['document_number'] . $_SESSION['reimbursement']['format_number'];
 
-            if ($_SESSION['reimbursement']['head_dept']==NULL || $_SESSION['reimbursement']['head_dept']=='') {
-                $errors[] = 'Attention!! Please select one of Head Dept for Approval';
-            }
 
             if ($_SESSION['reimbursement']['notes']==NULL || $_SESSION['reimbursement']['notes']=='') {
                 $errors[] = 'Attention!! Please Fill Notes!!';
@@ -794,10 +798,10 @@ class Reimbursement extends MY_Controller
         $document_id = substr($document_id, 0, -1);
         $document_id = explode(",", $document_id);
 
-        // $str_notes = $this->input->post('notes');
-        // $notes = str_replace("|", "", $str_notes);
-        // $notes = substr($notes, 0, -3);
-        // $notes = explode("##,", $notes);
+        $str_notes = $this->input->post('notes');
+        $notes = str_replace("|", "", $str_notes);
+        $notes = substr($notes, 0, -3);
+        $notes = explode("##,", $notes);
 
         $total = 0;
         $success = 0;
@@ -809,9 +813,9 @@ class Reimbursement extends MY_Controller
         $save_approval = $this->model->approve($document_id, $notes);
         if ($save_approval['status']) {
                 if(!empty($save_approval['approved_ids'])){
-                    // foreach ($save_approval['approved_ids'] as $id) {
-                    //     $this->model->create_expense_auto($id);
-                    // }
+                    foreach ($save_approval['approved_ids'] as $id) {
+                        $this->model->create_expense_auto($id);
+                    }
                     $this->session->set_flashdata('alert', array(
                         'type' => 'success',
                         'info' => $save_approval['success'] . " expense has been create!"
@@ -846,7 +850,7 @@ class Reimbursement extends MY_Controller
 
         $str_notes = $this->input->post('notes');
         $notes = str_replace("|", "", $str_notes);
-        $notes = substr($price, 0, -3);
+        $notes = substr($notes, 0, -3);
         $notes = explode("##,", $notes);
 
         $total = 0;
@@ -863,7 +867,7 @@ class Reimbursement extends MY_Controller
         }else{
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
-                'info' => "There are " . $save_approval['failed'] . " errors"
+                'info' => "There are " . $save_approval['failed'] . " rejected"
             ));
         }
         

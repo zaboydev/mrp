@@ -43,7 +43,7 @@
             <dt>Status</dt>
             <dd><?=$entity['status'];?></dd>
 
-            <?php if($entity['status']=='REJECTED'):?>
+            <?php if($entity['status']=='REJECT'):?>
               <dt>Rejected By</dt>
               <dd><?=($entity['rejected_by']==null)? 'N/A':print_string($entity['rejected_by']);?></dd>
             <?php else:?>
@@ -56,9 +56,7 @@
               <dt>Finance Approved By</dt>
               <dd><?=($entity['finance_approved_by']==null)? 'N/A':print_string($entity['finance_approved_by']);?></dd>
             <?php endif;?>
-
-            <dt>Supervisor/Atasan</dt>
-            <dd><?=$entity['head_dept_name'];?></dd>
+           
 
             <dt>Employee Number</dt>
             <dd><?=$entity['employee_number'];?></dd>

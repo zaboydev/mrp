@@ -87,8 +87,8 @@
       <option value="APPROVED">
         Approved
       </option>
-      <option value="REJECTED">
-        Rejected
+      <option value="REJECT">
+        Reject
       </option>
       <option value="CLOSED">
         Closed
@@ -694,7 +694,7 @@
             toastr.options.timeOut = 10000;
             toastr.options.positionClass = 'toast-top-right';
             toastr.success('Success aprove data the page will reload');
-            // window.location.reload();
+            window.location.reload();
           } else {
             toastr.options.timeOut = 10000;
             toastr.options.positionClass = 'toast-top-right';
