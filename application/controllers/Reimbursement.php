@@ -73,10 +73,14 @@ class Reimbursement extends MY_Controller
                     if($row['notes_approval'] != ''){
                         if (is_granted($this->module, 'approval') === TRUE) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" value="' . $row['notes_approval'] . '" autocomplete="off"/>';
+                        } else {
+                            $row['notes_approval'] != '';
                         }
                     } else {
                         if (is_granted($this->module, 'approval') === TRUE) {
                             $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                        } else {
+                            $row['notes_approval'] != '';
                         }
                     }
                     
@@ -517,13 +521,6 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
 
-            // if(!empty($entity['items'])){
-            //     foreach ($_SESSION['reimbursement']['items'] as $key => $data) {
-            //         $_SESSION['reimbursement']['saldo_balance'] =  $employee_has_benefit['left_amount_plafond'] - $data['paid_amount'];
-            //         $_SESSION['reimbursement']['saldo_balance_initial'] =  $employee_has_benefit['left_amount_plafond'] - $data['paid_amount'];
-            //         $_SESSION['reimbursement']['used_balance'] =  $employee_has_benefit['used_amount_plafond'] + $data['paid_amount'];
-            //     }
-            // }
             
             $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['saldo_balance_initial']     = $employee_has_benefit['left_amount_plafond'];

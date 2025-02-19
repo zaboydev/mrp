@@ -3689,6 +3689,16 @@ if (!function_exists('currency_for_vendor_list')) {
     function getBenefits($employee_number)
     {
 
+      // $CI =& get_instance();
+
+      // $CI->db->select('*');
+      // $CI->db->where('tb_master_employees.user_id',config_item('auth_username'));
+      // $CI->db->from('tb_master_employees');
+      // $queryEmployee  = $CI->db->get();
+      // $resultEmployee = $queryEmployee->result_array();
+
+
+
       if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
         $CI =& get_instance();
 
