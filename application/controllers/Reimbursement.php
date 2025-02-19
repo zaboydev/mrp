@@ -484,8 +484,18 @@ class Reimbursement extends MY_Controller
         $entity = $this->model->findById($id);
 
         $document_number    = sprintf('%06s', substr($entity['document_number'], 0, 6));
-        $format_number      = substr($entity['document_number'], 6, 25);
-        $revisi             = get_count_revisi($document_number.$format_number,'REIMBURSEMENT');
+        $format_number      = substr($entity['document_number'], 9, 25);
+
+        if (preg_match('/-R(\d+)/', $entity['document_number'], $matches)) {
+            $current_revision = intval($matches[1]); // Ambil angka revisi terakhir
+            $revisi = $current_revision + 1; // Tambah revisi berikutnya
+            $document_number = str_replace('-R' . $current_revision, '', $document_number); // Hapus revisi sebelumnya
+        } else {
+            $revisi = 1; // Jika belum ada revisi, mulai dari 1
+        }
+    
+        // Pastikan tidak ada revisi duplikat
+        $new_document_number = $document_number . '-R' . $revisi;
 
         if (isset($_SESSION['receipt']) === FALSE){
             
@@ -504,7 +514,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']                              = $entity;
             $_SESSION['reimbursement']['id']                        = $id;
             $_SESSION['reimbursement']['edit']                      = $entity['document_number'];
-            $_SESSION['reimbursement']['document_number']           = $document_number.'-R'.$revisi;
+            $_SESSION['reimbursement']['document_number']           = $new_document_number;
             $_SESSION['reimbursement']['format_number']             = $format_number;
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
@@ -784,10 +794,10 @@ class Reimbursement extends MY_Controller
         $document_id = substr($document_id, 0, -1);
         $document_id = explode(",", $document_id);
 
-        $str_notes = $this->input->post('notes');
-        $notes = str_replace("|", "", $str_notes);
-        $notes = substr($notes, 0, -3);
-        $notes = explode("##,", $notes);
+        // $str_notes = $this->input->post('notes');
+        // $notes = str_replace("|", "", $str_notes);
+        // $notes = substr($notes, 0, -3);
+        // $notes = explode("##,", $notes);
 
         $total = 0;
         $success = 0;
@@ -798,14 +808,10 @@ class Reimbursement extends MY_Controller
 
         $save_approval = $this->model->approve($document_id, $notes);
         if ($save_approval['status']) {
-
-            
                 if(!empty($save_approval['approved_ids'])){
-                    foreach ($save_approval['approved_ids'] as $id) {
-
-                        $this->model->create_expense_auto($id);
-                        
-                    }
+                    // foreach ($save_approval['approved_ids'] as $id) {
+                    //     $this->model->create_expense_auto($id);
+                    // }
                     $this->session->set_flashdata('alert', array(
                         'type' => 'success',
                         'info' => $save_approval['success'] . " expense has been create!"
@@ -816,12 +822,10 @@ class Reimbursement extends MY_Controller
                         'info' => $save_approval['success'] . " data has been update!"
                     ));
                 }
-            
-            
         }else{
             $this->session->set_flashdata('alert', array(
                 'type' => 'danger',
-                'info' => "There are " . $save_approval['failed'] . " errors"
+                'info' => "There are " . $save_approval['failed'] . " rejected"
             ));
         }
         

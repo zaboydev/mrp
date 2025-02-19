@@ -182,7 +182,7 @@
         </a> -->
 
         <div class="pull-right">
-            <?php if (is_granted($module, 'create') && $entity['date'] >= $data && $entity['status'] != 'REVISED'):?>
+            <?php if (is_granted($module, 'create')  && $entity['status'] != 'REVISED' && $entity['status'] != 'APPROVED' && $entity['status'] != 'EXPENSE REQUEST'): ?>
             <a href="<?=site_url($module['route'] .'/edit/'. $entity['id']);?>" class="btn btn-floating-action btn-primary btn-tooltip ink-reaction" id="modal-edit-data-button">
                 <i class="md md-edit"></i>
                 <small class="top right">edit</small>

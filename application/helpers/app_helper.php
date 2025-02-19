@@ -3672,17 +3672,36 @@ if (!function_exists('currency_for_vendor_list')) {
   if ( ! function_exists('getBenefits')) {
     function getBenefits($employee_number)
     {
-      $CI =& get_instance();
 
-      $CI->db->select('*');
-      $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
-      $CI->db->where('tb_master_employee_benefits.reimbursement','t');
-      $CI->db->where('tb_master_employee_benefits.deleted_by IS NULL', null, false);
-      $CI->db->from('tb_master_employee_benefits');
-      $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
+      if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
+        $CI =& get_instance();
 
-      $query  = $CI->db->get();
-      $result = $query->result_array();
+        $CI->db->select('*');
+        $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
+        $CI->db->where('tb_master_employee_benefits.reimbursement','t');
+        $CI->db->where('tb_master_employee_benefits.deleted_by IS NULL', null, false);
+        $CI->db->from('tb_master_employee_benefits');
+        $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
+  
+        $query  = $CI->db->get();
+        $result = $query->result_array();
+        return $result;
+      } else {
+        $CI =& get_instance();
+
+        $CI->db->select('*');
+        $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
+        $CI->db->where('tb_master_employee_benefits.benefit_code !=','B4');
+        $CI->db->where('tb_master_employee_benefits.reimbursement','t');
+        $CI->db->where('tb_master_employee_benefits.deleted_by IS NULL', null, false);
+        $CI->db->from('tb_master_employee_benefits');
+        $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
+  
+        $query  = $CI->db->get();
+        $result = $query->result_array();
+        return $result;
+      }
+      
 
       // $CI->db->select(array(
       //     'tb_employee_contracts.start_date',
@@ -3699,7 +3718,6 @@ if (!function_exists('currency_for_vendor_list')) {
       // $CI->db->from('tb_employee_has_benefit');
       // $query  = $CI->db->get();
       // $result = $query->result_array();
-      return $result;
     }
   }
 
