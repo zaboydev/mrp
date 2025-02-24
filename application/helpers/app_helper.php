@@ -3687,63 +3687,92 @@ if (!function_exists('currency_for_vendor_list')) {
   
 
   if ( ! function_exists('getBenefits')) {
-    function getBenefits($employee)
+    function getBenefits($employee, $gender)
     {
-
-      // $selected_person     = getEmployeeByEmployeeNumber($employee);
-      // $gender              = $selected_person['gender'];
-
-
-
       if(in_array(config_item('auth_username'),list_username_in_head_department(11))){
-        $CI =& get_instance();
 
-        $CI->db->select('*');
-        $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
-        $CI->db->where('tb_master_employee_benefits.reimbursement','t');
-        $CI->db->where('tb_master_employee_benefits.deleted_by IS NULL', null, false);
-        // $CI->db->where('tb_master_employee_benefits.spesific_gender', $gender);
-        // $CI->db->or_where('tb_master_employee_benefits.spesific_gender IS NULL', null, false);
-        $CI->db->from('tb_master_employee_benefits');
-        $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
-  
-        $query  = $CI->db->get();
-        $result = $query->result_array();
+        $CI =& get_instance();
+        $CI->db->select('
+            benefit_items.id AS benefit_item_id,
+            benefits.id,
+            benefits.benefit_type,
+            benefits.benefit_code,
+            benefits.employee_benefit,
+            benefits.spesific_gender,
+            benefits.kode_akun,
+            benefit_items.level,
+            benefit_items.year,
+            benefit_items.amount,
+            benefit_items.deleted_by,
+            benefits.status
+        ');
+        $CI->db->from('tb_master_employee_benefit_items AS benefit_items');
+        $CI->db->join('tb_master_employee_benefits AS benefits', 'benefit_items.employee_benefit_id = benefits.id', 'left');
+        $CI->db->join('tb_master_levels AS levels', 'benefit_items.level = levels.level', 'left');
+        $CI->db->join('tb_master_employees AS employees', 'employees.level_id = levels.id', 'inner');
+        $CI->db->where('employees.employee_number', $employee);
+        $CI->db->where('benefit_items.deleted_by IS NULL', null, false); // Prevent escaping IS NULL
+        $CI->db->where('benefits.status', 'AVAILABLE');
+        $CI->db->group_start(); // Start grouping OR conditions
+        $CI->db->where('benefits.spesific_gender',  $gender);
+        $CI->db->or_where('benefits.spesific_gender IS NULL', null, false); // Prevent escaping IS NULL
+        $CI->db->group_end(); // End grouping OR conditions
+        $query = $CI->db->get();
+        $result = $query->result_array(); // Fetch the results as an array
         return $result;
+
       } else {
         $CI =& get_instance();
-
-        $CI->db->select('*');
-        $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
-        $CI->db->where('tb_master_employee_benefits.benefit_code !=','B4');
-        // $CI->db->where('tb_master_employee_benefits.spesific_gender', $gender);
-        // $CI->db->where('tb_master_employee_benefits.spesific_gender IS NULL', null, false);
-        $CI->db->where('tb_master_employee_benefits.reimbursement','t');
-        $CI->db->where('tb_master_employee_benefits.deleted_by IS NULL', null, false);
-        $CI->db->from('tb_master_employee_benefits');
-        $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
-  
-        $query  = $CI->db->get();
-        $result = $query->result_array();
-        return $result;
+         $CI->db->select('
+            benefit_items.id AS benefit_item_id,
+            benefits.id,
+            benefits.benefit_type,
+            benefits.benefit_code,
+            benefits.employee_benefit,
+            benefits.spesific_gender,
+            benefits.kode_akun,
+            benefit_items.level,
+            benefit_items.year,
+            benefit_items.amount,
+            benefit_items.deleted_by,
+            benefits.status
+        ');
+        $CI->db->from('tb_master_employee_benefit_items AS benefit_items');
+        $CI->db->join('tb_master_employee_benefits AS benefits', 'benefit_items.employee_benefit_id = benefits.id', 'left');
+        $CI->db->join('tb_master_levels AS levels', 'benefit_items.level = levels.level', 'left');
+        $CI->db->join('tb_master_employees AS employees', 'employees.level_id = levels.id', 'right');
+        $CI->db->where('employees.employee_number', $employee);
+        $CI->db->where('benefits.benefit_code !=','B4');
+        $CI->db->where('benefit_items.deleted_by IS NULL', null, false); // Prevent escaping IS NULL
+        $CI->db->where('benefits.status', 'AVAILABLE');
+        $CI->db->group_start(); // Start grouping OR conditions
+        $CI->db->where('benefits.spesific_gender',  $gender);
+        $CI->db->or_where('benefits.spesific_gender IS NULL', null, false); // Prevent escaping IS NULL
+        $CI->db->group_end(); // End grouping OR conditions
+        $query = $CI->db->get();
+        $result = $query->result_array(); // Fetch the results as an array
+    
+        return $result; // Return the query results
       }
       
 
-      // $CI->db->select(array(
-      //     'tb_employee_contracts.start_date',
-      //     'tb_employee_contracts.end_date',
-      //     'tb_employee_has_benefit.id',
-      //     'tb_employee_has_benefit.amount_plafond',
-      //     'tb_employee_has_benefit.used_amount_plafond',
-      //     'tb_employee_has_benefit.left_amount_plafond',
-      //     'tb_master_employee_benefits.employee_benefit'
-      // ));
-      // $CI->db->join('tb_employee_contracts', 'tb_employee_contracts.id = tb_employee_has_benefit.employee_contract_id');
-      // $CI->db->join('tb_master_employee_benefits', 'tb_master_employee_benefits.id = tb_employee_has_benefit.employee_benefit_id');
-      // $CI->db->where('tb_employee_has_benefit.employee_number',$employee_number);
-      // $CI->db->from('tb_employee_has_benefit');
-      // $query  = $CI->db->get();
-      // $result = $query->result_array();
+    }
+  }
+
+
+  if ( ! function_exists('getBenefitsAll')) {
+    function getBenefitsAll()
+    {
+      $CI =& get_instance();
+
+      $CI->db->select('*');
+      $CI->db->where('tb_master_employee_benefits.status','AVAILABLE');
+      $CI->db->where('tb_master_employee_benefits.reimbursement','t');
+      $CI->db->from('tb_master_employee_benefits');
+      $CI->db->order_by('tb_master_employee_benefits.employee_benefit', 'ASC');
+      $query  = $CI->db->get();
+      $result = $query->result_array();
+      return $result;
     }
   }
 
@@ -3859,7 +3888,7 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
   if ( ! function_exists('getBenefitsByEmployeeNumber')) {
-      function getBenefitsByEmployeeNumber($employee_number, $year = '2025') {
+      function getBenefitsByEmployeeNumber($employee_number,$gender, $year = '2025') {
         $CI =& get_instance();
         $CI->db->select('
             benefit_items.id AS benefit_item_id,
@@ -3959,12 +3988,63 @@ if (!function_exists('currency_for_vendor_list')) {
       $CI->db->select(array(
         'tb_master_employee_benefits.*'
       ));
-      $CI->db->where('tb_master_employee_benefits.employee_benefit', $employee_benefit);
+      $CI->db->where('tb_master_employee_benefits.id', $employee_benefit);
       $CI->db->where('tb_master_employee_benefits.status', 'AVAILABLE');
       $query      = $CI->db->get('tb_master_employee_benefits');
       $row        = $query->unbuffered_row('array');
   
       return $row;
+    }
+  }
+  if ( ! function_exists('checkReimburseOnce')) {
+    function checkReimburseOnce($employee_id, $id_benefit) {
+      $CI =& get_instance();
+      $CI->db->select('created_at');
+      $CI->db->where('employee_number', $employee_id);
+      $CI->db->where('id_benefit', $id_benefit);
+      $CI->db->where('status !=', 'REJECT');
+      $CI->db->where('status !=', 'REVISED');
+      $CI->db->from('tb_reimbursements');
+      $CI->db->order_by('created_at', 'DESC');
+      $query = $CI->db->get();
+
+      if ($query->num_rows() === 0) {
+          return true;
+      } else {
+          return false;
+      }
+    }
+  }
+
+  if ( ! function_exists('checkReimburseOptik')) {
+     function checkReimburseOptik($employee_id, $id_benefit) {
+      $CI =& get_instance();
+      // Ambil data pengajuan terakhir untuk karyawan ini
+      $CI->db->select('created_at');
+      $CI->db->where('employee_number', $employee_id);
+      $CI->db->where('status !=', 'REJECT');
+      $CI->db->where('status !=', 'REVISED');
+      $CI->db->where('id_benefit', $id_benefit);
+      $CI->db->from('tb_reimbursements');
+      $CI->db->order_by('created_at', 'DESC');
+      $CI->db->limit(1);
+      $query =  $CI->db->get();
+
+      // Jika belum pernah melakukan pengajuan, izinkan
+      if ($query->num_rows() === 0) {
+          return true;
+      }
+
+      // Jika pernah, cek tanggal terakhir pengajuan
+      $last_request_date = $query->row();
+      $last_request_date = $last_request_date->created_at;
+      $two_years_ago = date('Y-m-d', strtotime('-2 years'));
+
+      if ($last_request_date < $two_years_ago) {
+          return true; // Bisa mengajukan
+      } else {
+          return false; // Tidak bisa mengajukan
+      }
     }
   }
 

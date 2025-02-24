@@ -20,7 +20,7 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-content">
-                                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['reimbursement']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required>
+                                    <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['reimbursement']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required disabled>
                                     <label for="document_number">Document No.</label>
                                 </div>
                                 <span class="input-group-addon"><?= $_SESSION['reimbursement']['format_number']; ?></span>
@@ -32,28 +32,31 @@
                             <label for="date">Date Invoice</label>
                         </div>
 
+                        <div class="form-group hide">
+                            <input type="text" name="last_status" id="last_status" class="form-control" value="<?= $_SESSION['reimbursement']['last_status']; ?>" data-input-type="autoset" required>
+                            <label for="last_status">last_status</label>
+                        </div>
+
+                        <div class="form-group hide">
+                            <input type="text" name="gender" id="gender" class="form-control" value="<?= $_SESSION['reimbursement']['gender']; ?>" data-input-type="autoset" required>
+                            <label for="gender">gender</label>
+                        </div>
+
                         <div class="form-group">
                             <input type="text" name="date_created" id="date_created" data-date-format="dd-mm-yyyy" class="form-control" value="<?= date('Y-m-d') ?>" data-input-type="autoset" readonly>
                             <label for="date_created">Date Created</label>
                         </div>
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <select name="type" id="type_reimbursement" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>"  data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> required>
-                                <?php foreach(getBenefits($_SESSION['reimbursement']['employee_number']) as $benefit):?>
+                                <option value="">---Choose Benefit----</option> 
+                                <?php foreach(getBenefits($_SESSION['reimbursement']['employee_number'],$_SESSION['reimbursement']['gender'] ) as $benefit):?>
                                 <option data-account-ben-type="<?=$benefit['benefit_type'];?>" data-account-id="<?=$benefit['id'];?>" data-account-ben-code="<?=$benefit['benefit_code'];?>" data-account-code="<?=$benefit['kode_akun'];?>" value="<?=$benefit['employee_benefit'];?>" <?= ($benefit['employee_benefit'] == $_SESSION['reimbursement']['type']) ? 'selected' : ''; ?>><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="type_reimbursement">Type</label>
-                        </div>
+                        </div> -->
 
-                        <div class="form-group">
-                            <select name="type" id="type_benefit" class="form-control" data-input-type="autoset" disabled>
-                                <option value="yearly" <?= ("yearly" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>2 Tahun Sekali</option>
-                                <option value="once" <?= ("once" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>Sekali</option>
-                                <option value="contract" <?= ("contract" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>Mengikuti Kontrak</option>
-                            </select>
-                            <label for="type_benefit">Type</label>
-                        </div>
 
                         <!-- <div class="form-group">
                             <select name="head_dept" id="head_dept" class="form-control" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_head_dept'); ?>" required>
@@ -72,10 +75,10 @@
 
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?>  required>
+                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'HR STAFF' || config_item('auth_role') == 'HR MANAGER') ? '' : 'disabled'; ?>  required>
                                 <option></option>
                                 <?php foreach(available_employee($_SESSION['reimbursement']['department_id']) as $user):?>
-                                <option data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['reimbursement']['employee_number']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
+                                <option data-gender="<?=$user['gender'];?>" data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['reimbursement']['employee_number']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="employee_number">Name</label>
@@ -89,6 +92,23 @@
                                 <?php endforeach;?>
                             </select>
                             <label for="occupation">Occupation / Jabatan</label>
+                        </div>
+
+                        
+                        <div class="form-group">
+                            <label for="type_reimbursement">Type</label>
+                            <select name="type" id="type_reimbursement" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_type_reimbursement'); ?>" data-source-get-employee-benefit-list="<?= site_url($module['route'] . '/get_employee_benefits_list'); ?>" data-source-get-expense-name="<?= site_url($module['route'] . '/get_expense_name'); ?>" required <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= ($_SESSION['reimbursement']['id'] == NULL || $_SESSION['reimbursement']['id'] == '') ? '' : 'disabled'; ?>>
+                                <option value="">---Choose Benefit----</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select name="type" id="type_benefit" class="form-control" data-input-type="autoset" disabled>
+                                <option value="">-</option> <!-- Adding an empty option inside the loop -->
+                                <option value="yearly" <?= ("yearly" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>2 Tahun Sekali</option>
+                                <option value="once" <?= ("once" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>Sekali</option>
+                                <option value="contract" <?= ("contract" == $_SESSION['reimbursement']['benefit_type']) ? 'selected' : ''; ?>>Mengikuti Kontrak</option>
+                            </select>
+                            <label for="type_benefit">Type</label>
                         </div>
                         
                         <div class="form-group">
@@ -447,10 +467,15 @@
         // theme: "bootstrap",
     });
 
+    var selectedBenefit = "<?= isset($_SESSION['reimbursement']['type']) ? $_SESSION['reimbursement']['type'] : ''; ?>";
+
 
     window.onload = async function(){
         console.log('mulaiinit');
         var id = $('#id_reimbursement_log').val();
+        $('#employee_number').trigger('change');
+
+
         
 
         // if(id != ''){
@@ -484,8 +509,8 @@
         var saldoLast = parseFloat(saldo_balance) - parseFloat(lastSaldo);
 
 
-        localStorage.setItem("saldoModal", saldoLast); 
-        localStorage.setItem("usedBalance", lastSaldo); 
+        // localStorage.setItem("saldoModal", saldoLast); 
+        // localStorage.setItem("usedBalance", lastSaldo); 
 
         $('#saldo_balance').val(saldoLast).trigger('change');
         $('#used_balance').val(lastSaldo).trigger('change');
@@ -508,18 +533,26 @@
         var amount_awal_item = $('#amount_awal_item').val();
         var used_balance = $('#used_balance').val();
         var usedMerge = 0;
-        if(amount_awal_item != 0){
+        var lastStatus = $('#last_status').val();
+
+
+
+   if(lastStatus == 'REJECT'){
+            usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+   } else {
+    if(amount_awal_item != 0){
             usedMerge = (parseFloat(used_balance)-parseFloat(amount_awal_item))+parseFloat(paid_amount_modal);
         } else {
             usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
         }
+   }
 
 
         
 
 
-        localStorage.setItem("saldoModal", saldo_balance_modal); 
-        localStorage.setItem("usedBalanceModal", usedMerge); 
+        // localStorage.setItem("saldoModal", saldo_balance_modal); 
+        // localStorage.setItem("usedBalanceModal", usedMerge); 
 
         $('#saldo_balance').val(saldo_balance_modal).trigger('change');
         $('#used_balance').val(usedMerge).trigger('change');
@@ -575,6 +608,9 @@
 
     function updateSaldoBalance() {
         console.log('masuksini');
+        console.log('lastStatus');
+
+
 
 
         var initialBalance = $('#saldo_balance').val();
@@ -587,6 +623,10 @@
         const paidAmountField = document.getElementById('paid_amount_modal'); // Field paid amount modal
 
         const id_reimbursement_item = document.getElementById('id_reimbursement_item');
+        var hasLastStatus = $('#last_status').val();
+        console.log(hasLastStatus);
+
+
 
         var paidAmount = amount; // Default nilai paidAmount adalah amount
 
@@ -606,18 +646,40 @@
             console.log(amount);
             console.log((parseFloat(initialBalance) + parseFloat(amountAwal)));
 
-            if (amount >= (parseFloat(initialBalance) + parseFloat(amountAwal))) {
-            console.log('masuksini4');
+            if(hasLastStatus == 'REJECT'){
+                console.log('masukreject');
+                if (amount >= initialBalance) {
+                console.log('masukreject1');
 
             // Jika amount melebihi initialBalance
-            paidAmount = (parseFloat(initialBalance) + parseFloat(amountAwal)); // Paid amount adalah sisa saldo awal
-            saldoBalanceField.value = 0; // Saldo menjadi 0
+                paidAmount = initialBalance; // Paid amount adalah sisa saldo awal
+                saldoBalanceField.value = 0; // Saldo menjadi 0
             } else {
-            console.log('masuksini5');
+                console.log('masukreject2');
+                console.log(parseFloat(amount));
+                console.log(parseFloat(initialBalance));
+
+
 
                 // Jika amount tidak melebihi initialBalance
-                const updatedBalance = parseFloat(initialBalance) - parseFloat(amount) + parseFloat(amountAwal); // Hitung saldo yang diperbarui
+                const updatedBalance = (parseFloat(initialBalance) - parseFloat(amount)); // Hitung saldo yang diperbarui
                 saldoBalanceField.value = updatedBalance.toFixed(0); // Update saldo tersisa
+            }
+
+            } else {
+                if (amount >= (parseFloat(initialBalance) + parseFloat(amountAwal))) {
+                console.log('masuksini4');
+
+                // Jika amount melebihi initialBalance
+                paidAmount = (parseFloat(initialBalance) + parseFloat(amountAwal)); // Paid amount adalah sisa saldo awal
+                saldoBalanceField.value = 0; // Saldo menjadi 0
+                } else {
+                console.log('masuksini5');
+
+                    // Jika amount tidak melebihi initialBalance
+                    const updatedBalance = parseFloat(initialBalance) - parseFloat(amount) + parseFloat(amountAwal); // Hitung saldo yang diperbarui
+                    saldoBalanceField.value = updatedBalance.toFixed(0); // Update saldo tersisa
+                }
             }
         }
 
@@ -964,12 +1026,78 @@ function submitForm(url, button) {
        
 
         $('#employee_number').change(function () {
+            var sourceUrl = $('#type_reimbursement').data('source-get-employee-benefit-list');
+            var employeeNumber = $('#employee_number').val();            
+            var position = $('#employee_number option:selected').data('position');  
+
+            // var gender = $('#gender').val();      
+            var gender = $('#employee_number option:selected').data('gender');  
+
+                 
+            console.log("initemplo");   
+            console.log(employeeNumber);   
+            console.log(gender);   
+            $('#occupation').val(position).trigger('change');  
+
+
+            $.ajax({
+                url: sourceUrl,
+                type: 'GET',
+                data: { employee_number: employeeNumber, gender: gender },
+                success: function (data) {
+                                      console.log(data);
+                    var response = $.parseJSON(data);
+                    let $select = $('#type_reimbursement');
+                    console.log('selectedValue' + selectedBenefit);
+
+                    // Clear current options and append the default option
+                    $select.empty().append('<option value="">---Choose Benefit----</option>');
+
+                    if (response.length > 0) {
+                        $.each(response, function (index, benefit) {
+                            // $select.append(`<option data-account-ben-type="${benefit.benefit_type}" 
+                            //                             data-account-id="${benefit.id}" 
+                            //                             data-account-ben-code="${benefit.benefit_code}" 
+                            //                             data-account-code="${benefit.kode_akun}" 
+                            //                             value="${benefit.employee_benefit}">
+                            //                             ${benefit.employee_benefit}
+                            //                 </option>`);
+                            var isSelected = (benefit.employee_benefit == selectedBenefit) ? 'selected' : '';
+                            var option = `<option value="${benefit.employee_benefit}" 
+                                            data-account-ben-type="${benefit.benefit_type}" 
+                                            data-account-id="${benefit.id}" 
+                                            data-account-ben-code="${benefit.benefit_code}" 
+                                            data-account-code="${benefit.kode_akun}"
+                                            ${isSelected}>
+                                            ${benefit.employee_benefit}
+                                        </option>`;
+                            $select.append(option);
+
+                            if(isSelected == 'selected'){
+                                var benefit_type = $('#type_reimbursement option:selected').data('account-ben-type');
+                                $('#type_benefit').val(benefit_type).trigger('change');
+                            }
+                        });
+                    }
+
+                    // Trigger change event if needed
+                    // $select.trigger('change');
+                    
+                },
+                error: function () {
+                    toastr.error('Failed to update benefits. Please try again.');
+                }
+            });
+        });
+
+        function getEmployeeBenefit () {
             var employee_number = $('#employee_number').val();                        
             var position = $('#employee_number option:selected').data('position');  
-            var url = $(this).data('source-get-balance');
-            var type = $('#type_reimbursement').val();   
-            $('#occupation').val(position).trigger('change');
-
+            var url = $('#employee_number').data('source-get-balance');
+            // var type = $('#type_reimbursement').data('account-id');
+            var type = $('#type_reimbursement option:selected').data('account-id');  
+            console.log('URL:' +url);
+            
             $.ajax({
                 url: url,
                 type: 'GET',
@@ -995,26 +1123,26 @@ function submitForm(url, button) {
                         var dataInit = $('#saldo_balance_initial').val();
                         console.log("Saldo init");
                         console.log(dataInit);
+                        
+                        
 
 
-                        localStorage.setItem("saldoInit", obj.saldo_balance);
-                        localStorage.setItem("saldoModal", obj.saldo_balance); 
-                        localStorage.setItem("plafonModal", obj.plafond_balance); 
-                        localStorage.setItem("usedBalance", obj.used_balance); 
-
-
-
-
+                        // localStorage.setItem("saldoInit", obj.saldo_balance);
+                        // localStorage.setItem("saldoModal", obj.saldo_balance); 
+                        // localStorage.setItem("plafonModal", obj.plafond_balance); 
+                        // localStorage.setItem("usedBalance", obj.used_balance); 
 
                         $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
                     }else{
-                        toastr.options.timeOut = 10000;
+                        toastr.options.timeOut = 2000;
                         toastr.options.positionClass = 'toast-top-right';
                         if(obj.status=='error'){
                             toastr.error(obj.message);
                         }else if(obj.status=='warning'){
                             toastr.warning(obj.message);
                         }
+
+                        
 
                         $('#saldo_balance').val(obj.saldo_balance).trigger('change');
                         $('#saldo_balance_initial').val(obj.saldo_balance).trigger('change');
@@ -1027,12 +1155,18 @@ function submitForm(url, button) {
 
 
                         $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
+                       
+
                         
                     }                    
                     
                 }
             });
-        });
+            
+
+          
+
+        };
 
         $('#description').change(function () {
             var account_code_item = $('#description option:selected').data('account-code-item');  
@@ -1044,6 +1178,12 @@ function submitForm(url, button) {
         var objExpense;
 
         $('#type_reimbursement').change(function () {
+            getEmployeeBenefit();
+            getExpenseName();
+        });
+
+
+        function getExpenseName () {
             // var account_code = $('#type_reimbursement option:selected').data('account-code');  
             var id_benefit = $('#type_reimbursement option:selected').data('account-id');
             var benefit_code = $('#type_reimbursement option:selected').data('account-ben-code');
@@ -1061,7 +1201,6 @@ function submitForm(url, button) {
             var employee_number = $('#employee_number').val();     
                                
             var position = $('#employee_number option:selected').data('position');  
-            var url = $('#employee_number').data('source-get-balance');
             var sourceUrl = $('#type_reimbursement').data('source-get-expense-name');
 
             var type = $('#type_reimbursement').val();   
@@ -1103,66 +1242,9 @@ function submitForm(url, button) {
                         alert('Failed to fetch data. Please try again.');
                     }
                 });
-
-            if(employee_number != ""){
-
-                $('#employee_number').trigger("change");
-                
-
-                var saldoModal = localStorage.getItem("saldoModal"); 
-                var plafonModal = localStorage.getItem("plafonModal"); 
-                var usedBalance = localStorage.getItem("usedBalance"); 
-
-                console.log("Print Refresh");
-                console.log(saldoModal);
-                console.log(plafonModal);
-                console.log(usedBalance);
-
-
-
-                
-                // $.ajax({
-                //     url: url,
-                //     type: 'GET',
-                //     data: {
-                //         employee_number   : employee_number,
-                //         type      : type,
-                //         position : position
-                //     },
-                //     success: function(data) {
-                //         console.log(data);
-                //         var obj = $.parseJSON(data);
-
-                //         if(obj.status=='success'){
-                //             $('#saldo_balance').val(obj.saldo_balance).trigger('change');
-                //             $('#plafond_balance').val(obj.plafond_balance).trigger('change');
-                //             $('#used_balance').val(obj.used_balance).trigger('change');
-
-                //             $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
-                //         }else{
-                //             toastr.options.timeOut = 10000;
-                //             toastr.options.positionClass = 'toast-top-right';
-                //             if(obj.status=='error'){
-                //                 toastr.error(obj.message);
-                //             }else if(obj.status=='warning'){
-                //                 toastr.warning(obj.message);
-                //             }
-
-                //             $('#saldo_balance').val(obj.saldo_balance).trigger('change');
-                //             $('#plafond_balance').val(obj.plafond_balance).trigger('change');
-                //             $('#used_balance').val(obj.used_balance).trigger('change');
-
-
-                //             $('#employee_has_benefit_id').val(obj.employee_has_benefit_id).trigger('change');
-                            
-                //         }                    
-                        
-                //     }
-                // });
-            }
             
             // type_reimbursement();            
-        });
+        };
         
 
         // function type_reimbursement(){

@@ -44,7 +44,7 @@
                         <div class="form-group" style="padding-top: 25px;">
                             <select name="employee_benefit_id" id="employee_benefit_id" class="form-control select2" style="width: 100%" data-placeholder="Select Benefit" required>
                                 <option value="">Select Benefit</option>
-                                <?php foreach(getBenefitsByEmployeeNumber($entity['employee_number']) as $benefit):?>
+                                <?php foreach(getBenefitsByEmployeeNumber($entity['employee_number'], $entity['gender']) as $benefit):?>
                                 <option data-amount="<?=$benefit['amount'];?>" value="<?=$benefit['benefit_id'];?>"><?=$benefit['employee_benefit'];?></option>
                                 <?php endforeach;?>
                             </select>

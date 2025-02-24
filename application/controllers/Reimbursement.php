@@ -138,25 +138,26 @@ class Reimbursement extends MY_Controller
         $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
         $this->data['grid']['fixed_columns']    = 3;
         $this->data['grid']['summary_columns']  = array(7);
+        $this->data['grid']['order_columns']    = array();
 
-        $this->data['grid']['order_columns']    = array(
-            0   => array( 0 => 0,  1 => 'desc' ),
-            1   => array( 0 => 1,  1 => 'desc' ),
-            2   => array( 0 => 2,  1 => 'desc' ),
-            3   => array( 0 => 3,  1 => 'desc' ),
-            4   => array( 0 => 4,  1 => 'desc' ),
-            5   => array( 0 => 5,  1 => 'desc' ),
+        // $this->data['grid']['order_columns']    = array(
 
-
-        );
+        //     0   => array( 0 => 0,  1 => '' ),
+        //     1   => array( 0 => 1,  1 => '' ),
+        //     2   => array( 0 => 2,  1 => '' ),
+        //     3   => array( 0 => 3,  1 => '' ),
+        //     4   => array( 0 => 4,  1 => '' ),
+        //     5   => array( 0 => 5,  1 => '' ),
+        //     6   => array( 0 => 6,  1 => 'desc' ),
+        // );
 
         $this->render_view($this->module['view'] .'/index');
     }
 
     public function get_employee_saldo()
     {
-        if ($this->input->is_ajax_request() === FALSE)
-            redirect($this->modules['secure']['route'] .'/denied');
+        // if ($this->input->is_ajax_request() === FALSE)
+        //     redirect($this->modules['secure']['route'] .'/denied');
         
 
         $employee_number = $_GET['employee_number'];
@@ -195,6 +196,22 @@ class Reimbursement extends MY_Controller
         $expense = $this->model->getExpenseName($id_expense,$id_annual_cost);
         
         echo json_encode($expense);
+    }
+
+
+    public function get_employee_benefits_list()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+        
+
+        $employee = $_GET['employee_number'];
+        $gender = $_GET['gender'];
+
+
+        $list = getBenefits($employee,$gender);
+        
+        echo json_encode($list);
     }
 
     public function set_doc_number()
@@ -281,6 +298,10 @@ class Reimbursement extends MY_Controller
             redirect($this->modules['secure']['route'] .'/denied');
 
         $_SESSION['reimbursement']['employee_number'] = $_GET['data'];
+        $entityEmployee = $this->model->findEmployeeBy(array('tb_master_employees.employee_number' => $_GET['data']));
+        $_SESSION['reimbursement']['gender'] = $entityEmployee['gender'];
+
+
     }
 
     public function set_occupation()
@@ -379,6 +400,7 @@ class Reimbursement extends MY_Controller
             $employee_id  = config_item('auth_user_id');
             $employee_and_user = findEmployeeByUserId($employee_id);
 
+
             $_SESSION['reimbursement']['items']                     = array();
             $_SESSION['reimbursement']['annual_cost_center_id']     = $annual_cost_center_id;
             $_SESSION['reimbursement']['cost_center_id']            = $cost_center_id;
@@ -395,6 +417,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['occupation']                = $employee_and_user['position'];
             $_SESSION['reimbursement']['department_name']           = $department_name;
+            // $_SESSION['reimbursement']['department_name']        = NULL;
             $_SESSION['reimbursement']['head_dept']                 = NULL;
             $_SESSION['reimbursement']['id']                        = NULL;
             $_SESSION['reimbursement']['type']                      = 'Reimbursement';
@@ -406,6 +429,9 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['account_code']   = NULL;
             $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
             $_SESSION['reimbursement']['type_benefit']   = NULL;
+            $_SESSION['reimbursement']['last_status']               = NULL;
+
+
 
 
             redirect($this->module['route'] .'/create');
@@ -500,7 +526,6 @@ class Reimbursement extends MY_Controller
         $new_document_number = $document_number . '-R' . $revisi;
 
         if (isset($_SESSION['receipt']) === FALSE){
-            
             $cost_center = findCostCenter($entity['annual_cost_center_id']);
             $type_benefit = getBenefitById($entity['id_benefit']);
             $cost_center_code = $cost_center['cost_center_code'];
@@ -508,6 +533,8 @@ class Reimbursement extends MY_Controller
             $department_id    = $cost_center['department_id'];
             $cost_center_group_id  = $cost_center['group_id'];
             $employee_has_benefit    = $this->model->getEmployeeHasBenefitById($entity['employee_has_benefit_id']);
+
+
 
             $_SESSION['reimbursement']['annual_cost_center_id']     = $annual_cost_center_id;
             $_SESSION['reimbursement']['cost_center_id']            = $cost_center_id;
@@ -520,14 +547,13 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['format_number']             = $format_number;
             $_SESSION['reimbursement']['department_id']             = $department_id;
             $_SESSION['reimbursement']['person_in_charge']          = $entity['user_id'];
-
-            
             $_SESSION['reimbursement']['saldo_balance']             = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['saldo_balance_initial']     = $employee_has_benefit['left_amount_plafond'];
             $_SESSION['reimbursement']['plafond_balance']           = $employee_has_benefit['amount_plafond'];
             $_SESSION['reimbursement']['used_balance']              = $employee_has_benefit['used_amount_plafond'];
             $_SESSION['reimbursement']['cost_center_group_id']      = $cost_center_group_id;
-            $_SESSION['reimbursement']['type_benefit']              = $type_benefit['benefit_type'];
+            $_SESSION['reimbursement']['benefit_type']              = $type_benefit['benefit_type'];
+            $_SESSION['reimbursement']['last_status']               = $entity['status'];
 
 
 
@@ -820,7 +846,9 @@ class Reimbursement extends MY_Controller
                 } else {
                     $this->session->set_flashdata('alert', array(
                         'type' => 'success',
-                        'info' => $save_approval['success'] . " data has been update!"
+                        // 'info' => $save_approval['success'] . " data has been update!"
+                        'info' => "Data has been update!"
+
                     ));
                 }
         }else{

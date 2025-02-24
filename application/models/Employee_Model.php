@@ -763,9 +763,9 @@ class Employee_Model extends MY_Model
         $query      = $this->db->get('tb_employee_has_benefit');
         $row        = $query->unbuffered_row('array');
         
-        $this->db->select('tb_used_benefits.*');
-        $this->db->where('tb_used_benefits.employee_has_benefit_id', $id);
-        $queryUsed      = $this->db->get('tb_used_benefits');
+        $this->db->select('tb_reimbursements.*');
+        $this->db->where('tb_reimbursements.employee_has_benefit_id', $id);
+        $queryUsed      = $this->db->get('tb_reimbursements');
 
         foreach ($queryUsed->result_array() as $key => $value){
             $row['itemUseds'][$key] = $value;

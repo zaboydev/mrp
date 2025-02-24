@@ -22,11 +22,11 @@
   </tr>
   <tr>
     <th width="30%"> NO </th>
-    <td width="70%">: <?= print_string($entity['document_number']); ?></td>
+    <td width="70%">: <?= print_string($entity['document_number'] == '' ? '-' : $entity['document_number']); ?></td>
   </tr>
   <tr>
     <th width="30%"> Expense Number </th>
-    <td width="70%">: <?= print_string($entity['pr_number']); ?></td>
+    <td width="70%">: <?= print_string($entity['pr_number'] == '' ? '-' : $entity['pr_number']); ?></td>
   </tr>
   <tr>
     <th> ID. Nbr/No Karyawan </th>
@@ -44,6 +44,10 @@
     <th> Dept. Name </th>
     <td>: <?= print_string($entity['department_name']); ?></td>
   </tr>
+  <tr>
+    <th> Plafon </th>
+    <td>: <?= print_string($entity['type']); ?></td>
+  </tr>
 </table>
 
 <div class="clear"></div>
@@ -57,7 +61,7 @@
             <th>No</th>
             <th>Expense Detail</th>
             <th style="text-align:right;">Description</th>
-            <th style="text-align:right;">Amount</th>
+            <th style="text-align:right;">Account Code</th>
             <th style="text-align:right;">Amount</th>
             <th style="text-align:right;">Paid Amount</th>
         </tr>
@@ -69,9 +73,9 @@
         <?php foreach ($entity['items'] as $item) :?>
         <tr>
             <td><?=$n++;?></td>
-            <td><?=print_string($item['description']);?></td>
-            <td><?=print_string($item['notes']);?></td>
-            <td><?=print_string($item['account_code']);?></td>
+            <td><?=print_string($item['description'] == '' ? '-' : $item['description']);?></td>
+            <td style="text-align:right;"><?=print_string($item['notes'] == '' ? '-' : $item['notes']);?></td>
+            <td style="text-align:right;"><?=print_string($item['account_code'] == '' ? '-' : $item['account_code']);?></td>
             <td style="text-align:right;"><?=print_number($item['amount'],2);?></td>
             <td style="text-align:right;"><?=print_number($item['paid_amount'],2);?></td>
 

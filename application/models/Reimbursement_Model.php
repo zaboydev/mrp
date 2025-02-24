@@ -80,18 +80,18 @@ class Reimbursement_Model extends MY_Model
                 $this->db->where('tb_reimbursements.status', $search_status);         
             }            
         }else{    
-            // if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
-                if (config_item('auth_role')=='VP FINANCE' || config_item('auth_role')=='HEAD OF SCHOOL' ){                
+            // // if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
+            //     if (config_item('auth_role')=='VP FINANCE' || config_item('auth_role')=='HEAD OF SCHOOL' ){                
 
-                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HOS OR VP');
-                // $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
-            }
-            elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
-                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HR MANAGER');
-            }
-            elseif (config_item('auth_role')=='FINANCE MANAGER'){                
-                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY FINANCE MANAGER');
-            }
+            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HOS OR VP');
+            //     // $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
+            // }
+            // elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
+            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HR MANAGER');
+            // }
+            // elseif (config_item('auth_role')=='FINANCE MANAGER'){                
+            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY FINANCE MANAGER');
+            // }
         }
 
        
@@ -118,7 +118,23 @@ class Reimbursement_Model extends MY_Model
     function getIndex($return = 'array')
     {
 
-        if(config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL' || in_array(config_item('auth_username'),list_username_in_head_department(11))){
+        if(config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
+            if(config_item('auth_warehouse')=='JAKARTA'){
+                $selected = array(
+                    'tb_reimbursements.*',
+                );
+                $this->db->select($selected);
+                $this->db->where('tb_reimbursements.warehouse', 'JAKARTA');
+                $this->db->from('tb_reimbursements');
+            } else {
+                $selected = array(
+                    'tb_reimbursements.*',
+                );
+                $this->db->select($selected);
+                $this->db->where('tb_reimbursements.warehouse !=', 'JAKARTA');
+                $this->db->from('tb_reimbursements');
+            }
+        } elseif(in_array(config_item('auth_username'),list_username_in_head_department(11))){
             $selected = array(
                 'tb_reimbursements.*',
             );
@@ -145,7 +161,9 @@ class Reimbursement_Model extends MY_Model
                 $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
             }
         } else {
+            $this->db->order_by('status', 'asc');
             $this->db->order_by('id', 'desc');
+            $this->db->order_by('date', 'desc');
         }
 
         if ($_POST['length'] != -1)
@@ -235,6 +253,30 @@ class Reimbursement_Model extends MY_Model
         return $query->unbuffered_row('array');
     }
 
+    
+    public function findEmployeeBy($conditions)
+    {
+
+        $this->db->select(array(
+            'tb_master_levels.level AS level_name',
+            'tb_master_levels.id AS level_id',
+            'tb_master_employees.*'
+        ));
+        $this->db->from('tb_master_employees');
+        $this->db->join('tb_master_levels', 'tb_master_employees.level_id = tb_master_levels.id', 'left'); // Use LEFT JOIN
+        $this->db->where($conditions); // Dynamic conditions
+
+        $query = $this->db->get();
+        $row = $query->unbuffered_row('array');
+
+        if ($row) {
+            $department = getDepartmentById($row['department_id']);
+            $row['department_name'] = $department['department_name'];
+        }
+
+        return $row;
+    }
+
     public function canRequestReimbursement($employee_id, $id_benefit) {
         // Ambil data pengajuan terakhir untuk karyawan ini
         $this->db->select('created_at');
@@ -319,6 +361,7 @@ class Reimbursement_Model extends MY_Model
         // DELETE OLD DOCUMENT
         if (isset($_SESSION['reimbursement']['id'])) {
             $id = $_SESSION['reimbursement']['id'];
+            $last_status = $_SESSION['reimbursement']['last_status'];
             $date = $_SESSION['reimbursement']['date'];
 
             $this->db->select('*');
@@ -352,11 +395,13 @@ class Reimbursement_Model extends MY_Model
             $this->db->set('created_at', date('Y-m-d H:i:s'));
             $this->db->insert('tb_signers');
 
-            foreach ($rowReimbursementItem as $item) {
-                $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $item->paid_amount, FALSE);
-                $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $item->paid_amount, FALSE);
-                $this->db->where('tb_employee_has_benefit.id', $row['employee_has_benefit_id']);
-                $this->db->update('tb_employee_has_benefit');
+            if($last_status != 'REJECT'){
+                foreach ($rowReimbursementItem as $item) {
+                    $this->db->set('used_amount_plafond', 'used_amount_plafond - ' . $item->paid_amount, FALSE);
+                    $this->db->set('left_amount_plafond', 'left_amount_plafond + ' . $item->paid_amount, FALSE);
+                    $this->db->where('tb_employee_has_benefit.id', $row['employee_has_benefit_id']);
+                    $this->db->update('tb_employee_has_benefit');
+                }
             }
         }
 
@@ -938,9 +983,9 @@ class Reimbursement_Model extends MY_Model
                 $isCanClaim = $this->canGetOnceBenefit($employee_number, $categoryBenefit['id']);
 
                 if($isCanClaim){
-                     $this->db->select('tb_employee_has_benefit.*');
+                    $this->db->select('tb_employee_has_benefit.*');
                     $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
-                    $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+                    $this->db->where('tb_master_employee_benefits.id',$employee_benefit);
                     $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
                     $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
                     $this->db->order_by('tb_employee_has_benefit.created_at', 'DESC');
@@ -983,7 +1028,7 @@ class Reimbursement_Model extends MY_Model
                 if($isCanClaimOptik){
                     $this->db->select('tb_employee_has_benefit.*');
                     $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
-                    $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+                    $this->db->where('tb_master_employee_benefits.id',$employee_benefit);
                     $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
                     $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
                     $this->db->order_by('tb_employee_has_benefit.created_at', 'DESC');

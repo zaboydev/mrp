@@ -874,31 +874,82 @@ class Employee extends MY_Controller
                         $return['info'] = 'There are error while updating data. Please try again later.';
                     }
                 }
-            } else {
-                if ($this->model->isBenefitExist($this->input->post('employee_benefit_id'), $this->input->post('employee_contract_id'))){
-                    $selectedBenefit = $this->model->findBenefitById($this->input->post('employee_benefit_id'));
-                    $selectedContract = $this->model->findContractById($this->input->post('employee_contract_id'));
-                    $return['type'] = 'danger';
-                    $return['info'] = 'Benefit '. $selectedBenefit['employee_benefit'] .'for periode Contract '.print_date($selectedContract['start_date']).' s/d '.print_date($selectedContract['end_date']).' already exists.';
-                } else {
+            } else  {
+                $selectedBenefit = $this->model->findBenefitById($this->input->post('employee_benefit_id'));
+                $selectedContract = $this->model->findContractById($this->input->post('employee_contract_id'));
 
-                    $form_data = array(
-                        'employee_contract_id'  => $this->input->post('employee_contract_id'),
-                        'employee_number'       => $this->input->post('employee_number'),
-                        'employee_benefit_id'   => $this->input->post('employee_benefit_id'),
-                        'amount_plafond'        => $this->input->post('amount_plafond'),
-                        'left_amount_plafond'   => $this->input->post('amount_plafond'),
-                        'used_amount_plafond'   => 0,
-                    );
-
-                    if ($this->model->insert_benefit($form_data)){
-                        $return['type'] = 'success';
-                        $return['info'] = 'Benefit added.';
+                if($selectedBenefit['benefit_type'] == 'yearly'){
+                    $isCanTopupOptik = checkReimburseOptik($this->input->post('employee_number'),$selectedBenefit['id']);
+                    if($isCanTopupOptik){
+                        $form_data = array(
+                            'employee_contract_id'  => $this->input->post('employee_contract_id'),
+                            'employee_number'       => $this->input->post('employee_number'),
+                            'employee_benefit_id'   => $this->input->post('employee_benefit_id'),
+                            'amount_plafond'        => $this->input->post('amount_plafond'),
+                            'left_amount_plafond'   => $this->input->post('amount_plafond'),
+                            'used_amount_plafond'   => 0,
+                        );
+    
+                        if ($this->model->insert_benefit($form_data)){
+                            $return['type'] = 'success';
+                            $return['info'] = 'Benefit added.';
+                        } else {
+                            $return['type'] = 'danger';
+                            $return['info'] = 'There are error while updating data. Please try again later.';
+                        }
                     } else {
                         $return['type'] = 'danger';
-                        $return['info'] = 'There are error while updating data. Please try again later.';
+                        $return['info'] = 'Benefit '. $selectedBenefit['employee_benefit'] .'for periode Contract '.print_date($selectedContract['start_date']).' s/d '.print_date($selectedContract['end_date']).' already exists.';
+                    }
+
+                } else if ($selectedBenefit['benefit_type'] == 'once'){
+                    $isCanTopupOnce = checkReimburseOnce($this->input->post('employee_number'),$selectedBenefit['id']);
+                    if($isCanTopupOnce){
+                        $form_data = array(
+                            'employee_contract_id'  => $this->input->post('employee_contract_id'),
+                            'employee_number'       => $this->input->post('employee_number'),
+                            'employee_benefit_id'   => $this->input->post('employee_benefit_id'),
+                            'amount_plafond'        => $this->input->post('amount_plafond'),
+                            'left_amount_plafond'   => $this->input->post('amount_plafond'),
+                            'used_amount_plafond'   => 0,
+                        );
+    
+                        if ($this->model->insert_benefit($form_data)){
+                            $return['type'] = 'success';
+                            $return['info'] = 'Benefit added.';
+                        } else {
+                            $return['type'] = 'danger';
+                            $return['info'] = 'There are error while updating data. Please try again later.';
+                        }
+                    } else {
+                        $return['type'] = 'danger';
+                        $return['info'] = 'Benefit '. $selectedBenefit['employee_benefit'] .'for periode Contract '.print_date($selectedContract['start_date']).' s/d '.print_date($selectedContract['end_date']).' already exists.';
+                    }
+                } else {
+                    if ($this->model->isBenefitExist($this->input->post('employee_benefit_id'), $this->input->post('employee_contract_id'))){
+                        $return['type'] = 'danger';
+                        $return['info'] = 'Benefit '. $selectedBenefit['employee_benefit'] .'for periode Contract '.print_date($selectedContract['start_date']).' s/d '.print_date($selectedContract['end_date']).' already exists.';
+                    } else {
+    
+                        $form_data = array(
+                            'employee_contract_id'  => $this->input->post('employee_contract_id'),
+                            'employee_number'       => $this->input->post('employee_number'),
+                            'employee_benefit_id'   => $this->input->post('employee_benefit_id'),
+                            'amount_plafond'        => $this->input->post('amount_plafond'),
+                            'left_amount_plafond'   => $this->input->post('amount_plafond'),
+                            'used_amount_plafond'   => 0,
+                        );
+    
+                        if ($this->model->insert_benefit($form_data)){
+                            $return['type'] = 'success';
+                            $return['info'] = 'Benefit added.';
+                        } else {
+                            $return['type'] = 'danger';
+                            $return['info'] = 'There are error while updating data. Please try again later.';
+                        }
                     }
                 }
+                
             }
         }
 

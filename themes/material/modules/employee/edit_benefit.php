@@ -48,6 +48,7 @@
                             <th>No</th>
                             <th>Date</th>
                             <th>No Transaction</th>
+                            <th>Status</th>
                             <th>Amount</th>
                         </thead>
                         <tbody id="table_contents">
@@ -58,7 +59,7 @@
                             <tr>
                                 <?php 
                                     $n++;
-                                    $total[] = $detail['amount'];
+                                    $total[] = $detail['total'];
                                 ?>
                                 <td style="text-align:center;">
                                     <?=print_number($n);?>
@@ -69,8 +70,13 @@
                                 <td>
                                     <?=print_string($detail['document_number']);?>
                                 </td>
+                                <td>
+                                    <?=print_string($detail['status']);?>
+                                </td>
                                 <td style="text-align:right;">
-                                    <?=print_number($detail['amount'], 2);?>
+                                   <?= ($detail['status'] == 'REVISED' || $detail['status'] == 'REJECT') ? 0 : print_number($detail['total'], 2); ?>
+
+                                    
                                 </td>
                             </tr>
                                 

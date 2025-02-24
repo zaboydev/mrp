@@ -72,7 +72,7 @@
       <option value="all">
         All Status
       </option>
-      <option value="WAITING APPROVAL BY COO OR CFO" <?php if (config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>
+      <!-- <option value="WAITING APPROVAL BY COO OR CFO" <?php if (config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>
         Waiting Approval By COO or CFO
       </option>
       <option value="WAITING APPROVAL BY HOS OR VP" <?php if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'):echo 'selected'; endif;?>>
@@ -83,15 +83,24 @@
       </option>
       <option value="WAITING APPROVAL BY FINANCE MANAGER" <?php if (config_item('auth_role')=='FINANCE MANAGER'):echo 'selected'; endif;?>>
         Waiting Approval By Finance Manager
+      </option> -->
+      <option value="WAITING APPROVAL BY COO OR CFO">
+        Waiting Approval By COO or CFO
+      </option>
+      <option value="WAITING APPROVAL BY HOS OR VP">
+        Waiting Approval By HOS or VP
+      </option>
+      <option value="WAITING APPROVAL BY HR MANAGER">
+        Waiting Approval By HR Manager
+      </option>
+      <option value="WAITING APPROVAL BY FINANCE MANAGER">
+        Waiting Approval By Finance Manager
       </option>
       <option value="APPROVED">
         Approved
       </option>
       <option value="REJECT">
         Reject
-      </option>
-      <option value="CLOSED">
-        Closed
       </option>
       <option value="REVISED">
         Revised

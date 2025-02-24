@@ -36,7 +36,7 @@
                         <div class="form-group">
                             <select name="id_benefit" id="id_benefit" data-placeholder="Pilih Benefit" class="form-control select2" required>
                                 <option></option>
-                                <?php foreach(getBenefits() as $benefit):?>
+                                <?php foreach(getBenefitsAll() as $benefit):?>
                                 <option value="<?= $benefit['id']; ?>" data-benefit-id="<?= $benefit['id']; ?>" <?= ($benefit['id'] == $_SESSION['expense_reimbursement']['id_benefit']) ? 'selected' : ''; ?>>
                                     <?= $benefit['employee_benefit']; ?>
                                 </option>
