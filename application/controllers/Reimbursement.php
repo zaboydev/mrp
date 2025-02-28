@@ -10,6 +10,7 @@ class Reimbursement extends MY_Controller
         parent::__construct();
 
         $this->module = $this->modules['reimbursement'];
+        $this->module_approval = $this->modules['reimbursement_approval'];
         $this->load->model($this->module['model'], 'model');
         $this->load->helper($this->module['helper']);
         $this->load->library('upload');        
@@ -42,7 +43,7 @@ class Reimbursement extends MY_Controller
                 $col = array();
                 if (is_granted($this->module, 'approval')){
                     // if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
-                    if($row['status']=='WAITING APPROVAL BY HOS OR VP' && (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL')){
+                    if(($row['status']=='WAITING APPROVAL BY HOS' || $row['status']=='WAITING APPROVAL BY VP') && (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL')){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     } else if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
@@ -92,7 +93,119 @@ class Reimbursement extends MY_Controller
                 if($row['status']=='approved' || $row['status']=='closed'){
                     $col[] = '';
                 }else{
-                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS OR VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
+                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS','WAITING APPROVAL BY VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
+                        $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                    }else{
+                        $col[] = '';
+                    }
+                }
+               
+
+                $total_value[] = $row['total'];
+                
+                $col['DT_RowId'] = 'row_'. $row['id'];
+                $col['DT_RowData']['pkey']  = $row['id'];
+                
+                if ($this->has_role($this->module, 'info')){
+                    $col['DT_RowAttr']['onClick']     = '';
+                    $col['DT_RowAttr']['data-id']     = $row['id'];
+                    $col['DT_RowAttr']['data-target'] = '#data-modal';
+                    $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info/'. $row['id']);
+                }
+
+                $data[] = $col;
+            }
+
+            $result = array(
+                "draw"            => $_POST['draw'],
+                "recordsTotal"    => $this->model->countIndex(),
+                "recordsFiltered" => $this->model->countIndexFiltered(),
+                "data"            => $data,
+                "total"           => array(
+                    7 => print_number(array_sum($total_value), 2),
+                )
+            );
+        }
+
+        echo json_encode($result);
+    }
+
+    public function index_data_source_approval()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        if (is_granted($this->module, 'index') === FALSE){
+            $return['type'] = 'danger';
+            $return['info'] = "You don't have permission to access this page!";
+        } else {
+
+
+            $entities = $this->model->getIndexApproval();
+            $data     = array();
+            $no       = $_POST['start'];
+            $total_value  = array();
+
+            foreach ($entities as $row){
+                $cost_center = findCostCenter($row['annual_cost_center_id']);
+                $cost_center_code = $cost_center['cost_center_code'];
+                $cost_center_name = $cost_center['cost_center_name'];
+                $department_name = $cost_center['department_name'];         
+                $no++;
+                $col = array();
+                if (is_granted($this->module, 'approval')){
+                    // if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
+                    if(($row['status']=='WAITING APPROVAL BY HOS' || $row['status']=='WAITING APPROVAL BY VP') && (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL')){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    } else if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    } else if($row['status']=='WAITING APPROVAL BY COO OR CFO' && (config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER')){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    } else if($row['status']=='REVISED'){
+                        $col[] = print_number($no);
+                    } else {
+                        $col[] = print_number($no);
+                    }
+                    
+                    // if($row['status']=='REVISED'){
+                    //     $col[] = print_number($no);
+                    // } else {
+                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    // }
+                }else{
+                    $col[] = print_number($no);
+                }            
+                $col[] = print_date($row['date'], 'd F Y');    
+                $col[] = print_string($row['document_number']);
+                $col[] = print_string($row['pr_number']);
+                $col[] = print_string($row['type']);
+                $col[] = print_string($row['status']);
+                if($row['status']=='approved' || $row['status']=='closed'){
+                    $col[] = print_string($row['notes_approval']);
+                }else{
+                    if($row['notes_approval'] != ''){
+                        if (is_granted($this->module, 'approval') === TRUE) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" value="' . $row['notes_approval'] . '" autocomplete="off"/>';
+                        } else {
+                            $col[] = print_string($row['notes_approval']);
+                        }
+                    } else {
+                        if (is_granted($this->module, 'approval') === TRUE) {
+                            $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
+                        } else {
+                            $col[] = print_string($row['notes_approval']);
+                        }
+                    }
+                    
+                }
+                $col[] = print_string($cost_center['cost_center_name']);
+                $col[] = print_string($row['person_name']);
+                $col[] = print_number($row['total'],2);
+                $col[] = print_string($row['notes']);
+                if($row['status']=='approved' || $row['status']=='closed'){
+                    $col[] = '';
+                }else{
+                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS','WAITING APPROVAL BY VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
                         $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                     }else{
                         $col[] = '';
@@ -152,6 +265,31 @@ class Reimbursement extends MY_Controller
         // );
 
         $this->render_view($this->module['view'] .'/index');
+    }
+
+    public function approval()
+    {
+        $this->authorized($this->module, 'index_approval');
+
+        $this->data['page']['title']            = $this->module['label'];
+        $this->data['grid']['column']           = $this->model->getSelectedColumns();
+        $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_approval');
+        $this->data['grid']['fixed_columns']    = 3;
+        $this->data['grid']['summary_columns']  = array(7);
+        $this->data['grid']['order_columns']    = array();
+
+        // $this->data['grid']['order_columns']    = array(
+
+        //     0   => array( 0 => 0,  1 => '' ),
+        //     1   => array( 0 => 1,  1 => '' ),
+        //     2   => array( 0 => 2,  1 => '' ),
+        //     3   => array( 0 => 3,  1 => '' ),
+        //     4   => array( 0 => 4,  1 => '' ),
+        //     5   => array( 0 => 5,  1 => '' ),
+        //     6   => array( 0 => 6,  1 => 'desc' ),
+        // );
+
+        $this->render_view($this->module['view'] .'/approval/index');
     }
 
     public function get_employee_saldo()
@@ -887,7 +1025,7 @@ class Reimbursement extends MY_Controller
         if ($save_approval['status']) {
             $this->session->set_flashdata('alert', array(
                 'type' => 'success',
-                'info' => $save_approval['success'] . " data has been update!"
+                'info' => "Data has been update!"
             ));
         }else{
             $this->session->set_flashdata('alert', array(

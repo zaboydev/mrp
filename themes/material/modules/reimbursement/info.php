@@ -73,6 +73,12 @@
             <dt>Requested By</dt>
             <dd><?=strtoupper($entity['request_by']);?></dd>
 
+            <dt>Plafond</dt>
+            <dd><?=strtoupper($entity['type']);?></dd>
+
+            <dt>Plafond Tyoe</dt>
+            <dd><?=strtoupper($entity['benefit_name_type']);?></dd>
+
 
             
         </dl>

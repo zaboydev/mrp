@@ -29,7 +29,6 @@
 
       foreach ($subMenu as $childMenu){
         $childMenuClass = ($childMenu['route'] === $module['route']) ? 'active' : '';
-
         echo '<li class="'.$childMenuClass.'">';
         echo '<a href="'.site_url($childMenu['route']).'">';
         echo '<span class="title">';
@@ -37,6 +36,17 @@
         echo '</span>';
         echo '</a>';
         echo '</li>';
+
+        if($childMenu['route'] == 'reimbursement'){
+          $childMenuApp = ('reimbursement/approval' === ($module['route'].'/approval')) ? 'active' : '';
+          echo '<li class="'.$childMenuApp.'">';
+          echo '<a href="'.site_url('reimbursement/approval').'">';
+          echo '<span class="title">';
+          echo 'Reimbursement Approval';
+          echo '</span>';
+          echo '</a>';
+          echo '</li>';
+        }
       }
 
       echo '</ul>';

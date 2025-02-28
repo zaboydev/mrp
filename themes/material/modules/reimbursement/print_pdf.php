@@ -48,6 +48,10 @@
     <th> Plafon </th>
     <td>: <?= print_string($entity['type']); ?></td>
   </tr>
+  <tr>
+    <th> Plafond Type </th>
+    <td>: <?= print_string($entity['benefit_name_type']); ?></td>
+  </tr>
 </table>
 
 <div class="clear"></div>

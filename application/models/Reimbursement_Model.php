@@ -118,6 +118,49 @@ class Reimbursement_Model extends MY_Model
     function getIndex($return = 'array')
     {
 
+        
+        $selected_person            = getEmployeeById(config_item('auth_user_id'));
+        $person_number              = $selected_person['employee_number'];
+        $selected = array(
+            'tb_reimbursements.*',
+        );
+        $this->db->select($selected);
+        $this->db->where('tb_reimbursements.employee_number', $person_number);
+        $this->db->from('tb_reimbursements');
+        
+        
+
+        $this->searchIndex();
+
+        $column_order = $this->getOrderableColumns();
+
+        if (isset($_POST['order'])){
+            foreach ($_POST['order'] as $key => $order){
+                $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
+            }
+        } else {
+            $this->db->order_by('status', 'desc');
+            $this->db->order_by('id', 'desc');
+            $this->db->order_by('date', 'desc');
+        }
+
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+
+        $query = $this->db->get();
+
+        if ($return === 'object'){
+            return $query->result();
+        } elseif ($return === 'json'){
+            return json_encode($query->result());
+        } else {
+            return $query->result_array();
+        }
+    }
+
+    function getIndexApproval($return = 'array')
+    {
+
         if(config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
             if(config_item('auth_warehouse')=='JAKARTA'){
                 $selected = array(
@@ -161,7 +204,7 @@ class Reimbursement_Model extends MY_Model
                 $this->db->order_by($column_order[$_POST['order'][$key]['column']], $_POST['order'][$key]['dir']);
             }
         } else {
-            $this->db->order_by('status', 'asc');
+            $this->db->order_by('status', 'desc');
             $this->db->order_by('id', 'desc');
             $this->db->order_by('date', 'desc');
         }
@@ -204,8 +247,11 @@ class Reimbursement_Model extends MY_Model
     {
         $selected = array(
             'tb_reimbursements.*',
+            'tb_master_benefit_type.notes as benefit_name_type',
         );
         $this->db->select($selected);
+        $this->db->join('tb_master_employee_benefits','tb_reimbursements.id_benefit = tb_master_employee_benefits.id','left');
+        $this->db->join('tb_master_benefit_type','tb_master_employee_benefits.benefit_type = tb_master_benefit_type.benefit_type','left');
         $this->db->where('tb_reimbursements.id', $id);
         $query      = $this->db->get('tb_reimbursements');
         $row        = $query->unbuffered_row('array');
@@ -407,9 +453,7 @@ class Reimbursement_Model extends MY_Model
 
         $status = "WAITING APPROVAL BY HR MANAGER";
 
-        if($_SESSION['reimbursement']['benefit_code'] === 'B4'){
-            $status = "WAITING APPROVAL BY HOS OR VP";
-        }
+        
 
         // CREATE NEW DOCUMENT
         $document_edit              = (isset($_SESSION['reimbursement']['edit'])) ? $_SESSION['reimbursement']['edit'] : NULL;
@@ -431,7 +475,9 @@ class Reimbursement_Model extends MY_Model
         $id_benefit                 = $_SESSION['reimbursement']['id_benefit'];
         $benefit_code               = $_SESSION['reimbursement']['benefit_code'];
 
-
+        if($_SESSION['reimbursement']['benefit_code'] === 'B4'){
+            $status = $warehouse == 'JAKARTA' ? "WAITING APPROVAL BY VP" : "WAITING APPROVAL BY HOS";
+        }
 
 
        
@@ -1226,7 +1272,7 @@ class Reimbursement_Model extends MY_Model
 
             
 
-            if($spd['status']=='WAITING APPROVAL BY HOS OR VP' && $spd['benefit_code'] == "B4" && config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
+            if($spd['status']=='WAITING APPROVAL BY HOS' || $spd['status']=='WAITING APPROVAL BY VP' && $spd['benefit_code'] == "B4" && config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
                 $this->db->set('status','APPROVED');
                 $this->db->set('notes_approval', $approval_notes[$x]);
                 $this->db->set('validated_by',config_item('auth_person_name'));
@@ -1310,9 +1356,10 @@ class Reimbursement_Model extends MY_Model
                         $x++;
                 } else {
                     if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
+                        $status = $spd['warehouse'] == 'JAKARTA' ? 'WAITING APPROVAL BY VP' : 'WAITING APPROVAL BY HOS';
                         // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
             
-                            $this->db->set('status','WAITING APPROVAL BY HOS OR VP');
+                            $this->db->set('status',$status);
                             $this->db->set('notes_approval', $approval_notes[$x]);
                             $this->db->set('hr_approved_by',config_item('auth_person_name'));
                             $this->db->where('id', $id);
@@ -1331,7 +1378,7 @@ class Reimbursement_Model extends MY_Model
                             $this->db->set('created_at', date('Y-m-d H:i:s'));
                             $this->db->insert('tb_signers');
                             $send_email_to = 'finance_manager';
-                        }elseif($spd['status']=='WAITING APPROVAL BY HOS OR VP' && config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
+                        }elseif($spd['status']=='WAITING APPROVAL BY HOS' || $spd['status']=='WAITING APPROVAL BY VP' && config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'){
             
                         // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
                             $this->db->set('status','APPROVED');
@@ -1507,7 +1554,7 @@ class Reimbursement_Model extends MY_Model
 
             } else {
             // if($spd['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
-                if($spd['status']=='WAITING APPROVAL BY HOS OR VP'){
+                if($spd['status']=='WAITING APPROVAL BY HOS' || $spd['status']=='WAITING APPROVAL BY VP'){
                     $this->db->set('status','REJECT');
                     $this->db->set('rejected_by',config_item('auth_person_name'));
                     $this->db->set('notes_approval', $approval_notes[$x]);

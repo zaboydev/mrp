@@ -17,7 +17,7 @@
             <div class="document-header force-padding">
                 <div class="row">
                     <div class="col-sm-6 col-lg-4">
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <div class="input-group">
                                 <div class="input-group-content">
                                     <input type="text" name="document_number" id="document_number" class="form-control" maxlength="6" value="<?= $_SESSION['reimbursement']['document_number']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_doc_number'); ?>" required disabled>
@@ -26,6 +26,8 @@
                                 <span class="input-group-addon"><?= $_SESSION['reimbursement']['format_number']; ?></span>
                             </div>
                         </div>
+
+                        <label for="document_number">Document No Automatic</label>
 
                         <div class="form-group">
                             <input type="text" name="date" id="date" data-provide="datepicker" data-date-format="dd-mm-yyyy" class="form-control" value="<?= $_SESSION['reimbursement']['date']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_received_date'); ?>" required>
@@ -67,8 +69,6 @@
                             </select>
                             <label for="head_dept">Supervisor / Atasan</label>
                         </div> -->
-
-                                      
                     </div>
 
                     <div class="col-sm-12 col-lg-4">
@@ -205,7 +205,7 @@
                                         <a href="<?= site_url($module['route'] . '/del_item/' . $i); ?>" class="btn btn-icon-toggle btn-danger btn-sm btn_delete_document_item">
                                             <i class="fa fa-trash"></i>
                                         </a>
-                                        <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" data-todo='{"todo":<?= $i; ?>}'data-item-id-db='{"item":<?= $items['id']; ?>}'>
+                                        <a class="btn btn-icon-toggle btn-info btn-sm btn_edit_document_item" onClick="setPlafondBalance()" data-todo='{"todo":<?= $i; ?>}'data-item-id-db='{"item":<?= $items['id']; ?>}'>
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>
@@ -589,7 +589,22 @@
         var objExpenseItem = localStorage.getItem("expense_name_item");
         var objExpenseData = $.parseJSON(objExpenseItem);
         $('#description').empty();
-        const emptyOption = `
+
+        console.log('Data');
+        console.log(Object.keys(objExpenseData).length); 
+        if(Object.keys(objExpenseData).length == 1){
+
+        objExpenseData.forEach(function (item) {
+                const option = `
+                    <option data-account-code-item="${item.account_code}" 
+                            value="${item.expense_name}" selected>
+                        ${item.expense_name} - ${item.account_code}
+                    </option>`;
+                $('#description').append(option); // Append each option
+        });
+
+        } else {
+            const emptyOption = `
                                 <option data-account-code-item="" 
                                         value="">
                                      Pilih Expense Name 
@@ -603,6 +618,8 @@
                     </option>`;
                 $('#description').append(option); // Append each option
         });
+        }
+        
 
     }
 
@@ -1048,10 +1065,11 @@ function submitForm(url, button) {
                                       console.log(data);
                     var response = $.parseJSON(data);
                     let $select = $('#type_reimbursement');
-                    console.log('selectedValue' + selectedBenefit);
 
                     // Clear current options and append the default option
                     $select.empty().append('<option value="">---Choose Benefit----</option>');
+                    console.log('selectedValue' + selectedBenefit);
+
 
                     if (response.length > 0) {
                         $.each(response, function (index, benefit) {
@@ -1183,11 +1201,13 @@ function submitForm(url, button) {
         });
 
 
-        function getExpenseName () {
+        function getExpenseName (expenseName) {
             // var account_code = $('#type_reimbursement option:selected').data('account-code');  
             var id_benefit = $('#type_reimbursement option:selected').data('account-id');
             var benefit_code = $('#type_reimbursement option:selected').data('account-ben-code');
             var benefit_type = $('#type_reimbursement option:selected').data('account-ben-type');
+
+            console.log('masuk expense name');
 
 
 
@@ -1217,19 +1237,32 @@ function submitForm(url, button) {
                         cost_center_group_id : dataGroup
                     },
                     success: function (data) {
-                       
+                       console.log('Mulaidisini');
                         console.log(data);
                         objExpense = $.parseJSON(data);
                         $('#description').empty();
+                        if(Object.keys(objExpense).length == 1){
+                            objExpense.forEach(function (item) {
+                            const option = `
+                                <option data-account-code-item="${item.account_code}" 
+                                        value="${item.expense_name}" selected>
+                                    ${item.expense_name} - ${item.account_code}
+                                </option>`;
+                            $('#description').append(option); // Append each option
+                        });
+                        } else {
+                       
                         const emptyOption = `<option data-account-code-item="" 
                                         value="">
                                         Pilih Expense Name 
                                 </option>`;
                         $('#description').append(emptyOption);
+                        
                         objExpense.forEach(function (item) {
+                            var isSelected = (item.expense_name == expenseName) ? 'selected' : '';
                             const option = `
                                 <option data-account-code-item="${item.account_code}" 
-                                        value="${item.expense_name}">
+                                        value="${item.expense_name}" ${isSelected}>
                                     ${item.expense_name} - ${item.account_code}
                                 </option>`;
                             $('#description').append(option); // Append each option
@@ -1237,6 +1270,8 @@ function submitForm(url, button) {
                         
 
                         localStorage.setItem("expense_name_item", data); 
+                        }
+                        
                     },
                     error: function () {
                         alert('Failed to fetch data. Please try again.');
@@ -1272,6 +1307,8 @@ function submitForm(url, button) {
                 id: id
             };
 
+            
+
             var save_method = 'update';
 
             $.ajax({
@@ -1288,6 +1325,8 @@ function submitForm(url, button) {
                     $('[name="existing_attachment"]').val(response.attachment);
                     $('[name="id_reimbursement_item"]').val(response.id);
                     $('[name="amount_awal_item"]').val(response.paid_amount);
+
+                    
 
 
                     // Handle attachment display
@@ -1306,25 +1345,27 @@ function submitForm(url, button) {
                     $('#paid_amount_modal').val(response.paid_amount).trigger('change');
                     $('#plafond_balance_modal').val($('#plafond_balance').val()).trigger('change');
                     $('#used_balance_modal').val($('#used_balance').val()).trigger('change');
+
+                    getExpenseName(response.description);
                     
 
-                    var objExpenseItem = localStorage.getItem("expense_name_item");
-                    var objExpenseData = $.parseJSON(objExpenseItem);
-                    $('#description').empty();
-                    const emptyOption = `
-                                <option data-account-code-item="" 
-                                        value="">
-                                     Pilih Expense Name
-                                </option>`;
-                        $('#description').append(emptyOption);
-                    objExpenseData.forEach(function (item) {
-                            const option = `
-                                <option data-account-code-item="${item.account_code}" 
-                                        value="${item.expense_name}">
-                                    ${item.expense_name} - ${item.account_code}
-                                </option>`;
-                            $('#description').append(option); // Append each option
-                        });
+                    // var objExpenseItem = localStorage.getItem("expense_name_item");
+                    // var objExpenseData = $.parseJSON(objExpenseItem);
+                    // $('#description').empty();
+                    // const emptyOption = `
+                    //             <option data-account-code-item="" 
+                    //                     value="">
+                    //                  Pilih Expense Name
+                    //             </option>`;
+                    //     $('#description').append(emptyOption);
+                    // objExpenseData.forEach(function (item) {
+                    //         const option = `
+                    //             <option data-account-code-item="${item.account_code}" 
+                    //                     value="${item.expense_name}">
+                    //                 ${item.expense_name} - ${item.account_code}
+                    //             </option>`;
+                    //         $('#description').append(option); // Append each option
+                    //     });
 
                         
 

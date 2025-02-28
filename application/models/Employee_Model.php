@@ -751,13 +751,19 @@ class Employee_Model extends MY_Model
             'tb_employee_has_benefit.left_amount_plafond',
             'tb_master_employee_benefits.employee_benefit',
             'tb_master_employees.name',
+            'tb_master_employees.gender',
             'tb_master_employees.position',
             'tb_employee_has_benefit.employee_number',
             'tb_employee_has_benefit.employee_benefit_id',
             'tb_employee_has_benefit.employee_contract_id',
+            'tb_employee_has_benefit.created_at',
+            'tb_employee_has_benefit.updated_at',
+            'tb_employee_has_benefit.updated_by',
+            'tb_master_benefit_type.notes as name_type',
         ));
         $this->db->join('tb_employee_contracts', 'tb_employee_contracts.id = tb_employee_has_benefit.employee_contract_id');
         $this->db->join('tb_master_employee_benefits', 'tb_master_employee_benefits.id = tb_employee_has_benefit.employee_benefit_id');
+         $this->db->join('tb_master_benefit_type','tb_master_employee_benefits.benefit_type = tb_master_benefit_type.benefit_type','left');
         $this->db->join('tb_master_employees', 'tb_master_employees.employee_number = tb_employee_has_benefit.employee_number');
         $this->db->where('tb_employee_has_benefit.id', $id);
         $query      = $this->db->get('tb_employee_has_benefit');
@@ -787,5 +793,33 @@ class Employee_Model extends MY_Model
         $this->db->trans_commit();
         return TRUE;
     }
+
+    
+    public function checkHistoryClaim($employee_id, $id_benefit) {
+        
+        // Ambil data pengajuan terakhir untuk karyawan ini
+        $this->db->select(array(
+            'created_at',
+            'document_number'
+        ));
+        $this->db->where('employee_number', $employee_id);
+        $this->db->where('status !=', 'REJECT');
+        $this->db->where('status !=', 'REVISED');
+        $this->db->where('id_benefit', $id_benefit);
+        $this->db->from('tb_reimbursements');
+        $this->db->order_by('created_at', 'DESC');
+        $this->db->limit(1);
+        $query = $this->db->get();
+        $result = $query->result_array();
+        $return = array();
+    
+        if ($query->num_rows() === 0) {
+            return $return;
+        } else {
+            return $result;
+        }
+    
+    }
+      
 
 }

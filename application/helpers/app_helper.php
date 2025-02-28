@@ -3894,15 +3894,18 @@ if (!function_exists('currency_for_vendor_list')) {
             benefit_items.id AS benefit_item_id,
             benefits.id AS benefit_id,
             benefits.employee_benefit,
+            benefits.benefit_type,
             benefits.spesific_gender,
             benefit_items.level,
             benefit_items.year,
             benefit_items.amount,
             benefit_items.deleted_by,
-            benefits.status
+            benefits.status,
+            tb_master_benefit_type.notes as name_type
         ');
         $CI->db->from('tb_master_employee_benefit_items AS benefit_items');
         $CI->db->join('tb_master_employee_benefits AS benefits', 'benefit_items.employee_benefit_id = benefits.id', 'left');
+        $CI->db->join('tb_master_benefit_type','benefits.benefit_type = tb_master_benefit_type.benefit_type','left');
         $CI->db->join('tb_master_levels AS levels', 'benefit_items.level = levels.level', 'left');
         $CI->db->join('tb_master_employees AS employees', 'employees.level_id = levels.id', 'right');
         $CI->db->where('employees.employee_number', $employee_number);

@@ -879,7 +879,7 @@ class Dashboard_Model extends MY_Model
 
     if(config_item('as_head_department')=='yes' || in_array(config_item('auth_role'),['VP FINANCE','HEAD OF SCHOOL'])){
       $this->db->from('tb_reimbursements');
-      $this->db->where_in('tb_reimbursements.status', ['WAITING APPROVAL BY HOS OR VP']);
+      $this->db->where_in('tb_reimbursements.status', ['WAITING APPROVAL BY HOS', 'WAITING APPROVAL BY VP']);
       $this->db->where('tb_reimbursements.head_dept', config_item('auth_username'));
       $query = $this->db->get();
       $count_as_role_head = $query->num_rows();
