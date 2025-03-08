@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['master_expense_reimbursement']['visible']     = TRUE;
-$config['module']['master_expense_reimbursement']['main_warehouse']   = TRUE;
+$config['module']['master_expense_reimbursement']['main_warehouse']   = FALSE;
 $config['module']['master_expense_reimbursement']['parent']      = 'master_data_hrd';
 $config['module']['master_expense_reimbursement']['label']       = 'Expense Reimbursement';
 $config['module']['master_expense_reimbursement']['name']        = 'expense_reimbursement';

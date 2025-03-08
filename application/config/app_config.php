@@ -111,7 +111,6 @@ $config['modules_for_head_dept'] = array(
   'business_trip_request',
   'sppd',
   'reimbursement',
-  'expense_reimbursement',
 );
 
 $config['type_reimbursement'] = array(
