@@ -59,7 +59,12 @@ $config['levels_and_roles'] = array(
 	'30'	=> 'ENGINEER',
 	'31'	=> 'HR STAFF',
 	'32'	=> 'HR MANAGER',
-	'33'	=> 'REIMBURSEMENT'
+	'33'	=> 'REIMBURSEMENT',
+	'34'	=> 'ADMIN JKT',
+	'35'	=> 'ADMIN LUAR JKT',
+	'36'	=> 'ADMIN DEPARTMENT',
+
+
 );
 
 /*

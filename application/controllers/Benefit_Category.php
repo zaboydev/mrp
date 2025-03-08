@@ -89,7 +89,7 @@ class Benefit_category extends MY_Controller
         echo json_encode($return);
     }
 
-    public function create($id)
+    public function create()
     {
         // if ($this->input->is_ajax_request() === FALSE)
         //     redirect($this->modules['secure']['route'] .'/denied');
@@ -190,7 +190,7 @@ class Benefit_category extends MY_Controller
 
                     if ($this->model->insert($position_data)){
                         $return['success'] = TRUE;
-                        $return['message'] = 'Expense Name for ' . $this->input->post('benefit_code') .' created.';
+                        $return['message'] = 'Benefit Name for ' . $this->input->post('benefit_code') .' created.';
                     } else {
                         $return['success'] = FALSE;
                         $return['message'] = 'There are error while updating data. Please try again later.';

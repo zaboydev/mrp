@@ -75,9 +75,9 @@
 
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'HR STAFF' || config_item('auth_role') == 'HR MANAGER') ? '' : 'disabled'; ?>  required>
+                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN DEPARTMENT' ||config_item('auth_role') == 'ADMIN LUAR JKT' || config_item('auth_role') == 'ADMIN JKT' || config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'HR STAFF' || config_item('auth_role') == 'HR MANAGER') ? '' : 'disabled'; ?>  required>
                                 <option></option>
-                                <?php foreach(available_employee($_SESSION['reimbursement']['department_id']) as $user):?>
+                                <?php foreach(available_employee($_SESSION['reimbursement']['department_id'], config_item('auth_role'), config_item('auth_user_id')) as $user):?>
                                 <option data-gender="<?=$user['gender'];?>" data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['reimbursement']['employee_number']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
                                 <?php endforeach;?>
                             </select>
@@ -85,7 +85,7 @@
                         </div>
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?> required>
+                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN LUAR JKT' || config_item('auth_role') == 'ADMIN JKT' || config_item('auth_role') == 'ADMIN DEPARTMENT' || config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?> required>
                                 <option></option>
                                 <?php foreach(occupation_list() as $occupation):?>
                                 <option value="<?=$occupation['position'];?>" <?= ($occupation['position'] == $_SESSION['reimbursement']['occupation']) ? 'selected' : ''; ?>><?=$occupation['position'];?></option>
@@ -523,7 +523,7 @@
 
 
 
-    }
+    };
 
     function setLastBalance() {
         console.log("Mulai menghitung saldo");
@@ -563,7 +563,7 @@
         console.log(used_balance);
         console.log(usedMerge);
         
-    }
+    };
         
 
         
@@ -583,45 +583,93 @@
         $('#plafond_balance_modal').val(plafond_balance_modal).trigger('change');
         $('#used_balance_modal').val(used_balance_modal).trigger('change');
         $('#account_code_item').val(account_code_item).trigger('change');
-
-       
-
-        var objExpenseItem = localStorage.getItem("expense_name_item");
-        var objExpenseData = $.parseJSON(objExpenseItem);
-        $('#description').empty();
-
-        console.log('Data');
-        console.log(Object.keys(objExpenseData).length); 
-        if(Object.keys(objExpenseData).length == 1){
-
-        objExpenseData.forEach(function (item) {
-                const option = `
-                    <option data-account-code-item="${item.account_code}" 
-                            value="${item.expense_name}" selected>
-                        ${item.expense_name} - ${item.account_code}
-                    </option>`;
-                $('#description').append(option); // Append each option
-        });
-
-        } else {
-            const emptyOption = `
-                                <option data-account-code-item="" 
-                                        value="">
-                                     Pilih Expense Name 
-                                </option>`;
-                        $('#description').append(emptyOption);
-        objExpenseData.forEach(function (item) {
-                const option = `
-                    <option data-account-code-item="${item.account_code}" 
-                            value="${item.expense_name}">
-                        ${item.expense_name} - ${item.account_code}
-                    </option>`;
-                $('#description').append(option); // Append each option
-        });
-        }
+        console.log("MulaiBuka1");
+        getExpenseName();
         
 
-    }
+    };
+
+    function getExpenseName (expenseName) {
+
+        console.log("MasukGetEXPENSE)");
+        // var account_code = $('#type_reimbursement option:selected').data('account-code');  
+        var id_benefit = $('#type_reimbursement option:selected').data('account-id');
+        var benefit_code = $('#type_reimbursement option:selected').data('account-ben-code');
+        var benefit_type = $('#type_reimbursement option:selected').data('account-ben-type');
+
+        console.log('masuk expense name');
+
+
+
+        // $('#account_code').val(account_code).trigger('change');
+        $('#id_benefit').val(id_benefit).trigger('change');
+        $('#benefit_code').val(benefit_code).trigger('change');
+        $('#type_benefit').val(benefit_type).trigger('change');
+
+
+
+        var employee_number = $('#employee_number').val();     
+                        
+        var position = $('#employee_number option:selected').data('position');  
+        var sourceUrl = $('#type_reimbursement').data('source-get-expense-name');
+
+        var type = $('#type_reimbursement').val();   
+
+        console.log("dataexpense");
+        console.log(id_benefit);
+        var dataGroup =$('#cost_center_group_id').val();     
+
+        $.ajax({
+                url: sourceUrl,
+                type: 'GET',
+                data: {
+                    id_type   : id_benefit,
+                    cost_center_group_id : dataGroup
+                },
+                success: function (data) {
+                console.log('Mulaidisini');
+                    console.log(data);
+                    objExpense = $.parseJSON(data);
+                    $('#description').empty();
+                    if(Object.keys(objExpense).length == 1){
+                        objExpense.forEach(function (item) {
+                        const option = `
+                            <option data-account-code-item="${item.account_code}" 
+                                    value="${item.expense_name}" selected>
+                                ${item.expense_name} - ${item.account_code}
+                            </option>`;
+                        $('#description').append(option); // Append each option
+                    });
+                    } else {
+                
+                    const emptyOption = `<option data-account-code-item="" 
+                                    value="">
+                                    Pilih Expense Name 
+                            </option>`;
+                    $('#description').append(emptyOption);
+                    
+                    objExpense.forEach(function (item) {
+                        var isSelected = (item.expense_name == expenseName) ? 'selected' : '';
+                        const option = `
+                            <option data-account-code-item="${item.account_code}" 
+                                    value="${item.expense_name}" ${isSelected}>
+                                ${item.expense_name} - ${item.account_code}
+                            </option>`;
+                        $('#description').append(option); // Append each option
+                    });
+                    
+
+                    localStorage.setItem("expense_name_item", data); 
+                    }
+                    
+                },
+                error: function () {
+                    alert('Failed to fetch data. Please try again.');
+                }
+            });
+
+        // type_reimbursement();            
+    };
 
     function updateSaldoBalance() {
         console.log('masuksini');
@@ -702,7 +750,7 @@
 
         // Update paidAmount field
         paidAmountField.value = paidAmount;
-    }
+    };
 
     function popup(mylink, windowname){
         var height = window.innerHeight;
@@ -1201,85 +1249,7 @@ function submitForm(url, button) {
         });
 
 
-        function getExpenseName (expenseName) {
-            // var account_code = $('#type_reimbursement option:selected').data('account-code');  
-            var id_benefit = $('#type_reimbursement option:selected').data('account-id');
-            var benefit_code = $('#type_reimbursement option:selected').data('account-ben-code');
-            var benefit_type = $('#type_reimbursement option:selected').data('account-ben-type');
-
-            console.log('masuk expense name');
-
-
-
-            // $('#account_code').val(account_code).trigger('change');
-            $('#id_benefit').val(id_benefit).trigger('change');
-            $('#benefit_code').val(benefit_code).trigger('change');
-            $('#type_benefit').val(benefit_type).trigger('change');
-
-
-
-            var employee_number = $('#employee_number').val();     
-                               
-            var position = $('#employee_number option:selected').data('position');  
-            var sourceUrl = $('#type_reimbursement').data('source-get-expense-name');
-
-            var type = $('#type_reimbursement').val();   
-
-            console.log("dataexpense");
-            console.log(id_benefit);
-            var dataGroup =$('#cost_center_group_id').val();     
-
-            $.ajax({
-                    url: sourceUrl,
-                    type: 'GET',
-                    data: {
-                        id_type   : id_benefit,
-                        cost_center_group_id : dataGroup
-                    },
-                    success: function (data) {
-                       console.log('Mulaidisini');
-                        console.log(data);
-                        objExpense = $.parseJSON(data);
-                        $('#description').empty();
-                        if(Object.keys(objExpense).length == 1){
-                            objExpense.forEach(function (item) {
-                            const option = `
-                                <option data-account-code-item="${item.account_code}" 
-                                        value="${item.expense_name}" selected>
-                                    ${item.expense_name} - ${item.account_code}
-                                </option>`;
-                            $('#description').append(option); // Append each option
-                        });
-                        } else {
-                       
-                        const emptyOption = `<option data-account-code-item="" 
-                                        value="">
-                                        Pilih Expense Name 
-                                </option>`;
-                        $('#description').append(emptyOption);
-                        
-                        objExpense.forEach(function (item) {
-                            var isSelected = (item.expense_name == expenseName) ? 'selected' : '';
-                            const option = `
-                                <option data-account-code-item="${item.account_code}" 
-                                        value="${item.expense_name}" ${isSelected}>
-                                    ${item.expense_name} - ${item.account_code}
-                                </option>`;
-                            $('#description').append(option); // Append each option
-                        });
-                        
-
-                        localStorage.setItem("expense_name_item", data); 
-                        }
-                        
-                    },
-                    error: function () {
-                        alert('Failed to fetch data. Please try again.');
-                    }
-                });
-            
-            // type_reimbursement();            
-        };
+         
         
 
         // function type_reimbursement(){

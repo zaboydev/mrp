@@ -1152,7 +1152,7 @@ class Reimbursement_Model extends MY_Model
                 $kontrak_active = findContractActive($employee_number);
                 $this->db->select('tb_employee_has_benefit.*');
                 $this->db->join('tb_master_employee_benefits','tb_master_employee_benefits.id=tb_employee_has_benefit.employee_benefit_id');
-                $this->db->where('tb_master_employee_benefits.employee_benefit',$employee_benefit);
+                $this->db->where('tb_master_employee_benefits.id',$employee_benefit);
                 $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
                 $this->db->where('tb_employee_has_benefit.employee_contract_id',$kontrak_active['id']);
                 $this->db->where('tb_employee_has_benefit.deleted_at IS NULL', null, false);
@@ -1174,7 +1174,8 @@ class Reimbursement_Model extends MY_Model
                     $return['plafond_balance'] = 0;
                     $return['used_balance'] = 0;
                     $return['employee_has_benefit_id'] = null;
-                    $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini';
+                    $return['kontrak'] = $kontrak_active['id'];
+                    $return['message'] = 'Karyawan ini tidak memiliki Saldo untuk Benefit ini aaa';
                 }            
                 
                 return $return;
@@ -1655,6 +1656,40 @@ class Reimbursement_Model extends MY_Model
 
         $this->db->trans_commit();
         return $return = ['status'=> TRUE,'total'=>$total,'success'=>$success,'failed'=>$failed];
+    }
+
+    public function test_sendmail(){
+            $this->load->library('email');
+            $this->email->set_newline("\r\n");
+            $from_email = "bifa.acd@gmail.com";
+            $to_email = "andrio.zaboy@gmail.com";
+            $message = "<p>Dear ".""."</p>";
+            $message .= "<p>SPD Berikut perlu Persetujuan Anda </p>";
+            $message .= "<table class='table'>";
+            $message .= "<thead>";
+            $message .= "<tr>";
+            $message .= "<th>Date</th>";
+            $message .= "<th>No. Reimbursement</th>";
+            $message .= "<th>Type</th>";
+            $message .= "<th>Name</th>";
+            $message .= "</tr>";
+            $message .= "</thead>";
+            $message .= "Mantap";
+            $message .= "</table>";
+            $message .= "<p>Silakan klik link dibawah ini untuk menuju list permintaan</p>";
+            $message .= "<p>[ <a href='".$this->config->item('url_mrp')."' style='color:blue; font-weight:bold;'>Material Resource Planning</a> ]</p>";
+            $message .= "<p>Thanks and regards</p>";
+            $this->email->from($from_email, 'Material Resource Planning');
+            $this->email->to($recipient);
+            $this->email->subject('Permintaan Approval Reimbursement');
+            $this->email->message($message);
+            
+    
+            // Send mail 
+            if ($this->email->send())
+                return $this->email->print_debugger();
+            else
+              return $this->email->print_debugger();
     }
 
     public function send_mail($doc_id,$next_approval,$tipe='request')

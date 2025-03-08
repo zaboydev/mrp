@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Employee_Model extends MY_Model
+class Profile_Model extends MY_Model
 {
     protected $module;
 
@@ -631,12 +631,10 @@ class Employee_Model extends MY_Model
             'tb_employee_has_benefit.amount_plafond',
             'tb_employee_has_benefit.used_amount_plafond',
             'tb_employee_has_benefit.left_amount_plafond',
-            'tb_master_employee_benefits.employee_benefit',
-             'tb_master_benefit_type.notes as benefit_name_type',
+            'tb_master_employee_benefits.employee_benefit'
         ));
         $this->db->join('tb_employee_contracts', 'tb_employee_contracts.id = tb_employee_has_benefit.employee_contract_id');
         $this->db->join('tb_master_employee_benefits', 'tb_master_employee_benefits.id = tb_employee_has_benefit.employee_benefit_id');
-        $this->db->join('tb_master_benefit_type', 'tb_master_benefit_type.benefit_type = tb_master_employee_benefits.benefit_type', 'left');
         $this->db->where('tb_employee_has_benefit.employee_number',$employee_number);
         $this->db->from('tb_employee_has_benefit');
 
@@ -765,7 +763,7 @@ class Employee_Model extends MY_Model
         ));
         $this->db->join('tb_employee_contracts', 'tb_employee_contracts.id = tb_employee_has_benefit.employee_contract_id');
         $this->db->join('tb_master_employee_benefits', 'tb_master_employee_benefits.id = tb_employee_has_benefit.employee_benefit_id');
-        $this->db->join('tb_master_benefit_type','tb_master_employee_benefits.benefit_type = tb_master_benefit_type.benefit_type','left');
+         $this->db->join('tb_master_benefit_type','tb_master_employee_benefits.benefit_type = tb_master_benefit_type.benefit_type','left');
         $this->db->join('tb_master_employees', 'tb_master_employees.employee_number = tb_employee_has_benefit.employee_number');
         $this->db->where('tb_employee_has_benefit.id', $id);
         $query      = $this->db->get('tb_employee_has_benefit');

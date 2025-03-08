@@ -44,6 +44,11 @@
                         </li>
                         <li class="user-footer">
                             <div class="pull-left">
+                                <a href="<?=site_url('profile/');?>" class="btn btn-default btn-flat">
+                                    Profile
+                                </a>
+                            </div>
+                            <div class="pull-left">
                                 <a href="<?=site_url('secure/change_password');?>" class="btn btn-default btn-flat">
                                     Change Password
                                 </a>

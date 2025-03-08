@@ -102,6 +102,7 @@ require('modules/business_trip_request.php');
 require('modules/sppd.php');
 require('modules/reimbursement.php');
 
+
 //aircraft
 require('modules/pesawat.php');
 require('modules/aircraft_component_status.php');
@@ -217,6 +218,9 @@ require('modules/setting.php');
 // require('modules/item_on_delivery.php');
 // require('modules/item_on_return.php');
 // require('modules/item_on_shipping.php');
+
+require('modules/profile.php');
+
 
 
 //tambahan

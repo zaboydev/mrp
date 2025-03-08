@@ -41,6 +41,12 @@
         </a>
         <ul class="dropdown-menu animation-dock">
           <li>
+            <a href="<?=site_url('profile/detail/'.config_item('auth_user_id'));?>">
+              <i class="fa fa-fw fa-user"></i>
+              Profile
+            </a>
+          </li>
+          <li>
             <a href="<?=site_url('secure/password');?>">
               <i class="fa fa-fw fa-lock"></i>
               Change Password

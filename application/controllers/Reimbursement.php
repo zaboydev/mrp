@@ -952,6 +952,13 @@ class Reimbursement extends MY_Controller
         
     }
 
+    public function test_sendmail(){
+        echo $this->model->test_sendmail();
+    }
+
+
+
+
     public function multi_approve()
     {
         $document_id = $this->input->post('document_id');

@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Employee extends MY_Controller
+class Profile extends MY_Controller
 {
     protected $module;
 
@@ -8,7 +8,7 @@ class Employee extends MY_Controller
     {
         parent::__construct();
 
-        $this->module = $this->modules['employee'];
+        $this->module = $this->modules['profile'];
         $this->load->model($this->module['model'], 'model');
         $this->load->helper(array('form', 'url'));
         $this->load->library('upload');
@@ -18,22 +18,22 @@ class Employee extends MY_Controller
 
     public function index()
     {
-        $this->authorized($this->module, 'index');
+        // $this->authorized($this->module, 'index');
 
-        $this->data['page']['title']        = $this->module['label'];
-        $this->data['page']['requirement']  = array('datatable', 'form_create', 'form_edit');
-        $this->data['grid']['column']           = $this->model->getSelectedColumns();
-        $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
-        $this->data['grid']['fixed_columns']    = 2;
-        $this->data['grid']['summary_columns']  = NULL;
-        $this->data['grid']['order_columns']    = array (
-          0 => array (0 => 1, 1 => 'asc'),
-          1 => array (0 => 2, 1 => 'asc'),
-          2 => array (0 => 3, 1 => 'asc'),
-          3 => array (0 => 4, 1 => 'asc')
-        );
+        // $this->data['page']['title']        = $this->module['label'];
+        // $this->data['page']['requirement']  = array('datatable', 'form_create', 'form_edit');
+        // $this->data['grid']['column']           = $this->model->getSelectedColumns();
+        // $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
+        // $this->data['grid']['fixed_columns']    = 2;
+        // $this->data['grid']['summary_columns']  = NULL;
+        // $this->data['grid']['order_columns']    = array (
+        //   0 => array (0 => 1, 1 => 'asc'),
+        //   1 => array (0 => 2, 1 => 'asc'),
+        //   2 => array (0 => 3, 1 => 'asc'),
+        //   3 => array (0 => 4, 1 => 'asc')
+        // );
 
-        $this->render_view($this->module['view'] .'/index');
+        // $this->render_view($this->module['view'] .'/index');
     }
 
     public function index_data_source()
@@ -91,7 +91,14 @@ class Employee extends MY_Controller
     {
         $this->authorized($this->module, 'index');
 
-        $entity = $this->model->findOneBy(array('employee_id' => $employee_id));
+        if ($employee_id != config_item('auth_user_id')){
+            redirect($this->modules['secure']['route'] .'/denied');
+        }
+        
+
+        
+
+        $entity = $this->model->findOneBy(array('user_id' => $employee_id));
 
         $this->data['page']['content']      = $this->module['view'] .'/create';
         $this->data['page']['offcanvas']    = $this->module['view'] .'/create_offcanvas_add_item';
@@ -706,7 +713,7 @@ class Employee extends MY_Controller
 
     public function benefit($employee_id)
     {
-        $this->authorized($this->module, 'contract');
+        $this->authorized($this->module, 'index');
 
         $entity = $this->model->findOneBy(array('employee_id' => $employee_id));
         if(isEmployeeContractActiveExist($entity['employee_number'])){
@@ -768,16 +775,12 @@ class Employee extends MY_Controller
                 $col = array();
                 $col[] = print_number($no);
                 $col[] = print_string($row['employee_benefit']);
-                $col[] = print_string($row['benefit_name_type'].' ('.$row['start_date'].' s/d '.print_date($row['end_date']) . ')');
-                // $col[] = print_date($row['start_date']).' s/d '.print_date($row['end_date']);
+                $col[] = print_date($row['start_date']).' s/d '.print_date($row['end_date']);
                 $col[] = print_number($row['amount_plafond']);
                 $col[] = print_number($row['used_amount_plafond']);
                 $col[] = print_number($row['left_amount_plafond']);
                 $col['DT_RowId'] = 'row_'. $row['id'];
                 $col['DT_RowData']['pkey']  = $row['id'];
-                $col['DT_RowAttr']['data-target'] = '#data-modal';
-                $col['DT_RowAttr']['data-source'] = site_url($this->module['route'] .'/info_benefit/'. $row['id']);
-                $col['DT_RowAttr']['onClick']     = '';
 
                 $data[] = $col;
             }

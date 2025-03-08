@@ -3480,28 +3480,56 @@ if (!function_exists('currency_for_vendor_list')) {
   }
 
   if ( ! function_exists('available_employee')) {
-    function available_employee($department_id=NULL)
+    function available_employee($department_id=NULL, $auth_role= NULL, $auth_employee= NULL)
     {
       $CI =& get_instance();
   
-      $CI->db->select('*');
-      $CI->db->from('tb_master_employees');  
+      // $CI->db->select('*');
+      // $CI->db->from('tb_master_employees');  
+
+     $dataEmployee = getEmployeeById($auth_employee);
 
       // Temporary
       
-      // if ($department_id !== NULL){
-      //   if (is_array($department_id)){
-      //     $CI->db->where_in('department_id', $department_id);
-      //   } else {
-      //     $CI->db->where('department_id', $department_id);
-      //   }
-      // }
       
-      $CI->db->order_by('name', 'ASC');
+        if ($auth_role == 'ADMIN JKT'){
+          $CI->db->select('*');
+          $CI->db->from('tb_master_employees');  
+          $CI->db->where('employee_number', 'MG-00803002');
+          $CI->db->order_by('name', 'ASC');
   
-      $query = $CI->db->get();
+          $query = $CI->db->get();
+          return $query->result_array();
+          
+        } else if ($auth_role == 'ADMIN LUAR JKT'){
+          $CI->db->select('*');
+          $CI->db->from('tb_master_employees');  
+          $CI->db->where_in('employee_number', ['HS-01908247','MG-00803001', $dataEmployee['employee_number']]);
+
+          $CI->db->order_by('name', 'ASC');
   
-      return $query->result_array();
+          $query = $CI->db->get();
+          return $query->result_array();
+
+        } else if($auth_role == 'ADMIN DEPARTMENT'){
+          $CI->db->select('*');
+          $CI->db->from('tb_master_employees');  
+          $CI->db->where('department_id', $department_id);
+          $CI->db->order_by('name', 'ASC');
+          $query = $CI->db->get();
+          return $query->result_array();
+          
+
+        } else {
+          $CI->db->select('*');
+          $CI->db->from('tb_master_employees');  
+          $CI->db->order_by('name', 'ASC');
+  
+          $query = $CI->db->get();
+          return $query->result_array();
+        }
+      
+      
     }
   }
 
