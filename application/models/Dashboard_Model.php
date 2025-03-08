@@ -864,8 +864,12 @@ class Dashboard_Model extends MY_Model
       $status = 'WAITING APPROVAL BY HR MANAGER';
     }
 
-    if(config_item('auth_role')=='FINANCE MANAGER'){
-      $status = 'WAITING APPROVAL BY FINANCE MANAGER';
+    if(config_item('auth_role')=='HEAD OF SCHOOL'){
+      $status = 'WAITING APPROVAL BY HOS';
+    }
+
+    if(config_item('auth_role')=='VP FINANCE'){
+      $status = 'WAITING APPROVAL BY VP';
     }
 
     if(in_array(config_item('auth_role'),['CHIEF OF FINANCE','CHIEF OPERATION OFFICER'])){

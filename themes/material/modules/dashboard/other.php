@@ -178,7 +178,7 @@
                 <?php if (is_granted($modules['reimbursement'], 'approval')):?>
                   <div class="card-head collapsed">
                     <header>
-                      <a href="<?=site_url($modules['reimbursement']['route']);?>">
+                      <a href="<?=site_url($modules['reimbursement']['route'].'/approval');?>">
                         Reimbursement (<strong><font color="red"><?=$count_reimbursement;?></font></strong>)
                       </a>
                     </header>
