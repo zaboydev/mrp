@@ -91,6 +91,7 @@ class Benefit_category extends MY_Controller
 
     public function create()
     {
+        $this->authorized($this->module, 'create');
         // if ($this->input->is_ajax_request() === FALSE)
         //     redirect($this->modules['secure']['route'] .'/denied');
 
