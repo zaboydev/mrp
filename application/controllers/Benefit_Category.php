@@ -92,19 +92,6 @@ class Benefit_category extends MY_Controller
     public function create()
     {
         $this->authorized($this->module, 'create');
-        // if ($this->input->is_ajax_request() === FALSE)
-        //     redirect($this->modules['secure']['route'] .'/denied');
-
-        // if (is_granted($this->module, 'create') === FALSE){
-        //     $return['type'] = 'danger';
-        //     $return['info'] = "You don't have permission to create data!";
-        // } else {
-        //     $return['type'] = 'success';
-        //     $return['info'] = $this->load->view($this->module['view'] .'/create', $this->data, TRUE);
-        // }
-
-        // echo json_encode($return);
-
         $this->data['page']['content']    = $this->module['view'] .'/create';
         $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
 
@@ -122,28 +109,8 @@ class Benefit_category extends MY_Controller
         $_SESSION['benefit_category']['notes'] = $entity['notes']; 
         $_SESSION['benefit_category']['status'] = $entity['status']; 
 
-        redirect($this->module['route'] . '/create/'. $id);
+        redirect($this->module['route'] . '/create');
     }
-
-    // public function edit($id)
-    // {
-    //     if ($this->input->is_ajax_request() === FALSE)
-    //         redirect($this->modules['secure']['route'] .'/denied');
-
-    //     if (is_granted($this->module, 'edit') === FALSE){
-    //         $return['type'] = 'danger';
-    //         $return['info'] = "You don't have permission to edit this data!";
-    //     } else {
-    //         $entity = $this->model->findById($id);
-
-    //         $this->data['entity'] = $entity;
-
-    //         $return['type'] = 'success';
-    //         $return['info'] = $this->load->view($this->module['view'] .'/edit', $this->data, TRUE);
-    //     }
-
-    //     echo json_encode($return);
-    // }
 
     public function save()
     {
