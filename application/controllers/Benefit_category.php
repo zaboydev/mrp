@@ -112,6 +112,15 @@ class Benefit_category extends MY_Controller
         redirect($this->module['route'] . '/create');
     }
 
+    public function tambah()
+    {
+        $this->authorized($this->module, 'create');
+
+        unset($_SESSION['benefit_category']);
+
+        redirect($this->module['route'] . '/create');
+    }
+
     public function save()
     {
         if ($this->input->is_ajax_request() === FALSE)

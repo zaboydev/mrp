@@ -87,19 +87,6 @@ class Benefit_type extends MY_Controller
 
     public function create()
     {
-        // if ($this->input->is_ajax_request() === FALSE)
-        //     redirect($this->modules['secure']['route'] .'/denied');
-
-        // if (is_granted($this->module, 'create') === FALSE){
-        //     $return['type'] = 'danger';
-        //     $return['info'] = "You don't have permission to create data!";
-        // } else {
-        //     $return['type'] = 'success';
-        //     $return['info'] = $this->load->view($this->module['view'] .'/create', $this->data, TRUE);
-        // }
-
-        // echo json_encode($return);
-
         $this->data['page']['content']    = $this->module['view'] .'/create';
         $this->data['page']['offcanvas']  = $this->module['view'] .'/create_offcanvas_add_item';
 
@@ -116,6 +103,16 @@ class Benefit_type extends MY_Controller
         $_SESSION['benefit_type']['notes'] = $entity['notes'];
 
         redirect($this->module['route'] . '/create/'. $id);
+    }
+
+
+    public function tambah()
+    {
+        $this->authorized($this->module, 'create');
+
+        unset($_SESSION['benefit_type']);
+
+        redirect($this->module['route'] . '/create');
     }
 
     // public function edit($id)

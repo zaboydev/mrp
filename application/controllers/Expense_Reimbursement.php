@@ -130,6 +130,17 @@ class Expense_reimbursement extends MY_Controller
         redirect($this->module['route'] . '/create');
     }
 
+
+    public function tambah()
+    {
+        $this->authorized($this->module, 'create');
+        
+        unset($_SESSION['expense_reimbursement']);
+
+        redirect($this->module['route'] . '/create');
+    }
+    
+
     // public function edit($id)
     // {
     //     if ($this->input->is_ajax_request() === FALSE)
