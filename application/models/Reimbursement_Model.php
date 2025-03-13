@@ -118,15 +118,51 @@ class Reimbursement_Model extends MY_Model
     function getIndex($return = 'array')
     {
 
-        
-        $selected_person            = getEmployeeById(config_item('auth_user_id'));
-        $person_number              = $selected_person['employee_number'];
-        $selected = array(
-            'tb_reimbursements.*',
-        );
-        $this->db->select($selected);
-        $this->db->where('tb_reimbursements.employee_number', $person_number);
-        $this->db->from('tb_reimbursements');
+        if(config_item('auth_role') == 'ADMIN LUAR JKT'){
+            $selected_person            = getEmployeeById(config_item('auth_user_id'));
+            $person_number              = $selected_person['employee_number'];
+            $selected = array(
+                'tb_reimbursements.*',
+            );
+            $this->db->select($selected);
+            $this->db->where_in('tb_reimbursements.employee_number', ['HS-01908247','MG-00803001', $person_number]);
+            $this->db->from('tb_reimbursements');
+
+        } else if(config_item('auth_role') == 'ADMIN JKT') {
+            $selected_person            = getEmployeeById(config_item('auth_user_id'));
+            $person_number              = $selected_person['employee_number'];
+            $selected = array(
+                'tb_reimbursements.*',
+            );
+            $this->db->select($selected);
+            $this->db->where_in('tb_reimbursements.employee_number', ['MG-00803002', $person_number]);
+            $this->db->from('tb_reimbursements');
+
+        } else if(config_item('auth_role') == 'ADMIN DEPARTMENT') {
+            $selected_person            = getEmployeeById(config_item('auth_user_id'));
+            $person_number              = $selected_person['employee_number'];
+            $department_id              = $selected_person['department_id'];
+            $employee_numbers           = getListEmployeeByDepartment($department_id);
+
+
+            $selected = array(
+                'tb_reimbursements.*',
+            );
+            $this->db->select($selected);
+            $this->db->where_in('tb_reimbursements.employee_number', $employee_numbers);
+            $this->db->from('tb_reimbursements');
+
+        } else {
+            $selected_person            = getEmployeeById(config_item('auth_user_id'));
+            $person_number              = $selected_person['employee_number'];
+            $selected = array(
+                'tb_reimbursements.*',
+            );
+            $this->db->select($selected);
+            $this->db->where('tb_reimbursements.employee_number', $person_number);
+            $this->db->from('tb_reimbursements');
+        }
+       
         
         
 
@@ -190,7 +226,6 @@ class Reimbursement_Model extends MY_Model
                 'tb_reimbursements.*',
             );
             $this->db->select($selected);
-            $this->db->where('tb_reimbursements.employee_number', $person_number);
             $this->db->from('tb_reimbursements');
         }
         

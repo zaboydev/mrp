@@ -296,7 +296,7 @@
 
                 <?= form_open_multipart(site_url($module['route'] . '/add_item'), array(
                     'autocomplete' => 'off',
-                    'item_id'    => 'ajax-form-create-document',
+                    'id'    => 'ajax-form-create-document',
                     'class' => 'form form-validate ui-front',
                     'role'  => 'form'
                 )); ?>
@@ -402,7 +402,9 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" id="modal-add-item-submit" onClick="setLastBalance()" class="btn btn-primary btn-create ink-reaction">
+                    <button type="submit" id="modal-add-item-submit" onClick="setLastBalance(event)" class="btn btn-primary btn-create ink-reaction">
+                    
+
                     <!-- <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction"> -->
                         Add Item
                     </button>
@@ -525,7 +527,103 @@
 
     };
 
-    function setLastBalance() {
+    function setLastBalance(event) {
+        event.preventDefault(); // Prevent form submission
+
+        let isValid = true;
+        let errors = [];
+
+        // Clear previous error messages
+        document.querySelectorAll(".error-message").forEach(el => el.remove());
+        document.querySelectorAll(".form-group").forEach(el => el.classList.remove("has-error"));
+
+        // Get form fields
+        let description = document.getElementById("description");
+        let amount = document.getElementById("amount");
+        let attachment = document.getElementById("attachment");
+
+        // Validate Expense Name
+        if (description.value.trim() === "") {
+            isValid = false;
+            showError(description, "Expense Name is required.");
+        }
+
+        // Validate Amount
+        if (amount.value.trim() === "" || isNaN(amount.value) || parseFloat(amount.value) <= 0) {
+            isValid = false;
+            showError(amount, "Amount must be greater than 0.");
+        }
+
+        // Validate Attachment
+        if (attachment.files.length === 0) {
+            isValid = false;
+            showError(attachment, "Attachment is required.");
+        } else {
+            // Validate file size (max 1MB)
+            let fileSize = attachment.files[0].size / 1024 / 1024; // Convert to MB
+            if (fileSize > 1) {
+                isValid = false;
+                showError(attachment, "Attachment file size must be less than 1MB.");
+            }
+        }
+
+        // If validation fails, stop form submission
+        if (!isValid) {
+            console.error("Form validation failed:", errors);
+            return false;
+        }
+
+        console.log("Form is valid. Proceeding with submission.");
+
+        console.log("Mulai menghitung saldo");
+        var saldo_balance_modal = $('#saldo_balance_modal').val();
+        var paid_amount_modal = $('#paid_amount_modal').val();
+        var used_balance_modal = $('#used_balance_modal').val();
+        var amount_awal_item = $('#amount_awal_item').val();
+        var used_balance = $('#used_balance').val();
+        var usedMerge = 0;
+        var lastStatus = $('#last_status').val();
+
+        if(lastStatus == 'REJECT'){
+            usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+        } else {
+            if(amount_awal_item != 0){
+                    usedMerge = (parseFloat(used_balance)-parseFloat(amount_awal_item))+parseFloat(paid_amount_modal);
+            } else {
+                usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+            }
+        }
+
+
+        $('#saldo_balance').val(saldo_balance_modal).trigger('change');
+        $('#used_balance').val(usedMerge).trigger('change');
+
+        console.log(saldo_balance_modal);
+        console.log(paid_amount_modal);
+        console.log(used_balance_modal);
+        console.log(used_balance);
+        console.log(usedMerge);
+
+        console.log("Form is valid. Proceeding with submission.");
+        
+        // If valid, submit the form
+        document.getElementById("ajax-form-create-document").submit();
+    }
+
+    function showError(inputElement, message) {
+        let formGroup = inputElement.closest(".form-group");
+        
+        if (formGroup) {
+            formGroup.classList.add("has-error"); // Highlight the field
+            let errorMessage = document.createElement("span");
+            errorMessage.className = "text-danger error-message";
+            errorMessage.innerText = message;
+            formGroup.appendChild(errorMessage);
+        }
+    }
+
+    function setLastBalance2() {
+        
         console.log("Mulai menghitung saldo");
         var saldo_balance_modal = $('#saldo_balance_modal').val();
         var paid_amount_modal = $('#paid_amount_modal').val();
@@ -537,20 +635,15 @@
 
 
 
-   if(lastStatus == 'REJECT'){
+        if(lastStatus == 'REJECT'){
             usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
-   } else {
-    if(amount_awal_item != 0){
-            usedMerge = (parseFloat(used_balance)-parseFloat(amount_awal_item))+parseFloat(paid_amount_modal);
         } else {
-            usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+            if(amount_awal_item != 0){
+                usedMerge = (parseFloat(used_balance)-parseFloat(amount_awal_item))+parseFloat(paid_amount_modal);
+            } else {
+                usedMerge = parseFloat(used_balance)+parseFloat(paid_amount_modal);
+            }
         }
-   }
-
-
-        
-
-
         // localStorage.setItem("saldoModal", saldo_balance_modal); 
         // localStorage.setItem("usedBalanceModal", usedMerge); 
 
@@ -570,26 +663,32 @@
 
     
 
-    function setPlafondBalance() {
+    async function setPlafondBalance() {
+
+        $("#amount").val("0");
+        $("#paid_amount_modal").val("0");
+        $("#notes_modal").val("");
+
+
+        
+        console.log("MulaiBuka1");
+        await getExpenseName();
+
         var saldo_balance_modal = $('#saldo_balance').val();
         var plafond_balance_modal = $('#plafond_balance').val();
         var used_balance_modal = $('#used_balance').val();
-        var account_code_item = $('#description option:selected').data('account-code-item');  
 
         console.log("MulaiBuka");
-        console.log(account_code_item);
 
         $('#saldo_balance_modal').val(saldo_balance_modal).trigger('change');
         $('#plafond_balance_modal').val(plafond_balance_modal).trigger('change');
         $('#used_balance_modal').val(used_balance_modal).trigger('change');
-        $('#account_code_item').val(account_code_item).trigger('change');
-        console.log("MulaiBuka1");
-        getExpenseName();
+
         
 
     };
 
-    function getExpenseName (expenseName) {
+    async function getExpenseName(expenseName) {
 
         console.log("MasukGetEXPENSE)");
         // var account_code = $('#type_reimbursement option:selected').data('account-code');  
@@ -630,6 +729,7 @@
                 console.log('Mulaidisini');
                     console.log(data);
                     objExpense = $.parseJSON(data);
+                    localStorage.removeItem("expense_name_item");
                     $('#description').empty();
                     if(Object.keys(objExpense).length == 1){
                         objExpense.forEach(function (item) {
@@ -640,6 +740,13 @@
                             </option>`;
                         $('#description').append(option); // Append each option
                     });
+
+                    var account_code_item = $('#description option:selected').data('account-code-item');  
+                    $('#account_code_item').val(account_code_item).trigger('change');
+
+                    console.log('DariPertama');
+                    console.log(account_code_item);
+
                     } else {
                 
                     const emptyOption = `<option data-account-code-item="" 
@@ -656,6 +763,8 @@
                                 ${item.expense_name} - ${item.account_code}
                             </option>`;
                         $('#description').append(option); // Append each option
+                        var account_code_item = $('#description option:selected').data('account-code-item');  
+                        $('#account_code_item').val(account_code_item).trigger('change');
                     });
                     
 
@@ -1088,7 +1197,6 @@ function submitForm(url, button) {
         });
 
 
-       
 
         $('#employee_number').change(function () {
             var sourceUrl = $('#type_reimbursement').data('source-get-employee-benefit-list');

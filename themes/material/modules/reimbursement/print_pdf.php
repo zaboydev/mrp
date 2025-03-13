@@ -52,6 +52,7 @@
     <th> Plafond Type </th>
     <td>: <?= print_string($entity['benefit_name_type']); ?></td>
   </tr>
+  
 </table>
 
 <div class="clear"></div>
@@ -76,7 +77,7 @@
         <?php $total_real = array();?>
         <?php foreach ($entity['items'] as $item) :?>
         <tr>
-            <td><?=$n++;?></td>
+            <td ><?=$n++;?></td>
             <td><?=print_string($item['description'] == '' ? '-' : $item['description']);?></td>
             <td style="text-align:right;"><?=print_string($item['notes'] == '' ? '-' : $item['notes']);?></td>
             <td style="text-align:right;"><?=print_string($item['account_code'] == '' ? '-' : $item['account_code']);?></td>
@@ -142,7 +143,7 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <?php if ($entity['occupation'] == "HEAD OF SCHOOL" || $entity['occupation'] == "VP FINANCE") : ?>
         <br />CFO/COO<br />
         <?php else:?>
-          <br />HOST / VP Finance<br />
+          <br />HOS / VP Finance<br />
         <?php endif; ?>
         <?php if ($entity['signers']['validated by']['sign']) : ?>
           <?=print_date($entity['signers']['validated by']['date'],'d M Y');?>

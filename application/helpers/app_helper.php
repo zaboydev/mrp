@@ -3577,6 +3577,20 @@ if (!function_exists('currency_for_vendor_list')) {
       return $query->unbuffered_row('array');
     }
   }
+
+  if ( ! function_exists('getListEmployeeByDepartment')) {
+    function getListEmployeeByDepartment($id)
+    {
+      $CI =& get_instance();
+  
+      $CI->db->select('*');
+      $CI->db->from('tb_master_employees');  
+      $CI->db->where('department_id', $id);  
+      $query = $CI->db->get();
+  
+      return array_column($query->result_array(), 'employee_number');
+    }
+  }
   
 
   if ( ! function_exists('getDefaultExpenseName')) {
