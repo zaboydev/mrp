@@ -122,7 +122,7 @@
                         </div>
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="employee_benefit_id" id="employee_benefit_id" class="form-control select2" style="width: 100%" data-placeholder="Select Benefit" data-source="<?= site_url($module['route'] . '/get_history_benefit'); ?>" required>
+                            <select name="employee_benefit_id" id="employee_benefit_id" class="form-control select2" style="width: 100%" data-placeholder="Select Benefit" data-source="<?= site_url($module['route'] . '/get_history_benefit'); ?>" <?= empty($entity['id']) ? '' : 'disabled'; ?> required>
                                 <option value="">Select Benefit</option>
                                 <?php foreach(getBenefitsByEmployeeNumber($entity['employee_number'], $entity['gender']) as $benefit):?>
                                 <option data-amount="<?=$benefit['amount'];?>" data-id="<?=$benefit['benefit_id'];?>" data-employee-number="<?=$entity['employee_number'];?>" data-benefit-type="<?=$benefit['name_type'];?>" value="<?=$benefit['benefit_id'];?>" <?= ($benefit['benefit_id']==$entity['employee_benefit_id'])? 'selected':'';?>><?=$benefit['employee_benefit'];?></option>
