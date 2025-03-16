@@ -929,7 +929,7 @@ class Reimbursement extends MY_Controller
         
             if (isset($_SESSION['reimbursement']['items'][$item_index])) {
                
-                $this->model->delete_reimbursement_item($_SESSION['reimbursement']['items'][$item_index]['id']);
+                // $this->model->delete_reimbursement_item($_SESSION['reimbursement']['items'][$item_index]['id']);
                 
 
                 $_SESSION['reimbursement']['saldo_balance'] =  $_SESSION['reimbursement']['saldo_balance'] + $_SESSION['reimbursement']['items'][$item_index]['paid_amount'];
