@@ -1338,7 +1338,7 @@ class Reimbursement_Model extends MY_Model
 
 
             } else {
-                if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CHIEF OF FINANCE" || $findDataPosition['position'] == "CHIEF OPERATION OFFICER"){
+                if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CFO" || $findDataPosition['position'] == "COO/CEO"){
                     if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
                         // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
             
@@ -1496,7 +1496,7 @@ class Reimbursement_Model extends MY_Model
             $cost_center_name = $cost_center['cost_center_name'];
             $department_name = $cost_center['department_name'];
             $findDataPosition = findPositionByEmployeeNumber($spd['employee_number']);
-            if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CHIEF OF FINANCE" || $findDataPosition['position'] == "CHIEF OPERATION OFFICER"){
+            if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CFO" || $findDataPosition['position'] == "COO/CEO"){
                 // if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array($department_name,config_item('head_department')) && $spd['head_dept']==config_item('auth_username')){
             // if($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
                 if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
