@@ -143,7 +143,11 @@ Rejected by : <?=$entity['signers']['rejected by']['person_name'];?> , at : <?=p
         <?php if ($entity['occupation'] == "HEAD OF SCHOOL" || $entity['occupation'] == "VP FINANCE") : ?>
         <br />CFO/COO<br />
         <?php else:?>
-          <br />HOS / VP Finance<br />
+          <?php if ($entity['warehouse'] == "WISNU") : ?>
+          <br />HOS<br />
+          <?php else:?>
+          <br />VP Finance<br />
+          <?php endif; ?>
         <?php endif; ?>
         <?php if ($entity['signers']['validated by']['sign']) : ?>
           <?=print_date($entity['signers']['validated by']['date'],'d M Y');?>
