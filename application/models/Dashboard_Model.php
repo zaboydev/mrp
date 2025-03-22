@@ -872,8 +872,12 @@ class Dashboard_Model extends MY_Model
       $status = 'WAITING APPROVAL BY VP';
     }
 
-    if(in_array(config_item('auth_role'),['CHIEF OF FINANCE','CHIEF OPERATION OFFICER'])){
-      $status = 'WAITING APPROVAL BY COO OR CFO';
+    if(in_array(config_item('auth_role'),['CHIEF OF FINANCE'])){
+      $status = 'WAITING APPROVAL BY CFO';
+    }
+
+    if(in_array(config_item('auth_role'),['CHIEF OPERATION OFFICER'])){
+      $status = 'WAITING APPROVAL BY COO';
     }
 
     $this->db->from('tb_reimbursements');

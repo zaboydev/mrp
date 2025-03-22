@@ -95,7 +95,7 @@ class Reimbursement extends MY_Controller
                 if($row['status']=='approved' || $row['status']=='closed'){
                     $col[] = '';
                 }else{
-                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS','WAITING APPROVAL BY VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
+                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS','WAITING APPROVAL BY VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO','WAITING APPROVAL BY CFO'])) {
                         $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                     }else{
                         $col[] = '';
@@ -209,7 +209,7 @@ class Reimbursement extends MY_Controller
                 if($row['status']=='approved' || $row['status']=='closed'){
                     $col[] = '';
                 }else{
-                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS','WAITING APPROVAL BY VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO OR CFO'])) {
+                    if (is_granted($this->module, 'approval') === TRUE && in_array($row['status'],['WAITING APPROVAL BY HOS','WAITING APPROVAL BY VP','WAITING APPROVAL BY HR MANAGER','WAITING APPROVAL BY COO','WAITING APPROVAL BY CFO'])) {
                         $col[] = '<input type="text" id="note_' . $row['id'] . '" autocomplete="off"/>';
                     }else{
                         $col[] = '';
