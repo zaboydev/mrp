@@ -3293,6 +3293,47 @@ if (!function_exists('currency_for_vendor_list')) {
     }
   }
 
+  if ( ! function_exists('findAnnualCostCenterIdByCostCenter')) {
+    function findAnnualCostCenterIdByCostCenter($cost_center_id)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_annual_cost_centers.id AS annual_cost_center_id', 'year_number'));
+      $connection->from('tb_annual_cost_centers');
+      $connection->where('cost_center_id', $cost_center_id);
+      $connection->order_by('id', 'DESC'); // Ambil data dengan ID terbesar (terbaru)
+      $connection->limit(1); // Ambil hanya 1 record terbaru
+  
+      $query = $connection->get();
+      return $query->unbuffered_row('array'); 
+    }
+  }
+
+  if ( ! function_exists('findCostCenterByDepartmentId')) {
+    function findCostCenterByDepartmentId($department_id)
+    {
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $connection->select(array('tb_cost_centers.id AS cost_center_id','cost_center_code','cost_center_name', 'group_id'));
+      $connection->from('tb_cost_centers');
+      $connection->where('tb_cost_centers.department_id', $department_id);
+
+      $query    = $connection->get();
+      $cost_center = $query->unbuffered_row('array');
+
+      // $return = '/INV/'. $category['code'] .'/'. find_budget_setting('Active Year');
+
+      //edit
+      
+
+      return $cost_center;
+    }
+  }
+
   if ( ! function_exists('occupation_list')) {
     function occupation_list()
     {
@@ -3483,6 +3524,7 @@ if (!function_exists('currency_for_vendor_list')) {
     function available_employee($department_id=NULL, $auth_role= NULL, $auth_employee= NULL)
     {
       $CI =& get_instance();
+      // Load both databases
   
       // $CI->db->select('*');
       // $CI->db->from('tb_master_employees');  
@@ -3492,44 +3534,125 @@ if (!function_exists('currency_for_vendor_list')) {
       // Temporary
       
       
-        if ($auth_role == 'ADMIN JKT'){
-          $CI->db->select('*');
-          $CI->db->from('tb_master_employees');  
-          $CI->db->where('employee_number', 'MG-00803002');
-          $CI->db->order_by('name', 'ASC');
+        // if ($auth_role == 'ADMIN JKT'){
+        //   $CI->db->select('*');
+        //   $CI->db->from('tb_master_employees');  
+        //   $CI->db->where('employee_number', 'MG-00803002');
+        //   $CI->db->order_by('name', 'ASC');
   
-          $query = $CI->db->get();
-          return $query->result_array();
+        //   $query = $CI->db->get();
+        //   $employees = $query->result_array();
+
+        //   // Tambahkan department_name dengan memanggil getDepartmentById
+        //   foreach ($employees as &$employee) {
+        //       $department = getDepartmentById($employee['department_id']);
+        //       $employee['department_name'] = $department ? $department['department_name'] : null;
+        //   }
+
+        //   return $employees;
           
-        } else if ($auth_role == 'ADMIN LUAR JKT'){
-          $CI->db->select('*');
-          $CI->db->from('tb_master_employees');  
-          $CI->db->where_in('employee_number', ['HS-01908247','MG-00803001', $dataEmployee['employee_number']]);
+        // } else if ($auth_role == 'ADMIN LUAR JKT'){
+        //   $CI->db->select('*');
+        //   $CI->db->from('tb_master_employees');  
+        //   $CI->db->where_in('employee_number', ['HS-01908247','MG-00803001', $dataEmployee['employee_number']]);
 
-          $CI->db->order_by('name', 'ASC');
+        //   $CI->db->order_by('name', 'ASC');
   
-          $query = $CI->db->get();
-          return $query->result_array();
+        //   $query = $CI->db->get();
+        //   $employees = $query->result_array();
 
-        } else if($auth_role == 'ADMIN DEPARTMENT'){
+        //   // Tambahkan department_name dengan memanggil getDepartmentById
+        //   foreach ($employees as &$employee) {
+        //       $department = getDepartmentById($employee['department_id']);
+        //       $employee['department_name'] = $department ? $department['department_name'] : null;
+        //   }
+
+        //   return $employees;
+
+        // } else 
+        
+        if($auth_role != 'REIMBURSEMENT'){
           $CI->db->select('*');
           $CI->db->from('tb_master_employees');  
           $CI->db->where('department_id', $department_id);
           $CI->db->order_by('name', 'ASC');
           $query = $CI->db->get();
-          return $query->result_array();
+          $employees = $query->result_array();
+
+          // Tambahkan department_name dengan memanggil getDepartmentById
+          // foreach ($employees as &$employee) {
+          //     $department = getDepartmentById($employee['department_id']);
+          //     $employee['department_name'] = $department ? $department['department_name'] : null;
+          // }
+
+          return $employees;
           
 
-        } else {
+        } 
+        else {
           $CI->db->select('*');
-          $CI->db->from('tb_master_employees');  
+          $CI->db->from('tb_master_employees');
           $CI->db->order_by('name', 'ASC');
   
           $query = $CI->db->get();
-          return $query->result_array();
+          $employees = $query->result_array();
+
+
+          // Tambahkan department_name dengan memanggil getDepartmentById
+          foreach ($employees as &$employee) {
+              $department = getDepartmentById($employee['department_id']);
+              $employee['department_name'] = $department ? $department['department_name'] : null;
+
+              $cost_center = findCostCenterByDepartmentId($employee['department_id']);
+              $employee['cost_center_id'] = $cost_center ? $cost_center['cost_center_id'] : null;
+              $employee['cost_center_code'] = $cost_center ? $cost_center['cost_center_code'] : null;
+              $employee['cost_center_name'] = $cost_center ? $cost_center['cost_center_name'] : null;
+              $employee['group_id'] = $cost_center ? $cost_center['group_id'] : null;
+
+              // Ambil annual cost center berdasarkan cost_center_id terbaru
+              if ($cost_center) {
+                $annual_cost_center = findAnnualCostCenterIdByCostCenter($cost_center['cost_center_id']);
+                $employee['annual_cost_center_id'] = $annual_cost_center ? $annual_cost_center['annual_cost_center_id'] : null;
+              } else {
+                $employee['annual_cost_center_id'] = null;
+              }
+
+
+          }
+
+          return $employees;
         }
       
       
+    }
+  }
+
+
+  if ( ! function_exists('findAnnualCostCenterByEmployeeUsername')) {
+    function findAnnualCostCenterByEmployeeUsername($username)
+    {
+
+      $CI =& get_instance();
+
+      $connection = $CI->load->database('budgetcontrol', TRUE);
+
+      $year = find_budget_setting('Active Year');
+
+      $this->connection->select(array('cost_center_name','tb_annual_cost_centers.id', 'tb_annual_cost_centers.year_number'));
+      $this->connection->from('tb_users_mrp_in_annual_cost_centers');
+      $this->connection->join('tb_annual_cost_centers','tb_annual_cost_centers.id=tb_users_mrp_in_annual_cost_centers.annual_cost_center_id');
+      $this->connection->join('tb_cost_centers','tb_cost_centers.id=tb_annual_cost_centers.cost_center_id');
+      $this->connection->where('tb_users_mrp_in_annual_cost_centers.username', $username);
+      $this->connection->where('tb_annual_cost_centers.year_number', $year);
+      $this->connection->order_by('tb_annual_cost_centers.year_number', 'ASC');
+      $this->connection->limit(1);
+
+
+      $query  = $this->connection->get();
+      $result = $query->result_array();
+      
+  
+      return $result;
     }
   }
 

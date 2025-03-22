@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['master_transportation']['visible']     = TRUE;
-$config['module']['master_transportation']['main_warehouse']   = TRUE;
+$config['module']['master_transportation']['main_warehouse']   = FALSE;
 $config['module']['master_transportation']['parent']      = 'master_data_hrd';
 $config['module']['master_transportation']['label']       = 'Transportation';
 $config['module']['master_transportation']['name']        = 'transportation';

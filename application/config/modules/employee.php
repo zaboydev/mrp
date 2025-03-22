@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['employee']['visible']     = TRUE;
-$config['module']['employee']['main_warehouse']   = TRUE;
+$config['module']['employee']['main_warehouse']   = FALSE;
 $config['module']['employee']['parent']      = 'master_data_hrd';
 $config['module']['employee']['label']       = 'Employee';
 $config['module']['employee']['name']        = 'employee';

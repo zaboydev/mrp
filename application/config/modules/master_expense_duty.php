@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['master_expense_duty']['visible']     = TRUE;
-$config['module']['master_expense_duty']['main_warehouse']   = TRUE;
+$config['module']['master_expense_duty']['main_warehouse']   = FALSE;
 $config['module']['master_expense_duty']['parent']      = 'master_data_hrd';
 $config['module']['master_expense_duty']['label']       = 'Expense Duty';
 $config['module']['master_expense_duty']['name']        = 'expense_duty';

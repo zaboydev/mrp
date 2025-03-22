@@ -44,6 +44,21 @@
                             <label for="gender">gender</label>
                         </div>
 
+                        <div class="form-group hide">
+                            <input type="text" name="annual_cost_center_ida" id="annual_cost_center_ida" class="form-control" value="<?= $_SESSION['reimbursement']['annual_cost_center_id']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>"readonly>
+                            <label for="annual_cost_center_ida">Annual Cost</label>
+                        </div>
+
+                        <div class="form-group hide">
+                            <input type="text" name="annual_cost_center_id" id="annual_cost_center_id" class="form-control" value="<?= $_SESSION['reimbursement']['annual_cost_center_id']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_annual_cost_center_id'); ?>"readonly>
+                            <label for="annual_cost_center_id">Annual Cost</label>
+                        </div>
+
+                        <div class="form-group hide">
+                            <input type="text" name="group_id" id="group_id" class="form-control" value="<?= $_SESSION['reimbursement']['group_id']; ?>" readonly>
+                            <label for="group_id">Group ID Cost</label>
+                        </div>
+
                         <div class="form-group">
                             <input type="text" name="date_created" id="date_created" data-date-format="dd-mm-yyyy" class="form-control" value="<?= date('Y-m-d') ?>" data-input-type="autoset" readonly>
                             <label for="date_created">Date Created</label>
@@ -75,17 +90,17 @@
 
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN DEPARTMENT' ||config_item('auth_role') == 'ADMIN LUAR JKT' || config_item('auth_role') == 'ADMIN JKT' || config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'HR STAFF' || config_item('auth_role') == 'HR MANAGER') ? '' : 'disabled'; ?>  required>
+                            <select name="employee_number" id="employee_number" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_employee_number'); ?>" data-source-get-balance="<?= site_url($module['route'] . '/get_employee_saldo'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') != 'REIMBURSEMENT' || config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN' || config_item('auth_role') == 'HR STAFF' || config_item('auth_role') == 'HR MANAGER') ? '' : 'disabled'; ?>  required>
                                 <option></option>
                                 <?php foreach(available_employee($_SESSION['reimbursement']['department_id'], config_item('auth_role'), config_item('auth_user_id')) as $user):?>
-                                <option data-gender="<?=$user['gender'];?>" data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['reimbursement']['employee_number']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
+                                <option data-cost-groupid="<?=$user['group_id'];?>" data-cost-annualcost="<?=$user['annual_cost_center_id'];?>" data-cost-centername="<?=$user['cost_center_name'];?>"  data-cost-centerid="<?=$user['cost_center_id'];?>" data-cost-center-code="<?=$user['cost_center_code'];?>" data-department-id="<?=$user['department_id'];?>" data-department-name="<?=$user['department_name'];?>" data-gender="<?=$user['gender'];?>" data-position="<?=$user['position'];?>" value="<?=$user['employee_number'];?>" <?= ($user['employee_number'] == $_SESSION['reimbursement']['employee_number']) ? 'selected' : ''; ?>><?=$user['name'];?></option>
                                 <?php endforeach;?>
                             </select>
                             <label for="employee_number">Name</label>
                         </div>
 
                         <div class="form-group" style="padding-top: 25px;">
-                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') == 'ADMIN LUAR JKT' || config_item('auth_role') == 'ADMIN JKT' || config_item('auth_role') == 'ADMIN DEPARTMENT' || config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?> required>
+                            <select name="occupation" id="occupation" class="form-control select2" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_occupation'); ?>" <?= !empty($_SESSION['reimbursement']['items']) ? 'disabled' : ''; ?> <?= (config_item('auth_role') != 'REIMBURSEMENT' || config_item('auth_role') == 'ADMIN' || config_item('auth_role') == 'SUPER ADMIN') ? '' : 'disabled'; ?> required>
                                 <option></option>
                                 <?php foreach(occupation_list() as $occupation):?>
                                 <option value="<?=$occupation['position'];?>" <?= ($occupation['position'] == $_SESSION['reimbursement']['occupation']) ? 'selected' : ''; ?>><?=$occupation['position'];?></option>
@@ -114,7 +129,7 @@
                         <div class="form-group">
                             <input type="text" name="department_name" id="department_name" class="form-control" value="<?= $_SESSION['reimbursement']['department_name']; ?>" readonly>
                             <label for="department_name">Department</label>
-                        </div>  
+                        </div>
                         <div class="form-group">
                             <input type="text" name="plafond_balance" id="plafond_balance" class="form-control number" value="<?= $_SESSION['reimbursement']['plafond_balance']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_plafond_saldo_balance'); ?>" readonly>
                             <label for="plafond_balance">Plafond Balance</label>
@@ -153,6 +168,11 @@
                         </div>  
 
                         <div class="form-group hide">
+                            <input type="text" name="department_id" id="department_id" class="form-control" value="<?= $_SESSION['reimbursement']['department_id']; ?>"  readonly>
+                            <label for="department_id">Department ID</label>
+                        </div> 
+
+                        <div class="form-group hide">
                             <input type="text" name="id_benefit" id="id_benefit" class="form-control" value="<?= $_SESSION['reimbursement']['id_benefit']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_id_benefit'); ?>" readonly>
                             <label for="id_benefit">ID Benefit</label>
                         </div>  
@@ -161,6 +181,21 @@
                             <input type="text" name="benefit_code" id="benefit_code" class="form-control" value="<?= $_SESSION['reimbursement']['benefit_code']; ?>" data-input-type="autoset" data-source="<?= site_url($module['route'] . '/set_benefitcode'); ?>" readonly>
                             <label for="benefit_code">Benefit CODE</label>
                         </div>  
+
+                        <div class="form-group hide">
+                            <input type="text" name="cost_center_code" id="cost_center_code" class="form-control" value="<?= $_SESSION['reimbursement']['cost_center_code']; ?>" readonly>
+                            <label for="cost_center_code">Cost Code</label>
+                        </div> 
+
+                        <div class="form-group hide">
+                            <input type="text" name="cost_center_id" id="cost_center_id" class="form-control" value="<?= $_SESSION['reimbursement']['cost_center_id']; ?>" readonly>
+                            <label for="cost_center_id">Cost ID</label>
+                        </div>
+
+                        <div class="form-group hide">
+                            <input type="text" name="cost_center_name" id="cost_center_name" class="form-control" value="<?= $_SESSION['reimbursement']['cost_center_name']; ?>" readonly>
+                            <label for="cost_center_name">Cost Name</label>
+                        </div>
 
                         <div class="form-group hide">
                             <input type="text" name="cost_center_group_id" id="cost_center_group_id" class="form-control" value="<?= $_SESSION['reimbursement']['cost_center_group_id']; ?>" data-input-type="autoset" readonly>
@@ -404,8 +439,6 @@
                     <button type="button" class="btn btn-flat btn-default" data-dismiss="modal">Close</button>
                     <button type="submit" id="modal-add-item-submit" onClick="setLastBalance(event)" class="btn btn-primary btn-create ink-reaction">
                     
-
-                    <!-- <button type="submit" id="modal-add-item-submit" class="btn btn-primary btn-create ink-reaction"> -->
                         Add Item
                     </button>
 
@@ -533,6 +566,10 @@
         let isValid = true;
         let errors = [];
 
+        let submitButton = document.getElementById("modal-add-item-submit");
+        submitButton.disabled = true;
+
+
         // Clear previous error messages
         document.querySelectorAll(".error-message").forEach(el => el.remove());
         document.querySelectorAll(".form-group").forEach(el => el.classList.remove("has-error"));
@@ -570,6 +607,7 @@
         // If validation fails, stop form submission
         if (!isValid) {
             console.error("Form validation failed:", errors);
+            submitButton.disabled = false;
             return false;
         }
 
@@ -606,8 +644,11 @@
 
         console.log("Form is valid. Proceeding with submission.");
         
+        
         // If valid, submit the form
         document.getElementById("ajax-form-create-document").submit();
+        
+        
     }
 
     function showError(inputElement, message) {
@@ -1141,7 +1182,7 @@ function submitForm(url, button) {
             }, 5000);
         }
 
-        button.attr('disabled', false); // Re-enable the button after completion.
+        button.attr('disabled', true); // Re-enable the button after completion.
     }).fail(function () {
         alert('An error occurred while submitting the form.');
         button.attr('disabled', false); // Re-enable the button on error.
@@ -1204,13 +1245,39 @@ function submitForm(url, button) {
             var position = $('#employee_number option:selected').data('position');  
 
             // var gender = $('#gender').val();      
-            var gender = $('#employee_number option:selected').data('gender');  
+            var gender = $('#employee_number option:selected').data('gender');
+            // var department_name = $('#employee_number option:selected').data('department-name');
+            // var department_id = $('#employee_number option:selected').data('department-id'); 
+            // var cost_code = $('#employee_number option:selected').data('cost-center-code');  
+            // var cost_id = $('#employee_number option:selected').data('cost-centerid');  
+            // var cost_name = $('#employee_number option:selected').data('cost-centername');  
+            // var cost_annual = $('#employee_number option:selected').data('cost-annualcost');  
+            // var group_id = $('#employee_number option:selected').data('cost-groupid');  
+
+
+
+
+
+
+
 
                  
             console.log("initemplo");   
             console.log(employeeNumber);   
             console.log(gender);   
             $('#occupation').val(position).trigger('change');  
+            // $('#department_name').val(department_name).trigger('change');
+            // $('#cost_center_code').val(cost_code).trigger('change');
+            // $('#cost_center_id').val(cost_id).trigger('change');
+            // $('#cost_center_name').val(cost_name).trigger('change');
+            // $('#annual_cost_center_id').val(cost_annual).trigger('change');
+            // $('#group_id').val(group_id).trigger('change');
+            // $('#cost_center_group_id').val(group_id).trigger('change');
+
+
+
+
+
 
 
             $.ajax({

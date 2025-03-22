@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['module']['master_benefit_category']['visible']     = TRUE;
-$config['module']['master_benefit_category']['main_warehouse']   = TRUE;
+$config['module']['master_benefit_category']['main_warehouse']   = FALSE;
 $config['module']['master_benefit_category']['parent']      = 'master_data_hrd';
 $config['module']['master_benefit_category']['label']       = 'Benefit Category';
 $config['module']['master_benefit_category']['name']        = 'benefit_category';

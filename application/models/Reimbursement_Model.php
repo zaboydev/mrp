@@ -80,11 +80,20 @@ class Reimbursement_Model extends MY_Model
                 $this->db->where('tb_reimbursements.status', $search_status);         
             }            
         }else{    
-            // // if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
-            //     if (config_item('auth_role')=='VP FINANCE' || config_item('auth_role')=='HEAD OF SCHOOL' ){                
+            // if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
+            // if (config_item('auth_role')=='VP FINANCE' ){                
 
-            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HOS OR VP');
+            // $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL VP');
             //     // $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
+            // }
+            // elseif (config_item('auth_role')=='HEAD OF SCHOOL' ){                
+            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HOS');
+            // }
+            // elseif (config_item('auth_role')=='CHIEF OF FINANCE' ){                
+            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY CFO');
+            // }
+            // elseif (config_item('auth_role')=='CHIEF OPERATION OFFICER' ){                
+            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY COO');
             // }
             // elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
             //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HR MANAGER');
@@ -115,30 +124,102 @@ class Reimbursement_Model extends MY_Model
         }
     }
 
+    private function searchIndexApproval()
+    {
+        if (!empty($_POST['columns'][1]['search']['value'])){
+            $search_required_date = $_POST['columns'][1]['search']['value'];
+            $range_date  = explode(' ', $search_required_date);
+
+            $this->db->where('tb_reimbursements.date >= ', $range_date[0]);
+            $this->db->where('tb_reimbursements.date <= ', $range_date[1]);
+        }
+
+        if (!empty($_POST['columns'][2]['search']['value'])){
+            $search_cost = $_POST['columns'][2]['search']['value'];
+            $this->db->where('tb_reimbursements.annual_cost_center_id', $search_cost);       
+        }
+
+
+        
+
+        if (!empty($_POST['columns'][3]['search']['value'])){
+            $search_status = $_POST['columns'][3]['search']['value'];
+
+            if($search_status!='all'){
+                $this->db->where('tb_reimbursements.status', $search_status);         
+            }            
+        }else{    
+            // if (config_item('as_head_department')=='yes' && !in_array(config_item('auth_username'),config_item('hr_manager'))){
+            if (config_item('auth_role')=='VP FINANCE' ){                
+
+            $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL VP');
+                // $this->db->where('tb_reimbursements.head_dept ', config_item('auth_username'));
+            }
+            elseif (config_item('auth_role')=='HEAD OF SCHOOL' ){                
+                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HOS');
+            }
+            elseif (config_item('auth_role')=='CHIEF OF FINANCE' ){                
+                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY CFO');
+            }
+            elseif (config_item('auth_role')=='CHIEF OPERATION OFFICER' ){                
+                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY COO');
+            }
+            elseif (in_array(config_item('auth_username'),config_item('hr_manager'))){                
+                $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY HR MANAGER');
+            }
+            // elseif (config_item('auth_role')=='FINANCE MANAGER'){                
+            //     $this->db->where('tb_reimbursements.status ', 'WAITING APPROVAL BY FINANCE MANAGER');
+            // }
+        }
+
+       
+
+        $i = 0;
+
+        foreach ($this->getSearchableColumns() as $item){
+            if ($_POST['search']['value']){
+                if ($i === 0){
+                $this->db->group_start();
+                $this->db->like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+                } else {
+                $this->db->or_like('UPPER('.$item.')', strtoupper($_POST['search']['value']));
+                }
+
+                if (count($this->getSearchableColumns()) - 1 == $i)
+                $this->db->group_end();
+            }
+
+            $i++;
+        }
+    }
+
     function getIndex($return = 'array')
     {
 
-        if(config_item('auth_role') == 'ADMIN LUAR JKT'){
-            $selected_person            = getEmployeeById(config_item('auth_user_id'));
-            $person_number              = $selected_person['employee_number'];
-            $selected = array(
-                'tb_reimbursements.*',
-            );
-            $this->db->select($selected);
-            $this->db->where_in('tb_reimbursements.employee_number', ['HS-01908247','MG-00803001', $person_number]);
-            $this->db->from('tb_reimbursements');
+        // if(config_item('auth_role') == 'ADMIN LUAR JKT'){
+        //     $selected_person            = getEmployeeById(config_item('auth_user_id'));
+        //     $person_number              = $selected_person['employee_number'];
+        //     $selected = array(
+        //         'tb_reimbursements.*',
+        //     );
+        //     $this->db->select($selected);
+        //     $this->db->where_in('tb_reimbursements.employee_number', ['HS-01908247','MG-00803001', $person_number]);
+        //     $this->db->from('tb_reimbursements');
 
-        } else if(config_item('auth_role') == 'ADMIN JKT') {
-            $selected_person            = getEmployeeById(config_item('auth_user_id'));
-            $person_number              = $selected_person['employee_number'];
-            $selected = array(
-                'tb_reimbursements.*',
-            );
-            $this->db->select($selected);
-            $this->db->where_in('tb_reimbursements.employee_number', ['MG-00803002', $person_number]);
-            $this->db->from('tb_reimbursements');
+        // } else if(config_item('auth_role') == 'ADMIN JKT') {
+        //     $selected_person            = getEmployeeById(config_item('auth_user_id'));
+        //     $person_number              = $selected_person['employee_number'];
+        //     $selected = array(
+        //         'tb_reimbursements.*',
+        //     );
+        //     $this->db->select($selected);
+        //     $this->db->where_in('tb_reimbursements.employee_number', ['MG-00803002', $person_number]);
+        //     $this->db->from('tb_reimbursements');
 
-        } else if(config_item('auth_role') == 'ADMIN DEPARTMENT') {
+        // } else 
+        
+        if(config_item('auth_role') == 'PIC STAFF') {
+            $annualcost = config_item('auth_annual_cost_centers');
             $selected_person            = getEmployeeById(config_item('auth_user_id'));
             $person_number              = $selected_person['employee_number'];
             $department_id              = $selected_person['department_id'];
@@ -149,7 +230,7 @@ class Reimbursement_Model extends MY_Model
                 'tb_reimbursements.*',
             );
             $this->db->select($selected);
-            $this->db->where_in('tb_reimbursements.employee_number', $employee_numbers);
+            $this->db->where_in('tb_reimbursements.annual_cost_center_id', $annualcost['id']);
             $this->db->from('tb_reimbursements');
 
         } else {
@@ -230,7 +311,7 @@ class Reimbursement_Model extends MY_Model
         }
         
 
-        $this->searchIndex();
+        $this->searchIndexApproval();
 
         $column_order = $this->getOrderableColumns();
 
@@ -1341,8 +1422,15 @@ class Reimbursement_Model extends MY_Model
                 if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "VP FINANCE" || $findDataPosition['position'] == "CFO" || $findDataPosition['position'] == "COO/CEO"){
                     if($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
                         // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
+
+                            $statusNew = '';
+                            if($findDataPosition['position'] == "HEAD OF SCHOOL" || $findDataPosition['position'] == "CFO"){
+                                $statusNew = 'WAITING APPROVAL BY COO';
+                            } else {
+                                $statusNew = 'WAITING APPROVAL BY CFO';
+                            }
             
-                            $this->db->set('status','WAITING APPROVAL BY COO OR CFO');
+                            $this->db->set('status',$statusNew);
                             $this->db->set('notes_approval', $approval_notes[$x]);
                             $this->db->set('hr_approved_by',config_item('auth_person_name'));
                             $this->db->where('id', $id);
@@ -1361,7 +1449,7 @@ class Reimbursement_Model extends MY_Model
                             $this->db->set('created_at', date('Y-m-d H:i:s'));
                             $this->db->insert('tb_signers');
                             $send_email_to = 'finance_manager';
-                        }elseif($spd['status']=='WAITING APPROVAL BY COO OR CFO' && config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
+                        }elseif($spd['status']=='WAITING APPROVAL BY CFO' && config_item('auth_role') == 'CHIEF OF FINANCE' || $spd['status']=='WAITING APPROVAL BY COO' && config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
             
                         // }elseif($spd['status']=='WAITING APPROVAL BY FINANCE MANAGER'){
                             $this->db->set('status','APPROVED');
@@ -1542,7 +1630,7 @@ class Reimbursement_Model extends MY_Model
 
                 // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),config_item('hr_manager'))){
                 // }elseif($spd['status']=='WAITING APPROVAL BY HR MANAGER'){
-                }elseif($spd['status']=='WAITING APPROVAL BY COO OR CFO' && config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
+                }elseif($spd['status']=='WAITING APPROVAL BY CFO' && config_item('auth_role') == 'CHIEF OF FINANCE' || $spd['status']=='WAITING APPROVAL BY COO' && config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
                     $this->db->set('status','REJECT');
                     $this->db->set('rejected_by',config_item('auth_person_name'));
                     $this->db->set('notes_approval', $approval_notes[$x]);

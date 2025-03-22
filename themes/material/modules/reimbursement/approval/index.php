@@ -1,4 +1,4 @@
-<?php include 'themes/material/page.php' ?>
+<?php include 'themes/material/page_reimbursement_approval.php' ?>
 
 <?php startblock('page_head_tools') ?>
 <?php $this->load->view('material/templates/datatable_tools_reimbursement') ?>
@@ -72,19 +72,22 @@
       <option value="all">
         All Status
       </option>
-      <!-- <option value="WAITING APPROVAL BY COO OR CFO" <?php if (config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>
-        Waiting Approval By COO or CFO
+      <option value="WAITING APPROVAL BY COO" <?php if (config_item('auth_role') == 'CHIEF OPERATION OFFICER'):echo 'selected'; endif;?>>
+        Waiting Approval By COO
       </option>
-      <option value="WAITING APPROVAL BY HOS OR VP" <?php if (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL'):echo 'selected'; endif;?>>
-        Waiting Approval By HOS or VP
+      <option value="WAITING APPROVAL BY CFO" <?php if (config_item('auth_role') == 'CHIEF OF FINANCE'):echo 'selected'; endif;?>>
+        Waiting Approval By CFO
+      </option>
+      <option value="WAITING APPROVAL BY VP" <?php if (config_item('auth_role') == 'VP FINANCE'):echo 'selected'; endif;?>>
+        Waiting Approval By VP
+      </option>
+      <option value="WAITING APPROVAL BY HOS" <?php if (config_item('auth_role') == 'HEAD OF SCHOOL'):echo 'selected'; endif;?>>
+        Waiting Approval By HOS
       </option>
       <option value="WAITING APPROVAL BY HR MANAGER" <?php if (in_array(config_item('auth_username'),list_username_in_head_department(11))):echo 'selected'; endif;?>>
         Waiting Approval By HR Manager
       </option>
-      <option value="WAITING APPROVAL BY FINANCE MANAGER" <?php if (config_item('auth_role')=='FINANCE MANAGER'):echo 'selected'; endif;?>>
-        Waiting Approval By Finance Manager
-      </option> -->
-      <option value="WAITING APPROVAL BY COO OR CFO">
+      <!-- <option value="WAITING APPROVAL BY COO OR CFO">
         Waiting Approval By COO or CFO
       </option>
       <option value="WAITING APPROVAL BY HOS">
@@ -98,7 +101,7 @@
       </option>
       <option value="WAITING APPROVAL BY FINANCE MANAGER">
         Waiting Approval By Finance Manager
-      </option>
+      </option> -->
       <option value="APPROVED">
         Approved
       </option>

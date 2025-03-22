@@ -43,17 +43,19 @@ class Reimbursement extends MY_Controller
                 $col = array();
                 if (is_granted($this->module, 'approval')){
                     // if($row['status']=='WAITING APPROVAL BY HEAD DEPT' && in_array($department_name,config_item('head_department')) && $row['head_dept']==config_item('auth_username') ){
-                    if(($row['status']=='WAITING APPROVAL BY HOS' || $row['status']=='WAITING APPROVAL BY VP') && (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL')){
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    } else if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    } else if($row['status']=='WAITING APPROVAL BY COO OR CFO' && (config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER')){
-                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    } else if($row['status']=='REVISED'){
+                    // if(($row['status']=='WAITING APPROVAL BY HOS' || $row['status']=='WAITING APPROVAL BY VP') && (config_item('auth_role') == 'VP FINANCE' || config_item('auth_role') == 'HEAD OF SCHOOL')){
+                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    // } else if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
+                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    // } else if($row['status']=='WAITING APPROVAL BY CFO' || config_item('auth_role') == 'CHIEF OF FINANCE'){
+                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    // } else if($row['status']=='WAITING APPROVAL BY COO' && config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
+                    //     $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    // } else if($row['status']=='REVISED'){
+                    //     $col[] = print_number($no);
+                    // } else {
                         $col[] = print_number($no);
-                    } else {
-                        $col[] = print_number($no);
-                    }
+                    // }
                     
                     // if($row['status']=='REVISED'){
                     //     $col[] = print_number($no);
@@ -159,7 +161,9 @@ class Reimbursement extends MY_Controller
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     } else if($row['status']=='WAITING APPROVAL BY HR MANAGER' && in_array(config_item('auth_username'),list_username_in_head_department(11))){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
-                    } else if($row['status']=='WAITING APPROVAL BY COO OR CFO' && (config_item('auth_role') == 'CHIEF OF FINANCE' || config_item('auth_role') == 'CHIEF OPERATION OFFICER')){
+                    } else if($row['status']=='WAITING APPROVAL BY CFO' && config_item('auth_role') == 'CHIEF OF FINANCE'){
+                        $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
+                    } else if($row['status']=='WAITING APPROVAL BY COO' && config_item('auth_role') == 'CHIEF OPERATION OFFICER'){
                         $col[] = '<input type="checkbox" id="cb_' . $row['id'] . '"  data-id="' . $row['id'] . '" name="" style="display: inline;">';
                     } else if($row['status']=='REVISED'){
                         $col[] = print_number($no);
@@ -249,7 +253,7 @@ class Reimbursement extends MY_Controller
         $this->data['page']['title']            = $this->module['label'];
         $this->data['grid']['column']           = $this->model->getSelectedColumns();
         $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source');
-        $this->data['grid']['fixed_columns']    = 3;
+        $this->data['grid']['fixed_columns']    = 1;
         $this->data['grid']['summary_columns']  = array(7);
         $this->data['grid']['order_columns']    = array();
 
@@ -274,20 +278,19 @@ class Reimbursement extends MY_Controller
         $this->data['page']['title']            = $this->module['label'];
         $this->data['grid']['column']           = $this->model->getSelectedColumns();
         $this->data['grid']['data_source']      = site_url($this->module['route'] .'/index_data_source_approval');
-        $this->data['grid']['fixed_columns']    = 3;
+        $this->data['grid']['fixed_columns']    = 1;
         $this->data['grid']['summary_columns']  = array(7);
-        $this->data['grid']['order_columns']    = array();
 
-        // $this->data['grid']['order_columns']    = array(
+        $this->data['grid']['order_columns']    = array(
 
-        //     0   => array( 0 => 0,  1 => '' ),
-        //     1   => array( 0 => 1,  1 => '' ),
-        //     2   => array( 0 => 2,  1 => '' ),
-        //     3   => array( 0 => 3,  1 => '' ),
-        //     4   => array( 0 => 4,  1 => '' ),
-        //     5   => array( 0 => 5,  1 => '' ),
-        //     6   => array( 0 => 6,  1 => 'desc' ),
-        // );
+            0   => array( 0 => 0,  1 => '' ),
+            1   => array( 0 => 1,  1 => '' ),
+            2   => array( 0 => 2,  1 => '' ),
+            3   => array( 0 => 3,  1 => '' ),
+            4   => array( 0 => 4,  1 => '' ),
+            5   => array( 0 => 5,  1 => '' ),
+            6   => array( 0 => 6,  1 => 'desc' ),
+        );
 
         $this->render_view($this->module['view'] .'/approval/index');
     }
@@ -474,6 +477,14 @@ class Reimbursement extends MY_Controller
         $_SESSION['reimbursement']['account_code'] = $_GET['data'];
     }
 
+    public function set_annual_cost_center_id()
+    {
+        if ($this->input->is_ajax_request() === FALSE)
+            redirect($this->modules['secure']['route'] .'/denied');
+
+        $_SESSION['reimbursement']['annual_cost_center_id'] = $_GET['data'];
+    }
+
     public function set_id_benefit()
     {
         if ($this->input->is_ajax_request() === FALSE)
@@ -541,6 +552,10 @@ class Reimbursement extends MY_Controller
 
             $_SESSION['reimbursement']['items']                     = array();
             $_SESSION['reimbursement']['annual_cost_center_id']     = $annual_cost_center_id;
+            // $_SESSION['reimbursement']['annual_cost_center_id']     = NULL;
+            // $_SESSION['reimbursement']['cost_center_id']     = NULL;
+            // $_SESSION['reimbursement']['cost_center_name']     = NULL;
+            // $_SESSION['reimbursement']['cost_center_code']     = NULL;
             $_SESSION['reimbursement']['cost_center_id']            = $cost_center_id;
             $_SESSION['reimbursement']['cost_center_name']          = $cost_center_name;
             $_SESSION['reimbursement']['cost_center_code']          = $cost_center_code;
@@ -548,14 +563,17 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['format_number']             = reimbursement_format_number();
             $_SESSION['reimbursement']['date']                      = date('Y-m-d');
             $_SESSION['reimbursement']['created_by']                = config_item('auth_person_name');
+            // $_SESSION['reimbursement']['warehouse']                 = NULL;
             $_SESSION['reimbursement']['warehouse']                 = config_item('auth_warehouse');
+
             $_SESSION['reimbursement']['notes']                     = NULL;
             $_SESSION['reimbursement']['employee_number']           = $employee_and_user['employee_number'];
             $_SESSION['reimbursement']['person_name']               = NULL;
             $_SESSION['reimbursement']['department_id']             = $department_id;
+            // $_SESSION['reimbursement']['department_id']             = NULL;
             $_SESSION['reimbursement']['occupation']                = $employee_and_user['position'];
             $_SESSION['reimbursement']['department_name']           = $department_name;
-            // $_SESSION['reimbursement']['department_name']        = NULL;
+            // $_SESSION['reimbursement']['department_name']           = NULL;
             $_SESSION['reimbursement']['head_dept']                 = NULL;
             $_SESSION['reimbursement']['id']                        = NULL;
             $_SESSION['reimbursement']['type']                      = 'Reimbursement';
@@ -565,6 +583,7 @@ class Reimbursement extends MY_Controller
             $_SESSION['reimbursement']['saldo_balance_initial']     = 0;
             $_SESSION['reimbursement']['employee_has_benefit_id']   = NULL;
             $_SESSION['reimbursement']['account_code']   = NULL;
+            // $_SESSION['reimbursement']['cost_center_group_id']   = NULL;
             $_SESSION['reimbursement']['cost_center_group_id']            = $cost_center_group_id;
             $_SESSION['reimbursement']['type_benefit']   = NULL;
             $_SESSION['reimbursement']['last_status']               = NULL;
@@ -674,7 +693,7 @@ class Reimbursement extends MY_Controller
 
 
 
-            $_SESSION['reimbursement']['annual_cost_center_id']     = $annual_cost_center_id;
+            $_SESSION['reimbursement']['annual_cost_center_id']     = $entity['annual_cost_center_id'];
             $_SESSION['reimbursement']['cost_center_id']            = $cost_center_id;
             $_SESSION['reimbursement']['cost_center_name']          = $cost_center_name;
             $_SESSION['reimbursement']['cost_center_code']          = $cost_center_code;
