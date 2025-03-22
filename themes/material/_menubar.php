@@ -36,12 +36,10 @@
         echo $childMenu['label'];
         echo '</span>';
         echo '</a>';
-        echo '</li>';
 
-        // if($childMenu['route'] == 'reimbursement' && $roleUser != 'REIMBURSEMENT'){
-          $roles = explode(',', $module['permission']['index_approval']);
-          $roles = array_map('trim', $roles); // Trim spaces to avoid mismatch issues
-          if($childMenu['route'] == 'reimbursement' && in_array(config_item('auth_role'), $roles)){
+        $roles = explode(',', $childMenu['permission']['index_approval']);
+        $roles = array_map('trim', $roles); // Trim spaces to avoid mismatch issues
+        if ($childMenu['route'] === 'reimbursement' && in_array(config_item('auth_role'), $roles) != '' ) {
           $childMenuApp = ('reimbursement/approval' === ($module['route'].'/approval')) ? 'active' : '';
           echo '<li class="'.$childMenuApp.'">';
           echo '<a href="'.site_url('reimbursement/approval').'">';
@@ -51,6 +49,21 @@
           echo '</a>';
           echo '</li>';
         }
+        echo '</li>';
+
+        // if($childMenu['route'] == 'reimbursement' && $roleUser != 'REIMBURSEMENT'){
+        //   $roles = explode(',', $module['permission']['index_approval']);
+        //   $roles = array_map('trim', $roles); // Trim spaces to avoid mismatch issues
+        //   if(!empty($module['permission']['index_approval'] && $childMenu['parent'] == 'reimbursment')){
+        //   $childMenuApp = ('reimbursement/approval' === ($module['route'].'/approval')) ? 'active' : '';
+        //   echo '<li class="'.$childMenuApp.'">';
+        //   echo '<a href="'.site_url('reimbursement/approval').'">';
+        //   echo '<span class="title">';
+        //   echo 'Reimbursement Approval';
+        //   echo '</span>';
+        //   echo '</a>';
+        //   echo '</li>';
+        // }
       }
 
       echo '</ul>';
